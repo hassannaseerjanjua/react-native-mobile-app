@@ -2,18 +2,17 @@ import React from 'react';
 import { View, Image } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
-import { useColors } from '../../../styles/colors';
-import { styles } from './style';
+import useStyles from './style';
 
 interface LandingProps extends AuthStackScreen<'Landing'> {}
 
 const Landing: React.FC<LandingProps> = ({ navigation }) => {
-  const colors = useColors();
+  const { styles, theme } = useStyles();
 
   return (
     <>
-      <View style={{ flex: 1, backgroundColor: colors.WHITE }}>
-        <View style={styles.container}>
+      <View style={styles.container}>
+        <View style={styles.logoContainer}>
           <Image source={require('../../../assets/images/blueLogo.png')} />
         </View>
 
@@ -27,7 +26,7 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
           <CustomButton
             title="Sign Up"
             type="secondary"
-            color={colors.PRIMARY}
+            color={theme.colors.PRIMARY}
             onPress={() => navigation.navigate('SignUp')}
           />
         </View>

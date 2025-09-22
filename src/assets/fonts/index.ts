@@ -1,15 +1,10 @@
 const fonts = {
-  DmSans: {
-    regular: 'DMSans-Regular',
-    medium: 'DMSans-Medium',
-    bold: 'DMSans-Bold',
-    italic: 'DMSans-Italic',
-    mediumItalic: 'DMSans-MediumItalic',
-    boldItalic: 'DMSans-BoldItalic',
-  },
-  Poppins: {
-    black: 'Poppins-Black',
-    italic: 'Poppins-Italic',
+  Quicksand: {
+    regular: 'Quicksand-Regular',
+    medium: 'Quicksand-Medium',
+    bold: 'Quicksand-Bold',
+    semibold: 'Quicksand-SemiBold',
+    light: 'Quicksand-Light',
   },
 };
 

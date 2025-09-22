@@ -10,16 +10,16 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
       StyleSheet.create({
         TEXT_STYLE: {
           fontSize: sizes.FONTSIZE,
-          color: colors.TEXT,
-          fontFamily: fonts.DmSans.regular,
+          color: colors.PRIMARY_TEXT,
+          fontFamily: fonts.Quicksand.regular,
         },
         TEXT_STYLE_BOLD: {
           fontSize: sizes.FONTSIZE,
-          color: colors.TEXT,
-          fontFamily: fonts.DmSans.bold,
+          color: colors.PRIMARY_TEXT,
+          fontFamily: fonts.Quicksand.bold,
         },
         SHADOW_STYLE: {
-          shadowColor: colors.TEXT,
+          shadowColor: colors.PRIMARY_TEXT,
           shadowOffset: {
             width: 0,
             height: 1,
@@ -27,7 +27,7 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           shadowOpacity: 0.22,
           shadowRadius: 2.22,
           elevation: 3,
-          borderColor: colors.GRAY,
+          borderColor: colors.LIGHT_GRAY,
           borderWidth: Platform.OS == 'android' && colors.isDark ? 0.5 : 0,
         },
       }),

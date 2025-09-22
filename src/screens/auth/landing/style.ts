@@ -1,50 +1,36 @@
 import { StyleSheet } from 'react-native';
+import useTheme from '../../../styles/theme';
+import { useMemo } from 'react';
 
-export const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    padding: 20,
-  },
-  buttonContainer: {
-    gap: 15,
-    flex: 1,
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    paddingBottom: 20,
-  },
-  title: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    marginBottom: 10,
-    color: '#333',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 40,
-    textAlign: 'center',
-  },
-  button: {
-    backgroundColor: '#007AFF',
-    paddingVertical: 15,
-    paddingHorizontal: 30,
-    borderRadius: 8,
-    marginBottom: 15,
-    alignItems: 'center',
-  },
-  secondaryButton: {
-    backgroundColor: 'transparent',
-    borderWidth: 1,
-    borderColor: '#007AFF',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  secondaryButtonText: {
-    color: '#007AFF',
-  },
-});
+const useStyles = () => {
+  const theme = useTheme();
+
+  const styles = useMemo(() => {
+    const { colors, sizes } = theme;
+    return StyleSheet.create({
+      container: {
+        backgroundColor: colors.BACKGROUND,
+        flex: 1,
+        padding: sizes.PADDING,
+      },
+      logoContainer: {
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      buttonContainer: {
+        gap: sizes.PADDING,
+        justifyContent: 'flex-end',
+        alignItems: 'center',
+        paddingBottom: sizes.BOTTOM_PADDING,
+      },
+    });
+  }, [theme]);
+
+  return {
+    theme,
+    styles,
+  };
+};
+
+export default useStyles;

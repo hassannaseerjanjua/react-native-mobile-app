@@ -7,6 +7,7 @@ import {
 } from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
+import { scaleWithMax } from '../../utils';
 
 type Props = {
   error?: boolean;
@@ -24,10 +25,11 @@ const InputField = ({ icon, error, iconColor, style, fieldProps }: Props) => {
         styles.container,
         {
           borderWidth: error ? 1 : 0.5,
-          borderColor: error ? theme.colors.RED : theme.colors.GRAY,
+          borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
         },
         style,
-      ]}>
+      ]}
+    >
       {icon && (
         <Image source={icon} style={[styles.image, { tintColor: iconColor }]} />
       )}
@@ -46,11 +48,12 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         width: '100%',
-        height: 40,
+        height: scaleWithMax(45, 50),
         borderRadius: sizes.BORDER_RADIUS,
         flexDirection: 'row',
         paddingHorizontal: sizes.PADDING,
         alignItems: 'center',
+        backgroundColor: colors.LIGHT_GRAY,
       },
       input: {
         width: sizes.WIDTH * 0.8,

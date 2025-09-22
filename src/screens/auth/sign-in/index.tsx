@@ -9,13 +9,15 @@ import {
 } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
-import { createStyles } from './style';
+import useStyles from './style';
+import InputField from '../../../components/global/InputField';
+import { Formik } from 'formik';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
-  const styles = createStyles();
-  const [activeTab, setActiveTab] = useState<'phone' | 'email'>('phone');
+  const { styles } = useStyles();
+  const [activeTab, setActiveTab] = useState<'Phone' | 'Email'>('Phone');
   const [phoneValue, setPhoneValue] = useState('');
   const [emailValue, setEmailValue] = useState('');
 
@@ -40,60 +42,60 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       </View>
 
       <View style={styles.tabContainer}>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'phone' && styles.activeTab]}
-          onPress={() => setActiveTab('phone')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'phone' && styles.activeTabText,
-            ]}
+        {['Phone', 'Email'].map((item: string) => (
+          <TouchableOpacity
+            style={[styles.tab, activeTab === item && styles.activeTab]}
+            onPress={() => setActiveTab(item as 'Phone' | 'Email')}
           >
-            Phone
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[styles.tab, activeTab === 'email' && styles.activeTab]}
-          onPress={() => setActiveTab('email')}
-        >
-          <Text
-            style={[
-              styles.tabText,
-              activeTab === 'email' && styles.activeTabText,
-            ]}
-          >
-            Email
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={[
+                styles.tabText,
+                activeTab === item && styles.activeTabText,
+              ]}
+            >
+              {item}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
+      <Formik initialValues={{ phone: '', email: '' }} onSubmit={handleSignIn}>
+        {formik => (
+          <View style={styles.formContainer}>
+            {activeTab === 'Phone' ? (
+              <View style={styles.inputContainer}>
+                <InputField
+                  fieldProps={{
+                    placeholder: 'Phone Number',
+                    value: formik.values.phone,
+                    onChangeText: formik.handleChange('phone'),
+                    keyboardType: 'phone-pad',
+                  }}
+                />
+              </View>
+            ) : (
+              <View style={styles.inputContainer}>
+                <InputField
+                  fieldProps={{
+                    placeholder: 'Email Address',
+                    value: formik.values.email,
+                    onChangeText: formik.handleChange('email'),
+                    keyboardType: 'email-address',
+                    autoCapitalize: 'none',
+                  }}
+                />
+              </View>
+            )}
 
-      <View style={styles.formContainer}>
-        {activeTab === 'phone' ? (
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Phone Number"
-              value={phoneValue}
-              onChangeText={setPhoneValue}
-              keyboardType="phone-pad"
-            />
-          </View>
-        ) : (
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.input}
-              placeholder="Email Address"
-              value={emailValue}
-              onChangeText={setEmailValue}
-              keyboardType="email-address"
-              autoCapitalize="none"
+            <CustomButton
+              style={styles.button}
+              title="Sign In"
+              type="primary"
+              onPress={formik.handleSubmit}
             />
           </View>
         )}
+      </Formik>
 
-        <CustomButton title="Sign In" type="primary" onPress={handleSignIn} />
-      </View>
       <Text style={styles.linkContainer}>
         Don't have an account?{' '}
         <Text style={styles.link} onPress={() => navigation.navigate('SignUp')}>

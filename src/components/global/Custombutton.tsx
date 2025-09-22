@@ -8,6 +8,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import { useColors } from '../../styles/colors';
+import useTheme from '../../styles/theme';
 
 interface CustomButtonProps {
   title?: string;
@@ -36,8 +37,9 @@ const CustomButton = ({
   style,
   disabled = false,
 }: CustomButtonProps) => {
+  const theme = useTheme();
   const { width } = useWindowDimensions();
-  const colors = useColors();
+  const colors = theme.colors;
 
   const buttonColor = color || colors.PRIMARY;
   const buttonTextColor = textColor || colors.WHITE;
@@ -64,8 +66,7 @@ const CustomButton = ({
     <TouchableOpacity
       onPress={onPress}
       style={[
-        styles.button,
-        baseStyle,
+        baseStyle as any,
         type === 'primary' ? primaryStyle : secondaryStyle,
         style,
       ]}
@@ -74,6 +75,7 @@ const CustomButton = ({
     >
       <Text
         style={{
+          ...theme.globalStyles.TEXT_STYLE,
           fontSize,
           color: type === 'primary' ? buttonTextColor : buttonColor,
         }}
@@ -85,7 +87,3 @@ const CustomButton = ({
 };
 
 export default CustomButton;
-
-const styles = StyleSheet.create({
-  button: {},
-});
