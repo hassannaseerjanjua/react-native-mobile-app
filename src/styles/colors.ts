@@ -1,35 +1,35 @@
 import { useColorScheme } from 'react-native';
 
 const defaultColors = {
-  PRIMARY: '#fd5701',
-  PRIMARY_TEXT: 'white',
-  SKY_BLUE: '#3db6fc',
-  RED: '#ff1605',
-  GREEN: '#18c900',
-  LIGHT_GRAY100: '#e6e6e6',
-  LIGHT_GRAY200: '#c1c7c2',
+  PRIMARY: '#1C1254',
+  PRIMARY_TEXT: '#313131',
+  SECONDARY: '#DBEDFD',
+  SECONDARY_TEXT: '#A0A0A0',
+  RED: '#FF0000',
   BLACK: 'black',
   WHITE: 'white',
+  GRAY: '#F9F9F9',
+  SECONDARY_GRAY: '#D9D9D9',
 };
 
 const colorsDark = {
   ...defaultColors,
   isDark: true,
-  BACKGROUND: 'black',
-  TEXT: 'white',
-  PRIMARY_BACKGROUND: '#F6F9FE',
-  LIGHT_GRAY: '#5c5e5c',
-  GRAY: 'grey',
+  // BACKGROUND: 'black',
+  // TEXT: 'white',
+  // PRIMARY_BACKGROUND: '#F6F9FE',
+  // LIGHT_GRAY: '#5c5e5c',
+  // GRAY: 'grey',
 };
 
 const colorsLight = {
   ...defaultColors,
   isDark: false,
-  BACKGROUND: 'white',
-  PRIMARY_BACKGROUND: '#F6F9FE',
-  TEXT: 'black',
-  LIGHT_GRAY: '#c1c7c2',
-  GRAY: 'grey',
+  // BACKGROUND: 'white',
+  // PRIMARY_BACKGROUND: '#F6F9FE',
+  // TEXT: 'black',
+  // LIGHT_GRAY: '#c1c7c2',
+  // GRAY: 'grey',
 };
 
 export type Colors = typeof colorsDark;

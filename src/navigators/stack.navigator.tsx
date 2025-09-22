@@ -5,20 +5,24 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import Home from '../screens/app/home/index.tsx';
 import { AppStackParamList } from '../types/navigation.types.ts';
 
-const Stack = createNativeStackNavigator<AppStackParamList>();
+// Navigators
+import AuthStackNavigator from './auth.navigator';
 
-const AppStack = () => {
+const AppStack = createNativeStackNavigator<AppStackParamList>();
+
+const AppStackNavigator = () => {
   return (
-    <Stack.Navigator
+    <AppStack.Navigator
       initialRouteName="Home"
-      screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Home" component={Home} />
-    </Stack.Navigator>
+      screenOptions={{ headerShown: false }}
+    >
+      <AppStack.Screen name="Home" component={Home} />
+    </AppStack.Navigator>
   );
 };
 
 const RootNavigator = ({}) => {
-  return <AppStack />;
+  return <AuthStackNavigator />;
 };
 
 export default RootNavigator;
