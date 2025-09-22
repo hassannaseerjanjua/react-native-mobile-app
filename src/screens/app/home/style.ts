@@ -7,10 +7,12 @@ const useStyles = () => {
 
   const styles = useMemo(() => {
     const { colors, globalStyles, sizes } = theme;
+
     return StyleSheet.create({
       container: {
         flex: 1,
         backgroundColor: colors.BACKGROUND,
+        padding: sizes.PADDING,
       },
       contStyle: {
         marginTop: sizes.HEIGHT * 0.04,
