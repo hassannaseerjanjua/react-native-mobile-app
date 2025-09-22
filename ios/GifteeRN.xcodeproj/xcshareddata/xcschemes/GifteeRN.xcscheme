@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-               BuildableName = "placeholderapp.app"
-               BlueprintName = "placeholderapp"
-               ReferencedContainer = "container:placeholderapp.xcodeproj">
+               BuildableName = "GifteeRN.app"
+               BlueprintName = "GifteeRN"
+               ReferencedContainer = "container:GifteeRN.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "00E356ED1AD99517003FC87E"
-               BuildableName = "placeholderappTests.xctest"
-               BlueprintName = "placeholderappTests"
-               ReferencedContainer = "container:placeholderapp.xcodeproj">
+               BuildableName = "GifteeRNTests.xctest"
+               BlueprintName = "GifteeRNTests"
+               ReferencedContainer = "container:GifteeRN.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -55,9 +55,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "placeholderapp.app"
-            BlueprintName = "placeholderapp"
-            ReferencedContainer = "container:placeholderapp.xcodeproj">
+            BuildableName = "GifteeRN.app"
+            BlueprintName = "GifteeRN"
+            ReferencedContainer = "container:GifteeRN.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -72,9 +72,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "13B07F861A680F5B00A75B9A"
-            BuildableName = "placeholderapp.app"
-            BlueprintName = "placeholderapp"
-            ReferencedContainer = "container:placeholderapp.xcodeproj">
+            BuildableName = "GifteeRN.app"
+            BlueprintName = "GifteeRN"
+            ReferencedContainer = "container:GifteeRN.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>
