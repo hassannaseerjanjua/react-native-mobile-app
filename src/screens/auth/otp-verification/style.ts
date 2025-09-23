@@ -20,7 +20,6 @@ const useStyles = () => {
       contentContainer: {
         flexGrow: 1,
         paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 10,
-        justifyContent: 'space-between',
       },
       logoContainer: {
         alignItems: 'center',
@@ -31,65 +30,77 @@ const useStyles = () => {
         height: scaleWithMax(100, 120),
         resizeMode: 'contain',
       },
+      mainContent: {
+        flex: 1,
+      },
       headerContainer: {
         marginBottom: 30,
+        alignItems: 'center',
       },
       title: {
+        fontSize: 18,
+        color: colors.PRIMARY_TEXT,
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+        textAlign: 'center',
+        lineHeight: 24,
+      },
+      otpContainer: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginBottom: 30,
+        gap: 12,
+      },
+      otpBox: {
+        width: 50,
+        height: 50,
+        borderWidth: 1,
+        borderColor: '#EEEEEE',
+        borderRadius: 8,
+        backgroundColor: colors.BACKGROUND,
+      },
+      otpInput: {
         fontSize: 20,
         fontWeight: 'bold',
         color: colors.PRIMARY_TEXT,
         fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
-        marginBottom: 10,
+        width: 50,
+        height: 50,
+        textAlign: 'center',
+        textAlignVertical: 'center',
+        borderRadius: 8,
+        padding: 0,
+        margin: 0,
+      },
+      otpText: {
+        fontSize: 20,
+        fontWeight: 'bold',
+        color: colors.PRIMARY_TEXT,
+        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
+      },
+      subtitleContainer: {
+        alignItems: 'center',
+        marginTop: 30,
       },
       subtitle: {
-        fontSize: 18,
-        color: colors.PRIMARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
-      },
-      tabContainer: {
-        flexDirection: 'row',
-        marginBottom: 25,
-        padding: 4,
-        gap: 5,
-      },
-      tab: {
-        flex: 1,
-        paddingVertical: 16,
-        alignItems: 'center',
-        borderRadius: 12,
-        backgroundColor: colors.LIGHT_GRAY,
-      },
-      activeTab: {
-        backgroundColor: colors.SECONDARY,
-        shadowColor: colors.BLACK,
-      },
-      tabText: {
-        fontSize: 14,
+        fontSize: 16,
         color: colors.SECONDARY_TEXT,
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+        marginBottom: 8,
       },
-      activeTabText: {
-        color: colors.PRIMARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
-      },
-      formContainer: {
-        flex: 1,
-      },
-      inputContainer: {
-        marginBottom: 20,
-      },
-      button: {
-        marginTop: sizes.HEIGHT * 0.05,
-      },
-      linkContainer: {
-        textAlign: 'center',
-        color: colors.SECONDARY_TEXT,
-      },
-      link: {
+      timerText: {
+        fontSize: 16,
         color: colors.PRIMARY,
-        textDecorationLine: 'underline',
-        fontSize: 15,
         fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
+      },
+      resendText: {
+        fontSize: 16,
+        color: colors.PRIMARY,
+        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
+        textDecorationLine: 'underline',
+      },
+      buttonContainer: {
+        marginTop: sizes.HEIGHT * 0.05,
+        alignItems: 'center',
       },
     });
   }, [theme]);

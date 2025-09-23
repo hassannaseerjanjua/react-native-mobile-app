@@ -33,7 +33,13 @@ const InputField = ({ icon, error, iconColor, style, fieldProps }: Props) => {
       {icon && (
         <Image source={icon} style={[styles.image, { tintColor: iconColor }]} />
       )}
-      <TextInput {...fieldProps} />
+      <TextInput
+        {...fieldProps}
+        style={[styles.input, fieldProps.style]}
+        placeholderTextColor={theme.colors.SECONDARY_TEXT}
+        selectionColor={theme.colors.PRIMARY}
+        underlineColorAndroid="transparent"
+      />
     </View>
   );
 };
@@ -56,8 +62,13 @@ const useStyles = () => {
         backgroundColor: colors.LIGHT_GRAY,
       },
       input: {
-        width: sizes.WIDTH * 0.8,
-        ...globalStyles.TEXT_STYLE,
+        flex: 1,
+        height: '100%',
+        fontSize: 16,
+        color: colors.PRIMARY_TEXT,
+        fontFamily: globalStyles.TEXT_STYLE.fontFamily,
+        paddingVertical: 0,
+        paddingHorizontal: 0,
       },
       image: {
         width: sizes.ICON * 0.5,

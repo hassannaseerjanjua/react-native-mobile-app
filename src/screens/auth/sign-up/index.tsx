@@ -4,6 +4,7 @@ import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style';
 import InputField from '../../../components/global/InputField';
+import Header from '../../../components/global/Header';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
@@ -37,6 +38,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const handleSignUp = () => {
     console.log('Sign up data:', formData);
     // Handle final sign up logic here
+    navigation.navigate('OtpVerification');
   };
 
   const updateFormData = (field: string, value: string) => {
@@ -47,14 +49,14 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     switch (currentStep) {
       case 1:
         return (
-          formData.fullName.trim() !== '' &&
-          formData.username.trim() !== '' &&
-          formData.email.trim() !== ''
+          formData.fullName.trim() !== '' && formData.username.trim() !== ''
         );
       case 2:
         return formData.city.trim() !== '';
       case 3:
-        return formData.phoneNumber.trim() !== '';
+        return (
+          formData.phoneNumber.trim() !== '' && formData.email.trim() !== ''
+        );
       default:
         return false;
     }
@@ -77,7 +79,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
       case 3:
         return (
           <View style={styles.headerContainer}>
-            <Text style={styles.title}>Phone Number</Text>
+            <Text style={styles.title}>Phone Number & Email</Text>
           </View>
         );
       default:
@@ -91,7 +93,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         <Text style={styles.progressSubtitle}>
           {currentStep === 1 && 'Personal Information'}
           {currentStep === 2 && 'City'}
-          {currentStep === 3 && 'Personal Information'}
+          {currentStep === 3 && 'Contact Information'}
         </Text>
         <Text style={styles.progressText}>Step {currentStep} of 3</Text>
       </View>
@@ -132,17 +134,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                 }}
               />
             </View>
-            <View style={styles.inputContainer}>
-              <InputField
-                fieldProps={{
-                  placeholder: 'Email',
-                  value: formData.email,
-                  onChangeText: value => updateFormData('email', value),
-                  keyboardType: 'email-address',
-                  autoCapitalize: 'none',
-                }}
-              />
-            </View>
           </View>
         );
 
@@ -175,6 +166,17 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                 }}
               />
             </View>
+            <View style={styles.inputContainer}>
+              <InputField
+                fieldProps={{
+                  placeholder: 'Email',
+                  value: formData.email,
+                  onChangeText: value => updateFormData('email', value),
+                  keyboardType: 'email-address',
+                  autoCapitalize: 'none',
+                }}
+              />
+            </View>
           </View>
         );
 
@@ -184,35 +186,37 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   };
 
   return (
-    <ScrollView
-      style={styles.container}
-      contentContainerStyle={styles.contentContainer}
-    >
-      <View style={styles.logoContainer}>
-        <Image source={require('../../../assets/images/blueLogo.png')} />
-      </View>
-
-      {renderHeading()}
-      {renderProgressBar()}
-      {renderStepContent()}
-
-      <View style={styles.buttonContainer}>
-        {currentStep > 1 && (
-          <CustomButton
-            title="Back"
-            type="secondary"
-            onPress={handleBack}
-            buttonStyle={styles.backButton}
+    <View style={styles.container}>
+      <Header onBackPress={currentStep > 1 ? handleBack : undefined} />
+      <ScrollView
+        style={styles.scrollContainer}
+        contentContainerStyle={styles.contentContainer}
+      >
+        <View style={styles.logoContainer}>
+          <Image
+            source={require('../../../assets/images/blueLogo.png')}
+            style={styles.logo}
           />
-        )}
-        <CustomButton
-          title={currentStep === 3 ? 'Complete Sign Up' : 'Next'}
-          type="primary"
-          onPress={handleNext}
-          disabled={!isStepValid()}
-        />
-      </View>
-    </ScrollView>
+        </View>
+
+        <View style={styles.mainContent}>
+          <View style={styles.contentSection}>
+            {renderHeading()}
+            {renderProgressBar()}
+            {renderStepContent()}
+          </View>
+
+          <View style={styles.buttonContainer}>
+            <CustomButton
+              title={currentStep === 3 ? 'Complete Sign Up' : 'Next'}
+              type="primary"
+              onPress={handleNext}
+              disabled={!isStepValid()}
+            />
+          </View>
+        </View>
+      </ScrollView>
+    </View>
   );
 };
 

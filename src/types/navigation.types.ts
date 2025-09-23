@@ -8,6 +8,7 @@ export type AuthStackParamList = {
   Landing: undefined;
   SignIn: undefined;
   SignUp: undefined;
+  OtpVerification: undefined;
 };
 
 export type AppStackScreen<T extends keyof AppStackParamList> =

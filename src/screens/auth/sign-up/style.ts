@@ -13,62 +13,45 @@ const useStyles = () => {
       container: {
         backgroundColor: colors.BACKGROUND,
         flex: 1,
+      },
+      scrollContainer: {
+        flex: 1,
         padding: sizes.PADDING,
       },
       contentContainer: {
         flexGrow: 1,
         paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 10,
-        justifyContent: 'center',
       },
       logoContainer: {
         alignItems: 'center',
-        marginBottom: 20,
+        paddingTop: 40,
       },
       logo: {
         width: scaleWithMax(100, 120),
         height: scaleWithMax(100, 120),
         resizeMode: 'contain',
       },
+      mainContent: {
+        flex: 1,
+        // backgroundColor: 'blue',
+      },
+      contentSection: {
+        // minHeight: 100,
+      },
       headerContainer: {
-        marginBottom: 0,
+        marginBottom: 10,
       },
       title: {
         fontSize: 20,
         color: colors.PRIMARY_TEXT,
         fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
-        marginTop: 20,
       },
       subtitle: {
         fontSize: 18,
         color: colors.PRIMARY_TEXT,
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },
-      tabContainer: {
-        flexDirection: 'row',
-        marginBottom: 25,
-        padding: 4,
-        gap: 5,
-      },
-      tab: {
-        flex: 1,
-        paddingVertical: 12,
-        alignItems: 'center',
-        borderRadius: 12,
-        backgroundColor: colors.LIGHT_GRAY,
-      },
-      activeTab: {
-        backgroundColor: colors.SECONDARY,
-        shadowColor: colors.BLACK,
-      },
-      tabText: {
-        fontSize: 14,
-        color: colors.SECONDARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
-      },
-      activeTabText: {
-        color: colors.PRIMARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
-      },
+
       formContainer: {
         marginVertical: 20,
       },
@@ -99,7 +82,6 @@ const useStyles = () => {
         fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
       },
       progressContainer: {
-        marginTop: 10,
         marginBottom: 20,
       },
       progressHeader: {
@@ -131,11 +113,8 @@ const useStyles = () => {
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },
       buttonContainer: {
-        gap: 12,
-        marginTop: 20,
-      },
-      backButton: {
-        marginBottom: 10,
+        // marginTop: 20,
+        alignItems: 'center',
       },
     });
   }, [theme]);
