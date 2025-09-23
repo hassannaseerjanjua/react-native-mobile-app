@@ -18,8 +18,6 @@ interface SignInProps extends AuthStackScreen<'SignIn'> {}
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const { styles } = useStyles();
   const [activeTab, setActiveTab] = useState<'Phone' | 'Email'>('Phone');
-  const [phoneValue, setPhoneValue] = useState('');
-  const [emailValue, setEmailValue] = useState('');
 
   const handleSignIn = () => {
     console.log('Sign in pressed');
@@ -87,7 +85,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             )}
 
             <CustomButton
-              style={styles.button}
+              buttonStyle={styles.button}
               title="Sign In"
               type="primary"
               onPress={formik.handleSubmit}

@@ -26,7 +26,8 @@ const AlertComponent: React.FC<AlertProps> = ({
       animationType="fade"
       onRequestClose={onCancelPress}
       transparent={true}
-      visible={visible}>
+      visible={visible}
+    >
       <View style={styles.centeredView}>
         <View style={styles.lModalView}>
           <Text style={styles.titleText}>{title}</Text>
@@ -36,7 +37,8 @@ const AlertComponent: React.FC<AlertProps> = ({
               <TouchableOpacity
                 activeOpacity={0.6}
                 onPress={onCancelPress}
-                style={styles.cancelBox}>
+                style={styles.cancelBox}
+              >
                 <Text style={styles.cancelText}>{cancelText}</Text>
               </TouchableOpacity>
             )}
@@ -44,7 +46,8 @@ const AlertComponent: React.FC<AlertProps> = ({
               <TouchableOpacity
                 activeOpacity={0.6}
                 onPress={onOkPress}
-                style={styles.okBox}>
+                style={styles.okBox}
+              >
                 <Text style={styles.okText}>{okText}</Text>
               </TouchableOpacity>
             )}
@@ -80,14 +83,14 @@ const useStyles = () => {
       },
       msgText: {
         fontSize: sizes.WIDTH * 0.03,
-        color: colors.TEXT,
+        color: colors.PRIMARY_TEXT,
         textAlign: 'center',
         marginBottom: sizes.PADDING,
       },
       titleText: {
         ...globalStyles.TEXT_STYLE_BOLD,
         fontSize: sizes.WIDTH * 0.04,
-        color: colors.TEXT,
+        color: colors.PRIMARY_TEXT,
         textAlign: 'center',
       },
       okBox: {
@@ -120,6 +123,7 @@ const useStyles = () => {
       cancelText: {
         fontSize: sizes.WIDTH * 0.03,
         color: colors.RED,
+        fontFamily: globalStyles.TEXT_STYLE.fontFamily,
       },
       buttonContainer: {
         flexDirection: 'row',

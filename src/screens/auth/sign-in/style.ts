@@ -1,37 +1,32 @@
 import { StyleSheet } from 'react-native';
-import { useColors } from '../../../styles/colors';
 import useTheme from '../../../styles/theme';
 import { useMemo } from 'react';
-import { isIOS } from '../../../utils';
+import { isIOS, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
+
   const styles = useMemo(() => {
-    const { colors, sizes, globalStyles } = theme;
+    const { colors, sizes } = theme;
     return StyleSheet.create({
       container: {
-        flex: 1,
         backgroundColor: colors.BACKGROUND,
+        flex: 1,
+        padding: sizes.PADDING,
       },
       contentContainer: {
         flexGrow: 1,
-        padding: sizes.PADDING,
-        paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 0,
+        paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 10,
         justifyContent: 'space-between',
-      },
-      button: {
-        marginTop: theme.sizes.HEIGHT * 0.05,
       },
       logoContainer: {
         alignItems: 'center',
-        // backgroundColor: colors.RED,
         paddingTop: 40,
-        // marginBottom: 40, // ✅ adds spacing between logo and fields
       },
       logo: {
-        width: 150,
-        height: 150,
-        resizeMode: 'contain', // ✅ keep proportions
+        width: scaleWithMax(150, 160),
+        height: scaleWithMax(150, 160),
+        resizeMode: 'contain',
       },
       headerContainer: {
         marginBottom: 30,
@@ -40,23 +35,23 @@ const useStyles = () => {
         fontSize: 20,
         fontWeight: 'bold',
         color: colors.PRIMARY_TEXT,
+        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
         marginBottom: 10,
       },
       subtitle: {
         fontSize: 18,
         color: colors.PRIMARY_TEXT,
-        // textAlign: 'center',
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },
       tabContainer: {
         flexDirection: 'row',
-        // backgroundColor: colors.RED,
         marginBottom: 25,
         padding: 4,
         gap: 5,
       },
       tab: {
         flex: 1,
-        paddingVertical: 12,
+        paddingVertical: 16,
         alignItems: 'center',
         borderRadius: 12,
         backgroundColor: colors.LIGHT_GRAY,
@@ -68,11 +63,11 @@ const useStyles = () => {
       tabText: {
         fontSize: 14,
         color: colors.SECONDARY_TEXT,
-        fontWeight: '500',
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },
       activeTabText: {
         color: colors.PRIMARY_TEXT,
-        fontWeight: '500',
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },
       formContainer: {
         flex: 1,
@@ -80,19 +75,8 @@ const useStyles = () => {
       inputContainer: {
         marginBottom: 20,
       },
-      inputLabel: {
-        fontSize: 16,
-        fontWeight: '500',
-        color: colors.PRIMARY_TEXT,
-        marginBottom: 8,
-      },
-      input: {
-        borderWidth: 1,
-        borderColor: colors.LIGHT_GRAY,
-        borderRadius: 8,
-        padding: 15,
-        fontSize: 16,
-        backgroundColor: colors.LIGHT_GRAY,
+      button: {
+        marginTop: sizes.HEIGHT * 0.05,
       },
       linkContainer: {
         textAlign: 'center',
@@ -102,14 +86,14 @@ const useStyles = () => {
         color: colors.PRIMARY,
         textDecorationLine: 'underline',
         fontSize: 15,
-        fontWeight: '600',
+        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
       },
     });
   }, [theme]);
 
   return {
-    styles,
     theme,
+    styles,
   };
 };
 

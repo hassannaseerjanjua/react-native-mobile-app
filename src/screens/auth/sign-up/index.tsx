@@ -2,13 +2,13 @@ import React, { useState } from 'react';
 import { View, Text, ScrollView, Image, TextInput } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
-import { createStyles } from './style';
+import useStyles from './style';
 import InputField from '../../../components/global/InputField';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
-  const styles = createStyles();
+  const { styles } = useStyles();
   const [currentStep, setCurrentStep] = useState(1);
 
   // Form data
@@ -119,7 +119,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                   onChangeText: value => updateFormData('fullName', value),
                   autoCapitalize: 'words',
                 }}
-                style={styles.input}
               />
             </View>
 
@@ -131,7 +130,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                   onChangeText: value => updateFormData('username', value),
                   autoCapitalize: 'none',
                 }}
-                style={styles.input}
               />
             </View>
             <View style={styles.inputContainer}>
@@ -143,7 +141,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                   keyboardType: 'email-address',
                   autoCapitalize: 'none',
                 }}
-                style={styles.input}
               />
             </View>
           </View>
@@ -160,7 +157,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                   onChangeText: value => updateFormData('city', value),
                   autoCapitalize: 'words',
                 }}
-                style={styles.input}
               />
             </View>
           </View>
@@ -177,7 +173,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                   onChangeText: value => updateFormData('phoneNumber', value),
                   keyboardType: 'phone-pad',
                 }}
-                style={styles.input}
               />
             </View>
           </View>
@@ -207,7 +202,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             title="Back"
             type="secondary"
             onPress={handleBack}
-            style={styles.backButton}
+            buttonStyle={styles.backButton}
           />
         )}
         <CustomButton

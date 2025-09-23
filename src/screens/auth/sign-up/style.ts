@@ -1,131 +1,149 @@
 import { StyleSheet } from 'react-native';
-import { useColors } from '../../../styles/colors';
+import useTheme from '../../../styles/theme';
+import { useMemo } from 'react';
+import { isIOS, scaleWithMax } from '../../../utils';
 
-export const createStyles = () => {
-  const colors = useColors();
+const useStyles = () => {
+  const theme = useTheme();
 
-  return StyleSheet.create({
-    container: {
-      flex: 1,
-    },
-    contentContainer: {
-      flexGrow: 1,
-      padding: 20,
-      justifyContent: 'center',
-    },
-    logoContainer: {
-      alignItems: 'center',
-      marginBottom: 20,
-    },
-    logo: {
-      width: 100,
-      height: 100,
-    },
-    headerContainer: {
-      marginBottom: 0,
-    },
-    title: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: colors.PRIMARY_TEXT,
-      marginTop: 20,
-    },
-    subtitle: {
-      fontSize: 18,
-      color: colors.PRIMARY_TEXT,
-    },
-    tabContainer: {
-      flexDirection: 'row',
-      marginBottom: 25,
-      padding: 4,
-      gap: 5,
-    },
-    tab: {
-      flex: 1,
-      paddingVertical: 12,
-      alignItems: 'center',
-      borderRadius: 12,
-      backgroundColor: colors.LIGHT_GRAY,
-    },
-    activeTab: {
-      backgroundColor: colors.SECONDARY,
-      shadowColor: colors.BLACK,
-    },
-    tabText: {
-      fontSize: 14,
-      color: colors.SECONDARY_TEXT,
-      fontWeight: '500',
-    },
-    activeTabText: {
-      color: colors.PRIMARY_TEXT,
-      fontWeight: '500',
-    },
-    formContainer: {
-      marginVertical: 20,
-    },
-    inputContainer: {
-      marginBottom: 20,
-    },
-    inputLabel: {
-      fontSize: 16,
-      fontWeight: '500',
-      color: colors.PRIMARY_TEXT,
-      marginBottom: 8,
-    },
-    input: {
-      borderRadius: 8,
-      padding: 15,
-      fontSize: 16,
-      backgroundColor: colors.LIGHT_GRAY,
-    },
-    linkContainer: {
-      textAlign: 'center',
-      color: colors.SECONDARY_TEXT,
-    },
-    link: {
-      color: colors.PRIMARY,
-      textDecorationLine: 'underline',
-      fontSize: 15,
-      fontWeight: '600',
-    },
-    progressContainer: {
-      marginTop: 10,
-      marginBottom: 20,
-    },
-    progressHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 8,
-    },
-    progressSubtitle: {
-      fontSize: 14,
-      color: colors.BLACK,
-      fontWeight: '400',
-    },
-    progressBar: {
-      width: '100%',
-      height: 10,
-      backgroundColor: colors.SECONDARY_GRAY,
-      borderRadius: 9,
-      overflow: 'hidden',
-    },
-    progressFill: {
-      height: '100%',
-      backgroundColor: colors.PRIMARY,
-      borderRadius: 2,
-    },
-    progressText: {
-      fontSize: 14,
-      color: colors.SECONDARY_TEXT,
-      fontWeight: '500',
-    },
-    buttonContainer: {
-      gap: 12,
-      marginTop: 20,
-    },
-    backButton: {
-      marginBottom: 10,
-    },
-  });
+  const styles = useMemo(() => {
+    const { colors, sizes } = theme;
+
+    return StyleSheet.create({
+      container: {
+        backgroundColor: colors.BACKGROUND,
+        flex: 1,
+        padding: sizes.PADDING,
+      },
+      contentContainer: {
+        flexGrow: 1,
+        paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 10,
+        justifyContent: 'center',
+      },
+      logoContainer: {
+        alignItems: 'center',
+        marginBottom: 20,
+      },
+      logo: {
+        width: scaleWithMax(100, 120),
+        height: scaleWithMax(100, 120),
+        resizeMode: 'contain',
+      },
+      headerContainer: {
+        marginBottom: 0,
+      },
+      title: {
+        fontSize: 20,
+        color: colors.PRIMARY_TEXT,
+        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
+        marginTop: 20,
+      },
+      subtitle: {
+        fontSize: 18,
+        color: colors.PRIMARY_TEXT,
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+      },
+      tabContainer: {
+        flexDirection: 'row',
+        marginBottom: 25,
+        padding: 4,
+        gap: 5,
+      },
+      tab: {
+        flex: 1,
+        paddingVertical: 12,
+        alignItems: 'center',
+        borderRadius: 12,
+        backgroundColor: colors.LIGHT_GRAY,
+      },
+      activeTab: {
+        backgroundColor: colors.SECONDARY,
+        shadowColor: colors.BLACK,
+      },
+      tabText: {
+        fontSize: 14,
+        color: colors.SECONDARY_TEXT,
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+      },
+      activeTabText: {
+        color: colors.PRIMARY_TEXT,
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+      },
+      formContainer: {
+        marginVertical: 20,
+      },
+      inputContainer: {
+        marginBottom: 20,
+      },
+      inputLabel: {
+        fontSize: 16,
+        color: colors.PRIMARY_TEXT,
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+        marginBottom: 8,
+      },
+      input: {
+        borderRadius: 8,
+        padding: 15,
+        fontSize: 16,
+        backgroundColor: colors.LIGHT_GRAY,
+        color: colors.RED,
+      },
+      linkContainer: {
+        textAlign: 'center',
+        color: colors.SECONDARY_TEXT,
+      },
+      link: {
+        color: colors.PRIMARY,
+        textDecorationLine: 'underline',
+        fontSize: 15,
+        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
+      },
+      progressContainer: {
+        marginTop: 10,
+        marginBottom: 20,
+      },
+      progressHeader: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: 8,
+      },
+      progressSubtitle: {
+        fontSize: 14,
+        color: colors.BLACK,
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+      },
+      progressBar: {
+        width: '100%',
+        height: 10,
+        backgroundColor: colors.SECONDARY_GRAY,
+        borderRadius: 9,
+        overflow: 'hidden',
+      },
+      progressFill: {
+        height: '100%',
+        backgroundColor: colors.PRIMARY,
+        borderRadius: 2,
+      },
+      progressText: {
+        fontSize: 14,
+        color: colors.SECONDARY_TEXT,
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+      },
+      buttonContainer: {
+        gap: 12,
+        marginTop: 20,
+      },
+      backButton: {
+        marginBottom: 10,
+      },
+    });
+  }, [theme]);
+
+  return {
+    theme,
+    styles,
+  };
 };
+
+export default useStyles;
