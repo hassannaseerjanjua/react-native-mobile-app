@@ -33,11 +33,9 @@ export const createStyles = () => {
     subtitle: {
       fontSize: 18,
       color: colors.PRIMARY_TEXT,
-      // textAlign: 'center',
     },
     tabContainer: {
       flexDirection: 'row',
-      // backgroundColor: colors.RED,
       marginBottom: 25,
       padding: 4,
       gap: 5,
@@ -47,7 +45,7 @@ export const createStyles = () => {
       paddingVertical: 12,
       alignItems: 'center',
       borderRadius: 12,
-      backgroundColor: colors.GRAY,
+      backgroundColor: colors.LIGHT_GRAY,
     },
     activeTab: {
       backgroundColor: colors.SECONDARY,
@@ -75,12 +73,10 @@ export const createStyles = () => {
       marginBottom: 8,
     },
     input: {
-      borderWidth: 1,
-      borderColor: colors.GRAY,
       borderRadius: 8,
       padding: 15,
       fontSize: 16,
-      backgroundColor: colors.GRAY,
+      backgroundColor: colors.LIGHT_GRAY,
     },
     linkContainer: {
       textAlign: 'center',
@@ -92,7 +88,6 @@ export const createStyles = () => {
       fontSize: 15,
       fontWeight: '600',
     },
-    // Progress Bar Styles
     progressContainer: {
       marginTop: 10,
       marginBottom: 20,
@@ -125,7 +120,6 @@ export const createStyles = () => {
       color: colors.SECONDARY_TEXT,
       fontWeight: '500',
     },
-    // Button Container
     buttonContainer: {
       gap: 12,
       marginTop: 20,

@@ -14,6 +14,7 @@ const getSizes = (width: number, height: number) => ({
   BORDER_RADIUS_HIGH: 15,
 
   // Fonts
+  FONTSIZE_BUTTON: 15,
   FONTSIZE: 14,
   FONTSIZE_HIGH: 18,
   FONTSIZE_SMALL: 10,

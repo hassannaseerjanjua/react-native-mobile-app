@@ -3,6 +3,7 @@ import { View, Text, ScrollView, Image, TextInput } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import { createStyles } from './style';
+import InputField from '../../../components/global/InputField';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
@@ -16,6 +17,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     username: '',
     city: '',
     phoneNumber: '',
+    email: '',
   });
 
   const handleNext = () => {
@@ -45,7 +47,9 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     switch (currentStep) {
       case 1:
         return (
-          formData.fullName.trim() !== '' && formData.username.trim() !== ''
+          formData.fullName.trim() !== '' &&
+          formData.username.trim() !== '' &&
+          formData.email.trim() !== ''
         );
       case 2:
         return formData.city.trim() !== '';
@@ -108,22 +112,38 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         return (
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <TextInput
+              <InputField
+                fieldProps={{
+                  placeholder: 'Full Name',
+                  value: formData.fullName,
+                  onChangeText: value => updateFormData('fullName', value),
+                  autoCapitalize: 'words',
+                }}
                 style={styles.input}
-                placeholder="Full Name"
-                value={formData.fullName}
-                onChangeText={value => updateFormData('fullName', value)}
-                autoCapitalize="words"
               />
             </View>
 
             <View style={styles.inputContainer}>
-              <TextInput
+              <InputField
+                fieldProps={{
+                  placeholder: 'Username',
+                  value: formData.username,
+                  onChangeText: value => updateFormData('username', value),
+                  autoCapitalize: 'none',
+                }}
                 style={styles.input}
-                placeholder="Username"
-                value={formData.username}
-                onChangeText={value => updateFormData('username', value)}
-                autoCapitalize="none"
+              />
+            </View>
+            <View style={styles.inputContainer}>
+              <InputField
+                fieldProps={{
+                  placeholder: 'Email',
+                  value: formData.email,
+                  onChangeText: value => updateFormData('email', value),
+                  keyboardType: 'email-address',
+                  autoCapitalize: 'none',
+                }}
+                style={styles.input}
               />
             </View>
           </View>
@@ -133,12 +153,14 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         return (
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <TextInput
+              <InputField
+                fieldProps={{
+                  placeholder: 'City',
+                  value: formData.city,
+                  onChangeText: value => updateFormData('city', value),
+                  autoCapitalize: 'words',
+                }}
                 style={styles.input}
-                placeholder="City"
-                value={formData.city}
-                onChangeText={value => updateFormData('city', value)}
-                autoCapitalize="words"
               />
             </View>
           </View>
@@ -148,12 +170,14 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         return (
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
-              <TextInput
+              <InputField
+                fieldProps={{
+                  placeholder: 'Phone Number',
+                  value: formData.phoneNumber,
+                  onChangeText: value => updateFormData('phoneNumber', value),
+                  keyboardType: 'phone-pad',
+                }}
                 style={styles.input}
-                placeholder="Phone Number"
-                value={formData.phoneNumber}
-                onChangeText={value => updateFormData('phoneNumber', value)}
-                keyboardType="phone-pad"
               />
             </View>
           </View>

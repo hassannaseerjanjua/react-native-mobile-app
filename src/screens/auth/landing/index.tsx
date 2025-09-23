@@ -13,7 +13,10 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
     <>
       <View style={styles.container}>
         <View style={styles.logoContainer}>
-          <Image source={require('../../../assets/images/blueLogo.png')} />
+          <Image
+            source={require('../../../assets/images/blueLogo.png')}
+            style={styles.logo}
+          />
         </View>
 
         <View style={styles.buttonContainer}>
@@ -26,7 +29,6 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
           <CustomButton
             title="Sign Up"
             type="secondary"
-            color={theme.colors.PRIMARY}
             onPress={() => navigation.navigate('SignUp')}
           />
         </View>

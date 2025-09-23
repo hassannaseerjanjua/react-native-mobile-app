@@ -2,6 +2,7 @@ import { StyleSheet } from 'react-native';
 import { useColors } from '../../../styles/colors';
 import useTheme from '../../../styles/theme';
 import { useMemo } from 'react';
+import { isIOS } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -15,7 +16,7 @@ const useStyles = () => {
       contentContainer: {
         flexGrow: 1,
         padding: sizes.PADDING,
-        paddingBottom: sizes.BOTTOM_PADDING,
+        paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 0,
         justifyContent: 'space-between',
       },
       button: {

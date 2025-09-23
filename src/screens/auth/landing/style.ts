@@ -1,6 +1,7 @@
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
 import { useMemo } from 'react';
+import { isIOS, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -18,11 +19,16 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'center',
       },
+      logo: {
+        width: scaleWithMax(146, 160),
+        height: scaleWithMax(56, 60),
+        resizeMode: 'contain',
+      },
       buttonContainer: {
         gap: sizes.PADDING,
         justifyContent: 'flex-end',
         alignItems: 'center',
-        paddingBottom: sizes.BOTTOM_PADDING,
+        paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 10,
       },
     });
   }, [theme]);
