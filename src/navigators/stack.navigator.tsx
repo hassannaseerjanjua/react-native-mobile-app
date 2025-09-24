@@ -1,14 +1,20 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store/store';
 
 //Screens
 import Home from '../screens/app/home/index.tsx';
-import { AppStackParamList } from '../types/navigation.types.ts';
+import {
+  AppStackParamList,
+  RootStackParamList,
+} from '../types/navigation.types.ts';
 
 // Navigators
 import AuthStackNavigator from './auth.navigator';
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 const AppStackNavigator = () => {
   return (
@@ -21,8 +27,20 @@ const AppStackNavigator = () => {
   );
 };
 
-const RootNavigator = ({}) => {
-  return <AuthStackNavigator />;
+const RootNavigator = () => {
+  const isAuthenticated = useSelector(
+    (state: RootState) => state.auth.isAuthenticated,
+  );
+
+  return (
+    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+      {isAuthenticated ? (
+        <RootStack.Screen name="App" component={AppStackNavigator} />
+      ) : (
+        <RootStack.Screen name="Auth" component={AuthStackNavigator} />
+      )}
+    </RootStack.Navigator>
+  );
 };
 
 export default RootNavigator;

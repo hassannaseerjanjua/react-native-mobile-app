@@ -20,8 +20,15 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const { styles } = useStyles();
   const [activeTab, setActiveTab] = useState<'Phone' | 'Email'>('Phone');
 
-  const handleSignIn = () => {
-    console.log('Sign in pressed');
+  const handleSignIn = (values: { phone: string; email: string }) => {
+    console.log('Sign in pressed', values);
+
+    // Navigate to OTP verification with the appropriate parameter
+    if (activeTab === 'Phone' && values.phone) {
+      navigation.navigate('OtpVerification', { phone: values.phone });
+    } else if (activeTab === 'Email' && values.email) {
+      navigation.navigate('OtpVerification', { email: values.email });
+    }
   };
 
   return (

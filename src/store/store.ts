@@ -4,16 +4,18 @@ import { persistStore, persistReducer } from 'redux-persist';
 
 // reducers
 import settings, { Settings } from './reducer/settings';
+import auth from './reducer/auth';
 
 // config
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['settings'],
+  whitelist: ['settings', 'auth'],
 };
 
 const rootReducer = combineReducers({
   settings: settings,
+  auth: auth,
 });
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
@@ -29,4 +31,11 @@ export const persistor = persistStore(store);
 
 export interface RootState {
   settings: Settings;
+  auth: {
+    isAuthenticated: boolean;
+    user: {
+      email?: string;
+      phone?: string;
+    } | null;
+  };
 }

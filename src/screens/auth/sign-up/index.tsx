@@ -38,7 +38,10 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const handleSignUp = () => {
     console.log('Sign up data:', formData);
     // Handle final sign up logic here
-    navigation.navigate('OtpVerification');
+    navigation.navigate('OtpVerification', {
+      email: formData.email,
+      phone: formData.phoneNumber,
+    });
   };
 
   const updateFormData = (field: string, value: string) => {

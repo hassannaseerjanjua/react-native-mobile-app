@@ -7,19 +7,28 @@ import {
   ScrollView,
   TextInput,
 } from 'react-native';
+import { useDispatch } from 'react-redux';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style.ts';
 import Header from '../../../components/global/Header';
+import { login } from '../../../store/reducer/auth';
 
 interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
-const OtpVerification: React.FC<OtpVerificationProps> = ({ navigation }) => {
+const OtpVerification: React.FC<OtpVerificationProps> = ({
+  navigation,
+  route,
+}) => {
   const { styles } = useStyles();
+  const dispatch = useDispatch();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [isTimerActive, setIsTimerActive] = useState(true);
   const inputRefs = useRef<(TextInput | null)[]>([]);
+
+  // Get email and phone from route parameters
+  const { email, phone } = route.params;
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
@@ -64,7 +73,19 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ navigation }) => {
     if (otpString.length === 6) {
       console.log('Verifying OTP:', otpString);
       // Handle OTP verification logic here
-      // navigation.navigate('Home'); // Navigate to home after successful verification
+      // For now, we'll simulate successful verification
+      // In a real app, you would make an API call to verify the OTP
+
+      // Dispatch login action to update authentication state
+      dispatch(
+        login({
+          email: email,
+          phone: phone,
+        }),
+      );
+
+      // The navigation will happen automatically due to the authentication state change
+      // The RootNavigator will detect the authentication change and switch to the App stack
     }
   };
 
@@ -100,9 +121,12 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({ navigation }) => {
         <View style={styles.mainContent}>
           <View style={styles.headerContainer}>
             <Text style={styles.title}>
-              Enter the 6-digit code which is sent to your email and phone
-              number
+              Enter the 6-digit code which is sent to your{' '}
+              {email ? 'email' : 'phone number'}
             </Text>
+            {(email || phone) && (
+              <Text style={styles.subtitle}>{email || phone}</Text>
+            )}
           </View>
 
           <View style={styles.otpContainer}>
