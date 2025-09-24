@@ -31,19 +31,20 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <View style={styles.container}>
-      {showBackButton && (
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleBackPress}
-          activeOpacity={0.7}
-        >
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={handleBackPress}
+        activeOpacity={0.7}
+      >
+        {showBackButton && (
           <SvgBackIcon
             style={styles.backButton}
             width={backSize}
             height={backSize}
           />
-        </TouchableOpacity>
-      )}
+        )}
+      </TouchableOpacity>
+
       {title && <Text style={styles.title}>{title}</Text>}
       <View style={styles.placeholder} />
     </View>
@@ -71,9 +72,6 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       backButtonText: {
-        // fontSize: 20,
-        // color: colors.PRIMARY_TEXT,
-        // fontWeight: 'bold',
         width: 20,
         height: 20,
         resizeMode: 'contain',

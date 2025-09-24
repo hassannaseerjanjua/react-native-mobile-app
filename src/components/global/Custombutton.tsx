@@ -36,7 +36,7 @@ const CustomButton = ({
   const baseStyle: ViewStyle = {
     width: '100%',
     // height: height * 0.06,
-    height: verticalScale(42),
+    height: verticalScale(44),
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -54,7 +54,7 @@ const CustomButton = ({
     >
       <Text
         style={[
-          theme.globalStyles.TEXT_STYLE,
+          theme.globalStyles.TEXT_STYLE_SEMIBOLD,
           {
             color:
               type === 'primary' ? theme.colors.WHITE : theme.colors.PRIMARY,

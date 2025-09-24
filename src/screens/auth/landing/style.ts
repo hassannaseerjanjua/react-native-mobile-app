@@ -18,7 +18,7 @@ const useStyles = () => {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: sizes.HEIGHT * 0.1,
+        marginTop: sizes.HEIGHT * 0.12,
       },
       logo: {
         width: scaleWithMax(146, 160),
@@ -26,7 +26,7 @@ const useStyles = () => {
         resizeMode: 'contain',
       },
       buttonContainer: {
-        gap: sizes.PADDING,
+        gap: 16,
         justifyContent: 'flex-end',
         alignItems: 'center',
         paddingBottom: 10,

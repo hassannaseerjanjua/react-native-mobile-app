@@ -37,7 +37,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <Header />
+      <Header showBackButton={false} />
       <ScrollView
         style={styles.scrollContainer}
         contentContainerStyle={styles.contentContainer}
@@ -46,6 +46,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           <SvgLogoBlue width={theme.sizes.APP_LOGO} />
         </View>
         <View style={styles.headerContainer}>
+          <Text style={styles.title}>Sign In</Text>
           <Text style={styles.subtitle}>Welcome back, you've been missed</Text>
         </View>
 
