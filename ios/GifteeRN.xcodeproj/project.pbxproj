@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		0C80B921A6F3F58F76C31292 /* libPods-GifteeRN.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5DCACB8F33CDC322A6C60F78 /* libPods-GifteeRN.a */; };
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
+		2B2E365D054D4937ACEAA526 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3629C671B0FE4286ACF3B530 /* Colors.xcassets */; };
 		43E28F3E2EAD497FA4370AFB /* Quicksand-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C7A1CEB1FDD844E59BE3157E /* Quicksand-Light.ttf */; };
 		55C59BCDD5DF48AB3813DA4F /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */; };
 		591F0F9979A341B196386C31 /* Quicksand-SemiBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 6192BC80891F4B14992F03A2 /* Quicksand-SemiBold.ttf */; };
@@ -18,6 +19,7 @@
 		96BFDB4397794DBC8BE2C336 /* Quicksand-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A17F3CE078FE41D29AF79DE0 /* Quicksand-Regular.ttf */; };
 		D24A483EC224489E8EAACBBE /* Quicksand-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E89A4AEC278248EEA6923F8C /* Quicksand-Bold.ttf */; };
 		EB3C0B97AE51494BB3D9CACE /* Quicksand-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AF20C09F9E5149CBA8A8EEA2 /* Quicksand-Medium.ttf */; };
+		F9A7A7F653B745A49BD19885 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 19F2185BE7994E128923A060 /* BootSplash.storyboard */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -25,6 +27,8 @@
 		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = GifteeRN/Images.xcassets; sourceTree = "<group>"; };
 		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = GifteeRN/Info.plist; sourceTree = "<group>"; };
 		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = GifteeRN/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		19F2185BE7994E128923A060 /* BootSplash.storyboard */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = BootSplash.storyboard; path = GifteeRN/BootSplash.storyboard; sourceTree = "<group>"; };
+		3629C671B0FE4286ACF3B530 /* Colors.xcassets */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; name = Colors.xcassets; path = GifteeRN/Colors.xcassets; sourceTree = "<group>"; };
 		3B4392A12AC88292D35C810B /* Pods-GifteeRN.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GifteeRN.debug.xcconfig"; path = "Target Support Files/Pods-GifteeRN/Pods-GifteeRN.debug.xcconfig"; sourceTree = "<group>"; };
 		5709B34CF0A7D63546082F79 /* Pods-GifteeRN.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GifteeRN.release.xcconfig"; path = "Target Support Files/Pods-GifteeRN/Pods-GifteeRN.release.xcconfig"; sourceTree = "<group>"; };
 		5DCACB8F33CDC322A6C60F78 /* libPods-GifteeRN.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-GifteeRN.a"; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -73,6 +77,8 @@
 				13B07FB61A68108700A75B9A /* Info.plist */,
 				81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */,
 				13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */,
+				19F2185BE7994E128923A060 /* BootSplash.storyboard */,
+				3629C671B0FE4286ACF3B530 /* Colors.xcassets */,
 			);
 			name = GifteeRN;
 			sourceTree = "<group>";
@@ -194,6 +200,8 @@
 				96BFDB4397794DBC8BE2C336 /* Quicksand-Regular.ttf in Resources */,
 				591F0F9979A341B196386C31 /* Quicksand-SemiBold.ttf in Resources */,
 				8E802B9534C5463E8E9D09F9 /* index.ts in Resources */,
+				F9A7A7F653B745A49BD19885 /* BootSplash.storyboard in Resources */,
+				2B2E365D054D4937ACEAA526 /* Colors.xcassets in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -29,7 +29,7 @@ const useStyles = () => {
         gap: sizes.PADDING,
         justifyContent: 'flex-end',
         alignItems: 'center',
-        paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 10,
+        paddingBottom: 10,
       },
     });
   }, [theme]);

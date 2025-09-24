@@ -15,6 +15,7 @@ import InputField from '../../../components/global/InputField';
 import Header from '../../../components/global/Header';
 import { Formik } from 'formik';
 import { SvgLogoBlue } from '../../../assets/icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
@@ -34,7 +35,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <Header />
       <ScrollView
@@ -116,7 +117,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           </Text>
         </Text>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

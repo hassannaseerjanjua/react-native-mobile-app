@@ -8,6 +8,7 @@ import Header from '../../../components/global/Header';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { SvgLogoBlue } from '../../../assets/icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
@@ -241,7 +242,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <Header onBackPress={currentStep > 1 ? handleBack : undefined} />
       <ScrollView
@@ -269,7 +270,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

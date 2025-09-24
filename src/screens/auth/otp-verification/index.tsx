@@ -15,6 +15,7 @@ import useStyles from './style.ts';
 import Header from '../../../components/global/Header';
 import { login } from '../../../store/reducer/auth';
 import { SvgLogoBlue } from '../../../assets/icons/index.ts';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
@@ -107,7 +108,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const isOtpComplete = otp.every(digit => digit !== '');
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <Header />
       <ScrollView
@@ -175,7 +176,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
           </View>
         </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 

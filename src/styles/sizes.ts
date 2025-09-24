@@ -7,7 +7,7 @@ const getSizes = (width: number, height: number) => ({
   PADDING: width * 0.03,
   PADDED_WIDTH: width - width * 0.06,
   ICON: width * 0.06,
-  BOTTOM_PADDING: height * 0.12,
+  BOTTOM_PADDING: height * 0.05,
 
   // Borders
   BORDER_RADIUS: 5,
