@@ -7,8 +7,16 @@ import InputField from '../../../components/global/InputField';
 import Header from '../../../components/global/Header';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
-import { SvgLogoBlue } from '../../../assets/icons';
+import {
+  SvgEmail,
+  SvgLocationPin,
+  SvgLogoBlue,
+  SvgPhone,
+  SvgUser,
+  SvgUsername,
+} from '../../../assets/icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { scaleWithMax } from '../../../utils';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
@@ -157,6 +165,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         <View
           style={[
             styles.progressFill,
+
             { width: `${(currentStep / 3) * 100}%` },
           ]}
         />
@@ -171,6 +180,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
               <InputField
+                icon={<SvgUser width={scaleWithMax(20, 25)} />}
                 fieldProps={{
                   placeholder: 'Full Name',
                   value: formData.fullName,
@@ -182,6 +192,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
 
             <View style={styles.inputContainer}>
               <InputField
+                icon={<SvgUsername width={scaleWithMax(20, 25)} />}
                 fieldProps={{
                   placeholder: 'Username',
                   value: formData.username,
@@ -198,6 +209,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
               <InputField
+                icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
                 fieldProps={{
                   placeholder: 'City',
                   value: formData.city,
@@ -214,6 +226,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           <View style={styles.formContainer}>
             <View style={styles.inputContainer}>
               <InputField
+                icon={<SvgPhone width={scaleWithMax(20, 25)} />}
                 fieldProps={{
                   placeholder: 'Phone Number',
                   value: formData.phoneNumber,
@@ -224,6 +237,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             </View>
             <View style={styles.inputContainer}>
               <InputField
+                icon={<SvgEmail width={scaleWithMax(20, 25)} />}
                 fieldProps={{
                   placeholder: 'Email',
                   value: formData.email,

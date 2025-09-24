@@ -24,7 +24,8 @@ const useStyles = () => {
       },
       logoContainer: {
         alignItems: 'center',
-        paddingTop: 40,
+        paddingTop: scaleWithMax(10, 15),
+        marginBottom: scaleWithMax(50, 55),
       },
       logo: {
         width: scaleWithMax(100, 120),
@@ -42,9 +43,9 @@ const useStyles = () => {
         marginBottom: 10,
       },
       title: {
-        fontSize: 20,
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        fontSize: sizes.FONTSIZE_HEADING,
         color: colors.PRIMARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
       },
       subtitle: {
         fontSize: 18,
@@ -105,7 +106,7 @@ const useStyles = () => {
       progressFill: {
         height: '100%',
         backgroundColor: colors.PRIMARY,
-        borderRadius: 2,
+        borderRadius: 10,
       },
       progressText: {
         fontSize: 14,

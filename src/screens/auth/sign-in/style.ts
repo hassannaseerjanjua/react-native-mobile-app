@@ -19,12 +19,13 @@ const useStyles = () => {
       },
       contentContainer: {
         flexGrow: 1,
-        paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 10,
+        paddingBottom: 10,
         justifyContent: 'space-between',
       },
       logoContainer: {
         alignItems: 'center',
-        paddingTop: 40,
+        paddingTop: scaleWithMax(10, 15),
+        marginBottom: scaleWithMax(40, 45),
       },
       logo: {
         width: scaleWithMax(100, 120),
@@ -35,10 +36,9 @@ const useStyles = () => {
         marginBottom: 30,
       },
       title: {
-        fontSize: 20,
-        fontWeight: 'bold',
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        fontSize: sizes.FONTSIZE_HEADING,
         color: colors.PRIMARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
         marginBottom: 10,
       },
       subtitle: {
@@ -54,7 +54,7 @@ const useStyles = () => {
       },
       tab: {
         flex: 1,
-        paddingVertical: 16,
+        paddingVertical: 14,
         alignItems: 'center',
         borderRadius: 12,
         backgroundColor: colors.LIGHT_GRAY,
@@ -82,14 +82,15 @@ const useStyles = () => {
         marginTop: sizes.HEIGHT * 0.05,
       },
       linkContainer: {
+        ...theme.globalStyles.TEXT_STYLE,
         textAlign: 'center',
         color: colors.SECONDARY_TEXT,
       },
       link: {
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
         color: colors.PRIMARY,
         textDecorationLine: 'underline',
         fontSize: 15,
-        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
       },
     });
   }, [theme]);

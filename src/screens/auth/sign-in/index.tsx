@@ -14,8 +14,9 @@ import useStyles from './style';
 import InputField from '../../../components/global/InputField';
 import Header from '../../../components/global/Header';
 import { Formik } from 'formik';
-import { SvgLogoBlue } from '../../../assets/icons';
+import { SvgEmail, SvgLogoBlue } from '../../../assets/icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { scaleWithMax } from '../../../utils';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
@@ -87,6 +88,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
               ) : (
                 <View style={styles.inputContainer}>
                   <InputField
+                    icon={<SvgEmail width={scaleWithMax(20, 25)} />}
                     fieldProps={{
                       placeholder: 'Email Address',
                       value: formik.values.email,

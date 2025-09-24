@@ -11,6 +11,7 @@ import {
 import { useColors } from '../../styles/colors';
 import useTheme from '../../styles/theme';
 import { verticalScale } from 'react-native-size-matters';
+import { scaleWithMax } from '../../utils';
 
 interface CustomButtonProps {
   title?: string;
@@ -36,7 +37,7 @@ const CustomButton = ({
   const baseStyle: ViewStyle = {
     width: '100%',
     // height: height * 0.06,
-    height: verticalScale(44),
+    height: scaleWithMax(45, 50),
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
@@ -49,7 +50,7 @@ const CustomButton = ({
     <TouchableOpacity
       onPress={onPress}
       style={[baseStyle, buttonStyle]}
-      activeOpacity={0.7}
+      activeOpacity={0.6}
       disabled={disabled}
     >
       <Text

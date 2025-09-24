@@ -18,6 +18,11 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           color: colors.PRIMARY_TEXT,
           fontFamily: fonts.Quicksand.semibold,
         },
+        TEXT_STYLE_MEDIUM: {
+          fontSize: sizes.FONTSIZE,
+          color: colors.PRIMARY_TEXT,
+          fontFamily: fonts.Quicksand.medium,
+        },
         TEXT_STYLE_BOLD: {
           fontSize: sizes.FONTSIZE,
           color: colors.PRIMARY_TEXT,

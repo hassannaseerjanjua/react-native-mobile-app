@@ -10,7 +10,7 @@ const getSizes = (width: number, height: number) => ({
   BOTTOM_PADDING: height * 0.05,
 
   // Borders
-  BORDER_RADIUS: 5,
+  BORDER_RADIUS: 8,
   BORDER_RADIUS_HIGH: 15,
 
   // Fonts
@@ -19,6 +19,7 @@ const getSizes = (width: number, height: number) => ({
   FONTSIZE_HIGH: 18,
   FONTSIZE_SMALL: 10,
   HEADER_FOOTER_SIZE: height * 0.1,
+  FONTSIZE_HEADING: 20,
   // Sizes
   APP_LOGO: width * 0.4,
 });

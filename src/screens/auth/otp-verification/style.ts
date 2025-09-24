@@ -23,7 +23,8 @@ const useStyles = () => {
       },
       logoContainer: {
         alignItems: 'center',
-        paddingTop: 40,
+        paddingTop: scaleWithMax(10, 15),
+        marginBottom: scaleWithMax(50, 55),
       },
       logo: {
         width: scaleWithMax(100, 120),
@@ -38,9 +39,9 @@ const useStyles = () => {
         alignItems: 'center',
       },
       title: {
-        fontSize: 18,
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        fontSize: sizes.FONTSIZE_HEADING,
         color: colors.PRIMARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
         textAlign: 'center',
         lineHeight: 24,
       },
