@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
 
@@ -24,23 +24,26 @@ const Header: React.FC<HeaderProps> = ({
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingHorizontal: 20,
-        paddingVertical: 16,
+        // paddingHorizontal: 20,
+        paddingVertical: sizes.PADDING,
         backgroundColor: colors.BACKGROUND,
       },
       backButton: {
         padding: 8,
-        borderRadius: 20,
-        backgroundColor: colors.LIGHT_GRAY,
+        // borderRadius: 20,
+        // backgroundColor: colors.LIGHT_GRAY,
         width: 40,
         height: 40,
         alignItems: 'center',
         justifyContent: 'center',
       },
       backButtonText: {
-        fontSize: 20,
-        color: colors.PRIMARY_TEXT,
-        fontWeight: 'bold',
+        // fontSize: 20,
+        // color: colors.PRIMARY_TEXT,
+        // fontWeight: 'bold',
+        width: 20,
+        height: 20,
+        resizeMode: 'contain',
       },
       title: {
         fontSize: 18,
@@ -71,7 +74,10 @@ const Header: React.FC<HeaderProps> = ({
           onPress={handleBackPress}
           activeOpacity={0.7}
         >
-          <Text style={styles.backButtonText}>←</Text>
+          <Image
+            source={require('../../assets/images/backIcon.png')}
+            style={styles.backButtonText}
+          />
         </TouchableOpacity>
       )}
       {title && <Text style={styles.title}>{title}</Text>}

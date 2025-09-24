@@ -1,7 +1,6 @@
 import React from 'react';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Text, TouchableOpacity, View, StatusBar } from 'react-native';
 import { useDispatch } from 'react-redux';
-import StatusBarComponent from '../../../components/global/StatusBarComponent';
 import useStyles from './style';
 import { AppStackScreen } from '../../../types/navigation.types';
 import useScreenLoader from '../../../hooks/useScreenLoader';
@@ -19,7 +18,7 @@ const HomeScreen: React.FC<AppStackScreen<'Home'>> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      <StatusBarComponent backgroundColor={theme.colors.BACKGROUND} />
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <Text style={styles.txt1}>Home</Text>
       <InputField
         fieldProps={{

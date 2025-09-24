@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   ScrollView,
   TextInput,
+  StatusBar,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { AuthStackScreen } from '../../../types/navigation.types';
@@ -106,6 +107,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <Header />
       <ScrollView
         style={styles.scrollContainer}

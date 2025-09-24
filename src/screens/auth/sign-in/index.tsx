@@ -6,6 +6,7 @@ import {
   ScrollView,
   Image,
   TextInput,
+  StatusBar,
 } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
@@ -33,6 +34,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <Header />
       <ScrollView
         style={styles.scrollContainer}

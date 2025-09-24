@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, ScrollView, Image, TextInput } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  Image,
+  TextInput,
+  StatusBar,
+} from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style';
@@ -190,6 +197,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <Header onBackPress={currentStep > 1 ? handleBack : undefined} />
       <ScrollView
         style={styles.scrollContainer}

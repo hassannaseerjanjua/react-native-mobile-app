@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Image } from 'react-native';
+import { View, Image, StatusBar } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style';
@@ -11,6 +11,7 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
 
   return (
     <>
+      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <View style={styles.container}>
         <View style={styles.logoContainer}>
           <Image
