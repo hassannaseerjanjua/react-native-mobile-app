@@ -6,11 +6,13 @@ import {
   Modal,
   FlatList,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useMemo, useState } from 'react';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import { SvgDropDown } from '../../assets/icons';
+import InputField from './InputField';
 
 export type DropdownOption = {
   label: any;
@@ -27,6 +29,10 @@ type Props = {
   onSelect: (option: DropdownOption) => void;
   disabled?: boolean;
   label?: string;
+  searchValue?: string;
+  onSearchChange?: (value: string) => void;
+  isLoading?: boolean;
+  selectedOption?: DropdownOption | null;
 };
 
 const DropdownField = ({
@@ -39,11 +45,13 @@ const DropdownField = ({
   onSelect,
   disabled = false,
   label = 'Select Option',
+  searchValue = '',
+  onSearchChange,
+  isLoading = false,
+  selectedOption,
 }: Props) => {
   const { theme, styles } = useStyles();
   const [isVisible, setIsVisible] = useState(false);
-
-  const selectedOption = options.find(option => option.value === selectedValue);
 
   const handleSelect = (option: DropdownOption) => {
     onSelect(option);
@@ -121,16 +129,49 @@ const DropdownField = ({
                     <Text style={styles.closeButton}>✕</Text>
                   </TouchableOpacity>
                 </View>
-                <FlatList
-                  data={options}
-                  renderItem={renderOption}
-                  keyExtractor={(item, index) => `${item.value}-${index}`}
-                  style={styles.optionsList}
-                  showsVerticalScrollIndicator={false}
-                  ItemSeparatorComponent={() => (
-                    <View style={styles.separator} />
-                  )}
-                />
+
+                {onSearchChange && (
+                  <View style={styles.searchContainer}>
+                    <InputField
+                      fieldProps={{
+                        placeholder: 'Search...',
+                        value: searchValue,
+                        onChangeText: onSearchChange,
+                        autoCapitalize: 'none',
+                        autoCorrect: false,
+                      }}
+                    />
+                  </View>
+                )}
+
+                {isLoading ? (
+                  <View style={styles.loadingContainer}>
+                    <ActivityIndicator
+                      size="large"
+                      color={theme.colors.PRIMARY}
+                    />
+                  </View>
+                ) : (
+                  <FlatList
+                    data={options}
+                    renderItem={renderOption}
+                    keyExtractor={(item, index) => `${item.value}-${index}`}
+                    style={styles.optionsList}
+                    showsVerticalScrollIndicator={false}
+                    ItemSeparatorComponent={() => (
+                      <View style={styles.separator} />
+                    )}
+                    ListEmptyComponent={() => (
+                      <View style={styles.emptyContainer}>
+                        <Text style={styles.emptyText}>
+                          {searchValue
+                            ? 'No results found'
+                            : 'No options available'}
+                        </Text>
+                      </View>
+                    )}
+                  />
+                )}
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -236,6 +277,35 @@ const useStyles = () => {
       separator: {
         height: 1,
         backgroundColor: colors.LIGHT_GRAY,
+      },
+      searchContainer: {
+        padding: sizes.PADDING,
+        borderBottomWidth: 1,
+        borderBottomColor: colors.LIGHT_GRAY,
+      },
+      loadingContainer: {
+        padding: sizes.PADDING * 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 120,
+      },
+      loadingText: {
+        ...globalStyles.TEXT_STYLE,
+        marginTop: sizes.PADDING,
+        color: colors.SECONDARY_TEXT,
+        fontSize: 14,
+      },
+      emptyContainer: {
+        padding: sizes.PADDING * 2,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 80,
+      },
+      emptyText: {
+        ...globalStyles.TEXT_STYLE,
+        color: colors.SECONDARY_TEXT,
+        fontSize: 14,
+        textAlign: 'center',
       },
     });
   }, [theme]);

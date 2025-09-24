@@ -73,8 +73,15 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                     icon={<SvgPhone width={scaleWithMax(20, 25)} />}
                     fieldProps={{
                       placeholder: 'Phone Number',
-                      value: formik.values.phone,
-                      onChangeText: formik.handleChange('phone'),
+                      value: '+966 ' + formik.values.phone,
+                      onChangeText: value => {
+                        if (value?.startsWith('+966 ')) {
+                          formik.setFieldValue(
+                            'phone',
+                            value?.replaceAll('+966 ', ''),
+                          );
+                        }
+                      },
                       keyboardType: 'phone-pad',
                     }}
                   />

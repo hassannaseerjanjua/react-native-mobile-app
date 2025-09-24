@@ -18,21 +18,27 @@ import {
   SvgLocationPin,
   SvgLogoBlue,
   SvgPhone,
+  SvgPhoneIcon,
   SvgUser,
   SvgUsername,
 } from '../../../assets/icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { scaleWithMax, toOption } from '../../../utils';
+import { dynamicArrayItem, scaleWithMax, toOption } from '../../../utils';
 import { City } from '../../../types';
 import DropdownField from '../../../components/global/DropdownField';
 import useGetApi from '../../../hooks/useGetApi';
 import AuthLayout from '../../../components/app/AuthLayout';
+import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import AppBottomSheet from '../../../components/global/AppBottomSheet';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
   const [currentStep, setCurrentStep] = useState(1);
+  const [areaSearch, setAreaSearch] = useState('');
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -51,7 +57,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     if (currentStep < 3) {
       setCurrentStep(currentStep + 1);
     } else {
-      handleSignUp();
+      setIsBottomSheetOpen(true);
     }
   };
 
@@ -139,36 +145,72 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   );
 
   return (
-    <AuthLayout
-      onBackPress={() => {
-        if (currentStep > 1) {
-          setCurrentStep(currentStep - 1);
-          return;
-        }
-        navigation.goBack();
-      }}
-      title="Let's start with Name & Username"
-    >
-      <>
-        {renderProgressBar()}
-        <StepContent
-          currentStep={currentStep}
-          formData={formData}
-          updateFormData={updateFormData}
-          styles={styles}
-          citiesApi={citiesApi}
-        />
+    <>
+      <AuthLayout
+        onBackPress={() => {
+          if (currentStep > 1) {
+            setCurrentStep(currentStep - 1);
+            return;
+          }
+          navigation.goBack();
+        }}
+        title="Let's start with Name & Username"
+      >
+        <>
+          {renderProgressBar()}
+          <StepContent
+            currentStep={currentStep}
+            formData={formData}
+            updateFormData={updateFormData}
+            styles={styles}
+            citiesApi={citiesApi}
+            areaSearch={areaSearch}
+            setAreaSearch={setAreaSearch}
+          />
 
-        <View style={styles.buttonContainer}>
+          <View style={styles.buttonContainer}>
+            <CustomButton
+              title={currentStep === 3 ? 'Sign Up' : 'Next'}
+              type="primary"
+              onPress={handleNext}
+              disabled={!isStepValid()}
+            />
+          </View>
+        </>
+      </AuthLayout>
+      <AppBottomSheet
+        blurAmount={100}
+        blurType="light"
+        height={theme.sizes.HEIGHT * 0.45}
+        isOpen={isBottomSheetOpen}
+        onClose={() => setIsBottomSheetOpen(false)}
+      >
+        <View style={styles.bottomSheetContainer}>
+          <View style={styles.bottomSheetIconContainer}>
+            <SvgPhoneIcon width={scaleWithMax(48, 55)} />
+          </View>
+          <Text style={styles.bottomSheetTitle}>
+            Is this your correct phone number?
+          </Text>
+          <Text style={styles.bottomSheetNumber}>
+            +966 {formData.phoneNumber}
+          </Text>
           <CustomButton
-            title={currentStep === 3 ? 'Sign Up' : 'Next'}
+            title="Yes, send code by SMS"
             type="primary"
-            onPress={handleNext}
-            disabled={!isStepValid()}
+            buttonStyle={{
+              marginBottom: scaleWithMax(15, 20),
+            }}
+            onPress={handleSignUp}
+          />
+          <CustomButton
+            title="No, I want to change it"
+            type="secondary"
+            onPress={handleSignUp}
           />
         </View>
-      </>
-    </AuthLayout>
+      </AppBottomSheet>
+    </>
   );
 };
 
@@ -180,6 +222,8 @@ interface StepContentProps {
   updateFormData: (field: string, value: string) => void;
   styles: any;
   citiesApi: any;
+  areaSearch: string;
+  setAreaSearch: (value: string) => void;
 }
 
 const StepContent: React.FC<StepContentProps> = ({
@@ -188,7 +232,17 @@ const StepContent: React.FC<StepContentProps> = ({
   updateFormData,
   styles,
   citiesApi,
+  areaSearch,
+  setAreaSearch,
 }) => {
+  const options = toOption<City>(citiesApi.data || [], 'CityName', 'CityID');
+  const filteredOptions = options.filter(option =>
+    option.label.toLowerCase().includes(areaSearch.toLowerCase()),
+  );
+  const [selectedOption, setSelectedOption] = useState(
+    options?.find(option => option.value === formData.city) || null,
+  );
+
   switch (currentStep) {
     case 1:
       return (
@@ -223,32 +277,20 @@ const StepContent: React.FC<StepContentProps> = ({
       return (
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
-            {/* <InputField
+            <DropdownField
+              isLoading={citiesApi.loading}
+              label="Select City"
+              selectedOption={selectedOption}
               icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
-              fieldProps={{
-                placeholder: 'City',
-                value: formData.city,
-                onChangeText: value => updateFormData('city', value),
-                autoCapitalize: 'words',
+              options={filteredOptions}
+              searchValue={areaSearch}
+              onSearchChange={setAreaSearch}
+              selectedValue={formData.city}
+              onSelect={value => {
+                setSelectedOption(value);
+                updateFormData('city', value.value);
               }}
-            /> */}
-            {citiesApi.loading ? (
-              <ActivityIndicator />
-            ) : (
-              <DropdownField
-                label="Select City"
-                icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
-                options={toOption<City>(
-                  citiesApi.data || [],
-                  'CityName',
-                  'CityID',
-                )}
-                selectedValue={formData.city}
-                onSelect={value => {
-                  updateFormData('city', value.value);
-                }}
-              />
-            )}
+            />
           </View>
         </View>
       );
@@ -261,8 +303,15 @@ const StepContent: React.FC<StepContentProps> = ({
               icon={<SvgPhone width={scaleWithMax(20, 25)} />}
               fieldProps={{
                 placeholder: 'Phone Number',
-                value: formData.phoneNumber,
-                onChangeText: value => updateFormData('phoneNumber', value),
+                value: '+966 ' + formData.phoneNumber,
+                onChangeText: value => {
+                  if (value?.startsWith('+966 ')) {
+                    updateFormData(
+                      'phoneNumber',
+                      value?.replaceAll('+966 ', ''),
+                    );
+                  }
+                },
                 keyboardType: 'phone-pad',
               }}
             />

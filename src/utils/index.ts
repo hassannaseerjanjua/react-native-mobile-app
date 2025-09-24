@@ -25,3 +25,10 @@ export const getQueryFromObject = (obj: Record<string, any>) => {
     .map(([key, value]) => `${key}=${value}`)
     .join('&');
 };
+
+export const dynamicArrayItem = (item: any, condition: boolean) => {
+  if (condition) {
+    return [item];
+  }
+  return [];
+};
