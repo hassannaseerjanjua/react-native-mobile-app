@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -9,15 +9,20 @@ import {
 } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
+import DropdownField from '../../../components/global/DropdownField';
 import useStyles from './style';
 import InputField from '../../../components/global/InputField';
 import Header from '../../../components/global/Header';
+import api from '../../../utils/api';
+import apiEndpoints from '../../../constants/api-endpoints';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const { styles } = useStyles();
   const [currentStep, setCurrentStep] = useState(1);
+  const [cities, setCities] = useState<any[]>([]);
+  const [loadingCities, setLoadingCities] = useState(false);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -27,6 +32,53 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     phoneNumber: '',
     email: '',
   });
+
+  useEffect(() => {
+    fetchCities();
+  }, []);
+
+  type City = {
+    CityID: number;
+    CityNameEn: string | null;
+    CityNameAr: string | null;
+    CityName: string;
+    Status: number;
+  };
+
+  type CitiesResponse = {
+    success: boolean;
+    failed: boolean;
+    data: {
+      Data: {
+        Total: number;
+        Cities: City[];
+      };
+      ResponseCode: number;
+      Success: boolean;
+      ResponseMessage: string;
+    };
+    error: string;
+  };
+
+  const fetchCities = async () => {
+    setLoadingCities(true);
+    try {
+      const response = await api.get<CitiesResponse>(
+        apiEndpoints.GET_CITY_LISTING,
+      );
+      console.log(response);
+
+      if (response.success && response.data) {
+        const cities = response.data.Data.Cities;
+        console.log('Cities:', cities);
+        setCities(cities);
+      }
+    } catch (error) {
+      console.error('Error fetching cities:', error);
+    } finally {
+      setLoadingCities(false);
+    }
+  };
 
   const handleNext = () => {
     if (currentStep < 3) {
