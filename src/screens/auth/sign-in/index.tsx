@@ -14,7 +14,7 @@ import useStyles from './style';
 import InputField from '../../../components/global/InputField';
 import Header from '../../../components/global/Header';
 import { Formik } from 'formik';
-import { SvgEmail, SvgLogoBlue } from '../../../assets/icons';
+import { SvgEmail, SvgLogoBlue, SvgPhone } from '../../../assets/icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scaleWithMax } from '../../../utils';
 
@@ -77,6 +77,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
               {activeTab === 'Phone' ? (
                 <View style={styles.inputContainer}>
                   <InputField
+                    icon={<SvgPhone width={scaleWithMax(20, 25)} />}
                     fieldProps={{
                       placeholder: 'Phone Number',
                       value: formik.values.phone,

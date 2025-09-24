@@ -23,7 +23,7 @@ const useStyles = () => {
       },
       logoContainer: {
         alignItems: 'center',
-        paddingTop: scaleWithMax(10, 15),
+
         marginBottom: scaleWithMax(50, 55),
       },
       logo: {

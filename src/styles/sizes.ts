@@ -4,7 +4,7 @@ import { useWindowDimensions } from 'react-native';
 const getSizes = (width: number, height: number) => ({
   WIDTH: width,
   HEIGHT: height,
-  PADDING: width * 0.03,
+  PADDING: width * 0.04,
   PADDED_WIDTH: width - width * 0.06,
   ICON: width * 0.06,
   BOTTOM_PADDING: height * 0.05,

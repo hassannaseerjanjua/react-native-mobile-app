@@ -56,6 +56,20 @@ const caller = async <T>(
     responseObject.success = false;
   }
 
+  // These are logs for DevTools
+  if (true) {
+    console.log('\n\n');
+    console.log('Api Call --> ', `[${type?.toUpperCase()}]`, url);
+    if (data) {
+      console.log('\tdata ->', data);
+    }
+    if (config) {
+      console.log('\tconfig ->', config);
+    }
+    console.log('\tresponse ->', responseObject);
+    console.log('\n');
+  }
+
   return responseObject as ResponseObject<T>;
 };
 
@@ -71,3 +85,11 @@ const api = {
 };
 
 export default api;
+
+export const getAuthHeader = (token: string) => {
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  };
+};

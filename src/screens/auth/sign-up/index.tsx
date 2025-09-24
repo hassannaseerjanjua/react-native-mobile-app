@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StatusBar } from 'react-native';
+import {
+  View,
+  Text,
+  ScrollView,
+  StatusBar,
+  ActivityIndicator,
+} from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style';
@@ -16,15 +22,16 @@ import {
   SvgUsername,
 } from '../../../assets/icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { scaleWithMax } from '../../../utils';
+import { scaleWithMax, toOption } from '../../../utils';
+import { City } from '../../../types';
+import DropdownField from '../../../components/global/DropdownField';
+import useGetApi from '../../../hooks/useGetApi';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
   const [currentStep, setCurrentStep] = useState(1);
-  const [cities, setCities] = useState<any[]>([]);
-  const [loadingCities, setLoadingCities] = useState(false);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -35,52 +42,9 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     email: '',
   });
 
-  useEffect(() => {
-    fetchCities();
-  }, []);
-
-  type City = {
-    CityID: number;
-    CityNameEn: string | null;
-    CityNameAr: string | null;
-    CityName: string;
-    Status: number;
-  };
-
-  type CitiesResponse = {
-    success: boolean;
-    failed: boolean;
-    data: {
-      Data: {
-        Total: number;
-        Cities: City[];
-      };
-      ResponseCode: number;
-      Success: boolean;
-      ResponseMessage: string;
-    };
-    error: string;
-  };
-
-  const fetchCities = async () => {
-    setLoadingCities(true);
-    try {
-      const response = await api.get<CitiesResponse>(
-        apiEndpoints.GET_CITY_LISTING,
-      );
-      console.log(response);
-
-      if (response.success && response.data) {
-        const cities = response.data.data.Data.Cities;
-        console.log('Cities:', cities);
-        setCities(cities);
-      }
-    } catch (error) {
-      console.error('Error fetching cities:', error);
-    } finally {
-      setLoadingCities(false);
-    }
-  };
+  const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
+    transformData: data => data.Data.cities,
+  });
 
   const handleNext = () => {
     if (currentStep < 3) {
@@ -116,7 +80,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           formData.fullName.trim() !== '' && formData.username.trim() !== ''
         );
       case 2:
-        return formData.city.trim() !== '';
+        return formData.city !== null || formData.city !== undefined;
       case 3:
         return (
           formData.phoneNumber.trim() !== '' && formData.email.trim() !== ''
@@ -173,88 +137,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     </View>
   );
 
-  const renderStepContent = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <View style={styles.formContainer}>
-            <View style={styles.inputContainer}>
-              <InputField
-                icon={<SvgUser width={scaleWithMax(20, 25)} />}
-                fieldProps={{
-                  placeholder: 'Full Name',
-                  value: formData.fullName,
-                  onChangeText: value => updateFormData('fullName', value),
-                  autoCapitalize: 'words',
-                }}
-              />
-            </View>
-
-            <View style={styles.inputContainer}>
-              <InputField
-                icon={<SvgUsername width={scaleWithMax(20, 25)} />}
-                fieldProps={{
-                  placeholder: 'Username',
-                  value: formData.username,
-                  onChangeText: value => updateFormData('username', value),
-                  autoCapitalize: 'none',
-                }}
-              />
-            </View>
-          </View>
-        );
-
-      case 2:
-        return (
-          <View style={styles.formContainer}>
-            <View style={styles.inputContainer}>
-              <InputField
-                icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
-                fieldProps={{
-                  placeholder: 'City',
-                  value: formData.city,
-                  onChangeText: value => updateFormData('city', value),
-                  autoCapitalize: 'words',
-                }}
-              />
-            </View>
-          </View>
-        );
-
-      case 3:
-        return (
-          <View style={styles.formContainer}>
-            <View style={styles.inputContainer}>
-              <InputField
-                icon={<SvgPhone width={scaleWithMax(20, 25)} />}
-                fieldProps={{
-                  placeholder: 'Phone Number',
-                  value: formData.phoneNumber,
-                  onChangeText: value => updateFormData('phoneNumber', value),
-                  keyboardType: 'phone-pad',
-                }}
-              />
-            </View>
-            <View style={styles.inputContainer}>
-              <InputField
-                icon={<SvgEmail width={scaleWithMax(20, 25)} />}
-                fieldProps={{
-                  placeholder: 'Email',
-                  value: formData.email,
-                  onChangeText: value => updateFormData('email', value),
-                  keyboardType: 'email-address',
-                  autoCapitalize: 'none',
-                }}
-              />
-            </View>
-          </View>
-        );
-
-      default:
-        return null;
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
@@ -271,12 +153,18 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           <View style={styles.contentSection}>
             {renderHeading()}
             {renderProgressBar()}
-            {renderStepContent()}
+            <StepContent
+              currentStep={currentStep}
+              formData={formData}
+              updateFormData={updateFormData}
+              styles={styles}
+              citiesApi={citiesApi}
+            />
           </View>
 
           <View style={styles.buttonContainer}>
             <CustomButton
-              title={currentStep === 3 ? 'Complete Sign Up' : 'Next'}
+              title={currentStep === 3 ? 'Sign Up' : 'Next'}
               type="primary"
               onPress={handleNext}
               disabled={!isStepValid()}
@@ -289,3 +177,116 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
 };
 
 export default SignUp;
+
+interface StepContentProps {
+  currentStep: number;
+  formData: any;
+  updateFormData: (field: string, value: string) => void;
+  styles: any;
+  citiesApi: any;
+}
+
+const StepContent: React.FC<StepContentProps> = ({
+  currentStep,
+  formData,
+  updateFormData,
+  styles,
+  citiesApi,
+}) => {
+  switch (currentStep) {
+    case 1:
+      return (
+        <View style={styles.formContainer}>
+          <View style={styles.inputContainer}>
+            <InputField
+              icon={<SvgUser width={scaleWithMax(20, 25)} />}
+              fieldProps={{
+                placeholder: 'Full Name',
+                value: formData.fullName,
+                onChangeText: value => updateFormData('fullName', value),
+                autoCapitalize: 'words',
+              }}
+            />
+          </View>
+
+          <View style={styles.inputContainer}>
+            <InputField
+              icon={<SvgUsername width={scaleWithMax(20, 25)} />}
+              fieldProps={{
+                placeholder: 'Username',
+                value: formData.username,
+                onChangeText: value => updateFormData('username', value),
+                autoCapitalize: 'none',
+              }}
+            />
+          </View>
+        </View>
+      );
+
+    case 2:
+      return (
+        <View style={styles.formContainer}>
+          <View style={styles.inputContainer}>
+            {/* <InputField
+              icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
+              fieldProps={{
+                placeholder: 'City',
+                value: formData.city,
+                onChangeText: value => updateFormData('city', value),
+                autoCapitalize: 'words',
+              }}
+            /> */}
+            {citiesApi.loading ? (
+              <ActivityIndicator />
+            ) : (
+              <DropdownField
+                label="Select City"
+                icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
+                options={toOption<City>(
+                  citiesApi.data || [],
+                  'CityName',
+                  'CityID',
+                )}
+                selectedValue={formData.city}
+                onSelect={value => {
+                  updateFormData('city', value.value);
+                }}
+              />
+            )}
+          </View>
+        </View>
+      );
+
+    case 3:
+      return (
+        <View style={styles.formContainer}>
+          <View style={styles.inputContainer}>
+            <InputField
+              icon={<SvgPhone width={scaleWithMax(20, 25)} />}
+              fieldProps={{
+                placeholder: 'Phone Number',
+                value: formData.phoneNumber,
+                onChangeText: value => updateFormData('phoneNumber', value),
+                keyboardType: 'phone-pad',
+              }}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <InputField
+              icon={<SvgEmail width={scaleWithMax(20, 25)} />}
+              fieldProps={{
+                placeholder: 'Email',
+                value: formData.email,
+                onChangeText: value => updateFormData('email', value),
+                keyboardType: 'email-address',
+                autoCapitalize: 'none',
+              }}
+            />
+          </View>
+        </View>
+      );
+
+    default:
+      return null;
+  }
+};

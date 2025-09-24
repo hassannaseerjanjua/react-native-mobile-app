@@ -24,7 +24,6 @@ const useStyles = () => {
       },
       logoContainer: {
         alignItems: 'center',
-        paddingTop: scaleWithMax(10, 15),
         marginBottom: scaleWithMax(50, 55),
       },
       logo: {
@@ -37,7 +36,7 @@ const useStyles = () => {
         // backgroundColor: 'blue',
       },
       contentSection: {
-        // minHeight: 100,
+        // minHeight:20,
       },
       headerContainer: {
         marginBottom: 10,
