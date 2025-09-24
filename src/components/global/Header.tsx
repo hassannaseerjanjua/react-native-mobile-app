@@ -8,12 +8,14 @@ import { scaleWithMax } from '../../utils';
 interface HeaderProps {
   title?: string;
   showBackButton?: boolean;
+  spaceTaken?: boolean;
   onBackPress?: () => void;
 }
 
 const Header: React.FC<HeaderProps> = ({
   title,
   showBackButton = true,
+  spaceTaken = false,
   onBackPress,
 }) => {
   const navigation = useNavigation();
@@ -41,6 +43,11 @@ const Header: React.FC<HeaderProps> = ({
             style={styles.backButton}
             width={backSize}
             height={backSize}
+          />
+        )}
+        {spaceTaken && (
+          <View
+            style={{ ...styles.backButton, width: backSize, height: backSize }}
           />
         )}
       </TouchableOpacity>

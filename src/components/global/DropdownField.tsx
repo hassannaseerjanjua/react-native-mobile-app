@@ -10,6 +10,7 @@ import {
 import React, { useMemo, useState } from 'react';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
+import { SvgDropDown } from '../../assets/icons';
 
 export type DropdownOption = {
   label: any;
@@ -99,7 +100,9 @@ const DropdownField = ({
             {selectedOption ? selectedOption.label : placeholder}
           </Text>
         </View>
-        <Text style={styles.chevron}>▼</Text>
+        <Text style={styles.chevron}>
+          <SvgDropDown width={scaleWithMax(20, 25)} />
+        </Text>
       </TouchableOpacity>
 
       <Modal

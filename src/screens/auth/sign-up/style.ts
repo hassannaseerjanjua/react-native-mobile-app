@@ -12,11 +12,11 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         backgroundColor: colors.BACKGROUND,
+        padding: sizes.PADDING,
         flex: 1,
       },
       scrollContainer: {
         flex: 1,
-        padding: sizes.PADDING,
       },
       contentContainer: {
         flexGrow: 1,
@@ -82,7 +82,8 @@ const useStyles = () => {
         fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
       },
       progressContainer: {
-        marginBottom: 20,
+        marginTop: scaleWithMax(10, 15),
+        marginBottom: scaleWithMax(10, 15),
       },
       progressHeader: {
         flexDirection: 'row',

@@ -26,6 +26,7 @@ import { scaleWithMax, toOption } from '../../../utils';
 import { City } from '../../../types';
 import DropdownField from '../../../components/global/DropdownField';
 import useGetApi from '../../../hooks/useGetApi';
+import AuthLayout from '../../../components/app/AuthLayout';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
@@ -138,41 +139,36 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   );
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <Header onBackPress={currentStep > 1 ? handleBack : undefined} />
-      <ScrollView
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.contentContainer}
-      >
-        <View style={styles.logoContainer}>
-          <SvgLogoBlue width={theme.sizes.APP_LOGO} />
-        </View>
+    <AuthLayout
+      onBackPress={() => {
+        if (currentStep > 1) {
+          setCurrentStep(currentStep - 1);
+          return;
+        }
+        navigation.goBack();
+      }}
+      title="Let's start with Name & Username"
+    >
+      <>
+        {renderProgressBar()}
+        <StepContent
+          currentStep={currentStep}
+          formData={formData}
+          updateFormData={updateFormData}
+          styles={styles}
+          citiesApi={citiesApi}
+        />
 
-        <View style={styles.mainContent}>
-          <View style={styles.contentSection}>
-            {renderHeading()}
-            {renderProgressBar()}
-            <StepContent
-              currentStep={currentStep}
-              formData={formData}
-              updateFormData={updateFormData}
-              styles={styles}
-              citiesApi={citiesApi}
-            />
-          </View>
-
-          <View style={styles.buttonContainer}>
-            <CustomButton
-              title={currentStep === 3 ? 'Sign Up' : 'Next'}
-              type="primary"
-              onPress={handleNext}
-              disabled={!isStepValid()}
-            />
-          </View>
+        <View style={styles.buttonContainer}>
+          <CustomButton
+            title={currentStep === 3 ? 'Sign Up' : 'Next'}
+            type="primary"
+            onPress={handleNext}
+            disabled={!isStepValid()}
+          />
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </>
+    </AuthLayout>
   );
 };
 

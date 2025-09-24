@@ -6,6 +6,7 @@ import SvgUser from './user.svg';
 import SvgUsername from './username.svg';
 import SvgLocationPin from './location-pin.svg';
 import SvgPhone from './phone.svg';
+import SvgDropDown from './dropdown.svg';
 
 export {
   SvgLogoBlue,
@@ -16,4 +17,5 @@ export {
   SvgUsername,
   SvgLocationPin,
   SvgPhone,
+  SvgDropDown,
 };

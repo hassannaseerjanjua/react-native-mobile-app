@@ -48,7 +48,7 @@ const useStyles = () => {
       otpContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
-        marginBottom: 30,
+        // marginBottom: 30,
         gap: 12,
       },
       otpBox: {
@@ -84,9 +84,9 @@ const useStyles = () => {
       },
       subtitle: {
         fontSize: 16,
-        color: colors.SECONDARY_TEXT,
+        color: colors.PRIMARY_TEXT,
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
-        marginBottom: 8,
+        // marginBottom: 8,
       },
       timerText: {
         fontSize: 16,

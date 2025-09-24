@@ -16,6 +16,7 @@ import Header from '../../../components/global/Header';
 import { login } from '../../../store/reducer/auth';
 import { SvgLogoBlue } from '../../../assets/icons/index.ts';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AuthLayout from '../../../components/app/AuthLayout.tsx';
 
 interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
@@ -108,75 +109,62 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const isOtpComplete = otp.every(digit => digit !== '');
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <Header />
-      <ScrollView
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.contentContainer}
-      >
-        <View style={styles.logoContainer}>
-          <SvgLogoBlue width={theme.sizes.APP_LOGO} />
+    <AuthLayout onBackPress={() => navigation.goBack()} title="">
+      <View style={styles.mainContent}>
+        <View style={styles.headerContainer}>
+          <Text style={styles.title}>
+            Enter the 6-digit code which is sent to your{' '}
+            {email ? 'email' : 'phone number'}
+          </Text>
+          {(email || phone) && (
+            <Text style={styles.subtitle}>{email || phone}</Text>
+          )}
         </View>
 
-        <View style={styles.mainContent}>
-          <View style={styles.headerContainer}>
-            <Text style={styles.title}>
-              Enter the 6-digit code which is sent to your{' '}
-              {email ? 'email' : 'phone number'}
-            </Text>
-            {(email || phone) && (
-              <Text style={styles.subtitle}>{email || phone}</Text>
-            )}
-          </View>
-
-          <View style={styles.otpContainer}>
-            {otp.map((digit, index) => (
-              <TextInput
-                key={index}
-                ref={ref => {
-                  inputRefs.current[index] = ref;
-                }}
-                style={[styles.otpInput, styles.otpBox]}
-                value={digit}
-                onChangeText={value => handleOtpChange(value, index)}
-                onKeyPress={({ nativeEvent }) =>
-                  handleKeyPress(nativeEvent.key, index)
-                }
-                keyboardType="number-pad"
-                maxLength={1}
-                textAlign="center"
-                selectTextOnFocus
-                autoFocus={index === 0}
-                returnKeyType="next"
-              />
-            ))}
-          </View>
-
-          <View style={styles.subtitleContainer}>
-            <Text style={styles.subtitle}>Haven't received code yet?</Text>
-            {isTimerActive ? (
-              <Text style={styles.timerText}>
-                Resend in {formatTimer(timer)}
-              </Text>
-            ) : (
-              <TouchableOpacity onPress={handleResendCode}>
-                <Text style={styles.resendText}>Resend Code</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-
-          <View style={styles.buttonContainer}>
-            <CustomButton
-              title="Verify"
-              type="primary"
-              onPress={handleVerify}
-              disabled={!isOtpComplete}
+        <View style={styles.otpContainer}>
+          {otp.map((digit, index) => (
+            <TextInput
+              key={index}
+              ref={ref => {
+                inputRefs.current[index] = ref;
+              }}
+              style={[styles.otpInput, styles.otpBox]}
+              value={digit}
+              onChangeText={value => handleOtpChange(value, index)}
+              onKeyPress={({ nativeEvent }) =>
+                handleKeyPress(nativeEvent.key, index)
+              }
+              keyboardType="number-pad"
+              maxLength={1}
+              textAlign="center"
+              selectTextOnFocus
+              autoFocus={index === 0}
+              returnKeyType="next"
             />
-          </View>
+          ))}
         </View>
-      </ScrollView>
-    </SafeAreaView>
+
+        <View style={styles.subtitleContainer}>
+          <Text style={styles.subtitle}>
+            Haven't received code yet?{' '}
+            {isTimerActive ? (
+              <Text>Wait for {formatTimer(timer)}</Text>
+            ) : (
+              <Text onPress={handleResendCode}>Resend Code</Text>
+            )}
+          </Text>
+        </View>
+
+        <View style={styles.buttonContainer}>
+          <CustomButton
+            title="Verify"
+            type="primary"
+            onPress={handleVerify}
+            disabled={!isOtpComplete}
+          />
+        </View>
+      </View>
+    </AuthLayout>
   );
 };
 

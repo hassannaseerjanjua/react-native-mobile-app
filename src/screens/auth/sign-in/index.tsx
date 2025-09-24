@@ -17,6 +17,7 @@ import { Formik } from 'formik';
 import { SvgEmail, SvgLogoBlue, SvgPhone } from '../../../assets/icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { scaleWithMax } from '../../../utils';
+import AuthLayout from '../../../components/app/AuthLayout';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
@@ -36,21 +37,13 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <Header showBackButton={false} />
-      <ScrollView
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.contentContainer}
-      >
-        <View style={styles.logoContainer}>
-          <SvgLogoBlue width={theme.sizes.APP_LOGO} />
-        </View>
-        <View style={styles.headerContainer}>
-          <Text style={styles.title}>Sign In</Text>
-          <Text style={styles.subtitle}>Welcome back, you've been missed</Text>
-        </View>
-
+    <AuthLayout
+      onBackPress={() => navigation.goBack()}
+      title="Sign In"
+      backButton={false}
+      subtitle="Welcome back, you've been missed"
+    >
+      <>
         <View style={styles.tabContainer}>
           {['Phone', 'Email'].map((item: string) => (
             <TouchableOpacity
@@ -120,8 +113,12 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             Sign Up
           </Text>
         </Text>
-      </ScrollView>
-    </SafeAreaView>
+      </>
+    </AuthLayout>
+    // <View style={styles.headerContainer}>
+    //   <Text style={styles.title}>Sign In</Text>
+    //   <Text style={styles.subtitle}>Welcome back, you've been missed</Text>
+    // </View>
   );
 };
 
