@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
+import { SvgBackIcon } from '../../assets/icons';
+import { scaleWithMax } from '../../utils';
 
 interface HeaderProps {
   title?: string;
@@ -15,8 +17,43 @@ const Header: React.FC<HeaderProps> = ({
   onBackPress,
 }) => {
   const navigation = useNavigation();
-  const theme = useTheme();
+  const { styles, theme } = useStyles();
 
+  const handleBackPress = () => {
+    if (onBackPress) {
+      onBackPress();
+    } else {
+      navigation.goBack();
+    }
+  };
+
+  const backSize = scaleWithMax(20, 25);
+
+  return (
+    <View style={styles.container}>
+      {showBackButton && (
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={handleBackPress}
+          activeOpacity={0.7}
+        >
+          <SvgBackIcon
+            style={styles.backButton}
+            width={backSize}
+            height={backSize}
+          />
+        </TouchableOpacity>
+      )}
+      {title && <Text style={styles.title}>{title}</Text>}
+      <View style={styles.placeholder} />
+    </View>
+  );
+};
+
+export default Header;
+
+const useStyles = () => {
+  const theme = useTheme();
   const styles = useMemo(() => {
     const { colors, sizes } = theme;
     return StyleSheet.create({
@@ -30,10 +67,6 @@ const Header: React.FC<HeaderProps> = ({
       },
       backButton: {
         padding: 8,
-        // borderRadius: 20,
-        // backgroundColor: colors.LIGHT_GRAY,
-        width: 40,
-        height: 40,
         alignItems: 'center',
         justifyContent: 'center',
       },
@@ -58,32 +91,8 @@ const Header: React.FC<HeaderProps> = ({
     });
   }, [theme]);
 
-  const handleBackPress = () => {
-    if (onBackPress) {
-      onBackPress();
-    } else {
-      navigation.goBack();
-    }
+  return {
+    theme,
+    styles,
   };
-
-  return (
-    <View style={styles.container}>
-      {showBackButton && (
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleBackPress}
-          activeOpacity={0.7}
-        >
-          <Image
-            source={require('../../assets/images/backIcon.png')}
-            style={styles.backButtonText}
-          />
-        </TouchableOpacity>
-      )}
-      {title && <Text style={styles.title}>{title}</Text>}
-      <View style={styles.placeholder} />
-    </View>
-  );
 };
-
-export default Header;
