@@ -14,11 +14,12 @@ import useStyles from './style';
 import InputField from '../../../components/global/InputField';
 import Header from '../../../components/global/Header';
 import { Formik } from 'formik';
+import { SvgLogoBlue } from '../../../assets/icons';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
-  const { styles } = useStyles();
+  const { styles, theme } = useStyles();
   const [activeTab, setActiveTab] = useState<'Phone' | 'Email'>('Phone');
 
   const handleSignIn = (values: { phone: string; email: string }) => {
@@ -41,10 +42,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         contentContainerStyle={styles.contentContainer}
       >
         <View style={styles.logoContainer}>
-          <Image
-            source={require('../../../assets/images/blueLogo.png')}
-            style={styles.logo}
-          />
+          <SvgLogoBlue width={theme.sizes.APP_LOGO} />
         </View>
         <View style={styles.headerContainer}>
           <Text style={styles.subtitle}>Welcome back, you've been missed</Text>

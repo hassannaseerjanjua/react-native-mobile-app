@@ -19,6 +19,8 @@ const getSizes = (width: number, height: number) => ({
   FONTSIZE_HIGH: 18,
   FONTSIZE_SMALL: 10,
   HEADER_FOOTER_SIZE: height * 0.1,
+  // Sizes
+  APP_LOGO: width * 0.4,
 });
 
 export type Sizes = ReturnType<typeof getSizes>;

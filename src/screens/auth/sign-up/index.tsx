@@ -1,25 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  TextInput,
-  StatusBar,
-} from 'react-native';
+import { View, Text, ScrollView, StatusBar } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
-import DropdownField from '../../../components/global/DropdownField';
 import useStyles from './style';
 import InputField from '../../../components/global/InputField';
 import Header from '../../../components/global/Header';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
+import { SvgLogoBlue } from '../../../assets/icons';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
-  const { styles } = useStyles();
+  const { styles, theme } = useStyles();
   const [currentStep, setCurrentStep] = useState(1);
   const [cities, setCities] = useState<any[]>([]);
   const [loadingCities, setLoadingCities] = useState(false);
@@ -69,7 +62,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
       console.log(response);
 
       if (response.success && response.data) {
-        const cities = response.data.Data.Cities;
+        const cities = response.data.data.Data.Cities;
         console.log('Cities:', cities);
         setCities(cities);
       }
@@ -256,10 +249,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         contentContainerStyle={styles.contentContainer}
       >
         <View style={styles.logoContainer}>
-          <Image
-            source={require('../../../assets/images/blueLogo.png')}
-            style={styles.logo}
-          />
+          <SvgLogoBlue width={theme.sizes.APP_LOGO} />
         </View>
 
         <View style={styles.mainContent}>

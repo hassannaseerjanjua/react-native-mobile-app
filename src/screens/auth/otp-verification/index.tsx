@@ -14,6 +14,7 @@ import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style.ts';
 import Header from '../../../components/global/Header';
 import { login } from '../../../store/reducer/auth';
+import { SvgLogoBlue } from '../../../assets/icons/index.ts';
 
 interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
@@ -21,7 +22,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   navigation,
   route,
 }) => {
-  const { styles } = useStyles();
+  const { styles, theme } = useStyles();
   const dispatch = useDispatch();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
@@ -114,10 +115,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         contentContainerStyle={styles.contentContainer}
       >
         <View style={styles.logoContainer}>
-          <Image
-            source={require('../../../assets/images/blueLogo.png')}
-            style={styles.logo}
-          />
+          <SvgLogoBlue width={theme.sizes.APP_LOGO} />
         </View>
 
         <View style={styles.mainContent}>
