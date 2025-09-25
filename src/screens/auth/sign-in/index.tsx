@@ -37,11 +37,33 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     email: '',
   });
 
-  const handleSignIn = (values: { phone: string; email: string }) => {
+  const handleSignIn = async (
+    values: { phone: string; email: string },
+    formik: any,
+  ) => {
     console.log('Sign in pressed', values);
 
-    setCurrentFormValues(values);
-    setIsBottomSheetOpen(true);
+    // Mark the active field as touched to show validation errors
+    const touchedFields = {
+      phone: activeTab === 'Phone',
+      email: activeTab === 'Email',
+    };
+
+    await formik.setTouched(touchedFields);
+
+    // Validate the form
+    const errors = await formik.validateForm();
+
+    // Check if there are validation errors for the active field
+    const hasErrors =
+      (activeTab === 'Phone' && errors.phone) ||
+      (activeTab === 'Email' && errors.email);
+
+    if (!hasErrors) {
+      // Store the form values and show confirmation bottom sheet
+      setCurrentFormValues(values);
+      setIsBottomSheetOpen(true);
+    }
   };
 
   const validationSchema = useMemo(() => {
@@ -112,7 +134,9 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           </View>
           <Formik
             initialValues={{ phone: '', email: '' }}
-            onSubmit={handleSignIn}
+            onSubmit={(values, formikHelpers) =>
+              handleSignIn(values, formikHelpers)
+            }
             validationSchema={validationSchema}
           >
             {formik => (
@@ -122,11 +146,15 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                     <InputField
                       icon={<SvgPhone width={scaleWithMax(20, 25)} />}
                       error={
-                        activeTab === 'Phone' ? formik.errors.phone : undefined
+                        activeTab === 'Phone' &&
+                        formik.touched.phone &&
+                        formik.errors.phone
+                          ? formik.errors.phone
+                          : undefined
                       }
                       fieldProps={{
                         placeholder: 'Phone Number',
-                        maxLength: 13,
+                        maxLength: 14,
                         value: '+966 ' + formik.values.phone,
                         onChangeText: value => {
                           if (value?.startsWith('+966 ')) {
@@ -145,7 +173,11 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                     <InputField
                       icon={<SvgEmail width={scaleWithMax(20, 25)} />}
                       error={
-                        activeTab === 'Email' ? formik.errors.email : undefined
+                        activeTab === 'Email' &&
+                        formik.touched.email &&
+                        formik.errors.email
+                          ? formik.errors.email
+                          : undefined
                       }
                       fieldProps={{
                         placeholder: 'Email Address',

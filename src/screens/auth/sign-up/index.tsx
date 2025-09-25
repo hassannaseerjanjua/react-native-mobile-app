@@ -370,7 +370,7 @@ const StepContent: React.FC<StepContentProps> = ({
               }
               fieldProps={{
                 placeholder: 'Phone Number',
-                maxLength: 13,
+                maxLength: 14,
                 value: '+966 ' + formData.phoneNumber,
                 onChangeText: value => {
                   if (value?.startsWith('+966 ')) {
