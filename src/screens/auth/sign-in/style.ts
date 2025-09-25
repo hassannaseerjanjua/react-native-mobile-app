@@ -92,6 +92,30 @@ const useStyles = () => {
         textDecorationLine: 'underline',
         fontSize: 15,
       },
+      bottomSheetContainer: {
+        width: sizes.PADDED_WIDTH,
+        alignSelf: 'center',
+      },
+      bottomSheetTitle: {
+        ...theme.globalStyles.TEXT_STYLE,
+        fontSize: sizes.FONTSIZE_HIGH,
+        color: colors.PRIMARY_TEXT,
+        textAlign: 'center',
+        marginBottom: sizes.PADDING,
+        paddingHorizontal: sizes.WIDTH * 0.2,
+        alignSelf: 'center',
+      },
+      bottomSheetIconContainer: {
+        alignItems: 'center',
+        marginBottom: sizes.PADDING,
+      },
+      bottomSheetNumber: {
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: sizes.FONTSIZE_HIGH,
+        color: colors.PRIMARY,
+        marginBottom: sizes.PADDING * 1.3,
+        textAlign: 'center',
+      },
     });
   }, [theme]);
 
