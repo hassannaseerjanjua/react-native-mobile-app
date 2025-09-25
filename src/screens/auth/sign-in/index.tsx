@@ -37,6 +37,10 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     email: '',
   });
 
+  const handleTabChange = (tab: 'Phone' | 'Email') => {
+    setActiveTab(tab);
+  };
+
   const handleSignIn = async (
     values: { phone: string; email: string },
     formik: any,
@@ -82,9 +86,22 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           ? Yup.string()
               .email('Invalid email address')
               .required('Email address is required')
-          : Yup.string().nullable(),
+          : Yup.string().optional(),
     });
   }, [activeTab]);
+
+  // Helper functions for cleaner validation logic
+  const getFieldError = (fieldName: 'phone' | 'email', formik: any) => {
+    const isActiveField =
+      (fieldName === 'phone' && activeTab === 'Phone') ||
+      (fieldName === 'email' && activeTab === 'Email');
+
+    return isActiveField &&
+      formik.touched[fieldName] &&
+      formik.errors[fieldName]
+      ? formik.errors[fieldName]
+      : undefined;
+  };
 
   const handleConfirmAndNavigate = () => {
     setIsBottomSheetOpen(false);
@@ -119,7 +136,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
               <TouchableOpacity
                 key={item}
                 style={[styles.tab, activeTab === item && styles.activeTab]}
-                onPress={() => setActiveTab(item as 'Phone' | 'Email')}
+                onPress={() => handleTabChange(item as 'Phone' | 'Email')}
               >
                 <Text
                   style={[
@@ -133,6 +150,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             ))}
           </View>
           <Formik
+            key={activeTab} // Force reinitialize when tab changes
             initialValues={{ phone: '', email: '' }}
             onSubmit={(values, formikHelpers) =>
               handleSignIn(values, formikHelpers)
@@ -145,13 +163,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   <View style={styles.inputContainer}>
                     <InputField
                       icon={<SvgPhone width={scaleWithMax(20, 25)} />}
-                      error={
-                        activeTab === 'Phone' &&
-                        formik.touched.phone &&
-                        formik.errors.phone
-                          ? formik.errors.phone
-                          : undefined
-                      }
+                      error={getFieldError('phone', formik)}
                       fieldProps={{
                         placeholder: 'Phone Number',
                         maxLength: 14,
@@ -172,13 +184,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   <View style={styles.inputContainer}>
                     <InputField
                       icon={<SvgEmail width={scaleWithMax(20, 25)} />}
-                      error={
-                        activeTab === 'Email' &&
-                        formik.touched.email &&
-                        formik.errors.email
-                          ? formik.errors.email
-                          : undefined
-                      }
+                      error={getFieldError('email', formik)}
                       fieldProps={{
                         placeholder: 'Email Address',
                         value: formik.values.email,
