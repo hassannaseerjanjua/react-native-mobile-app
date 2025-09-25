@@ -56,6 +56,8 @@ const DropdownField = ({
   const handleSelect = (option: DropdownOption) => {
     onSelect(option);
     setIsVisible(false);
+    // Clear search field when option is selected
+    onSearchChange?.('');
   };
 
   const renderOption = ({ item }: { item: DropdownOption }) => (
@@ -121,17 +123,22 @@ const DropdownField = ({
       >
         <TouchableWithoutFeedback onPress={() => setIsVisible(false)}>
           <View style={styles.modalOverlay}>
-            <TouchableWithoutFeedback>
-              <View style={styles.modalContent}>
-                <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>{label}</Text>
-                  <TouchableOpacity onPress={() => setIsVisible(false)}>
-                    <Text style={styles.closeButton}>✕</Text>
-                  </TouchableOpacity>
-                </View>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{label}</Text>
+                <TouchableOpacity
+                  onPress={() => {
+                    setIsVisible(false);
+                    onSearchChange?.('');
+                  }}
+                >
+                  <Text style={styles.closeButton}>✕</Text>
+                </TouchableOpacity>
+              </View>
 
-                {onSearchChange && (
-                  <View style={styles.searchContainer}>
+              {onSearchChange && (
+                <View style={styles.searchContainer}>
+                  <View style={styles.searchInputContainer}>
                     <InputField
                       fieldProps={{
                         placeholder: 'Search...',
@@ -141,39 +148,47 @@ const DropdownField = ({
                         autoCorrect: false,
                       }}
                     />
+                    {searchValue.length > 0 && (
+                      <TouchableOpacity
+                        style={styles.clearButton}
+                        onPress={() => onSearchChange('')}
+                      >
+                        <Text style={styles.clearButtonText}>✕</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
-                )}
+                </View>
+              )}
 
-                {isLoading ? (
-                  <View style={styles.loadingContainer}>
-                    <ActivityIndicator
-                      size="large"
-                      color={theme.colors.PRIMARY}
-                    />
-                  </View>
-                ) : (
-                  <FlatList
-                    data={options}
-                    renderItem={renderOption}
-                    keyExtractor={(item, index) => `${item.value}-${index}`}
-                    style={styles.optionsList}
-                    showsVerticalScrollIndicator={false}
-                    ItemSeparatorComponent={() => (
-                      <View style={styles.separator} />
-                    )}
-                    ListEmptyComponent={() => (
-                      <View style={styles.emptyContainer}>
-                        <Text style={styles.emptyText}>
-                          {searchValue
-                            ? 'No results found'
-                            : 'No options available'}
-                        </Text>
-                      </View>
-                    )}
+              {isLoading ? (
+                <View style={styles.loadingContainer}>
+                  <ActivityIndicator
+                    size="large"
+                    color={theme.colors.PRIMARY}
                   />
-                )}
-              </View>
-            </TouchableWithoutFeedback>
+                </View>
+              ) : (
+                <FlatList
+                  data={options}
+                  renderItem={renderOption}
+                  keyExtractor={(item, index) => `${item.value}-${index}`}
+                  style={styles.optionsList}
+                  showsVerticalScrollIndicator={false}
+                  ItemSeparatorComponent={() => (
+                    <View style={styles.separator} />
+                  )}
+                  ListEmptyComponent={() => (
+                    <View style={styles.emptyContainer}>
+                      <Text style={styles.emptyText}>
+                        {searchValue
+                          ? 'No results found'
+                          : 'No options available'}
+                      </Text>
+                    </View>
+                  )}
+                />
+              )}
+            </View>
           </View>
         </TouchableWithoutFeedback>
       </Modal>
@@ -282,6 +297,27 @@ const useStyles = () => {
         padding: sizes.PADDING,
         borderBottomWidth: 1,
         borderBottomColor: colors.LIGHT_GRAY,
+      },
+      searchInputContainer: {
+        position: 'relative',
+      },
+      clearButton: {
+        position: 'absolute',
+        right: 10,
+        top: '50%',
+        transform: [{ translateY: -10 }],
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: colors.LIGHT_GRAY,
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 1,
+      },
+      clearButtonText: {
+        fontSize: 12,
+        color: colors.SECONDARY_TEXT,
+        fontWeight: 'bold',
       },
       loadingContainer: {
         padding: sizes.PADDING * 2,

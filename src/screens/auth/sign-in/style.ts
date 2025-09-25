@@ -64,7 +64,7 @@ const useStyles = () => {
         shadowColor: colors.BLACK,
       },
       tabText: {
-        fontSize: 14,
+        fontSize: 15,
         color: colors.SECONDARY_TEXT,
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },

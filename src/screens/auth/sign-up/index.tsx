@@ -5,6 +5,7 @@ import {
   ScrollView,
   StatusBar,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
@@ -51,6 +52,9 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     email: '',
   });
 
+  // Username API error state
+  const [usernameApiError, setUsernameApiError] = useState<string | null>(null);
+
   const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
     transformData: data => data.Data.cities,
   });
@@ -92,6 +96,10 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           ? Yup.string()
               .trim()
               .email('Invalid email address')
+              .matches(
+                /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+                'Enter a valid email address',
+              )
               .required('Email address is required')
           : Yup.string().optional(),
     });
@@ -123,7 +131,37 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
 
       if (!hasCurrentStepErrors) {
         if (currentStep < 3) {
-          setCurrentStep(currentStep + 1);
+          if (currentStep === 1) {
+            try {
+              // Clear previous API error
+              setUsernameApiError(null);
+
+              const response = await api.post(
+                apiEndpoints.VERIFY_USERNAME,
+                formData.username,
+              );
+
+              console.log('API Response:', response);
+
+              if (response.success) {
+                console.log(
+                  'Username verification successful:',
+                  response.success,
+                );
+                setCurrentStep(currentStep + 1);
+              } else {
+                console.log('Username verification failed:', response.error);
+                setUsernameApiError('Username already exists');
+              }
+            } catch (error) {
+              console.log('API Error:', error);
+              setUsernameApiError('Username already exists');
+            }
+          } else {
+            // For steps 2 and 3, allow progression without API calls
+            setCurrentStep(currentStep + 1);
+          }
+          console.log('Form data:', formData);
         } else {
           setIsBottomSheetOpen(true);
         }
@@ -133,20 +171,47 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     }
   };
 
-  const handleSignUp = () => {
+  const handleSignUp = async () => {
     console.log('Sign up data:', formData);
+    const response = await api
+      .post(apiEndpoints.SIGNUP, {
+        FullName: formData.fullName,
+        UserName: formData.username,
+        CityId: formData.city,
+        Phone: formData.phoneNumber,
+        Email: formData.email,
+      })
+      .then(res => {
+        console.log('Sign up response:', res);
+        if (res.success) {
+          navigation.navigate('OtpVerification', {
+            email: formData.email,
+            phone: formData.phoneNumber,
+            fullName: formData.fullName,
+            username: formData.username,
+            city: formData.city,
+          });
+        }
+      })
+      .catch(err => {
+        console.log('Sign up error:', err);
+      })
+      .finally(() => {
+        setIsBottomSheetOpen(false);
+      });
+    console.log('Sign up response:', response);
     setIsBottomSheetOpen(false);
-    // Handle final sign up logic here
-    navigation.navigate('OtpVerification', {
-      email: formData.email,
-      phone: formData.phoneNumber,
-    });
   };
 
   const updateFormData = (field: string, value: string, formik?: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     if (formik) {
       formik.setFieldValue(field, value);
+    }
+
+    // Clear username API error when user types in username field
+    if (field === 'username' && usernameApiError) {
+      setUsernameApiError(null);
     }
   };
 
@@ -209,6 +274,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                 areaSearch={areaSearch}
                 setAreaSearch={setAreaSearch}
                 formik={formik}
+                usernameApiError={usernameApiError}
               />
 
               <View style={styles.buttonContainer}>
@@ -222,6 +288,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           )}
         </Formik>
       </AuthLayout>
+
       <AppBottomSheet
         blurAmount={100}
         blurType="light"
@@ -250,7 +317,9 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           <CustomButton
             title="No, I want to change it"
             type="secondary"
-            onPress={handleSignUp}
+            onPress={() => {
+              setIsBottomSheetOpen(false);
+            }}
           />
         </View>
       </AppBottomSheet>
@@ -269,6 +338,7 @@ interface StepContentProps {
   areaSearch: string;
   setAreaSearch: (value: string) => void;
   formik: any;
+  usernameApiError: string | null;
 }
 
 const StepContent: React.FC<StepContentProps> = ({
@@ -280,6 +350,7 @@ const StepContent: React.FC<StepContentProps> = ({
   areaSearch,
   setAreaSearch,
   formik,
+  usernameApiError,
 }) => {
   const options = toOption<City>(citiesApi.data || [], 'CityName', 'CityID');
   const filteredOptions = options.filter(option =>
@@ -304,6 +375,7 @@ const StepContent: React.FC<StepContentProps> = ({
               fieldProps={{
                 placeholder: 'Full Name',
                 value: formData.fullName,
+                maxLength: 50,
                 onChangeText: value =>
                   updateFormData('fullName', value, formik),
                 autoCapitalize: 'words',
@@ -315,12 +387,15 @@ const StepContent: React.FC<StepContentProps> = ({
             <InputField
               icon={<SvgUsername width={scaleWithMax(20, 25)} />}
               error={
-                formik.touched.username && formik.errors.username
+                usernameApiError
+                  ? usernameApiError
+                  : formik.touched.username && formik.errors.username
                   ? formik.errors.username
                   : undefined
               }
               fieldProps={{
                 placeholder: 'Username',
+                maxLength: 50,
                 value: formData.username,
                 onChangeText: value =>
                   updateFormData('username', value, formik),

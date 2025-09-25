@@ -11,6 +11,10 @@ export type AuthStackParamList = {
   OtpVerification: {
     email?: string;
     phone?: string;
+    fullName?: string;
+    username?: string;
+    city?: string;
+    signIn?: boolean;
   };
 };
 

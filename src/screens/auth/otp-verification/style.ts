@@ -1,10 +1,11 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, useWindowDimensions } from 'react-native';
 import useTheme from '../../../styles/theme';
 import { useMemo } from 'react';
 import { isIOS, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
+  const { width, height } = useWindowDimensions();
 
   const styles = useMemo(() => {
     const { colors, sizes } = theme;
@@ -42,14 +43,14 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE_HEADING,
         color: colors.PRIMARY_TEXT,
-        textAlign: 'center',
+        // textAlign: 'center',
         lineHeight: 24,
       },
       otpContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
         // marginBottom: 30,
-        gap: 12,
+        gap: width * 0.025,
       },
       otpBox: {
         width: 50,

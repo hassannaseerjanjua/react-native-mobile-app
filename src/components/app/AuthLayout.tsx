@@ -31,6 +31,7 @@ const AuthLayout = ({
         spaceTaken={!backButton}
       />
       <ScrollView
+        showsVerticalScrollIndicator={false}
         style={styles.scrollContainer}
         contentContainerStyle={styles.contentContainer}
       >

@@ -16,10 +16,11 @@ import { scaleWithMax } from '../../utils';
 interface CustomButtonProps {
   title?: string;
   onPress?: () => void;
-  type?: 'primary' | 'secondary';
+  type?: 'primary' | 'secondary' | 'error';
   labelStyle?: StyleProp<TextStyle>;
   buttonStyle?: StyleProp<ViewStyle>;
   disabled?: boolean;
+  isError?: boolean;
 }
 
 const CustomButton = ({
@@ -29,6 +30,7 @@ const CustomButton = ({
   buttonStyle,
   disabled = false,
   labelStyle,
+  isError = false,
 }: CustomButtonProps) => {
   const theme = useTheme();
   const { height, width } = useWindowDimensions();
@@ -41,9 +43,19 @@ const CustomButton = ({
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: type === 'primary' ? colors.PRIMARY : 'transparent',
+    backgroundColor:
+      type === 'primary'
+        ? colors.PRIMARY
+        : type === 'error'
+        ? 'rgba(255, 0, 0, 0.1)'
+        : 'transparent',
     borderWidth: 1,
-    borderColor: colors.PRIMARY,
+    borderColor:
+      type === 'primary'
+        ? colors.PRIMARY
+        : type === 'error'
+        ? 'transparent'
+        : colors.PRIMARY,
   };
 
   return (
@@ -55,10 +67,16 @@ const CustomButton = ({
     >
       <Text
         style={[
-          theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+          type === 'error'
+            ? theme.globalStyles.TEXT_STYLE
+            : theme.globalStyles.TEXT_STYLE_SEMIBOLD,
           {
             color:
-              type === 'primary' ? theme.colors.WHITE : theme.colors.PRIMARY,
+              type === 'primary'
+                ? theme.colors.WHITE
+                : type === 'error'
+                ? theme.colors.RED
+                : theme.colors.PRIMARY,
             fontSize: theme.sizes.FONTSIZE_BUTTON,
           },
           labelStyle,

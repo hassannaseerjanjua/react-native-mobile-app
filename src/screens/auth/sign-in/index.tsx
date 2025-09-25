@@ -25,6 +25,8 @@ import { scaleWithMax } from '../../../utils';
 import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import * as Yup from 'yup';
+import api from '../../../utils/api';
+import apiEndpoints from '../../../constants/api-endpoints';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
@@ -66,6 +68,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     if (!hasErrors) {
       // Store the form values and show confirmation bottom sheet
       setCurrentFormValues(values);
+
       setIsBottomSheetOpen(true);
     }
   };
@@ -84,7 +87,12 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       email:
         activeTab === 'Email'
           ? Yup.string()
+              .trim()
               .email('Invalid email address')
+              .matches(
+                /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
+                'Enter a valid email address',
+              )
               .required('Email address is required')
           : Yup.string().optional(),
     });
@@ -103,23 +111,51 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       : undefined;
   };
 
-  const handleConfirmAndNavigate = () => {
+  const handleConfirmAndNavigate = async () => {
     setIsBottomSheetOpen(false);
+
+    api
+      .post(apiEndpoints.SIGNIN, {
+        PhoneNo: currentFormValues.phone,
+        Email: currentFormValues.email,
+      })
+      .then(response => {
+        console.log('Sign in response', response);
+        if (response.success) {
+          navigation.navigate('OtpVerification', {
+            phone: currentFormValues.phone,
+            email: currentFormValues.email,
+            signIn: true,
+          });
+        }
+      })
+      .catch(error => {
+        console.log('Sign in error', error);
+      });
 
     // Navigate to OTP verification with the appropriate parameter
-    if (activeTab === 'Phone' && currentFormValues.phone) {
-      navigation.navigate('OtpVerification', {
-        phone: currentFormValues.phone,
-      });
-    } else if (activeTab === 'Email' && currentFormValues.email) {
-      navigation.navigate('OtpVerification', {
-        email: currentFormValues.email,
-      });
-    }
-  };
 
-  const handleChangeNumber = () => {
-    setIsBottomSheetOpen(false);
+    // if (activeTab === 'Phone' && currentFormValues.phone) {
+    //   const response = await api.post(apiEndpoints.SIGNIN, {
+    //     PhoneNo: currentFormValues.phone,
+    //   });
+    //   console.log('Sign in response', response);
+    //   if (response.success) {
+    //     navigation.navigate('OtpVerification', {
+    //       phone: currentFormValues.phone,
+    //     });
+    //   }
+    // } else if (activeTab === 'Email' && currentFormValues.email) {
+    //   const response = await api.post(apiEndpoints.SIGNIN, {
+    //     Email: currentFormValues.email,
+    //   });
+    //   console.log('Sign in response', response);
+    //   if (response.success) {
+    //     navigation.navigate('OtpVerification', {
+    //       email: currentFormValues.email,
+    //     });
+    //   }
+    // }
   };
 
   return (
@@ -257,7 +293,9 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           <CustomButton
             title="No, I want to change it"
             type="secondary"
-            onPress={handleChangeNumber}
+            onPress={() => {
+              setIsBottomSheetOpen(false);
+            }}
           />
         </View>
       </AppBottomSheet>

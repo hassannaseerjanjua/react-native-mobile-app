@@ -40,7 +40,7 @@ const Header: React.FC<HeaderProps> = ({
       >
         {showBackButton && (
           <SvgBackIcon
-            style={styles.backButton}
+            // style={styles.backButton}
             width={backSize}
             height={backSize}
           />
@@ -74,13 +74,14 @@ const useStyles = () => {
         backgroundColor: colors.BACKGROUND,
       },
       backButton: {
-        padding: 8,
+        // padding: 8,
+        paddingVertical: sizes.PADDING,
         alignItems: 'center',
         justifyContent: 'center',
       },
       backButtonText: {
-        width: 20,
-        height: 20,
+        width: 8,
+        height: 17,
         resizeMode: 'contain',
       },
       title: {
