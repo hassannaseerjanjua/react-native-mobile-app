@@ -55,11 +55,81 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     transformData: data => data.Data.cities,
   });
 
-  const handleNext = () => {
-    if (currentStep < 3) {
-      setCurrentStep(currentStep + 1);
-    } else {
-      setIsBottomSheetOpen(true);
+  // Dynamic validation schema based on current step
+  const validationSchema = useMemo(() => {
+    return Yup.object().shape({
+      fullName:
+        currentStep === 1
+          ? Yup.string()
+              .trim()
+              .required('Full name is required')
+              .min(3, 'Full name must be at least 3 characters')
+              .max(50, 'Full name must be less than 50 characters')
+          : Yup.string().optional(),
+      username:
+        currentStep === 1
+          ? Yup.string()
+              .trim()
+              .required('Username is required')
+              .min(3, 'Username must be at least 3 characters')
+              .max(50, 'Username must be less than 50 characters')
+          : Yup.string().optional(),
+      city:
+        currentStep === 2
+          ? Yup.string().required('City is required')
+          : Yup.string().optional(),
+      phoneNumber:
+        currentStep === 3
+          ? Yup.string()
+              .trim()
+              .required('Phone number is required')
+              .matches(/^5/, 'Phone number must start with 5x-xxx-xxxx')
+              .matches(/^[0-9]+$/, 'Phone number must contain only digits')
+              .length(9, 'Phone number must be 9 digits')
+          : Yup.string().optional(),
+      email:
+        currentStep === 3
+          ? Yup.string()
+              .trim()
+              .email('Invalid email address')
+              .required('Email address is required')
+          : Yup.string().optional(),
+    });
+  }, [currentStep]);
+
+  const handleNext = async (formik: any) => {
+    try {
+      // Set touched fields for current step before validation
+      const touchedFields = {
+        fullName: currentStep === 1,
+        username: currentStep === 1,
+        city: currentStep === 2,
+        phoneNumber: currentStep === 3,
+        email: currentStep === 3,
+      };
+
+      await formik.setTouched(touchedFields);
+
+      // Validate the form
+      const errors = await formik.validateForm();
+
+      // Check if there are validation errors for current step fields
+      const currentStepFields = Object.keys(touchedFields).filter(
+        key => touchedFields[key as keyof typeof touchedFields],
+      );
+      const hasCurrentStepErrors = currentStepFields.some(
+        field => errors[field],
+      );
+
+      if (!hasCurrentStepErrors) {
+        if (currentStep < 3) {
+          setCurrentStep(currentStep + 1);
+        } else {
+          setIsBottomSheetOpen(true);
+        }
+      }
+    } catch (error) {
+      console.log('Validation error:', error);
     }
   };
 
@@ -73,8 +143,11 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     });
   };
 
-  const updateFormData = (field: string, value: string) => {
+  const updateFormData = (field: string, value: string, formik?: any) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    if (formik) {
+      formik.setFieldValue(field, value);
+    }
   };
 
   const renderProgressBar = () => (
@@ -91,7 +164,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         <View
           style={[
             styles.progressFill,
-
             { width: `${(currentStep / 3) * 100}%` },
           ]}
         />
@@ -119,26 +191,36 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             : ''
         }
       >
-        <>
-          {renderProgressBar()}
-          <StepContent
-            currentStep={currentStep}
-            formData={formData}
-            updateFormData={updateFormData}
-            styles={styles}
-            citiesApi={citiesApi}
-            areaSearch={areaSearch}
-            setAreaSearch={setAreaSearch}
-          />
+        <Formik
+          initialValues={formData}
+          validationSchema={validationSchema}
+          onSubmit={() => {}}
+          enableReinitialize={true}
+        >
+          {formik => (
+            <>
+              {renderProgressBar()}
+              <StepContent
+                currentStep={currentStep}
+                formData={formData}
+                updateFormData={updateFormData}
+                styles={styles}
+                citiesApi={citiesApi}
+                areaSearch={areaSearch}
+                setAreaSearch={setAreaSearch}
+                formik={formik}
+              />
 
-          <View style={styles.buttonContainer}>
-            <CustomButton
-              title={currentStep === 3 ? 'Sign Up' : 'Next'}
-              type="primary"
-              onPress={handleNext}
-            />
-          </View>
-        </>
+              <View style={styles.buttonContainer}>
+                <CustomButton
+                  title={currentStep === 3 ? 'Sign Up' : 'Next'}
+                  type="primary"
+                  onPress={() => handleNext(formik)}
+                />
+              </View>
+            </>
+          )}
+        </Formik>
       </AuthLayout>
       <AppBottomSheet
         blurAmount={100}
@@ -181,11 +263,12 @@ export default SignUp;
 interface StepContentProps {
   currentStep: number;
   formData: any;
-  updateFormData: (field: string, value: string) => void;
+  updateFormData: (field: string, value: string, formik?: any) => void;
   styles: any;
   citiesApi: any;
   areaSearch: string;
   setAreaSearch: (value: string) => void;
+  formik: any;
 }
 
 const StepContent: React.FC<StepContentProps> = ({
@@ -196,6 +279,7 @@ const StepContent: React.FC<StepContentProps> = ({
   citiesApi,
   areaSearch,
   setAreaSearch,
+  formik,
 }) => {
   const options = toOption<City>(citiesApi.data || [], 'CityName', 'CityID');
   const filteredOptions = options.filter(option =>
@@ -212,10 +296,16 @@ const StepContent: React.FC<StepContentProps> = ({
           <View style={styles.inputContainer}>
             <InputField
               icon={<SvgUser width={scaleWithMax(20, 25)} />}
+              error={
+                formik.touched.fullName && formik.errors.fullName
+                  ? formik.errors.fullName
+                  : undefined
+              }
               fieldProps={{
                 placeholder: 'Full Name',
                 value: formData.fullName,
-                onChangeText: value => updateFormData('fullName', value),
+                onChangeText: value =>
+                  updateFormData('fullName', value, formik),
                 autoCapitalize: 'words',
               }}
             />
@@ -224,10 +314,16 @@ const StepContent: React.FC<StepContentProps> = ({
           <View style={styles.inputContainer}>
             <InputField
               icon={<SvgUsername width={scaleWithMax(20, 25)} />}
+              error={
+                formik.touched.username && formik.errors.username
+                  ? formik.errors.username
+                  : undefined
+              }
               fieldProps={{
                 placeholder: 'Username',
                 value: formData.username,
-                onChangeText: value => updateFormData('username', value),
+                onChangeText: value =>
+                  updateFormData('username', value, formik),
                 autoCapitalize: 'none',
               }}
             />
@@ -250,9 +346,13 @@ const StepContent: React.FC<StepContentProps> = ({
               selectedValue={formData.city}
               onSelect={value => {
                 setSelectedOption(value);
-                updateFormData('city', value.value);
+                updateFormData('city', value.value, formik);
               }}
+              error={formik.touched.city && formik.errors.city}
             />
+            {formik.touched.city && formik.errors.city && (
+              <Text style={styles.errorText}>{formik.errors.city}</Text>
+            )}
           </View>
         </View>
       );
@@ -263,14 +363,21 @@ const StepContent: React.FC<StepContentProps> = ({
           <View style={styles.inputContainer}>
             <InputField
               icon={<SvgPhone width={scaleWithMax(20, 25)} />}
+              error={
+                formik.touched.phoneNumber && formik.errors.phoneNumber
+                  ? formik.errors.phoneNumber
+                  : undefined
+              }
               fieldProps={{
                 placeholder: 'Phone Number',
+                maxLength: 13,
                 value: '+966 ' + formData.phoneNumber,
                 onChangeText: value => {
                   if (value?.startsWith('+966 ')) {
                     updateFormData(
                       'phoneNumber',
                       value?.replaceAll('+966 ', ''),
+                      formik,
                     );
                   }
                 },
@@ -281,10 +388,15 @@ const StepContent: React.FC<StepContentProps> = ({
           <View style={styles.inputContainer}>
             <InputField
               icon={<SvgEmail width={scaleWithMax(20, 25)} />}
+              error={
+                formik.touched.email && formik.errors.email
+                  ? formik.errors.email
+                  : undefined
+              }
               fieldProps={{
                 placeholder: 'Email',
                 value: formData.email,
-                onChangeText: value => updateFormData('email', value),
+                onChangeText: value => updateFormData('email', value, formik),
                 keyboardType: 'email-address',
                 autoCapitalize: 'none',
               }}

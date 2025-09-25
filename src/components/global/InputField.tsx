@@ -11,7 +11,7 @@ import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 
 type Props = {
-  error?: boolean;
+  error?: boolean | string;
   icon?: any;
   style?: any;
   iconColor?: string;
@@ -54,8 +54,19 @@ const InputField = ({
           selectionColor={theme.colors.PRIMARY}
           underlineColorAndroid="transparent"
         />
-        {errors && <Text style={styles.error}>{errors}</Text>}
       </View>
+      {(errors || (typeof error === 'string' && error)) && (
+        <Text
+          style={[
+            styles.error,
+            {
+              textAlign: 'left',
+            },
+          ]}
+        >
+          {errors || (typeof error === 'string' ? error : '')}
+        </Text>
+      )}
     </>
   );
 };

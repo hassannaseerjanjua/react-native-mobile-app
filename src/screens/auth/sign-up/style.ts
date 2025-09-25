@@ -141,6 +141,12 @@ const useStyles = () => {
         marginBottom: sizes.PADDING * 1.3,
         textAlign: 'center',
       },
+      errorText: {
+        color: colors.RED,
+        fontSize: sizes.FONTSIZE_SMALL,
+        marginTop: scaleWithMax(5, 8),
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+      },
     });
   }, [theme]);
 

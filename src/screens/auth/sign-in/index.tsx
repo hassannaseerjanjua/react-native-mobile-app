@@ -48,8 +48,13 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     return Yup.object().shape({
       phone:
         activeTab === 'Phone'
-          ? Yup.string().required('Phone string is required')
-          : Yup.string().nullable(),
+          ? Yup.string()
+              .trim()
+              .required('Phone number is required')
+              .matches(/^5/, 'Phone number must start with 5x-xxx-xxxx')
+              .matches(/^[0-9]+$/, 'Phone number must contain only digits')
+              .length(9, 'Phone number must be 9 digits')
+          : Yup.string().optional(),
       email:
         activeTab === 'Email'
           ? Yup.string()
@@ -116,12 +121,12 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   <View style={styles.inputContainer}>
                     <InputField
                       icon={<SvgPhone width={scaleWithMax(20, 25)} />}
-                      errors={
+                      error={
                         activeTab === 'Phone' ? formik.errors.phone : undefined
                       }
                       fieldProps={{
                         placeholder: 'Phone Number',
-
+                        maxLength: 13,
                         value: '+966 ' + formik.values.phone,
                         onChangeText: value => {
                           if (value?.startsWith('+966 ')) {
@@ -139,7 +144,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   <View style={styles.inputContainer}>
                     <InputField
                       icon={<SvgEmail width={scaleWithMax(20, 25)} />}
-                      errors={
+                      error={
                         activeTab === 'Email' ? formik.errors.email : undefined
                       }
                       fieldProps={{
