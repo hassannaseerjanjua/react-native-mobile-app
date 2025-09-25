@@ -1,6 +1,7 @@
 import {
   Image,
   StyleSheet,
+  Text,
   TextInput,
   TextInputProps,
   View,
@@ -15,6 +16,7 @@ type Props = {
   style?: any;
   iconColor?: string;
   fieldProps: TextInputProps;
+  errors?: string;
 };
 
 const InputField = ({
@@ -23,34 +25,38 @@ const InputField = ({
   iconColor,
   style,
   fieldProps,
+  errors,
 }: Props) => {
   const { theme, styles } = useStyles();
   return (
-    <View
-      style={[
-        styles.container,
-        {
-          borderWidth: error ? 1 : 0.5,
-          borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
-        },
-        style,
-      ]}
-    >
-      {icon}
-      <TextInput
-        {...fieldProps}
+    <>
+      <View
         style={[
-          styles.input,
+          styles.container,
           {
-            paddingLeft: icon ? theme.sizes.PADDING : 0,
+            borderWidth: error ? 1 : 0.5,
+            borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
           },
-          fieldProps.style,
+          style,
         ]}
-        placeholderTextColor={theme.colors.SECONDARY_TEXT}
-        selectionColor={theme.colors.PRIMARY}
-        underlineColorAndroid="transparent"
-      />
-    </View>
+      >
+        {icon}
+        <TextInput
+          {...fieldProps}
+          style={[
+            styles.input,
+            {
+              paddingLeft: icon ? theme.sizes.PADDING : 0,
+            },
+            fieldProps.style,
+          ]}
+          placeholderTextColor={theme.colors.SECONDARY_TEXT}
+          selectionColor={theme.colors.PRIMARY}
+          underlineColorAndroid="transparent"
+        />
+        {errors && <Text style={styles.error}>{errors}</Text>}
+      </View>
+    </>
   );
 };
 
@@ -84,6 +90,11 @@ const useStyles = () => {
         width: sizes.ICON * 0.5,
         height: sizes.ICON * 0.5,
         marginRight: sizes.PADDING,
+      },
+      error: {
+        color: theme.colors.RED,
+        fontSize: 12,
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },
     });
   }, [theme]);

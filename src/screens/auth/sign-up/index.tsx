@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import {
   View,
   Text,
@@ -31,6 +31,8 @@ import AuthLayout from '../../../components/app/AuthLayout';
 import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
+import { Formik } from 'formik';
+import * as Yup from 'yup';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
@@ -73,23 +75,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
 
   const updateFormData = (field: string, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const isStepValid = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          formData.fullName.trim() !== '' && formData.username.trim() !== ''
-        );
-      case 2:
-        return formData.city !== null || formData.city !== undefined;
-      case 3:
-        return (
-          formData.phoneNumber.trim() !== '' && formData.email.trim() !== ''
-        );
-      default:
-        return false;
-    }
   };
 
   const renderProgressBar = () => (
@@ -151,7 +136,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
               title={currentStep === 3 ? 'Sign Up' : 'Next'}
               type="primary"
               onPress={handleNext}
-              disabled={!isStepValid()}
             />
           </View>
         </>

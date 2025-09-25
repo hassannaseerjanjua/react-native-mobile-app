@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import {
   View,
   Text,
@@ -24,6 +24,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { scaleWithMax } from '../../../utils';
 import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
+import * as Yup from 'yup';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
@@ -39,10 +40,24 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const handleSignIn = (values: { phone: string; email: string }) => {
     console.log('Sign in pressed', values);
 
-    // Store the form values and show confirmation bottom sheet
     setCurrentFormValues(values);
     setIsBottomSheetOpen(true);
   };
+
+  const validationSchema = useMemo(() => {
+    return Yup.object().shape({
+      phone:
+        activeTab === 'Phone'
+          ? Yup.string().required('Phone string is required')
+          : Yup.string().nullable(),
+      email:
+        activeTab === 'Email'
+          ? Yup.string()
+              .email('Invalid email address')
+              .required('Email address is required')
+          : Yup.string().nullable(),
+    });
+  }, [activeTab]);
 
   const handleConfirmAndNavigate = () => {
     setIsBottomSheetOpen(false);
@@ -93,6 +108,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           <Formik
             initialValues={{ phone: '', email: '' }}
             onSubmit={handleSignIn}
+            validationSchema={validationSchema}
           >
             {formik => (
               <View style={styles.formContainer}>
@@ -100,8 +116,12 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   <View style={styles.inputContainer}>
                     <InputField
                       icon={<SvgPhone width={scaleWithMax(20, 25)} />}
+                      errors={
+                        activeTab === 'Phone' ? formik.errors.phone : undefined
+                      }
                       fieldProps={{
                         placeholder: 'Phone Number',
+
                         value: '+966 ' + formik.values.phone,
                         onChangeText: value => {
                           if (value?.startsWith('+966 ')) {
@@ -119,6 +139,9 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   <View style={styles.inputContainer}>
                     <InputField
                       icon={<SvgEmail width={scaleWithMax(20, 25)} />}
+                      errors={
+                        activeTab === 'Email' ? formik.errors.email : undefined
+                      }
                       fieldProps={{
                         placeholder: 'Email Address',
                         value: formik.values.email,
