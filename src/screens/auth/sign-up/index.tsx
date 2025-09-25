@@ -61,14 +61,9 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     }
   };
 
-  const handleBack = () => {
-    if (currentStep > 1) {
-      setCurrentStep(currentStep - 1);
-    }
-  };
-
   const handleSignUp = () => {
     console.log('Sign up data:', formData);
+    setIsBottomSheetOpen(false);
     // Handle final sign up logic here
     navigation.navigate('OtpVerification', {
       email: formData.email,
@@ -94,31 +89,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         );
       default:
         return false;
-    }
-  };
-
-  const renderHeading = () => {
-    switch (currentStep) {
-      case 1:
-        return (
-          <View style={styles.headerContainer}>
-            <Text style={styles.title}>Let’s start Name & Username</Text>
-          </View>
-        );
-      case 2:
-        return (
-          <View style={styles.headerContainer}>
-            <Text style={styles.title}>Select Your City</Text>
-          </View>
-        );
-      case 3:
-        return (
-          <View style={styles.headerContainer}>
-            <Text style={styles.title}>Phone Number & Email</Text>
-          </View>
-        );
-      default:
-        return null;
     }
   };
 
@@ -154,7 +124,15 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           }
           navigation.goBack();
         }}
-        title="Let's start with Name & Username"
+        title={
+          currentStep === 1
+            ? "Let's start with Name & Username"
+            : currentStep === 2
+            ? 'Select Your City'
+            : currentStep === 3
+            ? 'Phone Number & Email'
+            : ''
+        }
       >
         <>
           {renderProgressBar()}

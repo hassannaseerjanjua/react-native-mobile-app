@@ -45,6 +45,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   };
 
   const handleConfirmAndNavigate = () => {
+    setIsBottomSheetOpen(false);
+
     // Navigate to OTP verification with the appropriate parameter
     if (activeTab === 'Phone' && currentFormValues.phone) {
       navigation.navigate('OtpVerification', {
@@ -55,7 +57,6 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         email: currentFormValues.email,
       });
     }
-    setIsBottomSheetOpen(false);
   };
 
   const handleChangeNumber = () => {

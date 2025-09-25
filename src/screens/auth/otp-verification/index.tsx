@@ -113,12 +113,8 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       <View style={styles.mainContent}>
         <View style={styles.headerContainer}>
           <Text style={styles.title}>
-            Enter the 6-digit code which is sent to your{' '}
-            {email ? 'email' : 'phone number'}
+            Enter the 6-digit code which is sent to your email and phone number{' '}
           </Text>
-          {(email || phone) && (
-            <Text style={styles.subtitle}>{email || phone}</Text>
-          )}
         </View>
 
         <View style={styles.otpContainer}>
@@ -150,7 +146,9 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
             {isTimerActive ? (
               <Text>Wait for {formatTimer(timer)}</Text>
             ) : (
-              <Text onPress={handleResendCode}>Resend Code</Text>
+              <Text onPress={handleResendCode} style={styles.resendText}>
+                Resend Code
+              </Text>
             )}
           </Text>
         </View>
