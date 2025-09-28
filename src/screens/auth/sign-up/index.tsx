@@ -1,39 +1,27 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import {
-  View,
-  Text,
-  ScrollView,
-  StatusBar,
-  ActivityIndicator,
-  Alert,
-} from 'react-native';
+import React, { useState, useMemo } from 'react';
+import { View, Text } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style';
 import InputField from '../../../components/global/InputField';
-import Header from '../../../components/global/Header';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import {
   SvgEmail,
   SvgLocationPin,
-  SvgLogoBlue,
   SvgPhone,
   SvgPhoneIcon,
   SvgUser,
   SvgUsername,
 } from '../../../assets/icons';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { dynamicArrayItem, scaleWithMax, toOption } from '../../../utils';
+import { scaleWithMax, toOption } from '../../../utils';
 import { City } from '../../../types';
 import DropdownField from '../../../components/global/DropdownField';
 import useGetApi from '../../../hooks/useGetApi';
 import AuthLayout from '../../../components/app/AuthLayout';
-import BottomSheet, { BottomSheetView } from '@gorhom/bottom-sheet';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { Formik } from 'formik';
-import * as Yup from 'yup';
+import { createSignUpSchema } from '../../../utils/validationSchemas';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
@@ -43,7 +31,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const [areaSearch, setAreaSearch] = useState('');
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
-  // Form data
   const [formData, setFormData] = useState({
     fullName: '',
     username: '',
@@ -52,62 +39,16 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     email: '',
   });
 
-  // Username API error state
   const [usernameApiError, setUsernameApiError] = useState<string | null>(null);
 
   const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
     transformData: data => data.Data.cities,
   });
 
-  // Dynamic validation schema based on current step
-  const validationSchema = useMemo(() => {
-    return Yup.object().shape({
-      fullName:
-        currentStep === 1
-          ? Yup.string()
-              .trim()
-              .required('Full name is required')
-              .min(3, 'Full name must be at least 3 characters')
-              .max(50, 'Full name must be less than 50 characters')
-          : Yup.string().optional(),
-      username:
-        currentStep === 1
-          ? Yup.string()
-              .trim()
-              .required('Username is required')
-              .min(3, 'Username must be at least 3 characters')
-              .max(50, 'Username must be less than 50 characters')
-          : Yup.string().optional(),
-      city:
-        currentStep === 2
-          ? Yup.string().required('City is required')
-          : Yup.string().optional(),
-      phoneNumber:
-        currentStep === 3
-          ? Yup.string()
-              .trim()
-              .required('Phone number is required')
-              .matches(/^5/, 'Phone number must start with 5x-xxx-xxxx')
-              .matches(/^[0-9]+$/, 'Phone number must contain only digits')
-              .length(9, 'Phone number must be 9 digits')
-          : Yup.string().optional(),
-      email:
-        currentStep === 3
-          ? Yup.string()
-              .trim()
-              .email('Invalid email address')
-              .matches(
-                /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
-                'Enter a valid email address',
-              )
-              .required('Email address is required')
-          : Yup.string().optional(),
-    });
-  }, [currentStep]);
+  const validationSchema = createSignUpSchema(currentStep);
 
   const handleNext = async (formik: any) => {
     try {
-      // Set touched fields for current step before validation
       const touchedFields = {
         fullName: currentStep === 1,
         username: currentStep === 1,
@@ -118,10 +59,8 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
 
       await formik.setTouched(touchedFields);
 
-      // Validate the form
       const errors = await formik.validateForm();
 
-      // Check if there are validation errors for current step fields
       const currentStepFields = Object.keys(touchedFields).filter(
         key => touchedFields[key as keyof typeof touchedFields],
       );
@@ -133,16 +72,12 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         if (currentStep < 3) {
           if (currentStep === 1) {
             try {
-              // Clear previous API error
               setUsernameApiError(null);
-
               const response = await api.post(
                 apiEndpoints.VERIFY_USERNAME,
                 formData.username,
               );
-
               console.log('API Response:', response);
-
               if (response.success) {
                 console.log(
                   'Username verification successful:',
@@ -158,7 +93,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
               setUsernameApiError('Username already exists');
             }
           } else {
-            // For steps 2 and 3, allow progression without API calls
             setCurrentStep(currentStep + 1);
           }
           console.log('Form data:', formData);
@@ -209,7 +143,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
       formik.setFieldValue(field, value);
     }
 
-    // Clear username API error when user types in username field
     if (field === 'username' && usernameApiError) {
       setUsernameApiError(null);
     }

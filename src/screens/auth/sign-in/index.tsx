@@ -1,7 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { Formik } from 'formik';
-import * as Yup from 'yup';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import InputField from '../../../components/global/InputField';
@@ -9,6 +8,7 @@ import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { SvgEmail, SvgPhone, SvgPhoneIcon } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
+import { createSignInSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useStyles from './style';
@@ -25,25 +25,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     email: '',
   });
 
-  const validationSchema = useMemo(() => {
-    return Yup.object().shape({
-      phone:
-        activeTab === 'Phone'
-          ? Yup.string()
-              .trim()
-              .required('Phone number is required')
-              .matches(/^5/, 'Phone number must start with 5x-xxx-xxxx')
-              .matches(/^[0-9]+$/, 'Phone number must contain only digits')
-          : Yup.string().optional(),
-      email:
-        activeTab === 'Email'
-          ? Yup.string()
-              .trim()
-              .email('Invalid email address')
-              .required('Email address is required')
-          : Yup.string().optional(),
-    });
-  }, [activeTab]);
+  const validationSchema = createSignInSchema(activeTab);
 
   const handleSignIn = async (
     values: typeof currentFormValues,

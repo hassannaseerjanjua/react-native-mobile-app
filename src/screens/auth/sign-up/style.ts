@@ -52,12 +52,6 @@ const useStyles = () => {
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },
 
-      formContainer: {
-        marginVertical: 20,
-      },
-      inputContainer: {
-        marginBottom: 20,
-      },
       inputLabel: {
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
@@ -80,6 +74,12 @@ const useStyles = () => {
         textDecorationLine: 'underline',
         fontSize: 15,
         fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
+      },
+      formContainer: {
+        marginVertical: 20,
+      },
+      inputContainer: {
+        marginBottom: 20,
       },
       progressContainer: {
         marginTop: scaleWithMax(10, 15),
@@ -114,7 +114,6 @@ const useStyles = () => {
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },
       buttonContainer: {
-        // marginTop: 20,
         alignItems: 'center',
       },
       bottomSheetContainer: {
