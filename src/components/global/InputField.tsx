@@ -96,6 +96,7 @@ const useStyles = () => {
         color: colors.PRIMARY_TEXT,
         paddingVertical: 0,
         paddingHorizontal: 0,
+        position: 'relative',
       },
       image: {
         width: sizes.ICON * 0.5,
@@ -106,6 +107,8 @@ const useStyles = () => {
         color: theme.colors.RED,
         fontSize: 12,
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+        position: 'absolute',
+        bottom: sizes.HEIGHT * -0.0216,
       },
     });
   }, [theme]);
