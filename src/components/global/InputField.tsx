@@ -9,6 +9,7 @@ import {
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
+import { SvgEmail, SvgPhone, SvgPhoneIcon } from '../../assets/icons';
 
 type Props = {
   error?: boolean | string;
@@ -17,6 +18,7 @@ type Props = {
   iconColor?: string;
   fieldProps: TextInputProps;
   errors?: string;
+  isPhone?: boolean;
 };
 
 const InputField = ({
@@ -26,6 +28,7 @@ const InputField = ({
   style,
   fieldProps,
   errors,
+  isPhone,
 }: Props) => {
   const { theme, styles } = useStyles();
   return (
@@ -40,13 +43,21 @@ const InputField = ({
           style,
         ]}
       >
-        {icon}
+        {isPhone ? (
+          <SvgPhone
+            width={scaleWithMax(20, 25)}
+            height={scaleWithMax(20, 25)}
+          />
+        ) : (
+          icon
+        )}
+        {isPhone && <Text style={styles.prefixText}>+966</Text>}
         <TextInput
           {...fieldProps}
           style={[
             styles.input,
             {
-              paddingLeft: icon ? theme.sizes.PADDING : 0,
+              paddingLeft: isPhone || icon ? theme.sizes.PADDING : 0,
             },
             fieldProps.style,
           ]}
@@ -109,6 +120,13 @@ const useStyles = () => {
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
         position: 'absolute',
         bottom: sizes.HEIGHT * -0.0216,
+      },
+      prefixText: {
+        ...globalStyles.TEXT_STYLE,
+        fontSize: 16,
+        color: colors.PRIMARY_TEXT,
+        marginLeft: 8,
+        marginRight: 4,
       },
     });
   }, [theme]);
