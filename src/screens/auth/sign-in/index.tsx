@@ -26,7 +26,6 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   });
 
   const validationSchema = createSignInSchema(activeTab);
-
   const handleSignIn = async (
     values: typeof currentFormValues,
     formik: any,
@@ -43,30 +42,29 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       (activeTab === 'Email' && errors.email);
 
     if (!hasErrors) {
-      setCurrentFormValues(values);
-      setIsBottomSheetOpen(true);
+      try {
+        const response = await api.post(apiEndpoints.SIGNIN, {
+          PhoneNo: values.phone,
+          Email: values.email,
+        });
+
+        if (response.success) {
+          setCurrentFormValues(values);
+          setIsBottomSheetOpen(true); // ✅ open only after API success
+        }
+      } catch (error) {
+        console.error('Sign in error', error);
+      }
     }
   };
 
-  const handleConfirmAndNavigate = async () => {
-    try {
-      setIsBottomSheetOpen(false);
-
-      const response = await api.post(apiEndpoints.SIGNIN, {
-        PhoneNo: currentFormValues.phone,
-        Email: currentFormValues.email,
-      });
-
-      if (response.success) {
-        navigation.navigate('OtpVerification', {
-          phone: currentFormValues.phone,
-          email: currentFormValues.email,
-          signIn: true,
-        });
-      }
-    } catch (error) {
-      console.error('Sign in error', error);
-    }
+  const handleConfirmAndNavigate = () => {
+    setIsBottomSheetOpen(false);
+    navigation.navigate('OtpVerification', {
+      phone: currentFormValues.phone,
+      email: currentFormValues.email,
+      signIn: true,
+    });
   };
 
   return (

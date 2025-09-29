@@ -79,7 +79,10 @@ const useStyles = () => {
         marginBottom: 20,
       },
       button: {
-        marginTop: sizes.HEIGHT * 0.05,
+        marginTop: sizes.HEIGHT * 0.03,
+      },
+      buttonContainer: {
+        alignItems: 'center',
       },
       linkContainer: {
         ...theme.globalStyles.TEXT_STYLE,
