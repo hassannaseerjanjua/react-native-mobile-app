@@ -17,6 +17,10 @@ import SvgSendAGift from './send-a-gift.svg';
 import SvgCatchGift from './catch-gift.svg';
 import SvgInboxGift from './inbox-gift.svg';
 import SvgOutboxGift from './outbox-gift.svg';
+import SvgHome from './home.svg';
+import SvgFavourite from './favourite.svg';
+import SvgOccasions from './occasions.svg';
+import SvgNotification from './notification.svg';
 
 export {
   SvgLogoBlue,
@@ -38,4 +42,8 @@ export {
   SvgCatchGift,
   SvgInboxGift,
   SvgOutboxGift,
+  SvgHome,
+  SvgFavourite,
+  SvgOccasions,
+  SvgNotification,
 };

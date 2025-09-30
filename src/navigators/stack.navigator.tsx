@@ -12,6 +12,7 @@ import {
 
 // Navigators
 import AuthStackNavigator from './auth.navigator';
+import BottomTabNavigator from './bottom-tabs.navigator';
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -22,7 +23,7 @@ const AppStackNavigator = () => {
       initialRouteName="Home"
       screenOptions={{ headerShown: false }}
     >
-      <AppStack.Screen name="Home" component={Home} />
+      <AppStack.Screen name="Home" component={BottomTabNavigator} />
     </AppStack.Navigator>
   );
 };

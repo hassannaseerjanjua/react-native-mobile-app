@@ -12,7 +12,7 @@ import {
   SvgSendAGift,
 } from '../../../assets/icons';
 
-const HomeScreen: React.FC<AppStackScreen<'Home'>> = ({ navigation }) => {
+const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
 
   return (
