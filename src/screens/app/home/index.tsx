@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StatusBar } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
-import Header from '../../../components/global/Header';
+import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
 import ImageSlider from '../../../components/global/ImageSlider';
 import useStyles from './style';
@@ -48,7 +48,7 @@ const HomeScreen: React.FC = () => {
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
       />
-      <Header isLogo isSearch showBackButton={false} spaceTaken={false} />
+      <HomeHeader />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.welcomeText}>

@@ -1,7 +1,7 @@
 import { View, Text, ScrollView, StatusBar, StyleSheet } from 'react-native';
 import React, { useMemo } from 'react';
 import { SvgLogoBlue } from '../../assets/icons';
-import Header from '../global/Header';
+import AuthHeader from '../global/AuthHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { isIOS, scaleWithMax } from '../../utils';
 import useTheme from '../../styles/theme';
@@ -25,11 +25,7 @@ const AuthLayout = ({
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <Header
-        onBackPress={onBackPress}
-        showBackButton={backButton}
-        spaceTaken={!backButton}
-      />
+      <AuthHeader onBackPress={onBackPress} showBackButton={backButton} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.scrollContainer}
