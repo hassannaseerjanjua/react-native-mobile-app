@@ -18,6 +18,7 @@ const getSizes = (width: number, height: number) => ({
   FONTSIZE: 14,
   FONTSIZE_HIGH: 18,
   FONTSIZE_SMALL: 10,
+  FONTSIZE_MEDIUM: 12,
   HEADER_FOOTER_SIZE: height * 0.1,
   FONTSIZE_HEADING: 20,
   // Sizes

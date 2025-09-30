@@ -12,12 +12,14 @@ import { createSignInSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useStyles from './style';
+import { login } from '../../../store/reducer/auth';
+import { useDispatch } from 'react-redux';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
-
+  const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<'Phone' | 'Email'>('Phone');
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [currentFormValues, setCurrentFormValues] = useState({
@@ -30,6 +32,17 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     values: typeof currentFormValues,
     formik: any,
   ) => {
+    // Bypass the API call, Dev purposes only.
+    if (values.phone === '555555555' || values.email === 'dev@gmail.com') {
+      console.log(values);
+      dispatch(
+        login({
+          email: 'Dev',
+          phone: '555555555',
+        }),
+      );
+    }
+
     const touched = {
       phone: activeTab === 'Phone',
       email: activeTab === 'Email',

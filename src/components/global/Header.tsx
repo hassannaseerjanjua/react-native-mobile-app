@@ -2,7 +2,13 @@ import React, { useMemo } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
-import { SvgBackIcon } from '../../assets/icons';
+import {
+  SvgBackIcon,
+  SvgLogoBlue,
+  SvgLogoHeader,
+  SvgSearchIcon,
+  SvgDummyAvatar,
+} from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
 
 interface HeaderProps {
@@ -10,6 +16,8 @@ interface HeaderProps {
   showBackButton?: boolean;
   spaceTaken?: boolean;
   onBackPress?: () => void;
+  isLogo?: boolean;
+  isSearch?: boolean;
 }
 
 const Header: React.FC<HeaderProps> = ({
@@ -17,9 +25,12 @@ const Header: React.FC<HeaderProps> = ({
   showBackButton = true,
   spaceTaken = false,
   onBackPress,
+  isLogo = false,
+  isSearch = false,
 }) => {
   const navigation = useNavigation();
-  const { styles, theme } = useStyles();
+  const { styles } = useStyles();
+  const { sizes } = useTheme();
 
   const handleBackPress = () => {
     if (onBackPress) {
@@ -33,27 +44,39 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <View style={styles.container}>
-      <TouchableOpacity
-        style={styles.backButton}
-        onPress={handleBackPress}
-        activeOpacity={0.7}
-      >
-        {showBackButton && (
-          <SvgBackIcon
-            // style={styles.backButton}
-            width={backSize}
-            height={backSize}
-          />
-        )}
-        {spaceTaken && (
-          <View
-            style={{ ...styles.backButton, width: backSize, height: backSize }}
-          />
-        )}
-      </TouchableOpacity>
+      {isLogo && <SvgLogoHeader />}
+      {showBackButton ? (
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={handleBackPress}
+          activeOpacity={0.7}
+        >
+          <SvgBackIcon width={backSize} height={backSize} />
+        </TouchableOpacity>
+      ) : spaceTaken ? (
+        <View
+          style={{
+            width: backSize + sizes.PADDING * 2,
+            height: backSize + sizes.PADDING * 2,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        />
+      ) : (
+        <View />
+      )}
 
       {title && <Text style={styles.title}>{title}</Text>}
-      <View style={styles.placeholder} />
+      {isSearch && (
+        <View style={styles.rightSection}>
+          <View style={styles.searchContainer}>
+            <SvgSearchIcon />
+          </View>
+          <View style={{ marginStart: sizes.WIDTH * 0.05 }}>
+            <SvgDummyAvatar />
+          </View>
+        </View>
+      )}
     </View>
   );
 };
@@ -69,7 +92,6 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        // paddingHorizontal: 20,
         paddingVertical: sizes.PADDING,
         backgroundColor: colors.BACKGROUND,
       },
@@ -93,6 +115,23 @@ const useStyles = () => {
       },
       placeholder: {
         width: 40,
+      },
+      rightSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+      },
+      searchContainer: {
+        width: 35,
+        height: 35,
+        backgroundColor: theme.colors.WHITE,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 35 / 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 2,
       },
     });
   }, [theme]);
