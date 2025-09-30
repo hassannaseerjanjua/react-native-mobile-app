@@ -13,7 +13,7 @@ import {
 } from '../../../assets/icons';
 import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
-import { Slider } from '../../../types';
+import { Slider, SliderApiResponse } from '../../../types';
 import { useSizes } from '../../../styles/sizes';
 
 const HomeScreen: React.FC = () => {
@@ -26,15 +26,10 @@ const HomeScreen: React.FC = () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await api.get(apiEndpoints.GET_HOME_SLIDER);
-      if (
-        response.data &&
-        typeof response.data === 'object' &&
-        'Data' in response.data &&
-        Array.isArray(response.data.Data)
-      ) {
-        setSliders(response.data.Data);
-      }
+      const response = await api.get<SliderApiResponse>(
+        apiEndpoints.GET_HOME_SLIDER,
+      );
+      setSliders(response.data?.Data || []);
     } catch (err) {
       console.log('Error fetching sliders:', err);
       setError('Failed to load slider images');

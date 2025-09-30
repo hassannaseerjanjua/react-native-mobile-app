@@ -22,3 +22,7 @@ export interface Slider {
   ModifiedOn: string | null;
   ModifiedBy: number | null;
 }
+
+export interface SliderApiResponse {
+  Data: Slider[];
+}

@@ -31,7 +31,8 @@ const useStyles = () => {
       },
       heroImage: {
         width: '100%',
-        height: 180,
+        height: theme.sizes.HEIGHT * 0.32,
+
         borderRadius: 12,
         // marginVertical: sizes.PADDING,
       },
