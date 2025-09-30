@@ -1,19 +1,51 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StatusBar } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import Header from '../../../components/global/Header';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
+import ImageSlider from '../../../components/global/ImageSlider';
 import useStyles from './style';
 import {
-  SvgDummyBanner,
   SvgGiftOneGetOne,
   SvgInboxGift,
   SvgOutboxGift,
   SvgSendAGift,
 } from '../../../assets/icons';
+import apiEndpoints from '../../../constants/api-endpoints';
+import api from '../../../utils/api';
+import { Slider } from '../../../types';
+import { useSizes } from '../../../styles/sizes';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
+  const [sliders, setSliders] = useState<Slider[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const getHomeSlider = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+      const response = await api.get(apiEndpoints.GET_HOME_SLIDER);
+      if (
+        response.data &&
+        typeof response.data === 'object' &&
+        'Data' in response.data &&
+        Array.isArray(response.data.Data)
+      ) {
+        setSliders(response.data.Data);
+      }
+    } catch (err) {
+      console.log('Error fetching sliders:', err);
+      setError('Failed to load slider images');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    getHomeSlider();
+  }, []);
 
   return (
     <View style={styles.container}>
@@ -28,7 +60,29 @@ const HomeScreen: React.FC = () => {
           Welcome, <Text style={styles.userName}>Mohammed</Text>
         </Text>
 
-        <SvgDummyBanner />
+        {loading ? (
+          <View style={[styles.heroImage, { backgroundColor: '#f0f0f0' }]} />
+        ) : error ? (
+          <View
+            style={[
+              styles.heroImage,
+              {
+                backgroundColor: '#f0f0f0',
+                justifyContent: 'center',
+                alignItems: 'center',
+              },
+            ]}
+          >
+            <Text style={{ color: '#666' }}>Failed to load images</Text>
+          </View>
+        ) : (
+          <ImageSlider
+            sliders={sliders}
+            height={theme.sizes.HEIGHT * 0.32}
+            borderRadius={12}
+          />
+        )}
+
         <HomeScreenTabsContainer />
       </ScrollView>
     </View>
