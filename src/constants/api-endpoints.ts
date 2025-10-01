@@ -25,6 +25,8 @@ const apiEndpoints = {
     `/${version}/Friends/SearchFriends?fullname=${searchQuery}&userId=${userId}`,
   ADD_FRIEND: (userId?: number) =>
     `/${version}/Friends/AddFriend?userId=${userId}`,
+  UNFRIEND_USER: (userId?: number) =>
+    `/${version}/Friends/UnfriendAUser?userId=${userId}`,
 };
 
 export default apiEndpoints;

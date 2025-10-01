@@ -52,11 +52,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
     }
   }, [searchQuery]);
 
-  const handleAddUser = (userId: number) => {
+  const addFriend = (userId: number) => {
     // Optimistically update the local state immediately
     setUpdatedUsers(prev => ({
       ...prev,
-      [userId]: prev[userId] === 1 ? 2 : 1,
+      [userId]: 1, // Set as added
     }));
 
     api
@@ -64,11 +64,10 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
         friendUserId: userId,
       })
       .then(res => {
-        console.log('res', res);
-        // Success - the optimistic update was correct
+        console.log('Add friend success:', res);
       })
       .catch(err => {
-        console.log('err', err);
+        console.log('Add friend error:', err);
         // Revert the optimistic update on error
         setUpdatedUsers(prev => {
           const newState = { ...prev };
@@ -76,8 +75,46 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
           return newState;
         });
       });
+  };
 
-    console.log('Add/Remove user:', userId);
+  const unfriendUser = (userId: number) => {
+    // Optimistically update the local state immediately
+    setUpdatedUsers(prev => ({
+      ...prev,
+      [userId]: 2, // Set as not added
+    }));
+
+    api
+      .put(apiEndpoints.UNFRIEND_USER(user?.UserId), {
+        friendUserId: userId,
+      })
+      .then(res => {
+        console.log('Unfriend success:', res);
+      })
+      .catch(err => {
+        console.log('Unfriend error:', err);
+        // Revert the optimistic update on error
+        setUpdatedUsers(prev => {
+          const newState = { ...prev };
+          delete newState[userId];
+          return newState;
+        });
+      });
+  };
+
+  const handleAddUser = (userId: number) => {
+    // Get current status (updated or original)
+    const currentStatus =
+      updatedUsers[userId] ??
+      displayData.find(user => user.UserId === userId)?.RelationStatus ??
+      2;
+    const isCurrentlyAdded = currentStatus === 1;
+
+    if (isCurrentlyAdded) {
+      unfriendUser(userId);
+    } else {
+      addFriend(userId);
+    }
   };
 
   const handleLoadMore = () => {
