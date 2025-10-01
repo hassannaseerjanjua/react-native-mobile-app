@@ -5,6 +5,7 @@ import { RootState } from '../store/store';
 
 //Screens
 import Home from '../screens/app/home/index.tsx';
+import SearchScreen from '../screens/app/search/index.tsx';
 import {
   AppStackParamList,
   RootStackParamList,
@@ -24,6 +25,7 @@ const AppStackNavigator = () => {
       screenOptions={{ headerShown: false }}
     >
       <AppStack.Screen name="Home" component={BottomTabNavigator} />
+      <AppStack.Screen name="Search" component={SearchScreen} />
     </AppStack.Navigator>
   );
 };

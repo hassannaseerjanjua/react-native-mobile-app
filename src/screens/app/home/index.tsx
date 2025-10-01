@@ -48,7 +48,7 @@ const HomeScreen: React.FC = () => {
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
       />
-      <HomeHeader />
+      <HomeHeader showProfileIcon={true} />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.welcomeText}>
