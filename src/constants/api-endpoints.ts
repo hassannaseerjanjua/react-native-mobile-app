@@ -17,8 +17,10 @@ const apiEndpoints = {
   // Social
   GET_ACTIVE_USERS: (
     userId?: number,
-  ) => `/${version}/Friends/GetActiveUsers?userId=${userId}
-`,
+    pageIndex: number = 1,
+    pageSize: number = 20,
+  ) =>
+    `/${version}/Friends/GetActiveUsers?userId=${userId}&PageIndex=${pageIndex}&PageSize=${pageSize}`,
 };
 
 export default apiEndpoints;

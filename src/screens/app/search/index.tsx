@@ -20,18 +20,26 @@ interface SearchProps extends AppStackScreen<'Search'> {}
 const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
   const [searchQuery, setSearchQuery] = useState('');
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize] = useState(20);
   const { user } = useAuthStore();
 
   const activeUsersApi = useGetApi<ActiveUser[]>(
-    apiEndpoints.GET_ACTIVE_USERS(user?.UserId),
+    apiEndpoints.GET_ACTIVE_USERS(user?.UserId, pageIndex, pageSize),
     {
-      transformData: (data: ActiveUsersApiResponse) => data.Data,
+      transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
     },
   );
 
   const handleAddUser = (userId: number) => {
     // TODO: Call API to add/remove user
     console.log('Add/Remove user:', userId);
+  };
+
+  const handleLoadMore = () => {
+    if (!activeUsersApi.loading) {
+      setPageIndex(prev => prev + 1);
+    }
   };
 
   const renderItem = ({ item, index }: { item: ActiveUser; index: number }) => {
@@ -53,7 +61,14 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
           style={[styles.addButton, isAdded && styles.addedButton]}
           onPress={() => handleAddUser(item.UserId)}
         >
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 2,
+              justifyContent: 'center',
+            }}
+          >
             {!isAdded && <SvgSearchAdd width={16} height={16} />}
             <Text
               style={[styles.addButtonText, isAdded && styles.addedButtonText]}
@@ -91,6 +106,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContainer}
+            onEndReached={handleLoadMore}
+            onEndReachedThreshold={0.5}
           />
         </View>
       </View>

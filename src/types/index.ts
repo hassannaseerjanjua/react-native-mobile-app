@@ -64,5 +64,8 @@ export interface ActiveUser {
 }
 
 export interface ActiveUsersApiResponse {
-  Data: ActiveUser[];
+  Data: {
+    Items: ActiveUser[];
+    TotalCount: number;
+  };
 }
