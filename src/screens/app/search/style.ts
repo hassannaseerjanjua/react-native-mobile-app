@@ -17,30 +17,78 @@ const useStyles = () => {
       },
       content: {
         flex: 1,
-        justifyContent: 'center',
+        paddingVertical: sizes.PADDING,
+      },
+      listCard: {
+        backgroundColor: colors.WHITE,
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOpacity: 0.03,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 1,
+      },
+      listContainer: {
+        paddingVertical: 4,
+      },
+      userRow: {
+        flexDirection: 'row',
         alignItems: 'center',
-        paddingHorizontal: sizes.PADDING,
+        justifyContent: 'space-between',
+        paddingVertical: 10,
+        paddingHorizontal: 14,
       },
-      title: {
-        fontFamily: fonts.Quicksand.bold,
-        fontSize: sizes.FONTSIZE_HEADING,
+      userRowDivider: {
+        borderBottomWidth: 1,
+        borderBottomColor: '#F1F1F1',
+      },
+
+      userInfo: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+      },
+
+      avatarWrapper: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+        overflow: 'hidden',
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginRight: 12,
+        backgroundColor: '#FFFFFF',
+      },
+
+      userName: {
+        fontFamily: fonts.Quicksand.medium,
+        fontSize: 15,
+        letterSpacing: 0.15,
         color: colors.PRIMARY_TEXT,
-        marginBottom: sizes.HEIGHT * 0.02,
-        textAlign: 'center',
       },
-      subtitle: {
-        fontFamily: fonts.Quicksand.semibold,
-        fontSize: sizes.FONTSIZE_MEDIUM,
-        color: colors.SECONDARY_TEXT,
-        marginBottom: sizes.HEIGHT * 0.01,
-        textAlign: 'center',
+      addButton: {
+        borderWidth: 1,
+        borderColor: '#DDEAFB',
+        borderRadius: 10,
+        paddingHorizontal: 10,
+        paddingVertical: 5,
+        backgroundColor: 'transparent',
+        minWidth: 68,
+        alignItems: 'center',
+        justifyContent: 'center',
       },
-      description: {
-        fontFamily: fonts.Quicksand.regular,
-        fontSize: sizes.FONTSIZE_SMALL,
-        color: colors.SECONDARY_TEXT,
-        textAlign: 'center',
-        lineHeight: 20,
+      addButtonText: {
+        fontFamily: fonts.Quicksand.medium,
+        fontSize: 14,
+        color: colors.PRIMARY,
+      },
+      addedButton: {
+        backgroundColor: '#EAF3FF',
+        borderColor: '#EAF3FF',
+      },
+      addedButtonText: {
+        color: colors.PRIMARY,
+        fontWeight: '600',
       },
     });
   }, [theme]);

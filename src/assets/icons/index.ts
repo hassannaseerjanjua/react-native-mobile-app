@@ -21,6 +21,8 @@ import SvgHome from './home.svg';
 import SvgFavourite from './favourite.svg';
 import SvgOccasions from './occasions.svg';
 import SvgNotification from './notification.svg';
+import SvgSearchAdd from './profile-add.svg';
+import SvgHomeBack from './home-back.svg';
 
 export {
   SvgLogoBlue,
@@ -46,4 +48,6 @@ export {
   SvgFavourite,
   SvgOccasions,
   SvgNotification,
+  SvgSearchAdd,
+  SvgHomeBack,
 };

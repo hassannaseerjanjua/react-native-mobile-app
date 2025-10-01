@@ -1,5 +1,11 @@
 import React, { useMemo } from 'react';
-import { View, TouchableOpacity, Text, StyleSheet } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  TextInput,
+  StyleSheet,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
 import {
@@ -7,8 +13,10 @@ import {
   SvgSearchIcon,
   SvgDummyAvatar,
   SvgBackIcon,
+  SvgHomeBack,
 } from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
+import fonts from '../../assets/fonts';
 
 interface HomeHeaderProps {
   title?: string;
@@ -16,6 +24,10 @@ interface HomeHeaderProps {
   onBackPress?: () => void;
   showSearch?: boolean;
   showProfileIcon?: boolean;
+  showSearchBar?: boolean;
+  searchPlaceholder?: string;
+  searchValue?: string;
+  onSearchChange?: (text: string) => void;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -24,8 +36,12 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   onBackPress,
   showSearch = true,
   showProfileIcon = false,
+  showSearchBar = false,
+  searchPlaceholder = 'Search',
+  searchValue = '',
+  onSearchChange,
 }) => {
-  const { styles } = useStyles();
+  const { styles, theme } = useStyles();
   const navigation = useNavigation();
 
   const handleSearchPress = () => {
@@ -43,37 +59,57 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const backSize = scaleWithMax(20, 25);
 
   return (
-    <View style={styles.container}>
-      {showBackButton ? (
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleBackPress}
-          activeOpacity={0.7}
-        >
-          <SvgBackIcon width={backSize} height={backSize} />
-        </TouchableOpacity>
-      ) : (
-        <SvgLogoHeader />
-      )}
-
-      {title && <Text style={styles.title}>{title}</Text>}
-
-      <View style={styles.rightSection}>
-        {showSearch && (
+    <View>
+      <View style={styles.container}>
+        {showBackButton ? (
           <TouchableOpacity
-            style={styles.searchContainer}
-            onPress={handleSearchPress}
+            style={styles.backButton}
+            onPress={handleBackPress}
             activeOpacity={0.7}
           >
-            <SvgSearchIcon />
+            <SvgHomeBack
+              width={scaleWithMax(38, 38)}
+              height={scaleWithMax(22, 25)}
+            />
           </TouchableOpacity>
+        ) : (
+          <SvgLogoHeader />
         )}
-        {showProfileIcon && (
-          <View style={styles.avatarContainer}>
-            <SvgDummyAvatar />
-          </View>
-        )}
+
+        {title && <Text style={styles.title}>{title}</Text>}
+
+        <View style={styles.rightSection}>
+          {showSearch && (
+            <TouchableOpacity
+              style={styles.searchContainer}
+              onPress={handleSearchPress}
+              activeOpacity={0.7}
+            >
+              <SvgSearchIcon />
+            </TouchableOpacity>
+          )}
+          {showProfileIcon && (
+            <View style={styles.avatarContainer}>
+              <SvgDummyAvatar />
+            </View>
+          )}
+        </View>
       </View>
+
+      {showSearchBar && (
+        <View style={styles.searchBarContainer}>
+          <View style={styles.searchIconWrapper}>
+            <SvgSearchIcon width={20} height={20} />
+          </View>
+          <TextInput
+            style={styles.searchInput}
+            placeholder={searchPlaceholder}
+            placeholderTextColor="#A0A0A0EE"
+            value={searchValue}
+            onChangeText={onSearchChange}
+          />
+        </View>
+      )}
     </View>
   );
 };
@@ -118,11 +154,36 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       title: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontFamily: fonts.Quicksand.bold,
+        fontSize: 20,
+        lineHeight: 32,
         color: colors.PRIMARY_TEXT,
-        textAlign: 'center',
         flex: 1,
+        marginStart: sizes.WIDTH * 0.024,
+      },
+      searchBarContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.WHITE,
+        borderRadius: 12,
+        paddingHorizontal: sizes.PADDING,
+        paddingVertical: sizes.HEIGHT * 0.018,
+        // marginTop: sizes.PADDING,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 2,
+      },
+      searchIconWrapper: {
+        marginRight: sizes.PADDING * 0.8,
+      },
+      searchInput: {
+        flex: 1,
+        fontSize: 14,
+        fontFamily: fonts.Quicksand.regular,
+        color: colors.PRIMARY_TEXT,
+        padding: 0,
       },
     });
   }, [theme]);
