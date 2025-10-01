@@ -29,13 +29,13 @@ const useStyles = () => {
         elevation: 1,
       },
       listContainer: {
-        paddingVertical: 4,
+        paddingVertical: 2,
       },
       userRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 10,
+        paddingVertical: 8,
         paddingHorizontal: 14,
       },
       userRowDivider: {

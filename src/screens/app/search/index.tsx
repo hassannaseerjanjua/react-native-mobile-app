@@ -15,77 +15,50 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { useAuthStore } from '../../../store/reducer/auth';
 
-const initialUsers = [
-  { id: '1', name: 'Hassan Haddad', avatar: <SvgDummyAvatar />, added: false },
-  {
-    id: '2',
-    name: 'Mohammed Almosilhi',
-    avatar: <SvgDummyAvatar />,
-    added: false,
-  },
-  { id: '3', name: 'Shwail', avatar: <SvgDummyAvatar />, added: true },
-  { id: '4', name: 'Aziz Bakheet', avatar: <SvgDummyAvatar />, added: false },
-  {
-    id: '5',
-    name: 'Mohammed Qaderi',
-    avatar: <SvgDummyAvatar />,
-    added: false,
-  },
-];
-
 interface SearchProps extends AppStackScreen<'Search'> {}
 
 const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
   const [searchQuery, setSearchQuery] = useState('');
-  const [users, setUsers] = useState(initialUsers);
   const { user } = useAuthStore();
 
-  const activeUsersApi = useGetApi<ActiveUsersApiResponse>(
+  const activeUsersApi = useGetApi<ActiveUser[]>(
     apiEndpoints.GET_ACTIVE_USERS(user?.UserId),
     {
-      transformData: data => data.Data,
+      transformData: (data: ActiveUsersApiResponse) => data.Data,
     },
   );
 
-  console.log('activeUsersApi', activeUsersApi?.data);
-
-  const handleAddUser = (userId: string) => {
-    setUsers(prevUsers =>
-      prevUsers.map(user =>
-        user.id === userId ? { ...user, added: !user.added } : user,
-      ),
-    );
+  const handleAddUser = (userId: number) => {
+    // TODO: Call API to add/remove user
+    console.log('Add/Remove user:', userId);
   };
 
-  const renderItem = ({ item, index }: any) => {
+  const renderItem = ({ item, index }: { item: ActiveUser; index: number }) => {
+    const users = activeUsersApi.data || [];
     const isLast = index === users.length - 1;
-
-    const avatarElement = React.isValidElement(item.avatar)
-      ? React.cloneElement(item.avatar, { width: 36, height: 36 })
-      : item.avatar;
+    const isAdded = item.RelationStatus === 1;
 
     return (
       <View style={[styles.userRow, !isLast && styles.userRowDivider]}>
         <View style={styles.userInfo}>
-          <View style={styles.avatarWrapper}>{avatarElement}</View>
-          <Text style={styles.userName}>{item.name}</Text>
+          <View style={styles.avatarWrapper}>
+            <SvgDummyAvatar width={36} height={36} />
+          </View>
+          <Text style={styles.userName}>{item.FullName}</Text>
         </View>
 
         <TouchableOpacity
           activeOpacity={0.8}
-          style={[styles.addButton, item.added && styles.addedButton]}
-          onPress={() => handleAddUser(item.id)}
+          style={[styles.addButton, isAdded && styles.addedButton]}
+          onPress={() => handleAddUser(item.UserId)}
         >
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-            {!item.added && <SvgSearchAdd width={16} height={16} />}
+            {!isAdded && <SvgSearchAdd width={16} height={16} />}
             <Text
-              style={[
-                styles.addButtonText,
-                item.added && styles.addedButtonText,
-              ]}
+              style={[styles.addButtonText, isAdded && styles.addedButtonText]}
             >
-              {item.added ? 'Added' : 'Add'}
+              {isAdded ? 'Added' : 'Add'}
             </Text>
           </View>
         </TouchableOpacity>
@@ -113,8 +86,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
       <View style={styles.content}>
         <View style={styles.listCard}>
           <FlatList
-            data={users}
-            keyExtractor={item => item.id}
+            data={activeUsersApi.data || []}
+            keyExtractor={item => item.UserId.toString()}
             renderItem={renderItem}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContainer}
