@@ -16,7 +16,7 @@ import api from '../../../utils/api';
 import { Slider, SliderApiResponse } from '../../../types';
 import { useSizes } from '../../../styles/sizes';
 import { useDispatch } from 'react-redux';
-import { logout } from '../../../store/reducer/auth';
+import { logout, useAuthStore } from '../../../store/reducer/auth';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -44,6 +44,9 @@ const HomeScreen: React.FC = () => {
     getHomeSlider();
     console.log('Api called');
   }, []);
+
+  const { user } = useAuthStore();
+  console.log('user', user);
 
   return (
     <View style={styles.container}>

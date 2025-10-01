@@ -116,9 +116,9 @@ const styles = StyleSheet.create({
     right: 0,
   },
   dot: {
-    width: 24,
-    height: 4,
-    borderRadius: 2,
+    width: 8,
+    height: 8,
+    borderRadius: 99999,
     marginHorizontal: 3,
   },
 });

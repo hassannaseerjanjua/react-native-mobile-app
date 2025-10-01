@@ -14,6 +14,7 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import useStyles from './style';
 import { login } from '../../../store/reducer/auth';
 import { useDispatch } from 'react-redux';
+import { User } from '../../../types';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
@@ -35,12 +36,26 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     // Bypass the API call, Dev purposes only.
     if (values.phone === '555555555' || values.email === 'dev@gmail.com') {
       console.log(values);
-      dispatch(
-        login({
-          email: 'Dev',
-          phone: '555555555',
-        }),
-      );
+      const devUser: User = {
+        UserId: 0,
+        FullNameEn: 'Dev User',
+        FullNameAr: null,
+        UserName: 'dev',
+        Email: 'dev@gmail.com',
+        Password: null,
+        DateOfBirth: null,
+        GenderId: null,
+        ProfileUrl: null,
+        Status: 1,
+        PhoneNo: '555555555',
+        CreatedOn: new Date().toISOString(),
+        CreatedBy: 0,
+        ModifiedOn: null,
+        ModifiedBy: null,
+        CityId: 0,
+        City: null,
+      };
+      dispatch(login(devUser));
     }
 
     const touched = {

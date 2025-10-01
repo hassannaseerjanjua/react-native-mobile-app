@@ -5,6 +5,7 @@ import { persistStore, persistReducer } from 'redux-persist';
 // reducers
 import settings, { Settings } from './reducer/settings';
 import auth from './reducer/auth';
+import { User } from '../types';
 
 // config
 const persistConfig = {
@@ -33,9 +34,6 @@ export interface RootState {
   settings: Settings;
   auth: {
     isAuthenticated: boolean;
-    user: {
-      email?: string;
-      phone?: string;
-    } | null;
+    user: User | null;
   };
 }

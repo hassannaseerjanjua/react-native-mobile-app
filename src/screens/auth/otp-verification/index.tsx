@@ -19,6 +19,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthLayout from '../../../components/app/AuthLayout.tsx';
 import api from '../../../utils/api.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
+import { LoginApiResponse } from '../../../types';
 
 interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
@@ -95,19 +96,14 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     if (otpString.length === 6) {
       console.log('Verifying OTP:', otpString);
       try {
-        const response = await api.post(endpoint, {
+        const response = await api.post<LoginApiResponse>(endpoint, {
           OTP: otpString,
           Email: email,
           PhoneNo: phone,
         });
         console.log('OTP verification response:', response);
-        if (response.success) {
-          dispatch(
-            login({
-              email: email,
-              phone: phone,
-            }),
-          );
+        if (response.success && response.data?.Data?.User) {
+          dispatch(login(response.data.Data.User));
         } else {
           // Show error button for 3 seconds
           setShowError(true);
