@@ -53,3 +53,16 @@ export interface LoginApiResponse {
     User: User;
   };
 }
+
+export interface ActiveUser {
+  UserId: number;
+  FullName: string;
+  Email: string;
+  PhoneNo: string;
+  ProfileUrl: string | null;
+  RelationStatus: number;
+}
+
+export interface ActiveUsersApiResponse {
+  Data: ActiveUser[];
+}

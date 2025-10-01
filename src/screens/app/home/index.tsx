@@ -63,7 +63,7 @@ const HomeScreen: React.FC = () => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.welcomeText}>
-          Welcome, <Text style={styles.userName}>Mohammed</Text>
+          Welcome, <Text style={styles.userName}>{user?.FullNameEn}</Text>
         </Text>
 
         {loading ? (

@@ -10,6 +10,10 @@ import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
 import { SvgDummyAvatar, SvgSearchAdd } from '../../../assets/icons';
+import { ActiveUser, ActiveUsersApiResponse } from '../../../types';
+import apiEndpoints from '../../../constants/api-endpoints';
+import useGetApi from '../../../hooks/useGetApi';
+import { useAuthStore } from '../../../store/reducer/auth';
 
 const initialUsers = [
   { id: '1', name: 'Hassan Haddad', avatar: <SvgDummyAvatar />, added: false },
@@ -35,6 +39,16 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
   const [searchQuery, setSearchQuery] = useState('');
   const [users, setUsers] = useState(initialUsers);
+  const { user } = useAuthStore();
+
+  const activeUsersApi = useGetApi<ActiveUsersApiResponse>(
+    apiEndpoints.GET_ACTIVE_USERS(user?.UserId),
+    {
+      transformData: data => data.Data,
+    },
+  );
+
+  console.log('activeUsersApi', activeUsersApi?.data);
 
   const handleAddUser = (userId: string) => {
     setUsers(prevUsers =>

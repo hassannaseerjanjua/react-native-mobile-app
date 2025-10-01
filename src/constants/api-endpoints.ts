@@ -13,6 +13,12 @@ const apiEndpoints = {
 
   // Home
   GET_HOME_SLIDER: `/${version}/Home/GetSliders`,
+
+  // Social
+  GET_ACTIVE_USERS: (
+    userId?: number,
+  ) => `/${version}/Friends/GetActiveUsers?userId=${userId}
+`,
 };
 
 export default apiEndpoints;
