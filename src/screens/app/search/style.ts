@@ -90,6 +90,16 @@ const useStyles = () => {
         color: colors.PRIMARY,
         fontWeight: '600',
       },
+      loadingContainer: {
+        padding: 20,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      loadingText: {
+        fontSize: 16,
+        color: '#666',
+        fontFamily: fonts.Quicksand.medium,
+      },
     });
   }, [theme]);
 

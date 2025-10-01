@@ -69,3 +69,7 @@ export interface ActiveUsersApiResponse {
     TotalCount: number;
   };
 }
+
+export interface SearchFriendsApiResponse {
+  Data: ActiveUser[];
+}

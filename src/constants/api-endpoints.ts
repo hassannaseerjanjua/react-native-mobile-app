@@ -21,6 +21,10 @@ const apiEndpoints = {
     pageSize: number = 20,
   ) =>
     `/${version}/Friends/GetActiveUsers?userId=${userId}&PageIndex=${pageIndex}&PageSize=${pageSize}`,
+  SEARCH_FRIENDS: (searchQuery: string, userId?: number) =>
+    `/${version}/Friends/SearchFriends?fullname=${searchQuery}&userId=${userId}`,
+  ADD_FRIEND: (userId?: number) =>
+    `/${version}/Friends/AddFriend?userId=${userId}`,
 };
 
 export default apiEndpoints;

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -10,10 +10,15 @@ import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
 import { SvgDummyAvatar, SvgSearchAdd } from '../../../assets/icons';
-import { ActiveUser, ActiveUsersApiResponse } from '../../../types';
+import {
+  ActiveUser,
+  ActiveUsersApiResponse,
+  SearchFriendsApiResponse,
+} from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { useAuthStore } from '../../../store/reducer/auth';
+import api from '../../../utils/api';
 
 interface SearchProps extends AppStackScreen<'Search'> {}
 
@@ -22,6 +27,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(20);
+  const [updatedUsers, setUpdatedUsers] = useState<Record<number, number>>({});
   const { user } = useAuthStore();
 
   const activeUsersApi = useGetApi<ActiveUser[]>(
@@ -31,8 +37,46 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
     },
   );
 
+  const searchFriendsApi = useGetApi<ActiveUser[]>(
+    apiEndpoints.SEARCH_FRIENDS(searchQuery, user?.UserId),
+    {
+      transformData: (data: SearchFriendsApiResponse) => data.Data,
+    },
+  );
+
+  console.log('searchFriendsApi', searchFriendsApi.data);
+
+  useEffect(() => {
+    if (searchQuery) {
+      searchFriendsApi.refetch();
+    }
+  }, [searchQuery]);
+
   const handleAddUser = (userId: number) => {
-    // TODO: Call API to add/remove user
+    // Optimistically update the local state immediately
+    setUpdatedUsers(prev => ({
+      ...prev,
+      [userId]: prev[userId] === 1 ? 2 : 1,
+    }));
+
+    api
+      .post(apiEndpoints.ADD_FRIEND(user?.UserId), {
+        friendUserId: userId,
+      })
+      .then(res => {
+        console.log('res', res);
+        // Success - the optimistic update was correct
+      })
+      .catch(err => {
+        console.log('err', err);
+        // Revert the optimistic update on error
+        setUpdatedUsers(prev => {
+          const newState = { ...prev };
+          delete newState[userId];
+          return newState;
+        });
+      });
+
     console.log('Add/Remove user:', userId);
   };
 
@@ -42,10 +86,19 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
     }
   };
 
+  // Determine which data to display and loading state
+  const displayData = searchQuery
+    ? searchFriendsApi.data || []
+    : activeUsersApi.data || [];
+  const isLoading = searchQuery
+    ? searchFriendsApi.loading
+    : activeUsersApi.loading;
+
   const renderItem = ({ item, index }: { item: ActiveUser; index: number }) => {
-    const users = activeUsersApi.data || [];
-    const isLast = index === users.length - 1;
-    const isAdded = item.RelationStatus === 1;
+    const isLast = index === displayData.length - 1;
+    // Use updated status if available, otherwise use original status
+    const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
+    const isAdded = currentStatus === 1;
 
     return (
       <View style={[styles.userRow, !isLast && styles.userRowDivider]}>
@@ -100,15 +153,21 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
 
       <View style={styles.content}>
         <View style={styles.listCard}>
-          <FlatList
-            data={activeUsersApi.data || []}
-            keyExtractor={item => item.UserId.toString()}
-            renderItem={renderItem}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContainer}
-            onEndReached={handleLoadMore}
-            onEndReachedThreshold={0.5}
-          />
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading...</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={displayData}
+              keyExtractor={item => item.UserId.toString()}
+              renderItem={renderItem}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.listContainer}
+              onEndReached={searchQuery ? undefined : handleLoadMore}
+              onEndReachedThreshold={0.5}
+            />
+          )}
         </View>
       </View>
     </View>
