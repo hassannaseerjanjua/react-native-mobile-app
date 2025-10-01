@@ -5,6 +5,7 @@ import {
   Text,
   TextInput,
   StyleSheet,
+  Pressable,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
@@ -28,6 +29,7 @@ interface HomeHeaderProps {
   searchPlaceholder?: string;
   searchValue?: string;
   onSearchChange?: (text: string) => void;
+  onProfilePress?: () => void;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -40,6 +42,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   searchPlaceholder = 'Search',
   searchValue = '',
   onSearchChange,
+  onProfilePress,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -89,9 +92,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             </TouchableOpacity>
           )}
           {showProfileIcon && (
-            <View style={styles.avatarContainer}>
+            <Pressable style={styles.avatarContainer} onPress={onProfilePress}>
               <SvgDummyAvatar />
-            </View>
+            </Pressable>
           )}
         </View>
       </View>

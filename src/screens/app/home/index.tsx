@@ -15,13 +15,15 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
 import { Slider, SliderApiResponse } from '../../../types';
 import { useSizes } from '../../../styles/sizes';
+import { useDispatch } from 'react-redux';
+import { logout } from '../../../store/reducer/auth';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const [sliders, setSliders] = useState<Slider[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-
+  const dispatch = useDispatch();
   const getHomeSlider = async () => {
     try {
       setLoading(true);
@@ -40,6 +42,7 @@ const HomeScreen: React.FC = () => {
 
   useEffect(() => {
     getHomeSlider();
+    console.log('Api called');
   }, []);
 
   return (
@@ -48,7 +51,12 @@ const HomeScreen: React.FC = () => {
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
       />
-      <HomeHeader showProfileIcon={true} />
+      <HomeHeader
+        showProfileIcon={true}
+        onProfilePress={() => {
+          dispatch(logout());
+        }}
+      />
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.welcomeText}>

@@ -25,7 +25,11 @@ const AuthLayout = ({
   return (
     <SafeAreaView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <AuthHeader onBackPress={onBackPress} showBackButton={backButton} />
+      <AuthHeader
+        onBackPress={onBackPress}
+        showBackButton={backButton}
+        spaceTaken={!backButton}
+      />
       <ScrollView
         showsVerticalScrollIndicator={false}
         style={styles.scrollContainer}

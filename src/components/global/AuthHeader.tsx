@@ -4,16 +4,19 @@ import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
 import { SvgBackIcon } from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
+import fonts from '../../assets/fonts';
 
 interface AuthHeaderProps {
   title?: string;
   showBackButton?: boolean;
+  spaceTaken?: boolean;
   onBackPress?: () => void;
 }
 
 const AuthHeader: React.FC<AuthHeaderProps> = ({
   title,
   showBackButton = true,
+  spaceTaken = false,
   onBackPress,
 }) => {
   const navigation = useNavigation();
@@ -40,6 +43,15 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({
         >
           <SvgBackIcon width={backSize} height={backSize} />
         </TouchableOpacity>
+      ) : spaceTaken ? (
+        <View
+          style={{
+            width: backSize + sizes.PADDING * 2,
+            height: backSize + sizes.PADDING * 2,
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        />
       ) : (
         <View style={styles.placeholder} />
       )}
@@ -71,8 +83,9 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       title: {
-        fontSize: 18,
-        fontWeight: '600',
+        fontFamily: fonts.Quicksand.bold,
+        fontSize: 20,
+        lineHeight: 32,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
         flex: 1,
