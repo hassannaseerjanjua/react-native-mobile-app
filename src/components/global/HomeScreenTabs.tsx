@@ -18,7 +18,6 @@ interface HomeScreenTabsProps {
   titlePrimary?: string;
   description: string;
   onPress?: () => void;
-  flex?: number;
   style?: any;
 }
 
@@ -29,26 +28,20 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
   titlePrimary,
   description,
   onPress,
-  flex = 1,
   style,
 }) => {
   const { colors, sizes } = useTheme();
 
   const cardStyles = StyleSheet.create({
     card: {
-      flex,
+      flex: 1,
       flexDirection: 'row',
       alignItems: 'center',
       borderRadius: 12,
-      padding: sizes.PADDING,
-      minHeight: sizes.HEIGHT * 0.1, // Dynamic minimum height (10% of screen height)
+      padding: 8,
+      minHeight: sizes.HEIGHT * 0.1,
       marginBottom: sizes.PADDING,
       marginHorizontal: 4,
-      shadowColor: '#000',
-      shadowOpacity: 0.05,
-      shadowRadius: 5,
-      shadowOffset: { width: 0, height: 2 },
-      elevation: 2,
       backgroundColor: '#DBEDFD',
     },
     content: {

@@ -106,7 +106,6 @@ const HomeScreenTabsContainer: React.FC = () => {
       title: 'Gift One',
       titlePrimary: 'Get One',
       description: 'Send a gift and score a bonus treat for yourself.',
-      flex: 1.2,
     },
     {
       id: 'send-a-gift',
@@ -147,7 +146,6 @@ const HomeScreenTabsContainer: React.FC = () => {
             title={tab.title}
             titlePrimary={tab.titlePrimary}
             description={tab.description}
-            flex={tab.flex}
           />
         ))}
       </View>
