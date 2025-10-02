@@ -81,7 +81,7 @@ const api = {
     caller<T>('public', 'delete', url, undefined, config),
   post: async <T>(url: string, data: any, config?: AxiosRequestConfig<any>) =>
     caller<T>('public', 'post', url, data, config),
-  put: async <T>(url: string, data: any, config?: AxiosRequestConfig<any>) =>
+  put: async <T>(url: string, data?: any, config?: AxiosRequestConfig<any>) =>
     caller<T>('public', 'put', url, data, config),
 };
 

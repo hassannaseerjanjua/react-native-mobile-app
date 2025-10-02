@@ -55,10 +55,9 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   }, [searchQuery]);
 
   const addFriend = (userId: number) => {
-    // Optimistically update the local state immediately
     setUpdatedUsers(prev => ({
       ...prev,
-      [userId]: 1, // Set as added
+      [userId]: 1,
     }));
 
     api
@@ -70,7 +69,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
       })
       .catch(err => {
         console.log('Add friend error:', err);
-        // Revert the optimistic update on error
         setUpdatedUsers(prev => {
           const newState = { ...prev };
           delete newState[userId];
@@ -80,22 +78,18 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   };
 
   const unfriendUser = (userId: number) => {
-    // Optimistically update the local state immediately
     setUpdatedUsers(prev => ({
       ...prev,
-      [userId]: 2, // Set as not added
+      [userId]: 2,
     }));
 
     api
-      .put(apiEndpoints.UNFRIEND_USER(user?.UserId), {
-        friendUserId: userId,
-      })
+      .put(apiEndpoints.UNFRIEND_USER(user?.UserId, userId))
       .then(res => {
         console.log('Unfriend success:', res);
       })
       .catch(err => {
         console.log('Unfriend error:', err);
-        // Revert the optimistic update on error
         setUpdatedUsers(prev => {
           const newState = { ...prev };
           delete newState[userId];
@@ -105,7 +99,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   };
 
   const handleAddUser = (userId: number) => {
-    // Get current status (updated or original)
     const currentStatus =
       updatedUsers[userId] ??
       displayData.find(user => user.UserId === userId)?.RelationStatus ??
@@ -125,7 +118,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
     }
   };
 
-  // Determine which data to display and loading state
   const displayData = searchQuery
     ? searchFriendsApi.data || []
     : activeUsersApi.data || [];
@@ -201,7 +193,6 @@ const SearchUserItem = ({
   handleAddUser,
 }: SearchUserItemProps) => {
   const { styles } = useStyles();
-  // Use updated status if available, otherwise use original status
   const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
   const isAdded = currentStatus === 1;
 
