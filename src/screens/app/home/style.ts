@@ -1,7 +1,8 @@
-import { StyleSheet } from 'react-native';
+import { Platform, StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
 import fonts from '../../../assets/fonts';
+import { isAndroid } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -13,8 +14,8 @@ const useStyles = () => {
       container: {
         flex: 1,
         backgroundColor: colors.BACKGROUND,
-
-        padding: sizes.PADDING,
+        paddingHorizontal: sizes.PADDING,
+        paddingTop: isAndroid ? sizes.PADDING : 0,
       },
       welcomeText: {
         // color: colors.PRIMARY_TEXT,

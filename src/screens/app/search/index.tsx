@@ -19,6 +19,8 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { useAuthStore } from '../../../store/reducer/auth';
 import api from '../../../utils/api';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import ParentView from '../../../components/app/ParentView';
 
 interface SearchProps extends AppStackScreen<'Search'> {}
 
@@ -131,84 +133,108 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
     ? searchFriendsApi.loading
     : activeUsersApi.loading;
 
-  const renderItem = ({ item, index }: { item: ActiveUser; index: number }) => {
-    const isLast = index === displayData.length - 1;
-    // Use updated status if available, otherwise use original status
-    const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
-    const isAdded = currentStatus === 1;
-
-    return (
-      <View style={[styles.userRow, !isLast && styles.userRowDivider]}>
-        <View style={styles.userInfo}>
-          <View style={styles.avatarWrapper}>
-            <SvgDummyAvatar width={36} height={36} />
-          </View>
-          <Text style={styles.userName}>{item.FullName}</Text>
-        </View>
-
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={[styles.addButton, isAdded && styles.addedButton]}
-          onPress={() => handleAddUser(item.UserId)}
-        >
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 2,
-              justifyContent: 'center',
-            }}
-          >
-            {!isAdded && <SvgSearchAdd width={16} height={16} />}
-            <Text
-              style={[styles.addButtonText, isAdded && styles.addedButtonText]}
-            >
-              {isAdded ? 'Added' : 'Add'}
-            </Text>
-          </View>
-        </TouchableOpacity>
-      </View>
-    );
-  };
-
   return (
-    <View style={styles.container}>
-      <StatusBar
-        backgroundColor={theme.colors.BACKGROUND}
-        barStyle="dark-content"
-      />
-      <HomeHeader
-        title="Search"
-        showBackButton
-        onBackPress={() => navigation.goBack()}
-        showSearch={false}
-        showSearchBar
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder="Search"
-      />
+    <ParentView>
+      <View style={styles.container}>
+        <StatusBar
+          backgroundColor={theme.colors.BACKGROUND}
+          barStyle="dark-content"
+        />
+        <HomeHeader
+          title="Search"
+          showBackButton
+          onBackPress={() => navigation.goBack()}
+          showSearch={false}
+          showSearchBar
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder="Search"
+        />
 
-      <View style={styles.content}>
-        <View style={styles.listCard}>
-          {isLoading ? (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading...</Text>
-            </View>
-          ) : (
-            <FlatList
-              data={displayData}
-              keyExtractor={item => item.UserId.toString()}
-              renderItem={renderItem}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContainer}
-              onEndReached={searchQuery ? undefined : handleLoadMore}
-              onEndReachedThreshold={0.5}
-            />
-          )}
+        <View style={styles.content}>
+          <View style={styles.listCard}>
+            {isLoading ? (
+              <View style={styles.loadingContainer}>
+                <Text style={styles.loadingText}>Loading...</Text>
+              </View>
+            ) : (
+              <FlatList
+                data={displayData}
+                keyExtractor={item => item.UserId.toString()}
+                renderItem={({ item, index }) => (
+                  <SearchUserItem
+                    item={item}
+                    index={index}
+                    isLast={index === displayData.length - 1}
+                    updatedUsers={updatedUsers}
+                    handleAddUser={handleAddUser}
+                  />
+                )}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+                onEndReached={searchQuery ? undefined : handleLoadMore}
+                onEndReachedThreshold={0.5}
+              />
+            )}
+          </View>
         </View>
       </View>
-    </View>
+    </ParentView>
   );
 };
 
 export default SearchScreen;
+
+interface SearchUserItemProps {
+  item: ActiveUser;
+  index: number;
+  isLast: boolean;
+  updatedUsers: Record<number, number>;
+  handleAddUser: (userId: number) => void;
+}
+
+const SearchUserItem = ({
+  item,
+  index,
+  isLast,
+  updatedUsers,
+  handleAddUser,
+}: SearchUserItemProps) => {
+  const { styles } = useStyles();
+  // Use updated status if available, otherwise use original status
+  const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
+  const isAdded = currentStatus === 1;
+
+  return (
+    <View style={[styles.userRow, !isLast && styles.userRowDivider]}>
+      <View style={styles.userInfo}>
+        <View style={styles.avatarWrapper}>
+          <SvgDummyAvatar width={36} height={36} />
+        </View>
+        <Text style={styles.userName}>{item.FullName}</Text>
+      </View>
+
+      <TouchableOpacity
+        activeOpacity={0.8}
+        style={[styles.addButton, isAdded && styles.addedButton]}
+        onPress={() => handleAddUser(item.UserId)}
+      >
+        <View
+          style={{
+            flexDirection: 'row',
+            alignItems: 'center',
+            gap: 2,
+            justifyContent: 'center',
+          }}
+        >
+          {!isAdded && <SvgSearchAdd width={16} height={16} />}
+          <Text
+            style={[styles.addButtonText, isAdded && styles.addedButtonText]}
+          >
+            {isAdded ? 'Added' : 'Add'}
+          </Text>
+        </View>
+      </TouchableOpacity>
+    </View>
+  );
+};

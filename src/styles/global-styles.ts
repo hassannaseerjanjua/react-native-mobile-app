@@ -36,7 +36,7 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           },
           shadowOpacity: 0.22,
           shadowRadius: 2.22,
-          elevation: 3,
+          elevation: 5,
           borderColor: colors.LIGHT_GRAY,
           borderWidth: Platform.OS == 'android' && colors.isDark ? 0.5 : 0,
         },

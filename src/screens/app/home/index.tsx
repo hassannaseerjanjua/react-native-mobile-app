@@ -17,6 +17,7 @@ import { Slider, SliderApiResponse } from '../../../types';
 import { useSizes } from '../../../styles/sizes';
 import { useDispatch } from 'react-redux';
 import { logout, useAuthStore } from '../../../store/reducer/auth';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();

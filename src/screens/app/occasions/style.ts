@@ -1,5 +1,6 @@
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
+import { isAndroid } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -10,6 +11,7 @@ const useStyles = () => {
         flex: 1,
         backgroundColor: theme.colors.BACKGROUND,
         padding: theme.sizes.PADDING,
+        paddingTop: isAndroid ? theme.sizes.PADDING : 0,
       },
       content: {
         flex: 1,

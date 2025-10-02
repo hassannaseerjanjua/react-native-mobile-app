@@ -14,6 +14,9 @@ import Favourites from '../screens/app/favourites/index';
 import Occasions from '../screens/app/occasions/index';
 import Notifications from '../screens/app/notifications/index';
 import useTheme from '../styles/theme';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { Text, TouchableOpacity, View } from 'react-native';
+import { scaleWithMax } from '../utils';
 
 const Tab = createBottomTabNavigator();
 
@@ -21,65 +24,166 @@ const BottomTabNavigator = () => {
   const theme = useTheme();
 
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarStyle: {
-          backgroundColor: theme.colors.BACKGROUND,
-          borderTopColor: theme.colors.SECONDARY_GRAY,
-          borderTopWidth: 0,
-          height: 60,
-          paddingBottom: 8,
-          paddingTop: 8,
-          borderTopLeftRadius: 14,
-          borderTopRightRadius: 14,
-        },
-        tabBarActiveTintColor: theme.colors.PRIMARY,
-        tabBarInactiveTintColor: theme.colors.SECONDARY_TEXT,
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '500',
-        },
-      }}
-    >
-      <Tab.Screen
-        name="Home"
-        component={Home}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <SvgHome width={size} height={size} fill={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Favourites"
-        component={Favourites}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <SvgFavourite width={size} height={size} fill={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Occasions"
-        component={Occasions}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <SvgOccasions width={size} height={size} fill={color} />
-          ),
-        }}
-      />
-      <Tab.Screen
-        name="Notifications"
-        component={Notifications}
-        options={{
-          tabBarIcon: ({ color, size }) => (
-            <SvgNotification width={size} height={size} fill={color} />
-          ),
-        }}
-      />
-    </Tab.Navigator>
+    <View style={{ flex: 1, backgroundColor: theme.colors.BACKGROUND }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <Tab.Navigator
+          tabBar={props => <CustomTabBar {...props} />}
+          screenOptions={{
+            headerShown: false,
+          }}
+        >
+          <Tab.Screen
+            name="Home"
+            component={Home}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <SvgHome width={size} height={size} fill={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Favourites"
+            component={Favourites}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <SvgFavourite width={size} height={size} fill={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Occasions"
+            component={Occasions}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <SvgOccasions width={size} height={size} fill={color} />
+              ),
+            }}
+          />
+          <Tab.Screen
+            name="Notifications"
+            component={Notifications}
+            options={{
+              tabBarIcon: ({ color, size }) => (
+                <SvgNotification width={size} height={size} fill={color} />
+              ),
+            }}
+          />
+        </Tab.Navigator>
+      </SafeAreaView>
+    </View>
   );
 };
 
 export default BottomTabNavigator;
+
+function CustomTabBar({ state, descriptors, navigation }: any) {
+  const theme = useTheme();
+  return (
+    <View
+      style={{
+        backgroundColor: theme.colors.BACKGROUND,
+        borderTopColor: theme.colors.SECONDARY_GRAY,
+        borderTopWidth: 0,
+        paddingHorizontal: scaleWithMax(10, 12),
+        height: scaleWithMax(60, 70),
+        // paddingBottom: 8,
+        // paddingTop: 8,
+        borderTopLeftRadius: 14,
+        borderTopRightRadius: 14,
+        flexDirection: 'row',
+        ...theme.globalStyles.SHADOW_STYLE,
+      }}
+    >
+      <View
+        style={{
+          position: 'absolute',
+          bottom: -scaleWithMax(15, 17.5) + 2,
+          width: theme.sizes.WIDTH,
+          backgroundColor: theme.colors.BACKGROUND,
+          height: scaleWithMax(30, 35),
+        }}
+      />
+      {state.routes.map((route: any, index: any) => {
+        const { options } = descriptors[route.key];
+        const label =
+          options.tabBarLabel !== undefined
+            ? options.tabBarLabel
+            : options.title !== undefined
+            ? options.title
+            : route.name;
+
+        const isFocused = state.index === index;
+
+        const onPress = () => {
+          const event = navigation.emit({
+            type: 'tabPress',
+            target: route.key,
+            canPreventDefault: true,
+          });
+
+          if (!isFocused && !event.defaultPrevented) {
+            navigation.navigate(route.name);
+          }
+        };
+
+        const iconSize = scaleWithMax(25, 30);
+
+        return (
+          <TouchableOpacity
+            key={route.name}
+            onPress={onPress}
+            style={{
+              flex: 1,
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            {isFocused && (
+              <View
+                style={{
+                  width: scaleWithMax(25, 30),
+                  height: scaleWithMax(3, 4),
+                  borderRadius: 10,
+                  backgroundColor: theme.colors.PRIMARY,
+                  position: 'absolute',
+                  top: 0,
+                }}
+              />
+            )}
+            <View style={{}}>{getIcon(route.name, iconSize, isFocused)}</View>
+            <Text
+              style={{
+                ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+                paddingTop: 3,
+                fontSize: scaleWithMax(11, 12),
+                color: isFocused
+                  ? theme.colors.PRIMARY
+                  : theme.colors.SECONDARY_TEXT,
+              }}
+            >
+              {label}
+            </Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
+const getIcon = (name: string, iconSize: number, isFocused: boolean) => {
+  const style = {
+    width: iconSize,
+    height: iconSize,
+  };
+
+  switch (name) {
+    case 'Home':
+      return <SvgHome {...style} />;
+    case 'Favourites':
+      return <SvgFavourite {...style} />;
+    case 'Occasions':
+      return <SvgOccasions {...style} />;
+    case 'Notifications':
+      return <SvgNotification {...style} />;
+  }
+};
