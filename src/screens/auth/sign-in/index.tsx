@@ -24,6 +24,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<'Phone' | 'Email'>('Phone');
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [currentFormValues, setCurrentFormValues] = useState({
     phone: '',
     email: '',
@@ -73,6 +74,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       (activeTab === 'Email' && errors.email);
 
     if (!hasErrors) {
+      setIsLoading(true);
       try {
         const response = await api.post(apiEndpoints.SIGNIN, {
           PhoneNo: values.phone,
@@ -85,6 +87,10 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         }
       } catch (error) {
         console.error('Sign in error', error);
+      } finally {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
       }
     }
   };
@@ -175,6 +181,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   title="Sign In"
                   type="primary"
                   onPress={handleSubmit}
+                  loading={isLoading}
                 />
               </View>
             );
@@ -221,6 +228,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           </Text>
 
           <CustomButton
+            disabled={!isBottomSheetOpen}
             title={
               activeTab === 'Phone'
                 ? 'Yes, send code by SMS'
@@ -232,6 +240,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           />
 
           <CustomButton
+            disabled={!isBottomSheetOpen}
             title="No, I want to change it"
             type="secondary"
             onPress={() => setIsBottomSheetOpen(false)}

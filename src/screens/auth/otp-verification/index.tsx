@@ -35,6 +35,8 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const [focusedIndex, setFocusedIndex] = useState(0);
   const [showError, setShowError] = useState(false);
   const inputRefs = useRef<(TextInput | null)[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   // Get email and phone from route parameters
   const { email, phone, fullName, username, city, signIn } = route.params;
@@ -94,6 +96,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       ? apiEndpoints.VERIFY_OTP_SIGNIN
       : apiEndpoints.VERIFY_OTP;
     if (otpString.length === 6) {
+      setIsLoading(true);
       console.log('Verifying OTP:', otpString);
       try {
         const response = await api.post<LoginApiResponse>(endpoint, {
@@ -118,31 +121,37 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         setTimeout(() => {
           setShowError(false);
         }, 3000);
+      } finally {
+        setTimeout(() => {
+          setIsLoading(false);
+        }, 1000);
       }
     }
   };
 
   const handleResendCode = async () => {
+    setIsResending(true);
     setTimer(60);
     setIsTimerActive(true);
     const endpoint = signIn ? apiEndpoints.SIGNIN : apiEndpoints.SIGNUP;
     console.log('Resending OTP...');
     // Handle resend OTP logic here
-    const response = await api
-      .post(endpoint, {
+    try {
+      const response = await api.post(endpoint, {
         FullName: fullName,
         UserName: username,
         CityId: city,
         Phone: phone,
         Email: email,
-      })
-      .then(res => {
-        console.log('Sign up response:', res);
-      })
-      .catch(err => {
-        console.log('Sign up error:', err);
       });
-    console.log('resend OTP response', response);
+      console.log('Sign up response:', response);
+    } catch (err) {
+      console.log('Sign up error:', err);
+    } finally {
+      setTimeout(() => {
+        setIsResending(false);
+      }, 1000);
+    }
   };
 
   const formatTimer = (seconds: number) => {
@@ -201,8 +210,11 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
               {isTimerActive ? (
                 <Text>Wait for {formatTimer(timer)}</Text>
               ) : (
-                <Text onPress={handleResendCode} style={styles.resendText}>
-                  Resend Code
+                <Text
+                  onPress={isResending ? undefined : handleResendCode}
+                  style={[styles.resendText, isResending && { opacity: 0.5 }]}
+                >
+                  {isResending ? 'Resending...' : 'Resend Code'}
                 </Text>
               )}
             </Text>
@@ -214,6 +226,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
               type="primary"
               onPress={handleVerify}
               disabled={!isOtpComplete}
+              loading={isLoading}
             />
           </View>
         </View>

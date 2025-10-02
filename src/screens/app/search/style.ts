@@ -100,6 +100,14 @@ const useStyles = () => {
         color: '#666',
         fontFamily: fonts.Quicksand.medium,
       },
+      loadingButton: {
+        opacity: 0.6,
+      },
+      loadingButtonText: {
+        fontSize: 16,
+        color: colors.PRIMARY,
+        fontFamily: fonts.Quicksand.medium,
+      },
     });
   }, [theme]);
 

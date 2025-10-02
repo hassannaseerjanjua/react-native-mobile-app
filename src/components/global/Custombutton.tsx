@@ -7,6 +7,7 @@ import {
   StyleProp,
   ViewStyle,
   TextStyle,
+  ActivityIndicator,
 } from 'react-native';
 import { useColors } from '../../styles/colors';
 import useTheme from '../../styles/theme';
@@ -21,6 +22,8 @@ interface CustomButtonProps {
   buttonStyle?: StyleProp<ViewStyle>;
   disabled?: boolean;
   isError?: boolean;
+  loading?: boolean;
+  loadingText?: string;
 }
 
 const CustomButton = ({
@@ -31,6 +34,8 @@ const CustomButton = ({
   disabled = false,
   labelStyle,
   isError = false,
+  loading = false,
+  loadingText,
 }: CustomButtonProps) => {
   const theme = useTheme();
   const { height, width } = useWindowDimensions();
@@ -63,27 +68,40 @@ const CustomButton = ({
       onPress={onPress}
       style={[baseStyle, buttonStyle]}
       activeOpacity={0.6}
-      disabled={disabled}
+      disabled={disabled || loading}
     >
-      <Text
-        style={[
-          type === 'error'
-            ? theme.globalStyles.TEXT_STYLE
-            : theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-          {
-            color:
-              type === 'primary'
-                ? theme.colors.WHITE
-                : type === 'error'
-                ? theme.colors.RED
-                : theme.colors.PRIMARY,
-            fontSize: theme.sizes.FONTSIZE_BUTTON,
-          },
-          labelStyle,
-        ]}
-      >
-        {title}
-      </Text>
+      {loading ? (
+        <ActivityIndicator
+          size="small"
+          color={
+            type === 'primary'
+              ? theme.colors.WHITE
+              : type === 'error'
+              ? theme.colors.RED
+              : theme.colors.PRIMARY
+          }
+        />
+      ) : (
+        <Text
+          style={[
+            type === 'error'
+              ? theme.globalStyles.TEXT_STYLE
+              : theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+            {
+              color:
+                type === 'primary'
+                  ? theme.colors.WHITE
+                  : type === 'error'
+                  ? theme.colors.RED
+                  : theme.colors.PRIMARY,
+              fontSize: theme.sizes.FONTSIZE_BUTTON,
+            },
+            labelStyle,
+          ]}
+        >
+          {title}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };

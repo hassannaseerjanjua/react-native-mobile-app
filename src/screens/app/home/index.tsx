@@ -85,7 +85,7 @@ const HomeScreen: React.FC = () => {
         ) : (
           <ImageSlider
             sliders={sliders}
-            height={theme.sizes.HEIGHT * 0.32}
+            height={theme.sizes.HEIGHT * 0.36}
             borderRadius={12}
           />
         )}
