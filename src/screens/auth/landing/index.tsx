@@ -5,11 +5,13 @@ import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style';
 import { SvgLogoBlue } from '../../../assets/icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface LandingProps extends AuthStackScreen<'Landing'> {}
 
 const Landing: React.FC<LandingProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
 
   return (
     <>
@@ -21,13 +23,12 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
 
         <View style={styles.buttonContainer}>
           <CustomButton
-            title="Sign in"
+            title={getString('SIGN_IN')}
             type="primary"
             onPress={() => navigation.navigate('SignIn')}
           />
-
           <CustomButton
-            title="Sign Up"
+            title={getString('SIGN_UP')}
             type="secondary"
             onPress={() => navigation.navigate('SignUp')}
           />

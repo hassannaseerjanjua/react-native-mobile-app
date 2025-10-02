@@ -15,6 +15,7 @@ import useStyles from './style';
 import { login } from '../../../store/reducer/auth';
 import { useDispatch } from 'react-redux';
 import { User } from '../../../types';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
@@ -27,6 +28,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     phone: '',
     email: '',
   });
+
+  const { getString } = useLocaleStore();
 
   const validationSchema = createSignInSchema(activeTab);
   const handleSignIn = async (
@@ -101,7 +104,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         onBackPress={() => navigation.goBack()}
         title="Sign In"
         backButton={false}
-        subtitle="Welcome back, you've been missed"
+        subtitle={getString('WELCOME_BACK')}
       >
         <View style={styles.tabContainer}>
           {['Phone', 'Email'].map(tab => (

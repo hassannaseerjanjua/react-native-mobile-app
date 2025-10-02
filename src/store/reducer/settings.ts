@@ -2,16 +2,10 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store';
 
-interface SettingsState {
-  langID: string;
-}
+export interface SettingsState {}
 
 // init states
-const initState: SettingsState = {
-  langID: 'en',
-};
-
-export type Settings = typeof initState.langID;
+const initState: SettingsState = {};
 
 // reducer
 const settings = createSlice({
