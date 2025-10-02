@@ -17,6 +17,13 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         paddingTop: isAndroid ? sizes.PADDING : 0,
       },
+      contentContainer: {
+        gap: sizes.PADDING * 0.7,
+      },
+      fullWidthContainer: {
+        marginHorizontal: -sizes.PADDING,
+        marginVertical: sizes.PADDING * 0.5,
+      },
       welcomeText: {
         // color: colors.PRIMARY_TEXT,
         // marginHorizontal: sizes.PADDING,
@@ -41,12 +48,11 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.bold,
         fontSize: sizes.FONTSIZE_HEADING,
         color: '#262C3D',
-        marginVertical: sizes.HEIGHT * 0.009,
       },
       optionsWrapper: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        // marginHorizontal: sizes.PADDING,
+        gap: 8,
       },
       optionCard: {
         flex: 1,
@@ -54,8 +60,6 @@ const useStyles = () => {
         alignItems: 'center',
         borderRadius: 12,
         padding: sizes.PADDING,
-        marginBottom: sizes.PADDING,
-        marginHorizontal: 4,
         shadowColor: '#000',
         shadowOpacity: 0.05,
         shadowRadius: 5,

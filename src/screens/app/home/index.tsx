@@ -83,11 +83,9 @@ const HomeScreen: React.FC = () => {
             <Text style={{ color: '#666' }}>Failed to load images</Text>
           </View>
         ) : (
-          <ImageSlider
-            sliders={sliders}
-            height={theme.sizes.HEIGHT * 0.36}
-            borderRadius={12}
-          />
+          <View style={styles.fullWidthContainer}>
+            <ImageSlider sliders={sliders} height={theme.sizes.HEIGHT * 0.36} />
+          </View>
         )}
 
         <HomeScreenTabsContainer />
@@ -136,7 +134,7 @@ const HomeScreenTabsContainer: React.FC = () => {
   ];
 
   return (
-    <>
+    <View style={styles.contentContainer}>
       <Text style={styles.sectionTitle}>What are you looking for?</Text>
 
       <View style={styles.optionsWrapper}>
@@ -169,7 +167,7 @@ const HomeScreenTabsContainer: React.FC = () => {
           />
         ))}
       </View>
-    </>
+    </View>
   );
 };
 

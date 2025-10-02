@@ -14,16 +14,11 @@ import useTheme from '../../styles/theme';
 interface ImageSliderProps {
   sliders: Slider[];
   height?: number;
-  borderRadius?: number;
 }
 
 const { width: screenWidth } = Dimensions.get('window');
 
-const ImageSlider: React.FC<ImageSliderProps> = ({
-  sliders,
-  height = 400,
-  borderRadius = 12,
-}) => {
+const ImageSlider: React.FC<ImageSliderProps> = ({ sliders, height = 400 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const { colors } = useTheme();
@@ -78,10 +73,9 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
                 styles.image,
                 {
                   height,
-                  borderRadius,
                 },
               ]}
-              resizeMode="cover"
+              resizeMode="contain"
             />
           </View>
         ))}
@@ -100,11 +94,14 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   slideContainer: {
-    width: screenWidth - 32, // Account for padding
-    paddingHorizontal: 16,
+    width: screenWidth,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   image: {
-    width: '100%',
+    width: screenWidth,
+    flex: 1,
+    borderRadius: 20,
   },
   dotsContainer: {
     flexDirection: 'row',

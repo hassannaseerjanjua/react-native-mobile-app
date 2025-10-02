@@ -6,6 +6,14 @@ import {
   SvgFavourite,
   SvgOccasions,
   SvgNotification,
+  SvgHomeActive,
+  SvgHomeInactive,
+  SvgFavouriteActive,
+  SvgFavouriteInactive,
+  SvgOccasionsActive,
+  SvgOccasionsInactive,
+  SvgNotificationActive,
+  SvgNotificationInactive,
 } from '../assets/icons';
 
 // Screens
@@ -178,12 +186,28 @@ const getIcon = (name: string, iconSize: number, isFocused: boolean) => {
 
   switch (name) {
     case 'Home':
-      return <SvgHome {...style} />;
+      return isFocused ? (
+        <SvgHomeActive {...style} />
+      ) : (
+        <SvgHomeInactive {...style} />
+      );
     case 'Favourites':
-      return <SvgFavourite {...style} />;
+      return isFocused ? (
+        <SvgFavouriteActive {...style} />
+      ) : (
+        <SvgFavouriteInactive {...style} />
+      );
     case 'Occasions':
-      return <SvgOccasions {...style} />;
+      return isFocused ? (
+        <SvgOccasionsActive {...style} />
+      ) : (
+        <SvgOccasionsInactive {...style} />
+      );
     case 'Notifications':
-      return <SvgNotification {...style} />;
+      return isFocused ? (
+        <SvgNotificationActive {...style} />
+      ) : (
+        <SvgNotificationInactive {...style} />
+      );
   }
 };

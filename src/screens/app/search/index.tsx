@@ -5,6 +5,8 @@ import {
   StatusBar,
   TouchableOpacity,
   FlatList,
+  Image,
+  ActivityIndicator,
 } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -30,6 +32,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(20);
   const [updatedUsers, setUpdatedUsers] = useState<Record<number, number>>({});
+  const [loadingUsers, setLoadingUsers] = useState<Record<number, boolean>>({});
   const { user } = useAuthStore();
 
   const activeUsersApi = useGetApi<ActiveUser[]>(
@@ -55,6 +58,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   }, [searchQuery]);
 
   const addFriend = (userId: number) => {
+    setLoadingUsers(prev => ({ ...prev, [userId]: true }));
     setUpdatedUsers(prev => ({
       ...prev,
       [userId]: 1,
@@ -74,10 +78,18 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
           delete newState[userId];
           return newState;
         });
+      })
+      .finally(() => {
+        setLoadingUsers(prev => {
+          const newState = { ...prev };
+          delete newState[userId];
+          return newState;
+        });
       });
   };
 
   const unfriendUser = (userId: number) => {
+    setLoadingUsers(prev => ({ ...prev, [userId]: true }));
     setUpdatedUsers(prev => ({
       ...prev,
       [userId]: 2,
@@ -91,6 +103,13 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
       .catch(err => {
         console.log('Unfriend error:', err);
         setUpdatedUsers(prev => {
+          const newState = { ...prev };
+          delete newState[userId];
+          return newState;
+        });
+      })
+      .finally(() => {
+        setLoadingUsers(prev => {
           const newState = { ...prev };
           delete newState[userId];
           return newState;
@@ -149,6 +168,10 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
               <View style={styles.loadingContainer}>
                 <Text style={styles.loadingText}>Loading...</Text>
               </View>
+            ) : searchQuery && displayData.length === 0 ? (
+              <View style={styles.loadingContainer}>
+                <Text style={styles.loadingText}>No results found</Text>
+              </View>
             ) : (
               <FlatList
                 data={displayData}
@@ -159,6 +182,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
                     index={index}
                     isLast={index === displayData.length - 1}
                     updatedUsers={updatedUsers}
+                    loadingUsers={loadingUsers}
                     handleAddUser={handleAddUser}
                   />
                 )}
@@ -182,6 +206,7 @@ interface SearchUserItemProps {
   index: number;
   isLast: boolean;
   updatedUsers: Record<number, number>;
+  loadingUsers: Record<number, boolean>;
   handleAddUser: (userId: number) => void;
 }
 
@@ -190,17 +215,23 @@ const SearchUserItem = ({
   index,
   isLast,
   updatedUsers,
+  loadingUsers,
   handleAddUser,
 }: SearchUserItemProps) => {
-  const { styles } = useStyles();
+  const { styles, theme } = useStyles();
   const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
   const isAdded = currentStatus === 1;
+  const isLoading = loadingUsers[item.UserId] || false;
 
   return (
     <View style={[styles.userRow, !isLast && styles.userRowDivider]}>
       <View style={styles.userInfo}>
         <View style={styles.avatarWrapper}>
-          <SvgDummyAvatar width={36} height={36} />
+          {/* <SvgDummyAvatar width={36} height={36} /> */}
+          <Image
+            source={{ uri: item?.ProfileUrl ?? '' }}
+            style={styles.avatar}
+          />
         </View>
         <Text style={styles.userName}>{item.FullName}</Text>
       </View>
@@ -209,22 +240,27 @@ const SearchUserItem = ({
         activeOpacity={0.8}
         style={[styles.addButton, isAdded && styles.addedButton]}
         onPress={() => handleAddUser(item.UserId)}
+        disabled={isLoading}
       >
-        <View
-          style={{
-            flexDirection: 'row',
-            alignItems: 'center',
-            gap: 2,
-            justifyContent: 'center',
-          }}
-        >
-          {!isAdded && <SvgSearchAdd width={16} height={16} />}
-          <Text
-            style={[styles.addButtonText, isAdded && styles.addedButtonText]}
+        {isLoading ? (
+          <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
+        ) : (
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: 2,
+              justifyContent: 'center',
+            }}
           >
-            {isAdded ? 'Added' : 'Add'}
-          </Text>
-        </View>
+            {!isAdded && <SvgSearchAdd width={16} height={16} />}
+            <Text
+              style={[styles.addButtonText, isAdded && styles.addedButtonText]}
+            >
+              {isAdded ? 'Added' : 'Add'}
+            </Text>
+          </View>
+        )}
       </TouchableOpacity>
     </View>
   );

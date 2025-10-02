@@ -6,6 +6,7 @@ import {
   TextInput,
   StyleSheet,
   Pressable,
+  Image,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
@@ -18,6 +19,7 @@ import {
 } from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
 import fonts from '../../assets/fonts';
+import { useAuthStore } from '../../store/reducer/auth';
 
 interface HomeHeaderProps {
   title?: string;
@@ -46,7 +48,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
-
+  const { user } = useAuthStore();
   const handleSearchPress = () => {
     navigation.navigate('Search' as never);
   };
@@ -93,7 +95,14 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           )}
           {showProfileIcon && (
             <Pressable style={styles.avatarContainer} onPress={onProfilePress}>
-              <SvgDummyAvatar />
+              {user?.ProfileUrl ? (
+                <Image
+                  source={{ uri: user.ProfileUrl }}
+                  style={styles.avatar}
+                />
+              ) : (
+                <SvgDummyAvatar />
+              )}
             </Pressable>
           )}
         </View>
@@ -128,8 +137,8 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        // paddingVertical: sizes.PADDING,
-        backgroundColor: colors.BACKGROUND,
+        paddingTop: sizes.PADDING,
+        // backgroundColor: colors.RED,
       },
       rightSection: {
         flexDirection: 'row',
@@ -152,7 +161,7 @@ const useStyles = () => {
         marginStart: sizes.WIDTH * 0.05,
       },
       backButton: {
-        paddingVertical: sizes.PADDING,
+        // paddingVertical: sizes.PADDING,
         alignItems: 'center',
         justifyContent: 'center',
       },
@@ -187,6 +196,11 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.regular,
         color: colors.PRIMARY_TEXT,
         padding: 0,
+      },
+      avatar: {
+        width: 35,
+        height: 35,
+        borderRadius: 35 / 2,
       },
     });
   }, [theme]);

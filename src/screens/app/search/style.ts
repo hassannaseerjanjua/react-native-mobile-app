@@ -108,6 +108,11 @@ const useStyles = () => {
         color: colors.PRIMARY,
         fontFamily: fonts.Quicksand.medium,
       },
+      avatar: {
+        width: 36,
+        height: 36,
+        borderRadius: 18,
+      },
     });
   }, [theme]);
 

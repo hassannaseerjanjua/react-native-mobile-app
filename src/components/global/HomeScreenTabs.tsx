@@ -40,8 +40,6 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
       borderRadius: 12,
       padding: 8,
       minHeight: sizes.HEIGHT * 0.1,
-      marginBottom: sizes.PADDING,
-      marginHorizontal: 4,
       backgroundColor: '#DBEDFD',
     },
     content: {
@@ -49,7 +47,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
       marginLeft: 10,
     },
     title: {
-      fontSize: sizes.FONTSIZE_MEDIUM,
+      fontSize: 13,
       fontFamily: fonts.Quicksand.bold,
       color: colors.PRIMARY_TEXT,
       marginBottom: 4,
@@ -58,7 +56,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
       color: colors.PRIMARY,
     },
     description: {
-      fontSize: 9,
+      fontSize: 10,
       color: colors.BLACK,
     },
   });

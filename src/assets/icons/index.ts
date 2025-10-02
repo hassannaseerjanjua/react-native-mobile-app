@@ -23,6 +23,14 @@ import SvgOccasions from './occasions.svg';
 import SvgNotification from './notification.svg';
 import SvgSearchAdd from './profile-add.svg';
 import SvgHomeBack from './home-back.svg';
+import SvgHomeActive from './home-active.svg';
+import SvgHomeInactive from './home-inactive.svg';
+import SvgFavouriteActive from './fav-active.svg';
+import SvgFavouriteInactive from './fav-inactive.svg';
+import SvgOccasionsActive from './occasion-active.svg';
+import SvgOccasionsInactive from './occasion-inactive.svg';
+import SvgNotificationActive from './notification-active.svg';
+import SvgNotificationInactive from './notification-inactive.svg';
 
 export {
   SvgLogoBlue,
@@ -50,4 +58,12 @@ export {
   SvgNotification,
   SvgSearchAdd,
   SvgHomeBack,
+  SvgHomeActive,
+  SvgHomeInactive,
+  SvgFavouriteActive,
+  SvgFavouriteInactive,
+  SvgOccasionsActive,
+  SvgOccasionsInactive,
+  SvgNotificationActive,
+  SvgNotificationInactive,
 };
