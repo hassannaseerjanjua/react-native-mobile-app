@@ -12,10 +12,7 @@ const useStyles = () => {
 
     return StyleSheet.create({
       container: {
-        flex: 1,
-        backgroundColor: colors.BACKGROUND,
-        paddingHorizontal: sizes.PADDING,
-        paddingTop: isAndroid ? sizes.PADDING : 0,
+        ...theme.globalStyles.CONTAINER_STYLE,
         paddingBottom: isIOSThen(sizes.PADDING, 0),
       },
       contentContainer: {
@@ -26,10 +23,6 @@ const useStyles = () => {
         marginVertical: sizes.PADDING * 0.5,
       },
       welcomeText: {
-        // color: colors.PRIMARY_TEXT,
-        // marginHorizontal: sizes.PADDING,
-        // marginTop: sizes.PADDING,
-        // ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_HEADING,
         color: colors.BLACK,

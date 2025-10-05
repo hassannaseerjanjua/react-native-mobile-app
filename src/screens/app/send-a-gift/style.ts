@@ -9,9 +9,7 @@ const useStyles = () => {
     const { colors, sizes } = theme;
     return StyleSheet.create({
       container: {
-        flex: 1,
-        backgroundColor: colors.BACKGROUND,
-        paddingHorizontal: sizes.WIDTH * 0.042,
+        ...theme.globalStyles.CONTAINER_STYLE,
       },
       content: {
         flex: 1,

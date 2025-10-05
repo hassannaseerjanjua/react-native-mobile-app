@@ -20,6 +20,7 @@ import { useDispatch } from 'react-redux';
 import { logout, useAuthStore } from '../../../store/reducer/auth';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import ParentView from '../../../components/app/ParentView';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -53,7 +54,7 @@ const HomeScreen: React.FC = () => {
   console.log('user', user);
 
   return (
-    <View style={styles.container}>
+    <ParentView style={styles.container}>
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -102,7 +103,7 @@ const HomeScreen: React.FC = () => {
         )}
         <HomeScreenTabsContainer />
       </ScrollView>
-    </View>
+    </ParentView>
   );
 };
 

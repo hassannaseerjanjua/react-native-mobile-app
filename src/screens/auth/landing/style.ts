@@ -18,7 +18,7 @@ const useStyles = () => {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: sizes.HEIGHT * 0.11,
+        marginTop: sizes.HEIGHT * 0.14,
       },
       logo: {
         width: scaleWithMax(146, 160),

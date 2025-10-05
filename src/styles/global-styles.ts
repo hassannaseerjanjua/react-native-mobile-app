@@ -3,6 +3,7 @@ import { Colors } from './colors';
 import { Sizes } from './sizes';
 import { useMemo } from 'react';
 import fonts from '../assets/fonts';
+import { isAndroid } from '../utils';
 
 export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
   return useMemo(
@@ -39,6 +40,12 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           elevation: 5,
           borderColor: colors.LIGHT_GRAY,
           borderWidth: Platform.OS == 'android' && colors.isDark ? 0.5 : 0,
+        },
+        CONTAINER_STYLE: {
+          flex: 1,
+          backgroundColor: colors.BACKGROUND,
+          paddingHorizontal: sizes.PADDING,
+          paddingTop: isAndroid ? sizes.PADDING * 0.4 : 0,
         },
       }),
     [colors, sizes],

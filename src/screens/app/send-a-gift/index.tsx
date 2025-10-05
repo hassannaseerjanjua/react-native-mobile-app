@@ -22,31 +22,30 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
-    <ParentView>
-      <View style={styles.container}>
-        <StatusBar
-          backgroundColor={theme.colors.BACKGROUND}
-          barStyle="dark-content"
-        />
-        <HomeHeader
-          title={getString('HOME_SEND_A_GIFT')}
-          showBackButton
-          onBackPress={() => navigation.goBack()}
-          showSearch={false}
-          showSearchBar
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          searchPlaceholder={getString('HOME_SEARCH')}
-        />
+    <ParentView style={styles.container}>
+      <StatusBar
+        backgroundColor={theme.colors.BACKGROUND}
+        barStyle="dark-content"
+      />
+      <HomeHeader
+        title={getString('HOME_SEND_A_GIFT')}
+        showBackButton
+        onBackPress={() => navigation.goBack()}
+        showSearch={false}
+        showSearchBar
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder={getString('HOME_SEARCH')}
+      />
 
-        <View style={styles.content}>
-          <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>
-              Search for friends to send a gift
-            </Text>
-          </View>
+      <View style={styles.content}>
+        <View style={styles.emptyContainer}>
+          <Text style={styles.emptyText}>
+            Search for friends to send a gift
+          </Text>
         </View>
       </View>
+      {/* </View> */}
     </ParentView>
   );
 };

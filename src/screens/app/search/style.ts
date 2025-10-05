@@ -11,9 +11,7 @@ const useStyles = () => {
 
     return StyleSheet.create({
       container: {
-        flex: 1,
-        backgroundColor: colors.BACKGROUND,
-        paddingHorizontal: sizes.PADDING,
+        ...theme.globalStyles.CONTAINER_STYLE,
       },
       content: {
         flex: 1,

@@ -147,56 +147,55 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
     : activeUsersApi.loading;
 
   return (
-    <ParentView>
-      <View style={styles.container}>
-        <StatusBar
-          backgroundColor={theme.colors.BACKGROUND}
-          barStyle="dark-content"
-        />
-        <HomeHeader
-          title={getString('HOME_SEARCH')}
-          showBackButton
-          onBackPress={() => navigation.goBack()}
-          showSearch={false}
-          showSearchBar
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          searchPlaceholder={getString('HOME_SEARCH')}
-        />
+    <ParentView style={styles.container}>
+      <StatusBar
+        backgroundColor={theme.colors.BACKGROUND}
+        barStyle="dark-content"
+      />
+      <HomeHeader
+        title={getString('HOME_SEARCH')}
+        showBackButton
+        onBackPress={() => navigation.goBack()}
+        showSearch={false}
+        showSearchBar
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder={getString('HOME_SEARCH')}
+      />
 
-        <View style={styles.content}>
-          <View style={styles.listCard}>
-            {isLoading ? (
-              <View style={styles.loadingContainer}>
-                <Text style={styles.loadingText}>Loading...</Text>
-              </View>
-            ) : searchQuery && displayData.length === 0 ? (
-              <View style={styles.loadingContainer}>
-                <Text style={styles.loadingText}>No results found</Text>
-              </View>
-            ) : (
-              <FlatList
-                data={displayData}
-                keyExtractor={item => item.UserId.toString()}
-                renderItem={({ item, index }) => (
-                  <SearchUserItem
-                    item={item}
-                    index={index}
-                    isLast={index === displayData.length - 1}
-                    updatedUsers={updatedUsers}
-                    loadingUsers={loadingUsers}
-                    handleAddUser={handleAddUser}
-                  />
-                )}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.listContainer}
-                onEndReached={searchQuery ? undefined : handleLoadMore}
-                onEndReachedThreshold={0.5}
-              />
-            )}
-          </View>
+      <View style={styles.content}>
+        <View style={styles.listCard}>
+          {isLoading ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>Loading...</Text>
+            </View>
+          ) : searchQuery && displayData.length === 0 ? (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>No results found</Text>
+            </View>
+          ) : (
+            <FlatList
+              data={displayData}
+              keyExtractor={item => item.UserId.toString()}
+              renderItem={({ item, index }) => (
+                <SearchUserItem
+                  item={item}
+                  index={index}
+                  isLast={index === displayData.length - 1}
+                  updatedUsers={updatedUsers}
+                  loadingUsers={loadingUsers}
+                  handleAddUser={handleAddUser}
+                />
+              )}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.listContainer}
+              onEndReached={searchQuery ? undefined : handleLoadMore}
+              onEndReachedThreshold={0.5}
+            />
+          )}
         </View>
       </View>
+      {/* </View> */}
     </ParentView>
   );
 };

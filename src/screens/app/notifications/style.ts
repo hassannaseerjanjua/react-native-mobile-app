@@ -8,10 +8,7 @@ const useStyles = () => {
   return {
     styles: StyleSheet.create({
       container: {
-        flex: 1,
-        backgroundColor: theme.colors.BACKGROUND,
-        padding: theme.sizes.PADDING,
-        paddingTop: isAndroid ? theme.sizes.PADDING : 0,
+        ...theme.globalStyles.CONTAINER_STYLE,
       },
       content: {
         flex: 1,
