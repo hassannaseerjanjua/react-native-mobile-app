@@ -54,11 +54,12 @@ const HomeScreen: React.FC = () => {
   console.log('user', user);
 
   return (
-    <ParentView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
       />
+
       <HomeHeader
         showProfileIcon={true}
         onProfilePress={() => {
@@ -103,7 +104,7 @@ const HomeScreen: React.FC = () => {
         )}
         <HomeScreenTabsContainer />
       </ScrollView>
-    </ParentView>
+    </View>
   );
 };
 

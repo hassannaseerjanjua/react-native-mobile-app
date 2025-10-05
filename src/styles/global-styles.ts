@@ -43,6 +43,7 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
         },
         CONTAINER_STYLE: {
           flex: 1,
+
           backgroundColor: colors.BACKGROUND,
           paddingHorizontal: sizes.PADDING,
           paddingTop: isAndroid ? sizes.PADDING * 0.4 : 0,

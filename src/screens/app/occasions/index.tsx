@@ -10,22 +10,16 @@ const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   return (
-    <ParentView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
-      />
-      <HomeHeader
-        title="Occasions"
-        showBackButton={true}
-        showSearch={false}
-        onBackPress={() => navigation.goBack()}
       />
 
       <View style={styles.content}>
         <Text style={styles.title}>Occasions</Text>
       </View>
-    </ParentView>
+    </View>
   );
 };
 

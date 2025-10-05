@@ -13,10 +13,11 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
-        paddingBottom: isIOSThen(sizes.PADDING, 0),
+        // paddingBottom: isIOSThen(sizes.PADDING, 0),
       },
       contentContainer: {
         gap: sizes.PADDING * 0.7,
+        paddingBottom: isIOSThen(sizes.PADDING, 0),
       },
       fullWidthContainer: {
         marginHorizontal: -sizes.PADDING,
