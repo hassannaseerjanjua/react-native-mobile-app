@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StatusBar } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
+import { useNavigation } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
 import ImageSlider from '../../../components/global/ImageSlider';
@@ -109,6 +110,11 @@ const HomeScreen: React.FC = () => {
 const HomeScreenTabsContainer: React.FC = () => {
   const { styles } = useStyles();
   const { getString } = useLocaleStore();
+  const navigation = useNavigation();
+
+  const handleSendAGiftPress = () => {
+    navigation.navigate('SendAGift' as never);
+  };
 
   const homeScreenTabs = [
     {
@@ -117,30 +123,35 @@ const HomeScreenTabsContainer: React.FC = () => {
       title: getString('HOME_GIFT_ONE_GET_ONE'),
       titlePrimary: '',
       description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
+      onPress: undefined,
     },
     {
       id: 'send-a-gift',
       icon: <SvgSendAGift />,
       title: getString('HOME_SEND_A_GIFT'),
       description: getString('HOME_SEND_A_GIFT_DESC'),
+      onPress: handleSendAGiftPress,
     },
     {
       id: 'catch',
       image: require('../../../assets/images/catchIcon.png'),
       title: getString('HOME_CATCH_INSTANT_GIFT'),
       description: getString('HOME_CATCH_INSTANT_GIFT_DESC'),
+      onPress: undefined,
     },
     {
       id: 'inbox',
       icon: <SvgInboxGift />,
       title: getString('HOME_INBOX'),
       description: getString('HOME_INBOX_DESC'),
+      onPress: undefined,
     },
     {
       id: 'outbox',
       icon: <SvgOutboxGift />,
       title: getString('HOME_OUTBOX'),
       description: getString('HOME_OUTBOX_DESC'),
+      onPress: undefined,
     },
   ];
 
@@ -156,6 +167,7 @@ const HomeScreenTabsContainer: React.FC = () => {
             title={tab.title}
             titlePrimary={tab.titlePrimary}
             description={tab.description}
+            onPress={tab.onPress}
           />
         ))}
       </View>
@@ -166,6 +178,7 @@ const HomeScreenTabsContainer: React.FC = () => {
         title={homeScreenTabs[2].title}
         titlePrimary={homeScreenTabs[2].titlePrimary}
         description={homeScreenTabs[2].description}
+        onPress={homeScreenTabs[2].onPress}
       />
 
       <View style={styles.optionsWrapper}>
@@ -175,6 +188,7 @@ const HomeScreenTabsContainer: React.FC = () => {
             icon={tab.icon}
             title={tab.title}
             description={tab.description}
+            onPress={tab.onPress}
           />
         ))}
       </View>

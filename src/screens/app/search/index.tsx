@@ -202,7 +202,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
 };
 
 export default SearchScreen;
-
 interface SearchUserItemProps {
   item: ActiveUser;
   index: number;

@@ -6,6 +6,7 @@ import { RootState } from '../store/store';
 //Screens
 import Home from '../screens/app/home/index.tsx';
 import SearchScreen from '../screens/app/search/index.tsx';
+import SendAGiftScreen from '../screens/app/send-a-gift/index.tsx';
 import {
   AppStackParamList,
   RootStackParamList,
@@ -26,6 +27,7 @@ const AppStackNavigator = () => {
     >
       <AppStack.Screen name="BottomTabs" component={BottomTabNavigator} />
       <AppStack.Screen name="Search" component={SearchScreen} />
+      <AppStack.Screen name="SendAGift" component={SendAGiftScreen} />
     </AppStack.Navigator>
   );
 };
