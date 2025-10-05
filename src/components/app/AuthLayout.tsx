@@ -69,7 +69,7 @@ const useStyles = () => {
       container: {
         backgroundColor: colors.BACKGROUND,
         padding: sizes.PADDING,
-        paddingTop: isAndroidThen(sizes.PADDING, 0),
+        paddingVertical: isAndroidThen(sizes.PADDING, 0),
         flex: 1,
       },
       scrollContainer: {
@@ -77,7 +77,6 @@ const useStyles = () => {
       },
       contentContainer: {
         flexGrow: 1,
-        paddingBottom: isIOSThen(sizes.BOTTOM_PADDING, 10),
       },
       logoContainer: {
         alignItems: 'center',

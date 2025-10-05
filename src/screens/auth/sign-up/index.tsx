@@ -197,7 +197,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
       >
         <Formik
           initialValues={formData}
-          validationSchema={validationSchema}
+          // validationSchema={validationSchema}
           onSubmit={() => {}}
           enableReinitialize={true}
         >
@@ -342,7 +342,11 @@ const StepContent: React.FC<StepContentProps> = ({
                 maxLength: 50,
                 value: formData.username,
                 onChangeText: value =>
-                  updateFormData('username', value, formik),
+                  updateFormData(
+                    'username',
+                    value?.trim()?.toLowerCase() || '',
+                    formik,
+                  ),
                 autoCapitalize: 'none',
               }}
             />
@@ -370,17 +374,10 @@ const StepContent: React.FC<StepContentProps> = ({
               error={formik.touched.city && formik.errors.city}
             />
           </View>
-
-          <View style={styles.inputContainer}>
-            <InputField
-              error={''}
-              fieldProps={{
-                placeholder: '',
-                maxLength: 0,
-                value: '',
-                readOnly: true,
-              }}
+          <View style={{ ...styles.inputContainer }}>
+            <View
               style={{
+                height: scaleWithMax(45, 50),
                 opacity: 0,
               }}
             />
@@ -425,6 +422,7 @@ const StepContent: React.FC<StepContentProps> = ({
                   : undefined
               }
               fieldProps={{
+                id: 'email',
                 placeholder: getString('AU_EMAIL'),
                 value: formData.email,
                 onChangeText: value => updateFormData('email', value, formik),

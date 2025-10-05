@@ -37,7 +37,9 @@ const DataWrapper = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (loading) return;
-    BootSplash.hide({ fade: true });
+    setTimeout(() => {
+      BootSplash.hide({ fade: true });
+    }, 300);
   }, [loading]);
 
   if (!!error && !doKeysExist) {

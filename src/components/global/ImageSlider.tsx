@@ -116,7 +116,7 @@ const useStyles = () => {
           justifyContent: 'center',
           alignItems: 'center',
           borderRadius: theme.sizes.BORDER_RADIUS_MID,
-          backgroundColor: 'red',
+
           overflow: 'hidden',
         },
         image: {
