@@ -20,6 +20,7 @@ import {
 import { isAndroid, isAndroidThen, scaleWithMax } from '../../utils';
 import fonts from '../../assets/fonts';
 import { useAuthStore } from '../../store/reducer/auth';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface HomeHeaderProps {
   title?: string;
@@ -41,7 +42,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   showSearch = true,
   showProfileIcon = false,
   showSearchBar = false,
-  searchPlaceholder = 'Search',
+  searchPlaceholder,
   searchValue = '',
   onSearchChange,
   onProfilePress,
@@ -49,6 +50,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const { user } = useAuthStore();
+  const { getString } = useLocaleStore();
+  const defaultSearchPlaceholder =
+    searchPlaceholder || getString('HOME_SEARCH');
   const handleSearchPress = () => {
     navigation.navigate('Search' as never);
   };
@@ -115,7 +119,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           </View>
           <TextInput
             style={styles.searchInput}
-            placeholder={searchPlaceholder}
+            placeholder={defaultSearchPlaceholder}
             placeholderTextColor="#A0A0A0EE"
             value={searchValue}
             onChangeText={onSearchChange}

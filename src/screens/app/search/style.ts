@@ -87,8 +87,8 @@ const useStyles = () => {
         borderColor: '#EAF3FF',
       },
       addedButtonText: {
-        color: colors.PRIMARY,
-        fontWeight: '600',
+        // color: colors.PRIMARY,
+        // fontWeight: '600',
       },
       loadingContainer: {
         padding: 20,

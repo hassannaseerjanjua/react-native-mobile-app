@@ -2,7 +2,7 @@ import { Platform, StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
 import fonts from '../../../assets/fonts';
-import { isAndroid, scaleWithMax } from '../../../utils';
+import { isAndroid, isIOSThen, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -16,6 +16,7 @@ const useStyles = () => {
         backgroundColor: colors.BACKGROUND,
         paddingHorizontal: sizes.PADDING,
         paddingTop: isAndroid ? sizes.PADDING : 0,
+        paddingBottom: isIOSThen(sizes.PADDING, 0),
       },
       contentContainer: {
         gap: sizes.PADDING * 0.7,

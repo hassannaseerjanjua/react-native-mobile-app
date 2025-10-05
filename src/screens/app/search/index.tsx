@@ -23,6 +23,7 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import api from '../../../utils/api';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ParentView from '../../../components/app/ParentView';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface SearchProps extends AppStackScreen<'Search'> {}
 
@@ -34,6 +35,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   const [updatedUsers, setUpdatedUsers] = useState<Record<number, number>>({});
   const [loadingUsers, setLoadingUsers] = useState<Record<number, boolean>>({});
   const { user } = useAuthStore();
+  const { getString } = useLocaleStore();
 
   const activeUsersApi = useGetApi<ActiveUser[]>(
     apiEndpoints.GET_ACTIVE_USERS(user?.UserId, pageIndex, pageSize),
@@ -152,14 +154,14 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
           barStyle="dark-content"
         />
         <HomeHeader
-          title="Search"
+          title={getString('HOME_SEARCH')}
           showBackButton
           onBackPress={() => navigation.goBack()}
           showSearch={false}
           showSearchBar
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
-          searchPlaceholder="Search"
+          searchPlaceholder={getString('HOME_SEARCH')}
         />
 
         <View style={styles.content}>
@@ -219,6 +221,7 @@ const SearchUserItem = ({
   handleAddUser,
 }: SearchUserItemProps) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
   const isAdded = currentStatus === 1;
   const isLoading = loadingUsers[item.UserId] || false;
@@ -257,7 +260,7 @@ const SearchUserItem = ({
             <Text
               style={[styles.addButtonText, isAdded && styles.addedButtonText]}
             >
-              {isAdded ? 'Added' : 'Add'}
+              {isAdded ? getString('SEARCH_ADDED') : getString('SEARCH_ADD')}
             </Text>
           </View>
         )}

@@ -25,11 +25,13 @@ import useTheme from '../styles/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Text, TouchableOpacity, View } from 'react-native';
 import { scaleWithMax } from '../utils';
+import { useLocaleStore } from '../store/reducer/locale';
 
 const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
   const theme = useTheme();
+  const { getString } = useLocaleStore();
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.BACKGROUND }}>
@@ -44,6 +46,7 @@ const BottomTabNavigator = () => {
             name="Home"
             component={Home}
             options={{
+              tabBarLabel: getString('FOOTER_HOME'),
               tabBarIcon: ({ color, size }) => (
                 <SvgHome width={size} height={size} fill={color} />
               ),
@@ -53,6 +56,7 @@ const BottomTabNavigator = () => {
             name="Favorites"
             component={Favorites}
             options={{
+              tabBarLabel: getString('FOOTER_FAVORITES'),
               tabBarIcon: ({ color, size }) => (
                 <SvgFavourite width={size} height={size} fill={color} />
               ),
@@ -62,6 +66,7 @@ const BottomTabNavigator = () => {
             name="Occasions"
             component={Occasions}
             options={{
+              tabBarLabel: getString('FOOTER_OCCASIONS'),
               tabBarIcon: ({ color, size }) => (
                 <SvgOccasions width={size} height={size} fill={color} />
               ),
@@ -71,6 +76,7 @@ const BottomTabNavigator = () => {
             name="Notifications"
             component={Notifications}
             options={{
+              tabBarLabel: getString('FOOTER_NOTIFICATIONS'),
               tabBarIcon: ({ color, size }) => (
                 <SvgNotification width={size} height={size} fill={color} />
               ),

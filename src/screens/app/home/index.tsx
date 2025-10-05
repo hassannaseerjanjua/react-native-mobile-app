@@ -18,6 +18,7 @@ import { useSizes } from '../../../styles/sizes';
 import { useDispatch } from 'react-redux';
 import { logout, useAuthStore } from '../../../store/reducer/auth';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -25,6 +26,7 @@ const HomeScreen: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
+  const { getString } = useLocaleStore();
   const getHomeSlider = async () => {
     try {
       setLoading(true);
@@ -64,7 +66,8 @@ const HomeScreen: React.FC = () => {
 
       <ScrollView showsVerticalScrollIndicator={false}>
         <Text style={styles.welcomeText}>
-          Welcome, <Text style={styles.userName}>{user?.FullNameEn}</Text>
+          {getString('HOME_WELCOME')}
+          <Text style={styles.userName}>{user?.FullNameEn}</Text>
         </Text>
 
         {loading ? (
@@ -105,45 +108,45 @@ const HomeScreen: React.FC = () => {
 // Component to handle all the tabs
 const HomeScreenTabsContainer: React.FC = () => {
   const { styles } = useStyles();
+  const { getString } = useLocaleStore();
 
   const homeScreenTabs = [
     {
       id: 'gift-one-get-one',
       icon: <SvgGiftOneGetOne />,
-      title: 'Gift One',
-      titlePrimary: 'Get One',
-      description: 'Send a gift and score a bonus treat for yourself.',
+      title: getString('HOME_GIFT_ONE_GET_ONE'),
+      titlePrimary: '',
+      description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
     },
     {
       id: 'send-a-gift',
       icon: <SvgSendAGift />,
-      title: 'Send a Gift',
-      description: 'Send & receive gifts from your friends and loved ones.',
+      title: getString('HOME_SEND_A_GIFT'),
+      description: getString('HOME_SEND_A_GIFT_DESC'),
     },
     {
       id: 'catch',
       image: require('../../../assets/images/catchIcon.png'),
-      title: 'Catch\nInstant gifts, limited time.',
-      description:
-        'Be the fastest to claim surprise drops\nbefore they disappear.',
+      title: getString('HOME_CATCH_INSTANT_GIFT'),
+      description: getString('HOME_CATCH_INSTANT_GIFT_DESC'),
     },
     {
       id: 'inbox',
       icon: <SvgInboxGift />,
-      title: 'Inbox',
-      description: 'Received gifts',
+      title: getString('HOME_INBOX'),
+      description: getString('HOME_INBOX_DESC'),
     },
     {
       id: 'outbox',
       icon: <SvgOutboxGift />,
-      title: 'Outbox',
-      description: 'Sent gifts',
+      title: getString('HOME_OUTBOX'),
+      description: getString('HOME_OUTBOX_DESC'),
     },
   ];
 
   return (
     <View style={styles.contentContainer}>
-      <Text style={styles.sectionTitle}>What are you looking for?</Text>
+      <Text style={styles.sectionTitle}>{getString('HOME_WHAT_ARE_YOU')}</Text>
 
       <View style={styles.optionsWrapper}>
         {homeScreenTabs.slice(0, 2).map(tab => (
