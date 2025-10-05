@@ -12,7 +12,7 @@ import { User } from '../types';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['settings', 'auth'],
+  whitelist: ['settings', 'auth', 'locale'],
 };
 
 const rootReducer = combineReducers({

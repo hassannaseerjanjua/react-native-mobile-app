@@ -23,12 +23,12 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
 
       <View style={styles.buttonContainer}>
         <CustomButton
-          title={getString('SIGN_IN')}
+          title={getString('AU_SIGN_IN')}
           type="primary"
           onPress={() => navigation.navigate('SignIn')}
         />
         <CustomButton
-          title={getString('SIGN_UP')}
+          title={getString('AU_SIGN_UP')}
           type="secondary"
           onPress={() => navigation.navigate('SignUp')}
         />

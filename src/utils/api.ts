@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import apiEndpoints from '../constants/api-endpoints';
+import { store } from '../store/store';
 
 // setup base thing
 const axiosInter = axios.create({
@@ -28,6 +29,15 @@ const caller = async <T>(
     failed: false,
     data: null,
     error: '',
+  };
+
+  const langId = store.getState().locale.localeData.langId;
+  config = {
+    ...config,
+    headers: {
+      ...config?.headers,
+      LangID: langId,
+    },
   };
 
   try {

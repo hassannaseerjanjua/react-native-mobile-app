@@ -3,6 +3,10 @@ const apiEndpoints = {
   // Base URL
   BASE_URL: `https://giftee-api-dev.hostinger.bitscollision.net`,
 
+  // App
+  LOCALE: (langId: number) =>
+    `/${version}/Home/GetResources?appType=1&langID=${langId}`,
+
   // Auth
   VERIFY_USERNAME: `/${version}/Home/VerifyUserName`,
   SIGNUP: `/${version}/Home/RegisterUserAndSendOTP`,
