@@ -20,6 +20,7 @@ import AuthLayout from '../../../components/app/AuthLayout.tsx';
 import api from '../../../utils/api.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
 import { LoginApiResponse } from '../../../types';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
@@ -29,6 +30,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 }) => {
   const { styles, theme } = useStyles();
   const dispatch = useDispatch();
+  const { getString } = useLocaleStore();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [isTimerActive, setIsTimerActive] = useState(true);
@@ -168,8 +170,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         <View style={styles.mainContent}>
           <View style={styles.headerContainer}>
             <Text style={styles.title}>
-              Enter the 6-digit code which is sent to your email and phone
-              number{' '}
+              {getString('AU_ENTER_SIX_DIGIT_CODE')}
             </Text>
           </View>
 
@@ -206,9 +207,9 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
           <View style={styles.subtitleContainer}>
             <Text style={styles.subtitle}>
-              Haven't received code yet?{' '}
+              {getString('AU_HAVENT_RECEIVED_CODE')}{' '}
               {isTimerActive ? (
-                <Text>Wait for {formatTimer(timer)}</Text>
+                <Text>{formatTimer(timer)}</Text>
               ) : (
                 <Text
                   onPress={isResending ? undefined : handleResendCode}
@@ -222,7 +223,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
           <View style={styles.buttonContainer}>
             <CustomButton
-              title="Verify"
+              title={getString('AU_BUTTON_VERIFY')}
               type="primary"
               onPress={handleVerify}
               disabled={!isOtpComplete}
@@ -232,7 +233,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         </View>
         {showError && (
           <CustomButton
-            title="Invalid or Expired OTP"
+            title={getString('API_INVALID_OR_EXPIRED_OTP')}
             type="error"
             onPress={() => {}}
           />

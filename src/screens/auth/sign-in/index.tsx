@@ -32,7 +32,10 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
   const { getString } = useLocaleStore();
 
-  const validationSchema = createSignInSchema(activeTab);
+  const validationSchema = useMemo(
+    () => createSignInSchema(activeTab, getString as (key: any) => string),
+    [activeTab, getString],
+  );
   const handleSignIn = async (
     values: typeof currentFormValues,
     formik: any,
@@ -108,9 +111,9 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     <>
       <AuthLayout
         onBackPress={() => navigation.goBack()}
-        title="Sign In"
+        title={getString('AU_SIGN_IN_HEADING')}
         backButton={false}
-        subtitle={getString('WELCOME_BACK')}
+        subtitle={getString('AU_WELCOME_BACK')}
       >
         <View style={styles.tabContainer}>
           {['Phone', 'Email'].map(tab => (
@@ -125,7 +128,9 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   activeTab === tab && styles.activeTabText,
                 ]}
               >
-                {tab}
+                {tab === 'Phone'
+                  ? getString('AU_PHONE')
+                  : getString('AU_EMAIL')}
               </Text>
             </TouchableOpacity>
           ))}
@@ -163,7 +168,9 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                     }
                     error={error as string}
                     fieldProps={{
-                      placeholder: isPhone ? 'Phone Number' : 'Email Address',
+                      placeholder: isPhone
+                        ? getString('AU_PHONE_NUMBER')
+                        : getString('AU_PL_EMAIL'),
                       keyboardType: isPhone ? 'phone-pad' : 'email-address',
                       autoCapitalize: isPhone ? undefined : 'none',
                       maxLength: isPhone ? 14 : 100,
@@ -178,7 +185,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
                 <CustomButton
                   buttonStyle={styles.button}
-                  title="Sign In"
+                  title={getString('AU_SIGN_IN_BUTTON')}
                   type="primary"
                   onPress={handleSubmit}
                   loading={isLoading}
@@ -189,12 +196,12 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         </Formik>
 
         <Text style={styles.linkContainer}>
-          Don't have an account?{' '}
+          {getString('AU_DONT_HAVE_AN_ACCOUNT')}{' '}
           <Text
             style={styles.link}
             onPress={() => navigation.navigate('SignUp')}
           >
-            Sign Up
+            {getString('AU_SIGN_UP_FOOTER')}
           </Text>
         </Text>
       </AuthLayout>
@@ -217,8 +224,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
           <Text style={styles.bottomSheetTitle}>
             {activeTab === 'Phone'
-              ? 'Is this your correct phone number?'
-              : 'Is this your correct email address?'}
+              ? getString('AU_IS_THIS_YOUR_CORRECT_PN')
+              : getString('AU_IS_THIS_YOUR_CORRECT_EMAIL')}
           </Text>
 
           <Text style={styles.bottomSheetNumber}>
@@ -231,8 +238,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             disabled={!isBottomSheetOpen}
             title={
               activeTab === 'Phone'
-                ? 'Yes, send code by SMS'
-                : 'Yes, send code by Email'
+                ? getString('AU_SEND_CODE_BY_SMS')
+                : getString('AU_SEND_CODE_BY_EMAIL')
             }
             type="primary"
             buttonStyle={{ marginBottom: scaleWithMax(15, 20) }}
@@ -241,7 +248,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
           <CustomButton
             disabled={!isBottomSheetOpen}
-            title="No, I want to change it"
+            title={getString('AU_NO_I_WANT_TO_CHANGE')}
             type="secondary"
             onPress={() => setIsBottomSheetOpen(false)}
           />

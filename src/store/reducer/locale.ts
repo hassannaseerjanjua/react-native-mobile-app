@@ -53,6 +53,8 @@ export const useLocaleStore = () => {
   };
 };
 
+export type GetStringFunctionType = (key: LocaleString) => string;
+
 type LocaleString =
   | 'API_CITY_NOT_FOUND'
   | 'API_EITHER_EMAIL_OR_PN_IS_REQUIRED'

@@ -22,11 +22,13 @@ import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { Formik } from 'formik';
 import { createSignUpSchema } from '../../../utils/validationSchemas';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [areaSearch, setAreaSearch] = useState('');
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
@@ -45,7 +47,10 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     transformData: data => data.Data.cities,
   });
 
-  const validationSchema = createSignUpSchema(currentStep);
+  const validationSchema = useMemo(
+    () => createSignUpSchema(currentStep, getString as (key: any) => string),
+    [currentStep, getString],
+  );
 
   const handleNext = async (formik: any) => {
     try {
@@ -151,11 +156,13 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     <View style={styles.progressContainer}>
       <View style={styles.progressHeader}>
         <Text style={styles.progressSubtitle}>
-          {currentStep === 1 && 'Personal Information'}
-          {currentStep === 2 && 'City'}
-          {currentStep === 3 && 'Contact Information'}
+          {currentStep === 1 && getString('AU_PERSONAL_INFO')}
+          {currentStep === 2 && getString('AU_LABEL_CITY')}
+          {currentStep === 3 && getString('AU_PERSONAL_INFO_STEP_3')}
         </Text>
-        <Text style={styles.progressText}>Step {currentStep} of 3</Text>
+        <Text style={styles.progressText}>
+          {getString('AU_STEP')} {currentStep} {getString('AU_OF')} 3
+        </Text>
       </View>
       <View style={styles.progressBar}>
         <View
@@ -180,11 +187,11 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         }}
         title={
           currentStep === 1
-            ? "Let's start with Name & Username"
+            ? getString('AU_LETS_START')
             : currentStep === 2
-            ? 'Select Your City'
+            ? getString('AU_SELECT_CITY')
             : currentStep === 3
-            ? 'Phone Number & Email'
+            ? `${getString('AU_PHONE_NUMBER')} & ${getString('AU_EMAIL')}`
             : ''
         }
       >
@@ -211,7 +218,11 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
 
               <View style={styles.buttonContainer}>
                 <CustomButton
-                  title={currentStep === 3 ? 'Sign Up' : 'Next'}
+                  title={
+                    currentStep === 3
+                      ? getString('AU_SIGN_UP_BUTTON')
+                      : getString('AU_NEXT_BUTTON')
+                  }
                   type="primary"
                   onPress={() => handleNext(formik)}
                 />
@@ -233,13 +244,13 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             <SvgPhoneIcon width={scaleWithMax(48, 55)} />
           </View>
           <Text style={styles.bottomSheetTitle}>
-            Is this your correct phone number?
+            {getString('AU_IS_THIS_YOUR_CORRECT_PN')}
           </Text>
           <Text style={styles.bottomSheetNumber}>
             +966 {formData.phoneNumber}
           </Text>
           <CustomButton
-            title="Yes, send code by SMS"
+            title={getString('AU_SEND_CODE_BY_SMS')}
             type="primary"
             buttonStyle={{
               marginBottom: scaleWithMax(15, 20),
@@ -247,7 +258,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             onPress={handleSignUp}
           />
           <CustomButton
-            title="No, I want to change it"
+            title={getString('AU_NO_I_WANT_TO_CHANGE')}
             type="secondary"
             onPress={() => {
               setIsBottomSheetOpen(false);
@@ -284,6 +295,7 @@ const StepContent: React.FC<StepContentProps> = ({
   formik,
   usernameApiError,
 }) => {
+  const { getString } = useLocaleStore();
   const options = toOption<City>(citiesApi.data || [], 'CityName', 'CityID');
   const filteredOptions = options.filter(option =>
     option.label.toLowerCase().includes(areaSearch.toLowerCase()),
@@ -305,7 +317,7 @@ const StepContent: React.FC<StepContentProps> = ({
                   : undefined
               }
               fieldProps={{
-                placeholder: 'Full Name',
+                placeholder: getString('AU_PL_FULL_NAME'),
                 value: formData.fullName,
                 maxLength: 50,
                 onChangeText: value =>
@@ -326,7 +338,7 @@ const StepContent: React.FC<StepContentProps> = ({
                   : undefined
               }
               fieldProps={{
-                placeholder: 'Username',
+                placeholder: getString('AU_PL_USERNAME'),
                 maxLength: 50,
                 value: formData.username,
                 onChangeText: value =>
@@ -344,7 +356,7 @@ const StepContent: React.FC<StepContentProps> = ({
           <View style={styles.inputContainer}>
             <DropdownField
               isLoading={citiesApi.loading}
-              label="Select City"
+              label={getString('AU_PL_CITY')}
               selectedOption={selectedOption}
               icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
               options={filteredOptions}
@@ -388,7 +400,7 @@ const StepContent: React.FC<StepContentProps> = ({
                   : undefined
               }
               fieldProps={{
-                placeholder: 'Phone Number',
+                placeholder: getString('AU_PHONE_NUMBER'),
                 maxLength: 14,
                 value: '+966 ' + formData.phoneNumber,
                 onChangeText: value => {
@@ -413,7 +425,7 @@ const StepContent: React.FC<StepContentProps> = ({
                   : undefined
               }
               fieldProps={{
-                placeholder: 'Email',
+                placeholder: getString('AU_EMAIL'),
                 value: formData.email,
                 onChangeText: value => updateFormData('email', value, formik),
                 keyboardType: 'email-address',
