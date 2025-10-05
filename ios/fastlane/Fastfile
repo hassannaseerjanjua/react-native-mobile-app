@@ -1,0 +1,29 @@
+default_platform(:ios)
+
+platform :ios do
+  
+  desc "Build and upload to Firebase App Distribution"
+  lane :firebase do |options|
+    # Increment build number
+    increment_build_number(xcodeproj: "GifteeRN.xcodeproj")
+    
+    # Build the app for Ad Hoc distribution
+    build_app(
+      scheme: "GifteeRN",
+      export_method: "ad-hoc",
+      output_directory: "./build",
+      output_name: "GifteeRN.ipa",
+      clean: true
+    )
+    
+    # Upload to Firebase App Distribution
+    firebase_app_distribution(
+      app: "1:115559184211:ios:dd62754c232f1dbf6353a6",
+      groups: "qa-testers",
+      release_notes: options[:notes] || "New build",
+    )
+    
+    puts "✅ Successfully uploaded to Firebase App Distribution!"
+  end
+
+end

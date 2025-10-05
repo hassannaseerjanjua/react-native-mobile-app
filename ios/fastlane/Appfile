@@ -1,0 +1,5 @@
+app_identifier("com.bitscollision.giftee.release") # The bundle identifier of your app
+apple_id("bitscollision@gmail.com") # Your Apple Developer Portal username
+
+# For more information about the Appfile, see:
+#     https://docs.fastlane.tools/advanced/#appfile
