@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
+import { scaleWithMax } from '../utils';
 
 const getSizes = (width: number, height: number) => ({
   WIDTH: width,
@@ -15,13 +16,20 @@ const getSizes = (width: number, height: number) => ({
   BORDER_RADIUS_HIGH: 15,
 
   // Fonts
-  FONTSIZE_BUTTON: 15,
-  FONTSIZE: 14,
-  FONTSIZE_HIGH: 18,
-  FONTSIZE_SMALL: 10,
-  FONTSIZE_MEDIUM: 12,
+  // FONTSIZE_BUTTON: 15,
+  // FONTSIZE: 14,
+  // FONTSIZE_HIGH: 18,
+  // FONTSIZE_SMALL: 10,
+  // FONTSIZE_MEDIUM: 12,
+  // HEADER_FOOTER_SIZE: height * 0.1,
+  // FONTSIZE_HEADING: 20,
+  FONTSIZE_BUTTON: scaleWithMax(14, 15),
+  FONTSIZE: scaleWithMax(13, 14),
+  FONTSIZE_HIGH: scaleWithMax(17, 18),
+  FONTSIZE_SMALL: scaleWithMax(9, 10),
+  FONTSIZE_MEDIUM: scaleWithMax(11, 12),
   HEADER_FOOTER_SIZE: height * 0.1,
-  FONTSIZE_HEADING: 20,
+  FONTSIZE_HEADING: scaleWithMax(19, 20),
   // Sizes
   APP_LOGO: width * 0.4,
 });
