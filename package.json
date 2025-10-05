@@ -1,13 +1,11 @@
 {
-  "name": "GifteeRN",
+  "name": "rn-giftee-app",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "android": "react-native run-android",
     "ios": "react-native run-ios",
-    "lint": "eslint .",
-    "start": "react-native start",
-    "test": "jest"
+    "start": "react-native start"
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^5.2.6",

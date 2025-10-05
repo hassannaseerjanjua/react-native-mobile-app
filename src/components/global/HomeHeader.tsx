@@ -17,7 +17,7 @@ import {
   SvgBackIcon,
   SvgHomeBack,
 } from '../../assets/icons';
-import { scaleWithMax } from '../../utils';
+import { isAndroid, isAndroidThen, scaleWithMax } from '../../utils';
 import fonts from '../../assets/fonts';
 import { useAuthStore } from '../../store/reducer/auth';
 
@@ -137,7 +137,8 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: sizes.PADDING,
+        paddingTop: isAndroidThen(sizes.PADDING, 0),
+        paddingBottom: sizes.PADDING,
         // backgroundColor: colors.RED,
       },
       rightSection: {

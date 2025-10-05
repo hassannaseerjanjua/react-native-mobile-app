@@ -12,12 +12,12 @@ import { scaleWithMax } from '../../utils';
 import { SvgEmail, SvgPhone, SvgPhoneIcon } from '../../assets/icons';
 
 type Props = {
-  error?: boolean | string;
+  error?: any;
   icon?: any;
   style?: any;
   iconColor?: string;
   fieldProps: TextInputProps;
-  errors?: string;
+
   isPhone?: boolean;
 };
 
@@ -27,7 +27,6 @@ const InputField = ({
   iconColor,
   style,
   fieldProps,
-  errors,
   isPhone,
 }: Props) => {
   const { theme, styles } = useStyles();
@@ -66,7 +65,7 @@ const InputField = ({
           underlineColorAndroid="transparent"
         />
       </View>
-      {(errors || (typeof error === 'string' && error)) && (
+      {!!error && (
         <Text
           style={[
             styles.error,
@@ -75,7 +74,7 @@ const InputField = ({
             },
           ]}
         >
-          {errors || (typeof error === 'string' ? error : '')}
+          {error}
         </Text>
       )}
     </>
@@ -119,7 +118,16 @@ const useStyles = () => {
         fontSize: 12,
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
         position: 'absolute',
-        bottom: sizes.HEIGHT * -0.0216,
+        top: -8,
+        end: 6,
+        backgroundColor: theme.colors.LIGHT_GRAY,
+        paddingHorizontal: 6,
+        paddingVertical: 1,
+        borderRadius: 6,
+        borderWidth: 0.5,
+        borderColor: theme.colors.RED,
+
+        // bottom: sizes.HEIGHT * -0.0216,
       },
       prefixText: {
         ...globalStyles.TEXT_STYLE,

@@ -2,7 +2,7 @@ import { Platform, StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
 import fonts from '../../../assets/fonts';
-import { isAndroid } from '../../../utils';
+import { isAndroid, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -39,10 +39,9 @@ const useStyles = () => {
       },
       heroImage: {
         width: '100%',
-        height: theme.sizes.HEIGHT * 0.32,
-
-        borderRadius: 12,
-        // marginVertical: sizes.PADDING,
+        aspectRatio: 5 / 4,
+        borderRadius: sizes.BORDER_RADIUS_MID,
+        marginBottom: scaleWithMax(13, 13),
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.bold,

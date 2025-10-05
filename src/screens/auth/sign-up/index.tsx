@@ -142,7 +142,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     if (formik) {
       formik.setFieldValue(field, value);
     }
-
     if (field === 'username' && usernameApiError) {
       setUsernameApiError(null);
     }
@@ -358,9 +357,21 @@ const StepContent: React.FC<StepContentProps> = ({
               }}
               error={formik.touched.city && formik.errors.city}
             />
-            {formik.touched.city && formik.errors.city && (
-              <Text style={styles.errorText}>{formik.errors.city}</Text>
-            )}
+          </View>
+
+          <View style={styles.inputContainer}>
+            <InputField
+              error={''}
+              fieldProps={{
+                placeholder: '',
+                maxLength: 0,
+                value: '',
+                readOnly: true,
+              }}
+              style={{
+                opacity: 0,
+              }}
+            />
           </View>
         </View>
       );

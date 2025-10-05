@@ -2,9 +2,15 @@ import { View, Text, ScrollView, StatusBar, StyleSheet } from 'react-native';
 import React, { useMemo } from 'react';
 import { SvgLogoBlue } from '../../assets/icons';
 import AuthHeader from '../global/AuthHeader';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { isIOS, scaleWithMax } from '../../utils';
+import {
+  isAndroid,
+  isAndroidThen,
+  isIOS,
+  isIOSThen,
+  scaleWithMax,
+} from '../../utils';
 import useTheme from '../../styles/theme';
+import ParentView from './ParentView';
 
 interface AuthLayoutProps {
   onBackPress: () => void;
@@ -23,7 +29,7 @@ const AuthLayout = ({
 }: AuthLayoutProps) => {
   const { styles, theme } = useStyles();
   return (
-    <SafeAreaView style={styles.container}>
+    <ParentView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <AuthHeader
         onBackPress={onBackPress}
@@ -47,7 +53,7 @@ const AuthLayout = ({
           {children}
         </View>
       </ScrollView>
-    </SafeAreaView>
+    </ParentView>
   );
 };
 
@@ -63,6 +69,7 @@ const useStyles = () => {
       container: {
         backgroundColor: colors.BACKGROUND,
         padding: sizes.PADDING,
+        paddingTop: isAndroidThen(sizes.PADDING, 0),
         flex: 1,
       },
       scrollContainer: {
@@ -70,7 +77,7 @@ const useStyles = () => {
       },
       contentContainer: {
         flexGrow: 1,
-        paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 10,
+        paddingBottom: isIOSThen(sizes.BOTTOM_PADDING, 10),
       },
       logoContainer: {
         alignItems: 'center',

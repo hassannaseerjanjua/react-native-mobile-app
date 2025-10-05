@@ -18,7 +18,7 @@ import {
 
 // Screens
 import Home from '../screens/app/home/index';
-import Favourites from '../screens/app/favourites/index';
+import Favorites from '../screens/app/favorites/index';
 import Occasions from '../screens/app/occasions/index';
 import Notifications from '../screens/app/notifications/index';
 import useTheme from '../styles/theme';
@@ -50,8 +50,8 @@ const BottomTabNavigator = () => {
             }}
           />
           <Tab.Screen
-            name="Favourites"
-            component={Favourites}
+            name="Favorites"
+            component={Favorites}
             options={{
               tabBarIcon: ({ color, size }) => (
                 <SvgFavourite width={size} height={size} fill={color} />
@@ -191,7 +191,7 @@ const getIcon = (name: string, iconSize: number, isFocused: boolean) => {
       ) : (
         <SvgHomeInactive {...style} />
       );
-    case 'Favourites':
+    case 'Favorites':
       return isFocused ? (
         <SvgFavouriteActive {...style} />
       ) : (

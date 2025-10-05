@@ -6,6 +6,7 @@ import useStyles from './style';
 import { SvgLogoBlue } from '../../../assets/icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import ParentView from '../../../components/app/ParentView';
 
 interface LandingProps extends AuthStackScreen<'Landing'> {}
 
@@ -14,27 +15,25 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
   const { getString } = useLocaleStore();
 
   return (
-    <>
+    <ParentView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <SafeAreaView style={styles.container}>
-        <View style={styles.logoContainer}>
-          <SvgLogoBlue width={theme.sizes.APP_LOGO} />
-        </View>
+      <View style={styles.logoContainer}>
+        <SvgLogoBlue width={theme.sizes.APP_LOGO} />
+      </View>
 
-        <View style={styles.buttonContainer}>
-          <CustomButton
-            title={getString('SIGN_IN')}
-            type="primary"
-            onPress={() => navigation.navigate('SignIn')}
-          />
-          <CustomButton
-            title={getString('SIGN_UP')}
-            type="secondary"
-            onPress={() => navigation.navigate('SignUp')}
-          />
-        </View>
-      </SafeAreaView>
-    </>
+      <View style={styles.buttonContainer}>
+        <CustomButton
+          title={getString('SIGN_IN')}
+          type="primary"
+          onPress={() => navigation.navigate('SignIn')}
+        />
+        <CustomButton
+          title={getString('SIGN_UP')}
+          type="secondary"
+          onPress={() => navigation.navigate('SignUp')}
+        />
+      </View>
+    </ParentView>
   );
 };
 

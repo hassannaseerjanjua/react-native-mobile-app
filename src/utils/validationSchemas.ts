@@ -3,7 +3,7 @@ import * as Yup from 'yup';
 // Common validation patterns
 export const phoneValidation = Yup.string()
   .trim()
-  .required('Phone number is required')
+  .required('*Required')
   .matches(/^5/, 'Phone number must start with 5x-xxx-xxxx')
   .matches(/^[0-9]+$/, 'Phone number must contain only digits')
   .length(9, 'Phone number must be 9 digits');
@@ -12,17 +12,17 @@ export const emailValidation = Yup.string()
   .trim()
   .email('Invalid email address')
   .matches(/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, 'Enter a valid email address')
-  .required('Email address is required');
+  .required('*Required');
 
 export const usernameValidation = Yup.string()
   .trim()
-  .required('Username is required')
+  .required('*Required')
   .min(3, 'Username must be at least 3 characters')
   .max(50, 'Username must be less than 50 characters');
 
 export const fullNameValidation = Yup.string()
   .trim()
-  .required('Full name is required')
+  .required('*Required')
   .min(3, 'Full name must be at least 3 characters')
   .max(50, 'Full name must be less than 50 characters');
 

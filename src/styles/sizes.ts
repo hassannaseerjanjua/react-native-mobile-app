@@ -5,12 +5,13 @@ const getSizes = (width: number, height: number) => ({
   WIDTH: width,
   HEIGHT: height,
   PADDING: width * 0.04,
-  PADDED_WIDTH: width - width * 0.06,
+  PADDED_WIDTH: width - width * 0.08,
   ICON: width * 0.06,
   BOTTOM_PADDING: height * 0.05,
 
   // Borders
   BORDER_RADIUS: 8,
+  BORDER_RADIUS_MID: 12,
   BORDER_RADIUS_HIGH: 15,
 
   // Fonts

@@ -68,7 +68,15 @@ const HomeScreen: React.FC = () => {
         </Text>
 
         {loading ? (
-          <View style={[styles.heroImage, { backgroundColor: '#f0f0f0' }]} />
+          <View
+            style={[
+              styles.heroImage,
+              {
+                backgroundColor: '#f0f0f0',
+                borderRadius: theme.sizes.BORDER_RADIUS_MID,
+              },
+            ]}
+          />
         ) : error ? (
           <View
             style={[
@@ -77,17 +85,17 @@ const HomeScreen: React.FC = () => {
                 backgroundColor: '#f0f0f0',
                 justifyContent: 'center',
                 alignItems: 'center',
+                borderRadius: theme.sizes.BORDER_RADIUS_MID,
               },
             ]}
           >
             <Text style={{ color: '#666' }}>Failed to load images</Text>
           </View>
         ) : (
-          <View style={styles.fullWidthContainer}>
-            <ImageSlider sliders={sliders} height={theme.sizes.HEIGHT * 0.36} />
+          <View style={styles.heroImage}>
+            <ImageSlider sliders={sliders} />
           </View>
         )}
-
         <HomeScreenTabsContainer />
       </ScrollView>
     </View>

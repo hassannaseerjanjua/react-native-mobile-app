@@ -20,7 +20,7 @@ export type DropdownOption = {
 };
 
 type Props = {
-  error?: boolean;
+  error?: string;
   icon?: any;
   style?: any;
   placeholder?: string;
@@ -85,8 +85,8 @@ const DropdownField = ({
         style={[
           styles.container,
           {
-            borderWidth: error ? 1 : 0.5,
-            borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
+            borderWidth: !!error ? 1 : 0.5,
+            borderColor: !!error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
             opacity: disabled ? 0.6 : 1,
           },
           style,
@@ -113,6 +113,18 @@ const DropdownField = ({
         <Text style={styles.chevron}>
           <SvgDropDown width={scaleWithMax(20, 25)} />
         </Text>
+        {!!error && (
+          <Text
+            style={[
+              styles.error,
+              {
+                textAlign: 'left',
+              },
+            ]}
+          >
+            {error}
+          </Text>
+        )}
       </TouchableOpacity>
 
       <Modal
@@ -342,6 +354,20 @@ const useStyles = () => {
         color: colors.SECONDARY_TEXT,
         fontSize: 14,
         textAlign: 'center',
+      },
+      error: {
+        color: theme.colors.RED,
+        fontSize: 12,
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+        position: 'absolute',
+        top: -8,
+        end: 6,
+        backgroundColor: theme.colors.LIGHT_GRAY,
+        paddingHorizontal: 6,
+        paddingVertical: 1,
+        borderRadius: 6,
+        borderWidth: 0.5,
+        borderColor: theme.colors.RED,
       },
     });
   }, [theme]);

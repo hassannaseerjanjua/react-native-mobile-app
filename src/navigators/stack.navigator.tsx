@@ -21,10 +21,10 @@ const RootStack = createNativeStackNavigator<RootStackParamList>();
 const AppStackNavigator = () => {
   return (
     <AppStack.Navigator
-      initialRouteName="Home"
+      initialRouteName="BottomTabs"
       screenOptions={{ headerShown: false }}
     >
-      <AppStack.Screen name="Home" component={BottomTabNavigator} />
+      <AppStack.Screen name="BottomTabs" component={BottomTabNavigator} />
       <AppStack.Screen name="Search" component={SearchScreen} />
     </AppStack.Navigator>
   );

@@ -74,7 +74,6 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: sizes.PADDING,
         backgroundColor: colors.BACKGROUND,
       },
       backButton: {

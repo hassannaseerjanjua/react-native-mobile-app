@@ -1,9 +1,9 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export type AppStackParamList = {
-  Home: undefined;
+  BottomTabs: undefined;
   Search: undefined;
-  Favourites: undefined;
+  Favorites: undefined;
   Occasions: undefined;
   Notifications: undefined;
 };
