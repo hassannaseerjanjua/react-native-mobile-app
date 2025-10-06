@@ -112,6 +112,15 @@ const useStyles = () => {
       tabContainer: {
         marginBottom: sizes.HEIGHT * 0.018,
       },
+      bottomSheetContainer: {
+        width: sizes.PADDED_WIDTH,
+        alignSelf: 'center',
+        height: sizes.HEIGHT * 0.97,
+        padding: 0,
+        borderTopRightRadius: 16,
+        borderTopLeftRadius: 16,
+        // backgroundColor: 'red',
+      },
     });
   }, [theme]);
 

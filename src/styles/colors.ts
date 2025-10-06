@@ -11,6 +11,7 @@ const defaultColors = {
   WHITE: 'white',
   LIGHT_GRAY: '#F9F9F9',
   SECONDARY_GRAY: '#D9D9D9',
+  STATUS_BAR_BACKGROUND: 'rgba(255, 255, 255, 0.75)',
 };
 
 const colorsDark = {

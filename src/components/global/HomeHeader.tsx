@@ -34,6 +34,7 @@ interface HomeHeaderProps {
   onSearchChange?: (text: string) => void;
   onProfilePress?: () => void;
   rightSideTitle?: string;
+  rightSideTitlePress?: () => void;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -48,6 +49,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   onSearchChange,
   onProfilePress,
   rightSideTitle,
+  rightSideTitlePress,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -112,7 +114,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             </Pressable>
           )}
           {rightSideTitle && (
-            <Text style={styles.rightSideTitle}>{rightSideTitle}</Text>
+            <TouchableOpacity onPress={rightSideTitlePress}>
+              <Text style={styles.rightSideTitle}>{rightSideTitle}</Text>
+            </TouchableOpacity>
           )}
         </View>
       </View>

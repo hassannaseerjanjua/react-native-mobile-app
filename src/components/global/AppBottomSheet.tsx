@@ -26,6 +26,7 @@ interface AppBottomSheetProps {
   snapPoints?: string[];
   blurType?: 'light' | 'dark' | 'regular';
   blurAmount?: number;
+  fullHeight?: boolean;
 }
 
 const AppBottomSheet = ({
@@ -37,6 +38,7 @@ const AppBottomSheet = ({
   snapPoints,
   blurType = 'light',
   blurAmount = 10,
+  fullHeight = false,
 }: AppBottomSheetProps) => {
   const theme = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -46,11 +48,17 @@ const AppBottomSheet = ({
     if (snapPoints) return snapPoints;
     if (height) {
       const { height: screenHeight } = Dimensions.get('window');
-      const percentage = Math.round((height / screenHeight) * 100);
-      return [`${percentage}%`];
+      if (fullHeight) {
+        const { height: fullScreenHeight } = Dimensions.get('screen');
+        const percentage = Math.round((height / fullScreenHeight) * 100);
+        return [`${percentage}%`];
+      } else {
+        const percentage = Math.round((height / screenHeight) * 100);
+        return [`${percentage}%`];
+      }
     }
-    return ['50%'];
-  }, [height, snapPoints]);
+    return fullHeight ? ['100%'] : ['50%'];
+  }, [height, snapPoints, fullHeight]);
 
   // Custom backdrop component with blur effect
   const renderBackdrop = useCallback(
@@ -108,18 +116,31 @@ const AppBottomSheet = ({
             borderTopRightRadius: scaleWithMax(24, 30),
             backgroundColor: theme.colors?.BACKGROUND || '#FFFFFF',
           }}
-          handleIndicatorStyle={{
-            backgroundColor: theme.colors?.SECONDARY_GRAY,
-            width: scaleWithMax(30, 35),
-            height: scaleWithMax(4, 6),
-          }}
+          handleIndicatorStyle={
+            fullHeight
+              ? {
+                  backgroundColor: 'transparent',
+                  width: 0,
+                  height: 0,
+                }
+              : {
+                  backgroundColor: theme.colors?.SECONDARY_GRAY,
+                  width: scaleWithMax(30, 35),
+                  height: scaleWithMax(4, 6),
+                }
+          }
           backgroundStyle={{
             backgroundColor: theme.colors?.BACKGROUND || '#FFFFFF',
           }}
           onChange={handleSheetChanges}
         >
           <BottomSheetView style={{ height: height, flex: height ? 0 : 1 }}>
-            <View style={{ flex: 1, padding: scaleWithMax(16, 20) }}>
+            <View
+              style={{
+                flex: 1,
+                padding: fullHeight ? 0 : scaleWithMax(16, 20),
+              }}
+            >
               {children}
             </View>
           </BottomSheetView>

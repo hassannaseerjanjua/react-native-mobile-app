@@ -9,6 +9,13 @@ import SearchUserItem from '../../../components/app/SearchUserItem';
 import GroupTabs from '../../../components/global/GroupTabs';
 import TabItem from '../../../components/global/TabItem';
 import { ActiveUser } from '../../../types';
+import { BottomSheetModal } from '@gorhom/bottom-sheet';
+import AppBottomSheet from '../../../components/global/AppBottomSheet';
+import { SvgPhoneIcon } from '../../../assets/icons';
+import { scaleWithMax } from '../../../utils';
+import { SvgEmail } from '../../../assets/icons';
+import CustomButton from '../../../components/global/Custombutton';
+import BottomSheetHeader from '../../../components/app/BottomSheetHeader';
 
 interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 
@@ -17,6 +24,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const { getString } = useLocaleStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('friends');
+  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
 
   // Tab configuration
   const tabs = [
@@ -113,6 +121,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
         rightSideTitle="New Group"
+        rightSideTitlePress={() => {
+          setIsBottomSheetOpen(true);
+        }}
       />
 
       <View style={styles.content}>
@@ -166,6 +177,18 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           />
         </View>
       </View>
+      <AppBottomSheet
+        blurAmount={100}
+        blurType="light"
+        // height={theme.sizes.HEIGHT * 0.45}
+        isOpen={isBottomSheetOpen}
+        onClose={() => setIsBottomSheetOpen(false)}
+        fullHeight={true}
+      >
+        <View style={styles.bottomSheetContainer}>
+          <BottomSheetHeader leftSideTitle="Cancel" title="Add Members" />
+        </View>
+      </AppBottomSheet>
     </ParentView>
   );
 };
