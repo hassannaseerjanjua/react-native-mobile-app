@@ -128,6 +128,58 @@ const useStyles = () => {
         height: sizes.HEIGHT * 0.85,
         width: '100%',
       },
+      step2Container: {
+        // paddingHorizontal: sizes.WIDTH * 0.04,
+        paddingVertical: sizes.HEIGHT * 0.02,
+      },
+      membersHeading: {
+        fontFamily: fonts.Quicksand.semibold,
+        fontSize: 16,
+        color: colors.PRIMARY_TEXT,
+        marginBottom: sizes.HEIGHT * 0.015,
+      },
+      membersGridContainer: {
+        flex: 1,
+      },
+      memberRow: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+        marginBottom: sizes.HEIGHT * 0.02,
+      },
+      memberGridItem: {
+        alignItems: 'center',
+        width: 80,
+        marginRight: 12,
+      },
+      memberGridImageContainer: {
+        position: 'relative',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      memberGridCrossIcon: {
+        position: 'absolute',
+        top: 0,
+        right: -5,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: '#F8F8F6',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      memberGridAvatar: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        marginBottom: 6,
+      },
+      memberGridName: {
+        fontFamily: fonts.Quicksand.medium,
+        fontSize: 12,
+        color: colors.PRIMARY_TEXT,
+        textAlign: 'center',
+        maxWidth: 80,
+      },
     });
   }, [theme]);
 
