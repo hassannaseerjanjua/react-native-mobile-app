@@ -23,6 +23,8 @@ interface TabItemProps {
   isEditGroup?: boolean;
   isLink?: boolean;
   isGroup?: boolean;
+  onDeletePress?: () => void;
+  onEditPress?: () => void;
 }
 
 const TabItem = ({
@@ -32,6 +34,8 @@ const TabItem = ({
   isEditGroup,
   isLink,
   isGroup,
+  onDeletePress,
+  onEditPress,
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
 
@@ -48,8 +52,8 @@ const TabItem = ({
       {isEditGroup ? (
         <>
           <View style={styles.editGroupContainer}>
-            <SvgDeleteIcon />
-            <SvgEditIcon />
+            <SvgDeleteIcon onPress={onDeletePress} />
+            <SvgEditIcon onPress={onEditPress} />
           </View>
         </>
       ) : (

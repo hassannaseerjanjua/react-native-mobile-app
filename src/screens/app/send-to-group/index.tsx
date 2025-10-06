@@ -18,6 +18,7 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import TabItem from '../../../components/global/TabItem';
 import BottomSheetHeader from '../../../components/app/BottomSheetHeader';
 import SearchUserItem from '../../../components/app/SearchUserItem';
+import { MemberSelectionModal } from '../../../components/send-a-gift';
 import { SvgCrossIcon } from '../../../assets/icons';
 import { ActiveUser } from '../../../types';
 
@@ -33,6 +34,8 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
   const [modalAnimation] = useState(new Animated.Value(0));
   const [modalSearchQuery, setModalSearchQuery] = useState('');
   const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
+  const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
+  const [groupMembers, setGroupMembers] = useState<ActiveUser[]>([]);
 
   const openModal = () => {
     setIsModalOpen(true);
@@ -56,6 +59,9 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
   };
 
   const getGroupMembersData = (): ActiveUser[] => {
+    if (groupMembers.length > 0) {
+      return groupMembers;
+    }
     return [
       {
         UserId: 1,
@@ -94,6 +100,19 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
     );
   };
 
+  const handleEditGroup = () => {
+    setIsMemberSelectionOpen(true);
+  };
+
+  const handleSaveMembers = (selectedMembers: ActiveUser[]) => {
+    setGroupMembers(selectedMembers);
+    setIsMemberSelectionOpen(false);
+  };
+
+  const handleCloseMemberSelection = () => {
+    setIsMemberSelectionOpen(false);
+  };
+
   return (
     <ParentView style={styles.container}>
       <StatusBar
@@ -121,6 +140,8 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
           onPress={openModal}
           isEditGroup={isEditGroupOpen}
           styles={styles.TabItem}
+          onDeletePress={() => {}}
+          onEditPress={handleEditGroup}
         />
         <View style={styles.tabSpacing} />
         <TabItem
@@ -129,6 +150,8 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
           onPress={openModal}
           isEditGroup={isEditGroupOpen}
           styles={styles.TabItem}
+          onDeletePress={() => {}}
+          onEditPress={handleEditGroup}
         />
       </View>
 
@@ -192,6 +215,14 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
           </Animated.View>
         </View>
       </Modal>
+
+      <MemberSelectionModal
+        visible={isMemberSelectionOpen}
+        onClose={handleCloseMemberSelection}
+        existingMembers={getGroupMembersData()}
+        onSave={handleSaveMembers}
+        title="Edit Group Members"
+      />
     </ParentView>
   );
 };

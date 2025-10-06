@@ -18,7 +18,7 @@ import useStyles from './style';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import ParentView from '../../../components/app/ParentView';
 import SearchUserItem from '../../../components/app/SearchUserItem';
-import GroupTabs from '../../../components/global/GroupTabs';
+import { GroupTabs } from '../../../components/send-a-gift';
 import TabItem from '../../../components/global/TabItem';
 import { ActiveUser } from '../../../types';
 import { SvgSelectedCheck, SvgCrossIcon } from '../../../assets/icons';
