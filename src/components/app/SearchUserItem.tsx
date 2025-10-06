@@ -7,7 +7,7 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import { SvgSearchAdd } from '../../assets/icons';
+import { SvgSearchAdd, SvgSelectedCheck } from '../../assets/icons';
 import { ActiveUser } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
 import useTheme from '../../styles/theme';
@@ -21,6 +21,9 @@ interface SearchUserItemProps {
   loadingUsers?: Record<number, boolean>;
   handleAddUser?: (userId: number) => void;
   showAddButton?: boolean;
+  showSelection?: boolean;
+  isSelected?: boolean;
+  onSelectionPress?: () => void;
 }
 
 const SearchUserItem: React.FC<SearchUserItemProps> = ({
@@ -31,6 +34,9 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   loadingUsers = {},
   handleAddUser,
   showAddButton = true,
+  showSelection = false,
+  isSelected = false,
+  onSelectionPress,
 }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
@@ -41,6 +47,8 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   return (
     <TouchableOpacity
       style={[styles.userRow, !isLast && styles.userRowDivider]}
+      onPress={showSelection ? onSelectionPress : undefined}
+      activeOpacity={1}
     >
       <View style={styles.userInfo}>
         <View style={styles.avatarWrapper}>
@@ -82,6 +90,14 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
             </View>
           )}
         </TouchableOpacity>
+      )}
+
+      {showSelection && (
+        <View
+          style={[styles.selectionCircle, isSelected && styles.selectedCircle]}
+        >
+          {isSelected && <SvgSelectedCheck width={12} height={12} />}
+        </View>
       )}
     </TouchableOpacity>
   );
@@ -157,6 +173,20 @@ const useStyles = () => {
         width: 36,
         height: 36,
         borderRadius: 18,
+      },
+      selectionCircle: {
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        borderWidth: 2,
+        borderColor: colors.SECONDARY_GRAY,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: 'transparent',
+      },
+      selectedCircle: {
+        backgroundColor: colors.PRIMARY,
+        borderColor: colors.PRIMARY,
       },
     });
   }, [theme]);

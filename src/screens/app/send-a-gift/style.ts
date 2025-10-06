@@ -121,6 +121,46 @@ const useStyles = () => {
         borderTopLeftRadius: 16,
         // backgroundColor: 'red',
       },
+      selectedUsersContainer: {
+        // marginHorizontal: sizes.WIDTH * 0.04,
+        marginVertical: sizes.HEIGHT * 0.01,
+        paddingVertical: 12,
+        // paddingHorizontal: 14,
+        backgroundColor: colors.WHITE,
+        borderRadius: 12,
+        shadowColor: '#000',
+        shadowOpacity: 0.03,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 1,
+      },
+      selectedUsersTitle: {
+        fontFamily: fonts.Quicksand.semibold,
+        fontSize: 14,
+        color: colors.PRIMARY_TEXT,
+        marginBottom: 8,
+      },
+      selectedUsersList: {
+        flexDirection: 'row',
+        // gap: 1,
+      },
+      selectedUserItem: {
+        alignItems: 'center',
+        width: 80,
+      },
+      selectedUserAvatar: {
+        width: 60,
+        height: 60,
+        borderRadius: 30,
+        marginBottom: 6,
+      },
+      selectedUserName: {
+        fontFamily: fonts.Quicksand.medium,
+        fontSize: 12,
+        color: colors.PRIMARY_TEXT,
+        textAlign: 'center',
+        maxWidth: 80,
+      },
     });
   }, [theme]);
 
