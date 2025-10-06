@@ -46,18 +46,20 @@ const useStyles = () => {
         width: '100%',
         paddingTop: sizes.HEIGHT * 0.01,
         paddingHorizontal: sizes.PADDING,
+        overflow: 'visible',
       },
       modalScrollView: {
         flex: 1,
         height: sizes.HEIGHT * 0.85,
         width: '100%',
+        overflow: 'visible',
       },
       membersContainer: {
         flex: 1,
         backgroundColor: colors.WHITE,
         zIndex: 1,
         position: 'relative',
-        // paddingHorizontal: sizes.WIDTH * 0.04,
+        overflow: 'visible',
       },
       listCard: {
         backgroundColor: colors.WHITE,
