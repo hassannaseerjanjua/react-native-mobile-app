@@ -34,7 +34,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
 
-  // Handle user selection
   const handleUserSelection = (userId: number) => {
     setSelectedUsers(prev => {
       const newSet = new Set(prev);
@@ -47,14 +46,12 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     });
   };
 
-  // Tab configuration
   const tabs = [
     { id: 'friends', title: 'Friends' },
     { id: 'group', title: 'Group' },
     { id: 'others', title: 'Others' },
   ];
 
-  // Mock data for frequently sent users (3 items)
   const frequentlySentUsers: ActiveUser[] = [
     {
       UserId: 1,
@@ -82,7 +79,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     },
   ];
 
-  // Mock data for friends (5 items)
   const friendsUsers: ActiveUser[] = [
     {
       UserId: 4,
@@ -126,106 +122,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     },
   ];
 
-  // Get selected users data
-  const getSelectedUsersData = () => {
-    const allUsers = [...frequentlySentUsers, ...friendsUsers];
-    return allUsers.filter(user => selectedUsers.has(user.UserId));
-  };
-
-  // Selected Users Display Component
-  const SelectedUsersDisplay = () => {
-    const selectedUsersData = getSelectedUsersData();
-
-    if (selectedUsersData.length === 0) {
-      return null;
-    }
-
-    return (
-      <View style={styles.selectedUsersContainer}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.selectedUsersList}
-        >
-          {selectedUsersData.map(user => (
-            <View key={user.UserId} style={styles.selectedUserItem}>
-              <Image
-                source={{ uri: user.ProfileUrl || '' }}
-                style={styles.selectedUserAvatar}
-              />
-              <Text style={styles.selectedUserName} numberOfLines={1}>
-                {user.FullName.split(' ')[0]}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
-    );
-  };
-
-  // Reusable User List Component with optional selection
-  const UserListComponent = ({ enableSelection = false }) => (
-    <View>
-      {/* Frequently Sent Section */}
-      <Text style={styles.sectionTitle}>Frequently Sent</Text>
-      <View style={styles.listCard}>
-        <FlatList
-          data={frequentlySentUsers}
-          keyExtractor={item => item.UserId.toString()}
-          renderItem={({ item, index }) => (
-            <SearchUserItem
-              item={item}
-              index={index}
-              isLast={index === frequentlySentUsers.length - 1}
-              showAddButton={false}
-              showSelection={enableSelection}
-              isSelected={
-                enableSelection ? selectedUsers.has(item.UserId) : false
-              }
-              onSelectionPress={
-                enableSelection
-                  ? () => handleUserSelection(item.UserId)
-                  : undefined
-              }
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
-          scrollEnabled={false}
-        />
-      </View>
-
-      {/* Friends Section */}
-      <Text style={styles.sectionTitle}>Friends</Text>
-      <View style={styles.listCard}>
-        <FlatList
-          data={friendsUsers}
-          keyExtractor={item => item.UserId.toString()}
-          renderItem={({ item, index }) => (
-            <SearchUserItem
-              item={item}
-              index={index}
-              isLast={index === friendsUsers.length - 1}
-              showAddButton={false}
-              showSelection={enableSelection}
-              isSelected={
-                enableSelection ? selectedUsers.has(item.UserId) : false
-              }
-              onSelectionPress={
-                enableSelection
-                  ? () => handleUserSelection(item.UserId)
-                  : undefined
-              }
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
-          scrollEnabled={false}
-        />
-      </View>
-    </View>
-  );
-
   return (
     <ParentView style={styles.container}>
       <StatusBar
@@ -251,7 +147,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         <View style={styles.tabContainer}>
           <TabItem title="Send through a link" onPress={() => {}} />
         </View>
-        {/* Frequently Sent Section */}
         <View style={styles.tabContainer}>
           <GroupTabs
             tabs={tabs}
@@ -259,12 +154,18 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
             onTabPress={setActiveTab}
           />
         </View>
-        <UserListComponent enableSelection={false} />
+        <UserListComponent
+          enableSelection={false}
+          frequentlySentUsers={frequentlySentUsers}
+          friendsUsers={friendsUsers}
+          selectedUsers={selectedUsers}
+          handleUserSelection={handleUserSelection}
+          styles={styles}
+        />
       </View>
       <AppBottomSheet
         blurAmount={100}
         blurType="light"
-        // height={theme.sizes.HEIGHT * 0.45}
         isOpen={isBottomSheetOpen}
         onClose={() => setIsBottomSheetOpen(false)}
         fullHeight={true}
@@ -280,12 +181,146 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
             searchValue={searchQuery}
             onSearchChange={setSearchQuery}
           />
-          <SelectedUsersDisplay />
-          <UserListComponent enableSelection={true} />
+          <SelectedUsersDisplay
+            selectedUsers={selectedUsers}
+            frequentlySentUsers={frequentlySentUsers}
+            friendsUsers={friendsUsers}
+            styles={styles}
+          />
+          <UserListComponent
+            enableSelection={true}
+            frequentlySentUsers={frequentlySentUsers}
+            friendsUsers={friendsUsers}
+            selectedUsers={selectedUsers}
+            handleUserSelection={handleUserSelection}
+            styles={styles}
+          />
         </View>
       </AppBottomSheet>
     </ParentView>
   );
 };
+
+const getSelectedUsersData = (
+  frequentlySentUsers: ActiveUser[],
+  friendsUsers: ActiveUser[],
+  selectedUsers: Set<number>,
+) => {
+  const allUsers = [...frequentlySentUsers, ...friendsUsers];
+  return allUsers.filter(user => selectedUsers.has(user.UserId));
+};
+
+const SelectedUsersDisplay: React.FC<{
+  selectedUsers: Set<number>;
+  frequentlySentUsers: ActiveUser[];
+  friendsUsers: ActiveUser[];
+  styles: any;
+}> = ({ selectedUsers, frequentlySentUsers, friendsUsers, styles }) => {
+  const selectedUsersData = getSelectedUsersData(
+    frequentlySentUsers,
+    friendsUsers,
+    selectedUsers,
+  );
+
+  if (selectedUsersData.length === 0) {
+    return null;
+  }
+
+  return (
+    <View style={styles.selectedUsersContainer}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.selectedUsersList}
+      >
+        {selectedUsersData.map(user => (
+          <View key={user.UserId} style={styles.selectedUserItem}>
+            <Image
+              source={{ uri: user.ProfileUrl || '' }}
+              style={styles.selectedUserAvatar}
+            />
+            <Text style={styles.selectedUserName} numberOfLines={1}>
+              {user.FullName.split(' ')[0]}
+            </Text>
+          </View>
+        ))}
+      </ScrollView>
+    </View>
+  );
+};
+
+const UserListComponent: React.FC<{
+  enableSelection: boolean;
+  frequentlySentUsers: ActiveUser[];
+  friendsUsers: ActiveUser[];
+  selectedUsers: Set<number>;
+  handleUserSelection: (userId: number) => void;
+  styles: any;
+}> = ({
+  enableSelection,
+  frequentlySentUsers,
+  friendsUsers,
+  selectedUsers,
+  handleUserSelection,
+  styles,
+}) => (
+  <View>
+    <Text style={styles.sectionTitle}>Frequently Sent</Text>
+    <View style={styles.listCard}>
+      <FlatList
+        data={frequentlySentUsers}
+        keyExtractor={item => item.UserId.toString()}
+        renderItem={({ item, index }) => (
+          <SearchUserItem
+            item={item}
+            index={index}
+            isLast={index === frequentlySentUsers.length - 1}
+            showAddButton={false}
+            showSelection={enableSelection}
+            isSelected={
+              enableSelection ? selectedUsers.has(item.UserId) : false
+            }
+            onSelectionPress={
+              enableSelection
+                ? () => handleUserSelection(item.UserId)
+                : undefined
+            }
+          />
+        )}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContainer}
+        scrollEnabled={false}
+      />
+    </View>
+
+    <Text style={styles.sectionTitle}>Friends</Text>
+    <View style={styles.listCard}>
+      <FlatList
+        data={friendsUsers}
+        keyExtractor={item => item.UserId.toString()}
+        renderItem={({ item, index }) => (
+          <SearchUserItem
+            item={item}
+            index={index}
+            isLast={index === friendsUsers.length - 1}
+            showAddButton={false}
+            showSelection={enableSelection}
+            isSelected={
+              enableSelection ? selectedUsers.has(item.UserId) : false
+            }
+            onSelectionPress={
+              enableSelection
+                ? () => handleUserSelection(item.UserId)
+                : undefined
+            }
+          />
+        )}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContainer}
+        scrollEnabled={false}
+      />
+    </View>
+  </View>
+);
 
 export default SendAGiftScreen;
