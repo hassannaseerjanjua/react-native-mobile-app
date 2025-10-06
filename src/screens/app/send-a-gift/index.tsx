@@ -6,6 +6,10 @@ import {
   FlatList,
   Image,
   ScrollView,
+  Modal,
+  TouchableOpacity,
+  Dimensions,
+  Animated,
 } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -31,8 +35,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const { getString } = useLocaleStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('friends');
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
+  const [modalAnimation] = useState(new Animated.Value(0));
 
   const handleUserSelection = (userId: number) => {
     setSelectedUsers(prev => {
@@ -43,6 +48,26 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         newSet.add(userId);
       }
       return newSet;
+    });
+  };
+
+  const openModal = () => {
+    setIsModalOpen(true);
+    Animated.timing(modalAnimation, {
+      toValue: 1,
+      duration: 300,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const closeModal = () => {
+    Animated.timing(modalAnimation, {
+      toValue: 0,
+      duration: 250,
+      useNativeDriver: true,
+    }).start(() => {
+      setIsModalOpen(false);
+      modalAnimation.setValue(0);
     });
   };
 
@@ -138,9 +163,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
         rightSideTitle="New Group"
-        rightSideTitlePress={() => {
-          setIsBottomSheetOpen(true);
-        }}
+        rightSideTitlePress={openModal}
       />
 
       <View style={styles.content}>
@@ -163,40 +186,62 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           styles={styles}
         />
       </View>
-      <AppBottomSheet
-        blurAmount={100}
-        blurType="light"
-        isOpen={isBottomSheetOpen}
-        onClose={() => setIsBottomSheetOpen(false)}
-        fullHeight={true}
+      <Modal
+        visible={isModalOpen}
+        transparent={true}
+        animationType="none"
+        onRequestClose={closeModal}
       >
-        <View style={styles.bottomSheetContainer}>
-          <BottomSheetHeader
-            leftSideTitle="Cancel"
-            title="Add Members"
-            subTitle="0/1,023"
-            rightSideTitle="Next"
-            showSearchBar={true}
-            searchPlaceholder="Search"
-            searchValue={searchQuery}
-            onSearchChange={setSearchQuery}
-          />
-          <SelectedUsersDisplay
-            selectedUsers={selectedUsers}
-            frequentlySentUsers={frequentlySentUsers}
-            friendsUsers={friendsUsers}
-            styles={styles}
-          />
-          <UserListComponent
-            enableSelection={true}
-            frequentlySentUsers={frequentlySentUsers}
-            friendsUsers={friendsUsers}
-            selectedUsers={selectedUsers}
-            handleUserSelection={handleUserSelection}
-            styles={styles}
-          />
+        <View style={styles.modalOverlay}>
+          <Animated.View
+            style={[
+              styles.modalContainer,
+              {
+                transform: [
+                  {
+                    translateY: modalAnimation.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [Dimensions.get('window').height, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <View style={styles.modalContent}>
+              <BottomSheetHeader
+                leftSideTitle="Cancel"
+                title="Add Members"
+                subTitle={`${selectedUsers.size}/${
+                  frequentlySentUsers.length + friendsUsers.length
+                }`}
+                rightSideTitle="Next"
+                showSearchBar={true}
+                searchPlaceholder="Search"
+                searchValue={searchQuery}
+                onSearchChange={setSearchQuery}
+                leftSideTitlePress={closeModal}
+              />
+              <ScrollView style={styles.modalScrollView}>
+                <SelectedUsersDisplay
+                  selectedUsers={selectedUsers}
+                  frequentlySentUsers={frequentlySentUsers}
+                  friendsUsers={friendsUsers}
+                  styles={styles}
+                />
+                <UserListComponent
+                  enableSelection={true}
+                  frequentlySentUsers={frequentlySentUsers}
+                  friendsUsers={friendsUsers}
+                  selectedUsers={selectedUsers}
+                  handleUserSelection={handleUserSelection}
+                  styles={styles}
+                />
+              </ScrollView>
+            </View>
+          </Animated.View>
         </View>
-      </AppBottomSheet>
+      </Modal>
     </ParentView>
   );
 };

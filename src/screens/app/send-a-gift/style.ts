@@ -76,6 +76,42 @@ const useStyles = () => {
         textAlign: 'center',
         maxWidth: 80,
       },
+      modalOverlay: {
+        flex: 1,
+        backgroundColor: 'transparent',
+        justifyContent: 'flex-end',
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+      },
+      modalBackdrop: {
+        flex: 1,
+      },
+      modalContainer: {
+        backgroundColor: colors.WHITE,
+        borderTopLeftRadius: 20,
+        borderTopRightRadius: 20,
+        height: sizes.HEIGHT,
+        width: '100%',
+        position: 'absolute',
+        bottom: 0,
+        left: 0,
+        right: 0,
+      },
+      modalContent: {
+        flex: 1,
+        height: sizes.HEIGHT,
+        width: '100%',
+        paddingTop: sizes.HEIGHT * 0.01,
+        paddingHorizontal: sizes.PADDING,
+      },
+      modalScrollView: {
+        flex: 1,
+        height: sizes.HEIGHT * 0.85,
+        width: '100%',
+      },
     });
   }, [theme]);
 
