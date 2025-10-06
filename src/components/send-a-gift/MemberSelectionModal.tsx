@@ -448,7 +448,7 @@ const useStyles = () => {
       },
       step2Container: {
         paddingVertical: sizes.HEIGHT * 0.02,
-        paddingHorizontal: sizes.WIDTH * 0.04,
+        // paddingHorizontal: sizes.WIDTH * 0.04,
       },
       membersHeading: {
         fontFamily: fonts.Quicksand.semibold,
