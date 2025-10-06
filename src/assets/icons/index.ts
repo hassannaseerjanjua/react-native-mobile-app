@@ -34,6 +34,7 @@ import SvgNotificationInactive from './notification-inactive.svg';
 import SvgGiftLink from './gift-link.svg';
 import SvgNextIcon from './next-arrow.svg';
 import SvgSelectedCheck from './selected-item.svg';
+import SvgCrossIcon from './cross-icon.svg';
 
 export {
   SvgLogoBlue,
@@ -72,4 +73,5 @@ export {
   SvgGiftLink,
   SvgNextIcon,
   SvgSelectedCheck,
+  SvgCrossIcon,
 };

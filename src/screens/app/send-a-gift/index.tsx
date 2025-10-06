@@ -20,12 +20,7 @@ import SearchUserItem from '../../../components/app/SearchUserItem';
 import GroupTabs from '../../../components/global/GroupTabs';
 import TabItem from '../../../components/global/TabItem';
 import { ActiveUser } from '../../../types';
-import { BottomSheetModal } from '@gorhom/bottom-sheet';
-import AppBottomSheet from '../../../components/global/AppBottomSheet';
-import { SvgPhoneIcon } from '../../../assets/icons';
-import { scaleWithMax } from '../../../utils';
-import { SvgEmail, SvgSelectedCheck } from '../../../assets/icons';
-import CustomButton from '../../../components/global/Custombutton';
+import { SvgSelectedCheck, SvgCrossIcon } from '../../../assets/icons';
 import BottomSheetHeader from '../../../components/app/BottomSheetHeader';
 
 interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
@@ -209,24 +204,25 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
             ]}
           >
             <View style={styles.modalContent}>
-              <BottomSheetHeader
-                leftSideTitle="Cancel"
-                title="Add Members"
-                subTitle={`${selectedUsers.size}/${
-                  frequentlySentUsers.length + friendsUsers.length
-                }`}
-                rightSideTitle="Next"
-                showSearchBar={true}
-                searchPlaceholder="Search"
-                searchValue={searchQuery}
-                onSearchChange={setSearchQuery}
-                leftSideTitlePress={closeModal}
-              />
               <ScrollView style={styles.modalScrollView}>
+                <BottomSheetHeader
+                  leftSideTitle="Cancel"
+                  title="Add Members"
+                  subTitle={`${selectedUsers.size}/${
+                    frequentlySentUsers.length + friendsUsers.length
+                  }`}
+                  rightSideTitle="Next"
+                  showSearchBar={true}
+                  searchPlaceholder="Search"
+                  searchValue={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  leftSideTitlePress={closeModal}
+                />
                 <SelectedUsersDisplay
                   selectedUsers={selectedUsers}
                   frequentlySentUsers={frequentlySentUsers}
                   friendsUsers={friendsUsers}
+                  handleUserSelection={handleUserSelection}
                   styles={styles}
                 />
                 <UserListComponent
@@ -259,8 +255,15 @@ const SelectedUsersDisplay: React.FC<{
   selectedUsers: Set<number>;
   frequentlySentUsers: ActiveUser[];
   friendsUsers: ActiveUser[];
+  handleUserSelection: (userId: number) => void;
   styles: any;
-}> = ({ selectedUsers, frequentlySentUsers, friendsUsers, styles }) => {
+}> = ({
+  selectedUsers,
+  frequentlySentUsers,
+  friendsUsers,
+  handleUserSelection,
+  styles,
+}) => {
   const selectedUsersData = getSelectedUsersData(
     frequentlySentUsers,
     friendsUsers,
@@ -280,10 +283,18 @@ const SelectedUsersDisplay: React.FC<{
       >
         {selectedUsersData.map(user => (
           <View key={user.UserId} style={styles.selectedUserItem}>
-            <Image
-              source={{ uri: user.ProfileUrl || '' }}
-              style={styles.selectedUserAvatar}
-            />
+            <View style={styles.selectedUserImageContainer}>
+              <Image
+                source={{ uri: user.ProfileUrl || '' }}
+                style={styles.selectedUserAvatar}
+              />
+              <TouchableOpacity
+                style={styles.selectedUserCrossIcon}
+                onPress={() => handleUserSelection(user.UserId)}
+              >
+                <SvgCrossIcon width={12} height={12} />
+              </TouchableOpacity>
+            </View>
             <Text style={styles.selectedUserName} numberOfLines={1}>
               {user.FullName.split(' ')[0]}
             </Text>

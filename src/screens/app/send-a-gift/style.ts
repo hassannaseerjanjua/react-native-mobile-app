@@ -63,6 +63,22 @@ const useStyles = () => {
         alignItems: 'center',
         width: 80,
       },
+      selectedUserImageContainer: {
+        position: 'relative',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      selectedUserCrossIcon: {
+        position: 'absolute',
+        top: 0,
+        right: -5,
+        width: 20,
+        height: 20,
+        borderRadius: 10,
+        backgroundColor: '#F8F8F6',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
       selectedUserAvatar: {
         width: 60,
         height: 60,
