@@ -17,9 +17,13 @@ const useStyles = () => {
       },
       listCard: {
         backgroundColor: colors.WHITE,
-        borderRadius: 12,
-        flex: 1,
-        ...theme.globalStyles.SHADOW_STYLE,
+        borderRadius: 16,
+        shadowColor: '#000',
+        shadowOpacity: 0.03,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 1,
+        marginBottom: sizes.HEIGHT * 0.018,
       },
       emptyContainer: {
         flex: 1,
@@ -34,7 +38,7 @@ const useStyles = () => {
         textAlign: 'center',
       },
       listContainer: {
-        paddingVertical: sizes.HEIGHT * 0.01,
+        paddingVertical: sizes.HEIGHT * 0.0,
       },
       userRow: {
         flexDirection: 'row',
@@ -98,6 +102,15 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.regular,
         fontSize: 14,
         color: colors.SECONDARY_TEXT,
+      },
+      sectionTitle: {
+        fontFamily: fonts.Quicksand.semibold,
+        fontSize: 18,
+        color: colors.PRIMARY_TEXT,
+        paddingBottom: sizes.HEIGHT * 0.01,
+      },
+      tabContainer: {
+        marginBottom: sizes.HEIGHT * 0.018,
       },
     });
   }, [theme]);

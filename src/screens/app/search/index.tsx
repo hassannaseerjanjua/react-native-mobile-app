@@ -1,17 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  Text,
-  StatusBar,
-  TouchableOpacity,
-  FlatList,
-  Image,
-  ActivityIndicator,
-} from 'react-native';
+import { View, Text, StatusBar, FlatList } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
-import { SvgDummyAvatar, SvgSearchAdd } from '../../../assets/icons';
 import {
   ActiveUser,
   ActiveUsersApiResponse,
@@ -21,9 +12,9 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { useAuthStore } from '../../../store/reducer/auth';
 import api from '../../../utils/api';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import ParentView from '../../../components/app/ParentView';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import SearchUserItem from '../../../components/app/SearchUserItem';
 
 interface SearchProps extends AppStackScreen<'Search'> {}
 
@@ -201,68 +192,3 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
 };
 
 export default SearchScreen;
-interface SearchUserItemProps {
-  item: ActiveUser;
-  index: number;
-  isLast: boolean;
-  updatedUsers: Record<number, number>;
-  loadingUsers: Record<number, boolean>;
-  handleAddUser: (userId: number) => void;
-}
-
-const SearchUserItem = ({
-  item,
-  index,
-  isLast,
-  updatedUsers,
-  loadingUsers,
-  handleAddUser,
-}: SearchUserItemProps) => {
-  const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
-  const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
-  const isAdded = currentStatus === 1;
-  const isLoading = loadingUsers[item.UserId] || false;
-
-  return (
-    <View style={[styles.userRow, !isLast && styles.userRowDivider]}>
-      <View style={styles.userInfo}>
-        <View style={styles.avatarWrapper}>
-          {/* <SvgDummyAvatar width={36} height={36} /> */}
-          <Image
-            source={{ uri: item?.ProfileUrl ?? '' }}
-            style={styles.avatar}
-          />
-        </View>
-        <Text style={styles.userName}>{item.FullName}</Text>
-      </View>
-
-      <TouchableOpacity
-        activeOpacity={0.8}
-        style={[styles.addButton, isAdded && styles.addedButton]}
-        onPress={() => handleAddUser(item.UserId)}
-        disabled={isLoading}
-      >
-        {isLoading ? (
-          <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
-        ) : (
-          <View
-            style={{
-              flexDirection: 'row',
-              alignItems: 'center',
-              gap: 2,
-              justifyContent: 'center',
-            }}
-          >
-            {!isAdded && <SvgSearchAdd width={16} height={16} />}
-            <Text
-              style={[styles.addButtonText, isAdded && styles.addedButtonText]}
-            >
-              {isAdded ? getString('SEARCH_ADDED') : getString('SEARCH_ADD')}
-            </Text>
-          </View>
-        )}
-      </TouchableOpacity>
-    </View>
-  );
-};

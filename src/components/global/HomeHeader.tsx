@@ -33,6 +33,7 @@ interface HomeHeaderProps {
   searchValue?: string;
   onSearchChange?: (text: string) => void;
   onProfilePress?: () => void;
+  rightSideTitle?: string;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -46,6 +47,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   searchValue = '',
   onSearchChange,
   onProfilePress,
+  rightSideTitle,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -108,6 +110,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                 <SvgDummyAvatar />
               )}
             </Pressable>
+          )}
+          {rightSideTitle && (
+            <Text style={styles.rightSideTitle}>{rightSideTitle}</Text>
           )}
         </View>
       </View>
@@ -206,6 +211,11 @@ const useStyles = () => {
         width: 35,
         height: 35,
         borderRadius: 35 / 2,
+      },
+      rightSideTitle: {
+        fontFamily: fonts.Quicksand.semibold,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: colors.PRIMARY_TEXT,
       },
     });
   }, [theme]);
