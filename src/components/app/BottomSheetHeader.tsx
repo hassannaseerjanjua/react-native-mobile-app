@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
-import { SvgSearchIcon } from '../../assets/icons';
+import { SvgImageIcon, SvgSearchIcon } from '../../assets/icons';
 import fonts from '../../assets/fonts';
 import { scaleWithMax } from '../../utils';
 import { useAuthStore } from '../../store/reducer/auth';
@@ -25,6 +25,7 @@ interface BottomSheetHeaderProps {
   rightSideTitle?: string;
   rightSideTitlePress?: () => void;
   leftSideTitlePress?: () => void;
+  isGroup?: boolean;
 }
 
 const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
@@ -38,6 +39,7 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
   rightSideTitle,
   rightSideTitlePress,
   leftSideTitlePress,
+  isGroup,
 }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
@@ -69,7 +71,15 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
       {/* Search Bar */}
       {showSearchBar && (
         <View style={styles.searchBarContainer}>
-          <SvgSearchIcon width={20} height={20} />
+          {isGroup ? (
+            <View style={styles.imageIconContainer}>
+              {' '}
+              <SvgImageIcon />{' '}
+            </View>
+          ) : (
+            <SvgSearchIcon />
+          )}
+          {/* <SvgSearchIcon width={20} height={20} /> */}
           <TextInput
             style={styles.searchInput}
             placeholder={defaultSearchPlaceholder}
@@ -137,7 +147,7 @@ const useStyles = () => {
       },
       rightSideTitle: {
         fontSize: 16,
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.Quicksand.semibold,
         color: colors.PRIMARY,
         zIndex: 1,
       },
@@ -162,6 +172,14 @@ const useStyles = () => {
         color: colors.PRIMARY_TEXT,
         marginLeft: sizes.PADDING * 0.6,
         padding: 0,
+      },
+      imageIconContainer: {
+        width: 30,
+        height: 30,
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderRadius: 99,
+        backgroundColor: colors.SECONDARY,
       },
     });
   }, [theme]);

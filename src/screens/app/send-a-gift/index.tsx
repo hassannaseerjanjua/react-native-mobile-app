@@ -1,28 +1,18 @@
 import React, { useState } from 'react';
-import {
-  View,
-  Text,
-  StatusBar,
-  FlatList,
-  Image,
-  ScrollView,
-  Modal,
-  TouchableOpacity,
-  Dimensions,
-  Animated,
-  TextInput,
-} from 'react-native';
+import { View, Text, StatusBar, FlatList } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import ParentView from '../../../components/app/ParentView';
 import SearchUserItem from '../../../components/app/SearchUserItem';
-import { GroupTabs } from '../../../components/send-a-gift';
+import {
+  GroupTabs,
+  MemberSelectionModal,
+} from '../../../components/send-a-gift';
 import TabItem from '../../../components/global/TabItem';
 import { ActiveUser } from '../../../types';
-import { SvgSelectedCheck, SvgCrossIcon } from '../../../assets/icons';
-import BottomSheetHeader from '../../../components/app/BottomSheetHeader';
+import { SvgAddGroup } from '../../../assets/icons';
 
 interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 
@@ -31,11 +21,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const { getString } = useLocaleStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('friends');
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
-  const [modalAnimation] = useState(new Animated.Value(0));
-  const [modalStep, setModalStep] = useState(1);
-  const [groupName, setGroupName] = useState('');
+  const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
 
   const handleUserSelection = (userId: number) => {
     setSelectedUsers(prev => {
@@ -49,47 +36,47 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     });
   };
 
-  const openModal = () => {
-    setIsModalOpen(true);
-    setModalStep(1);
-    setGroupName('');
-    Animated.timing(modalAnimation, {
-      toValue: 1,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  };
-
-  const closeModal = () => {
-    Animated.timing(modalAnimation, {
-      toValue: 0,
-      duration: 250,
-      useNativeDriver: true,
-    }).start(() => {
-      setIsModalOpen(false);
-      setModalStep(1);
-      setGroupName('');
-      modalAnimation.setValue(0);
-    });
-  };
-
-  const handleNextStep = () => {
-    if (modalStep === 1) {
-      setModalStep(2);
-    }
-  };
-
-  const handleBackStep = () => {
-    if (modalStep === 2) {
-      setModalStep(1);
-    }
-  };
-
   const tabs = [
     { id: 'friends', title: 'Friends' },
     { id: 'group', title: 'Group' },
     { id: 'others', title: 'Others' },
   ];
+
+  const handleTabPress = (tabId: string) => {
+    if (tabId === 'group') {
+      navigation.navigate('SendToGroup' as any, {
+        groupName: 'My Group',
+        selectedUserIds: [],
+      });
+    } else {
+      setActiveTab(tabId);
+    }
+  };
+
+  const handleOpenMemberSelection = () => {
+    setIsMemberSelectionOpen(true);
+  };
+
+  const handleSaveMembers = (selectedMembers: ActiveUser[]) => {
+    const selectedUserIds = selectedMembers.map(user => user.UserId);
+    setSelectedUsers(new Set(selectedUserIds));
+    setIsMemberSelectionOpen(false);
+  };
+
+  const handleNavigateToGroup = (
+    groupName: string,
+    selectedUserIds: number[],
+  ) => {
+    setIsMemberSelectionOpen(false);
+    navigation.navigate('SendToGroup' as any, {
+      groupName,
+      selectedUserIds,
+    });
+  };
+
+  const handleCloseMemberSelection = () => {
+    setIsMemberSelectionOpen(false);
+  };
 
   const frequentlySentUsers: ActiveUser[] = [
     {
@@ -177,7 +164,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
         rightSideTitle="New Group"
-        rightSideTitlePress={openModal}
+        rightSideTitlePress={handleOpenMemberSelection}
+        rightSideIcon={<SvgAddGroup />}
       />
 
       <View style={styles.content}>
@@ -192,309 +180,60 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           <GroupTabs
             tabs={tabs}
             activeTab={activeTab}
-            onTabPress={setActiveTab}
+            onTabPress={handleTabPress}
           />
         </View>
-        <UserListComponent
-          enableSelection={false}
-          frequentlySentUsers={frequentlySentUsers}
-          friendsUsers={friendsUsers}
-          selectedUsers={selectedUsers}
-          handleUserSelection={handleUserSelection}
-          styles={styles}
-        />
-      </View>
-      <Modal
-        visible={isModalOpen}
-        transparent={true}
-        animationType="none"
-        onRequestClose={closeModal}
-      >
-        <View style={styles.modalOverlay}>
-          <Animated.View
-            style={[
-              styles.modalContainer,
-              {
-                transform: [
-                  {
-                    translateY: modalAnimation.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: [Dimensions.get('window').height, 0],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            <View style={styles.modalContent}>
-              <ScrollView style={styles.modalScrollView}>
-                {modalStep === 1 ? (
-                  <>
-                    <BottomSheetHeader
-                      leftSideTitle="Cancel"
-                      title="Add Members"
-                      subTitle={`${selectedUsers.size}/${
-                        frequentlySentUsers.length + friendsUsers.length
-                      }`}
-                      rightSideTitle="Next"
-                      showSearchBar={true}
-                      searchPlaceholder="Search"
-                      searchValue={searchQuery}
-                      onSearchChange={setSearchQuery}
-                      leftSideTitlePress={closeModal}
-                      rightSideTitlePress={handleNextStep}
-                    />
-                    <SelectedUsersDisplay
-                      selectedUsers={selectedUsers}
-                      frequentlySentUsers={frequentlySentUsers}
-                      friendsUsers={friendsUsers}
-                      handleUserSelection={handleUserSelection}
-                      styles={styles}
-                    />
-                    <UserListComponent
-                      enableSelection={true}
-                      frequentlySentUsers={frequentlySentUsers}
-                      friendsUsers={friendsUsers}
-                      selectedUsers={selectedUsers}
-                      handleUserSelection={handleUserSelection}
-                      styles={styles}
-                    />
-                  </>
-                ) : (
-                  <>
-                    <BottomSheetHeader
-                      leftSideTitle="Back"
-                      title="New Group"
-                      subTitle=""
-                      rightSideTitle="Create"
-                      showSearchBar={true}
-                      searchPlaceholder="Enter group name"
-                      searchValue={groupName}
-                      onSearchChange={setGroupName}
-                      leftSideTitlePress={handleBackStep}
-                      rightSideTitlePress={() => {
-                        closeModal();
-                        navigation.navigate('SendToGroup');
-                      }}
-                    />
-                    <View style={styles.step2Container}>
-                      <Text style={styles.membersHeading}>
-                        Members: {selectedUsers.size} out of{' '}
-                        {frequentlySentUsers.length + friendsUsers.length}
-                      </Text>
-                      <SelectedMembersGrid
-                        selectedUsers={selectedUsers}
-                        frequentlySentUsers={frequentlySentUsers}
-                        friendsUsers={friendsUsers}
-                        handleUserSelection={handleUserSelection}
-                        styles={styles}
-                      />
-                    </View>
-                  </>
-                )}
-              </ScrollView>
-            </View>
-          </Animated.View>
-        </View>
-      </Modal>
-    </ParentView>
-  );
-};
-
-const getSelectedUsersData = (
-  frequentlySentUsers: ActiveUser[],
-  friendsUsers: ActiveUser[],
-  selectedUsers: Set<number>,
-) => {
-  const allUsers = [...frequentlySentUsers, ...friendsUsers];
-  return allUsers.filter(user => selectedUsers.has(user.UserId));
-};
-
-const SelectedUsersDisplay: React.FC<{
-  selectedUsers: Set<number>;
-  frequentlySentUsers: ActiveUser[];
-  friendsUsers: ActiveUser[];
-  handleUserSelection: (userId: number) => void;
-  styles: any;
-}> = ({
-  selectedUsers,
-  frequentlySentUsers,
-  friendsUsers,
-  handleUserSelection,
-  styles,
-}) => {
-  const selectedUsersData = getSelectedUsersData(
-    frequentlySentUsers,
-    friendsUsers,
-    selectedUsers,
-  );
-
-  if (selectedUsersData.length === 0) {
-    return null;
-  }
-
-  return (
-    <View style={styles.selectedUsersContainer}>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.selectedUsersList}
-      >
-        {selectedUsersData.map(user => (
-          <View key={user.UserId} style={styles.selectedUserItem}>
-            <View style={styles.selectedUserImageContainer}>
-              <Image
-                source={{ uri: user.ProfileUrl || '' }}
-                style={styles.selectedUserAvatar}
-              />
-              <TouchableOpacity
-                style={styles.selectedUserCrossIcon}
-                onPress={() => handleUserSelection(user.UserId)}
-              >
-                <SvgCrossIcon width={12} height={12} />
-              </TouchableOpacity>
-            </View>
-            <Text style={styles.selectedUserName} numberOfLines={1}>
-              {user.FullName.split(' ')[0]}
-            </Text>
-          </View>
-        ))}
-      </ScrollView>
-    </View>
-  );
-};
-
-const UserListComponent: React.FC<{
-  enableSelection: boolean;
-  frequentlySentUsers: ActiveUser[];
-  friendsUsers: ActiveUser[];
-  selectedUsers: Set<number>;
-  handleUserSelection: (userId: number) => void;
-  styles: any;
-}> = ({
-  enableSelection,
-  frequentlySentUsers,
-  friendsUsers,
-  selectedUsers,
-  handleUserSelection,
-  styles,
-}) => (
-  <View>
-    <Text style={styles.sectionTitle}>Frequently Sent</Text>
-    <View style={styles.listCard}>
-      <FlatList
-        data={frequentlySentUsers}
-        keyExtractor={item => item.UserId.toString()}
-        renderItem={({ item, index }) => (
-          <SearchUserItem
-            item={item}
-            index={index}
-            isLast={index === frequentlySentUsers.length - 1}
-            showAddButton={false}
-            showSelection={enableSelection}
-            isSelected={
-              enableSelection ? selectedUsers.has(item.UserId) : false
-            }
-            onSelectionPress={
-              enableSelection
-                ? () => handleUserSelection(item.UserId)
-                : undefined
-            }
-          />
-        )}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-        scrollEnabled={false}
-      />
-    </View>
-
-    <Text style={styles.sectionTitle}>Friends</Text>
-    <View style={styles.listCard}>
-      <FlatList
-        data={friendsUsers}
-        keyExtractor={item => item.UserId.toString()}
-        renderItem={({ item, index }) => (
-          <SearchUserItem
-            item={item}
-            index={index}
-            isLast={index === friendsUsers.length - 1}
-            showAddButton={false}
-            showSelection={enableSelection}
-            isSelected={
-              enableSelection ? selectedUsers.has(item.UserId) : false
-            }
-            onSelectionPress={
-              enableSelection
-                ? () => handleUserSelection(item.UserId)
-                : undefined
-            }
-          />
-        )}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContainer}
-        scrollEnabled={false}
-      />
-    </View>
-  </View>
-);
-
-const SelectedMembersGrid: React.FC<{
-  selectedUsers: Set<number>;
-  frequentlySentUsers: ActiveUser[];
-  friendsUsers: ActiveUser[];
-  handleUserSelection: (userId: number) => void;
-  styles: any;
-}> = ({
-  selectedUsers,
-  frequentlySentUsers,
-  friendsUsers,
-  handleUserSelection,
-  styles,
-}) => {
-  const selectedUsersData = getSelectedUsersData(
-    frequentlySentUsers,
-    friendsUsers,
-    selectedUsers,
-  );
-
-  const renderMemberRow = (rowData: ActiveUser[], rowIndex: number) => (
-    <View key={rowIndex} style={styles.memberRow}>
-      {rowData.map((user, index) => (
-        <View key={user.UserId} style={styles.memberGridItem}>
-          <View style={styles.memberGridImageContainer}>
-            <Image
-              source={{ uri: user.ProfileUrl || '' }}
-              style={styles.memberGridAvatar}
+        <View>
+          <Text style={styles.sectionTitle}>Frequently Sent</Text>
+          <View style={styles.listCard}>
+            <FlatList
+              data={frequentlySentUsers}
+              keyExtractor={item => item.UserId.toString()}
+              renderItem={({ item, index }) => (
+                <SearchUserItem
+                  item={item}
+                  index={index}
+                  isLast={index === frequentlySentUsers.length - 1}
+                  showAddButton={false}
+                  showSelection={false}
+                />
+              )}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.listContainer}
+              scrollEnabled={false}
             />
-            <TouchableOpacity
-              style={styles.memberGridCrossIcon}
-              onPress={() => handleUserSelection(user.UserId)}
-            >
-              <SvgCrossIcon width={12} height={12} />
-            </TouchableOpacity>
           </View>
-          <Text style={styles.memberGridName} numberOfLines={1}>
-            {user.FullName.split(' ')[0]}
-          </Text>
+
+          <Text style={styles.sectionTitle}>Friends</Text>
+          <View style={styles.listCard}>
+            <FlatList
+              data={friendsUsers}
+              keyExtractor={item => item.UserId.toString()}
+              renderItem={({ item, index }) => (
+                <SearchUserItem
+                  item={item}
+                  index={index}
+                  isLast={index === friendsUsers.length - 1}
+                  showAddButton={false}
+                  showSelection={false}
+                />
+              )}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={styles.listContainer}
+              scrollEnabled={false}
+            />
+          </View>
         </View>
-      ))}
-    </View>
-  );
-
-  const chunkArray = (array: ActiveUser[], chunkSize: number) => {
-    const chunks = [];
-    for (let i = 0; i < array.length; i += chunkSize) {
-      chunks.push(array.slice(i, i + chunkSize));
-    }
-    return chunks;
-  };
-
-  const memberRows = chunkArray(selectedUsersData, 4);
-
-  return (
-    <View style={styles.membersGridContainer}>
-      {memberRows.map((rowData, index) => renderMemberRow(rowData, index))}
-    </View>
+      </View>
+      <MemberSelectionModal
+        visible={isMemberSelectionOpen}
+        onClose={handleCloseMemberSelection}
+        existingMembers={[]}
+        onSave={handleSaveMembers}
+        title="Add Members"
+        onNavigateToGroup={handleNavigateToGroup}
+      />
+    </ParentView>
   );
 };
 

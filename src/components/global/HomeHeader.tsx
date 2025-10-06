@@ -35,6 +35,7 @@ interface HomeHeaderProps {
   onProfilePress?: () => void;
   rightSideTitle?: string;
   rightSideTitlePress?: () => void;
+  rightSideIcon?: any;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -50,6 +51,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   onProfilePress,
   rightSideTitle,
   rightSideTitlePress,
+  rightSideIcon,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -114,7 +116,15 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             </Pressable>
           )}
           {rightSideTitle && (
-            <TouchableOpacity onPress={rightSideTitlePress}>
+            <TouchableOpacity
+              onPress={rightSideTitlePress}
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                gap: 4,
+              }}
+            >
+              {rightSideIcon && rightSideIcon}
               <Text style={styles.rightSideTitle}>{rightSideTitle}</Text>
             </TouchableOpacity>
           )}
@@ -219,7 +229,7 @@ const useStyles = () => {
       rightSideTitle: {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_MEDIUM,
-        color: colors.PRIMARY_TEXT,
+        color: colors.PRIMARY,
       },
     });
   }, [theme]);

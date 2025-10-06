@@ -38,6 +38,9 @@ import SvgCrossIcon from './cross-icon.svg';
 import SvgDeleteIcon from './delete-icon.svg';
 import SvgEditIcon from './edit-icon.svg';
 import SvgGroup from './group-dummy.svg';
+import SvgAddGroup from './new-group-plus.svg';
+import SvgEditGroup from './edit-group-small.svg';
+import SvgImageIcon from './camera-icon.svg';
 
 export {
   SvgLogoBlue,
@@ -80,4 +83,7 @@ export {
   SvgDeleteIcon,
   SvgEditIcon,
   SvgGroup,
+  SvgAddGroup,
+  SvgEditGroup,
+  SvgImageIcon,
 };

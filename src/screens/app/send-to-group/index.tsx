@@ -19,7 +19,7 @@ import TabItem from '../../../components/global/TabItem';
 import BottomSheetHeader from '../../../components/app/BottomSheetHeader';
 import SearchUserItem from '../../../components/app/SearchUserItem';
 import { MemberSelectionModal } from '../../../components/send-a-gift';
-import { SvgCrossIcon } from '../../../assets/icons';
+import { SvgCrossIcon, SvgEditGroup } from '../../../assets/icons';
 import { ActiveUser } from '../../../types';
 
 interface SendToGroupProps extends AppStackScreen<'SendToGroup'> {}
@@ -62,6 +62,81 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
     if (groupMembers.length > 0) {
       return groupMembers;
     }
+
+    // Use route params if available, otherwise fallback to hardcoded data
+    if (route.params?.selectedUserIds) {
+      const allUsers = [
+        {
+          UserId: 1,
+          FullName: 'John Doe',
+          Email: 'john.doe@example.com',
+          PhoneNo: '+1234567890',
+          ProfileUrl: 'https://i.pravatar.cc/150?img=1',
+          RelationStatus: 1,
+        },
+        {
+          UserId: 2,
+          FullName: 'Jane Smith',
+          Email: 'jane.smith@example.com',
+          PhoneNo: '+1234567891',
+          ProfileUrl: 'https://i.pravatar.cc/150?img=2',
+          RelationStatus: 1,
+        },
+        {
+          UserId: 3,
+          FullName: 'Mike Johnson',
+          Email: 'mike.johnson@example.com',
+          PhoneNo: '+1234567892',
+          ProfileUrl: 'https://i.pravatar.cc/150?img=3',
+          RelationStatus: 1,
+        },
+        {
+          UserId: 4,
+          FullName: 'Sarah Wilson',
+          Email: 'sarah.wilson@example.com',
+          PhoneNo: '+1234567893',
+          ProfileUrl: 'https://i.pravatar.cc/150?img=4',
+          RelationStatus: 1,
+        },
+        {
+          UserId: 5,
+          FullName: 'David Brown',
+          Email: 'david.brown@example.com',
+          PhoneNo: '+1234567894',
+          ProfileUrl: 'https://i.pravatar.cc/150?img=5',
+          RelationStatus: 1,
+        },
+        {
+          UserId: 6,
+          FullName: 'Emily Davis',
+          Email: 'emily.davis@example.com',
+          PhoneNo: '+1234567895',
+          ProfileUrl: 'https://i.pravatar.cc/150?img=6',
+          RelationStatus: 1,
+        },
+        {
+          UserId: 7,
+          FullName: 'Chris Miller',
+          Email: 'chris.miller@example.com',
+          PhoneNo: '+1234567896',
+          ProfileUrl: 'https://i.pravatar.cc/150?img=7',
+          RelationStatus: 1,
+        },
+        {
+          UserId: 8,
+          FullName: 'Lisa Anderson',
+          Email: 'lisa.anderson@example.com',
+          PhoneNo: '+1234567897',
+          ProfileUrl: 'https://i.pravatar.cc/150?img=8',
+          RelationStatus: 1,
+        },
+      ];
+
+      return allUsers.filter(user =>
+        route.params.selectedUserIds.includes(user.UserId),
+      );
+    }
+
     return [
       {
         UserId: 1,
@@ -129,6 +204,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
         showSearchBar
         rightSideTitle={isEditGroupOpen ? '' : 'Edit Group'}
         rightSideTitlePress={() => setIsEditGroupOpen(true)}
+        rightSideIcon={<SvgEditGroup />}
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder="Search Group"
@@ -136,8 +212,8 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
       <View style={styles.content}>
         <TabItem
           isGroup={true}
-          title="My Group"
-          onPress={openModal}
+          title={route.params?.groupName || 'My Group'}
+          onPress={isEditGroupOpen ? handleEditGroup : openModal}
           isEditGroup={isEditGroupOpen}
           styles={styles.TabItem}
           onDeletePress={() => {}}
@@ -147,7 +223,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
         <TabItem
           isGroup={true}
           title="Work Group"
-          onPress={openModal}
+          onPress={isEditGroupOpen ? handleEditGroup : openModal}
           isEditGroup={isEditGroupOpen}
           styles={styles.TabItem}
           onDeletePress={() => {}}

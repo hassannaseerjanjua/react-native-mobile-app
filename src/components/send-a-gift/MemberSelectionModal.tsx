@@ -18,12 +18,15 @@ import { ActiveUser } from '../../types';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
 
+const dummyImage = require('../../assets/images/user.png');
+
 interface MemberSelectionModalProps {
   visible: boolean;
   onClose: () => void;
   existingMembers: ActiveUser[];
   onSave: (selectedMembers: ActiveUser[]) => void;
   title: string;
+  onNavigateToGroup?: (groupName: string, selectedUserIds: number[]) => void;
 }
 
 const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
@@ -32,6 +35,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   existingMembers,
   onSave,
   title,
+  onNavigateToGroup,
 }) => {
   const { styles, theme } = useStyles();
   const [modalAnimation] = useState(new Animated.Value(0));
@@ -166,8 +170,17 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     const selectedMembers = allUsers.filter(user =>
       selectedUsers.has(user.UserId),
     );
-    onSave(selectedMembers);
-    closeModal();
+
+    if (onNavigateToGroup) {
+      // For send-a-gift flow: navigate to SendToGroup screen
+      const selectedUserIds = selectedMembers.map(user => user.UserId);
+      onNavigateToGroup(groupName || 'New Group', selectedUserIds);
+      closeModal();
+    } else {
+      // For edit group flow: just save and close
+      onSave(selectedMembers);
+      closeModal();
+    }
   };
 
   const getFilteredUsers = () => {
@@ -203,7 +216,9 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
             <View key={user.UserId} style={styles.selectedUserItem}>
               <View style={styles.selectedUserImageContainer}>
                 <Image
-                  source={{ uri: user.ProfileUrl || '' }}
+                  source={
+                    user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
+                  }
                   style={styles.selectedUserAvatar}
                 />
                 <TouchableOpacity
@@ -278,7 +293,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           <View key={user.UserId} style={styles.memberGridItem}>
             <View style={styles.memberGridImageContainer}>
               <Image
-                source={{ uri: user.ProfileUrl || '' }}
+                source={user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage}
                 style={styles.memberGridAvatar}
               />
               <TouchableOpacity
@@ -364,7 +379,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   <UserListComponent />
                 </>
               ) : (
-                <ScrollView style={styles.modalScrollView}>
+                <>
                   <BottomSheetHeader
                     leftSideTitle="Back"
                     title="Review Members"
@@ -381,7 +396,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                     </Text>
                     <SelectedMembersGrid />
                   </View>
-                </ScrollView>
+                </>
               )}
             </ScrollView>
           </View>
@@ -429,9 +444,11 @@ const useStyles = () => {
         flex: 1,
         height: sizes.HEIGHT * 0.85,
         width: '100%',
+        overflow: 'visible',
       },
       step2Container: {
         paddingVertical: sizes.HEIGHT * 0.02,
+        paddingHorizontal: sizes.WIDTH * 0.04,
       },
       membersHeading: {
         fontFamily: fonts.Quicksand.semibold,
@@ -440,7 +457,7 @@ const useStyles = () => {
         marginBottom: sizes.HEIGHT * 0.015,
       },
       membersGridContainer: {
-        flex: 1,
+        paddingTop: sizes.HEIGHT * 0.01,
       },
       memberRow: {
         flexDirection: 'row',
@@ -487,10 +504,10 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: 12,
         shadowColor: '#000',
-        shadowOpacity: 0.03,
+        shadowOpacity: 0.08,
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 1,
+        elevation: 3,
       },
       selectedUsersList: {
         flexDirection: 'row',
@@ -532,10 +549,10 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: 16,
         shadowColor: '#000',
-        shadowOpacity: 0.03,
+        shadowOpacity: 0.08,
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 1,
+        elevation: 3,
         marginBottom: sizes.HEIGHT * 0.018,
       },
       listContainer: {

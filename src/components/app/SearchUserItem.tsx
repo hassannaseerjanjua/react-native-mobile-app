@@ -43,6 +43,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
   const isAdded = currentStatus === 1;
   const isLoading = loadingUsers[item.UserId] || false;
+  const dummyImage = require('../../assets/images/user.png');
 
   return (
     <TouchableOpacity
@@ -53,7 +54,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
       <View style={styles.userInfo}>
         <View style={styles.avatarWrapper}>
           <Image
-            source={{ uri: item?.ProfileUrl ?? '' }}
+            source={item?.ProfileUrl ? { uri: item.ProfileUrl } : dummyImage}
             style={styles.avatar}
           />
         </View>
@@ -96,7 +97,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
         <View
           style={[styles.selectionCircle, isSelected && styles.selectedCircle]}
         >
-          {isSelected && <SvgSelectedCheck width={12} height={12} />}
+          {isSelected && <SvgSelectedCheck width={11} height={11} />}
         </View>
       )}
     </TouchableOpacity>

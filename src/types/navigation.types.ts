@@ -4,7 +4,10 @@ export type AppStackParamList = {
   BottomTabs: undefined;
   Search: undefined;
   SendAGift: undefined;
-  SendToGroup: undefined;
+  SendToGroup: {
+    groupName: string;
+    selectedUserIds: number[];
+  };
   Favorites: undefined;
   Occasions: undefined;
   Notifications: undefined;
