@@ -182,7 +182,11 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
 
       <View style={styles.content}>
         <View style={styles.tabContainer}>
-          <TabItem title="Send through a link" onPress={() => {}} />
+          <TabItem
+            title="Send through a link"
+            onPress={() => {}}
+            isLink={true}
+          />
         </View>
         <View style={styles.tabContainer}>
           <GroupTabs
@@ -260,7 +264,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                   <>
                     <BottomSheetHeader
                       leftSideTitle="Back"
-                      title="Create Group"
+                      title="New Group"
                       subTitle=""
                       rightSideTitle="Create"
                       showSearchBar={true}
@@ -269,8 +273,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                       onSearchChange={setGroupName}
                       leftSideTitlePress={handleBackStep}
                       rightSideTitlePress={() => {
-                        // Handle group creation
                         closeModal();
+                        navigation.navigate('SendToGroup');
                       }}
                     />
                     <View style={styles.step2Container}>

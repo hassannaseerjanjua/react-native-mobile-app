@@ -35,6 +35,9 @@ import SvgGiftLink from './gift-link.svg';
 import SvgNextIcon from './next-arrow.svg';
 import SvgSelectedCheck from './selected-item.svg';
 import SvgCrossIcon from './cross-icon.svg';
+import SvgDeleteIcon from './delete-icon.svg';
+import SvgEditIcon from './edit-icon.svg';
+import SvgGroup from './group-dummy.svg';
 
 export {
   SvgLogoBlue,
@@ -74,4 +77,7 @@ export {
   SvgNextIcon,
   SvgSelectedCheck,
   SvgCrossIcon,
+  SvgDeleteIcon,
+  SvgEditIcon,
+  SvgGroup,
 };
