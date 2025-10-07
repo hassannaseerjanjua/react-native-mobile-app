@@ -23,8 +23,9 @@ const apiEndpoints = {
     userId?: number,
     pageIndex: number = 1,
     pageSize: number = 20,
+    friends: boolean = false,
   ) =>
-    `/${version}/Friends/GetActiveUsers?userId=${userId}&PageIndex=${pageIndex}&PageSize=${pageSize}`,
+    `/${version}/Friends/GetActiveUsers?userId=${userId}&friends=${friends}&PageIndex=${pageIndex}&PageSize=${pageSize}`,
   SEARCH_FRIENDS: (searchQuery: string, userId?: number) =>
     `/${version}/Friends/SearchFriends?fullname=${searchQuery}&userId=${userId}`,
   ADD_FRIEND: (userId?: number) =>

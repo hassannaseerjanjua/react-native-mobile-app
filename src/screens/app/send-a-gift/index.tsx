@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StatusBar, FlatList } from 'react-native';
+import { View, Text, StatusBar, FlatList, ScrollView } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -11,8 +11,11 @@ import {
   MemberSelectionModal,
 } from '../../../components/send-a-gift';
 import TabItem from '../../../components/global/TabItem';
-import { ActiveUser } from '../../../types';
+import { ActiveUser, ActiveUsersApiResponse } from '../../../types';
 import { SvgAddGroup } from '../../../assets/icons';
+import apiEndpoints from '../../../constants/api-endpoints';
+import useGetApi from '../../../hooks/useGetApi';
+import { useAuthStore } from '../../../store/reducer/auth';
 
 interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 
@@ -23,18 +26,17 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState('friends');
   const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
   const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
+  const { user } = useAuthStore();
+  const [pageIndex, setPageIndex] = useState(1);
+  const [pageSize] = useState(20);
+  const activeUsersApi = useGetApi<ActiveUser[]>(
+    apiEndpoints.GET_ACTIVE_USERS(user?.UserId, pageIndex, pageSize, true),
+    {
+      transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
+    },
+  );
 
-  const handleUserSelection = (userId: number) => {
-    setSelectedUsers(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(userId)) {
-        newSet.delete(userId);
-      } else {
-        newSet.add(userId);
-      }
-      return newSet;
-    });
-  };
+  console.log('activeUsersApi', activeUsersApi?.data);
 
   const tabs = [
     { id: 'friends', title: 'Friends' },
@@ -105,134 +107,112 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     },
   ];
 
-  const friendsUsers: ActiveUser[] = [
-    {
-      UserId: 4,
-      FullName: 'Sarah Wilson',
-      Email: 'sarah.wilson@example.com',
-      PhoneNo: '+1234567893',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=4',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 5,
-      FullName: 'David Brown',
-      Email: 'david.brown@example.com',
-      PhoneNo: '+1234567894',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=5',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 6,
-      FullName: 'Emily Davis',
-      Email: 'emily.davis@example.com',
-      PhoneNo: '+1234567895',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=6',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 7,
-      FullName: 'Chris Miller',
-      Email: 'chris.miller@example.com',
-      PhoneNo: '+1234567896',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=7',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 8,
-      FullName: 'Lisa Anderson',
-      Email: 'lisa.anderson@example.com',
-      PhoneNo: '+1234567897',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=8',
-      RelationStatus: 1,
-    },
-  ];
-
   return (
     <ParentView style={styles.container}>
-      <StatusBar
-        backgroundColor={theme.colors.BACKGROUND}
-        barStyle="dark-content"
-      />
-      <HomeHeader
-        title={getString('HOME_SEND_A_GIFT')}
-        showBackButton
-        onBackPress={() => navigation.goBack()}
-        showSearch={false}
-        showSearchBar
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
-        searchPlaceholder={getString('HOME_SEARCH')}
-        rightSideTitle="New Group"
-        rightSideTitlePress={handleOpenMemberSelection}
-        rightSideIcon={<SvgAddGroup />}
-      />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        style={{
+          flex: 1,
+        }}
+      >
+        <StatusBar
+          backgroundColor={theme.colors.BACKGROUND}
+          barStyle="dark-content"
+        />
+        <HomeHeader
+          title={getString('HOME_SEND_A_GIFT')}
+          showBackButton
+          onBackPress={() => navigation.goBack()}
+          showSearch={false}
+          showSearchBar
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder={getString('HOME_SEARCH')}
+          rightSideTitle="New Group"
+          rightSideTitlePress={handleOpenMemberSelection}
+          rightSideIcon={<SvgAddGroup />}
+        />
 
-      <View style={styles.content}>
-        <View style={styles.tabContainer}>
-          <TabItem
-            title="Send through a link"
-            onPress={() => {}}
-            isLink={true}
-          />
-        </View>
-        <View style={styles.tabContainer}>
-          <GroupTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabPress={handleTabPress}
-          />
-        </View>
-        <View>
-          <Text style={styles.sectionTitle}>Frequently Sent</Text>
-          <View style={styles.listCard}>
-            <FlatList
-              data={frequentlySentUsers}
-              keyExtractor={item => item.UserId.toString()}
-              renderItem={({ item, index }) => (
-                <SearchUserItem
-                  item={item}
-                  index={index}
-                  isLast={index === frequentlySentUsers.length - 1}
-                  showAddButton={false}
-                  showSelection={false}
-                />
-              )}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContainer}
-              scrollEnabled={false}
+        <View style={styles.content}>
+          <View style={styles.tabContainer}>
+            <GroupTabs
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabPress={handleTabPress}
             />
           </View>
-
-          <Text style={styles.sectionTitle}>Friends</Text>
-          <View style={styles.listCard}>
-            <FlatList
-              data={friendsUsers}
-              keyExtractor={item => item.UserId.toString()}
-              renderItem={({ item, index }) => (
-                <SearchUserItem
-                  item={item}
-                  index={index}
-                  isLast={index === friendsUsers.length - 1}
-                  showAddButton={false}
-                  showSelection={false}
-                />
-              )}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContainer}
-              scrollEnabled={false}
+          <View style={styles.tabContainer}>
+            <TabItem
+              title="Send through a link"
+              onPress={() => {}}
+              isLink={true}
             />
           </View>
+          <View>
+            {/* <Text style={styles.sectionTitle}>Frequently Sent</Text>
+            <View style={styles.listCard}>
+              <FlatList
+                data={frequentlySentUsers}
+                keyExtractor={item => item.UserId.toString()}
+                renderItem={({ item, index }) => (
+                  <SearchUserItem
+                    item={item}
+                    index={index}
+                    isLast={index === frequentlySentUsers.length - 1}
+                    showAddButton={false}
+                    showSelection={false}
+                  />
+                )}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+                scrollEnabled={false}
+              />
+            </View> */}
+
+            <Text style={styles.sectionTitle}>Friends</Text>
+            <View style={styles.listCard}>
+              {activeUsersApi?.data && activeUsersApi.data.length > 0 ? (
+                <FlatList
+                  data={activeUsersApi.data}
+                  keyExtractor={item => item.UserId.toString()}
+                  renderItem={({ item, index }) => (
+                    <SearchUserItem
+                      item={item}
+                      index={index}
+                      isLast={index === (activeUsersApi?.data?.length || 0) - 1}
+                      showAddButton={false}
+                      showSelection={false}
+                    />
+                  )}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.listContainer}
+                  scrollEnabled={false}
+                />
+              ) : (
+                <Text style={styles.errorText}>No friends found</Text>
+              )}
+            </View>
+          </View>
         </View>
-      </View>
-      <MemberSelectionModal
-        visible={isMemberSelectionOpen}
-        onClose={handleCloseMemberSelection}
-        existingMembers={[]}
-        onSave={handleSaveMembers}
-        title="Add Members"
-        onNavigateToGroup={handleNavigateToGroup}
-      />
+        <MemberSelectionModal
+          visible={isMemberSelectionOpen}
+          onClose={handleCloseMemberSelection}
+          existingMembers={[]}
+          onSave={handleSaveMembers}
+          title="Add Members"
+          listings={[
+            {
+              title: 'Frequently Sent',
+              users: frequentlySentUsers,
+            },
+            {
+              title: 'Friends',
+              users: activeUsersApi?.data || [],
+            },
+          ]}
+          onNavigateToGroup={handleNavigateToGroup}
+        />
+      </ScrollView>
     </ParentView>
   );
 };

@@ -39,12 +39,12 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ sliders }) => {
     });
   };
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      scrollToIndex(currentIndex + 1);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [currentIndex]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     scrollToIndex(currentIndex + 1);
+  //   }, 5000);
+  //   return () => clearInterval(interval);
+  // }, [currentIndex]);
 
   const renderDots = () => {
     if (sliders.length <= 1) return null;
@@ -106,6 +106,7 @@ const useStyles = () => {
           position: 'relative',
           width: theme.sizes.PADDED_WIDTH,
           aspectRatio: 5 / 4,
+          marginTop: theme.sizes.PADDING * 0.6,
         },
         scrollView: {
           flex: 1,

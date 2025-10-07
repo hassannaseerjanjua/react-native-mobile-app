@@ -34,6 +34,13 @@ const useStyles = () => {
         color: colors.PRIMARY_TEXT,
         paddingBottom: sizes.HEIGHT * 0.01,
       },
+      errorText: {
+        fontFamily: fonts.Quicksand.regular,
+        fontSize: 14,
+        color: colors.PRIMARY_TEXT,
+        padding: 20,
+        textAlign: 'center',
+      },
       tabContainer: {
         marginBottom: sizes.HEIGHT * 0.018,
       },

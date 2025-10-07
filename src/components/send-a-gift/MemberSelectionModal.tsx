@@ -20,12 +20,18 @@ import fonts from '../../assets/fonts';
 
 const dummyImage = require('../../assets/images/user.png');
 
+interface UserListing {
+  title: string;
+  users: ActiveUser[];
+}
+
 interface MemberSelectionModalProps {
   visible: boolean;
   onClose: () => void;
   existingMembers: ActiveUser[];
   onSave: (selectedMembers: ActiveUser[]) => void;
   title: string;
+  listings: UserListing[];
   onNavigateToGroup?: (groupName: string, selectedUserIds: number[]) => void;
 }
 
@@ -35,6 +41,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   existingMembers,
   onSave,
   title,
+  listings,
   onNavigateToGroup,
 }) => {
   const { styles, theme } = useStyles();
@@ -44,75 +51,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
   const [groupName, setGroupName] = useState('');
 
-  const frequentlySentUsers: ActiveUser[] = [
-    {
-      UserId: 1,
-      FullName: 'John Doe',
-      Email: 'john.doe@example.com',
-      PhoneNo: '+1234567890',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=1',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 2,
-      FullName: 'Jane Smith',
-      Email: 'jane.smith@example.com',
-      PhoneNo: '+1234567891',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=2',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 3,
-      FullName: 'Mike Johnson',
-      Email: 'mike.johnson@example.com',
-      PhoneNo: '+1234567892',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=3',
-      RelationStatus: 1,
-    },
-  ];
-
-  const friendsUsers: ActiveUser[] = [
-    {
-      UserId: 4,
-      FullName: 'Sarah Wilson',
-      Email: 'sarah.wilson@example.com',
-      PhoneNo: '+1234567893',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=4',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 5,
-      FullName: 'David Brown',
-      Email: 'david.brown@example.com',
-      PhoneNo: '+1234567894',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=5',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 6,
-      FullName: 'Emily Davis',
-      Email: 'emily.davis@example.com',
-      PhoneNo: '+1234567895',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=6',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 7,
-      FullName: 'Chris Miller',
-      Email: 'chris.miller@example.com',
-      PhoneNo: '+1234567896',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=7',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 8,
-      FullName: 'Lisa Anderson',
-      Email: 'lisa.anderson@example.com',
-      PhoneNo: '+1234567897',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=8',
-      RelationStatus: 1,
-    },
-  ];
+  // Get all users from all listings for filtering and selection
+  const getAllUsers = () => {
+    return listings.flatMap(listing => listing.users);
+  };
 
   const openModal = () => {
     setModalStep(1);
@@ -166,7 +108,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   };
 
   const handleSave = () => {
-    const allUsers = [...frequentlySentUsers, ...friendsUsers];
+    const allUsers = getAllUsers();
     const selectedMembers = allUsers.filter(user =>
       selectedUsers.has(user.UserId),
     );
@@ -184,7 +126,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   };
 
   const getFilteredUsers = () => {
-    const allUsers = [...frequentlySentUsers, ...friendsUsers];
+    const allUsers = getAllUsers();
     if (!searchQuery.trim()) {
       return allUsers;
     }
@@ -194,7 +136,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   };
 
   const getSelectedUsersData = () => {
-    const allUsers = [...frequentlySentUsers, ...friendsUsers];
+    const allUsers = getAllUsers();
     return allUsers.filter(user => selectedUsers.has(user.UserId));
   };
 
@@ -240,49 +182,37 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
 
   const UserListComponent = () => (
     <View>
-      <Text style={styles.sectionTitle}>Frequently Sent</Text>
-      <View style={styles.listCard}>
-        <FlatList
-          data={frequentlySentUsers}
-          keyExtractor={item => item.UserId.toString()}
-          renderItem={({ item, index }) => (
-            <SearchUserItem
-              item={item}
-              index={index}
-              isLast={index === frequentlySentUsers.length - 1}
-              showAddButton={false}
-              showSelection={true}
-              isSelected={selectedUsers.has(item.UserId)}
-              onSelectionPress={() => handleUserSelection(item.UserId)}
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
-          scrollEnabled={false}
-        />
-      </View>
-
-      <Text style={styles.sectionTitle}>Friends</Text>
-      <View style={styles.listCard}>
-        <FlatList
-          data={friendsUsers}
-          keyExtractor={item => item.UserId.toString()}
-          renderItem={({ item, index }) => (
-            <SearchUserItem
-              item={item}
-              index={index}
-              isLast={index === friendsUsers.length - 1}
-              showAddButton={false}
-              showSelection={true}
-              isSelected={selectedUsers.has(item.UserId)}
-              onSelectionPress={() => handleUserSelection(item.UserId)}
-            />
-          )}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContainer}
-          scrollEnabled={false}
-        />
-      </View>
+      {listings.map((listing, listingIndex) => (
+        <View key={listingIndex}>
+          <Text style={styles.sectionTitle}>{listing.title}</Text>
+          <View style={styles.listCard}>
+            {listing.users.length > 0 ? (
+              <FlatList
+                data={listing.users}
+                keyExtractor={item => item.UserId.toString()}
+                renderItem={({ item, index }) => (
+                  <SearchUserItem
+                    item={item}
+                    index={index}
+                    isLast={index === listing.users.length - 1}
+                    showAddButton={false}
+                    showSelection={true}
+                    isSelected={selectedUsers.has(item.UserId)}
+                    onSelectionPress={() => handleUserSelection(item.UserId)}
+                  />
+                )}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+                scrollEnabled={false}
+              />
+            ) : (
+              <View style={styles.emptyStateContainer}>
+                <Text style={styles.emptyStateText}>No users to show</Text>
+              </View>
+            )}
+          </View>
+        </View>
+      ))}
     </View>
   );
 
@@ -364,9 +294,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   <BottomSheetHeader
                     leftSideTitle="Cancel"
                     title="Edit Group Members"
-                    subTitle={`${selectedUsers.size}/${
-                      frequentlySentUsers.length + friendsUsers.length
-                    }`}
+                    subTitle={`${selectedUsers.size}/${getAllUsers().length}`}
                     rightSideTitle="Next"
                     showSearchBar={true}
                     searchPlaceholder="Search"
@@ -392,7 +320,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   <View style={styles.step2Container}>
                     <Text style={styles.membersHeading}>
                       Members: {selectedUsers.size} out of{' '}
-                      {frequentlySentUsers.length + friendsUsers.length}
+                      {getAllUsers().length}
                     </Text>
                     <SelectedMembersGrid />
                   </View>
@@ -435,7 +363,7 @@ const useStyles = () => {
       },
       modalContent: {
         flex: 1,
-        height: sizes.HEIGHT,
+        height: sizes.HEIGHT * 0.9,
         width: '100%',
         paddingTop: sizes.HEIGHT * 0.01,
         paddingHorizontal: sizes.PADDING,
@@ -563,6 +491,18 @@ const useStyles = () => {
         fontSize: 18,
         color: colors.PRIMARY_TEXT,
         paddingBottom: sizes.HEIGHT * 0.01,
+      },
+      emptyStateContainer: {
+        paddingVertical: sizes.HEIGHT * 0.03,
+        paddingHorizontal: sizes.PADDING,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      emptyStateText: {
+        fontFamily: fonts.Quicksand.medium,
+        fontSize: 14,
+        color: colors.SECONDARY_GRAY,
+        textAlign: 'center',
       },
     });
   }, [theme]);

@@ -19,15 +19,11 @@ const useStyles = () => {
         gap: sizes.PADDING * 0.7,
         paddingBottom: isIOSThen(sizes.PADDING, 0),
       },
-      fullWidthContainer: {
-        marginHorizontal: -sizes.PADDING,
-        marginVertical: sizes.PADDING * 0.5,
-      },
       welcomeText: {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_HEADING,
         color: colors.BLACK,
-        marginVertical: sizes.HEIGHT * 0.006,
+        // backgroundColor: 'red',
       },
       userName: {
         fontFamily: fonts.Quicksand.bold,
@@ -42,6 +38,8 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.bold,
         fontSize: sizes.FONTSIZE_HEADING,
         color: '#262C3D',
+        paddingTop: sizes.PADDING * 0.53,
+        // backgroundColor: 'red',
       },
       optionsWrapper: {
         flexDirection: 'row',

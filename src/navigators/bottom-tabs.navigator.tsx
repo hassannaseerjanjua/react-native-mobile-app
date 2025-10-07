@@ -156,7 +156,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
               <View
                 style={{
                   width: scaleWithMax(25, 30),
-                  height: scaleWithMax(3, 4),
+                  height: scaleWithMax(5, 8),
                   borderRadius: 10,
                   backgroundColor: theme.colors.PRIMARY,
                   position: 'absolute',
