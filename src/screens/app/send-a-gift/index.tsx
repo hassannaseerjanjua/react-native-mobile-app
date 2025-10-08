@@ -96,6 +96,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           flex: 1,
           overflow: 'visible',
         }}
+        contentContainerStyle={{
+          flex: 1,
+        }}
       >
         <StatusBar
           backgroundColor={theme.colors.BACKGROUND}
@@ -169,27 +172,28 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
             </View>
           </View>
         </View>
-        <MemberSelectionModal
-          visible={isMemberSelectionOpen}
-          onClose={() => {
-            setIsMemberSelectionOpen(false);
-          }}
-          existingMembers={[]}
-          onSave={() => {
-            // setIsMemberSelectionOpen(false);
-            // navigation.navigate('SendToGroup' as any);
-            console.log('Hellooo');
-          }}
-          title="Add Members"
-          listings={[
-            {
-              title: 'Friends',
-              users: activeUsersApi?.data || [],
-            },
-          ]}
-          isSendAGift={true}
-        />
       </ScrollView>
+
+      <MemberSelectionModal
+        visible={isMemberSelectionOpen}
+        onClose={() => {
+          setIsMemberSelectionOpen(false);
+        }}
+        existingMembers={[]}
+        onSave={() => {
+          // setIsMemberSelectionOpen(false);
+          // navigation.navigate('SendToGroup' as any);
+          console.log('Hellooo');
+        }}
+        title="Add Members"
+        listings={[
+          {
+            title: 'Friends',
+            users: activeUsersApi?.data || [],
+          },
+        ]}
+        isSendAGift={true}
+      />
     </ParentView>
   );
 };

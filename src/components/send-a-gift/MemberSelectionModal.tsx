@@ -11,6 +11,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  StatusBar,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomSheetHeader from '../app/BottomSheetHeader';
@@ -22,6 +23,7 @@ import fonts from '../../assets/fonts';
 import api from '../../utils/api';
 import apiEndpoints from '../../constants/api-endpoints';
 import { useNavigation } from '@react-navigation/native';
+import { isIOSThen, scaleWithMax } from '../../utils';
 
 const dummyImage = require('../../assets/images/user.png');
 
@@ -332,7 +334,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
             },
           ]}
         >
-          <SafeAreaView style={styles.modalContent} edges={['top']}>
+          <View style={styles.modalContent}>
             <ScrollView
               style={styles.modalScrollView}
               showsVerticalScrollIndicator={false}
@@ -393,7 +395,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                 </>
               )}
             </ScrollView>
-          </SafeAreaView>
+          </View>
         </Animated.View>
       </View>
     </Modal>
@@ -407,7 +409,7 @@ const useStyles = () => {
     return StyleSheet.create({
       modalOverlay: {
         flex: 1,
-        backgroundColor: 'transparent',
+        backgroundColor: '#00000020',
         justifyContent: 'flex-end',
         position: 'absolute',
         top: 0,
@@ -419,7 +421,7 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderTopLeftRadius: 20,
         borderTopRightRadius: 20,
-        height: sizes.HEIGHT,
+        height: sizes.HEIGHT - isIOSThen(scaleWithMax(45, 55), 0),
         width: '100%',
         position: 'absolute',
         bottom: 0,
