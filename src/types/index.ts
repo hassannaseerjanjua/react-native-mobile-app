@@ -57,8 +57,8 @@ export interface LoginApiResponse {
 export interface ActiveUser {
   UserId: number;
   FullName: string;
-  Email: string;
-  PhoneNo: string;
+  Email?: string;
+  PhoneNo?: string;
   ProfileUrl: string | null;
   RelationStatus: number;
 }
@@ -68,6 +68,31 @@ export interface ActiveUsersApiResponse {
     Items: ActiveUser[];
     TotalCount: number;
   };
+}
+
+export interface getGroupsDataApiResponse {
+  Data: {
+    Items: GroupData[];
+    TotalCount: number;
+  };
+}
+
+export interface GroupMember {
+  UserGroupMemberId: number;
+  UserId: number;
+  FullName: string;
+  ProfileUrl: string;
+  RelationStatus: number;
+}
+
+export interface GroupData {
+  UserGroupId: number;
+  GroupName: string;
+  Type: string | null;
+  ImageUrl: string;
+  CreatedBy: number;
+  Status: number;
+  UserGroupMembersList: GroupMember[];
 }
 
 export interface SearchFriendsApiResponse {

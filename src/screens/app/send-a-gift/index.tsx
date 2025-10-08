@@ -29,6 +29,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const { user } = useAuthStore();
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(20);
+
   const activeUsersApi = useGetApi<ActiveUser[]>(
     apiEndpoints.GET_ACTIVE_USERS(user?.UserId, pageIndex, pageSize, true),
     {
@@ -46,66 +47,11 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
 
   const handleTabPress = (tabId: string) => {
     if (tabId === 'group') {
-      navigation.navigate('SendToGroup' as any, {
-        groupName: 'My Group',
-        selectedUserIds: [],
-      });
+      navigation.navigate('SendToGroup' as any);
     } else {
       setActiveTab(tabId);
     }
   };
-
-  const handleOpenMemberSelection = () => {
-    setIsMemberSelectionOpen(true);
-  };
-
-  const handleSaveMembers = (selectedMembers: ActiveUser[]) => {
-    const selectedUserIds = selectedMembers.map(user => user.UserId);
-    setSelectedUsers(new Set(selectedUserIds));
-    setIsMemberSelectionOpen(false);
-  };
-
-  const handleNavigateToGroup = (
-    groupName: string,
-    selectedUserIds: number[],
-  ) => {
-    setIsMemberSelectionOpen(false);
-    navigation.navigate('SendToGroup' as any, {
-      groupName,
-      selectedUserIds,
-    });
-  };
-
-  const handleCloseMemberSelection = () => {
-    setIsMemberSelectionOpen(false);
-  };
-
-  const frequentlySentUsers: ActiveUser[] = [
-    {
-      UserId: 1,
-      FullName: 'John Doe',
-      Email: 'john.doe@example.com',
-      PhoneNo: '+1234567890',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=1',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 2,
-      FullName: 'Jane Smith',
-      Email: 'jane.smith@example.com',
-      PhoneNo: '+1234567891',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=2',
-      RelationStatus: 1,
-    },
-    {
-      UserId: 3,
-      FullName: 'Mike Johnson',
-      Email: 'mike.johnson@example.com',
-      PhoneNo: '+1234567892',
-      ProfileUrl: 'https://i.pravatar.cc/150?img=3',
-      RelationStatus: 1,
-    },
-  ];
 
   return (
     <ParentView style={styles.container}>
@@ -129,7 +75,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           onSearchChange={setSearchQuery}
           searchPlaceholder={getString('HOME_SEARCH')}
           rightSideTitle="New Group"
-          rightSideTitlePress={handleOpenMemberSelection}
+          rightSideTitlePress={() => {
+            setIsMemberSelectionOpen(true);
+          }}
           rightSideIcon={<SvgAddGroup />}
         />
 
@@ -149,26 +97,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
             />
           </View>
           <View>
-            {/* <Text style={styles.sectionTitle}>Frequently Sent</Text>
-            <View style={styles.listCard}>
-              <FlatList
-                data={frequentlySentUsers}
-                keyExtractor={item => item.UserId.toString()}
-                renderItem={({ item, index }) => (
-                  <SearchUserItem
-                    item={item}
-                    index={index}
-                    isLast={index === frequentlySentUsers.length - 1}
-                    showAddButton={false}
-                    showSelection={false}
-                  />
-                )}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.listContainer}
-                scrollEnabled={false}
-              />
-            </View> */}
-
             <Text style={styles.sectionTitle}>Friends</Text>
             <View style={styles.listCard}>
               {activeUsersApi?.data && activeUsersApi.data.length > 0 ? (
@@ -196,21 +124,25 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         </View>
         <MemberSelectionModal
           visible={isMemberSelectionOpen}
-          onClose={handleCloseMemberSelection}
+          onClose={() => {
+            setIsMemberSelectionOpen(false);
+          }}
           existingMembers={[]}
-          onSave={handleSaveMembers}
+          onSave={() => {
+            setIsMemberSelectionOpen(false);
+          }}
           title="Add Members"
           listings={[
-            {
-              title: 'Frequently Sent',
-              users: frequentlySentUsers,
-            },
             {
               title: 'Friends',
               users: activeUsersApi?.data || [],
             },
           ]}
-          onNavigateToGroup={handleNavigateToGroup}
+          onNavigateToGroup={() => {
+            setIsMemberSelectionOpen(false);
+            navigation.navigate('SendToGroup' as any);
+          }}
+          isSendAGift={true}
         />
       </ScrollView>
     </ParentView>

@@ -10,18 +10,21 @@ import {
   FlatList,
   TouchableOpacity,
   StyleSheet,
+  TextInput,
 } from 'react-native';
 import BottomSheetHeader from '../app/BottomSheetHeader';
 import SearchUserItem from '../app/SearchUserItem';
-import { SvgCrossIcon } from '../../assets/icons';
+import { SvgCrossIcon, SvgImageIcon } from '../../assets/icons';
 import { ActiveUser } from '../../types';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
+import api from '../../utils/api';
+import apiEndpoints from '../../constants/api-endpoints';
 
 const dummyImage = require('../../assets/images/user.png');
 
 interface UserListing {
-  title: string;
+  title?: string;
   users: ActiveUser[];
 }
 
@@ -33,6 +36,8 @@ interface MemberSelectionModalProps {
   title: string;
   listings: UserListing[];
   onNavigateToGroup?: (groupName: string, selectedUserIds: number[]) => void;
+  isSendAGift?: boolean;
+  viewOnly?: boolean;
 }
 
 const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
@@ -41,26 +46,32 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   existingMembers,
   onSave,
   title,
-  listings,
+  listings = [],
   onNavigateToGroup,
+  isSendAGift = false,
+  viewOnly = false,
 }) => {
-  const { styles, theme } = useStyles();
+  const { styles } = useStyles();
   const [modalAnimation] = useState(new Animated.Value(0));
   const [modalStep, setModalStep] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
   const [groupName, setGroupName] = useState('');
 
+  const theme = useTheme();
+
   // Get all users from all listings for filtering and selection
   const getAllUsers = () => {
-    return listings.flatMap(listing => listing.users);
+    return listings?.flatMap(listing => listing.users || []) || [];
   };
 
   const openModal = () => {
     setModalStep(1);
     setSearchQuery('');
     setGroupName('');
-    setSelectedUsers(new Set(existingMembers.map(member => member.UserId)));
+    setSelectedUsers(
+      new Set(existingMembers?.map(member => member.UserId) || []),
+    );
     Animated.timing(modalAnimation, {
       toValue: 1,
       duration: 300,
@@ -96,7 +107,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   };
 
   const handleNextStep = () => {
-    if (modalStep === 1) {
+    if (modalStep === 1 && selectedUsers.size > 0) {
       setModalStep(2);
     }
   };
@@ -108,6 +119,26 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   };
 
   const handleSave = () => {
+    if (isSendAGift) {
+      api
+        .post(
+          apiEndpoints.CREATE_GROUP,
+          {
+            Name: groupName,
+            MemberUserIds: Array.from(selectedUsers),
+          },
+          {
+            headers: { 'Content-Type': 'multipart/form-data' },
+          },
+        )
+        .then(response => {
+          console.log('response', response.data);
+        })
+        .catch(error => {
+          console.log('error', error);
+        });
+    }
+
     const allUsers = getAllUsers();
     const selectedMembers = allUsers.filter(user =>
       selectedUsers.has(user.UserId),
@@ -115,24 +146,12 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
 
     if (onNavigateToGroup) {
       // For send-a-gift flow: navigate to SendToGroup screen
-      const selectedUserIds = selectedMembers.map(user => user.UserId);
-      onNavigateToGroup(groupName || 'New Group', selectedUserIds);
       closeModal();
     } else {
       // For edit group flow: just save and close
       onSave(selectedMembers);
       closeModal();
     }
-  };
-
-  const getFilteredUsers = () => {
-    const allUsers = getAllUsers();
-    if (!searchQuery.trim()) {
-      return allUsers;
-    }
-    return allUsers.filter(user =>
-      user.FullName.toLowerCase().includes(searchQuery.toLowerCase()),
-    );
   };
 
   const getSelectedUsersData = () => {
@@ -148,7 +167,20 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     }
 
     return (
-      <View style={styles.selectedUsersContainer}>
+      <View
+        style={
+          !viewOnly
+            ? styles.selectedUsersContainer
+            : {
+                ...styles.selectedUsersContainer,
+                shadowColor: '',
+                shadowOpacity: 0,
+                shadowRadius: 0,
+                shadowOffset: { width: 0, height: 0 },
+                elevation: 0,
+              }
+        }
+      >
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -163,12 +195,15 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   }
                   style={styles.selectedUserAvatar}
                 />
-                <TouchableOpacity
-                  style={styles.selectedUserCrossIcon}
-                  onPress={() => handleUserSelection(user.UserId)}
-                >
-                  <SvgCrossIcon width={12} height={12} />
-                </TouchableOpacity>
+
+                {!viewOnly && (
+                  <TouchableOpacity
+                    style={styles.selectedUserCrossIcon}
+                    onPress={() => handleUserSelection(user.UserId)}
+                  >
+                    <SvgCrossIcon width={12} height={12} />
+                  </TouchableOpacity>
+                )}
               </View>
               <Text style={styles.selectedUserName} numberOfLines={1}>
                 {user.FullName.split(' ')[0]}
@@ -184,19 +219,27 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     <View>
       {listings.map((listing, listingIndex) => (
         <View key={listingIndex}>
-          <Text style={styles.sectionTitle}>{listing.title}</Text>
+          {listing.title ? (
+            <Text style={styles.sectionTitle}>{listing.title}</Text>
+          ) : (
+            <View
+              style={{
+                paddingVertical: theme.sizes.HEIGHT * 0.009,
+              }}
+            />
+          )}
           <View style={styles.listCard}>
-            {listing.users.length > 0 ? (
+            {(listing.users || []).length > 0 ? (
               <FlatList
-                data={listing.users}
+                data={listing.users || []}
                 keyExtractor={item => item.UserId.toString()}
                 renderItem={({ item, index }) => (
                   <SearchUserItem
                     item={item}
                     index={index}
-                    isLast={index === listing.users.length - 1}
+                    isLast={index === (listing.users || []).length - 1}
                     showAddButton={false}
-                    showSelection={true}
+                    showSelection={!viewOnly}
                     isSelected={selectedUsers.has(item.UserId)}
                     onSelectionPress={() => handleUserSelection(item.UserId)}
                   />
@@ -250,6 +293,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     };
 
     const memberRows = chunkArray(selectedUsersData, 4);
+    console.log('memberRows', memberRows);
 
     return (
       <View style={styles.membersGridContainer}>
@@ -293,18 +337,22 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                 <>
                   <BottomSheetHeader
                     leftSideTitle="Cancel"
-                    title="Edit Group Members"
-                    subTitle={`${selectedUsers.size}/${getAllUsers().length}`}
-                    rightSideTitle="Next"
+                    title={viewOnly ? title : 'Edit Group Members'}
+                    subTitle={
+                      viewOnly
+                        ? `${getAllUsers().length} members`
+                        : `${selectedUsers.size}/${getAllUsers().length}`
+                    }
+                    rightSideTitle={viewOnly ? '' : 'Next'}
                     showSearchBar={true}
                     searchPlaceholder="Search"
                     searchValue={searchQuery}
                     onSearchChange={setSearchQuery}
                     leftSideTitlePress={closeModal}
-                    rightSideTitlePress={handleNextStep}
+                    rightSideTitlePress={viewOnly ? undefined : handleNextStep}
                   />
                   <SelectedUsersDisplay />
-                  <UserListComponent />
+                  {!viewOnly && <UserListComponent />}
                 </>
               ) : (
                 <>
@@ -318,6 +366,20 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                     rightSideTitlePress={handleSave}
                   />
                   <View style={styles.step2Container}>
+                    <View style={styles.groupNameContainer}>
+                      <View style={styles.groupNameInputContainer}>
+                        <View style={styles.groupNameIconWrapper}>
+                          <SvgImageIcon />
+                        </View>
+                        <TextInput
+                          style={styles.groupNameInput}
+                          placeholder="Enter group name"
+                          placeholderTextColor="#A0A0A0EE"
+                          value={groupName}
+                          onChangeText={setGroupName}
+                        />
+                      </View>
+                    </View>
                     <Text style={styles.membersHeading}>
                       Members: {selectedUsers.size} out of{' '}
                       {getAllUsers().length}
@@ -377,6 +439,32 @@ const useStyles = () => {
       step2Container: {
         paddingVertical: sizes.HEIGHT * 0.02,
         // paddingHorizontal: sizes.WIDTH * 0.04,
+      },
+      groupNameContainer: {
+        marginBottom: sizes.HEIGHT * 0.02,
+      },
+      groupNameInputContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.WHITE,
+        borderRadius: 12,
+        paddingHorizontal: sizes.PADDING,
+        paddingVertical: sizes.HEIGHT * 0.018,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 4,
+        elevation: 2,
+      },
+      groupNameIconWrapper: {
+        marginRight: sizes.PADDING * 0.8,
+      },
+      groupNameInput: {
+        flex: 1,
+        fontSize: 14,
+        fontFamily: fonts.Quicksand.regular,
+        color: colors.PRIMARY_TEXT,
+        padding: 0,
       },
       membersHeading: {
         fontFamily: fonts.Quicksand.semibold,

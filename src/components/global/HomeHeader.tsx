@@ -161,8 +161,8 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingTop: isAndroidThen(sizes.PADDING, 0),
-        paddingBottom: sizes.PADDING,
-        // backgroundColor: colors.RED,
+        paddingBottom: sizes.PADDING * 0.6,
+        // backgroundColor: 'blue',
       },
       rightSection: {
         flexDirection: 'row',

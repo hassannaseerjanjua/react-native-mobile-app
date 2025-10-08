@@ -32,6 +32,9 @@ const apiEndpoints = {
     `/${version}/Friends/AddFriend?userId=${userId}`,
   UNFRIEND_USER: (userId?: number, friendUserId?: number) =>
     `/${version}/Friends/UnfriendAUser?userId=${userId}&friendUserId=${friendUserId}`,
+  CREATE_GROUP: `/${version}/Friends/CreateGroupWithMembers`,
+  GET_GROUPS: `/${version}/Friends/GroupList`,
+  EDIT_GROUP_MEMBERS: `/${version}/Friends/EditGroup`,
 };
 
 export default apiEndpoints;

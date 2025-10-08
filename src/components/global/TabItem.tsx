@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleProp,
   ViewStyle,
+  Image,
 } from 'react-native';
 import React, { useMemo } from 'react';
 import {
@@ -22,7 +23,7 @@ interface TabItemProps {
   styles?: StyleProp<ViewStyle>;
   isEditGroup?: boolean;
   isLink?: boolean;
-  isGroup?: boolean;
+  isGroupImage?: any;
   onDeletePress?: () => void;
   onEditPress?: () => void;
 }
@@ -33,7 +34,7 @@ const TabItem = ({
   styles: customStyles,
   isEditGroup,
   isLink,
-  isGroup,
+  isGroupImage = false,
   onDeletePress,
   onEditPress,
 }: TabItemProps) => {
@@ -45,9 +46,15 @@ const TabItem = ({
       style={[styles.container, customStyles]}
     >
       <View style={styles.contentContainer}>
-        {isGroup && <SvgGroup />}
+        {isGroupImage ? (
+          <Image source={{ uri: isGroupImage }} style={styles.groupImage} />
+        ) : (
+          isGroupImage === '' && <SvgGroup />
+        )}
         {isLink && <SvgGiftLink />}
-        <Text style={styles.titleText}>{title}</Text>
+        <Text style={styles.titleText} numberOfLines={1} ellipsizeMode="tail">
+          {title}
+        </Text>
       </View>
       {isEditGroup ? (
         <>
@@ -91,16 +98,26 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 10,
+        flex: 1,
+        minWidth: 0,
       },
       titleText: {
         fontFamily: 'Quicksand-Medium',
         fontSize: theme.sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
+        maxWidth: '75%',
+        flexShrink: 1,
       },
       editGroupContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: sizes.WIDTH * 0.07,
+        flexShrink: 0,
+      },
+      groupImage: {
+        width: 40,
+        height: 40,
+        borderRadius: 999,
       },
     });
   }, [theme]);

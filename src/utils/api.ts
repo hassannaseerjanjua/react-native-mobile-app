@@ -32,11 +32,13 @@ const caller = async <T>(
   };
 
   const langId = store.getState().locale.localeData.langId;
+  const userId = store.getState().auth.user?.UserId;
   config = {
     ...config,
     headers: {
       ...config?.headers,
       LangID: langId,
+      UserId: userId,
     },
   };
 
