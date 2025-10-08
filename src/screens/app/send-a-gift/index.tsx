@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, Text, StatusBar, FlatList, ScrollView } from 'react-native';
+import {
+  View,
+  Text,
+  StatusBar,
+  FlatList,
+  ScrollView,
+  ActivityIndicator,
+} from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -29,9 +36,15 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const { user } = useAuthStore();
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(20);
+  const [isFetchingFriends, setIsFetchingFriends] = useState(true);
 
   const activeUsersApi = useGetApi<ActiveUser[]>(
-    apiEndpoints.GET_ACTIVE_USERS(user?.UserId, pageIndex, pageSize, true),
+    apiEndpoints.GET_ACTIVE_USERS(
+      user?.UserId,
+      pageIndex,
+      pageSize,
+      isFetchingFriends,
+    ),
     {
       transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
     },
@@ -39,19 +52,41 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
 
   console.log('activeUsersApi', activeUsersApi?.data);
 
-  const tabs = [
-    { id: 'friends', title: 'Friends' },
-    { id: 'group', title: 'Group' },
-    { id: 'others', title: 'Others' },
-  ];
-
-  const handleTabPress = (tabId: string) => {
-    if (tabId === 'group') {
-      navigation.navigate('SendToGroup' as any);
-    } else {
-      setActiveTab(tabId);
+  React.useEffect(() => {
+    if (activeTab === 'friends') {
+      setIsFetchingFriends(true);
+    } else if (activeTab === 'others') {
+      setIsFetchingFriends(false);
     }
-  };
+  }, [activeTab]);
+
+  React.useEffect(() => {
+    if (activeTab !== 'group') {
+      activeUsersApi.refetch();
+    }
+  }, [isFetchingFriends]);
+
+  const tabs = [
+    {
+      id: 'friends',
+      title: 'Friends',
+      onPress: () => {
+        setActiveTab('friends');
+      },
+    },
+    {
+      id: 'group',
+      title: 'Group',
+      onPress: () => navigation.navigate('SendToGroup' as any),
+    },
+    {
+      id: 'others',
+      title: 'Others',
+      onPress: () => {
+        setActiveTab('others');
+      },
+    },
+  ];
 
   return (
     <ParentView style={styles.container}>
@@ -86,7 +121,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
             <GroupTabs
               tabs={tabs}
               activeTab={activeTab}
-              onTabPress={handleTabPress}
+              onTabPress={(tabId: string) => {
+                const tab = tabs.find(t => t.id === tabId);
+                tab?.onPress?.();
+              }}
             />
           </View>
           <View style={styles.tabContainer}>
@@ -99,7 +137,15 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           <View>
             <Text style={styles.sectionTitle}>Friends</Text>
             <View style={styles.listCard}>
-              {activeUsersApi?.data && activeUsersApi.data.length > 0 ? (
+              {activeUsersApi?.loading ? (
+                <ActivityIndicator
+                  size="large"
+                  color={theme.colors.PRIMARY}
+                  style={{
+                    paddingVertical: theme.sizes.HEIGHT * 0.02,
+                  }}
+                />
+              ) : activeUsersApi?.data && activeUsersApi.data.length > 0 ? (
                 <FlatList
                   data={activeUsersApi.data}
                   keyExtractor={item => item.UserId.toString()}
@@ -129,7 +175,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           }}
           existingMembers={[]}
           onSave={() => {
-            setIsMemberSelectionOpen(false);
+            // setIsMemberSelectionOpen(false);
+            // navigation.navigate('SendToGroup' as any);
+            console.log('Hellooo');
           }}
           title="Add Members"
           listings={[
@@ -138,10 +186,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
               users: activeUsersApi?.data || [],
             },
           ]}
-          onNavigateToGroup={() => {
-            setIsMemberSelectionOpen(false);
-            navigation.navigate('SendToGroup' as any);
-          }}
           isSendAGift={true}
         />
       </ScrollView>

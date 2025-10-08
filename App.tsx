@@ -19,6 +19,7 @@ const App = () => {
           <DataWrapper>
             <NavigationContainer>
               <RootNavigator />
+              {/*  add toast here */}
             </NavigationContainer>
           </DataWrapper>
         </PersistGate>

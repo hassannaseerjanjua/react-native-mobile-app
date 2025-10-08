@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import {
   View,
   Modal,
@@ -20,6 +20,7 @@ import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
 import api from '../../utils/api';
 import apiEndpoints from '../../constants/api-endpoints';
+import { useNavigation } from '@react-navigation/native';
 
 const dummyImage = require('../../assets/images/user.png');
 
@@ -32,10 +33,9 @@ interface MemberSelectionModalProps {
   visible: boolean;
   onClose: () => void;
   existingMembers: ActiveUser[];
-  onSave: (selectedMembers: ActiveUser[]) => void;
+  onSave: (selectedMembers: ActiveUser[], groupName?: string) => void;
   title: string;
   listings: UserListing[];
-  onNavigateToGroup?: (groupName: string, selectedUserIds: number[]) => void;
   isSendAGift?: boolean;
   viewOnly?: boolean;
 }
@@ -47,7 +47,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   onSave,
   title,
   listings = [],
-  onNavigateToGroup,
   isSendAGift = false,
   viewOnly = false,
 }) => {
@@ -59,6 +58,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   const [groupName, setGroupName] = useState('');
 
   const theme = useTheme();
+  const navigation = useNavigation();
 
   // Get all users from all listings for filtering and selection
   const getAllUsers = () => {
@@ -99,6 +99,9 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       const newSet = new Set(prev);
       if (newSet.has(userId)) {
         newSet.delete(userId);
+        const allUsers = getAllUsers();
+        const removedUser = allUsers.find(user => user.UserId === userId);
+        console.log('Removed member:', removedUser);
       } else {
         newSet.add(userId);
       }
@@ -119,6 +122,11 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   };
 
   const handleSave = () => {
+    const allUsers = getAllUsers();
+    const selectedMembers = allUsers.filter(user =>
+      selectedUsers.has(user.UserId),
+    );
+
     if (isSendAGift) {
       api
         .post(
@@ -133,22 +141,14 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         )
         .then(response => {
           console.log('response', response.data);
+          onSave(selectedMembers, groupName);
+          closeModal();
+          navigation.navigate('SendToGroup' as never);
         })
         .catch(error => {
           console.log('error', error);
         });
-    }
-
-    const allUsers = getAllUsers();
-    const selectedMembers = allUsers.filter(user =>
-      selectedUsers.has(user.UserId),
-    );
-
-    if (onNavigateToGroup) {
-      // For send-a-gift flow: navigate to SendToGroup screen
-      closeModal();
     } else {
-      // For edit group flow: just save and close
       onSave(selectedMembers);
       closeModal();
     }
@@ -302,7 +302,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     );
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (visible) {
       openModal();
     }
@@ -332,7 +332,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           ]}
         >
           <View style={styles.modalContent}>
-            <ScrollView style={styles.modalScrollView}>
+            <ScrollView
+              style={styles.modalScrollView}
+              showsVerticalScrollIndicator={false}
+            >
               {modalStep === 1 ? (
                 <>
                   <BottomSheetHeader

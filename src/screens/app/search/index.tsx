@@ -15,21 +15,28 @@ import api from '../../../utils/api';
 import ParentView from '../../../components/app/ParentView';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import SearchUserItem from '../../../components/app/SearchUserItem';
+import ConfirmationModal from '../../../components/global/ConfirmationModal';
 
 interface SearchProps extends AppStackScreen<'Search'> {}
 
 const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
-  const [searchQuery, setSearchQuery] = useState('');
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize] = useState(20);
-  const [updatedUsers, setUpdatedUsers] = useState<Record<number, number>>({});
-  const [loadingUsers, setLoadingUsers] = useState<Record<number, boolean>>({});
   const { user } = useAuthStore();
   const { getString } = useLocaleStore();
 
+  const [searchQuery, setSearchQuery] = useState('');
+  const [pageIndex, setPageIndex] = useState(1);
+  const [updatedUsers, setUpdatedUsers] = useState<Record<number, number>>({});
+  const [loadingUsers, setLoadingUsers] = useState<Record<number, boolean>>({});
+  const [unfriendModal, setUnfriendModal] = useState({
+    visible: false,
+    loading: false,
+    userId: null as number | null,
+    isLinkedToGroup: false,
+  });
+
   const activeUsersApi = useGetApi<ActiveUser[]>(
-    apiEndpoints.GET_ACTIVE_USERS(user?.UserId, pageIndex, pageSize),
+    apiEndpoints.GET_ACTIVE_USERS(user?.UserId, pageIndex, 20),
     {
       transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
     },
@@ -42,72 +49,82 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
     },
   );
 
-  console.log('searchFriendsApi', searchFriendsApi.data);
-
   useEffect(() => {
-    if (searchQuery) {
-      searchFriendsApi.refetch();
-    }
+    if (searchQuery) searchFriendsApi.refetch();
   }, [searchQuery]);
 
-  const addFriend = (userId: number) => {
-    setLoadingUsers(prev => ({ ...prev, [userId]: true }));
-    setUpdatedUsers(prev => ({
-      ...prev,
-      [userId]: 1,
-    }));
-
-    api
-      .post(apiEndpoints.ADD_FRIEND(user?.UserId), {
-        friendUserId: userId,
-      })
-      .then(res => {
-        console.log('Add friend success:', res);
-      })
-      .catch(err => {
-        console.log('Add friend error:', err);
-        setUpdatedUsers(prev => {
-          const newState = { ...prev };
-          delete newState[userId];
-          return newState;
-        });
-      })
-      .finally(() => {
-        setLoadingUsers(prev => {
-          const newState = { ...prev };
-          delete newState[userId];
-          return newState;
-        });
-      });
+  const updateLoadingState = (userId: number, isLoading: boolean) => {
+    setLoadingUsers(prev => {
+      const newState = { ...prev };
+      isLoading ? (newState[userId] = true) : delete newState[userId];
+      return newState;
+    });
   };
 
-  const unfriendUser = (userId: number) => {
-    setLoadingUsers(prev => ({ ...prev, [userId]: true }));
-    setUpdatedUsers(prev => ({
-      ...prev,
-      [userId]: 2,
-    }));
+  const updateUserStatus = (userId: number, status: number | null) => {
+    setUpdatedUsers(prev => {
+      const newState = { ...prev };
+      status ? (newState[userId] = status) : delete newState[userId];
+      return newState;
+    });
+  };
 
-    api
-      .put(apiEndpoints.UNFRIEND_USER(user?.UserId, userId))
-      .then(res => {
-        console.log('Unfriend success:', res);
-      })
-      .catch(err => {
-        console.log('Unfriend error:', err);
-        setUpdatedUsers(prev => {
-          const newState = { ...prev };
-          delete newState[userId];
-          return newState;
-        });
-      })
-      .finally(() => {
-        setLoadingUsers(prev => {
-          const newState = { ...prev };
-          delete newState[userId];
-          return newState;
-        });
+  const addFriend = async (userId: number) => {
+    updateLoadingState(userId, true);
+    updateUserStatus(userId, 1);
+
+    try {
+      await api.post(apiEndpoints.ADD_FRIEND(user?.UserId), {
+        friendUserId: userId,
       });
+    } catch (err) {
+      console.log('Add friend error:', err);
+      updateUserStatus(userId, null);
+    } finally {
+      updateLoadingState(userId, false);
+    }
+  };
+
+  const checkUserLinkedWithGroup = async (userId: number) => {
+    updateLoadingState(userId, true);
+
+    try {
+      const res = await api.get(
+        apiEndpoints.CHECK_USER_LINKED_WITH_GROUP(userId),
+      );
+      const isLinked = (res.data as any)?.Data || false;
+
+      setUnfriendModal({
+        visible: true,
+        loading: false,
+        userId,
+        isLinkedToGroup: isLinked,
+      });
+    } catch (err) {
+      console.log('Check user linked with group error:', err);
+    } finally {
+      updateLoadingState(userId, false);
+    }
+  };
+
+  const unfriendUser = async (userId: number) => {
+    setUnfriendModal(prev => ({ ...prev, loading: true }));
+    updateUserStatus(userId, 2);
+
+    try {
+      await api.put(apiEndpoints.UNFRIEND_USER(user?.UserId, userId));
+      setUnfriendModal({
+        visible: false,
+        loading: false,
+        userId: null,
+        isLinkedToGroup: false,
+      });
+    } catch (err) {
+      console.log('Unfriend error:', err);
+      updateUserStatus(userId, null);
+    } finally {
+      setUnfriendModal(prev => ({ ...prev, loading: false }));
+    }
   };
 
   const handleAddUser = (userId: number) => {
@@ -115,19 +132,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
       updatedUsers[userId] ??
       displayData.find(user => user.UserId === userId)?.RelationStatus ??
       2;
-    const isCurrentlyAdded = currentStatus === 1;
 
-    if (isCurrentlyAdded) {
-      unfriendUser(userId);
-    } else {
-      addFriend(userId);
-    }
-  };
-
-  const handleLoadMore = () => {
-    if (!activeUsersApi.loading) {
-      setPageIndex(prev => prev + 1);
-    }
+    currentStatus === 1 ? checkUserLinkedWithGroup(userId) : addFriend(userId);
   };
 
   const displayData = searchQuery
@@ -156,13 +162,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
 
       <View style={styles.content}>
         <View style={styles.listCard}>
-          {isLoading ? (
+          {isLoading || (searchQuery && displayData.length === 0) ? (
             <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>Loading...</Text>
-            </View>
-          ) : searchQuery && displayData.length === 0 ? (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>No results found</Text>
+              <Text style={styles.loadingText}>
+                {isLoading ? 'Loading...' : 'No results found'}
+              </Text>
             </View>
           ) : (
             <FlatList
@@ -180,13 +184,38 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
               )}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.listContainer}
-              onEndReached={searchQuery ? undefined : handleLoadMore}
+              onEndReached={
+                searchQuery ? undefined : () => setPageIndex(prev => prev + 1)
+              }
               onEndReachedThreshold={0.5}
             />
           )}
         </View>
       </View>
-      {/* </View> */}
+
+      <ConfirmationModal
+        visible={unfriendModal.visible}
+        title="Unfriend User"
+        message={
+          unfriendModal.isLinkedToGroup
+            ? 'This user is linked to one or more groups, would you like to continue?'
+            : 'Are you sure you want to unfriend this user?'
+        }
+        confirmText="Yes"
+        cancelText="Cancel"
+        onConfirm={() =>
+          unfriendModal.userId && unfriendUser(unfriendModal.userId)
+        }
+        onCancel={() =>
+          setUnfriendModal({
+            visible: false,
+            loading: false,
+            userId: null,
+            isLinkedToGroup: false,
+          })
+        }
+        loading={unfriendModal.loading}
+      />
     </ParentView>
   );
 };
