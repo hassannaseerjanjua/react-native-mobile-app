@@ -99,7 +99,7 @@ const HomeScreen: React.FC = () => {
           </View>
         ) : (
           <View style={styles.heroImage}>
-            <ImageSlider sliders={sliders.reverse()} />
+            <ImageSlider sliders={sliders} />
           </View>
         )}
         <HomeScreenTabsContainer />

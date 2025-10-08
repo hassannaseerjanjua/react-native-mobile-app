@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   View,
   Text,
@@ -31,8 +31,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   onCancel,
   loading = false,
 }) => {
-  const theme = useTheme();
-  const styles = createStyles(theme);
+  const { styles, theme } = useStyles();
 
   return (
     <Modal
@@ -71,64 +70,73 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   );
 };
 
-const createStyles = (theme: any) =>
-  StyleSheet.create({
-    overlay: {
-      flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    container: {
-      backgroundColor: theme.colors.WHITE,
-      borderRadius: 16,
-      padding: 24,
-      width: '85%',
-      maxWidth: 400,
-    },
-    title: {
-      fontFamily: fonts.Quicksand.bold,
-      fontSize: 20,
-      color: theme.colors.PRIMARY_TEXT,
-      marginBottom: 12,
-      textAlign: 'center',
-    },
-    message: {
-      fontFamily: fonts.Quicksand.regular,
-      fontSize: 16,
-      color: theme.colors.PRIMARY_TEXT,
-      marginBottom: 24,
-      textAlign: 'center',
-      lineHeight: 22,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      gap: 12,
-    },
-    button: {
-      flex: 1,
-      paddingVertical: 12,
-      borderRadius: 8,
-      alignItems: 'center',
-      justifyContent: 'center',
-      minHeight: 44,
-    },
-    cancelButton: {
-      backgroundColor: theme.colors.LIGHT_GRAY,
-    },
-    confirmButton: {
-      backgroundColor: theme.colors.PRIMARY,
-    },
-    cancelText: {
-      fontFamily: fonts.Quicksand.semibold,
-      fontSize: 16,
-      color: theme.colors.PRIMARY_TEXT,
-    },
-    confirmText: {
-      fontFamily: fonts.Quicksand.semibold,
-      fontSize: 16,
-      color: theme.colors.WHITE,
-    },
-  });
+const useStyles = () => {
+  const theme = useTheme();
+
+  const styles = useMemo(() => {
+    const { colors, sizes } = theme;
+
+    return StyleSheet.create({
+      overlay: {
+        flex: 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      container: {
+        backgroundColor: colors.WHITE,
+        borderRadius: 16,
+        padding: sizes.PADDING * 1.5,
+        width: '85%',
+        maxWidth: 400,
+      },
+      title: {
+        fontFamily: fonts.Quicksand.bold,
+        fontSize: 20,
+        color: colors.PRIMARY_TEXT,
+        marginBottom: sizes.HEIGHT * 0.015,
+        textAlign: 'center',
+      },
+      message: {
+        fontFamily: fonts.Quicksand.regular,
+        fontSize: 16,
+        color: colors.PRIMARY_TEXT,
+        marginBottom: sizes.HEIGHT * 0.03,
+        textAlign: 'center',
+        lineHeight: 22,
+      },
+      buttonContainer: {
+        flexDirection: 'row',
+        gap: sizes.PADDING * 0.75,
+      },
+      button: {
+        flex: 1,
+        paddingVertical: sizes.HEIGHT * 0.015,
+        borderRadius: 8,
+        alignItems: 'center',
+        justifyContent: 'center',
+        minHeight: 44,
+      },
+      cancelButton: {
+        backgroundColor: colors.LIGHT_GRAY,
+      },
+      confirmButton: {
+        backgroundColor: colors.PRIMARY,
+      },
+      cancelText: {
+        fontFamily: fonts.Quicksand.semibold,
+        fontSize: 16,
+        color: colors.PRIMARY_TEXT,
+      },
+      confirmText: {
+        fontFamily: fonts.Quicksand.semibold,
+        fontSize: 16,
+        color: colors.WHITE,
+      },
+    });
+  }, [theme]);
+
+  return { styles, theme };
+};
 
 export default ConfirmationModal;
