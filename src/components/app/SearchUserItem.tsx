@@ -94,11 +94,17 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
       )}
 
       {showSelection && (
-        <View
+        <TouchableOpacity
           style={[styles.selectionCircle, isSelected && styles.selectedCircle]}
+          onPress={onSelectionPress}
+          activeOpacity={0.7}
         >
-          {isSelected && <SvgSelectedCheck width={11} height={11} />}
-        </View>
+          {isSelected && (
+            <View style={styles.iconWrapper}>
+              <SvgSelectedCheck width={10} height={10} />
+            </View>
+          )}
+        </TouchableOpacity>
       )}
     </TouchableOpacity>
   );
@@ -181,13 +187,18 @@ const useStyles = () => {
         borderRadius: 10,
         borderWidth: 2,
         borderColor: colors.SECONDARY_GRAY,
-        alignItems: 'center',
-        justifyContent: 'center',
         backgroundColor: 'transparent',
+        position: 'relative',
       },
       selectedCircle: {
         backgroundColor: colors.PRIMARY,
         borderColor: colors.PRIMARY,
+      },
+      iconWrapper: {
+        position: 'absolute',
+        top: '50%',
+        left: '50%',
+        transform: [{ translateX: -5 }, { translateY: -5 }],
       },
     });
   }, [theme]);

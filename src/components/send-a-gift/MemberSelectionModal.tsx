@@ -12,6 +12,7 @@ import {
   StyleSheet,
   TextInput,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomSheetHeader from '../app/BottomSheetHeader';
 import SearchUserItem from '../app/SearchUserItem';
 import { SvgCrossIcon, SvgImageIcon } from '../../assets/icons';
@@ -331,7 +332,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
             },
           ]}
         >
-          <View style={styles.modalContent}>
+          <SafeAreaView style={styles.modalContent} edges={['top']}>
             <ScrollView
               style={styles.modalScrollView}
               showsVerticalScrollIndicator={false}
@@ -392,7 +393,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                 </>
               )}
             </ScrollView>
-          </View>
+          </SafeAreaView>
         </Animated.View>
       </View>
     </Modal>

@@ -94,6 +94,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
         style={{
           flex: 1,
+          overflow: 'visible',
         }}
       >
         <StatusBar
