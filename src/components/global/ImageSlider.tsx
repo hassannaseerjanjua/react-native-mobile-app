@@ -39,12 +39,12 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ sliders }) => {
     });
   };
 
-  // useEffect(() => {
-  //   const interval = setInterval(() => {
-  //     scrollToIndex(currentIndex + 1);
-  //   }, 5000);
-  //   return () => clearInterval(interval);
-  // }, [currentIndex]);
+  useEffect(() => {
+    const interval = setInterval(() => {
+      scrollToIndex(currentIndex + 1);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [currentIndex]);
 
   const renderDots = () => {
     if (sliders.length <= 1) return null;
