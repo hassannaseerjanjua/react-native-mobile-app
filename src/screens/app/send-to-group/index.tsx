@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StatusBar, ActivityIndicator } from 'react-native';
+import { View, StatusBar, ActivityIndicator, Text } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import useStyles from './style';
 import ParentView from '../../../components/app/ParentView';
@@ -138,7 +138,13 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         }}
         showSearch={false}
         showSearchBar
-        rightSideTitle={isEditGroupOpen ? '' : 'Edit Group'}
+        rightSideTitle={
+          isEditGroupOpen
+            ? ''
+            : getGroupsData?.data?.length !== 0
+            ? 'Edit Group'
+            : ''
+        }
         rightSideTitlePress={() => setIsEditGroupOpen(true)}
         rightSideIcon={<SvgEditGroup />}
         searchValue={searchQuery}
@@ -148,6 +154,17 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
       <View style={styles.content}>
         {getGroupsData.loading ? (
           <ActivityIndicator size="large" color={theme.colors.PRIMARY} />
+        ) : getGroupsData?.data?.length === 0 ? (
+          <Text
+            style={[
+              theme.globalStyles.TEXT_STYLE,
+              {
+                textAlign: 'center',
+              },
+            ]}
+          >
+            No group found
+          </Text>
         ) : (
           getGroupsData?.data?.map((group, index) => (
             <View key={group.UserGroupId}>
