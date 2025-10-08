@@ -86,7 +86,7 @@ const useStyles = () => {
       container: {
         backgroundColor: colors.WHITE,
         borderRadius: 16,
-        padding: sizes.PADDING * 1.5,
+        padding: sizes.PADDING,
         width: '85%',
         maxWidth: 400,
       },

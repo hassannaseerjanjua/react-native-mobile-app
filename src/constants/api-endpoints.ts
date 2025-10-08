@@ -36,8 +36,8 @@ const apiEndpoints = {
   GET_GROUPS: `/${version}/Friends/GroupList`,
   EDIT_GROUP_MEMBERS: `/${version}/Friends/EditGroup`,
   DELETE_GROUP: `/${version}/Friends/DeleteGroup`,
-  CHECK_USER_LINKED_WITH_GROUP: (friedUserId?: number) =>
-    `/${version}/Friends/CheckFriendInGroups?friedUserId=${friedUserId}`,
+  CHECK_USER_LINKED_WITH_GROUP: (friendUserId?: number) =>
+    `/${version}/Friends/CheckFriendInGroups?friendUserId=${friendUserId}`,
 };
 
 export default apiEndpoints;
