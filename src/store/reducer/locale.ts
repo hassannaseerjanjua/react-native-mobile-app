@@ -142,4 +142,5 @@ type LocaleString =
   | 'FOOTER_OCCASIONS'
   | 'FOOTER_NOTIFICATIONS'
   | 'SEARCH_ADD'
-  | 'SEARCH_ADDED';
+  | 'SEARCH_ADDED'
+  | 'AU_WAIT_FOR';

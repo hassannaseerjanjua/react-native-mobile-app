@@ -9,10 +9,15 @@ const useStyles = () => {
   const styles = useMemo(() => {
     const { colors, sizes } = theme;
 
-    const boxSpacing = width * 0.025;
+    const boxSpacing = width * 0.02;
     const boxCount = 6;
+    const borderWidth = 1;
+    const totalBorderWidth = boxCount * borderWidth * 2; // Account for left and right borders
     const availableWidth =
-      width - sizes.PADDING * 2 - (boxCount - 1) * boxSpacing;
+      width -
+      sizes.PADDING * 2 -
+      (boxCount - 1) * boxSpacing -
+      totalBorderWidth;
     const boxSize = availableWidth / boxCount;
 
     return StyleSheet.create({

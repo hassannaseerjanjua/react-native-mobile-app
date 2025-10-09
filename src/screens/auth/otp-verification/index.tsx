@@ -175,9 +175,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                 style={[
                   styles.otpInput,
                   {
-                    borderColor: digit
-                      ? theme.colors.BLACK
-                      : theme.colors.LIGHT_GRAY,
+                    borderColor: digit ? theme.colors.BLACK : '#EEEEEE',
                   },
                 ]}
                 value={digit}
@@ -200,10 +198,13 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
             <Text style={styles.subtitle}>
               {getString('AU_HAVENT_RECEIVED_CODE')}{' '}
               {isTimerActive ? (
-                <Text>{formatTimer(timer)}</Text>
+                <Text>
+                  {getString('AU_WAIT_FOR')} {formatTimer(timer)}
+                </Text>
               ) : (
                 <Text
                   onPress={isResending ? undefined : handleResendCode}
+                  disabled={isResending}
                   style={[styles.resendText, isResending && { opacity: 0.5 }]}
                 >
                   {isResending ? 'Resending...' : 'Resend Code'}
