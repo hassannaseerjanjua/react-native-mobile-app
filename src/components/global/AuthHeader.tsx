@@ -1,10 +1,11 @@
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
 import { SvgBackIcon } from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
 import fonts from '../../assets/fonts';
+import { Text } from '../../utils/elements';
 
 interface AuthHeaderProps {
   title?: string;

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StatusBar, ActivityIndicator, Text } from 'react-native';
+import { View, StatusBar, ActivityIndicator } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import useStyles from './style';
 import ParentView from '../../../components/app/ParentView';
@@ -17,6 +17,7 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import api from '../../../utils/api';
 import { useAuthStore } from '../../../store/reducer/auth';
+import { Text } from '../../../utils/elements';
 
 interface SendToGroupProps extends AppStackScreen<'SendToGroup'> {}
 

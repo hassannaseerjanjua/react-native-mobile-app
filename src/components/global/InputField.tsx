@@ -1,15 +1,9 @@
-import {
-  Image,
-  StyleSheet,
-  Text,
-  TextInput,
-  TextInputProps,
-  View,
-} from 'react-native';
+import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
-import { SvgEmail, SvgPhone, SvgPhoneIcon } from '../../assets/icons';
+import { SvgPhone } from '../../assets/icons';
+import { Text } from '../../utils/elements';
 
 type Props = {
   error?: any;
@@ -60,6 +54,7 @@ const InputField = ({
             },
             fieldProps.style,
           ]}
+          allowFontScaling={false}
           placeholderTextColor={theme.colors.SECONDARY_TEXT}
           selectionColor={theme.colors.PRIMARY}
           underlineColorAndroid="transparent"

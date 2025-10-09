@@ -1,6 +1,7 @@
-import { View, Modal, Text, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
+import { Text } from '../../utils/elements';
 
 export interface AlertProps {
   visible: boolean;

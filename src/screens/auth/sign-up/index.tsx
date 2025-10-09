@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style';
@@ -22,6 +22,7 @@ import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { Formik } from 'formik';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import { Text } from '../../../utils/elements';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 

@@ -1,18 +1,15 @@
 import React from 'react';
 import {
-  Text,
   TouchableOpacity,
   useWindowDimensions,
-  StyleSheet,
   StyleProp,
   ViewStyle,
   TextStyle,
   ActivityIndicator,
 } from 'react-native';
-import { useColors } from '../../styles/colors';
 import useTheme from '../../styles/theme';
-import { verticalScale } from 'react-native-size-matters';
 import { scaleWithMax } from '../../utils';
+import { Text } from '../../utils/elements';
 
 interface CustomButtonProps {
   title?: string;

@@ -1,12 +1,7 @@
-import {
-  StyleSheet,
-  Text,
-  View,
-  TouchableOpacity,
-  ScrollView,
-} from 'react-native';
+import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
+import { Text } from '../../utils/elements';
 
 interface TabItem {
   id: string;

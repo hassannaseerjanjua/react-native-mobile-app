@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import {
   View,
   TouchableOpacity,
-  Text,
   TextInput,
   StyleSheet,
   Pressable,
@@ -14,13 +13,13 @@ import {
   SvgLogoHeader,
   SvgSearchIcon,
   SvgDummyAvatar,
-  SvgBackIcon,
   SvgHomeBack,
 } from '../../assets/icons';
 import { isAndroid, isAndroidThen, scaleWithMax } from '../../utils';
 import fonts from '../../assets/fonts';
 import { useAuthStore } from '../../store/reducer/auth';
 import { useLocaleStore } from '../../store/reducer/locale';
+import { Text } from '../../utils/elements';
 
 interface HomeHeaderProps {
   title?: string;
@@ -137,6 +136,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             <SvgSearchIcon width={20} height={20} />
           </View>
           <TextInput
+            allowFontScaling={false}
             style={styles.searchInput}
             placeholder={defaultSearchPlaceholder}
             placeholderTextColor="#A0A0A0EE"

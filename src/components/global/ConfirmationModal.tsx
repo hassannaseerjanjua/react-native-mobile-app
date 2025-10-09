@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import {
   View,
-  Text,
   Modal,
   TouchableOpacity,
   StyleSheet,
@@ -9,6 +8,7 @@ import {
 } from 'react-native';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
+import { Text } from '../../utils/elements';
 
 interface ConfirmationModalProps {
   visible: boolean;

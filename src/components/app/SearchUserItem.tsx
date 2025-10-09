@@ -1,7 +1,6 @@
 import React, { useMemo } from 'react';
 import {
   View,
-  Text,
   TouchableOpacity,
   Image,
   ActivityIndicator,
@@ -12,6 +11,7 @@ import { ActiveUser } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
+import { Text } from '../../utils/elements';
 
 interface SearchUserItemProps {
   item: ActiveUser;

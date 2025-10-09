@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, ScrollView, StatusBar } from 'react-native';
-import { AppStackScreen } from '../../../types/navigation.types';
+import { View, ScrollView, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
@@ -15,12 +14,10 @@ import {
 import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
 import { Slider, SliderApiResponse } from '../../../types';
-import { useSizes } from '../../../styles/sizes';
 import { useDispatch } from 'react-redux';
 import { logout, useAuthStore } from '../../../store/reducer/auth';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocaleStore } from '../../../store/reducer/locale';
-import ParentView from '../../../components/app/ParentView';
+import { Text } from '../../../utils/elements';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();

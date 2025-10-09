@@ -1,26 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  ScrollView,
-  TextInput,
-  StatusBar,
-} from 'react-native';
+import { View, TextInput } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style.ts';
-import Header from '../../../components/global/Header';
 import { login } from '../../../store/reducer/auth';
-import { SvgLogoBlue } from '../../../assets/icons/index.ts';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AuthLayout from '../../../components/app/AuthLayout.tsx';
 import api from '../../../utils/api.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
 import { LoginApiResponse } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import { Text } from '../../../utils/elements';
 
 interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
@@ -177,6 +167,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
           <View style={styles.otpContainer}>
             {otp.map((digit, index) => (
               <TextInput
+                allowFontScaling={false}
                 key={index}
                 ref={ref => {
                   inputRefs.current[index] = ref;

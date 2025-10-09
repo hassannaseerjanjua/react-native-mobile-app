@@ -9,7 +9,8 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './src/store/store';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import useFetchLocale from './src/hooks/useFetchLocale';
-import { Text, View } from 'react-native';
+import { View } from 'react-native';
+import { Text } from './src/utils/elements';
 
 const App = () => {
   return (

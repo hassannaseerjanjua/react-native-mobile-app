@@ -1,9 +1,9 @@
 import React from 'react';
-import { View, Text, StatusBar } from 'react-native';
-import HomeHeader from '../../../components/global/HomeHeader.tsx';
+import { View, StatusBar } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
-import ParentView from '../../../components/app/ParentView.tsx';
+import { Text } from '../../../utils/elements';
+
 const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();

@@ -1,18 +1,10 @@
 import React, { useMemo } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  TextInput,
-  StyleSheet,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { View, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
 import { SvgImageIcon, SvgSearchIcon } from '../../assets/icons';
 import fonts from '../../assets/fonts';
-import { scaleWithMax } from '../../utils';
-import { useAuthStore } from '../../store/reducer/auth';
 import { useLocaleStore } from '../../store/reducer/locale';
+import { Text } from '../../utils/elements';
 
 interface BottomSheetHeaderProps {
   title?: string;
@@ -81,6 +73,7 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
           )}
           {/* <SvgSearchIcon width={20} height={20} /> */}
           <TextInput
+            allowFontScaling={false}
             style={styles.searchInput}
             placeholder={defaultSearchPlaceholder}
             placeholderTextColor="#A0A0A0EE"

@@ -6,14 +6,11 @@ import {
   Dimensions,
   ScrollView,
   Image,
-  Text,
   FlatList,
   TouchableOpacity,
   StyleSheet,
   TextInput,
-  StatusBar,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import BottomSheetHeader from '../app/BottomSheetHeader';
 import SearchUserItem from '../app/SearchUserItem';
 import { SvgCrossIcon, SvgImageIcon } from '../../assets/icons';
@@ -24,6 +21,7 @@ import api from '../../utils/api';
 import apiEndpoints from '../../constants/api-endpoints';
 import { useNavigation } from '@react-navigation/native';
 import { isIOSThen, scaleWithMax } from '../../utils';
+import { Text } from '../../utils/elements';
 
 const dummyImage = require('../../assets/images/user.png');
 
@@ -378,6 +376,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                           <SvgImageIcon />
                         </View>
                         <TextInput
+                          allowFontScaling={false}
                           style={styles.groupNameInput}
                           placeholder="Enter group name"
                           placeholderTextColor="#A0A0A0EE"

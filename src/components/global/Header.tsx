@@ -1,15 +1,15 @@
 import React, { useMemo } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
 import {
   SvgBackIcon,
-  SvgLogoBlue,
   SvgLogoHeader,
   SvgSearchIcon,
   SvgDummyAvatar,
 } from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
+import { Text } from '../../utils/elements';
 
 interface HeaderProps {
   title?: string;

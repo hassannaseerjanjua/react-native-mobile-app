@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   TouchableOpacity,
-  Text,
   View,
   Image,
   ImageSourcePropType,
@@ -10,6 +9,7 @@ import {
 import { ReactElement } from 'react';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
+import { Text } from '../../utils/elements';
 
 interface HomeScreenTabsProps {
   icon?: ReactElement;

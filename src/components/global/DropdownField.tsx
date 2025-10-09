@@ -1,6 +1,5 @@
 import {
   StyleSheet,
-  Text,
   TouchableOpacity,
   View,
   Modal,
@@ -13,6 +12,7 @@ import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import { SvgDropDown } from '../../assets/icons';
 import InputField from './InputField';
+import { Text } from '../../utils/elements';
 
 export type DropdownOption = {
   label: any;

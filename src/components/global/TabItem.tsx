@@ -1,6 +1,5 @@
 import {
   StyleSheet,
-  Text,
   View,
   TouchableOpacity,
   StyleProp,
@@ -16,6 +15,7 @@ import {
   SvgNextIcon,
 } from '../../assets/icons';
 import useTheme from '../../styles/theme';
+import { Text } from '../../utils/elements';
 
 interface TabItemProps {
   title: string;

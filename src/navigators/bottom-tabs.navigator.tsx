@@ -23,9 +23,10 @@ import Occasions from '../screens/app/occasions/index';
 import Notifications from '../screens/app/notifications/index';
 import useTheme from '../styles/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Text, TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { scaleWithMax } from '../utils';
 import { useLocaleStore } from '../store/reducer/locale';
+import { Text } from '../utils/elements';
 
 const Tab = createBottomTabNavigator();
 

@@ -1,16 +1,11 @@
-import { View, Text, ScrollView, StatusBar, StyleSheet } from 'react-native';
+import { View, ScrollView, StatusBar, StyleSheet } from 'react-native';
 import React, { useMemo } from 'react';
 import { SvgLogoBlue } from '../../assets/icons';
 import AuthHeader from '../global/AuthHeader';
-import {
-  isAndroid,
-  isAndroidThen,
-  isIOS,
-  isIOSThen,
-  scaleWithMax,
-} from '../../utils';
+import { isAndroidThen, scaleWithMax } from '../../utils';
 import useTheme from '../../styles/theme';
 import ParentView from './ParentView';
+import { Text } from '../../utils/elements';
 
 interface AuthLayoutProps {
   onBackPress: () => void;

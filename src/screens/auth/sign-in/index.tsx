@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity } from 'react-native';
 import { Formik } from 'formik';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
@@ -16,6 +16,7 @@ import { login } from '../../../store/reducer/auth';
 import { useDispatch } from 'react-redux';
 import { User } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import { Text } from '../../../utils/elements';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 

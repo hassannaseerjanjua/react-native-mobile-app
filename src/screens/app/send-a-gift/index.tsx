@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   View,
-  Text,
   StatusBar,
   FlatList,
   ScrollView,
@@ -23,6 +22,7 @@ import { SvgAddGroup } from '../../../assets/icons';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { useAuthStore } from '../../../store/reducer/auth';
+import { Text } from '../../../utils/elements';
 
 interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 

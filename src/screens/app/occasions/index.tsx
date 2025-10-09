@@ -1,10 +1,8 @@
 import React from 'react';
-import { View, Text, StatusBar } from 'react-native';
-import Header from '../../../components/global/Header';
+import { View, StatusBar } from 'react-native';
 import useStyles from './style.ts';
-import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import { useNavigation } from '@react-navigation/native';
-import ParentView from '../../../components/app/ParentView';
+import { Text } from '../../../utils/elements';
 
 const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();

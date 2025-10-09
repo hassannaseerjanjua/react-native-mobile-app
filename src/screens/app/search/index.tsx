@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, StatusBar, FlatList } from 'react-native';
+import { View, StatusBar, FlatList } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -16,6 +16,7 @@ import ParentView from '../../../components/app/ParentView';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import SearchUserItem from '../../../components/app/SearchUserItem';
 import ConfirmationModal from '../../../components/global/ConfirmationModal';
+import { Text } from '../../../utils/elements';
 
 interface SearchProps extends AppStackScreen<'Search'> {}
 
