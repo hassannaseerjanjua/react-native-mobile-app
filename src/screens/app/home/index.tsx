@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, ScrollView, StatusBar } from 'react-native';
+import { View, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
@@ -44,11 +44,9 @@ const HomeScreen: React.FC = () => {
 
   useEffect(() => {
     getHomeSlider();
-    console.log('Api called');
   }, []);
 
   const { user } = useAuthStore();
-  console.log('user', user);
 
   return (
     <View style={styles.container}>
@@ -64,7 +62,7 @@ const HomeScreen: React.FC = () => {
         }}
       />
 
-      <ScrollView showsVerticalScrollIndicator={false}>
+      <View style={styles.mainContent}>
         <Text style={styles.welcomeText}>
           {getString('HOME_WELCOME')}
           <Text style={styles.userName}>{user?.FullNameEn}</Text>
@@ -108,7 +106,7 @@ const HomeScreen: React.FC = () => {
           {getString('HOME_WHAT_ARE_YOU')}
         </Text>
         <HomeScreenTabsContainer />
-      </ScrollView>
+      </View>
     </View>
   );
 };

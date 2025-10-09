@@ -1,8 +1,8 @@
-import { Platform, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
 import fonts from '../../../assets/fonts';
-import { isAndroid, isIOSThen, scaleWithMax } from '../../../utils';
+import { scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -13,33 +13,32 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
-        // paddingBottom: isIOSThen(sizes.PADDING, 0),
+      },
+      mainContent: {
+        flex: 1,
       },
       contentContainer: {
         gap: sizes.PADDING * 0.7,
-        paddingBottom: isIOSThen(sizes.PADDING, 0),
+        paddingBottom: sizes.HEIGHT * 0.13,
       },
       welcomeText: {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_HEADING,
         color: colors.BLACK,
-        // backgroundColor: 'red',
       },
       userName: {
         fontFamily: fonts.Quicksand.bold,
       },
       heroImage: {
         width: '100%',
-        aspectRatio: 5 / 4,
         borderRadius: sizes.BORDER_RADIUS_MID,
-        marginBottom: scaleWithMax(13, 13),
+        // marginBottom: scaleWithMax(8, 10),
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.bold,
         fontSize: sizes.FONTSIZE_HEADING,
         color: '#262C3D',
-        // backgroundColor: 'red',
-        paddingBottom: sizes.HEIGHT * 0.009,
+        paddingVertical: sizes.PADDING * 0.3,
       },
       optionsWrapper: {
         flexDirection: 'row',
