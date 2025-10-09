@@ -21,7 +21,6 @@ import useGetApi from '../../../hooks/useGetApi';
 import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { Formik } from 'formik';
-import { createSignUpSchema } from '../../../utils/validationSchemas';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
@@ -46,11 +45,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
     transformData: data => data.Data.cities,
   });
-
-  const validationSchema = useMemo(
-    () => createSignUpSchema(currentStep, getString as (key: any) => string),
-    [currentStep, getString],
-  );
 
   const handleNext = async (formik: any) => {
     try {
@@ -348,6 +342,7 @@ const StepContent: React.FC<StepContentProps> = ({
                     formik,
                   ),
                 autoCapitalize: 'none',
+                autoCorrect: false,
               }}
             />
           </View>

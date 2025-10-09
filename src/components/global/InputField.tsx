@@ -134,7 +134,6 @@ const useStyles = () => {
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         marginLeft: 8,
-        marginRight: 4,
       },
     });
   }, [theme]);

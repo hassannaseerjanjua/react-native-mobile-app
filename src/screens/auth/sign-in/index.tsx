@@ -25,6 +25,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState<'Phone' | 'Email'>('Phone');
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [apiError, setApiError] = useState<string>('');
   const [currentFormValues, setCurrentFormValues] = useState({
     phone: '',
     email: '',
@@ -78,6 +79,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
     if (!hasErrors) {
       setIsLoading(true);
+      setApiError(''); // Clear previous API errors
       try {
         const response = await api.post(apiEndpoints.SIGNIN, {
           PhoneNo: values.phone,
@@ -87,9 +89,13 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         if (response.success) {
           setCurrentFormValues(values);
           setIsBottomSheetOpen(true); // ✅ open only after API success
+        } else {
+          // Capture the error message from the API response
+          setApiError(response.error || 'An error occurred');
         }
       } catch (error) {
         console.error('Sign in error', error);
+        setApiError('Network error. Please try again.');
       } finally {
         setTimeout(() => {
           setIsLoading(false);
@@ -120,7 +126,10 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             <TouchableOpacity
               key={tab}
               style={[styles.tab, activeTab === tab && styles.activeTab]}
-              onPress={() => setActiveTab(tab as 'Phone' | 'Email')}
+              onPress={() => {
+                setActiveTab(tab as 'Phone' | 'Email');
+                setApiError(''); // Clear API error when switching tabs
+              }}
             >
               <Text
                 style={[
@@ -151,14 +160,18 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             handleSubmit,
           }) => {
             const isPhone = activeTab === 'Phone';
-            const error = isPhone
+            const formikError = isPhone
               ? errors.phone && touched.phone && errors.phone
               : errors.email && touched.email && errors.email;
+
+            // Show API error if it exists, otherwise show Formik validation error
+            const error = apiError || (formikError as string);
 
             return (
               <View style={styles.formContainer}>
                 <View style={styles.inputContainer}>
                   <InputField
+                    isPhone={isPhone}
                     icon={
                       isPhone ? (
                         <SvgPhone width={scaleWithMax(20, 25)} />
@@ -172,13 +185,18 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                         ? getString('AU_PHONE_NUMBER')
                         : getString('AU_PL_EMAIL'),
                       keyboardType: isPhone ? 'phone-pad' : 'email-address',
-                      autoCapitalize: isPhone ? undefined : 'none',
+                      autoCapitalize: 'none',
                       maxLength: isPhone ? 14 : 100,
-                      value: isPhone ? `+966 ${values.phone}` : values.email,
+                      value: isPhone ? values.phone : values.email,
                       onChangeText: isPhone
-                        ? value =>
-                            setFieldValue('phone', value.replace('+966 ', ''))
-                        : handleChange('email'),
+                        ? value => {
+                            setApiError('');
+                            setFieldValue('phone', value.replace('+966 ', ''));
+                          }
+                        : value => {
+                            setApiError('');
+                            handleChange('email')(value);
+                          },
                     }}
                   />
                 </View>
