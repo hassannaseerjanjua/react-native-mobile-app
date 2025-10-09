@@ -125,8 +125,8 @@ const HomeScreenTabsContainer: React.FC = () => {
     {
       id: 'gift-one-get-one',
       icon: <SvgGiftOneGetOne />,
-      title: getString('HOME_GIFT_ONE_GET_ONE'),
-      titlePrimary: '',
+      title: 'Gift One',
+      titlePrimary: 'Get one',
       description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
       onPress: undefined,
     },
@@ -140,7 +140,8 @@ const HomeScreenTabsContainer: React.FC = () => {
     {
       id: 'catch',
       image: require('../../../assets/images/catchIcon.png'),
-      title: getString('HOME_CATCH_INSTANT_GIFT'),
+      title: 'Catch',
+      titlePrimary: '\nInstant gifts, limited time',
       description: getString('HOME_CATCH_INSTANT_GIFT_DESC'),
       onPress: undefined,
     },

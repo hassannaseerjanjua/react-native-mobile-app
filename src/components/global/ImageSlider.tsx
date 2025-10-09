@@ -105,7 +105,7 @@ const useStyles = () => {
         container: {
           position: 'relative',
           width: theme.sizes.PADDED_WIDTH,
-          height: theme.sizes.HEIGHT * 0.39,
+          height: theme.sizes.HEIGHT * 0.34,
           marginTop: theme.sizes.PADDING * 0.6,
         },
         scrollView: {
@@ -113,7 +113,7 @@ const useStyles = () => {
         },
         slideContainer: {
           width: theme.sizes.PADDED_WIDTH,
-          height: theme.sizes.HEIGHT * 0.39,
+          height: theme.sizes.HEIGHT * 0.34,
           justifyContent: 'center',
           alignItems: 'center',
           borderRadius: theme.sizes.BORDER_RADIUS_MID,

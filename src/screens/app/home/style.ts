@@ -18,13 +18,14 @@ const useStyles = () => {
         flex: 1,
       },
       contentContainer: {
-        gap: sizes.PADDING * 0.7,
+        gap: scaleWithMax(8, 10),
         paddingBottom: sizes.HEIGHT * 0.13,
       },
       welcomeText: {
         fontFamily: fonts.Quicksand.semibold,
-        fontSize: sizes.FONTSIZE_HEADING,
+        fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
+        marginTop: sizes.PADDING * 0.1,
       },
       userName: {
         fontFamily: fonts.Quicksand.bold,
@@ -32,48 +33,18 @@ const useStyles = () => {
       heroImage: {
         width: '100%',
         borderRadius: sizes.BORDER_RADIUS_MID,
-        // marginBottom: scaleWithMax(8, 10),
+        marginBottom: scaleWithMax(7, 9),
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.bold,
-        fontSize: sizes.FONTSIZE_HEADING,
-        color: '#262C3D',
-        paddingVertical: sizes.PADDING * 0.3,
+        fontSize: sizes.FONTSIZE_HIGH,
+        color: colors.PRIMARY_TEXT,
+        marginBottom: scaleWithMax(9, 11),
       },
       optionsWrapper: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: 8,
-      },
-      optionCard: {
-        flex: 1,
-        flexDirection: 'row', // icon left, text right
-        alignItems: 'center',
-        borderRadius: 12,
-        padding: sizes.PADDING,
-        shadowColor: '#000',
-        shadowOpacity: 0.05,
-        shadowRadius: 5,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
-        backgroundColor: '#DBEDFD',
-      },
-      optionContent: {
-        flex: 1,
-        marginLeft: 10, // spacing between icon and text
-      },
-      optionTitle: {
-        fontSize: sizes.FONTSIZE_MEDIUM,
-        fontFamily: fonts.Quicksand.bold,
-        color: colors.PRIMARY_TEXT,
-        marginBottom: 4,
-      },
-      optionTitlePrimary: {
-        color: colors.PRIMARY,
-      },
-      optionDesc: {
-        fontSize: 9,
-        color: colors.BLACK,
+        gap: scaleWithMax(10, 12),
       },
     });
   }, [theme]);
