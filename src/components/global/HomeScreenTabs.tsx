@@ -54,7 +54,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           fontSize: scaleWithMax(12, 13),
           fontFamily: fonts.Quicksand.bold,
           color: colors.PRIMARY_TEXT,
-          marginBottom: scaleWithMax(4, 3),
+          // marginBottom: scaleWithMax(4, 3),
           flexShrink: 1,
         },
         titlePrimary: {
@@ -64,7 +64,6 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           fontSize: scaleWithMax(9, 10),
           fontFamily: fonts.Quicksand.regular,
           color: colors.BLACK,
-          // marginTop: scaleWithMax(4, 4),
           lineHeight: scaleWithMax(13, 14),
         },
         iconImage: {

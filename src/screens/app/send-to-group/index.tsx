@@ -88,7 +88,11 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
       });
   };
 
-  const handleSaveGroupMembers = (selectedMembers: ActiveUser[]) => {
+  const handleSaveGroupMembers = (
+    selectedMembers: ActiveUser[],
+    groupName?: string,
+    groupImage?: { uri: string; type: string; name: string } | null,
+  ) => {
     if (!selectedGroup) return;
 
     const originalMemberIds = getGroupMembersData().map(m => m.UserId);
@@ -107,7 +111,15 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
 
     const formData = new FormData();
     formData.append('UserGroupId', selectedGroup.UserGroupId.toString());
-    formData.append('NameEn', selectedGroup.GroupName);
+    formData.append('NameEn', groupName || selectedGroup.GroupName);
+
+    if (groupImage) {
+      formData.append('File', {
+        uri: groupImage.uri,
+        type: groupImage.type,
+        name: groupImage.name,
+      } as any);
+    }
 
     addedMemberIds.forEach(id => {
       formData.append('MemberUserIds', id.toString());
@@ -207,7 +219,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         onClose={() => setIsViewMembersOpen(false)}
         existingMembers={getGroupMembersData()}
         onSave={() => {}}
-        title="Group Members"
+        title={selectedGroup?.GroupName || 'Group Members'}
         listings={[
           {
             users: getGroupMembersData(),
@@ -222,6 +234,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         existingMembers={getGroupMembersData()}
         onSave={handleSaveGroupMembers}
         title="Edit Group Members"
+        existingGroupName={selectedGroup?.GroupName}
         listings={[
           {
             users: [

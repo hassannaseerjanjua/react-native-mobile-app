@@ -1,16 +1,17 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
   View,
   Modal,
   Animated,
-  Dimensions,
   ScrollView,
   Image,
   FlatList,
   TouchableOpacity,
   StyleSheet,
   TextInput,
+  Platform,
 } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
 import BottomSheetHeader from '../app/BottomSheetHeader';
 import SearchUserItem from '../app/SearchUserItem';
 import { SvgCrossIcon, SvgImageIcon } from '../../assets/icons';
@@ -34,11 +35,16 @@ interface MemberSelectionModalProps {
   visible: boolean;
   onClose: () => void;
   existingMembers: ActiveUser[];
-  onSave: (selectedMembers: ActiveUser[], groupName?: string) => void;
+  onSave: (
+    selectedMembers: ActiveUser[],
+    groupName?: string,
+    groupImage?: { uri: string; type: string; name: string } | null,
+  ) => void;
   title: string;
   listings: UserListing[];
   isSendAGift?: boolean;
   viewOnly?: boolean;
+  existingGroupName?: string;
 }
 
 const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
@@ -50,6 +56,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   listings = [],
   isSendAGift = false,
   viewOnly = false,
+  existingGroupName = '',
 }) => {
   const { styles } = useStyles();
   const [modalAnimation] = useState(new Animated.Value(0));
@@ -57,110 +64,171 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
   const [groupName, setGroupName] = useState('');
+  const [groupImage, setGroupImage] = useState<{
+    uri: string;
+    type: string;
+    name: string;
+  } | null>(null);
+  const [groupError, setGroupError] = useState('');
 
   const theme = useTheme();
   const navigation = useNavigation();
 
-  // Get all users from all listings for filtering and selection
-  const getAllUsers = () => {
-    return listings?.flatMap(listing => listing.users || []) || [];
-  };
+  // Memoize all users to avoid recalculation on every render
+  const allUsers = useMemo(
+    () => listings?.flatMap(listing => listing.users || []) || [],
+    [listings],
+  );
 
-  const openModal = () => {
-    setModalStep(1);
-    setSearchQuery('');
-    setGroupName('');
-    setSelectedUsers(
-      new Set(existingMembers?.map(member => member.UserId) || []),
-    );
+  // Memoize selected users data
+  const selectedUsersData = useMemo(
+    () => allUsers.filter(user => selectedUsers.has(user.UserId)),
+    [allUsers, selectedUsers],
+  );
+
+  // Centralized state reset function
+  const resetModalState = useCallback(
+    (prefillGroupName = false) => {
+      setModalStep(1);
+      setSearchQuery('');
+      setGroupName(prefillGroupName ? existingGroupName : '');
+      setGroupImage(null);
+      setGroupError('');
+      setSelectedUsers(
+        prefillGroupName
+          ? new Set(existingMembers?.map(member => member.UserId) || [])
+          : new Set(),
+      );
+    },
+    [existingGroupName, existingMembers],
+  );
+
+  const openModal = useCallback(() => {
+    resetModalState(true);
     Animated.timing(modalAnimation, {
       toValue: 1,
       duration: 300,
       useNativeDriver: true,
     }).start();
-  };
+  }, [modalAnimation, resetModalState]);
 
-  const closeModal = () => {
+  const closeModal = useCallback(() => {
     Animated.timing(modalAnimation, {
       toValue: 0,
       duration: 250,
       useNativeDriver: true,
     }).start(() => {
-      setModalStep(1);
-      setSearchQuery('');
-      setGroupName('');
-      setSelectedUsers(new Set());
-      modalAnimation.setValue(0);
+      resetModalState(false);
       onClose();
     });
-  };
+  }, [modalAnimation, resetModalState, onClose]);
 
-  const handleUserSelection = (userId: number) => {
+  const handleUserSelection = useCallback((userId: number) => {
     setSelectedUsers(prev => {
       const newSet = new Set(prev);
       if (newSet.has(userId)) {
         newSet.delete(userId);
-        const allUsers = getAllUsers();
-        const removedUser = allUsers.find(user => user.UserId === userId);
-        console.log('Removed member:', removedUser);
       } else {
         newSet.add(userId);
       }
       return newSet;
     });
-  };
+  }, []);
 
-  const handleNextStep = () => {
+  const handleNextStep = useCallback(() => {
     if (modalStep === 1 && selectedUsers.size > 0) {
       setModalStep(2);
     }
-  };
+  }, [modalStep, selectedUsers.size]);
 
-  const handleBackStep = () => {
+  const handleBackStep = useCallback(() => {
     if (modalStep === 2) {
       setModalStep(1);
     }
-  };
+  }, [modalStep]);
 
-  const handleSave = () => {
-    const allUsers = getAllUsers();
-    const selectedMembers = allUsers.filter(user =>
-      selectedUsers.has(user.UserId),
+  const handleImageSelect = useCallback(() => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.8,
+        selectionLimit: 1,
+      },
+      response => {
+        if (response.assets && response.assets[0]) {
+          const asset = response.assets[0];
+          setGroupImage({
+            uri:
+              Platform.OS === 'ios'
+                ? asset.uri?.replace('file://', '') || ''
+                : asset.uri || '',
+            type: asset.type || 'image/jpeg',
+            name: asset.fileName || `group_image_${Date.now()}.jpg`,
+          });
+          if (groupError) setGroupError('');
+        }
+      },
     );
+  }, [groupError]);
 
+  const handleSave = useCallback(() => {
     if (isSendAGift) {
+      setGroupError('');
+      if (!groupName.trim() || !groupImage) {
+        setGroupError('Please enter group name and image');
+        return;
+      }
+
+      const formData = new FormData();
+      formData.append('Name', groupName);
+
+      if (groupImage) {
+        formData.append('File', {
+          uri: groupImage.uri,
+          type: groupImage.type,
+          name: groupImage.name,
+        });
+      }
+
+      Array.from(selectedUsers).forEach(userId => {
+        formData.append('MemberUserIds', userId.toString());
+      });
+
       api
-        .post(
-          apiEndpoints.CREATE_GROUP,
-          {
-            Name: groupName,
-            MemberUserIds: Array.from(selectedUsers),
-          },
-          {
-            headers: { 'Content-Type': 'multipart/form-data' },
-          },
-        )
-        .then(response => {
-          console.log('response', response.data);
-          onSave(selectedMembers, groupName);
+        .post(apiEndpoints.CREATE_GROUP, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        })
+        .then(() => {
+          onSave(selectedUsersData, groupName, groupImage);
           closeModal();
           navigation.navigate('SendToGroup' as never);
         })
         .catch(error => {
-          console.log('error', error);
+          console.error('Create group error:', error);
         });
     } else {
-      onSave(selectedMembers);
+      onSave(selectedUsersData, groupName, groupImage);
       closeModal();
     }
-  };
+  }, [
+    isSendAGift,
+    groupName,
+    groupImage,
+    selectedUsers,
+    selectedUsersData,
+    onSave,
+    closeModal,
+    navigation,
+  ]);
 
-  const getSelectedUsersData = () => {
-    const allUsers = getAllUsers();
-    return allUsers.filter(user => selectedUsers.has(user.UserId));
-  };
-
-  const selectedUsersData = getSelectedUsersData();
+  // Memoize style for viewOnly to avoid recreation
+  const selectedUsersContainerStyle = useMemo(
+    () =>
+      viewOnly
+        ? [styles.selectedUsersContainer, { shadowOpacity: 0, elevation: 0 }]
+        : styles.selectedUsersContainer,
+    [styles.selectedUsersContainer, viewOnly],
+  );
 
   const SelectedUsersDisplay = () => {
     if (selectedUsersData.length === 0) {
@@ -168,20 +236,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     }
 
     return (
-      <View
-        style={
-          !viewOnly
-            ? styles.selectedUsersContainer
-            : {
-                ...styles.selectedUsersContainer,
-                shadowColor: '',
-                shadowOpacity: 0,
-                shadowRadius: 0,
-                shadowOffset: { width: 0, height: 0 },
-                elevation: 0,
-              }
-        }
-      >
+      <View style={selectedUsersContainerStyle}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -216,24 +271,24 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     );
   };
 
+  // Memoize filtered listings
+  const filteredListings = useMemo(() => {
+    if (!searchQuery.trim()) {
+      return listings;
+    }
+
+    const lowerSearchQuery = searchQuery.toLowerCase();
+    return listings
+      .map(listing => ({
+        ...listing,
+        users: (listing.users || []).filter(user =>
+          user.FullName.toLowerCase().includes(lowerSearchQuery),
+        ),
+      }))
+      .filter(listing => listing.users.length > 0);
+  }, [searchQuery, listings]);
+
   const UserListComponent = () => {
-    const getFilteredListings = () => {
-      if (!searchQuery.trim()) {
-        return listings;
-      }
-
-      return listings
-        .map(listing => ({
-          ...listing,
-          users: (listing.users || []).filter(user =>
-            user.FullName.toLowerCase().includes(searchQuery.toLowerCase()),
-          ),
-        }))
-        .filter(listing => listing.users.length > 0);
-    };
-
-    const filteredListings = getFilteredListings();
-
     return (
       <View>
         {filteredListings.length > 0 ? (
@@ -267,7 +322,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       />
                     )}
                     showsVerticalScrollIndicator={false}
-                    contentContainerStyle={styles.listContainer}
                     scrollEnabled={false}
                   />
                 ) : (
@@ -289,10 +343,19 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     );
   };
 
+  // Memoize member rows to avoid recalculation
+  const memberRows = useMemo(() => {
+    const chunks: ActiveUser[][] = [];
+    for (let i = 0; i < selectedUsersData.length; i += 4) {
+      chunks.push(selectedUsersData.slice(i, i + 4));
+    }
+    return chunks;
+  }, [selectedUsersData]);
+
   const SelectedMembersGrid = () => {
     const renderMemberRow = (rowData: ActiveUser[], rowIndex: number) => (
       <View key={rowIndex} style={styles.memberRow}>
-        {rowData.map((user, index) => (
+        {rowData.map(user => (
           <View key={user.UserId} style={styles.memberGridItem}>
             <View style={styles.memberGridImageContainer}>
               <Image
@@ -313,17 +376,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         ))}
       </View>
     );
-
-    const chunkArray = (array: ActiveUser[], chunkSize: number) => {
-      const chunks = [];
-      for (let i = 0; i < array.length; i += chunkSize) {
-        chunks.push(array.slice(i, i + chunkSize));
-      }
-      return chunks;
-    };
-
-    const memberRows = chunkArray(selectedUsersData, 4);
-    console.log('memberRows', memberRows);
 
     return (
       <View style={styles.membersGridContainer}>
@@ -354,7 +406,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                 {
                   translateY: modalAnimation.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [Dimensions.get('window').height, 0],
+                    outputRange: [theme.sizes.HEIGHT, 0],
                   }),
                 },
               ],
@@ -370,11 +422,17 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                 <>
                   <BottomSheetHeader
                     leftSideTitle="Cancel"
-                    title={viewOnly ? title : 'Edit Group Members'}
+                    title={
+                      viewOnly
+                        ? title
+                        : isSendAGift
+                        ? 'Add Members'
+                        : 'Edit Group Members'
+                    }
                     subTitle={
                       viewOnly
-                        ? `${getAllUsers().length} members`
-                        : `${selectedUsers.size}/${getAllUsers().length}`
+                        ? `${allUsers.length} members`
+                        : `${selectedUsers.size}/${allUsers.length}`
                     }
                     rightSideTitle={viewOnly ? '' : 'Next'}
                     showSearchBar={true}
@@ -391,7 +449,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                 <>
                   <BottomSheetHeader
                     leftSideTitle="Back"
-                    title="Review Members"
+                    title={isSendAGift ? 'New Group' : 'Review Members'}
                     subTitle=""
                     rightSideTitle="Save"
                     showSearchBar={false}
@@ -399,24 +457,42 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                     rightSideTitlePress={handleSave}
                   />
                   <View style={styles.step2Container}>
-                    <View style={styles.groupNameContainer}>
-                      <View style={styles.groupNameInputContainer}>
-                        <View style={styles.groupNameIconWrapper}>
+                    <View
+                      style={[
+                        styles.groupNameInputContainer,
+                        groupError && styles.groupNameInputError,
+                      ]}
+                    >
+                      <TouchableOpacity
+                        style={styles.groupNameIconWrapper}
+                        onPress={handleImageSelect}
+                      >
+                        {groupImage ? (
+                          <Image
+                            source={{ uri: groupImage.uri }}
+                            style={styles.groupImagePreview}
+                          />
+                        ) : (
                           <SvgImageIcon />
-                        </View>
-                        <TextInput
-                          allowFontScaling={false}
-                          style={styles.groupNameInput}
-                          placeholder="Enter group name"
-                          placeholderTextColor="#A0A0A0EE"
-                          value={groupName}
-                          onChangeText={setGroupName}
-                        />
-                      </View>
+                        )}
+                      </TouchableOpacity>
+                      <TextInput
+                        allowFontScaling={false}
+                        style={styles.groupNameInput}
+                        placeholder="Enter group name"
+                        placeholderTextColor={theme.colors.SECONDARY_GRAY}
+                        value={groupName}
+                        onChangeText={text => {
+                          setGroupName(text);
+                          if (groupError) setGroupError('');
+                        }}
+                      />
                     </View>
+                    {groupError ? (
+                      <Text style={styles.errorText}>{groupError}</Text>
+                    ) : null}
                     <Text style={styles.membersHeading}>
-                      Members: {selectedUsers.size} out of{' '}
-                      {getAllUsers().length}
+                      Members: {selectedUsers.size} out of {allUsers.length}
                     </Text>
                     <SelectedMembersGrid />
                   </View>
@@ -434,10 +510,24 @@ const useStyles = () => {
   const theme = useTheme();
   const styles = useMemo(() => {
     const { colors, sizes } = theme;
+
+    // Shared shadow style
+    const shadowStyle = {
+      shadowColor: colors.BLACK,
+      shadowOffset: { width: 0, height: 2 },
+      shadowOpacity: 0.08,
+      shadowRadius: scaleWithMax(4, 6),
+      elevation: 2,
+    };
+
+    const avatarSize = scaleWithMax(60, 60);
+    const crossIconSize = scaleWithMax(20, 20);
+    const userItemWidth = scaleWithMax(80, 80);
+
     return StyleSheet.create({
       modalOverlay: {
         flex: 1,
-        backgroundColor: '#00000020',
+        backgroundColor: 'rgba(0, 0, 0, 0.1)',
         justifyContent: 'flex-end',
         position: 'absolute',
         top: 0,
@@ -447,8 +537,8 @@ const useStyles = () => {
       },
       modalContainer: {
         backgroundColor: colors.WHITE,
-        borderTopLeftRadius: 20,
-        borderTopRightRadius: 20,
+        borderTopLeftRadius: sizes.BORDER_RADIUS_HIGH,
+        borderTopRightRadius: sizes.BORDER_RADIUS_HIGH,
         height: sizes.HEIGHT - isIOSThen(scaleWithMax(45, 55), 0),
         width: '100%',
         position: 'absolute',
@@ -472,38 +562,52 @@ const useStyles = () => {
       },
       step2Container: {
         paddingVertical: sizes.HEIGHT * 0.02,
-        // paddingHorizontal: sizes.WIDTH * 0.04,
-      },
-      groupNameContainer: {
-        marginBottom: sizes.HEIGHT * 0.02,
       },
       groupNameInputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: colors.WHITE,
-        borderRadius: 12,
+        borderRadius: sizes.BORDER_RADIUS_MID,
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.HEIGHT * 0.018,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 2,
+        paddingVertical: sizes.HEIGHT * 0.015,
+        ...shadowStyle,
       },
       groupNameIconWrapper: {
-        marginRight: sizes.PADDING * 0.8,
+        width: scaleWithMax(28, 28),
+        height: scaleWithMax(28, 28),
+        borderRadius: 999,
+        backgroundColor: colors.SECONDARY,
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      groupImagePreview: {
+        width: scaleWithMax(28, 28),
+        height: scaleWithMax(28, 28),
+        borderRadius: 999,
+      },
+      groupNameInputError: {
+        borderColor: colors.RED,
+        borderWidth: 1,
+      },
+      errorText: {
+        fontFamily: fonts.Quicksand.regular,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: colors.RED,
+        marginTop: scaleWithMax(4, 4),
       },
       groupNameInput: {
         flex: 1,
-        fontSize: 14,
+        fontSize: sizes.FONTSIZE,
         fontFamily: fonts.Quicksand.regular,
         color: colors.PRIMARY_TEXT,
+        marginLeft: sizes.PADDING * 0.6,
         padding: 0,
       },
       membersHeading: {
         fontFamily: fonts.Quicksand.semibold,
-        fontSize: 16,
+        fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
+        marginTop: sizes.HEIGHT * 0.02,
         marginBottom: sizes.HEIGHT * 0.015,
       },
       membersGridContainer: {
@@ -516,8 +620,8 @@ const useStyles = () => {
       },
       memberGridItem: {
         alignItems: 'center',
-        width: 80,
-        marginRight: 12,
+        width: userItemWidth,
+        marginRight: sizes.BORDER_RADIUS_MID,
       },
       memberGridImageContainer: {
         position: 'relative',
@@ -527,36 +631,33 @@ const useStyles = () => {
       memberGridCrossIcon: {
         position: 'absolute',
         top: 0,
-        right: -5,
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        backgroundColor: '#F8F8F6',
+        right: scaleWithMax(-5, -5),
+        width: crossIconSize,
+        height: crossIconSize,
+        borderRadius: crossIconSize / 2,
+        backgroundColor: colors.LIGHT_GRAY,
         alignItems: 'center',
         justifyContent: 'center',
       },
       memberGridAvatar: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        marginBottom: 6,
+        width: avatarSize,
+        height: avatarSize,
+        borderRadius: avatarSize / 2,
+        marginBottom: scaleWithMax(6, 6),
       },
       memberGridName: {
         fontFamily: fonts.Quicksand.medium,
-        fontSize: 12,
+        fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
-        maxWidth: 80,
+        maxWidth: userItemWidth,
       },
       selectedUsersContainer: {
         marginVertical: sizes.HEIGHT * 0.01,
-        paddingVertical: 12,
+        paddingVertical: sizes.BORDER_RADIUS_MID,
         backgroundColor: colors.WHITE,
-        borderRadius: 12,
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowRadius: 6,
-        shadowOffset: { width: 0, height: 2 },
+        borderRadius: sizes.BORDER_RADIUS_MID,
+        ...shadowStyle,
         elevation: 3,
       },
       selectedUsersList: {
@@ -564,7 +665,7 @@ const useStyles = () => {
       },
       selectedUserItem: {
         alignItems: 'center',
-        width: 80,
+        width: userItemWidth,
       },
       selectedUserImageContainer: {
         position: 'relative',
@@ -572,45 +673,39 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       selectedUserAvatar: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        marginBottom: 6,
+        width: avatarSize,
+        height: avatarSize,
+        borderRadius: avatarSize / 2,
+        marginBottom: scaleWithMax(6, 6),
       },
       selectedUserCrossIcon: {
         position: 'absolute',
         top: 0,
-        right: -5,
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        backgroundColor: '#F8F8F6',
+        right: scaleWithMax(-5, -5),
+        width: crossIconSize,
+        height: crossIconSize,
+        borderRadius: crossIconSize / 2,
+        backgroundColor: colors.LIGHT_GRAY,
         alignItems: 'center',
         justifyContent: 'center',
       },
       selectedUserName: {
         fontFamily: fonts.Quicksand.medium,
-        fontSize: 12,
+        fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
-        maxWidth: 80,
+        maxWidth: userItemWidth,
       },
       listCard: {
         backgroundColor: colors.WHITE,
-        borderRadius: 16,
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowRadius: 6,
-        shadowOffset: { width: 0, height: 2 },
+        borderRadius: sizes.BORDER_RADIUS_HIGH,
+        ...shadowStyle,
         elevation: 3,
         marginBottom: sizes.HEIGHT * 0.018,
       },
-      listContainer: {
-        paddingVertical: 0,
-      },
       sectionTitle: {
         fontFamily: fonts.Quicksand.semibold,
-        fontSize: 18,
+        fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
         paddingBottom: sizes.HEIGHT * 0.01,
       },
@@ -622,7 +717,7 @@ const useStyles = () => {
       },
       emptyStateText: {
         fontFamily: fonts.Quicksand.medium,
-        fontSize: 14,
+        fontSize: sizes.FONTSIZE,
         color: colors.SECONDARY_GRAY,
         textAlign: 'center',
       },
