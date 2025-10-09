@@ -33,7 +33,10 @@ const apiEndpoints = {
   UNFRIEND_USER: (userId?: number, friendUserId?: number) =>
     `/${version}/Friends/UnfriendAUser?userId=${userId}&friendUserId=${friendUserId}`,
   CREATE_GROUP: `/${version}/Friends/CreateGroupWithMembers`,
-  GET_GROUPS: `/${version}/Friends/GroupList`,
+  GET_GROUPS: (searchTerm: string = '') =>
+    `/${version}/Friends/GroupList${
+      searchTerm ? `?SearchTerm=${searchTerm}` : ''
+    }`,
   EDIT_GROUP_MEMBERS: `/${version}/Friends/EditGroup`,
   DELETE_GROUP: `/${version}/Friends/DeleteGroup`,
   CHECK_USER_LINKED_WITH_GROUP: (friendUserId?: number) =>

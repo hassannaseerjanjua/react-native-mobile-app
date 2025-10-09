@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, StatusBar, ActivityIndicator } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import useStyles from './style';
@@ -42,10 +42,17 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
 
   console.log('activeUsersApi', activeUsersApi?.data);
 
-  const getGroupsData = useGetApi<GroupData[]>(apiEndpoints.GET_GROUPS, {
-    withAuth: true,
-    transformData: (data: getGroupsDataApiResponse) => data.Data.Items || [],
-  });
+  const getGroupsData = useGetApi<GroupData[]>(
+    apiEndpoints.GET_GROUPS(searchQuery),
+    {
+      withAuth: true,
+      transformData: (data: getGroupsDataApiResponse) => data.Data.Items || [],
+    },
+  );
+
+  useEffect(() => {
+    getGroupsData.refetch();
+  }, [searchQuery]);
 
   const getGroupMembersData = (): ActiveUser[] => {
     if (!selectedGroup) return [];

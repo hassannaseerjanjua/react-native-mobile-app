@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StatusBar,
@@ -17,7 +17,11 @@ import {
   MemberSelectionModal,
 } from '../../../components/send-a-gift';
 import TabItem from '../../../components/global/TabItem';
-import { ActiveUser, ActiveUsersApiResponse } from '../../../types';
+import {
+  ActiveUser,
+  ActiveUsersApiResponse,
+  SearchFriendsApiResponse,
+} from '../../../types';
 import { SvgAddGroup } from '../../../assets/icons';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
@@ -50,9 +54,23 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     },
   );
 
+  const searchFriendsApi = useGetApi<ActiveUser[]>(
+    apiEndpoints.SEARCH_FRIENDS(searchQuery, user?.UserId),
+    {
+      transformData: (data: SearchFriendsApiResponse) => data.Data,
+    },
+  );
+
   console.log('activeUsersApi', activeUsersApi?.data);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    if (searchQuery) {
+      searchFriendsApi.refetch();
+    }
+  }, [searchQuery]);
+
+  useEffect(() => {
+    setSearchQuery('');
     if (activeTab === 'friends') {
       setIsFetchingFriends(true);
     } else if (activeTab === 'others') {
@@ -60,7 +78,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     }
   }, [activeTab]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeTab !== 'group') {
       activeUsersApi.refetch();
     }
@@ -87,6 +105,13 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
       },
     },
   ];
+
+  const displayData = searchQuery
+    ? searchFriendsApi.data || []
+    : activeUsersApi.data || [];
+  const isLoading = searchQuery
+    ? searchFriendsApi.loading
+    : activeUsersApi.loading;
 
   return (
     <ParentView style={styles.container}>
@@ -141,7 +166,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           <View>
             <Text style={styles.sectionTitle}>Friends</Text>
             <View style={styles.listCard}>
-              {activeUsersApi?.loading ? (
+              {isLoading ? (
                 <ActivityIndicator
                   size="large"
                   color={theme.colors.PRIMARY}
@@ -149,15 +174,15 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                     paddingVertical: theme.sizes.HEIGHT * 0.02,
                   }}
                 />
-              ) : activeUsersApi?.data && activeUsersApi.data.length > 0 ? (
+              ) : displayData.length > 0 ? (
                 <FlatList
-                  data={activeUsersApi.data}
+                  data={displayData}
                   keyExtractor={item => item.UserId.toString()}
                   renderItem={({ item, index }) => (
                     <SearchUserItem
                       item={item}
                       index={index}
-                      isLast={index === (activeUsersApi?.data?.length || 0) - 1}
+                      isLast={index === displayData.length - 1}
                       showAddButton={false}
                       showSelection={false}
                     />
@@ -167,7 +192,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                   scrollEnabled={false}
                 />
               ) : (
-                <Text style={styles.errorText}>No friends found</Text>
+                <Text style={styles.errorText}>
+                  {searchQuery ? 'No results found' : 'No friends found'}
+                </Text>
               )}
             </View>
           </View>

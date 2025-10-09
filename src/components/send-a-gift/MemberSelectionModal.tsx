@@ -216,49 +216,78 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     );
   };
 
-  const UserListComponent = () => (
-    <View>
-      {listings.map((listing, listingIndex) => (
-        <View key={listingIndex}>
-          {listing.title ? (
-            <Text style={styles.sectionTitle}>{listing.title}</Text>
-          ) : (
-            <View
-              style={{
-                paddingVertical: theme.sizes.HEIGHT * 0.009,
-              }}
-            />
-          )}
-          <View style={styles.listCard}>
-            {(listing.users || []).length > 0 ? (
-              <FlatList
-                data={listing.users || []}
-                keyExtractor={item => item.UserId.toString()}
-                renderItem={({ item, index }) => (
-                  <SearchUserItem
-                    item={item}
-                    index={index}
-                    isLast={index === (listing.users || []).length - 1}
-                    showAddButton={false}
-                    showSelection={!viewOnly}
-                    isSelected={selectedUsers.has(item.UserId)}
-                    onSelectionPress={() => handleUserSelection(item.UserId)}
+  const UserListComponent = () => {
+    const getFilteredListings = () => {
+      if (!searchQuery.trim()) {
+        return listings;
+      }
+
+      return listings
+        .map(listing => ({
+          ...listing,
+          users: (listing.users || []).filter(user =>
+            user.FullName.toLowerCase().includes(searchQuery.toLowerCase()),
+          ),
+        }))
+        .filter(listing => listing.users.length > 0);
+    };
+
+    const filteredListings = getFilteredListings();
+
+    return (
+      <View>
+        {filteredListings.length > 0 ? (
+          filteredListings.map((listing, listingIndex) => (
+            <View key={listingIndex}>
+              {listing.title ? (
+                <Text style={styles.sectionTitle}>{listing.title}</Text>
+              ) : (
+                <View
+                  style={{
+                    paddingVertical: theme.sizes.HEIGHT * 0.009,
+                  }}
+                />
+              )}
+              <View style={styles.listCard}>
+                {(listing.users || []).length > 0 ? (
+                  <FlatList
+                    data={listing.users || []}
+                    keyExtractor={item => item.UserId.toString()}
+                    renderItem={({ item, index }) => (
+                      <SearchUserItem
+                        item={item}
+                        index={index}
+                        isLast={index === (listing.users || []).length - 1}
+                        showAddButton={false}
+                        showSelection={!viewOnly}
+                        isSelected={selectedUsers.has(item.UserId)}
+                        onSelectionPress={() =>
+                          handleUserSelection(item.UserId)
+                        }
+                      />
+                    )}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.listContainer}
+                    scrollEnabled={false}
                   />
+                ) : (
+                  <View style={styles.emptyStateContainer}>
+                    <Text style={styles.emptyStateText}>No users to show</Text>
+                  </View>
                 )}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.listContainer}
-                scrollEnabled={false}
-              />
-            ) : (
-              <View style={styles.emptyStateContainer}>
-                <Text style={styles.emptyStateText}>No users to show</Text>
               </View>
-            )}
+            </View>
+          ))
+        ) : (
+          <View style={styles.listCard}>
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>No results found</Text>
+            </View>
           </View>
-        </View>
-      ))}
-    </View>
-  );
+        )}
+      </View>
+    );
+  };
 
   const SelectedMembersGrid = () => {
     const renderMemberRow = (rowData: ActiveUser[], rowIndex: number) => (
