@@ -69,7 +69,6 @@ const HomeScreen: React.FC = () => {
           {getString('HOME_WELCOME')}
           <Text style={styles.userName}>{user?.FullNameEn}</Text>
         </Text>
-
         {loading ? (
           <View
             style={[
@@ -94,11 +93,20 @@ const HomeScreen: React.FC = () => {
           >
             <Text style={{ color: '#666' }}>Failed to load images</Text>
           </View>
+        ) : sliders.length === 0 ? (
+          <View>
+            <View style={styles.heroImage}>
+              <Text style={{ color: '#666' }}>No images found</Text>
+            </View>
+          </View>
         ) : (
           <View style={styles.heroImage}>
             <ImageSlider sliders={sliders} />
           </View>
         )}
+        <Text style={styles.sectionTitle}>
+          {getString('HOME_WHAT_ARE_YOU')}
+        </Text>
         <HomeScreenTabsContainer />
       </ScrollView>
     </View>
@@ -156,8 +164,6 @@ const HomeScreenTabsContainer: React.FC = () => {
 
   return (
     <View style={styles.contentContainer}>
-      <Text style={styles.sectionTitle}>{getString('HOME_WHAT_ARE_YOU')}</Text>
-
       <View style={styles.optionsWrapper}>
         {homeScreenTabs.slice(0, 2).map(tab => (
           <HomeScreenTabs

@@ -100,7 +100,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         borderTopColor: theme.colors.SECONDARY_GRAY,
         borderTopWidth: 0,
         paddingHorizontal: scaleWithMax(10, 12),
-        height: scaleWithMax(60, 70),
+        height: scaleWithMax(70, 75),
         // paddingBottom: 8,
         // paddingTop: 8,
         borderTopLeftRadius: 14,

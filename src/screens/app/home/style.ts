@@ -38,8 +38,8 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.bold,
         fontSize: sizes.FONTSIZE_HEADING,
         color: '#262C3D',
-        paddingTop: sizes.PADDING * 0.53,
         // backgroundColor: 'red',
+        paddingBottom: sizes.HEIGHT * 0.009,
       },
       optionsWrapper: {
         flexDirection: 'row',

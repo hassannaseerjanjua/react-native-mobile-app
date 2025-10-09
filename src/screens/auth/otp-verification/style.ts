@@ -1,103 +1,66 @@
 import { StyleSheet, useWindowDimensions } from 'react-native';
 import useTheme from '../../../styles/theme';
 import { useMemo } from 'react';
-import { isIOS, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
-  const { width, height } = useWindowDimensions();
+  const { width } = useWindowDimensions();
 
   const styles = useMemo(() => {
     const { colors, sizes } = theme;
-    return StyleSheet.create({
-      container: {
-        backgroundColor: colors.BACKGROUND,
-        flex: 1,
-      },
-      scrollContainer: {
-        flex: 1,
-        padding: sizes.PADDING,
-      },
-      contentContainer: {
-        flexGrow: 1,
-        paddingBottom: isIOS ? sizes.BOTTOM_PADDING : 10,
-      },
-      logoContainer: {
-        alignItems: 'center',
 
-        marginBottom: scaleWithMax(50, 55),
-      },
-      logo: {
-        width: scaleWithMax(100, 120),
-        height: scaleWithMax(100, 120),
-        resizeMode: 'contain',
-      },
+    const boxSpacing = width * 0.025;
+    const boxCount = 6;
+    const availableWidth =
+      width - sizes.PADDING * 2 - (boxCount - 1) * boxSpacing;
+    const boxSize = availableWidth / boxCount;
+
+    return StyleSheet.create({
       mainContent: {
         flex: 1,
       },
       headerContainer: {
-        marginBottom: 30,
+        marginBottom: sizes.PADDING * 1.5,
         alignItems: 'center',
       },
       title: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE_HEADING,
         color: colors.PRIMARY_TEXT,
-        // textAlign: 'center',
-        lineHeight: 24,
       },
       otpContainer: {
         flexDirection: 'row',
         justifyContent: 'center',
-        // marginBottom: 30,
-        gap: width * 0.025,
-      },
-      otpBox: {
-        width: 50,
-        height: 50,
-        borderWidth: 1,
-        borderColor: '#EEEEEE',
-        borderRadius: 8,
-        backgroundColor: colors.BACKGROUND,
+        gap: boxSpacing,
       },
       otpInput: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.PRIMARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
-        width: 50,
-        height: 50,
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        width: boxSize,
+        height: boxSize,
+        borderWidth: 1,
+        borderColor: colors.LIGHT_GRAY,
+        borderRadius: boxSize * 0.2,
+        backgroundColor: colors.BACKGROUND,
+        fontSize: boxSize * 0.4,
         textAlign: 'center',
         textAlignVertical: 'center',
-        borderRadius: 8,
         padding: 0,
         margin: 0,
       },
-      otpText: {
-        fontSize: 20,
-        fontWeight: 'bold',
-        color: colors.PRIMARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
-      },
       subtitleContainer: {
         alignItems: 'center',
-        marginTop: 30,
+        marginTop: sizes.PADDING * 1.5,
       },
       subtitle: {
-        fontSize: 16,
+        ...theme.globalStyles.TEXT_STYLE,
+        fontSize: sizes.FONTSIZE_BUTTON,
         color: colors.PRIMARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
-        // marginBottom: 8,
-      },
-      timerText: {
-        fontSize: 16,
-        color: colors.PRIMARY,
-        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
+        textAlign: 'center',
       },
       resendText: {
-        fontSize: 16,
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        fontSize: sizes.FONTSIZE_BUTTON,
         color: colors.PRIMARY,
-        fontFamily: theme.globalStyles.TEXT_STYLE_BOLD.fontFamily,
         textDecorationLine: 'underline',
       },
       buttonContainer: {

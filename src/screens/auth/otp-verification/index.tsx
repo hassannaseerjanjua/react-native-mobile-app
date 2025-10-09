@@ -174,10 +174,10 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                 }}
                 style={[
                   styles.otpInput,
-                  styles.otpBox,
                   {
-                    borderColor: digit ? theme.colors.PRIMARY : '#EEEEEE',
-                    borderWidth: digit ? 1.5 : 1,
+                    borderColor: digit
+                      ? theme.colors.BLACK
+                      : theme.colors.LIGHT_GRAY,
                   },
                 ]}
                 value={digit}

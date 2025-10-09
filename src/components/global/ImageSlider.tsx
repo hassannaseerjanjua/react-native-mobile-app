@@ -87,7 +87,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ sliders }) => {
             <Image
               source={{ uri: slider.ImageUrl }}
               style={[styles.image]}
-              resizeMode="contain"
+              resizeMode="stretch"
             />
           </View>
         ))}
@@ -117,13 +117,11 @@ const useStyles = () => {
           justifyContent: 'center',
           alignItems: 'center',
           borderRadius: theme.sizes.BORDER_RADIUS_MID,
-
           overflow: 'hidden',
         },
         image: {
           width: '100%',
           height: '100%',
-          objectFit: 'cover',
         },
         dotsContainer: {
           flexDirection: 'row',
