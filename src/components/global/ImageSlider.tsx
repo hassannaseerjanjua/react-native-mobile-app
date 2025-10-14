@@ -172,6 +172,7 @@ const useStyles = () => {
           justifyContent: 'center',
           alignItems: 'center',
           borderRadius: theme.sizes.BORDER_RADIUS_MID,
+          overflow: 'hidden',
         },
         stateText: {
           color: '#666',
