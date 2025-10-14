@@ -45,6 +45,18 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           padding: scaleWithMax(12, 14),
           minHeight: scaleWithMax(85, 90),
           backgroundColor: colors.SECONDARY,
+          position: 'relative',
+        },
+        bgIcon: {
+          position: 'absolute',
+          top: 10,
+          left: 'auto',
+          right: 25,
+          bottom: 0,
+          height: '100%',
+          width: '45%',
+          transform: [{ rotate: '15deg' }],
+          // backgroundColor: 'red',
         },
         content: {
           flex: 1,
@@ -83,6 +95,13 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
 
   return (
     <TouchableOpacity style={[cardStyles.card, style]} onPress={onPress}>
+      {title === 'Catch' && (
+        <Image
+          source={require('../../assets/images/card-bg-shadow.png')}
+          style={cardStyles.bgIcon}
+          resizeMode="stretch"
+        />
+      )}
       {icon && <View style={cardStyles.iconContainer}>{icon}</View>}
       {image && <Image source={image} style={cardStyles.iconImage} />}
       <View style={cardStyles.content}>
@@ -92,7 +111,16 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
             <Text style={cardStyles.titlePrimary}> {titlePrimary}</Text>
           )}
         </Text>
-        <Text style={cardStyles.description}>{description}</Text>
+        <Text
+          style={[
+            cardStyles.description,
+            title === 'Catch' && {
+              maxWidth: '70%',
+            },
+          ]}
+        >
+          {description}
+        </Text>
       </View>
     </TouchableOpacity>
   );
