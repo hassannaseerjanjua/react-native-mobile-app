@@ -13,17 +13,16 @@ import {
 } from '../../../assets/icons';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { Slider, SliderApiResponse } from '../../../types';
-import { useDispatch } from 'react-redux';
-import { logout, useAuthStore } from '../../../store/reducer/auth';
+import { useAuthStore } from '../../../store/reducer/auth';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import useGetApi from '../../../hooks/useGetApi';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
-  const dispatch = useDispatch();
   const { getString } = useLocaleStore();
   const { user } = useAuthStore();
+  const navigation = useNavigation();
 
   const {
     data: sliderResponse,
@@ -43,7 +42,7 @@ const HomeScreen: React.FC = () => {
       <HomeHeader
         showProfileIcon={true}
         onProfilePress={() => {
-          dispatch(logout());
+          navigation.navigate('Profile' as never);
         }}
       />
 

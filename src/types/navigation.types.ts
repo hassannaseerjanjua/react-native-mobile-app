@@ -8,6 +8,7 @@ export type AppStackParamList = {
   Favorites: undefined;
   Occasions: undefined;
   Notifications: undefined;
+  Profile: undefined;
 };
 
 export type AuthStackParamList = {

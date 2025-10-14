@@ -26,6 +26,7 @@ interface TabItemProps {
   isGroupImage?: any;
   onDeletePress?: () => void;
   onEditPress?: () => void;
+  icon?: React.ReactNode;
 }
 
 const TabItem = ({
@@ -37,6 +38,7 @@ const TabItem = ({
   isGroupImage = false,
   onDeletePress,
   onEditPress,
+  icon,
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
 
@@ -52,6 +54,7 @@ const TabItem = ({
           isGroupImage === '' && <SvgGroup />
         )}
         {isLink && <SvgGiftLink />}
+        {icon && icon}
         <Text style={styles.titleText} numberOfLines={1} ellipsizeMode="tail">
           {title}
         </Text>
@@ -88,10 +91,10 @@ const useStyles = () => {
         paddingHorizontal: 16,
         paddingVertical: 14,
         shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 3,
+        shadowOpacity: 0.03,
+        shadowRadius: 2,
+        shadowOffset: { width: 0, height: 1 },
+        elevation: 1,
         borderRadius: 8,
       },
       contentContainer: {

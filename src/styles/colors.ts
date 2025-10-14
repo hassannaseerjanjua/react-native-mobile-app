@@ -2,6 +2,7 @@ import { useColorScheme } from 'react-native';
 
 const defaultColors = {
   BACKGROUND: '#ffffff',
+  HOME_BACKGROUND: '#fcfcfc',
   PRIMARY: '#1C1254',
   PRIMARY_TEXT: '#313131',
   SECONDARY: '#DBEDFD',
