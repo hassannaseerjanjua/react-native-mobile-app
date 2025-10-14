@@ -5,6 +5,7 @@ import {
   Image,
   ImageSourcePropType,
   StyleSheet,
+  ViewStyle,
 } from 'react-native';
 import { ReactElement } from 'react';
 import useTheme from '../../styles/theme';
@@ -19,7 +20,7 @@ interface HomeScreenTabsProps {
   titlePrimary?: string;
   description: string;
   onPress?: () => void;
-  style?: any;
+  style?: ViewStyle;
 }
 
 const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
@@ -43,7 +44,6 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           alignItems: 'center',
           borderRadius: sizes.BORDER_RADIUS_MID,
           padding: scaleWithMax(12, 14),
-          minHeight: scaleWithMax(85, 90),
           backgroundColor: colors.SECONDARY,
           position: 'relative',
         },
@@ -63,7 +63,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           marginLeft: scaleWithMax(10, 12),
         },
         title: {
-          fontSize: scaleWithMax(12, 13),
+          fontSize: scaleWithMax(12, 12),
           fontFamily: fonts.Quicksand.bold,
           color: colors.PRIMARY_TEXT,
           // marginBottom: scaleWithMax(4, 3),
@@ -73,7 +73,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           color: colors.PRIMARY,
         },
         description: {
-          fontSize: scaleWithMax(9, 10),
+          fontSize: scaleWithMax(9, 11),
           fontFamily: fonts.Quicksand.regular,
           color: colors.BLACK,
           lineHeight: scaleWithMax(13, 14),

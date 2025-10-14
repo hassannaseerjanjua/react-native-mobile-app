@@ -16,6 +16,7 @@ import {
 } from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
+import { scaleWithMax } from '../../utils';
 
 interface TabItemProps {
   title: string;
@@ -106,7 +107,7 @@ const useStyles = () => {
       },
       titleText: {
         fontFamily: 'Quicksand-Medium',
-        fontSize: theme.sizes.FONTSIZE_HIGH,
+        fontSize: theme.sizes.FONTSIZE_LESS_HIGH,
         color: colors.PRIMARY_TEXT,
         maxWidth: '75%',
         flexShrink: 1,
@@ -114,7 +115,7 @@ const useStyles = () => {
       editGroupContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: sizes.WIDTH * 0.07,
+        gap: scaleWithMax(22, 26),
         flexShrink: 0,
       },
       groupImage: {

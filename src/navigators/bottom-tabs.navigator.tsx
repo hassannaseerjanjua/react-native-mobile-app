@@ -24,7 +24,7 @@ import Notifications from '../screens/app/notifications/index';
 import useTheme from '../styles/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { TouchableOpacity, View } from 'react-native';
-import { scaleWithMax } from '../utils';
+import { isAndroidThen, isIOSThen, scaleWithMax } from '../utils';
 import { useLocaleStore } from '../store/reducer/locale';
 import { Text } from '../utils/elements';
 
@@ -100,7 +100,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         borderTopColor: theme.colors.SECONDARY_GRAY,
         borderTopWidth: 0,
         paddingHorizontal: scaleWithMax(10, 12),
-        height: scaleWithMax(70, 75),
+
+        height: isAndroidThen(scaleWithMax(70, 75), undefined),
         // paddingBottom: 8,
         // paddingTop: 8,
         borderTopLeftRadius: 14,
@@ -151,13 +152,14 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
               flex: 1,
               alignItems: 'center',
               justifyContent: 'center',
+              paddingTop: isIOSThen(scaleWithMax(10, 12), 0),
             }}
           >
             {isFocused && (
               <View
                 style={{
-                  width: scaleWithMax(25, 30),
-                  height: scaleWithMax(5, 8),
+                  width: scaleWithMax(30, 35),
+                  height: scaleWithMax(4.5, 5),
                   borderRadius: 10,
                   backgroundColor: theme.colors.PRIMARY,
                   position: 'absolute',
