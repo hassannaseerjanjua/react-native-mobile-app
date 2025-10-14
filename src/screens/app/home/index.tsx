@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { View, StatusBar } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -12,41 +12,26 @@ import {
   SvgSendAGift,
 } from '../../../assets/icons';
 import apiEndpoints from '../../../constants/api-endpoints';
-import api from '../../../utils/api';
 import { Slider, SliderApiResponse } from '../../../types';
 import { useDispatch } from 'react-redux';
 import { logout, useAuthStore } from '../../../store/reducer/auth';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
+import useGetApi from '../../../hooks/useGetApi';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
-  const [sliders, setSliders] = useState<Slider[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const dispatch = useDispatch();
   const { getString } = useLocaleStore();
-  const getHomeSlider = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await api.get<SliderApiResponse>(
-        apiEndpoints.GET_HOME_SLIDER,
-      );
-      setSliders(response.data?.Data || []);
-    } catch (err) {
-      console.log('Error fetching sliders:', err);
-      setError('Failed to load slider images');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    getHomeSlider();
-  }, []);
-
   const { user } = useAuthStore();
+
+  const {
+    data: sliderResponse,
+    loading: sliderLoading,
+    error: sliderError,
+  } = useGetApi<Slider[]>(apiEndpoints.GET_HOME_SLIDER, {
+    transformData: (data: SliderApiResponse) => data?.Data || [],
+  });
 
   return (
     <View style={styles.container}>
@@ -67,41 +52,13 @@ const HomeScreen: React.FC = () => {
           {getString('HOME_WELCOME')}
           <Text style={styles.userName}>{user?.FullNameEn}</Text>
         </Text>
-        {loading ? (
-          <View
-            style={[
-              styles.heroImage,
-              {
-                backgroundColor: '#f0f0f0',
-                borderRadius: theme.sizes.BORDER_RADIUS_MID,
-              },
-            ]}
+        <View style={styles.heroImage}>
+          <ImageSlider
+            sliders={sliderResponse || undefined}
+            loading={sliderLoading}
+            error={sliderError}
           />
-        ) : error ? (
-          <View
-            style={[
-              styles.heroImage,
-              {
-                backgroundColor: '#f0f0f0',
-                justifyContent: 'center',
-                alignItems: 'center',
-                borderRadius: theme.sizes.BORDER_RADIUS_MID,
-              },
-            ]}
-          >
-            <Text style={{ color: '#666' }}>Failed to load images</Text>
-          </View>
-        ) : sliders.length === 0 ? (
-          <View>
-            <View style={styles.heroImage}>
-              <Text style={{ color: '#666' }}>No images found</Text>
-            </View>
-          </View>
-        ) : (
-          <View style={styles.heroImage}>
-            <ImageSlider sliders={sliders} />
-          </View>
-        )}
+        </View>
         <Text style={styles.sectionTitle}>
           {getString('HOME_WHAT_ARE_YOU')}
         </Text>

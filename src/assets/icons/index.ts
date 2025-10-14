@@ -41,6 +41,8 @@ import SvgGroup from './group-dummy.svg';
 import SvgAddGroup from './new-group-plus.svg';
 import SvgEditGroup from './edit-group-small.svg';
 import SvgImageIcon from './camera-icon.svg';
+import SvgCatchBgShadow from './card-bg-shadow.svg';
+import SvgPlaceholderImage from './img-placeholder.svg';
 
 export {
   SvgLogoBlue,
@@ -86,4 +88,6 @@ export {
   SvgAddGroup,
   SvgEditGroup,
   SvgImageIcon,
+  SvgCatchBgShadow,
+  SvgPlaceholderImage,
 };

@@ -10,12 +10,20 @@ import {
 } from 'react-native';
 import { Slider } from '../../types';
 import useTheme from '../../styles/theme';
+import { Text } from '../../utils/elements';
+import { SvgPlaceholderImage } from '../../assets/icons';
 
 interface ImageSliderProps {
-  sliders: Slider[];
+  sliders?: Slider[] | undefined;
+  loading?: boolean;
+  error?: string | null;
 }
 
-const ImageSlider: React.FC<ImageSliderProps> = ({ sliders }) => {
+const ImageSlider: React.FC<ImageSliderProps> = ({
+  sliders = [],
+  loading,
+  error,
+}) => {
   const { styles, theme } = useStyles();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -29,7 +37,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ sliders }) => {
 
   const scrollToIndex = (index: number) => {
     if (!scrollViewRef.current) return;
-    if (index >= sliders.length) {
+    if (index >= sliders?.length) {
       index = 0;
     }
     scrollViewRef.current.scrollTo({
@@ -47,11 +55,11 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ sliders }) => {
   }, [currentIndex]);
 
   const renderDots = () => {
-    if (sliders.length <= 1) return null;
+    if (sliders?.length <= 1) return null;
 
     return (
       <View style={styles.dotsContainer}>
-        {sliders.map((_, index) => (
+        {sliders?.map((_, index) => (
           <View
             key={index}
             style={[
@@ -67,8 +75,29 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ sliders }) => {
     );
   };
 
-  if (sliders.length === 0) {
-    return null;
+  if (loading) {
+    const placeholderImage = require('../../assets/images/img-placeholder.png');
+    return (
+      <View style={[styles.container, styles.stateContainer]}>
+        <Image source={placeholderImage} style={styles.image} />
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={[styles.container, styles.stateContainer]}>
+        <Text style={styles.stateText}>Failed to load images</Text>
+      </View>
+    );
+  }
+
+  if (sliders?.length === 0) {
+    return (
+      <View style={[styles.container, styles.stateContainer]}>
+        <Text style={styles.stateText}>No images found</Text>
+      </View>
+    );
   }
 
   return (
@@ -82,7 +111,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ sliders }) => {
         scrollEventThrottle={16}
         style={styles.scrollView}
       >
-        {sliders.map((slider, index) => (
+        {sliders?.map((slider, index) => (
           <View key={slider.SliderId} style={styles.slideContainer}>
             <Image
               source={{ uri: slider.ImageUrl }}
@@ -137,6 +166,15 @@ const useStyles = () => {
           height: 8,
           borderRadius: 99999,
           marginHorizontal: 3,
+        },
+        stateContainer: {
+          backgroundColor: '#f0f0f0',
+          justifyContent: 'center',
+          alignItems: 'center',
+          borderRadius: theme.sizes.BORDER_RADIUS_MID,
+        },
+        stateText: {
+          color: '#666',
         },
       }),
     [theme],
