@@ -140,19 +140,19 @@ const ProfileScreen: React.FC = () => {
             <Text style={styles.profileName}>{user?.FullNameEn}</Text>
             <Text style={styles.profileUsername}>{user?.UserName}</Text>
           </View>
-          <TouchableOpacity style={styles.qrButton}>
+          {/* <TouchableOpacity style={styles.qrButton}>
             <View style={styles.qrIcon}>
               <View style={styles.qrDot} />
               <View style={styles.qrDot} />
               <View style={styles.qrDot} />
               <View style={styles.qrDot} />
             </View>
-          </TouchableOpacity>
+          </TouchableOpacity> */}
         </View>
 
         {/* Menu Items */}
         <View style={styles.menuContainer}>
-          {profileMenuItems.map((item, index) => (
+          {/* {profileMenuItems.map((item, index) => (
             <View key={item.id} style={styles.menuItemWrapper}>
               <TabItem
                 title={item.title}
@@ -160,7 +160,7 @@ const ProfileScreen: React.FC = () => {
                 icon={item.icon}
               />
             </View>
-          ))}
+          ))} */}
 
           {/* Logout Button */}
           <View style={styles.menuItemWrapper}>
