@@ -33,13 +33,12 @@ const useStyles = () => {
       heroImage: {
         width: '100%',
         borderRadius: sizes.BORDER_RADIUS_MID,
-        marginBottom: scaleWithMax(7, 9),
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.bold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
-        marginBottom: scaleWithMax(9, 11),
+        marginVertical: scaleWithMax(9, 11),
       },
       optionsWrapper: {
         flexDirection: 'row',

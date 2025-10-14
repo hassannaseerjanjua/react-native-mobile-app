@@ -10,6 +10,7 @@ import {
   StyleSheet,
   TextInput,
   Platform,
+  StatusBar,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import BottomSheetHeader from '../app/BottomSheetHeader';
@@ -288,9 +289,11 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       .filter(listing => listing.users.length > 0);
   }, [searchQuery, listings]);
 
-  const UserListComponent = () => {
+  const UserListComponent = ({ isSelected }: { isSelected: boolean }) => {
     return (
-      <View>
+      <View
+        style={{ height: isSelected ? theme.sizes.HEIGHT * 0.57 : undefined }}
+      >
         {filteredListings.length > 0 ? (
           filteredListings.map((listing, listingIndex) => (
             <View key={listingIndex}>
@@ -322,7 +325,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       />
                     )}
                     showsVerticalScrollIndicator={false}
-                    scrollEnabled={false}
                   />
                 ) : (
                   <View style={styles.emptyStateContainer}>
@@ -414,91 +416,96 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           ]}
         >
           <View style={styles.modalContent}>
-            <ScrollView
-              style={styles.modalScrollView}
-              showsVerticalScrollIndicator={false}
-            >
-              {modalStep === 1 ? (
-                <>
-                  <BottomSheetHeader
-                    leftSideTitle="Cancel"
-                    title={
-                      viewOnly
-                        ? title
-                        : isSendAGift
-                        ? 'Add Members'
-                        : 'Edit Group Members'
-                    }
-                    subTitle={
-                      viewOnly
-                        ? `${allUsers.length} members`
-                        : `${selectedUsers.size}/${allUsers.length}`
-                    }
-                    rightSideTitle={viewOnly ? '' : 'Next'}
-                    showSearchBar={true}
-                    searchPlaceholder="Search"
-                    searchValue={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    leftSideTitlePress={closeModal}
-                    rightSideTitlePress={viewOnly ? undefined : handleNextStep}
+            {modalStep === 1 ? (
+              <>
+                <BottomSheetHeader
+                  leftSideTitle="Cancel"
+                  title={
+                    viewOnly
+                      ? title
+                      : isSendAGift
+                      ? 'Add Members'
+                      : 'Edit Group Members'
+                  }
+                  subTitle={
+                    viewOnly
+                      ? `${allUsers.length} members`
+                      : `${selectedUsers.size}/${allUsers.length}`
+                  }
+                  rightSideTitle={viewOnly ? '' : 'Next'}
+                  showSearchBar={true}
+                  searchPlaceholder="Search"
+                  searchValue={searchQuery}
+                  onSearchChange={setSearchQuery}
+                  leftSideTitlePress={closeModal}
+                  rightSideTitlePress={viewOnly ? undefined : handleNextStep}
+                />
+
+                <SelectedUsersDisplay />
+                {!viewOnly && (
+                  <UserListComponent
+                    isSelected={selectedUsersData.length > 0}
                   />
-                  <SelectedUsersDisplay />
-                  {!viewOnly && <UserListComponent />}
-                </>
-              ) : (
-                <>
-                  <BottomSheetHeader
-                    leftSideTitle="Back"
-                    title={isSendAGift ? 'New Group' : 'Review Members'}
-                    subTitle=""
-                    rightSideTitle="Save"
-                    showSearchBar={false}
-                    leftSideTitlePress={handleBackStep}
-                    rightSideTitlePress={handleSave}
-                  />
-                  <View style={styles.step2Container}>
-                    <View
-                      style={[
-                        styles.groupNameInputContainer,
-                        groupError && styles.groupNameInputError,
-                      ]}
+                )}
+              </>
+            ) : (
+              <>
+                <BottomSheetHeader
+                  leftSideTitle="Back"
+                  title={isSendAGift ? 'New Group' : 'Review Members'}
+                  subTitle=""
+                  rightSideTitle="Save"
+                  showSearchBar={false}
+                  leftSideTitlePress={handleBackStep}
+                  rightSideTitlePress={handleSave}
+                />
+                <View style={styles.step2Container}>
+                  <View
+                    style={[
+                      styles.groupNameInputContainer,
+                      groupError && styles.groupNameInputError,
+                    ]}
+                  >
+                    <TouchableOpacity
+                      style={styles.groupNameIconWrapper}
+                      onPress={handleImageSelect}
                     >
-                      <TouchableOpacity
-                        style={styles.groupNameIconWrapper}
-                        onPress={handleImageSelect}
-                      >
-                        {groupImage ? (
-                          <Image
-                            source={{ uri: groupImage.uri }}
-                            style={styles.groupImagePreview}
-                          />
-                        ) : (
-                          <SvgImageIcon />
-                        )}
-                      </TouchableOpacity>
-                      <TextInput
-                        allowFontScaling={false}
-                        style={styles.groupNameInput}
-                        placeholder="Enter group name"
-                        placeholderTextColor={theme.colors.SECONDARY_GRAY}
-                        value={groupName}
-                        onChangeText={text => {
-                          setGroupName(text);
-                          if (groupError) setGroupError('');
-                        }}
-                      />
-                    </View>
-                    {groupError ? (
-                      <Text style={styles.errorText}>{groupError}</Text>
-                    ) : null}
-                    <Text style={styles.membersHeading}>
-                      Members: {selectedUsers.size} out of {allUsers.length}
-                    </Text>
-                    <SelectedMembersGrid />
+                      {groupImage ? (
+                        <Image
+                          source={{ uri: groupImage.uri }}
+                          style={styles.groupImagePreview}
+                        />
+                      ) : (
+                        <SvgImageIcon
+                          width={scaleWithMax(15, 17)}
+                          height={scaleWithMax(15, 17)}
+                        />
+                      )}
+                    </TouchableOpacity>
+                    <TextInput
+                      allowFontScaling={false}
+                      style={styles.groupNameInput}
+                      placeholder="Enter group name"
+                      placeholderTextColor={theme.colors.SECONDARY_GRAY}
+                      value={groupName}
+                      onChangeText={text => {
+                        setGroupName(text);
+                        if (groupError) setGroupError('');
+                      }}
+                    />
                   </View>
-                </>
-              )}
-            </ScrollView>
+                  {groupError ? (
+                    <Text style={styles.errorText}>{groupError}</Text>
+                  ) : null}
+                  <Text style={styles.membersHeading}>
+                    Members: {selectedUsers.size} out of {allUsers.length}
+                  </Text>
+                  <ScrollView style={{}} showsVerticalScrollIndicator={false}>
+                    <SelectedMembersGrid />
+                  </ScrollView>
+                </View>
+              </>
+            )}
           </View>
         </Animated.View>
       </View>
@@ -539,7 +546,12 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderTopLeftRadius: sizes.BORDER_RADIUS_HIGH,
         borderTopRightRadius: sizes.BORDER_RADIUS_HIGH,
-        height: sizes.HEIGHT - isIOSThen(scaleWithMax(45, 55), 0),
+        height:
+          sizes.HEIGHT -
+          isIOSThen(
+            scaleWithMax(45, 55),
+            (StatusBar.currentHeight || 0) + scaleWithMax(3, 5),
+          ),
         width: '100%',
         position: 'absolute',
         bottom: 0,

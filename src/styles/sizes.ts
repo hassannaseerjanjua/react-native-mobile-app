@@ -16,16 +16,10 @@ const getSizes = (width: number, height: number) => ({
   BORDER_RADIUS_HIGH: 15,
 
   // Fonts
-  // FONTSIZE_BUTTON: 15,
-  // FONTSIZE: 14,
-  // FONTSIZE_HIGH: 18,
-  // FONTSIZE_SMALL: 10,
-  // FONTSIZE_MEDIUM: 12,
-  // HEADER_FOOTER_SIZE: height * 0.1,
-  // FONTSIZE_HEADING: 20,
   FONTSIZE_BUTTON: scaleWithMax(14, 15),
   FONTSIZE: scaleWithMax(13, 14),
-  FONTSIZE_HIGH: scaleWithMax(17, 18),
+  FONTSIZE_HIGH: scaleWithMax(19, 21),
+  FONTSIZE_LESS_HIGH: scaleWithMax(16, 17),
   FONTSIZE_SMALL: scaleWithMax(9, 10),
   FONTSIZE_MEDIUM: scaleWithMax(11, 12),
   HEADER_FOOTER_SIZE: height * 0.1,

@@ -87,7 +87,10 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             />
           </TouchableOpacity>
         ) : (
-          <SvgLogoHeader />
+          <SvgLogoHeader
+            width={scaleWithMax(88, 93)}
+            height={scaleWithMax(38, 43)}
+          />
         )}
 
         {title && <Text style={styles.title}>{title}</Text>}

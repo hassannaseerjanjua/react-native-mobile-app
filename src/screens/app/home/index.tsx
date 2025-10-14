@@ -17,6 +17,7 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import useGetApi from '../../../hooks/useGetApi';
+import { isIOSThen, scaleWithMax } from '../../../utils';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -110,7 +111,13 @@ const HomeScreenTabsContainer: React.FC = () => {
     },
     {
       id: 'outbox',
-      icon: <SvgOutboxGift />,
+      icon: (
+        <SvgOutboxGift
+          style={{
+            transform: isIOSThen([{ rotate: '180deg' }], []),
+          }}
+        />
+      ),
       title: getString('HOME_OUTBOX'),
       description: getString('HOME_OUTBOX_DESC'),
       onPress: undefined,
@@ -132,14 +139,16 @@ const HomeScreenTabsContainer: React.FC = () => {
         ))}
       </View>
 
-      <HomeScreenTabs
-        key={homeScreenTabs[2].id}
-        image={homeScreenTabs[2].image}
-        title={homeScreenTabs[2].title}
-        titlePrimary={homeScreenTabs[2].titlePrimary}
-        description={homeScreenTabs[2].description}
-        onPress={homeScreenTabs[2].onPress}
-      />
+      <View style={styles.optionsWrapper}>
+        <HomeScreenTabs
+          key={homeScreenTabs[2].id}
+          image={homeScreenTabs[2].image}
+          title={homeScreenTabs[2].title}
+          titlePrimary={homeScreenTabs[2].titlePrimary}
+          description={homeScreenTabs[2].description}
+          onPress={homeScreenTabs[2].onPress}
+        />
+      </View>
 
       <View style={styles.optionsWrapper}>
         {homeScreenTabs.slice(3, 5).map(tab => (
@@ -149,6 +158,9 @@ const HomeScreenTabsContainer: React.FC = () => {
             title={tab.title}
             description={tab.description}
             onPress={tab.onPress}
+            style={{
+              paddingVertical: scaleWithMax(20, 30),
+            }}
           />
         ))}
       </View>
