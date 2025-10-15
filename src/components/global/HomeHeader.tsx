@@ -166,6 +166,7 @@ const useStyles = () => {
         paddingTop: isAndroidThen(sizes.PADDING, 0),
         paddingBottom: sizes.PADDING * 0.6,
         // backgroundColor: 'blue',
+        paddingHorizontal: theme.sizes.PADDING,
       },
       rightSection: {
         flexDirection: 'row',
@@ -205,6 +206,7 @@ const useStyles = () => {
         alignItems: 'center',
         backgroundColor: colors.WHITE,
         borderRadius: 12,
+        marginHorizontal: theme.sizes.PADDING,
         paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.HEIGHT * 0.018,
         // marginTop: sizes.PADDING,

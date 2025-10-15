@@ -95,19 +95,13 @@ const useStyles = () => {
 
     return StyleSheet.create({
       wrapper: {
-        // paddingTop: sizes.HEIGHT * 0.02, // Pushes header to top area
-        // borderTopRightRadius: 100,
-        // borderTopLeftRadius: 100,
-        // backgroundColor: colors.RED,
-        // paddingTop: sizes.PADDING,
+        paddingHorizontal: sizes.PADDING,
       },
       container: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
         height: sizes.HEIGHT * 0.058,
-        // paddingHorizontal: sizes.PADDING * 1.2,
-        // paddingVertical: sizes.PADDING * 0.8,
       },
       centerContent: {
         flex: 1,
@@ -151,7 +145,8 @@ const useStyles = () => {
         borderRadius: 12,
         paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.HEIGHT * 0.015,
-        marginVertical: sizes.PADDING * 0.8,
+        marginTop: sizes.PADDING * 0.8,
+        marginBottom: sizes.PADDING * 0.8,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.08,

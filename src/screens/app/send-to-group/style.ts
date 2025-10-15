@@ -10,9 +10,10 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
+        paddingHorizontal: 0,
       },
       content: {
-        // paddingHorizontal: sizes.WIDTH * 0.04,
+        paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.03,
       },
       tabSpacing: {

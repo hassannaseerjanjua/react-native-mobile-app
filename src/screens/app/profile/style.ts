@@ -12,11 +12,13 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         backgroundColor: colors.HOME_BACKGROUND,
+        paddingHorizontal: 0,
       },
       header: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
+        paddingHorizontal: sizes.PADDING,
       },
       headerTitle: {
         fontFamily: 'Quicksand-Bold',
@@ -27,12 +29,12 @@ const useStyles = () => {
         flex: 1,
       },
       scrollContent: {
+        paddingHorizontal: sizes.PADDING,
         paddingBottom: sizes.PADDING * 2,
       },
       profileSection: {
         flexDirection: 'row',
         alignItems: 'center',
-        // paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.PADDING * 1.5,
         marginBottom: sizes.PADDING,
       },

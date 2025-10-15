@@ -13,9 +13,11 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
+        paddingHorizontal: 0,
       },
       mainContent: {
         flex: 1,
+        paddingHorizontal: sizes.PADDING,
       },
       contentContainer: {
         gap: scaleWithMax(8, 10),

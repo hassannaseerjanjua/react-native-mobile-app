@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StatusBar, FlatList } from 'react-native';
+import { View, StatusBar, FlatList, ScrollView } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -161,7 +161,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
         searchPlaceholder={getString('HOME_SEARCH')}
       />
 
-      <View style={styles.content}>
+      <ScrollView
+        style={styles.content}
+        contentContainerStyle={styles.contentContainer}
+        showsVerticalScrollIndicator={false}
+      >
         <View style={styles.listCard}>
           {isLoading || (searchQuery && displayData.length === 0) ? (
             <View style={styles.loadingContainer}>
@@ -192,7 +196,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
             />
           )}
         </View>
-      </View>
+      </ScrollView>
 
       <ConfirmationModal
         visible={unfriendModal.visible}

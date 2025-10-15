@@ -53,6 +53,7 @@ const useStyles = () => {
       scrollContainer: {
         flexDirection: 'row',
         gap: 10,
+        paddingLeft: theme.sizes.PADDING,
       },
       tab: {
         backgroundColor: colors.LIGHT_GRAY,

@@ -10,6 +10,7 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
+        paddingHorizontal: 0,
       },
       content: {
         flex: 1,
@@ -47,6 +48,7 @@ const useStyles = () => {
       scrollableContent: {
         flex: 1,
         // overflow: 'visible',
+        paddingHorizontal: theme.sizes.PADDING,
       },
       scrollableContentContainer: {
         flexGrow: 1,

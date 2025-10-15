@@ -12,10 +12,15 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
+        paddingHorizontal: 0,
       },
       content: {
         flex: 1,
+      },
+      contentContainer: {
+        paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.PADDING,
+        paddingBottom: sizes.HEIGHT * 0.02,
       },
       listCard: {
         backgroundColor: colors.WHITE,

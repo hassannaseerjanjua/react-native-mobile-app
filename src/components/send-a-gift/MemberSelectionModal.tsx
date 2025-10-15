@@ -301,7 +301,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     return (
       <ScrollView
         style={{ flex: 1 }}
-        contentContainerStyle={{ paddingBottom: theme.sizes.HEIGHT * 0.02 }}
+        contentContainerStyle={{
+          paddingHorizontal: theme.sizes.PADDING,
+          paddingBottom: theme.sizes.HEIGHT * 0.02,
+        }}
         showsVerticalScrollIndicator={false}
       >
         {filteredListings.length > 0 ? (
@@ -458,6 +461,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   <ScrollView
                     style={{ flex: 1 }}
                     contentContainerStyle={{
+                      paddingHorizontal: theme.sizes.PADDING,
                       paddingBottom: theme.sizes.HEIGHT * 0.02,
                     }}
                     showsVerticalScrollIndicator={false}
@@ -487,6 +491,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                 <ScrollView
                   style={{ flex: 1 }}
                   contentContainerStyle={{
+                    paddingHorizontal: theme.sizes.PADDING,
                     paddingBottom: theme.sizes.HEIGHT * 0.02,
                   }}
                   showsVerticalScrollIndicator={false}
@@ -595,7 +600,6 @@ const useStyles = () => {
         height: sizes.HEIGHT * 0.9,
         width: '100%',
         paddingTop: sizes.HEIGHT * 0.01,
-        paddingHorizontal: sizes.PADDING,
       },
       modalScrollView: {
         flex: 1,
@@ -696,6 +700,7 @@ const useStyles = () => {
         maxWidth: userItemWidth,
       },
       selectedUsersContainer: {
+        marginHorizontal: sizes.PADDING,
         marginVertical: sizes.HEIGHT * 0.01,
         paddingVertical: sizes.BORDER_RADIUS_MID,
         backgroundColor: colors.WHITE,
