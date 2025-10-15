@@ -30,7 +30,7 @@ const useStyles = () => {
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.semibold,
-        fontSize: 18,
+        fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.PRIMARY_TEXT,
         paddingBottom: sizes.HEIGHT * 0.01,
       },
@@ -43,6 +43,15 @@ const useStyles = () => {
       },
       tabContainer: {
         marginBottom: sizes.HEIGHT * 0.018,
+      },
+      scrollableContent: {
+        flex: 1,
+        // overflow: 'visible',
+      },
+      scrollableContentContainer: {
+        flexGrow: 1,
+        // overflow: 'visible',
+        // paddingBottom: sizes.HEIGHT * 0.02,
       },
       bottomSheetContainer: {
         width: sizes.PADDED_WIDTH,

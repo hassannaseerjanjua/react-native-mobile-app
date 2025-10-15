@@ -44,7 +44,9 @@ export const { setLocale } = locale.actions;
 export default locale.reducer;
 
 export const useLocaleStore = () => {
-  const locale = useSelector((state: RootState) => state.locale).localeData;
+  const locale = useSelector(
+    (state: RootState) => state?.locale || initState,
+  ).localeData;
   return {
     ...locale,
     getString: (key: LocaleString) => {

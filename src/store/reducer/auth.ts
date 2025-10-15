@@ -34,6 +34,6 @@ export const { login, logout } = auth.actions;
 export default auth.reducer;
 
 export const useAuthStore = () => {
-  const auth = useSelector((state: RootState) => state.auth);
+  const auth = useSelector((state: RootState) => state?.auth || initState);
   return auth;
 };

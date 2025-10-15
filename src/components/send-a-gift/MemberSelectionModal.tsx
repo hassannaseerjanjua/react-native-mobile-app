@@ -236,6 +236,16 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       return null;
     }
 
+    if (viewOnly) {
+      // Use existing grid view for viewing group members
+      return (
+        <View style={selectedUsersContainerStyle}>
+          <SelectedMembersGrid />
+        </View>
+      );
+    }
+
+    // Horizontal scroll view for editing mode
     return (
       <View style={selectedUsersContainerStyle}>
         <ScrollView
@@ -253,14 +263,12 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   style={styles.selectedUserAvatar}
                 />
 
-                {!viewOnly && (
-                  <TouchableOpacity
-                    style={styles.selectedUserCrossIcon}
-                    onPress={() => handleUserSelection(user.UserId)}
-                  >
-                    <SvgCrossIcon width={12} height={12} />
-                  </TouchableOpacity>
-                )}
+                <TouchableOpacity
+                  style={styles.selectedUserCrossIcon}
+                  onPress={() => handleUserSelection(user.UserId)}
+                >
+                  <SvgCrossIcon width={12} height={12} />
+                </TouchableOpacity>
               </View>
               <Text style={styles.selectedUserName} numberOfLines={1}>
                 {user.FullName.split(' ')[0]}
@@ -291,8 +299,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
 
   const UserListComponent = ({ isSelected }: { isSelected: boolean }) => {
     return (
-      <View
-        style={{ height: isSelected ? theme.sizes.HEIGHT * 0.57 : undefined }}
+      <ScrollView
+        style={{ flex: 1 }}
+        contentContainerStyle={{ paddingBottom: theme.sizes.HEIGHT * 0.02 }}
+        showsVerticalScrollIndicator={false}
       >
         {filteredListings.length > 0 ? (
           filteredListings.map((listing, listingIndex) => (
@@ -325,6 +335,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       />
                     )}
                     showsVerticalScrollIndicator={false}
+                    scrollEnabled={false}
                   />
                 ) : (
                   <View style={styles.emptyStateContainer}>
@@ -341,7 +352,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
             </View>
           </View>
         )}
-      </View>
+      </ScrollView>
     );
   };
 
@@ -364,12 +375,14 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                 source={user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage}
                 style={styles.memberGridAvatar}
               />
-              <TouchableOpacity
-                style={styles.memberGridCrossIcon}
-                onPress={() => handleUserSelection(user.UserId)}
-              >
-                <SvgCrossIcon width={12} height={12} />
-              </TouchableOpacity>
+              {!viewOnly && (
+                <TouchableOpacity
+                  style={styles.memberGridCrossIcon}
+                  onPress={() => handleUserSelection(user.UserId)}
+                >
+                  <SvgCrossIcon width={12} height={12} />
+                </TouchableOpacity>
+              )}
             </View>
             <Text style={styles.memberGridName} numberOfLines={1}>
               {user.FullName.split(' ')[0]}
@@ -441,11 +454,23 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   rightSideTitlePress={viewOnly ? undefined : handleNextStep}
                 />
 
-                <SelectedUsersDisplay />
-                {!viewOnly && (
-                  <UserListComponent
-                    isSelected={selectedUsersData.length > 0}
-                  />
+                {viewOnly ? (
+                  <ScrollView
+                    style={{ flex: 1 }}
+                    contentContainerStyle={{
+                      paddingBottom: theme.sizes.HEIGHT * 0.02,
+                    }}
+                    showsVerticalScrollIndicator={false}
+                  >
+                    <SelectedUsersDisplay />
+                  </ScrollView>
+                ) : (
+                  <>
+                    <SelectedUsersDisplay />
+                    <UserListComponent
+                      isSelected={selectedUsersData.length > 0}
+                    />
+                  </>
                 )}
               </>
             ) : (
@@ -459,51 +484,57 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   leftSideTitlePress={handleBackStep}
                   rightSideTitlePress={handleSave}
                 />
-                <View style={styles.step2Container}>
-                  <View
-                    style={[
-                      styles.groupNameInputContainer,
-                      groupError && styles.groupNameInputError,
-                    ]}
-                  >
-                    <TouchableOpacity
-                      style={styles.groupNameIconWrapper}
-                      onPress={handleImageSelect}
+                <ScrollView
+                  style={{ flex: 1 }}
+                  contentContainerStyle={{
+                    paddingBottom: theme.sizes.HEIGHT * 0.02,
+                  }}
+                  showsVerticalScrollIndicator={false}
+                >
+                  <View style={styles.step2Container}>
+                    <View
+                      style={[
+                        styles.groupNameInputContainer,
+                        groupError && styles.groupNameInputError,
+                      ]}
                     >
-                      {groupImage ? (
-                        <Image
-                          source={{ uri: groupImage.uri }}
-                          style={styles.groupImagePreview}
-                        />
-                      ) : (
-                        <SvgImageIcon
-                          width={scaleWithMax(15, 17)}
-                          height={scaleWithMax(15, 17)}
-                        />
-                      )}
-                    </TouchableOpacity>
-                    <TextInput
-                      allowFontScaling={false}
-                      style={styles.groupNameInput}
-                      placeholder="Enter group name"
-                      placeholderTextColor={theme.colors.SECONDARY_GRAY}
-                      value={groupName}
-                      onChangeText={text => {
-                        setGroupName(text);
-                        if (groupError) setGroupError('');
-                      }}
-                    />
-                  </View>
-                  {groupError ? (
-                    <Text style={styles.errorText}>{groupError}</Text>
-                  ) : null}
-                  <Text style={styles.membersHeading}>
-                    Members: {selectedUsers.size} out of {allUsers.length}
-                  </Text>
-                  <ScrollView style={{}} showsVerticalScrollIndicator={false}>
+                      <TouchableOpacity
+                        style={styles.groupNameIconWrapper}
+                        onPress={handleImageSelect}
+                      >
+                        {groupImage ? (
+                          <Image
+                            source={{ uri: groupImage.uri }}
+                            style={styles.groupImagePreview}
+                          />
+                        ) : (
+                          <SvgImageIcon
+                            width={scaleWithMax(15, 17)}
+                            height={scaleWithMax(15, 17)}
+                          />
+                        )}
+                      </TouchableOpacity>
+                      <TextInput
+                        allowFontScaling={false}
+                        style={styles.groupNameInput}
+                        placeholder="Enter group name"
+                        placeholderTextColor={theme.colors.SECONDARY_GRAY}
+                        value={groupName}
+                        onChangeText={text => {
+                          setGroupName(text);
+                          if (groupError) setGroupError('');
+                        }}
+                      />
+                    </View>
+                    {groupError ? (
+                      <Text style={styles.errorText}>{groupError}</Text>
+                    ) : null}
+                    <Text style={styles.membersHeading}>
+                      Members: {selectedUsers.size} out of {allUsers.length}
+                    </Text>
                     <SelectedMembersGrid />
-                  </ScrollView>
-                </View>
+                  </View>
+                </ScrollView>
               </>
             )}
           </View>
@@ -717,7 +748,7 @@ const useStyles = () => {
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.semibold,
-        fontSize: sizes.FONTSIZE_HIGH,
+        fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.PRIMARY_TEXT,
         paddingBottom: sizes.HEIGHT * 0.01,
       },

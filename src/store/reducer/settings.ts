@@ -22,6 +22,8 @@ export const { setSettings } = settings.actions;
 export default settings.reducer;
 
 export const useSettingsStore = () => {
-  const settings = useSelector((state: RootState) => state.settings);
+  const settings = useSelector(
+    (state: RootState) => state?.settings || initState,
+  );
   return settings;
 };

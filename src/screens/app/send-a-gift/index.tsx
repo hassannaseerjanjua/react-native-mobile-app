@@ -35,7 +35,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const { getString } = useLocaleStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('friends');
-  const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
   const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
   const { user } = useAuthStore();
   const [pageIndex, setPageIndex] = useState(1);
@@ -115,55 +114,51 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
 
   return (
     <ParentView style={styles.container}>
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        style={{
-          flex: 1,
-          overflow: 'visible',
+      <StatusBar
+        backgroundColor={theme.colors.BACKGROUND}
+        barStyle="dark-content"
+      />
+      <HomeHeader
+        title={getString('HOME_SEND_A_GIFT')}
+        showBackButton
+        onBackPress={() => navigation.goBack()}
+        showSearch={false}
+        showSearchBar
+        searchValue={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder={getString('HOME_SEARCH')}
+        rightSideTitle="New Group"
+        rightSideTitlePress={() => {
+          setIsMemberSelectionOpen(true);
         }}
-        contentContainerStyle={{
-          flex: 1,
-        }}
-      >
-        <StatusBar
-          backgroundColor={theme.colors.BACKGROUND}
-          barStyle="dark-content"
-        />
-        <HomeHeader
-          title={getString('HOME_SEND_A_GIFT')}
-          showBackButton
-          onBackPress={() => navigation.goBack()}
-          showSearch={false}
-          showSearchBar
-          searchValue={searchQuery}
-          onSearchChange={setSearchQuery}
-          searchPlaceholder={getString('HOME_SEARCH')}
-          rightSideTitle="New Group"
-          rightSideTitlePress={() => {
-            setIsMemberSelectionOpen(true);
-          }}
-          rightSideIcon={<SvgAddGroup />}
-        />
+        rightSideIcon={<SvgAddGroup />}
+      />
 
-        <View style={styles.content}>
-          <View style={styles.tabContainer}>
-            <GroupTabs
-              tabs={tabs}
-              activeTab={activeTab}
-              onTabPress={(tabId: string) => {
-                const tab = tabs.find(t => t.id === tabId);
-                tab?.onPress?.();
-              }}
-            />
-          </View>
-          <View style={styles.tabContainer}>
-            <TabItem
-              title="Send through a link"
-              onPress={() => {}}
-              isLink={true}
-            />
-          </View>
+      <View style={styles.content}>
+        <View style={styles.tabContainer}>
+          <GroupTabs
+            tabs={tabs}
+            activeTab={activeTab}
+            onTabPress={(tabId: string) => {
+              const tab = tabs.find(t => t.id === tabId);
+              tab?.onPress?.();
+            }}
+          />
+        </View>
+
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.scrollableContent}
+          contentContainerStyle={styles.scrollableContentContainer}
+        >
           <View>
+            <View style={styles.tabContainer}>
+              <TabItem
+                title="Send through a link"
+                onPress={() => {}}
+                isLink={true}
+              />
+            </View>
             <Text style={styles.sectionTitle}>Friends</Text>
             <View style={styles.listCard}>
               {isLoading ? (
@@ -198,8 +193,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
               )}
             </View>
           </View>
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
 
       <MemberSelectionModal
         visible={isMemberSelectionOpen}

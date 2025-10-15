@@ -23,6 +23,7 @@ const getSizes = (width: number, height: number) => ({
   FONTSIZE_SMALL: scaleWithMax(9, 10),
   FONTSIZE_MEDIUM: scaleWithMax(11, 12),
   HEADER_FOOTER_SIZE: height * 0.1,
+  FONTSIZE_MED_HIGH: scaleWithMax(17, 18),
   FONTSIZE_HEADING: scaleWithMax(19, 20),
   // Sizes
   APP_LOGO: width * 0.4,
