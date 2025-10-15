@@ -20,10 +20,13 @@ import { Text } from '../../../utils/elements';
 
 interface SearchProps extends AppStackScreen<'Search'> {}
 
-const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
+const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
   const { user } = useAuthStore();
   const { getString } = useLocaleStore();
+
+  // Get parameters from route
+  const { title, showFriendsOnly = false } = route.params || {};
 
   const [searchQuery, setSearchQuery] = useState('');
   const [pageIndex, setPageIndex] = useState(1);
@@ -37,21 +40,20 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   });
 
   const activeUsersApi = useGetApi<ActiveUser[]>(
-    apiEndpoints.GET_ACTIVE_USERS(user?.UserId, pageIndex, 20),
+    apiEndpoints.GET_ACTIVE_USERS(
+      user?.UserId,
+      pageIndex,
+      20,
+      showFriendsOnly,
+      searchQuery || undefined,
+    ),
     {
       transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
     },
   );
 
-  const searchFriendsApi = useGetApi<ActiveUser[]>(
-    apiEndpoints.SEARCH_FRIENDS(searchQuery, user?.UserId),
-    {
-      transformData: (data: SearchFriendsApiResponse) => data.Data,
-    },
-  );
-
   useEffect(() => {
-    if (searchQuery) searchFriendsApi.refetch();
+    activeUsersApi.refetch();
   }, [searchQuery]);
 
   const updateLoadingState = (userId: number, isLoading: boolean) => {
@@ -131,18 +133,12 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
   const handleAddUser = (userId: number) => {
     const currentStatus =
       updatedUsers[userId] ??
-      displayData.find(user => user.UserId === userId)?.RelationStatus ??
+      activeUsersApi.data?.find((user: any) => user.UserId === userId)
+        ?.RelationStatus ??
       2;
 
     currentStatus === 1 ? checkUserLinkedWithGroup(userId) : addFriend(userId);
   };
-
-  const displayData = searchQuery
-    ? searchFriendsApi.data || []
-    : activeUsersApi.data || [];
-  const isLoading = searchQuery
-    ? searchFriendsApi.loading
-    : activeUsersApi.loading;
 
   return (
     <ParentView style={styles.container}>
@@ -151,7 +147,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
         barStyle="dark-content"
       />
       <HomeHeader
-        title={getString('HOME_SEARCH')}
+        title={title || getString('HOME_SEARCH')}
         showBackButton
         onBackPress={() => navigation.goBack()}
         showSearch={false}
@@ -167,21 +163,22 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.listCard}>
-          {isLoading || (searchQuery && displayData.length === 0) ? (
+          {activeUsersApi.loading ||
+          (searchQuery && activeUsersApi.data?.length === 0) ? (
             <View style={styles.loadingContainer}>
               <Text style={styles.loadingText}>
-                {isLoading ? 'Loading...' : 'No results found'}
+                {activeUsersApi.loading ? 'Loading...' : 'No results found'}
               </Text>
             </View>
           ) : (
             <FlatList
-              data={displayData}
+              data={activeUsersApi.data}
               keyExtractor={item => item.UserId.toString()}
               renderItem={({ item, index }) => (
                 <SearchUserItem
                   item={item}
                   index={index}
-                  isLast={index === displayData.length - 1}
+                  isLast={index === (activeUsersApi.data?.length ?? 0) - 1}
                   updatedUsers={updatedUsers}
                   loadingUsers={loadingUsers}
                   handleAddUser={handleAddUser}
@@ -189,9 +186,9 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation }) => {
               )}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={styles.listContainer}
-              onEndReached={
-                searchQuery ? undefined : () => setPageIndex(prev => prev + 1)
-              }
+              // onEndReached={
+              //   searchQuery ? undefined : () => setPageIndex(prev => prev + 1)
+              // }
               onEndReachedThreshold={0.5}
             />
           )}

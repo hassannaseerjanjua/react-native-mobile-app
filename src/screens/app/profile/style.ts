@@ -30,24 +30,24 @@ const useStyles = () => {
         marginBottom: sizes.HEIGHT * 0.008,
       },
       profileImage: {
-        width: scaleWithMax(60, 70),
-        height: scaleWithMax(60, 70),
+        width: scaleWithMax(55, 60),
+        height: scaleWithMax(55, 60),
         borderRadius: scaleWithMax(30, 35),
       },
       profileInfo: {
         flex: 1,
-        marginLeft: sizes.PADDING,
+        marginLeft: sizes.WIDTH * 0.03,
       },
       profileName: {
-        fontFamily: fonts.Quicksand.bold,
-        fontSize: sizes.FONTSIZE_HIGH,
-        color: colors.PRIMARY_TEXT,
-        marginBottom: scaleWithMax(2, 4),
+        fontFamily: fonts.Quicksand.semibold,
+        fontSize: sizes.FONTSIZE_BUTTON,
+        color: colors.BLACK,
+        // marginBottom: scaleWithMax(1, 2),
       },
       profileUsername: {
         fontFamily: fonts.Quicksand.regular,
         fontSize: sizes.FONTSIZE_MEDIUM,
-        color: colors.SECONDARY_TEXT,
+        color: colors.BLACK,
       },
       menuContainer: {
         gap: sizes.PADDING * 1.2,

@@ -58,6 +58,8 @@ import SvgProfileTermsCondition from './profile-termsCondition.svg';
 import SvgProfileWallet from './profile-wallet.svg';
 import SvgProfileCrossIcon from './profile-close.svg';
 import SvgProfileQrIcon from './profile-qrcode.svg';
+import SvgRiyalIcon from './riyal-icon.svg';
+import SvgWalletGifteeIcon from './wallet-giftee-icon.svg';
 
 export {
   SvgLogoBlue,
@@ -120,4 +122,6 @@ export {
   SvgProfileWallet,
   SvgProfileCrossIcon,
   SvgProfileQrIcon,
+  SvgRiyalIcon,
+  SvgWalletGifteeIcon,
 };

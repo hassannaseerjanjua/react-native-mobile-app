@@ -41,7 +41,9 @@ const ProfileScreen: React.FC = () => {
       id: 'wallet',
       title: 'Wallet',
       icon: <SvgProfileWallet />,
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate('Wallet' as never);
+      },
     },
     {
       id: 'gift-link',
@@ -53,13 +55,20 @@ const ProfileScreen: React.FC = () => {
       id: 'favourites',
       title: 'My Favourites',
       icon: <SvgProfileFavorites />,
-      onPress: () => {},
+      onPress: () => {
+        (navigation as any).navigate('BottomTabs', { screen: 'Favorites' });
+      },
     },
     {
       id: 'friends',
       title: 'My Friends',
       icon: <SvgProfileFriends />,
-      onPress: () => {},
+      onPress: () => {
+        (navigation as any).navigate('Search', {
+          title: 'My Friends',
+          showFriendsOnly: true,
+        });
+      },
     },
     {
       id: 'settings',
