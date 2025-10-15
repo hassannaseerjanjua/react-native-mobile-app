@@ -35,13 +35,14 @@ interface HomeHeaderProps {
   rightSideTitle?: string;
   rightSideTitlePress?: () => void;
   rightSideIcon?: any;
+  showLogo?: boolean;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
   title,
   showBackButton = false,
   onBackPress,
-  showSearch = true,
+  showSearch = false,
   showProfileIcon = false,
   showSearchBar = false,
   searchPlaceholder,
@@ -51,6 +52,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   rightSideTitle,
   rightSideTitlePress,
   rightSideIcon,
+  showLogo,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -75,7 +77,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   return (
     <View>
       <View style={styles.container}>
-        {showBackButton ? (
+        {showBackButton && (
           <TouchableOpacity
             style={styles.backButton}
             onPress={handleBackPress}
@@ -86,7 +88,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               height={scaleWithMax(22, 25)}
             />
           </TouchableOpacity>
-        ) : (
+        )}
+        {showLogo && (
           <SvgLogoHeader
             width={scaleWithMax(88, 93)}
             height={scaleWithMax(38, 43)}

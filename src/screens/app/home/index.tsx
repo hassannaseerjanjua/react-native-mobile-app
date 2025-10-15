@@ -9,6 +9,7 @@ import {
   SvgGiftOneGetOne,
   SvgInboxGift,
   SvgOutboxGift,
+  SvgProfileCrossIcon,
   SvgSendAGift,
 } from '../../../assets/icons';
 import apiEndpoints from '../../../constants/api-endpoints';
@@ -45,6 +46,8 @@ const HomeScreen: React.FC = () => {
         onProfilePress={() => {
           navigation.navigate('Profile' as never);
         }}
+        showLogo={true}
+        showSearch={true}
       />
 
       <View style={styles.mainContent}>

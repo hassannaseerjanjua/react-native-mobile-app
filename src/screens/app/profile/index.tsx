@@ -1,31 +1,34 @@
 import React from 'react';
-import {
-  View,
-  StatusBar,
-  ScrollView,
-  TouchableOpacity,
-  Image,
-} from 'react-native';
+import { View, StatusBar, ScrollView, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
 import { Text } from '../../../utils/elements';
 import TabItem from '../../../components/global/TabItem';
 import {
-  SvgGiftLink,
-  SvgFavouriteInactive,
-  SvgUser,
-  SvgCrossIcon,
-  SvgBackIcon,
+  SvgProfileWallet,
+  SvgProfileFriends,
+  SvgProfileSettings,
+  SvgProfileOrder,
+  SvgProfileConnect,
+  SvgProfileCall,
+  SvgProfileReport,
+  SvgProfileTermsCondition,
+  SvgProfilePrivacy,
+  SvgProfileSupport,
+  SvgProfileLogout,
+  SvgProfileLink,
+  SvgProfileFavorites,
+  SvgProfileCrossIcon,
+  SvgProfileQrIcon,
 } from '../../../assets/icons';
-import { useLocaleStore } from '../../../store/reducer/locale';
 import { useDispatch } from 'react-redux';
 import { logout, useAuthStore } from '../../../store/reducer/auth';
 import ParentView from '../../../components/app/ParentView';
+import HomeHeader from '../../../components/global/HomeHeader';
 
 const ProfileScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
-  const { getString } = useLocaleStore();
   const dispatch = useDispatch();
   const { user } = useAuthStore();
 
@@ -37,74 +40,77 @@ const ProfileScreen: React.FC = () => {
     {
       id: 'wallet',
       title: 'Wallet',
-      icon: <SvgUser />,
+      icon: <SvgProfileWallet />,
       onPress: () => {},
     },
     {
       id: 'gift-link',
       title: 'My Gift Link',
-      icon: <SvgGiftLink />,
+      icon: <SvgProfileLink />,
       onPress: () => {},
     },
     {
       id: 'favourites',
       title: 'My Favourites',
-      icon: <SvgFavouriteInactive />,
+      icon: <SvgProfileFavorites />,
       onPress: () => {},
     },
     {
       id: 'friends',
       title: 'My Friends',
-      icon: <SvgUser />,
+      icon: <SvgProfileFriends />,
       onPress: () => {},
     },
     {
       id: 'settings',
       title: 'Settings',
-      icon: <SvgUser />,
+      icon: <SvgProfileSettings />,
       onPress: () => {},
     },
     {
       id: 'order',
       title: 'Order',
-      icon: <SvgUser />,
+      icon: <SvgProfileOrder />,
       onPress: () => {},
     },
     {
       id: 'connect',
       title: 'Connect',
-      icon: <SvgUser />,
+      icon: <SvgProfileConnect />,
       onPress: () => {},
     },
     {
       id: 'contact-us',
       title: 'Contact us',
-      icon: <SvgUser />,
+      icon: <SvgProfileCall />,
       onPress: () => {},
     },
-    {
-      id: 'report-problem',
-      title: 'Report a problem',
-      icon: <SvgUser />,
-      onPress: () => {},
-    },
+
     {
       id: 'terms',
       title: 'Terms & conditions',
-      icon: <SvgUser />,
+      icon: <SvgProfileTermsCondition />,
       onPress: () => {},
     },
     {
       id: 'privacy',
       title: 'Privacy Policy',
-      icon: <SvgUser />,
+      icon: <SvgProfilePrivacy />,
       onPress: () => {},
     },
     {
       id: 'faq',
-      title: 'FAQ & support',
-      icon: <SvgUser />,
+      title: 'FAQs',
+      icon: <SvgProfileSupport />,
       onPress: () => {},
+    },
+    {
+      id: 'logout',
+      title: 'Logout',
+      icon: <SvgProfileLogout />,
+      onPress: () => {
+        handleLogout();
+      },
     },
   ];
 
@@ -115,20 +121,19 @@ const ProfileScreen: React.FC = () => {
         barStyle="dark-content"
       />
 
-      {/* Header */}
-      <View style={styles.header}>
-        <Text style={styles.headerTitle}>Profile</Text>
-        <TouchableOpacity onPress={() => navigation.goBack()}>
-          <SvgCrossIcon />
-        </TouchableOpacity>
-      </View>
+      <HomeHeader
+        title="Profile"
+        showBackButton={false}
+        rightSideIcon={<SvgProfileCrossIcon />}
+        rightSideTitle={true as any}
+        rightSideTitlePress={() => navigation.goBack()}
+      />
 
       <ScrollView
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* Profile Info */}
         <View style={styles.profileSection}>
           <Image
             source={{
@@ -140,40 +145,22 @@ const ProfileScreen: React.FC = () => {
             <Text style={styles.profileName}>{user?.FullNameEn}</Text>
             <Text style={styles.profileUsername}>{user?.UserName}</Text>
           </View>
-          {/* <TouchableOpacity style={styles.qrButton}>
-            <View style={styles.qrIcon}>
-              <View style={styles.qrDot} />
-              <View style={styles.qrDot} />
-              <View style={styles.qrDot} />
-              <View style={styles.qrDot} />
-            </View>
-          </TouchableOpacity> */}
+          <SvgProfileQrIcon />
         </View>
 
-        {/* Menu Items */}
         <View style={styles.menuContainer}>
-          {/* {profileMenuItems.map((item, index) => (
+          {profileMenuItems.map((item, index) => (
             <View key={item.id} style={styles.menuItemWrapper}>
               <TabItem
                 title={item.title}
                 onPress={item.onPress}
+                hideRightIcon={true}
                 icon={item.icon}
+                TabItemStyles={styles.menuItem}
+                TabTextStyles={styles.menuItemText}
               />
             </View>
-          ))} */}
-
-          {/* Logout Button */}
-          <View style={styles.menuItemWrapper}>
-            <TouchableOpacity
-              style={styles.logoutButton}
-              onPress={handleLogout}
-            >
-              <View style={styles.logoutContent}>
-                <SvgBackIcon />
-                <Text style={styles.logoutText}>Log out</Text>
-              </View>
-            </TouchableOpacity>
-          </View>
+          ))}
         </View>
       </ScrollView>
     </ParentView>

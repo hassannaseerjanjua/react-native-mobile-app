@@ -5,6 +5,7 @@ import {
   StyleProp,
   ViewStyle,
   Image,
+  TextStyle,
 } from 'react-native';
 import React, { useMemo } from 'react';
 import {
@@ -21,32 +22,36 @@ import { scaleWithMax } from '../../utils';
 interface TabItemProps {
   title: string;
   onPress: () => void;
-  styles?: StyleProp<ViewStyle>;
+  TabItemStyles?: StyleProp<ViewStyle>;
+  TabTextStyles?: StyleProp<TextStyle>;
   isEditGroup?: boolean;
   isLink?: boolean;
   isGroupImage?: any;
   onDeletePress?: () => void;
   onEditPress?: () => void;
   icon?: React.ReactNode;
+  hideRightIcon?: boolean;
 }
 
 const TabItem = ({
   title,
   onPress,
-  styles: customStyles,
+  TabItemStyles,
+  TabTextStyles,
   isEditGroup,
   isLink,
   isGroupImage = false,
   onDeletePress,
   onEditPress,
   icon,
+  hideRightIcon,
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
 
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.container, customStyles]}
+      style={[styles.container, TabItemStyles]}
     >
       <View style={styles.contentContainer}>
         {isGroupImage ? (
@@ -56,7 +61,11 @@ const TabItem = ({
         )}
         {isLink && <SvgGiftLink />}
         {icon && icon}
-        <Text style={styles.titleText} numberOfLines={1} ellipsizeMode="tail">
+        <Text
+          style={[styles.titleText, TabTextStyles]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
           {title}
         </Text>
       </View>
@@ -68,7 +77,7 @@ const TabItem = ({
           </View>
         </>
       ) : (
-        <SvgNextIcon />
+        !hideRightIcon && <SvgNextIcon />
       )}
     </TouchableOpacity>
   );

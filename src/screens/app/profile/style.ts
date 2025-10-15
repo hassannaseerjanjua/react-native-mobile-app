@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
+import fonts from '../../../assets/fonts';
+import { scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -14,73 +16,38 @@ const useStyles = () => {
         backgroundColor: colors.HOME_BACKGROUND,
         paddingHorizontal: 0,
       },
-      header: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        paddingHorizontal: sizes.PADDING,
-      },
-      headerTitle: {
-        fontFamily: 'Quicksand-Bold',
-        fontSize: sizes.FONTSIZE_HIGH + 2,
-        color: colors.PRIMARY_TEXT,
-      },
       scrollView: {
         flex: 1,
       },
       scrollContent: {
         paddingHorizontal: sizes.PADDING,
-        paddingBottom: sizes.PADDING * 2,
+        paddingBottom: sizes.HEIGHT * 0.02,
       },
       profileSection: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: sizes.PADDING * 1.5,
-        marginBottom: sizes.PADDING,
+        marginBottom: sizes.HEIGHT * 0.008,
       },
       profileImage: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
+        width: scaleWithMax(60, 70),
+        height: scaleWithMax(60, 70),
+        borderRadius: scaleWithMax(30, 35),
       },
       profileInfo: {
         flex: 1,
         marginLeft: sizes.PADDING,
       },
       profileName: {
-        fontFamily: 'Quicksand-Bold',
+        fontFamily: fonts.Quicksand.bold,
         fontSize: sizes.FONTSIZE_HIGH,
-        // backgroundColor: 'red',
         color: colors.PRIMARY_TEXT,
-        // marginBottom: 4,
+        marginBottom: scaleWithMax(2, 4),
       },
       profileUsername: {
-        fontFamily: 'Quicksand-Regular',
+        fontFamily: fonts.Quicksand.regular,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.SECONDARY_TEXT,
-        // backgroundColor: 'blue',
-      },
-      qrButton: {
-        width: 40,
-        height: 40,
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderWidth: 1,
-        borderColor: '#E0E0E0',
-        borderRadius: 8,
-      },
-      qrIcon: {
-        width: 24,
-        height: 24,
-        flexDirection: 'row',
-        flexWrap: 'wrap',
-        gap: 4,
-      },
-      qrDot: {
-        width: 8,
-        height: 8,
-        backgroundColor: colors.PRIMARY_TEXT,
-        borderRadius: 2,
       },
       menuContainer: {
         gap: sizes.PADDING * 1.2,
@@ -88,30 +55,17 @@ const useStyles = () => {
       menuItemWrapper: {
         marginBottom: 0,
       },
-      logoutButton: {
+      menuItem: {
         backgroundColor: colors.WHITE,
-        flexDirection: 'row',
-        alignItems: 'center',
-        // justifyContent: 'center',
-        paddingHorizontal: 16,
-        paddingVertical: 16,
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
-        borderRadius: 12,
-        // marginTop: sizes.PADDING * 2,
+        shadowColor: 'lightgray',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.25,
+        shadowRadius: 3.84,
+        elevation: 1,
       },
-      logoutContent: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        gap: 20,
-      },
-      logoutText: {
-        fontFamily: 'Quicksand-SemiBold',
-        fontSize: sizes.FONTSIZE_HIGH,
-        color: colors.PRIMARY_TEXT,
+      menuItemText: {
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: sizes.FONTSIZE,
       },
     });
   }, [theme]);

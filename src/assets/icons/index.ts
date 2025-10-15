@@ -43,6 +43,21 @@ import SvgEditGroup from './edit-group-small.svg';
 import SvgImageIcon from './camera-icon.svg';
 import SvgCatchBgShadow from './card-bg-shadow.svg';
 import SvgPlaceholderImage from './img-placeholder.svg';
+import SvgProfileCall from './profile-call.svg';
+import SvgProfileConnect from './profile-connect.svg';
+import SvgProfileFavorites from './profile-favorites.svg';
+import SvgProfileFriends from './profile-friends.svg';
+import SvgProfileLink from './profile-link.svg';
+import SvgProfileLogout from './profile-logout.svg';
+import SvgProfileOrder from './profile-order.svg';
+import SvgProfilePrivacy from './profile-privacy.svg';
+import SvgProfileReport from './profile-report.svg';
+import SvgProfileSettings from './profile-settings.svg';
+import SvgProfileSupport from './profile-support.svg';
+import SvgProfileTermsCondition from './profile-termsCondition.svg';
+import SvgProfileWallet from './profile-wallet.svg';
+import SvgProfileCrossIcon from './profile-close.svg';
+import SvgProfileQrIcon from './profile-qrcode.svg';
 
 export {
   SvgLogoBlue,
@@ -68,7 +83,6 @@ export {
   SvgFavourite,
   SvgOccasions,
   SvgNotification,
-  SvgSearchAdd,
   SvgHomeBack,
   SvgHomeActive,
   SvgHomeInactive,
@@ -90,4 +104,20 @@ export {
   SvgImageIcon,
   SvgCatchBgShadow,
   SvgPlaceholderImage,
+  SvgSearchAdd,
+  SvgProfileCall,
+  SvgProfileConnect,
+  SvgProfileFavorites,
+  SvgProfileFriends,
+  SvgProfileLink,
+  SvgProfileLogout,
+  SvgProfileOrder,
+  SvgProfilePrivacy,
+  SvgProfileReport,
+  SvgProfileSettings,
+  SvgProfileSupport,
+  SvgProfileTermsCondition,
+  SvgProfileWallet,
+  SvgProfileCrossIcon,
+  SvgProfileQrIcon,
 };
