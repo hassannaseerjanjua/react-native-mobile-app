@@ -39,6 +39,15 @@ export const fullNameValidation = (getString: GetString) =>
 export const cityValidation = (getString: GetString) =>
   Yup.string().required(getString('AU_SU_CITY_REQUIRED'));
 
+export const birthdayValidation = (getString: GetString) =>
+  Yup.string()
+    .trim()
+    .required(getString('ST_BIRTHDAY_REQUIRED'))
+    .matches(
+      /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
+      getString('ST_BIRTHDAY_INVALID_FORMAT'),
+    );
+
 // Reusable schema builders
 export const createSignInSchema = (
   activeTab: 'Phone' | 'Email',
@@ -75,5 +84,52 @@ export const createSignUpSchema = (
       currentStep === 3 ? phoneValidation(getString) : Yup.string().optional(),
     email:
       currentStep === 3 ? emailValidation(getString) : Yup.string().optional(),
+  });
+};
+
+export const createSettingsSchema = (getString: GetString) => {
+  return Yup.object().shape({
+    fullName: fullNameValidation(getString),
+    username: usernameValidation(getString),
+    email: emailValidation(getString),
+    phoneNumber: phoneValidation(getString),
+    // birthday: birthdayValidation(getString),
+  });
+};
+
+export const subjectValidation = (getString: GetString) =>
+  Yup.string()
+    .trim()
+    .required(getString('CU_SUBJECT_REQUIRED') || 'Subject is required')
+    .min(
+      3,
+      getString('CU_SUBJECT_MIN_LENGTH') ||
+        'Subject must be at least 3 characters',
+    )
+    .max(
+      100,
+      getString('CU_SUBJECT_MAX_LENGTH') ||
+        'Subject must be less than 100 characters',
+    );
+
+export const messageValidation = (getString: GetString) =>
+  Yup.string()
+    .trim()
+    .required(getString('CU_MESSAGE_REQUIRED') || 'Message is required')
+    .min(
+      10,
+      getString('CU_MESSAGE_MIN_LENGTH') ||
+        'Message must be at least 10 characters',
+    )
+    .max(
+      1000,
+      getString('CU_MESSAGE_MAX_LENGTH') ||
+        'Message must be less than 1000 characters',
+    );
+
+export const createContactUsSchema = (getString: GetString) => {
+  return Yup.object().shape({
+    subject: subjectValidation(getString),
+    message: messageValidation(getString),
   });
 };

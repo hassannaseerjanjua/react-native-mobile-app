@@ -73,6 +73,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   };
 
   const backSize = scaleWithMax(20, 25);
+  const dummyImage = require('../../assets/images/user.png');
 
   return (
     <View>
@@ -110,14 +111,12 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           )}
           {showProfileIcon && (
             <Pressable style={styles.avatarContainer} onPress={onProfilePress}>
-              {user?.ProfileUrl ? (
-                <Image
-                  source={{ uri: user.ProfileUrl }}
-                  style={styles.avatar}
-                />
-              ) : (
-                <SvgDummyAvatar />
-              )}
+              <Image
+                source={
+                  user?.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
+                }
+                style={styles.avatar}
+              />
             </Pressable>
           )}
           {rightSideTitle && (

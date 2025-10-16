@@ -10,6 +10,9 @@ import SendAGiftScreen from '../screens/app/send-a-gift/index.tsx';
 import SendToGroupScreen from '../screens/app/send-to-group/index.tsx';
 import ProfileScreen from '../screens/app/profile/index.tsx';
 import WalletScreen from '../screens/app/wallet/index.tsx';
+import FAQScreen from '../screens/app/faq/index.tsx';
+import SettingsScreen from '../screens/app/settings/index.tsx';
+import ContactUsScreen from '../screens/app/contact-us/index.tsx';
 import {
   AppStackParamList,
   RootStackParamList,
@@ -33,6 +36,9 @@ const AppStackNavigator = () => {
       <AppStack.Screen name="SendAGift" component={SendAGiftScreen} />
       <AppStack.Screen name="SendToGroup" component={SendToGroupScreen} />
       <AppStack.Screen name="Wallet" component={WalletScreen} />
+      <AppStack.Screen name="FAQ" component={FAQScreen} />
+      <AppStack.Screen name="Settings" component={SettingsScreen} />
+      <AppStack.Screen name="ContactUs" component={ContactUsScreen} />
       <AppStack.Screen name="Profile" component={ProfileScreen} />
     </AppStack.Navigator>
   );

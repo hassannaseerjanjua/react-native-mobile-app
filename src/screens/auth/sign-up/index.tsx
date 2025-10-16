@@ -23,6 +23,7 @@ import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { Formik } from 'formik';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
+import { createSignUpSchema } from '../../../utils/validationSchemas';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
@@ -170,6 +171,11 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     </View>
   );
 
+  const validationSchema = useMemo(
+    () => createSignUpSchema(currentStep, getString as (key: any) => string),
+    [currentStep, getString],
+  );
+
   return (
     <>
       <AuthLayout
@@ -192,7 +198,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
       >
         <Formik
           initialValues={formData}
-          // validationSchema={validationSchema}
+          validationSchema={validationSchema}
           onSubmit={() => {}}
           enableReinitialize={true}
         >

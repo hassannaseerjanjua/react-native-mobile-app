@@ -9,6 +9,9 @@ export type AppStackParamList = {
   SendAGift: undefined;
   SendToGroup: undefined;
   Wallet: undefined;
+  FAQ: undefined;
+  Settings: undefined;
+  ContactUs: undefined;
   Favorites: undefined;
   Occasions: undefined;
   Notifications: undefined;

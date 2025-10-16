@@ -31,6 +31,7 @@ const ProfileScreen: React.FC = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { user } = useAuthStore();
+  const dummyImage = require('../../../assets/images/user.png');
 
   const handleLogout = () => {
     dispatch(logout());
@@ -74,7 +75,9 @@ const ProfileScreen: React.FC = () => {
       id: 'settings',
       title: 'Settings',
       icon: <SvgProfileSettings />,
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate('Settings' as never);
+      },
     },
     {
       id: 'order',
@@ -92,7 +95,9 @@ const ProfileScreen: React.FC = () => {
       id: 'contact-us',
       title: 'Contact us',
       icon: <SvgProfileCall />,
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate('ContactUs' as never);
+      },
     },
 
     {
@@ -111,7 +116,9 @@ const ProfileScreen: React.FC = () => {
       id: 'faq',
       title: 'FAQs',
       icon: <SvgProfileSupport />,
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate('FAQ' as never);
+      },
     },
     {
       id: 'logout',
@@ -145,9 +152,7 @@ const ProfileScreen: React.FC = () => {
       >
         <View style={styles.profileSection}>
           <Image
-            source={{
-              uri: user?.ProfileUrl || '',
-            }}
+            source={user?.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage}
             style={styles.profileImage}
           />
           <View style={styles.profileInfo}>
