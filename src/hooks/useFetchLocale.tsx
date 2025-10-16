@@ -9,7 +9,7 @@ const useFetchLocale = () => {
   const [loading, setLoading] = useState<boolean | null>(null);
   const [doKeysExist, setDoKeysExist] = useState(false);
   const dispatch = useDispatch();
-  const { strings } = useLocaleStore();
+  const { strings, langId } = useLocaleStore();
 
   const fetchLocale = async (langId: number) => {
     if (loading === true) return;
@@ -31,9 +31,6 @@ const useFetchLocale = () => {
 
     dispatch(
       setLocale({
-        langId: langId,
-        isRtl: false,
-        langCode: 'en',
         strings: response?.data?.Data?.ResourceDictionary || {},
       }),
     );
@@ -43,7 +40,7 @@ const useFetchLocale = () => {
   };
 
   useEffect(() => {
-    fetchLocale(1);
+    fetchLocale(langId);
   }, []);
 
   return {
