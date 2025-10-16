@@ -63,15 +63,15 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
         fontFamily: fonts.Quicksand.bold,
         fontSize: scaleWithMax(22, 24),
         color: colors.BLACK,
-        marginTop: scaleWithMax(-3, -4),
+        marginTop: sizes.HEIGHT * -0.005,
       },
       riyalIconContainer: {
         flexDirection: 'row',
         alignItems: 'center',
       },
       riyalIcon: {
-        marginTop: scaleWithMax(6, 7),
-        marginRight: scaleWithMax(2, 4),
+        marginTop: sizes.HEIGHT * 0.005,
+        marginRight: sizes.WIDTH * 0.005,
       },
     });
   }, [theme]);

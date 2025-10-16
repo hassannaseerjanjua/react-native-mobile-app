@@ -14,6 +14,7 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         paddingHorizontal: 0,
+        backgroundColor: theme.colors.HOME_BACKGROUND,
       },
       scrollView: {
         flex: 1,
@@ -30,15 +31,22 @@ const useStyles = () => {
         marginBottom: 0,
       },
       faqItem: {
-        backgroundColor: colors.WHITE,
-        borderRadius: sizes.BORDER_RADIUS,
-        paddingHorizontal: sizes.PADDING,
+        // backgroundColor: colors.WHITE,
+        // borderRadius: sizes.BORDER_RADIUS,
+        // paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.PADDING * 0.9,
-        shadowColor: '#000',
+
+        backgroundColor: colors.WHITE,
+        shadowColor: 'lightgray',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.25,
         shadowRadius: 3.84,
         elevation: 1,
+        // shadowColor: '#0000000D',
+        // shadowOffset: { width: 0, height: 1 },
+        // shadowOpacity: 0.25,
+        // shadowRadius: 3.84,
+        // elevation: 1,
       },
       faqItemText: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,

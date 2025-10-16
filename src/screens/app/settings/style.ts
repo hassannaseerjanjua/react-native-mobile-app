@@ -31,7 +31,6 @@ const useStyles = () => {
       },
       buttonContainer: {
         marginTop: sizes.PADDING,
-        paddingHorizontal: scaleWithMax(4, 6),
       },
     });
   }, [theme]);

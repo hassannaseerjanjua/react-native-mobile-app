@@ -13,7 +13,7 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
-        backgroundColor: colors.HOME_BACKGROUND,
+        backgroundColor: theme.colors.HOME_BACKGROUND,
         paddingHorizontal: 0,
       },
       scrollView: {
@@ -50,7 +50,7 @@ const useStyles = () => {
         color: colors.BLACK,
       },
       menuContainer: {
-        gap: sizes.PADDING * 1.2,
+        gap: sizes.HEIGHT * 0.016,
       },
       menuItemWrapper: {
         marginBottom: 0,

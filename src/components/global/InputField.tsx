@@ -24,11 +24,13 @@ const InputField = ({
   isPhone,
 }: Props) => {
   const { theme, styles } = useStyles();
+  const isMultiline = fieldProps.multiline;
+
   return (
     <>
       <View
         style={[
-          styles.container,
+          isMultiline ? styles.textareaContainer : styles.container,
           {
             borderWidth: error ? 1 : 0.5,
             borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
@@ -48,7 +50,7 @@ const InputField = ({
         <TextInput
           {...fieldProps}
           style={[
-            styles.input,
+            isMultiline ? styles.textarea : styles.input,
             {
               paddingLeft: isPhone || icon ? theme.sizes.PADDING : 0,
             },
@@ -93,6 +95,16 @@ const useStyles = () => {
         alignItems: 'center',
         backgroundColor: colors.LIGHT_GRAY,
       },
+      textareaContainer: {
+        width: '100%',
+        minHeight: scaleWithMax(120, 140),
+        borderRadius: sizes.BORDER_RADIUS,
+        flexDirection: 'row',
+        paddingHorizontal: sizes.PADDING,
+        paddingVertical: sizes.PADDING,
+        alignItems: 'flex-start',
+        backgroundColor: colors.LIGHT_GRAY,
+      },
       input: {
         ...globalStyles.TEXT_STYLE,
         flex: 1,
@@ -102,6 +114,16 @@ const useStyles = () => {
         paddingVertical: 0,
         paddingHorizontal: 0,
         position: 'relative',
+      },
+      textarea: {
+        ...globalStyles.TEXT_STYLE,
+        flex: 1,
+        minHeight: scaleWithMax(100, 120),
+        fontSize: 16,
+        color: colors.PRIMARY_TEXT,
+        paddingVertical: 0,
+        paddingHorizontal: 0,
+        textAlignVertical: 'top',
       },
       image: {
         width: sizes.ICON * 0.5,

@@ -61,7 +61,6 @@ const ContactUsScreen: React.FC = () => {
             <View style={styles.formContainer}>
               <View style={styles.inputContainer}>
                 <InputField
-                  //   icon={<SvgUser width={scaleWithMax(20, 25)} />}
                   error={
                     formik.touched.subject && formik.errors.subject
                       ? formik.errors.subject
@@ -80,7 +79,6 @@ const ContactUsScreen: React.FC = () => {
 
               <View style={styles.inputContainer}>
                 <InputField
-                  //   icon={<SvgEmail width={scaleWithMax(20, 25)} />}
                   error={
                     formik.touched.message && formik.errors.message
                       ? formik.errors.message
@@ -93,12 +91,13 @@ const ContactUsScreen: React.FC = () => {
                       formik.setFieldValue('message', value);
                     },
                     multiline: true,
-                    numberOfLines: 10,
+                    numberOfLines: 6,
                     textAlignVertical: 'top',
-                    // style: {
-                    //   height: scaleWithMax(120, 140),
-                    //   paddingTop: scaleWithMax(12, 14),
-                    // },
+                    style: {
+                      height: theme.sizes.HEIGHT * 0.22,
+                      // backgroundColor: '#F9F9F9',
+                      // paddingTop: theme.sizes.HEIGHT * 0.2,
+                    },
                   }}
                 />
               </View>
