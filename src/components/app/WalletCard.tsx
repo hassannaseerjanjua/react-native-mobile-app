@@ -2,7 +2,7 @@ import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
-import { scaleWithMax } from '../../utils';
+import { isAndroid, scaleWithMax } from '../../utils';
 import { Text } from '../../utils/elements';
 import { SvgRiyalIcon, SvgWalletGifteeIcon } from '../../assets/icons';
 
@@ -63,7 +63,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
         fontFamily: fonts.Quicksand.bold,
         fontSize: scaleWithMax(22, 24),
         color: colors.BLACK,
-        marginTop: sizes.HEIGHT * -0.005,
+        marginTop: isAndroid ? sizes.HEIGHT * -0.005 : 0,
       },
       riyalIconContainer: {
         flexDirection: 'row',

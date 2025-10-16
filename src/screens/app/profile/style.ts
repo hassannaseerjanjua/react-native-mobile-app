@@ -26,7 +26,7 @@ const useStyles = () => {
       profileSection: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: sizes.PADDING * 1.5,
+        paddingVertical: sizes.HEIGHT * 0.01,
         marginBottom: sizes.HEIGHT * 0.008,
       },
       profileImage: {

@@ -5,6 +5,7 @@ export type AppStackParamList = {
   Search: {
     title?: string;
     showFriendsOnly?: boolean;
+    showConnectOnly?: boolean;
   };
   SendAGift: undefined;
   SendToGroup: undefined;

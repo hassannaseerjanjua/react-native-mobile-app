@@ -89,7 +89,12 @@ const ProfileScreen: React.FC = () => {
       id: 'connect',
       title: 'Connect',
       icon: <SvgProfileConnect />,
-      onPress: () => {},
+      onPress: () => {
+        (navigation as any).navigate('Search', {
+          title: 'Connect',
+          showConnectOnly: true,
+        });
+      },
     },
     {
       id: 'contact-us',

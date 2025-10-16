@@ -27,7 +27,7 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
-        marginTop: sizes.PADDING * 0.1,
+        // backgroundColor: 'red',
       },
       userName: {
         fontFamily: fonts.Quicksand.bold,

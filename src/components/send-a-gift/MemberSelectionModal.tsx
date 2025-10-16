@@ -652,7 +652,7 @@ const useStyles = () => {
       },
       membersHeading: {
         fontFamily: fonts.Quicksand.semibold,
-        fontSize: sizes.FONTSIZE_HIGH,
+        fontSize: sizes.FONTSIZE_LESS_HIGH,
         color: colors.PRIMARY_TEXT,
         marginTop: sizes.HEIGHT * 0.02,
         marginBottom: sizes.HEIGHT * 0.015,

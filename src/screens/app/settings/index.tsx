@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, StatusBar, ScrollView } from 'react-native';
+import { View, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Formik } from 'formik';
 import useStyles from './style';
@@ -25,6 +25,8 @@ const SettingsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { user } = useAuthStore();
   const { getString } = useLocaleStore();
+  const [selectedLanguage, setSelectedLanguage] = useState('English');
+  const [selectedGender, setSelectedGender] = useState('Male');
 
   const validationSchema = useMemo(
     () => createSettingsSchema(getString as (key: any) => string),
@@ -62,6 +64,24 @@ const SettingsScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
+        <Text style={styles.title}>Select Language</Text>
+        <View style={styles.languageContainer}>
+          {['English', 'Arabic'].map((language: string) => (
+            <TouchableOpacity
+              key={language}
+              style={styles.languageOption}
+              onPress={() => setSelectedLanguage(language)}
+            >
+              <View style={styles.radioButton}>
+                {selectedLanguage === language && (
+                  <View style={styles.radioButtonSelected} />
+                )}
+              </View>
+              <Text style={styles.languageText}>{language}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
@@ -173,6 +193,25 @@ const SettingsScreen: React.FC = () => {
                     },
                   }}
                 />
+              </View>
+
+              <View style={styles.genderContainer}>
+                <View style={styles.genderOptions}>
+                  {['Male', 'Female'].map((gender: string) => (
+                    <TouchableOpacity
+                      key={gender}
+                      style={styles.genderOption}
+                      onPress={() => setSelectedGender(gender)}
+                    >
+                      <View style={styles.radioButton}>
+                        {selectedGender === gender && (
+                          <View style={styles.radioButtonSelected} />
+                        )}
+                      </View>
+                      <Text style={styles.genderText}>{gender}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
               </View>
 
               <View style={styles.buttonContainer}>

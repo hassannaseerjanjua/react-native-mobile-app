@@ -26,7 +26,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const { getString } = useLocaleStore();
 
   // Get parameters from route
-  const { title, showFriendsOnly = false } = route.params || {};
+  const {
+    title,
+    showFriendsOnly = false,
+    showConnectOnly = false,
+  } = route.params || {};
 
   const [searchQuery, setSearchQuery] = useState('');
   const [pageIndex, setPageIndex] = useState(1);
@@ -172,7 +176,13 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
             </View>
           ) : (
             <FlatList
-              data={activeUsersApi.data}
+              data={
+                showConnectOnly
+                  ? activeUsersApi.data?.filter(
+                      (user: any) => user.RelationStatus === 2,
+                    )
+                  : activeUsersApi?.data
+              }
               keyExtractor={item => item.UserId.toString()}
               renderItem={({ item, index }) => (
                 <SearchUserItem

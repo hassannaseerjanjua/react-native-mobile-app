@@ -13,7 +13,7 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
-        backgroundColor: colors.HOME_BACKGROUND,
+        backgroundColor: colors.WHITE,
         paddingHorizontal: 0,
       },
       scrollView: {
@@ -24,7 +24,7 @@ const useStyles = () => {
         paddingBottom: sizes.HEIGHT * 0.02,
       },
       walletSection: {
-        paddingVertical: sizes.PADDING * 1.5,
+        paddingVertical: sizes.HEIGHT * 0.01,
         marginBottom: sizes.HEIGHT * 0.02,
       },
       transactionsSection: {

@@ -85,10 +85,15 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             activeOpacity={0.7}
           >
             <SvgHomeBack
-              width={scaleWithMax(38, 38)}
-              height={scaleWithMax(22, 25)}
+            // width={scaleWithMax(38, 38)}
+            // height={scaleWithMax(22, 25)}
             />
           </TouchableOpacity>
+        )}
+        {title && (
+          <Text style={styles.title} onPress={handleBackPress}>
+            {title}
+          </Text>
         )}
         {showLogo && (
           <SvgLogoHeader
@@ -96,8 +101,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             height={scaleWithMax(38, 43)}
           />
         )}
-
-        {title && <Text style={styles.title}>{title}</Text>}
 
         <View style={styles.rightSection}>
           {showSearch && (
@@ -166,7 +169,7 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingTop: isAndroidThen(sizes.PADDING, 0),
-        paddingBottom: sizes.PADDING * 0.6,
+        paddingBottom: sizes.HEIGHT * 0.02,
         // backgroundColor: 'blue',
         paddingHorizontal: theme.sizes.PADDING,
       },
