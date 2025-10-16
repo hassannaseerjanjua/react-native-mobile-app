@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
+import RNRestart from 'react-native-restart';
 
 export interface LocaleState {
   localeData: {
@@ -42,6 +43,30 @@ const locale = createSlice({
 
 export const { setLocale } = locale.actions;
 export default locale.reducer;
+
+export const useLanguageShifter = () => {
+  const dispatch = useDispatch();
+
+  const shiftLanguage = (langCode: 'en' | 'ar') => {
+    dispatch(
+      setLocale({
+        langId: langCode === 'en' ? 1 : 2,
+        langCode: langCode,
+        isRtl: langCode === 'ar',
+        strings: null,
+      }),
+    );
+
+    // restart app here
+    setTimeout(() => {
+      RNRestart.restart();
+    }, 500);
+  };
+
+  return {
+    shiftLanguage,
+  };
+};
 
 export const useLocaleStore = () => {
   const locale = useSelector(
