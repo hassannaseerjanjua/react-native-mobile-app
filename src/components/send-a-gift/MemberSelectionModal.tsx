@@ -687,7 +687,7 @@ const useStyles = () => {
       memberGridItem: {
         alignItems: 'center',
         width: userItemWidth,
-        marginRight: sizes.BORDER_RADIUS_MID,
+        marginRight: sizes.WIDTH * 0.01,
       },
       memberGridImageContainer: {
         position: 'relative',
