@@ -185,7 +185,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                         : getString('AU_PL_EMAIL'),
                       keyboardType: isPhone ? 'phone-pad' : 'email-address',
                       autoCapitalize: 'none',
-                      maxLength: isPhone ? 14 : 100,
+                      maxLength: isPhone ? 9 : 100,
                       value: isPhone ? values.phone : values.email,
                       onChangeText: isPhone
                         ? value => {
