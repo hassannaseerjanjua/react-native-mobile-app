@@ -231,6 +231,7 @@ const SettingsScreen: React.FC = () => {
                       formik.setFieldValue('phoneNumber', value);
                     },
                     keyboardType: 'phone-pad',
+                    maxLength: 9,
                   }}
                 />
               </View>

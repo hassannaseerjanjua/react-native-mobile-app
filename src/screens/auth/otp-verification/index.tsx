@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TextInput } from 'react-native';
+import { View, TextInput, Keyboard } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
@@ -29,6 +29,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const inputRefs = useRef<(TextInput | null)[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
+  const [hasVerified, setHasVerified] = useState(false);
 
   // Get email and phone from route parameters
   const { email, phone, fullName, username, city, signIn } = route.params;
@@ -55,7 +56,24 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     return () => clearTimeout(timer);
   }, []);
 
+  // Auto-verify when all digits are entered
+  useEffect(() => {
+    const isComplete = otp.every(digit => digit !== '');
+    if (isComplete && !isLoading && !hasVerified) {
+      // Small delay to ensure all inputs are updated
+      setTimeout(() => {
+        Keyboard.dismiss();
+        handleVerify();
+      }, 200);
+    }
+  }, [otp, isLoading, hasVerified]);
+
   const handleOtpChange = (value: string, index: number) => {
+    // Reset verification flag when OTP changes
+    if (hasVerified) {
+      setHasVerified(false);
+    }
+
     // Handle only single digit or empty string
     const sanitizedValue = value.replace(/[^0-9]/g, '').slice(0, 1);
 
@@ -84,40 +102,49 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const handleVerify = async () => {
     const otpString = otp.join('');
 
+    // Prevent duplicate calls
+    if (isLoading || otpString.length !== 6 || hasVerified) {
+      return;
+    }
+
+    setHasVerified(true);
     const endpoint = signIn
       ? apiEndpoints.VERIFY_OTP_SIGNIN
       : apiEndpoints.VERIFY_OTP;
-    if (otpString.length === 6) {
-      setIsLoading(true);
-      console.log('Verifying OTP:', otpString);
-      try {
-        const response = await api.post<LoginApiResponse>(endpoint, {
-          OTP: otpString,
-          Email: email,
-          PhoneNo: phone,
-        });
-        console.log('OTP verification response:', response);
-        if (response.success && response.data?.Data?.User) {
-          dispatch(login(response.data.Data.User));
-        } else {
-          // Show error button for 3 seconds
-          setShowError(true);
-          setTimeout(() => {
-            setShowError(false);
-          }, 3000);
-        }
-      } catch (error) {
-        console.log('OTP verification error:', error);
+
+    setIsLoading(true);
+    console.log('Verifying OTP:', otpString);
+    try {
+      const response = await api.post<LoginApiResponse>(endpoint, {
+        OTP: otpString,
+        Email: email,
+        PhoneNo: phone,
+      });
+      console.log('OTP verification response:', response);
+      if (response.success && response.data?.Data?.User) {
+        dispatch(login(response.data.Data.User));
+      } else {
         // Show error button for 3 seconds
         setShowError(true);
         setTimeout(() => {
           setShowError(false);
         }, 3000);
-      } finally {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
+        // Reset verification flag on error so user can try again
+        setHasVerified(false);
       }
+    } catch (error) {
+      console.log('OTP verification error:', error);
+      // Show error button for 3 seconds
+      setShowError(true);
+      setTimeout(() => {
+        setShowError(false);
+      }, 3000);
+      // Reset verification flag on error so user can try again
+      setHasVerified(false);
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
     }
   };
 
