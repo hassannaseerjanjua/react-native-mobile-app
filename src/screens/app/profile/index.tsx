@@ -83,7 +83,9 @@ const ProfileScreen: React.FC = () => {
       id: 'order',
       title: 'Order',
       icon: <SvgProfileOrder />,
-      onPress: () => {},
+      onPress: () => {
+        navigation.navigate('Orders' as never);
+      },
     },
     {
       id: 'connect',

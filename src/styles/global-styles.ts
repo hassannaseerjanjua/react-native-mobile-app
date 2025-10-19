@@ -41,6 +41,13 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           borderColor: colors.LIGHT_GRAY,
           borderWidth: Platform.OS == 'android' && colors.isDark ? 0.5 : 0,
         },
+        SHADOW_STYLE_LOW: {
+          shadowColor: '#0000000D',
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.25,
+          shadowRadius: 3.84,
+          elevation: 10,
+        },
         CONTAINER_STYLE: {
           flex: 1,
           backgroundColor: colors.BACKGROUND,

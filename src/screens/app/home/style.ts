@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
 import fonts from '../../../assets/fonts';
-import { scaleWithMax } from '../../../utils';
+import { isIOSThen, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -40,7 +40,7 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.bold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
-        marginVertical: scaleWithMax(9, 11),
+        marginVertical: isIOSThen(scaleWithMax(9, 11), scaleWithMax(5, 7)),
       },
       optionsWrapper: {
         flexDirection: 'row',

@@ -24,29 +24,12 @@ const useStyles = () => {
         paddingBottom: sizes.HEIGHT * 0.02,
       },
       faqContainer: {
-        gap: sizes.PADDING * 1.2,
-        paddingVertical: sizes.PADDING,
+        gap: sizes.HEIGHT * 0.018,
       },
-      faqItemWrapper: {
-        marginBottom: 0,
-      },
-      faqItem: {
-        // backgroundColor: colors.WHITE,
-        // borderRadius: sizes.BORDER_RADIUS,
-        // paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.PADDING * 0.9,
 
-        backgroundColor: colors.WHITE,
-        shadowColor: 'lightgray',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 1,
-        // shadowColor: '#0000000D',
-        // shadowOffset: { width: 0, height: 1 },
-        // shadowOpacity: 0.25,
-        // shadowRadius: 3.84,
-        // elevation: 1,
+      faqItem: {
+        paddingVertical: sizes.HEIGHT * 0.015,
+        ...theme.globalStyles.SHADOW_STYLE_LOW,
       },
       faqItemText: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,

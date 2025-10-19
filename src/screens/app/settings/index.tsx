@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Formik } from 'formik';
@@ -16,17 +16,50 @@ import {
   SvgEmail,
   SvgPhone,
   SvgBirthdayIcon,
+  SvgLocationPin,
 } from '../../../assets/icons';
-import { scaleWithMax } from '../../../utils';
+import { scaleWithMax, toOption } from '../../../utils';
 import { createSettingsSchema } from '../../../utils/validationSchemas';
+import DropdownField from '../../../components/global/DropdownField';
+import useGetApi from '../../../hooks/useGetApi';
+import { City } from '../../../types';
+import apiEndpoints from '../../../constants/api-endpoints';
 
 const SettingsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const { user } = useAuthStore();
+  console.log('User:', user);
   const { getString } = useLocaleStore();
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [selectedGender, setSelectedGender] = useState('Male');
+  const [areaSearch, setAreaSearch] = useState('');
+
+  const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
+    transformData: data => data.Data.cities,
+  });
+
+  const options = toOption<City>(citiesApi.data || [], 'CityName', 'CityID');
+  const filteredOptions = options.filter(option =>
+    option.label.toLowerCase().includes(areaSearch.toLowerCase()),
+  );
+  const [selectedOption, setSelectedOption] = useState<any>(null);
+
+  // Update selected option when cities data loads
+  useEffect(() => {
+    console.log('Cities data loaded:', citiesApi.data?.length);
+    console.log('User CityId:', user?.CityId);
+    console.log('Options available:', options.length);
+    console.log('Current selectedOption:', selectedOption);
+
+    if (citiesApi.data && user?.CityId && !selectedOption) {
+      const defaultCity = options.find(option => option.value === user.CityId);
+      console.log('Found default city:', defaultCity);
+      if (defaultCity) {
+        setSelectedOption(defaultCity);
+      }
+    }
+  }, [citiesApi.data, user?.CityId, options, selectedOption]);
 
   const validationSchema = useMemo(
     () => createSettingsSchema(getString as (key: any) => string),
@@ -36,10 +69,13 @@ const SettingsScreen: React.FC = () => {
   const initialValues = {
     fullName: user?.FullNameEn || '',
     username: user?.UserName || '',
+    city: user?.CityId || '',
     email: user?.Email || '',
     phoneNumber: user?.PhoneNo || '',
     birthday: user?.DateOfBirth || '',
   };
+
+  console.log('Initial values:', initialValues);
 
   const handleUpdate = (values: typeof initialValues) => {
     // TODO: Implement update logic
@@ -154,6 +190,28 @@ const SettingsScreen: React.FC = () => {
                     readOnly: true,
                     style: { color: theme.colors.SECONDARY_TEXT },
                   }}
+                />
+              </View>
+              <View style={styles.inputContainer}>
+                <DropdownField
+                  isLoading={citiesApi.loading}
+                  label={getString('AU_PL_CITY')}
+                  selectedOption={selectedOption}
+                  icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
+                  options={filteredOptions}
+                  searchValue={areaSearch}
+                  onSearchChange={setAreaSearch}
+                  placeholder="City"
+                  selectedValue={formik.values.city}
+                  onSelect={value => {
+                    setSelectedOption(value);
+                    formik.setFieldValue('city', value.value);
+                  }}
+                  error={
+                    formik.touched.city && formik.errors.city
+                      ? formik.errors.city
+                      : undefined
+                  }
                 />
               </View>
 

@@ -44,6 +44,9 @@ const apiEndpoints = {
   DELETE_GROUP: `/${version}/Friends/DeleteGroup`,
   CHECK_USER_LINKED_WITH_GROUP: (friendUserId?: number) =>
     `/${version}/Friends/CheckFriendInGroups?friendUserId=${friendUserId}`,
+
+  // Settings
+  GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,
 };
 
 export default apiEndpoints;

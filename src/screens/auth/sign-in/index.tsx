@@ -89,9 +89,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
         if (response.success) {
           setCurrentFormValues(values);
-          setIsBottomSheetOpen(true); // ✅ open only after API success
+          setIsBottomSheetOpen(true);
         } else {
-          // Capture the error message from the API response
           setApiError(response.error || 'An error occurred');
         }
       } catch (error) {
@@ -129,7 +128,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
               style={[styles.tab, activeTab === tab && styles.activeTab]}
               onPress={() => {
                 setActiveTab(tab as 'Phone' | 'Email');
-                setApiError(''); // Clear API error when switching tabs
+                setApiError('');
               }}
             >
               <Text
@@ -165,7 +164,6 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
               ? errors.phone && touched.phone && errors.phone
               : errors.email && touched.email && errors.email;
 
-            // Show API error if it exists, otherwise show Formik validation error
             const error = apiError || (formikError as string);
 
             return (

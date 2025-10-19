@@ -461,7 +461,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   <ScrollView
                     style={{ flex: 1 }}
                     contentContainerStyle={{
-                      paddingHorizontal: theme.sizes.PADDING,
+                      // paddingHorizontal: theme.sizes.PADDING * 0.5,
                       paddingBottom: theme.sizes.HEIGHT * 0.02,
                     }}
                     showsVerticalScrollIndicator={false}

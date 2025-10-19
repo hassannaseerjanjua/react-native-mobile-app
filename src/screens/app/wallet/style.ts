@@ -13,7 +13,6 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
-        backgroundColor: colors.WHITE,
         paddingHorizontal: 0,
       },
       scrollView: {

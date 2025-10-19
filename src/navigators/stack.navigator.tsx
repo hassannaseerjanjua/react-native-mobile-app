@@ -13,6 +13,7 @@ import WalletScreen from '../screens/app/wallet/index.tsx';
 import FAQScreen from '../screens/app/faq/index.tsx';
 import SettingsScreen from '../screens/app/settings/index.tsx';
 import ContactUsScreen from '../screens/app/contact-us/index.tsx';
+import OrdersScreen from '../screens/app/orders/index.tsx';
 import {
   AppStackParamList,
   RootStackParamList,
@@ -40,6 +41,7 @@ const AppStackNavigator = () => {
       <AppStack.Screen name="Settings" component={SettingsScreen} />
       <AppStack.Screen name="ContactUs" component={ContactUsScreen} />
       <AppStack.Screen name="Profile" component={ProfileScreen} />
+      <AppStack.Screen name="Orders" component={OrdersScreen} />
     </AppStack.Navigator>
   );
 };

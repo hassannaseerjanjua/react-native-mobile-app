@@ -91,6 +91,7 @@ export const createSettingsSchema = (getString: GetString) => {
   return Yup.object().shape({
     fullName: fullNameValidation(getString),
     username: usernameValidation(getString),
+    city: cityValidation(getString),
     email: emailValidation(getString),
     phoneNumber: phoneValidation(getString),
     // birthday: birthdayValidation(getString),

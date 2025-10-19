@@ -6,10 +6,18 @@ import { Text } from '../../../utils/elements';
 import HomeHeader from '../../../components/global/HomeHeader';
 import WalletCard from '../../../components/app/WalletCard';
 import ParentView from '../../../components/app/ParentView';
+import apiEndpoints from '../../../constants/api-endpoints';
+import useGetApi from '../../../hooks/useGetApi';
 
 const WalletScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
+
+  const walletBalance = useGetApi<any>(apiEndpoints.GET_WALLET_BALANCE, {
+    transformData: data => data.Data,
+  });
+
+  console.log(walletBalance?.data?.WalletBalance);
 
   return (
     <ParentView style={styles.container}>
@@ -30,7 +38,11 @@ const WalletScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.walletSection}>
-          <WalletCard balance="200.00" />
+          <WalletCard
+            balance={
+              Number(walletBalance?.data?.WalletBalance).toFixed(2) || '0.00'
+            }
+          />
         </View>
       </ScrollView>
     </ParentView>

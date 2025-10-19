@@ -42,7 +42,6 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_BUTTON,
         color: colors.BLACK,
-        // marginBottom: scaleWithMax(1, 2),
       },
       profileUsername: {
         fontFamily: fonts.Quicksand.regular,
@@ -57,11 +56,7 @@ const useStyles = () => {
       },
       menuItem: {
         backgroundColor: colors.WHITE,
-        shadowColor: 'lightgray',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.25,
-        shadowRadius: 3.84,
-        elevation: 1,
+        ...theme.globalStyles.SHADOW_STYLE_LOW,
       },
       menuItemText: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,

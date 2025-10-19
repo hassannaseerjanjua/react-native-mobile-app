@@ -49,13 +49,14 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
         },
         bgIcon: {
           position: 'absolute',
-          top: 10,
+          top: 20,
           left: 'auto',
-          right: 25,
+          right: 5,
           bottom: 0,
           height: '100%',
-          width: '45%',
-          transform: [{ rotate: '15deg' }],
+          // width: '100%',
+          transform: [{ rotate: '20deg' }],
+          opacity: 0.45,
           // backgroundColor: 'red',
         },
         content: {

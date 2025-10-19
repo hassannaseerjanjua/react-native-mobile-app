@@ -17,6 +17,7 @@ export type AppStackParamList = {
   Occasions: undefined;
   Notifications: undefined;
   Profile: undefined;
+  Orders: undefined;
 };
 
 export type AuthStackParamList = {
