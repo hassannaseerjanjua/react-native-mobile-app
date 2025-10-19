@@ -46,6 +46,7 @@ interface MemberSelectionModalProps {
   isSendAGift?: boolean;
   viewOnly?: boolean;
   existingGroupName?: string;
+  existingGroupImage?: string | null;
 }
 
 const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
@@ -58,6 +59,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   isSendAGift = false,
   viewOnly = false,
   existingGroupName = '',
+  existingGroupImage,
 }) => {
   const { styles } = useStyles();
   const [modalAnimation] = useState(new Animated.Value(0));
@@ -69,7 +71,16 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     uri: string;
     type: string;
     name: string;
-  } | null>(null);
+  } | null>(
+    existingGroupImage
+      ? {
+          uri: existingGroupImage,
+          type: 'image/jpeg',
+          name: 'group-image.jpg',
+        }
+      : null,
+  );
+
   const [groupError, setGroupError] = useState('');
 
   const theme = useTheme();
@@ -93,7 +104,15 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       setModalStep(1);
       setSearchQuery('');
       setGroupName(prefillGroupName ? existingGroupName : '');
-      setGroupImage(null);
+      setGroupImage(
+        prefillGroupName && existingGroupImage
+          ? {
+              uri: existingGroupImage,
+              type: 'image/jpeg',
+              name: 'group-image.jpg',
+            }
+          : null,
+      );
       setGroupError('');
       setSelectedUsers(
         prefillGroupName
@@ -101,7 +120,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           : new Set(),
       );
     },
-    [existingGroupName, existingMembers],
+    [existingGroupName, existingMembers, existingGroupImage],
   );
 
   const openModal = useCallback(() => {

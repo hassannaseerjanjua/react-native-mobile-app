@@ -200,7 +200,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
                       }
                 }
                 isEditGroup={isEditGroupOpen}
-                styles={styles.TabItem}
+                TabItemStyles={styles.TabItem}
                 onDeletePress={() => {
                   handleDeleteGroup(group);
                 }}
@@ -234,6 +234,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         existingMembers={getGroupMembersData()}
         onSave={handleSaveGroupMembers}
         title="Edit Group Members"
+        existingGroupImage={selectedGroup?.ImageUrl}
         existingGroupName={selectedGroup?.GroupName}
         listings={[
           {

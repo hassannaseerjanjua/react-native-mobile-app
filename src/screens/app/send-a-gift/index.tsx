@@ -105,9 +105,30 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     },
   ];
 
-  const displayData = searchQuery
-    ? searchFriendsApi.data || []
-    : activeUsersApi.data || [];
+  // Create display data with current user at the top
+  const getDisplayData = () => {
+    const baseData = searchQuery
+      ? searchFriendsApi.data || []
+      : activeUsersApi.data || [];
+
+    // Only add current user to the top if we're not searching and user data is available
+    if (!searchQuery && user) {
+      const currentUser: ActiveUser = {
+        UserId: user.UserId,
+        FullName: `${user.FullNameEn || user.FullNameAr || 'User'} (Me)`,
+        Email: user.Email,
+        PhoneNo: user.PhoneNo,
+        ProfileUrl: user.ProfileUrl,
+        RelationStatus: 1, // Set as already "added" since it's the current user
+      };
+
+      return [currentUser, ...baseData];
+    }
+
+    return baseData;
+  };
+
+  const displayData = getDisplayData();
   const isLoading = searchQuery
     ? searchFriendsApi.loading
     : activeUsersApi.loading;
