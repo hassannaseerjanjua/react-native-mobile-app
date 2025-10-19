@@ -11,7 +11,7 @@ import { ReactElement } from 'react';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
 import { Text } from '../../utils/elements';
-import { scaleWithMax } from '../../utils';
+import { isIOSThen, scaleWithMax } from '../../utils';
 
 interface HomeScreenTabsProps {
   icon?: ReactElement;
@@ -64,10 +64,9 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           marginLeft: scaleWithMax(10, 12),
         },
         title: {
-          fontSize: scaleWithMax(12, 13),
+          fontSize: scaleWithMax(13, 14),
           fontFamily: fonts.Quicksand.bold,
           color: colors.PRIMARY_TEXT,
-          // marginBottom: scaleWithMax(4, 3),
           flexShrink: 1,
         },
         titlePrimary: {

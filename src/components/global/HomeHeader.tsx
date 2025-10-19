@@ -6,6 +6,7 @@ import {
   StyleSheet,
   Pressable,
   Image,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
@@ -91,9 +92,12 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           </TouchableOpacity>
         )}
         {title && (
-          <Text style={styles.title} onPress={handleBackPress}>
-            {title}
-          </Text>
+          <TouchableWithoutFeedback
+            style={styles.title}
+            onPress={handleBackPress}
+          >
+            <Text style={styles.title}>{title}</Text>
+          </TouchableWithoutFeedback>
         )}
         {showLogo && (
           <SvgLogoHeader
