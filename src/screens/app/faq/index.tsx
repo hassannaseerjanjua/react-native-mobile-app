@@ -3,36 +3,20 @@ import { View, StatusBar, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
 import { Text } from '../../../utils/elements';
-import TabItem from '../../../components/global/TabItem';
 import HomeHeader from '../../../components/global/HomeHeader';
 import ParentView from '../../../components/app/ParentView';
+import FAQItem from '../../../components/app/FAQItem';
+import { FAQ } from '../../../types';
+import apiEndpoints from '../../../constants/api-endpoints';
+import useGetApi from '../../../hooks/useGetApi';
 
 const FAQScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
 
-  const faqItems = [
-    {
-      id: 'faq-1',
-      title: 'How do I send a gift?',
-    },
-    {
-      id: 'faq-2',
-      title: 'How do I add friends?',
-    },
-    {
-      id: 'faq-3',
-      title: 'How do I create a group?',
-    },
-    {
-      id: 'faq-4',
-      title: 'How do I check my wallet balance?',
-    },
-    {
-      id: 'faq-5',
-      title: 'How do I update my profile?',
-    },
-  ];
+  const GetFaqs = useGetApi<FAQ[]>(apiEndpoints.GET_FAQS, {
+    transformData: (data: any) => data.Data?.Items || [],
+  });
 
   return (
     <ParentView style={styles.container}>
@@ -53,15 +37,14 @@ const FAQScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.faqContainer}>
-          {faqItems.map((item, index) => (
-            <View key={item.id} style={styles.faqItemWrapper}>
-              <TabItem
-                title={item.title}
-                onPress={() => {}}
-                TabItemStyles={styles.faqItem}
-                TabTextStyles={styles.faqItemText}
-              />
-            </View>
+          {GetFaqs?.data?.map(item => (
+            <FAQItem
+              key={item.FaqId}
+              item={item}
+              onPress={() => {}}
+              style={styles.faqItem}
+              textStyle={styles.faqItemText}
+            />
           ))}
         </View>
       </ScrollView>

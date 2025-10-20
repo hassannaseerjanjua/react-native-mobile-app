@@ -8,16 +8,24 @@ import WalletCard from '../../../components/app/WalletCard';
 import ParentView from '../../../components/app/ParentView';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
+import { AppStackScreen } from '../../../types/navigation.types';
+import { StaticContent } from '../../../types';
 
-const WalletScreen: React.FC = () => {
+interface StaticProps extends AppStackScreen<'StaticContent'> {}
+
+const StaticConent: React.FC<StaticProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
-  const navigation = useNavigation();
 
-  const walletBalance = useGetApi<any>(apiEndpoints.GET_WALLET_BALANCE, {
-    transformData: data => data.Data,
-  });
+  const { code, title } = route.params;
 
-  console.log(walletBalance?.data?.WalletBalance);
+  const getStaticContent = useGetApi<StaticContent>(
+    apiEndpoints.GET_STATIC_CONTENT(code),
+    {
+      transformData: data => data.Data,
+    },
+  );
+
+  console.log('StaticContentResponse', getStaticContent);
 
   return (
     <ParentView style={styles.container}>
@@ -27,7 +35,7 @@ const WalletScreen: React.FC = () => {
       />
 
       <HomeHeader
-        title="Wallet"
+        title={title}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
       />
@@ -37,18 +45,10 @@ const WalletScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.walletSection}>
-          <WalletCard
-            balance={
-              walletBalance?.data?.WalletBalance
-                ? Number(walletBalance?.data?.WalletBalance).toFixed(2)
-                : '0.00'
-            }
-          />
-        </View>
+        <Text>{getStaticContent?.data?.ContentEn}</Text>
       </ScrollView>
     </ParentView>
   );
 };
 
-export default WalletScreen;
+export default StaticConent;

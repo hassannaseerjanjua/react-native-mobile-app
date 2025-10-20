@@ -89,12 +89,12 @@ export const createSignUpSchema = (
 
 export const createSettingsSchema = (getString: GetString) => {
   return Yup.object().shape({
-    fullName: fullNameValidation(getString),
+    Fullname: fullNameValidation(getString),
     username: usernameValidation(getString),
-    city: cityValidation(getString),
+    CityId: cityValidation(getString),
     email: emailValidation(getString),
     phoneNumber: phoneValidation(getString),
-    // birthday: birthdayValidation(getString),
+    // Dob: birthdayValidation(getString),
   });
 };
 
@@ -118,9 +118,9 @@ export const messageValidation = (getString: GetString) =>
     .trim()
     .required(getString('CU_MESSAGE_REQUIRED') || 'Message is required')
     .min(
-      10,
+      5,
       getString('CU_MESSAGE_MIN_LENGTH') ||
-        'Message must be at least 10 characters',
+        'Message must be at least 5 characters',
     )
     .max(
       1000,

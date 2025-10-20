@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StatusBar } from 'react-native';
+import { View, StatusBar, ScrollView } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
@@ -49,24 +49,25 @@ const HomeScreen: React.FC = () => {
         showLogo={true}
         showSearch={true}
       />
-
-      <View style={styles.mainContent}>
-        <Text style={styles.welcomeText}>
-          {getString('HOME_WELCOME')}
-          <Text style={styles.userName}>{user?.FullNameEn}</Text>
-        </Text>
-        <View style={styles.heroImage}>
-          <ImageSlider
-            sliders={sliderResponse || undefined}
-            loading={sliderLoading}
-            error={sliderError}
-          />
+      <ScrollView>
+        <View style={styles.mainContent}>
+          <Text style={styles.welcomeText}>
+            {getString('HOME_WELCOME')}
+            <Text style={styles.userName}>{user?.FullNameEn}</Text>
+          </Text>
+          <View style={styles.heroImage}>
+            <ImageSlider
+              sliders={sliderResponse || undefined}
+              loading={sliderLoading}
+              error={sliderError}
+            />
+          </View>
+          <Text style={styles.sectionTitle}>
+            {getString('HOME_WHAT_ARE_YOU')}
+          </Text>
+          <HomeScreenTabsContainer />
         </View>
-        <Text style={styles.sectionTitle}>
-          {getString('HOME_WHAT_ARE_YOU')}
-        </Text>
-        <HomeScreenTabsContainer />
-      </View>
+      </ScrollView>
     </View>
   );
 };

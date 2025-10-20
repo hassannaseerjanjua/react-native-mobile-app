@@ -12,11 +12,14 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import { SvgUser, SvgEmail } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import { createContactUsSchema } from '../../../utils/validationSchemas';
+import api from '../../../utils/api';
+import apiEndpoints from '../../../constants/api-endpoints';
 
 const ContactUsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const { getString } = useLocaleStore();
+  const [loading, setLoading] = useState(false);
 
   const validationSchema = useMemo(
     () => createContactUsSchema(getString as (key: any) => string),
@@ -29,8 +32,18 @@ const ContactUsScreen: React.FC = () => {
   };
 
   const handleSubmit = (values: typeof initialValues) => {
-    // TODO: Implement contact us API call
-    console.log('Contact us submission:', values);
+    if (loading) return;
+    setLoading(true);
+    api
+      .post(apiEndpoints.CONTACT_US_SUBMIT, values)
+      .then(response => {
+        console.log('Contact us submission:', response);
+        navigation.goBack();
+      })
+      .catch(error => {
+        console.log('Contact us submission error:', error);
+      })
+      .finally(() => setLoading(false));
   };
 
   return (

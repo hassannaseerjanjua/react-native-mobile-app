@@ -22,6 +22,7 @@ import {
 // Navigators
 import AuthStackNavigator from './auth.navigator';
 import BottomTabNavigator from './bottom-tabs.navigator';
+import StaticConent from '../screens/app/static-content/index.tsx';
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -42,6 +43,7 @@ const AppStackNavigator = () => {
       <AppStack.Screen name="ContactUs" component={ContactUsScreen} />
       <AppStack.Screen name="Profile" component={ProfileScreen} />
       <AppStack.Screen name="Orders" component={OrdersScreen} />
+      <AppStack.Screen name="StaticContent" component={StaticConent} />
     </AppStack.Navigator>
   );
 };

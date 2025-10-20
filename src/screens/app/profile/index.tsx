@@ -1,9 +1,19 @@
-import React from 'react';
-import { View, StatusBar, ScrollView, Image } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  StatusBar,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { launchImageLibrary } from 'react-native-image-picker';
 import useStyles from './style';
 import { Text } from '../../../utils/elements';
 import TabItem from '../../../components/global/TabItem';
+import api from '../../../utils/api';
+import apiEndpoints from '../../../constants/api-endpoints';
 import {
   SvgProfileWallet,
   SvgProfileFriends,
@@ -32,9 +42,58 @@ const ProfileScreen: React.FC = () => {
   const dispatch = useDispatch();
   const { user } = useAuthStore();
   const dummyImage = require('../../../assets/images/user.png');
+  const [isUploading, setIsUploading] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
+  };
+
+  const handleImageSelect = () => {
+    if (isUploading) return;
+
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.8,
+        selectionLimit: 1,
+      },
+      response => {
+        if (response.assets && response.assets[0]) {
+          const asset = response.assets[0];
+          uploadProfileImage(asset);
+        }
+      },
+    );
+  };
+
+  const uploadProfileImage = (asset: any) => {
+    setIsUploading(true);
+
+    const formData = new FormData();
+    formData.append('File', {
+      uri:
+        Platform.OS === 'ios'
+          ? asset.uri?.replace('file://', '') || ''
+          : asset.uri || '',
+      type: asset.type || 'image/jpeg',
+      name: asset.fileName || `profile_image_${Date.now()}.jpg`,
+    });
+
+    api
+      .put(apiEndpoints.UPDATE_PROFILE_IMAGE, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then(response => {
+        console.log('Profile image updated:', response);
+      })
+      .catch(error => {
+        console.error('Profile image update error:', error);
+      })
+      .finally(() => {
+        setIsUploading(false);
+      });
   };
 
   const profileMenuItems = [
@@ -111,13 +170,23 @@ const ProfileScreen: React.FC = () => {
       id: 'terms',
       title: 'Terms & conditions',
       icon: <SvgProfileTermsCondition />,
-      onPress: () => {},
+      onPress: () => {
+        (navigation as any).navigate('StaticContent', {
+          title: 'Terms & Conditions',
+          code: 'TermsAndCondition',
+        });
+      },
     },
     {
       id: 'privacy',
       title: 'Privacy Policy',
       icon: <SvgProfilePrivacy />,
-      onPress: () => {},
+      onPress: () => {
+        (navigation as any).navigate('StaticContent', {
+          title: 'Privacy Policy',
+          code: 'PrivacyPolicy',
+        });
+      },
     },
     {
       id: 'faq',
@@ -158,10 +227,19 @@ const ProfileScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.profileSection}>
-          <Image
-            source={user?.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage}
-            style={styles.profileImage}
-          />
+          <TouchableOpacity
+            onPress={handleImageSelect}
+            disabled={isUploading}
+            style={styles.profileImageContainer}
+          >
+            <Image
+              source={user?.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage}
+              style={[
+                styles.profileImage,
+                isUploading && styles.profileImageUploading,
+              ]}
+            />
+          </TouchableOpacity>
           <View style={styles.profileInfo}>
             <Text style={styles.profileName}>{user?.FullNameEn}</Text>
             <Text style={styles.profileUsername}>{user?.UserName}</Text>

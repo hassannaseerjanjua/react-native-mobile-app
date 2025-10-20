@@ -29,10 +29,16 @@ const useStyles = () => {
         paddingVertical: sizes.HEIGHT * 0.01,
         marginBottom: sizes.HEIGHT * 0.008,
       },
+      profileImageContainer: {
+        position: 'relative',
+      },
       profileImage: {
         width: scaleWithMax(55, 60),
         height: scaleWithMax(55, 60),
         borderRadius: scaleWithMax(30, 35),
+      },
+      profileImageUploading: {
+        opacity: 0.6,
       },
       profileInfo: {
         flex: 1,

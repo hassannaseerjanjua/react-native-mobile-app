@@ -47,6 +47,12 @@ const apiEndpoints = {
 
   // Settings
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,
+  CONTACT_US_SUBMIT: `/${version}/Home/ContactUsRequest`,
+  GET_STATIC_CONTENT: (code: string) =>
+    `/${version}/Home/GetStaticContent?code=${code}`,
+  UPDATE_PROFILE: `/${version}/Home/UpdateProfile`,
+  GET_FAQS: `/${version}/Home/GetAllFAQ`,
+  UPDATE_PROFILE_IMAGE: `/${version}/Home/UpdateProfilePhoto`,
 };
 
 export default apiEndpoints;

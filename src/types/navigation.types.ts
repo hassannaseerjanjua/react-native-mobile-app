@@ -7,6 +7,10 @@ export type AppStackParamList = {
     showFriendsOnly?: boolean;
     showConnectOnly?: boolean;
   };
+  StaticContent: {
+    title?: string;
+    code: string;
+  };
   SendAGift: undefined;
   SendToGroup: undefined;
   Wallet: undefined;

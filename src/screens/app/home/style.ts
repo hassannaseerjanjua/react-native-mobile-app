@@ -21,7 +21,7 @@ const useStyles = () => {
       },
       contentContainer: {
         gap: scaleWithMax(8, 10),
-        paddingBottom: sizes.HEIGHT * 0.13,
+        paddingBottom: sizes.HEIGHT * 0.03,
       },
       welcomeText: {
         fontFamily: fonts.Quicksand.semibold,

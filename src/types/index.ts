@@ -98,3 +98,32 @@ export interface GroupData {
 export interface SearchFriendsApiResponse {
   Data: ActiveUser[];
 }
+
+export interface StaticContent {
+  StaticPageId: number;
+  Code: string;
+  ContentEn: string;
+  ContentAr: string;
+  Status: number;
+  CreatedOn: string;
+  ModifiedOn: string | null;
+  CreatedBy: number;
+  ModifiedBy: number | null;
+}
+
+export interface FAQ {
+  FaqId: number;
+  Question: string;
+  Answer: string;
+  Status: number;
+}
+
+export interface FAQApiResponse {
+  Data: {
+    Items: FAQ[];
+    TotalCount: number;
+  };
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}

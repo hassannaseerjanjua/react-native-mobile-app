@@ -24,6 +24,7 @@ import DropdownField from '../../../components/global/DropdownField';
 import useGetApi from '../../../hooks/useGetApi';
 import { City } from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
+import api from '../../../utils/api';
 
 const SettingsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -32,8 +33,8 @@ const SettingsScreen: React.FC = () => {
   console.log('User:', user);
   const { getString } = useLocaleStore();
   const [selectedLanguage, setSelectedLanguage] = useState('English');
-  const [selectedGender, setSelectedGender] = useState('Male');
   const [areaSearch, setAreaSearch] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
     transformData: data => data.Data.cities,
@@ -45,16 +46,9 @@ const SettingsScreen: React.FC = () => {
   );
   const [selectedOption, setSelectedOption] = useState<any>(null);
 
-  // Update selected option when cities data loads
   useEffect(() => {
-    console.log('Cities data loaded:', citiesApi.data?.length);
-    console.log('User CityId:', user?.CityId);
-    console.log('Options available:', options.length);
-    console.log('Current selectedOption:', selectedOption);
-
     if (citiesApi.data && user?.CityId && !selectedOption) {
       const defaultCity = options.find(option => option.value === user.CityId);
-      console.log('Found default city:', defaultCity);
       if (defaultCity) {
         setSelectedOption(defaultCity);
       }
@@ -67,19 +61,34 @@ const SettingsScreen: React.FC = () => {
   );
 
   const initialValues = {
-    fullName: user?.FullNameEn || '',
+    Fullname: user?.FullNameEn || '',
     username: user?.UserName || '',
-    city: user?.CityId || '',
+    CityId: user?.CityId || '',
     email: user?.Email || '',
     phoneNumber: user?.PhoneNo || '',
-    birthday: user?.DateOfBirth || '',
+    Dob: user?.DateOfBirth || '',
+    GenderId: user?.GenderId || '',
   };
 
-  console.log('Initial values:', initialValues);
-
   const handleUpdate = (values: typeof initialValues) => {
-    // TODO: Implement update logic
-    console.log('Update profile:', values);
+    if (loading) return;
+    setLoading(true);
+    api
+      .put(apiEndpoints.UPDATE_PROFILE, {
+        Fullname: values.Fullname,
+        CityId: values.CityId,
+        Dob: values.Dob,
+        GenderId: values.GenderId,
+      })
+      .then(response => {
+        console.log('Update profile:', response);
+      })
+      .catch(error => {
+        console.log('Update profile error:', error);
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   };
 
   return (
@@ -130,15 +139,15 @@ const SettingsScreen: React.FC = () => {
                 <InputField
                   icon={<SvgUser width={scaleWithMax(20, 25)} />}
                   error={
-                    formik.touched.fullName && formik.errors.fullName
-                      ? formik.errors.fullName
+                    formik.touched.Fullname && formik.errors.Fullname
+                      ? formik.errors.Fullname
                       : undefined
                   }
                   fieldProps={{
                     placeholder: 'Full name',
-                    value: formik.values.fullName,
+                    value: formik.values.Fullname,
                     onChangeText: (value: string) => {
-                      formik.setFieldValue('fullName', value);
+                      formik.setFieldValue('Fullname', value);
                     },
                     autoCapitalize: 'words',
                   }}
@@ -202,14 +211,14 @@ const SettingsScreen: React.FC = () => {
                   searchValue={areaSearch}
                   onSearchChange={setAreaSearch}
                   placeholder="City"
-                  selectedValue={formik.values.city}
+                  selectedValue={formik.values.CityId}
                   onSelect={value => {
                     setSelectedOption(value);
-                    formik.setFieldValue('city', value.value);
+                    formik.setFieldValue('CityId', value.value);
                   }}
                   error={
-                    formik.touched.city && formik.errors.city
-                      ? formik.errors.city
+                    formik.touched.CityId && formik.errors.CityId
+                      ? formik.errors.CityId
                       : undefined
                   }
                 />
@@ -240,15 +249,15 @@ const SettingsScreen: React.FC = () => {
                 <InputField
                   icon={<SvgBirthdayIcon width={scaleWithMax(20, 25)} />}
                   error={
-                    formik.touched.birthday && formik.errors.birthday
-                      ? formik.errors.birthday
+                    formik.touched.Dob && formik.errors.Dob
+                      ? formik.errors.Dob
                       : undefined
                   }
                   fieldProps={{
                     placeholder: 'Birthday',
-                    value: formik.values.birthday,
+                    value: formik.values.Dob,
                     onChangeText: (value: string) => {
-                      formik.setFieldValue('birthday', value);
+                      formik.setFieldValue('Dob', value);
                     },
                   }}
                 />
@@ -256,18 +265,23 @@ const SettingsScreen: React.FC = () => {
 
               <View style={styles.genderContainer}>
                 <View style={styles.genderOptions}>
-                  {['Male', 'Female'].map((gender: string) => (
+                  {[
+                    { label: 'Male', value: 1 },
+                    { label: 'Female', value: 2 },
+                  ].map(gender => (
                     <TouchableOpacity
-                      key={gender}
+                      key={gender.value}
                       style={styles.genderOption}
-                      onPress={() => setSelectedGender(gender)}
+                      onPress={() =>
+                        formik.setFieldValue('GenderId', gender.value)
+                      }
                     >
                       <View style={styles.radioButton}>
-                        {selectedGender === gender && (
+                        {formik.values.GenderId === gender.value && (
                           <View style={styles.radioButtonSelected} />
                         )}
                       </View>
-                      <Text style={styles.genderText}>{gender}</Text>
+                      <Text style={styles.genderText}>{gender.label}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
