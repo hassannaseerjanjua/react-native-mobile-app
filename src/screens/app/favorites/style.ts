@@ -3,23 +3,37 @@ import useTheme from '../../../styles/theme';
 
 const useStyles = () => {
   const theme = useTheme();
-
+  const { sizes } = theme;
   return {
     styles: StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
+        paddingHorizontal: 0,
+        flex: 1,
       },
       content: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: sizes.PADDING,
+        paddingTop: sizes.PADDING,
       },
-      title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: theme.colors.PRIMARY_TEXT,
-        textAlign: 'center',
+      favoritesContainer: {
+        // paddingTop: sizes.PADDING,
+      },
+      favoriteItemContainer: {
+        paddingBottom: sizes.HEIGHT * 0.015,
+      },
+      tabsContainer: {
+        marginVertical: sizes.HEIGHT * 0.02,
+        height: sizes.HEIGHT * 0.044,
+      },
+      gridContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        gap: sizes.PADDING,
+      },
+      gridItem: {
+        // width: '48%',
+        // marginBottom: sizes.HEIGHT * 0.015,
       },
     }),
     theme,

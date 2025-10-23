@@ -1,0 +1,136 @@
+import React from 'react';
+import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import useTheme from '../../styles/theme';
+import { scaleWithMax } from '../../utils';
+import { Text } from '../../utils/elements';
+import { SvgNextIcon } from '../../assets/icons';
+import { useSizes } from '../../styles/sizes';
+
+interface FavoriteItem {
+  id: string;
+  title: string;
+  subtitle: string;
+  backgroundImage: any;
+  overlayImage: any;
+}
+
+interface FavoriteItemCardProps {
+  item: FavoriteItem;
+  onPress: (item: FavoriteItem) => void;
+  style?: any;
+}
+
+const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
+  item,
+  onPress,
+  style,
+}) => {
+  const { theme, styles } = useStyles();
+
+  return (
+    <TouchableOpacity
+      style={[styles.container, style]}
+      onPress={() => onPress(item)}
+      activeOpacity={0.8}
+    >
+      {/* Background Image */}
+      <Image source={item.backgroundImage} style={styles.backgroundImage} />
+
+      {/* Content Overlay */}
+      <View style={styles.contentOverlay}>
+        {/* Circular Overlay Image */}
+        <View style={styles.overlayImageContainer}>
+          <Image source={item.overlayImage} style={styles.overlayImage} />
+        </View>
+
+        {/* Text Content */}
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>{item.title}</Text>
+          <Text style={styles.subtitle}>{item.subtitle}</Text>
+        </View>
+
+        {/* Navigation Icon */}
+        <View style={styles.iconContainer}>
+          <SvgNextIcon
+            width={scaleWithMax(16, 22)}
+            height={scaleWithMax(16, 22)}
+            color={theme.colors.PRIMARY}
+          />
+        </View>
+      </View>
+    </TouchableOpacity>
+  );
+};
+
+export default FavoriteItemCard;
+
+const useStyles = () => {
+  const theme = useTheme();
+  const { sizes } = theme;
+
+  const styles = StyleSheet.create({
+    container: {
+      // marginHorizontal: theme.sizes.PADDING,
+      // marginVertical: theme.sizes.PADDING / 2,
+      borderRadius: theme.sizes.BORDER_RADIUS_MID,
+      overflow: 'hidden',
+      backgroundColor: theme.colors.WHITE,
+      shadowColor: 'lightgray',
+      shadowOffset: {
+        width: 0,
+        height: 2,
+      },
+      shadowOpacity: 0.1,
+      shadowRadius: 3.84,
+      elevation: 5,
+    },
+    backgroundImage: {
+      width: '100%',
+      height: scaleWithMax(120, 140),
+      resizeMode: 'cover',
+    },
+    contentOverlay: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      padding: theme.sizes.PADDING,
+      // backgroundColor: theme.colors.RED,
+      height: sizes.HEIGHT * 0.086,
+      position: 'relative',
+    },
+    overlayImageContainer: {
+      width: scaleWithMax(50, 60),
+      height: scaleWithMax(50, 60),
+      borderRadius: scaleWithMax(25, 30),
+      overflow: 'hidden',
+      position: 'absolute',
+      top: -sizes.HEIGHT * 0.05,
+      start: sizes.WIDTH * 0.028,
+      bottom: -sizes.HEIGHT * 0.005,
+    },
+    overlayImage: {
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+    },
+    textContainer: {
+      flex: 1,
+    },
+    title: {
+      ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+      color: '#1A1A1A',
+      fontSize: sizes.FONTSIZE_BUTTON,
+      marginBottom: 1,
+    },
+    subtitle: {
+      ...theme.globalStyles.TEXT_STYLE,
+      fontSize: sizes.FONTSIZE_MEDIUM,
+      color: '#808080',
+    },
+    iconContainer: {},
+  });
+
+  return {
+    styles,
+    theme,
+  };
+};

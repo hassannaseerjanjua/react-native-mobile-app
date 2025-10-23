@@ -32,9 +32,10 @@ import {
   SvgProfileQrIcon,
 } from '../../../assets/icons';
 import { useDispatch } from 'react-redux';
-import { logout, useAuthStore } from '../../../store/reducer/auth';
+import { login, logout, useAuthStore } from '../../../store/reducer/auth';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
+import { UpdateProfileApiResponse } from '../../../types';
 
 const ProfileScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -80,13 +81,20 @@ const ProfileScreen: React.FC = () => {
     });
 
     api
-      .put(apiEndpoints.UPDATE_PROFILE_IMAGE, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
+      .put<UpdateProfileApiResponse>(
+        apiEndpoints.UPDATE_PROFILE_IMAGE,
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
         },
-      })
+      )
       .then(response => {
         console.log('Profile image updated:', response);
+        if (response.data?.Data) {
+          dispatch(login({ ...user, ...response.data.Data }));
+        }
       })
       .catch(error => {
         console.error('Profile image update error:', error);

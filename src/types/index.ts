@@ -127,3 +127,10 @@ export interface FAQApiResponse {
   Success: boolean;
   ResponseMessage: string;
 }
+
+export interface UpdateProfileApiResponse {
+  Data: User;
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}

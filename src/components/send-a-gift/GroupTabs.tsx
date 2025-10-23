@@ -58,10 +58,11 @@ const useStyles = () => {
       tab: {
         backgroundColor: colors.LIGHT_GRAY,
         borderRadius: 10,
-        paddingHorizontal: 16,
-        paddingVertical: sizes.HEIGHT * 0.012,
+        paddingHorizontal: sizes.WIDTH * 0.04,
+        // paddingVertical: sizes.HEIGHT * 0.012,
         alignItems: 'center',
         justifyContent: 'center',
+        // height: sizes.HEIGHT * 0.04,
       },
       activeTab: {
         backgroundColor: colors.SECONDARY,
@@ -69,7 +70,7 @@ const useStyles = () => {
       tabHeading: {
         fontFamily: 'Quicksand-Medium',
         fontWeight: '500',
-        fontSize: 16,
+        fontSize: 15,
         textAlign: 'center',
         color: colors.PRIMARY_TEXT,
       },

@@ -8,8 +8,9 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import InputField from '../../../components/global/InputField';
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
-import { useAuthStore } from '../../../store/reducer/auth';
+import { login, useAuthStore } from '../../../store/reducer/auth';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import DatePicker from 'react-native-date-picker';
 import {
   SvgUser,
   SvgUsername,
@@ -22,19 +23,30 @@ import { scaleWithMax, toOption } from '../../../utils';
 import { createSettingsSchema } from '../../../utils/validationSchemas';
 import DropdownField from '../../../components/global/DropdownField';
 import useGetApi from '../../../hooks/useGetApi';
-import { City } from '../../../types';
+import { City, UpdateProfileApiResponse } from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
+import { useDispatch } from 'react-redux';
 
 const SettingsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const { user } = useAuthStore();
+  const dispatch = useDispatch();
   console.log('User:', user);
   const { getString } = useLocaleStore();
   const [selectedLanguage, setSelectedLanguage] = useState('English');
   const [areaSearch, setAreaSearch] = useState('');
   const [loading, setLoading] = useState(false);
+  const [date, setDate] = useState(() => {
+    if (user?.DateOfBirth) {
+      return new Date(user.DateOfBirth);
+    }
+    const eighteenYearsAgo = new Date();
+    eighteenYearsAgo.setFullYear(eighteenYearsAgo.getFullYear() - 18);
+    return eighteenYearsAgo;
+  });
+  const [showDatePicker, setShowDatePicker] = useState(false);
 
   const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
     transformData: data => data.Data.cities,
@@ -55,6 +67,12 @@ const SettingsScreen: React.FC = () => {
     }
   }, [citiesApi.data, user?.CityId, options, selectedOption]);
 
+  useEffect(() => {
+    if (user?.DateOfBirth) {
+      setDate(new Date(user.DateOfBirth));
+    }
+  }, [user?.DateOfBirth]);
+
   const validationSchema = useMemo(
     () => createSettingsSchema(getString as (key: any) => string),
     [getString],
@@ -73,16 +91,30 @@ const SettingsScreen: React.FC = () => {
   const handleUpdate = (values: typeof initialValues) => {
     if (loading) return;
     setLoading(true);
+
+    const formData = new FormData();
+
+    const fieldsToUpdate = ['Fullname', 'CityId', 'Dob', 'GenderId'];
+    fieldsToUpdate.forEach(field => {
+      if (values[field as keyof typeof values]) {
+        formData.append(field, values[field as keyof typeof values]);
+      }
+    });
+
     api
-      .put(apiEndpoints.UPDATE_PROFILE, {
-        Fullname: values.Fullname,
-        CityId: values.CityId,
-        Dob: values.Dob,
-        GenderId: values.GenderId,
+      .put<UpdateProfileApiResponse>(apiEndpoints.UPDATE_PROFILE, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       })
       .then(response => {
         console.log('Update profile:', response);
+        if (response.data?.Data) {
+          console.log('==>>', response.data.Data);
+          dispatch(login({ ...user, ...response.data.Data }));
+        }
       })
+
       .catch(error => {
         console.log('Update profile error:', error);
       })
@@ -134,167 +166,200 @@ const SettingsScreen: React.FC = () => {
           enableReinitialize={true}
         >
           {formik => (
-            <View style={styles.formContainer}>
-              <View style={styles.inputContainer}>
-                <InputField
-                  icon={<SvgUser width={scaleWithMax(20, 25)} />}
-                  error={
-                    formik.touched.Fullname && formik.errors.Fullname
-                      ? formik.errors.Fullname
-                      : undefined
-                  }
-                  fieldProps={{
-                    placeholder: 'Full name',
-                    value: formik.values.Fullname,
-                    onChangeText: (value: string) => {
-                      formik.setFieldValue('Fullname', value);
-                    },
-                    autoCapitalize: 'words',
-                  }}
-                />
-              </View>
+            <>
+              <View style={styles.formContainer}>
+                <View style={styles.inputContainer}>
+                  <InputField
+                    icon={<SvgUser width={scaleWithMax(20, 25)} />}
+                    error={
+                      formik.touched.Fullname && formik.errors.Fullname
+                        ? formik.errors.Fullname
+                        : undefined
+                    }
+                    fieldProps={{
+                      placeholder: 'Full name',
+                      value: formik.values.Fullname,
+                      onChangeText: (value: string) => {
+                        formik.setFieldValue('Fullname', value);
+                      },
+                      autoCapitalize: 'words',
+                    }}
+                  />
+                </View>
 
-              <View style={styles.inputContainer}>
-                <InputField
-                  icon={<SvgUsername width={scaleWithMax(20, 25)} />}
-                  error={
-                    formik.touched.username && formik.errors.username
-                      ? formik.errors.username
-                      : undefined
-                  }
-                  fieldProps={{
-                    placeholder: 'Username',
-                    value: formik.values.username,
-                    onChangeText: (value: string) => {
-                      formik.setFieldValue(
-                        'username',
-                        value?.trim()?.toLowerCase() || '',
-                      );
-                    },
-                    autoCapitalize: 'none',
-                    autoCorrect: false,
-                    readOnly: true,
-                    style: { color: theme.colors.SECONDARY_TEXT },
-                  }}
-                />
-              </View>
+                <View style={styles.inputContainer}>
+                  <InputField
+                    icon={<SvgUsername width={scaleWithMax(20, 25)} />}
+                    error={
+                      formik.touched.username && formik.errors.username
+                        ? formik.errors.username
+                        : undefined
+                    }
+                    fieldProps={{
+                      placeholder: 'Username',
+                      value: formik.values.username,
+                      onChangeText: (value: string) => {
+                        formik.setFieldValue(
+                          'username',
+                          value?.trim()?.toLowerCase() || '',
+                        );
+                      },
+                      autoCapitalize: 'none',
+                      autoCorrect: false,
+                      readOnly: true,
+                      style: { color: theme.colors.SECONDARY_TEXT },
+                    }}
+                  />
+                </View>
 
-              <View style={styles.inputContainer}>
-                <InputField
-                  icon={<SvgEmail width={scaleWithMax(20, 25)} />}
-                  error={
-                    formik.touched.email && formik.errors.email
-                      ? formik.errors.email
-                      : undefined
-                  }
-                  fieldProps={{
-                    placeholder: 'Email',
-                    value: formik.values.email,
-                    onChangeText: (value: string) => {
-                      formik.setFieldValue('email', value);
-                    },
-                    keyboardType: 'email-address',
-                    autoCapitalize: 'none',
-                    autoCorrect: false,
-                    readOnly: true,
-                    style: { color: theme.colors.SECONDARY_TEXT },
-                  }}
-                />
-              </View>
-              <View style={styles.inputContainer}>
-                <DropdownField
-                  isLoading={citiesApi.loading}
-                  label={getString('AU_PL_CITY')}
-                  selectedOption={selectedOption}
-                  icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
-                  options={filteredOptions}
-                  searchValue={areaSearch}
-                  onSearchChange={setAreaSearch}
-                  placeholder="City"
-                  selectedValue={formik.values.CityId}
-                  onSelect={value => {
-                    setSelectedOption(value);
-                    formik.setFieldValue('CityId', value.value);
-                  }}
-                  error={
-                    formik.touched.CityId && formik.errors.CityId
-                      ? formik.errors.CityId
-                      : undefined
-                  }
-                />
-              </View>
+                <View style={styles.inputContainer}>
+                  <InputField
+                    icon={<SvgEmail width={scaleWithMax(20, 25)} />}
+                    error={
+                      formik.touched.email && formik.errors.email
+                        ? formik.errors.email
+                        : undefined
+                    }
+                    fieldProps={{
+                      placeholder: 'Email',
+                      value: formik.values.email,
+                      onChangeText: (value: string) => {
+                        formik.setFieldValue('email', value);
+                      },
+                      keyboardType: 'email-address',
+                      autoCapitalize: 'none',
+                      autoCorrect: false,
+                      readOnly: true,
+                      style: { color: theme.colors.SECONDARY_TEXT },
+                    }}
+                  />
+                </View>
+                <View style={styles.inputContainer}>
+                  <DropdownField
+                    isLoading={citiesApi.loading}
+                    label={getString('AU_PL_CITY')}
+                    selectedOption={selectedOption}
+                    icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
+                    options={filteredOptions}
+                    searchValue={areaSearch}
+                    onSearchChange={setAreaSearch}
+                    placeholder="City"
+                    selectedValue={formik.values.CityId}
+                    onSelect={value => {
+                      setSelectedOption(value);
+                      formik.setFieldValue('CityId', value.value);
+                    }}
+                    error={
+                      formik.touched.CityId && formik.errors.CityId
+                        ? formik.errors.CityId
+                        : undefined
+                    }
+                  />
+                </View>
 
-              <View style={styles.inputContainer}>
-                <InputField
-                  icon={<SvgPhone width={scaleWithMax(20, 25)} />}
-                  isPhone={true}
-                  error={
-                    formik.touched.phoneNumber && formik.errors.phoneNumber
-                      ? formik.errors.phoneNumber
-                      : undefined
-                  }
-                  fieldProps={{
-                    placeholder: 'Phone number',
-                    value: formik.values.phoneNumber,
-                    onChangeText: (value: string) => {
-                      formik.setFieldValue('phoneNumber', value);
-                    },
-                    keyboardType: 'phone-pad',
-                    maxLength: 9,
-                  }}
-                />
-              </View>
+                <View style={styles.inputContainer}>
+                  <InputField
+                    icon={<SvgPhone width={scaleWithMax(20, 25)} />}
+                    isPhone={true}
+                    error={
+                      formik.touched.phoneNumber && formik.errors.phoneNumber
+                        ? formik.errors.phoneNumber
+                        : undefined
+                    }
+                    fieldProps={{
+                      placeholder: 'Phone number',
+                      value: formik.values.phoneNumber,
+                      onChangeText: (value: string) => {
+                        formik.setFieldValue('phoneNumber', value);
+                      },
+                      keyboardType: 'phone-pad',
+                      maxLength: 9,
+                      readOnly: true,
+                      style: { color: theme.colors.SECONDARY_TEXT },
+                    }}
+                  />
+                </View>
 
-              <View style={styles.inputContainer}>
-                <InputField
-                  icon={<SvgBirthdayIcon width={scaleWithMax(20, 25)} />}
-                  error={
-                    formik.touched.Dob && formik.errors.Dob
-                      ? formik.errors.Dob
-                      : undefined
-                  }
-                  fieldProps={{
-                    placeholder: 'Birthday',
-                    value: formik.values.Dob,
-                    onChangeText: (value: string) => {
-                      formik.setFieldValue('Dob', value);
-                    },
-                  }}
-                />
-              </View>
-
-              <View style={styles.genderContainer}>
-                <View style={styles.genderOptions}>
-                  {[
-                    { label: 'Male', value: 1 },
-                    { label: 'Female', value: 2 },
-                  ].map(gender => (
-                    <TouchableOpacity
-                      key={gender.value}
-                      style={styles.genderOption}
-                      onPress={() =>
-                        formik.setFieldValue('GenderId', gender.value)
+                <View style={styles.inputContainer}>
+                  <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                    <InputField
+                      icon={<SvgBirthdayIcon width={scaleWithMax(20, 25)} />}
+                      error={
+                        formik.touched.Dob && formik.errors.Dob
+                          ? formik.errors.Dob
+                          : undefined
                       }
-                    >
-                      <View style={styles.radioButton}>
-                        {formik.values.GenderId === gender.value && (
-                          <View style={styles.radioButtonSelected} />
-                        )}
-                      </View>
-                      <Text style={styles.genderText}>{gender.label}</Text>
-                    </TouchableOpacity>
-                  ))}
+                      fieldProps={{
+                        placeholder: 'Birthday',
+                        value: formik.values.Dob,
+                        editable: false,
+                        pointerEvents: 'none',
+                      }}
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                <View style={styles.genderContainer}>
+                  <View style={styles.genderOptions}>
+                    {[
+                      { label: 'Male', value: 1 },
+                      { label: 'Female', value: 2 },
+                    ].map(gender => (
+                      <TouchableOpacity
+                        key={gender.value}
+                        style={styles.genderOption}
+                        onPress={() =>
+                          formik.setFieldValue('GenderId', gender.value)
+                        }
+                      >
+                        <View style={styles.radioButton}>
+                          {formik.values.GenderId === gender.value && (
+                            <View style={styles.radioButtonSelected} />
+                          )}
+                        </View>
+                        <Text style={styles.genderText}>{gender.label}</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                <View style={styles.buttonContainer}>
+                  <CustomButton
+                    title="Update"
+                    type="primary"
+                    onPress={() => formik.handleSubmit()}
+                    loading={loading}
+                    disabled={loading}
+                  />
                 </View>
               </View>
 
-              <View style={styles.buttonContainer}>
-                <CustomButton
-                  title="Update"
-                  type="primary"
-                  onPress={() => formik.handleSubmit()}
-                />
-              </View>
-            </View>
+              <DatePicker
+                modal
+                open={showDatePicker}
+                date={date}
+                mode="date"
+                maximumDate={new Date()}
+                onConfirm={selectedDate => {
+                  const today = new Date();
+                  if (selectedDate <= today) {
+                    setShowDatePicker(false);
+                    setDate(selectedDate);
+                    formik.setFieldValue(
+                      'Dob',
+                      selectedDate.toISOString().split('T')[0],
+                    );
+                  }
+                }}
+                onCancel={() => {
+                  setShowDatePicker(false);
+                }}
+                theme="light"
+                style={{
+                  backgroundColor: theme.colors.BACKGROUND,
+                }}
+              />
+            </>
           )}
         </Formik>
       </ScrollView>
