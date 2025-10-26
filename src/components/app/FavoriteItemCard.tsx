@@ -52,8 +52,8 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
         {/* Navigation Icon */}
         <View style={styles.iconContainer}>
           <SvgNextIcon
-            width={scaleWithMax(16, 22)}
-            height={scaleWithMax(16, 22)}
+            width={scaleWithMax(15, 18)}
+            height={scaleWithMax(15, 18)}
             color={theme.colors.PRIMARY}
           />
         </View>
@@ -86,7 +86,7 @@ const useStyles = () => {
     },
     backgroundImage: {
       width: '100%',
-      height: scaleWithMax(120, 140),
+      height: scaleWithMax(115, 120),
       resizeMode: 'cover',
     },
     contentOverlay: {
@@ -94,23 +94,25 @@ const useStyles = () => {
       alignItems: 'center',
       padding: theme.sizes.PADDING,
       // backgroundColor: theme.colors.RED,
-      height: sizes.HEIGHT * 0.086,
+      height: sizes.HEIGHT * 0.08,
       position: 'relative',
     },
     overlayImageContainer: {
-      width: scaleWithMax(50, 60),
-      height: scaleWithMax(50, 60),
-      borderRadius: scaleWithMax(25, 30),
+      width: scaleWithMax(55, 60),
+      height: scaleWithMax(55, 60),
+      borderRadius: 9999,
       overflow: 'hidden',
       position: 'absolute',
-      top: -sizes.HEIGHT * 0.05,
+      top: -sizes.HEIGHT * 0.056,
       start: sizes.WIDTH * 0.028,
       bottom: -sizes.HEIGHT * 0.005,
+      zIndex: 1,
     },
     overlayImage: {
       width: '100%',
       height: '100%',
-      resizeMode: 'cover',
+      objectFit: 'cover',
+      resizeMode: 'stretch',
     },
     textContainer: {
       flex: 1,

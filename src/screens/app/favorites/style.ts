@@ -13,7 +13,7 @@ const useStyles = () => {
       },
       content: {
         paddingHorizontal: sizes.PADDING,
-        paddingTop: sizes.PADDING,
+        paddingTop: sizes.HEIGHT * 0.005,
       },
       favoritesContainer: {
         // paddingTop: sizes.PADDING,

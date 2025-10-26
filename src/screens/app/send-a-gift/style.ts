@@ -44,6 +44,7 @@ const useStyles = () => {
       },
       tabContainer: {
         marginBottom: sizes.HEIGHT * 0.018,
+        height: sizes.HEIGHT * 0.05,
       },
       scrollableContent: {
         flex: 1,

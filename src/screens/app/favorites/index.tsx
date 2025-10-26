@@ -14,8 +14,8 @@ const mockFavorites = [
     id: '1',
     title: 'Perfume House',
     subtitle: 'Perfume & Cologne',
-    backgroundImage: require('../../../assets/images/storeCover.png'),
-    overlayImage: require('../../../assets/images/storeLogo.png'),
+    backgroundImage: require('../../../assets/images/perfumeHouseCover.png'),
+    overlayImage: require('../../../assets/images/perfumeHouse.png'),
   },
   {
     id: '2',
@@ -23,39 +23,62 @@ const mockFavorites = [
     subtitle: 'Health & Fitness',
     backgroundImage: require('../../../assets/images/storeCover.png'),
     overlayImage: require('../../../assets/images/storeLogo.png'),
+  },
+  {
+    id: '3',
+    title: 'Coffematics',
+    subtitle: 'Cafe Shops',
+    backgroundImage: require('../../../assets/images/coffeematicsCover.png'),
+    overlayImage: require('../../../assets/images/coffeematics.png'),
   },
 ];
 
 const mockfavoriteItems = [
   {
     id: '1',
-    title: 'Perfume House',
-    subtitle: 'Perfume & Cologne',
-    coverImage: require('../../../assets/images/storeCover.png'),
+    title: 'Pink Charm Delight Bouquet',
+    subtitle: 'Bouquet',
+    coverImage: require('../../../assets/images/dummy1.png'),
     price: 100,
     isFavorite: true,
   },
   {
     id: '2',
-    title: 'Gym',
-    subtitle: 'Health & Fitness',
-    coverImage: require('../../../assets/images/storeCover.png'),
+    title: 'Pink Charm Delight Bouquet',
+    subtitle: 'Bouquet',
+    coverImage: require('../../../assets/images/dummy2.png'),
     price: 100,
     isFavorite: true,
   },
   {
     id: '3',
-    title: 'Gym',
-    subtitle: 'Health & Fitness',
-    coverImage: require('../../../assets/images/storeCover.png'),
+    title: 'Pink Charm Delight Cake',
+    subtitle: 'Cake House',
+    coverImage: require('../../../assets/images/dummy3.png'),
     price: 100,
     isFavorite: true,
   },
   {
     id: '4',
-    title: 'Gym',
-    subtitle: 'Health & Fitness',
-    coverImage: require('../../../assets/images/storeCover.png'),
+    title: 'Pink Charm Delight Cake',
+    subtitle: 'Cake House',
+    coverImage: require('../../../assets/images/dummy4.png'),
+    price: 100,
+    isFavorite: true,
+  },
+  {
+    id: '5',
+    title: 'Pink Charm Delight Cake',
+    subtitle: 'Cake House',
+    coverImage: require('../../../assets/images/dummy4.png'),
+    price: 100,
+    isFavorite: true,
+  },
+  {
+    id: '6',
+    title: 'Pink Charm Delight Cake',
+    subtitle: 'Cake House',
+    coverImage: require('../../../assets/images/dummy4.png'),
     price: 100,
     isFavorite: true,
   },
@@ -93,7 +116,7 @@ const FavoritesScreen: React.FC = () => {
   };
 
   return (
-    <ParentView style={styles.container}>
+    <View style={styles.container}>
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -128,6 +151,10 @@ const FavoritesScreen: React.FC = () => {
         </ScrollView>
       ) : (
         <FlatList
+          columnWrapperStyle={{
+            // backgroundColor: 'red',
+            gap: 16,
+          }}
           data={mockfavoriteItems}
           numColumns={2}
           keyExtractor={item => item.id}
@@ -138,7 +165,7 @@ const FavoritesScreen: React.FC = () => {
           )}
         />
       )}
-    </ParentView>
+    </View>
   );
 };
 

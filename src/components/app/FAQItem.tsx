@@ -103,21 +103,23 @@ const useStyles = () => {
         flexShrink: 1,
       },
       arrowIcon: {
-        transform: [{ rotate: '90deg' }],
+        // transform: [{ rotate: '90deg' }],
       },
       arrowIconRotated: {
-        transform: [{ rotate: '270deg' }],
+        transform: [{ rotate: '90deg' }],
       },
       answerContainer: {
-        paddingHorizontal: theme.sizes.PADDING,
+        marginHorizontal: theme.sizes.PADDING,
         paddingBottom: theme.sizes.HEIGHT * 0.017,
-        paddingTop: 0,
+        paddingTop: theme.sizes.HEIGHT * 0.005,
+        borderTopWidth: 1,
+        borderTopColor: colors.SECONDARY_GRAY,
         marginTop: scaleWithMax(8, 12),
       },
       answerText: {
         fontFamily: 'Quicksand-Regular',
-        fontSize: theme.sizes.FONTSIZE_MEDIUM,
-        color: colors.SECONDARY_TEXT || colors.PRIMARY_TEXT,
+        fontSize: theme.sizes.FONTSIZE,
+        color: colors.PRIMARY_TEXT,
       },
     });
   }, [theme]);

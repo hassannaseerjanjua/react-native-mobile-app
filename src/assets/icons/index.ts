@@ -61,6 +61,8 @@ import SvgProfileQrIcon from './profile-qrcode.svg';
 import SvgRiyalIcon from './riyal-icon.svg';
 import SvgWalletGifteeIcon from './wallet-giftee-icon.svg';
 import SvgBirthdayIcon from './birthday-icon.svg';
+import SvgItemFavouriteIcon from './item-fav-heart.svg';
+import SvgItemFavouriteIconInActive from './item-not-fav-heart.svg';
 
 export {
   SvgLogoBlue,
@@ -126,4 +128,6 @@ export {
   SvgRiyalIcon,
   SvgWalletGifteeIcon,
   SvgBirthdayIcon,
+  SvgItemFavouriteIcon,
+  SvgItemFavouriteIconInActive,
 };

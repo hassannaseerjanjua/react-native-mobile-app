@@ -3,7 +3,11 @@ import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import { Text } from '../../utils/elements';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
-import { SvgFavouriteActive, SvgRiyalIcon } from '../../assets/icons';
+import {
+  SvgItemFavouriteIcon,
+  SvgItemFavouriteIconInActive,
+  SvgRiyalIcon,
+} from '../../assets/icons';
 
 interface FavoriteProductCardProps {
   item: {
@@ -29,19 +33,35 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
       <View style={styles.imageContainer}>
         <Image source={item.coverImage} style={styles.image} />
         <View style={styles.favoriteIcon}>
-          <SvgFavouriteActive width={20} height={20} />
+          {item.isFavorite ? (
+            <SvgItemFavouriteIcon
+              width={scaleWithMax(14, 16)}
+              height={scaleWithMax(14, 16)}
+            />
+          ) : (
+            <SvgItemFavouriteIconInActive
+              width={scaleWithMax(14, 16)}
+              height={scaleWithMax(14, 16)}
+            />
+          )}
         </View>
       </View>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.title} numberOfLines={2}>
+        <Text style={styles.title} numberOfLines={1}>
           {item.title}
         </Text>
         <Text style={styles.subtitle} numberOfLines={1}>
           {item.subtitle}
         </Text>
         <View style={styles.priceContainer}>
-          <SvgRiyalIcon width={12} height={12} />
+          <SvgRiyalIcon
+            width={scaleWithMax(11, 13)}
+            height={scaleWithMax(11, 13)}
+            style={{
+              marginTop: 3.5,
+            }}
+          />
           <Text style={styles.price}>{item.price}</Text>
         </View>
       </View>
@@ -58,13 +78,13 @@ const useStyles = () => {
       container: {
         backgroundColor: colors.WHITE,
         borderRadius: 12,
-        marginBottom: sizes.HEIGHT * 0.015,
+        marginBottom: sizes.HEIGHT * 0.018,
         flex: 1,
-        marginHorizontal: 4,
+        // marginHorizontal: 4,
       },
       imageContainer: {
         position: 'relative',
-        height: sizes.HEIGHT * 0.2,
+        height: sizes.HEIGHT * 0.21,
         width: '100%',
       },
       image: {
@@ -74,6 +94,10 @@ const useStyles = () => {
         borderRadius: 12,
       },
       favoriteIcon: {
+        backgroundColor: colors.WHITE,
+        borderRadius: 9999,
+        width: scaleWithMax(25, 30),
+        height: scaleWithMax(25, 30),
         position: 'absolute',
         top: 10,
         right: 10,
@@ -81,7 +105,7 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       contentContainer: {
-        padding: sizes.WIDTH * 0.01,
+        padding: sizes.WIDTH * 0.004,
         paddingTop: sizes.HEIGHT * 0.006,
       },
       title: {
@@ -97,12 +121,13 @@ const useStyles = () => {
       priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 4,
+        gap: 3,
+        // backgroundColor: 'red',
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         color: theme.colors.PRIMARY_TEXT,
-        fontSize: sizes.FONTSIZE_MEDIUM,
+        fontSize: sizes.FONTSIZE_BUTTON,
       },
     }),
     theme,
