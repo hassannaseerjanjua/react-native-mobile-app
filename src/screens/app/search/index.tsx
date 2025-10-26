@@ -42,6 +42,9 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     userId: null as number | null,
     isLinkedToGroup: false,
   });
+  const [tempAddedUserIds, setTempAddedUserIds] = useState<Set<number>>(
+    new Set(),
+  );
 
   const activeUsersApi = useGetApi<ActiveUser[]>(
     apiEndpoints.GET_ACTIVE_USERS(
@@ -84,6 +87,19 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       await api.post(apiEndpoints.ADD_FRIEND(user?.UserId), {
         friendUserId: userId,
       });
+      // Show temporary "Added" button only on general search screen
+      if (!showFriendsOnly && !showConnectOnly) {
+        setTempAddedUserIds(prev => new Set(prev).add(userId));
+
+        // Set individual timer for this user
+        setTimeout(() => {
+          setTempAddedUserIds(prev => {
+            const newSet = new Set(prev);
+            newSet.delete(userId);
+            return newSet;
+          });
+        }, 3000);
+      }
     } catch (err) {
       console.log('Add friend error:', err);
       updateUserStatus(userId, null);
@@ -192,6 +208,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   updatedUsers={updatedUsers}
                   loadingUsers={loadingUsers}
                   handleAddUser={handleAddUser}
+                  tempAddedUserIds={tempAddedUserIds}
+                  isGeneralSearchScreen={!showFriendsOnly && !showConnectOnly}
                 />
               )}
               showsVerticalScrollIndicator={false}

@@ -10,6 +10,8 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { StaticContent } from '../../../types';
+import RenderHTML from 'react-native-render-html';
+import { useSizes } from '../../../styles/sizes';
 
 interface StaticProps extends AppStackScreen<'StaticContent'> {}
 
@@ -25,7 +27,13 @@ const StaticConent: React.FC<StaticProps> = ({ navigation, route }) => {
     },
   );
 
-  console.log('StaticContentResponse', getStaticContent);
+  console.log('StaticContentResponse', getStaticContent?.data?.ContentEn);
+
+  const source = {
+    html: getStaticContent?.data?.ContentEn || '<p>No content</p>',
+  };
+
+  const sizes = useSizes();
 
   return (
     <ParentView style={styles.container}>
@@ -45,7 +53,9 @@ const StaticConent: React.FC<StaticProps> = ({ navigation, route }) => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text>{getStaticContent?.data?.ContentEn}</Text>
+        {/* <Text>{getStaticContent?.data?.ContentEn}</Text>
+         */}
+        <RenderHTML source={source} contentWidth={sizes.WIDTH} />
       </ScrollView>
     </ParentView>
   );

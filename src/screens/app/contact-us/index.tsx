@@ -9,7 +9,7 @@ import InputField from '../../../components/global/InputField';
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
 import { useLocaleStore } from '../../../store/reducer/locale';
-import { SvgUser, SvgEmail } from '../../../assets/icons';
+import { SvgUser, SvgEmail, SvgWhatsappIcon } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import { createContactUsSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
@@ -108,8 +108,6 @@ const ContactUsScreen: React.FC = () => {
                     textAlignVertical: 'top',
                     style: {
                       height: theme.sizes.HEIGHT * 0.22,
-                      // backgroundColor: '#F9F9F9',
-                      // paddingTop: theme.sizes.HEIGHT * 0.2,
                     },
                   }}
                 />
@@ -125,6 +123,12 @@ const ContactUsScreen: React.FC = () => {
             </View>
           )}
         </Formik>
+        <View style={styles.whatsappContainer}>
+          <SvgWhatsappIcon
+            width={scaleWithMax(56, 64)}
+            height={scaleWithMax(56, 64)}
+          />
+        </View>
       </ScrollView>
     </ParentView>
   );

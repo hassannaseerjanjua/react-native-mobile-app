@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StatusBar, ScrollView, FlatList } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
@@ -8,7 +8,6 @@ import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx';
 
-// Mock data for demonstration
 const mockFavorites = [
   {
     id: '1',
@@ -98,12 +97,18 @@ const FavoritesScreen: React.FC = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [Steps, setSteps] = useState(1);
 
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      setSteps(1);
+    });
+    return unsubscribe;
+  }, [navigation]);
+
   const handleStepPress = (item: any) => {
     setSteps(2);
   };
 
   const handleProductPress = (item: any) => {
-    // Navigate to product details
     console.log('Navigate to product:', item.title);
   };
 
@@ -152,7 +157,6 @@ const FavoritesScreen: React.FC = () => {
       ) : (
         <FlatList
           columnWrapperStyle={{
-            // backgroundColor: 'red',
             gap: 16,
           }}
           data={mockfavoriteItems}

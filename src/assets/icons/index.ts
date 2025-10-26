@@ -63,6 +63,7 @@ import SvgWalletGifteeIcon from './wallet-giftee-icon.svg';
 import SvgBirthdayIcon from './birthday-icon.svg';
 import SvgItemFavouriteIcon from './item-fav-heart.svg';
 import SvgItemFavouriteIconInActive from './item-not-fav-heart.svg';
+import SvgWhatsappIcon from './whatsapp-icon.svg';
 
 export {
   SvgLogoBlue,
@@ -130,4 +131,5 @@ export {
   SvgBirthdayIcon,
   SvgItemFavouriteIcon,
   SvgItemFavouriteIconInActive,
+  SvgWhatsappIcon,
 };

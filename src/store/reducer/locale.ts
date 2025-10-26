@@ -170,4 +170,5 @@ type LocaleString =
   | 'FOOTER_NOTIFICATIONS'
   | 'SEARCH_ADD'
   | 'SEARCH_ADDED'
-  | 'AU_WAIT_FOR';
+  | 'AU_WAIT_FOR'
+  | 'MF_UNFRIEND';

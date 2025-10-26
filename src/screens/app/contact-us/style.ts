@@ -13,13 +13,13 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
-        backgroundColor: colors.HOME_BACKGROUND,
         paddingHorizontal: 0,
       },
       scrollView: {
         flex: 1,
       },
       scrollContent: {
+        flex: 1,
         paddingHorizontal: sizes.PADDING,
         paddingBottom: sizes.HEIGHT * 0.02,
       },
@@ -31,6 +31,11 @@ const useStyles = () => {
       },
       buttonContainer: {
         marginTop: sizes.PADDING,
+      },
+      whatsappContainer: {
+        position: 'absolute',
+        bottom: sizes.HEIGHT * 0.02,
+        right: sizes.PADDING,
       },
     });
   }, [theme]);

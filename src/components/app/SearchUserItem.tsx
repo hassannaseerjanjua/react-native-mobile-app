@@ -24,6 +24,8 @@ interface SearchUserItemProps {
   showSelection?: boolean;
   isSelected?: boolean;
   onSelectionPress?: () => void;
+  tempAddedUserIds?: Set<number>;
+  isGeneralSearchScreen?: boolean;
 }
 
 const SearchUserItem: React.FC<SearchUserItemProps> = ({
@@ -37,6 +39,8 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   showSelection = false,
   isSelected = false,
   onSelectionPress,
+  tempAddedUserIds,
+  isGeneralSearchScreen = false,
 }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
@@ -44,6 +48,12 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   const isAdded = currentStatus === 1;
   const isLoading = loadingUsers[item.UserId] || false;
   const dummyImage = require('../../assets/images/user.png');
+
+  // On general search screen: hide button for existing friends unless temporarily showing "Added"
+  const isTempAdded = tempAddedUserIds?.has(item.UserId) || false;
+  const shouldShowButton = isGeneralSearchScreen
+    ? !isAdded || isTempAdded || isLoading // Show button if not added, temporarily showing "Added", or loading
+    : showAddButton; // For other screens, use the normal showAddButton prop
 
   return (
     <TouchableOpacity
@@ -61,12 +71,15 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
         <Text style={styles.userName}>{item.FullName}</Text>
       </View>
 
-      {showAddButton && (
+      {shouldShowButton && (
         <TouchableOpacity
           activeOpacity={0.8}
-          style={[styles.addButton, isAdded && styles.addedButton]}
+          style={[
+            styles.addButton,
+            (isAdded || isTempAdded) && styles.addedButton,
+          ]}
           onPress={() => handleAddUser?.(item.UserId)}
-          disabled={isLoading}
+          disabled={isLoading || isTempAdded}
         >
           {isLoading ? (
             <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
@@ -79,14 +92,20 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
                 justifyContent: 'center',
               }}
             >
-              {!isAdded && <SvgSearchAdd width={16} height={16} />}
+              {/* {!isAdded && !isTempAdded && (
+                <SvgSearchAdd width={16} height={16} />
+              )} */}
               <Text
                 style={[
                   styles.addButtonText,
-                  isAdded && styles.addedButtonText,
+                  (isAdded || isTempAdded) && styles.addedButtonText,
                 ]}
               >
-                {isAdded ? getString('SEARCH_ADDED') : getString('SEARCH_ADD')}
+                {isTempAdded
+                  ? getString('SEARCH_ADDED')
+                  : isAdded
+                  ? getString('MF_UNFRIEND')
+                  : getString('SEARCH_ADD')}
               </Text>
             </View>
           )}
