@@ -22,11 +22,13 @@ import {
   ActiveUsersApiResponse,
   SearchFriendsApiResponse,
 } from '../../../types';
-import { SvgAddGroup } from '../../../assets/icons';
+import { SvgAddGroup, SvgFindFriendsIcon } from '../../../assets/icons';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { useAuthStore } from '../../../store/reducer/auth';
 import { Text } from '../../../utils/elements';
+import { scaleWithMax } from '../../../utils';
+import CustomButton from '../../../components/global/Custombutton';
 
 interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 
@@ -181,8 +183,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
               />
             </View>
             <Text style={styles.sectionTitle}>Friends</Text>
-            <View style={styles.listCard}>
-              {isLoading ? (
+            {isLoading ? (
+              <View style={styles.listCard}>
                 <ActivityIndicator
                   size="large"
                   color={theme.colors.PRIMARY}
@@ -190,7 +192,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                     paddingVertical: theme.sizes.HEIGHT * 0.02,
                   }}
                 />
-              ) : displayData.length > 0 ? (
+              </View>
+            ) : displayData.length > 1 ? (
+              <View style={styles.listCard}>
                 <FlatList
                   data={displayData}
                   keyExtractor={item => item.UserId.toString()}
@@ -207,12 +211,24 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                   contentContainerStyle={styles.listContainer}
                   scrollEnabled={false}
                 />
-              ) : (
-                <Text style={styles.errorText}>
-                  {searchQuery ? 'No results found' : 'No friends found'}
-                </Text>
-              )}
-            </View>
+              </View>
+            ) : (
+              <View style={styles.noFriendsContainer}>
+                <SvgFindFriendsIcon
+                  width={scaleWithMax(36, 40)}
+                  height={scaleWithMax(36, 40)}
+                />
+                <Text style={styles.noFriendsText}>No Friends yet</Text>
+
+                <CustomButton
+                  title="Find Friends"
+                  onPress={() => {
+                    navigation.navigate('Search' as any);
+                  }}
+                  type="primary"
+                />
+              </View>
+            )}
           </View>
         </ScrollView>
       </View>

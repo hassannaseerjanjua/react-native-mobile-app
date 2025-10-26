@@ -42,6 +42,20 @@ const useStyles = () => {
         padding: 20,
         textAlign: 'center',
       },
+      noFriendsContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+        minHeight: '60%',
+        paddingVertical: sizes.HEIGHT * 0.1,
+      },
+      noFriendsText: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        color: colors.PRIMARY_TEXT,
+        paddingVertical: sizes.HEIGHT * 0.01,
+        paddingBottom: sizes.HEIGHT * 0.03,
+        textAlign: 'center',
+      },
       tabContainer: {
         marginBottom: sizes.HEIGHT * 0.018,
         height: sizes.HEIGHT * 0.05,
