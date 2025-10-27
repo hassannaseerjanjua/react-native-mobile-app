@@ -131,7 +131,7 @@ const SettingsScreen: React.FC = () => {
       />
 
       <HomeHeader
-        title="Settings"
+        title={getString('S_SETTINGS')}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
       />
@@ -141,7 +141,7 @@ const SettingsScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <Text style={styles.title}>Select Language</Text>
+        <Text style={styles.title}>{getString('S_SELECT_LANGUAGE')}</Text>
         <View style={styles.languageContainer}>
           {['English', 'Arabic'].map((language: string) => (
             <TouchableOpacity
@@ -302,8 +302,8 @@ const SettingsScreen: React.FC = () => {
                 <View style={styles.genderContainer}>
                   <View style={styles.genderOptions}>
                     {[
-                      { label: 'Male', value: 1 },
-                      { label: 'Female', value: 2 },
+                      { label: getString('S_MALE'), value: 1 },
+                      { label: getString('S_FEMALE'), value: 2 },
                     ].map(gender => (
                       <TouchableOpacity
                         key={gender.value}
@@ -325,7 +325,7 @@ const SettingsScreen: React.FC = () => {
 
                 <View style={styles.buttonContainer}>
                   <CustomButton
-                    title="Update"
+                    title={getString('S_UPDATE')}
                     type="primary"
                     onPress={() => formik.handleSubmit()}
                     loading={loading}

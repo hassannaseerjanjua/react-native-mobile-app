@@ -6,6 +6,7 @@ import {
   ViewStyle,
   TextStyle,
   ActivityIndicator,
+  View,
 } from 'react-native';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
@@ -21,6 +22,7 @@ interface CustomButtonProps {
   isError?: boolean;
   loading?: boolean;
   loadingText?: string;
+  icon?: React.ReactNode;
 }
 
 const CustomButton = ({
@@ -33,6 +35,7 @@ const CustomButton = ({
   isError = false,
   loading = false,
   loadingText,
+  icon,
 }: CustomButtonProps) => {
   const theme = useTheme();
   const { height, width } = useWindowDimensions();
@@ -79,25 +82,36 @@ const CustomButton = ({
           }
         />
       ) : (
-        <Text
-          style={[
-            type === 'error'
-              ? theme.globalStyles.TEXT_STYLE
-              : theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-            {
-              color:
-                type === 'primary'
-                  ? theme.colors.WHITE
-                  : type === 'error'
-                  ? theme.colors.RED
-                  : theme.colors.PRIMARY,
-              fontSize: theme.sizes.FONTSIZE_BUTTON,
-            },
-            labelStyle,
-          ]}
-        >
-          {title}
-        </Text>
+        <>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+            <View
+              style={{
+                marginTop: 2,
+              }}
+            >
+              {icon}
+            </View>
+            <Text
+              style={[
+                type === 'error'
+                  ? theme.globalStyles.TEXT_STYLE
+                  : theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                {
+                  color:
+                    type === 'primary'
+                      ? theme.colors.WHITE
+                      : type === 'error'
+                      ? theme.colors.RED
+                      : theme.colors.PRIMARY,
+                  fontSize: theme.sizes.FONTSIZE_BUTTON,
+                },
+                labelStyle,
+              ]}
+            >
+              {title}
+            </Text>
+          </View>
+        </>
       )}
     </TouchableOpacity>
   );

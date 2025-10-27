@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StatusBar, ScrollView } from 'react-native';
+import { View, StatusBar, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
@@ -26,6 +26,8 @@ const HomeScreen: React.FC = () => {
   const { user } = useAuthStore();
   const navigation = useNavigation();
 
+  const screenSize = useWindowDimensions();
+  const isBigScreen = screenSize.height > 820;
   const {
     data: sliderResponse,
     loading: sliderLoading,
@@ -48,26 +50,27 @@ const HomeScreen: React.FC = () => {
         }}
         showLogo={true}
         showSearch={true}
+        customContainerStyle={{
+          paddingTop: !isBigScreen ? theme.sizes.HEIGHT * 0.01 : 0,
+        }}
       />
-      <ScrollView>
-        <View style={styles.mainContent}>
-          <Text style={styles.welcomeText}>
-            {getString('HOME_WELCOME')}
-            <Text style={styles.userName}>{user?.FullNameEn}</Text>
-          </Text>
-          <View style={styles.heroImage}>
-            <ImageSlider
-              sliders={sliderResponse || undefined}
-              loading={sliderLoading}
-              error={sliderError}
-            />
-          </View>
-          <Text style={styles.sectionTitle}>
-            {getString('HOME_WHAT_ARE_YOU')}
-          </Text>
-          <HomeScreenTabsContainer />
+      <View style={styles.mainContent}>
+        <Text style={styles.welcomeText}>
+          {getString('HOME_WELCOME')}
+          <Text style={styles.userName}>{user?.FullNameEn}</Text>
+        </Text>
+        <View style={styles.heroImage}>
+          <ImageSlider
+            sliders={sliderResponse || undefined}
+            loading={sliderLoading}
+            error={sliderError}
+          />
         </View>
-      </ScrollView>
+        <Text style={styles.sectionTitle}>
+          {getString('HOME_WHAT_ARE_YOU')}
+        </Text>
+        <HomeScreenTabsContainer />
+      </View>
     </View>
   );
 };

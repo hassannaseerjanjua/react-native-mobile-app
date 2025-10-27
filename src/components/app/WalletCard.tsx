@@ -5,6 +5,7 @@ import fonts from '../../assets/fonts';
 import { isAndroid, scaleWithMax } from '../../utils';
 import { Text } from '../../utils/elements';
 import { SvgRiyalIcon, SvgWalletGifteeIcon } from '../../assets/icons';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface WalletCardProps {
   balance: string;
@@ -12,6 +13,7 @@ interface WalletCardProps {
 
 const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
   const theme = useTheme();
+  const { getString } = useLocaleStore();
 
   const styles = useMemo(() => {
     const { colors, sizes } = theme;
@@ -82,11 +84,11 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
         <View style={styles.logoContainer}>
           <SvgWalletGifteeIcon />
         </View>
-        <Text style={styles.walletName}>Giftee Wallet</Text>
+        <Text style={styles.walletName}>{getString('W_GIFTEE_WALLET')}</Text>
       </View>
 
       <View style={styles.balanceSection}>
-        <Text style={styles.balanceLabel}>Wallet balance</Text>
+        <Text style={styles.balanceLabel}>{getString('W_WALLET_BALANCE')}</Text>
         <View style={styles.riyalIconContainer}>
           <SvgRiyalIcon style={styles.riyalIcon} />
           <Text style={styles.balanceAmount}>{balance}</Text>

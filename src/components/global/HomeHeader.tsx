@@ -7,6 +7,8 @@ import {
   Pressable,
   Image,
   TouchableWithoutFeedback,
+  StyleProp,
+  ViewStyle,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
@@ -37,6 +39,7 @@ interface HomeHeaderProps {
   rightSideTitlePress?: () => void;
   rightSideIcon?: any;
   showLogo?: boolean;
+  customContainerStyle?: StyleProp<ViewStyle>;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -54,6 +57,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   rightSideTitlePress,
   rightSideIcon,
   showLogo,
+  customContainerStyle,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -78,7 +82,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
   return (
     <View>
-      <View style={styles.container}>
+      <View style={[styles.container, customContainerStyle]}>
         {showBackButton && (
           <TouchableOpacity
             style={styles.backButton}
@@ -173,7 +177,7 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingTop: isAndroidThen(sizes.PADDING, 0),
-        paddingBottom: sizes.HEIGHT * 0.02,
+        paddingBottom: sizes.HEIGHT * 0.01,
         // backgroundColor: 'blue',
         paddingHorizontal: theme.sizes.PADDING,
       },

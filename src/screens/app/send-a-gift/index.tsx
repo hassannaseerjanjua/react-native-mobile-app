@@ -22,7 +22,11 @@ import {
   ActiveUsersApiResponse,
   SearchFriendsApiResponse,
 } from '../../../types';
-import { SvgAddGroup, SvgFindFriendsIcon } from '../../../assets/icons';
+import {
+  SvgAddGroup,
+  SvgFindFriendsIcon,
+  SvgSearchFindFriendsIcon,
+} from '../../../assets/icons';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { useAuthStore } from '../../../store/reducer/auth';
@@ -150,7 +154,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
-        rightSideTitle="New Group"
+        rightSideTitle={getString('SG_NEW_GROUP')}
         rightSideTitlePress={() => {
           setIsMemberSelectionOpen(true);
         }}
@@ -221,9 +225,13 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                 <Text style={styles.noFriendsText}>No Friends yet</Text>
 
                 <CustomButton
+                  icon={<SvgSearchFindFriendsIcon />}
                   title="Find Friends"
                   onPress={() => {
-                    navigation.navigate('Search' as any);
+                    navigation.navigate('Search', {
+                      title: 'Connect',
+                      showConnectOnly: true,
+                    });
                   }}
                   type="primary"
                 />
@@ -244,7 +252,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           // navigation.navigate('SendToGroup' as any);
           console.log('Hellooo');
         }}
-        title="Add Members"
+        title={getString('NG_ADD_MEMBERS')}
         listings={[
           {
             title: 'Friends',

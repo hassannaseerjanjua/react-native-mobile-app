@@ -36,12 +36,14 @@ import { login, logout, useAuthStore } from '../../../store/reducer/auth';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import { UpdateProfileApiResponse } from '../../../types';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const ProfileScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { user } = useAuthStore();
+  const { getString } = useLocaleStore();
   const dummyImage = require('../../../assets/images/user.png');
   const [isUploading, setIsUploading] = useState(false);
 
@@ -107,7 +109,7 @@ const ProfileScreen: React.FC = () => {
   const profileMenuItems = [
     {
       id: 'wallet',
-      title: 'Wallet',
+      title: getString('W_WALLET'),
       icon: <SvgProfileWallet />,
       onPress: () => {
         navigation.navigate('Wallet' as never);
@@ -115,13 +117,13 @@ const ProfileScreen: React.FC = () => {
     },
     {
       id: 'gift-link',
-      title: 'My Gift Link',
+      title: getString('P_MY_GIFT_LINK'),
       icon: <SvgProfileLink />,
       onPress: () => {},
     },
     {
       id: 'favourites',
-      title: 'My Favourites',
+      title: getString('P_MY_FAVOURITES'),
       icon: <SvgProfileFavorites />,
       onPress: () => {
         (navigation as any).navigate('BottomTabs', { screen: 'Favorites' });
@@ -129,18 +131,18 @@ const ProfileScreen: React.FC = () => {
     },
     {
       id: 'friends',
-      title: 'My Friends',
+      title: getString('MF_MY_FRIENDS'),
       icon: <SvgProfileFriends />,
       onPress: () => {
         (navigation as any).navigate('Search', {
-          title: 'My Friends',
+          title: getString('MF_MY_FRIENDS'),
           showFriendsOnly: true,
         });
       },
     },
     {
       id: 'settings',
-      title: 'Settings',
+      title: getString('S_SETTINGS'),
       icon: <SvgProfileSettings />,
       onPress: () => {
         navigation.navigate('Settings' as never);
@@ -148,7 +150,7 @@ const ProfileScreen: React.FC = () => {
     },
     {
       id: 'order',
-      title: 'Order',
+      title: getString('O_ORDERS'),
       icon: <SvgProfileOrder />,
       onPress: () => {
         navigation.navigate('Orders' as never);
@@ -156,18 +158,18 @@ const ProfileScreen: React.FC = () => {
     },
     {
       id: 'connect',
-      title: 'Connect',
+      title: getString('C_CONNECT'),
       icon: <SvgProfileConnect />,
       onPress: () => {
         (navigation as any).navigate('Search', {
-          title: 'Connect',
+          title: getString('C_CONNECT'),
           showConnectOnly: true,
         });
       },
     },
     {
       id: 'contact-us',
-      title: 'Contact us',
+      title: getString('CU_CONTACT_US'),
       icon: <SvgProfileCall />,
       onPress: () => {
         navigation.navigate('ContactUs' as never);
@@ -176,29 +178,29 @@ const ProfileScreen: React.FC = () => {
 
     {
       id: 'terms',
-      title: 'Terms & conditions',
+      title: getString('TC_TERMS_AND_CONDITIONS'),
       icon: <SvgProfileTermsCondition />,
       onPress: () => {
         (navigation as any).navigate('StaticContent', {
-          title: 'Terms & Conditions',
+          title: getString('TC_TERMS_AND_CONDITIONS'),
           code: 'TermsAndCondition',
         });
       },
     },
     {
       id: 'privacy',
-      title: 'Privacy Policy',
+      title: getString('PP_PRIVACY_POLICY'),
       icon: <SvgProfilePrivacy />,
       onPress: () => {
         (navigation as any).navigate('StaticContent', {
-          title: 'Privacy Policy',
+          title: getString('PP_PRIVACY_POLICY'),
           code: 'PrivacyPolicy',
         });
       },
     },
     {
       id: 'faq',
-      title: 'FAQs',
+      title: getString('FAQS_FAQS'),
       icon: <SvgProfileSupport />,
       onPress: () => {
         navigation.navigate('FAQ' as never);
@@ -206,7 +208,7 @@ const ProfileScreen: React.FC = () => {
     },
     {
       id: 'logout',
-      title: 'Logout',
+      title: getString('P_LOGOUT'),
       icon: <SvgProfileLogout />,
       onPress: () => {
         handleLogout();

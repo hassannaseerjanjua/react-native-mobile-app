@@ -54,7 +54,7 @@ const ContactUsScreen: React.FC = () => {
       />
 
       <HomeHeader
-        title="Contact us"
+        title={getString('CU_CONTACT_US')}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
       />
@@ -80,7 +80,7 @@ const ContactUsScreen: React.FC = () => {
                       : undefined
                   }
                   fieldProps={{
-                    placeholder: 'Subject',
+                    placeholder: getString('CU_SUBJECT'),
                     value: formik.values.subject,
                     onChangeText: (value: string) => {
                       formik.setFieldValue('subject', value);
@@ -98,7 +98,7 @@ const ContactUsScreen: React.FC = () => {
                       : undefined
                   }
                   fieldProps={{
-                    placeholder: 'Write a message',
+                    placeholder: getString('CU_WRITE_A_MESSAGE'),
                     value: formik.values.message,
                     onChangeText: (value: string) => {
                       formik.setFieldValue('message', value);
@@ -115,7 +115,7 @@ const ContactUsScreen: React.FC = () => {
 
               <View style={styles.buttonContainer}>
                 <CustomButton
-                  title="Submit"
+                  title={getString('CU_SUBMIT')}
                   type="primary"
                   onPress={() => formik.handleSubmit()}
                 />

@@ -8,10 +8,12 @@ import WalletCard from '../../../components/app/WalletCard';
 import ParentView from '../../../components/app/ParentView';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const WalletScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
+  const { getString } = useLocaleStore();
 
   const walletBalance = useGetApi<any>(apiEndpoints.GET_WALLET_BALANCE, {
     transformData: data => data.Data,
@@ -27,7 +29,7 @@ const WalletScreen: React.FC = () => {
       />
 
       <HomeHeader
-        title="Wallet"
+        title={getString('W_WALLET')}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
       />

@@ -18,10 +18,11 @@ const useStyles = () => {
       mainContent: {
         flex: 1,
         paddingHorizontal: sizes.PADDING,
+        paddingBottom: sizes.HEIGHT * 0.02,
       },
       contentContainer: {
+        flex: 1,
         gap: scaleWithMax(8, 10),
-        paddingBottom: sizes.HEIGHT * 0.03,
       },
       welcomeText: {
         fontFamily: fonts.Quicksand.semibold,
@@ -45,7 +46,7 @@ const useStyles = () => {
       optionsWrapper: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: scaleWithMax(10, 12),
+        gap: scaleWithMax(8, 10),
       },
     });
   }, [theme]);

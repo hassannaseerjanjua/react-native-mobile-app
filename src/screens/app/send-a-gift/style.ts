@@ -50,9 +50,10 @@ const useStyles = () => {
         paddingVertical: sizes.HEIGHT * 0.1,
       },
       noFriendsText: {
-        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-        color: colors.PRIMARY_TEXT,
-        paddingVertical: sizes.HEIGHT * 0.01,
+        ...theme.globalStyles.TEXT_STYLE,
+        color: colors.BLACK,
+        fontSize: sizes.FONTSIZE_BUTTON,
+        paddingVertical: sizes.HEIGHT * 0.007,
         paddingBottom: sizes.HEIGHT * 0.03,
         textAlign: 'center',
       },

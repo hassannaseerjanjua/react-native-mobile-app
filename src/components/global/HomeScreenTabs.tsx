@@ -64,7 +64,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           marginLeft: scaleWithMax(10, 12),
         },
         title: {
-          fontSize: scaleWithMax(13, 14),
+          fontSize: scaleWithMax(12, 14),
           fontFamily: fonts.Quicksand.bold,
           color: colors.PRIMARY_TEXT,
           flexShrink: 1,

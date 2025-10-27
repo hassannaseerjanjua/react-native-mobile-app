@@ -142,6 +142,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         userId: null,
         isLinkedToGroup: false,
       });
+
+      activeUsersApi.refetch();
     } catch (err) {
       console.log('Unfriend error:', err);
       updateUserStatus(userId, null);
@@ -232,7 +234,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
             : 'Are you sure you want to unfriend this user?'
         }
         confirmText="Yes"
-        cancelText="Cancel"
+        cancelText={getString('NG_CANCEL')}
         onConfirm={() =>
           unfriendModal.userId && unfriendUser(unfriendModal.userId)
         }

@@ -9,10 +9,12 @@ import FAQItem from '../../../components/app/FAQItem';
 import { FAQ } from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const FAQScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
+  const { getString } = useLocaleStore();
 
   const GetFaqs = useGetApi<FAQ[]>(apiEndpoints.GET_FAQS, {
     transformData: (data: any) => data.Data?.Items || [],
@@ -26,7 +28,7 @@ const FAQScreen: React.FC = () => {
       />
 
       <HomeHeader
-        title="FAQs"
+        title={getString('FAQS_FAQS')}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
       />

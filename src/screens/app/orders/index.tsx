@@ -7,10 +7,12 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import ParentView from '../../../components/app/ParentView';
 import { SvgRiyalIcon } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const OrdersScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
+  const { getString } = useLocaleStore();
 
   return (
     <ParentView style={styles.container}>
@@ -20,7 +22,7 @@ const OrdersScreen: React.FC = () => {
       />
 
       <HomeHeader
-        title="Orders"
+        title={getString('O_ORDERS')}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
       />
@@ -40,6 +42,7 @@ const OrdersScreen: React.FC = () => {
 
 const OrderCard: React.FC = () => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
 
   return (
     <View style={styles.orderCard}>
@@ -62,19 +65,21 @@ const OrderCard: React.FC = () => {
             <Text style={styles.orderCardStatus}>Pending</Text>
           </View>
           <View style={styles.orderNumberBadge}>
-            <Text style={styles.orderCardNumber}>Order # 4</Text>
+            <Text style={styles.orderCardNumber}>
+              {getString('O_ORDER_NUMBER')} 4
+            </Text>
           </View>
         </View>
       </View>
 
       <View style={styles.orderDetailsContainer}>
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Phone Number:</Text>
+          <Text style={styles.detailLabel}>{getString('O_PHONE_NUMBER')}</Text>
           <Text style={styles.detailValue}>0300-16413168</Text>
         </View>
 
         <View style={styles.detailRow}>
-          <Text style={styles.detailLabel}>Order Time:</Text>
+          <Text style={styles.detailLabel}>{getString('O_ORDER_TIME')}:</Text>
           <Text style={styles.detailValue}>26-March at 08:10PM</Text>
         </View>
 
@@ -93,7 +98,7 @@ const OrderCard: React.FC = () => {
         </View>
 
         <View style={styles.totalRow}>
-          <Text style={styles.totalLabel}>Total Amount</Text>
+          <Text style={styles.totalLabel}>{getString('O_TOTAL_AMOUNT')}</Text>
           <View style={styles.priceContainer}>
             <SvgRiyalIcon
               width={scaleWithMax(12, 14)}

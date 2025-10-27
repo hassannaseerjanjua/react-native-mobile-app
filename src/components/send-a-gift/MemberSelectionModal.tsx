@@ -24,6 +24,7 @@ import apiEndpoints from '../../constants/api-endpoints';
 import { useNavigation } from '@react-navigation/native';
 import { isIOSThen, scaleWithMax } from '../../utils';
 import { Text } from '../../utils/elements';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 const dummyImage = require('../../assets/images/user.png');
 
@@ -62,6 +63,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   existingGroupImage,
 }) => {
   const { styles } = useStyles();
+  const { getString } = useLocaleStore();
   const [modalAnimation] = useState(new Animated.Value(0));
   const [modalStep, setModalStep] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -194,8 +196,17 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   const handleSave = useCallback(() => {
     if (isSendAGift) {
       setGroupError('');
-      if (!groupName.trim() || !groupImage) {
-        setGroupError('Please enter group name and image');
+
+      if (!groupImage && !groupName.trim()) {
+        setGroupError(getString('VE_PLEASE_ENTER_GROUP_NAME_AND_IMAGE'));
+        return;
+      }
+      if (!groupName.trim()) {
+        setGroupError(getString('VE_PLEASE_ENTER_GROUP_NAME'));
+        return;
+      }
+      if (!groupImage) {
+        setGroupError(getString('VE_PLEASE_ENTER_IMAGE'));
         return;
       }
 
@@ -255,16 +266,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       return null;
     }
 
-    if (viewOnly) {
-      // Use existing grid view for viewing group members
-      return (
-        <View style={selectedUsersContainerStyle}>
-          <SelectedMembersGrid />
-        </View>
-      );
-    }
-
-    // Horizontal scroll view for editing mode
+    // Horizontal scroll view for selected users
     return (
       <View style={selectedUsersContainerStyle}>
         <ScrollView
@@ -282,12 +284,14 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   style={styles.selectedUserAvatar}
                 />
 
-                <TouchableOpacity
-                  style={styles.selectedUserCrossIcon}
-                  onPress={() => handleUserSelection(user.UserId)}
-                >
-                  <SvgCrossIcon width={12} height={12} />
-                </TouchableOpacity>
+                {!viewOnly && (
+                  <TouchableOpacity
+                    style={styles.selectedUserCrossIcon}
+                    onPress={() => handleUserSelection(user.UserId)}
+                  >
+                    <SvgCrossIcon width={12} height={12} />
+                  </TouchableOpacity>
+                )}
               </View>
               <Text style={styles.selectedUserName} numberOfLines={1}>
                 {user.FullName.split(' ')[0]}
@@ -454,12 +458,12 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
             {modalStep === 1 ? (
               <>
                 <BottomSheetHeader
-                  leftSideTitle="Cancel"
+                  leftSideTitle={getString('NG_CANCEL')}
                   title={
                     viewOnly
                       ? title
                       : isSendAGift
-                      ? 'Add Members'
+                      ? getString('NG_ADD_MEMBERS')
                       : 'Edit Group Members'
                   }
                   subTitle={
@@ -467,7 +471,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       ? `${allUsers.length} members`
                       : `${selectedUsers.size}/${allUsers.length}`
                   }
-                  rightSideTitle={viewOnly ? '' : 'Next'}
+                  rightSideTitle={viewOnly ? '' : getString('NG_NEXT')}
                   showSearchBar={true}
                   searchPlaceholder="Search"
                   searchValue={searchQuery}
@@ -476,33 +480,22 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   rightSideTitlePress={viewOnly ? undefined : handleNextStep}
                 />
 
-                {viewOnly ? (
-                  <ScrollView
-                    style={{ flex: 1 }}
-                    contentContainerStyle={{
-                      // paddingHorizontal: theme.sizes.PADDING * 0.5,
-                      paddingBottom: theme.sizes.HEIGHT * 0.02,
-                    }}
-                    showsVerticalScrollIndicator={false}
-                  >
-                    <SelectedUsersDisplay />
-                  </ScrollView>
-                ) : (
-                  <>
-                    <SelectedUsersDisplay />
-                    <UserListComponent
-                      isSelected={selectedUsersData.length > 0}
-                    />
-                  </>
-                )}
+                <>
+                  {!viewOnly && <SelectedUsersDisplay />}
+                  <UserListComponent
+                    isSelected={selectedUsersData.length > 0}
+                  />
+                </>
               </>
             ) : (
               <>
                 <BottomSheetHeader
-                  leftSideTitle="Back"
-                  title={isSendAGift ? 'New Group' : 'Review Members'}
+                  leftSideTitle={getString('NG_BACK')}
+                  title={
+                    isSendAGift ? getString('NG_NEW_GROUP') : 'Review Members'
+                  }
                   subTitle=""
-                  rightSideTitle="Save"
+                  rightSideTitle={getString('NG_SAVE')}
                   showSearchBar={false}
                   leftSideTitlePress={handleBackStep}
                   rightSideTitlePress={handleSave}
@@ -541,7 +534,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       <TextInput
                         allowFontScaling={false}
                         style={styles.groupNameInput}
-                        placeholder="Enter group name"
+                        placeholder={getString('NG_ENTER_GROUP_NAME')}
                         placeholderTextColor={theme.colors.SECONDARY_GRAY}
                         value={groupName}
                         onChangeText={text => {
@@ -554,7 +547,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       <Text style={styles.errorText}>{groupError}</Text>
                     ) : null}
                     <Text style={styles.membersHeading}>
-                      Members: {selectedUsers.size} out of {allUsers.length}
+                      {getString('NG_MEMBERS')}: {selectedUsers.size}{' '}
+                      {getString('NG_OUT_OF')} {allUsers.length}
                     </Text>
                     <SelectedMembersGrid />
                   </View>
