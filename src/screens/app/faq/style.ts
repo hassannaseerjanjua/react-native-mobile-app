@@ -20,7 +20,7 @@ const useStyles = () => {
         flex: 1,
       },
       scrollContent: {
-        paddingHorizontal: sizes.PADDING,
+        padding: sizes.PADDING,
         paddingBottom: sizes.HEIGHT * 0.02,
       },
       faqContainer: {

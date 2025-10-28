@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StatusBar,
@@ -13,6 +13,7 @@ import useStyles from './style';
 import { Text } from '../../../utils/elements';
 import HomeHeader from '../../../components/global/HomeHeader';
 import ParentView from '../../../components/app/ParentView';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 import { SvgRiyalIcon } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -21,6 +22,15 @@ const OrdersScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const { getString } = useLocaleStore();
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Simulate data loading
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000);
+    return () => clearTimeout(timer);
+  }, []);
 
   return (
     <ParentView style={styles.container}>
@@ -41,7 +51,11 @@ const OrdersScreen: React.FC = () => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.contentContainer}>
-          <OrderCard />
+          {isLoading ? (
+            <SkeletonLoader screenType="orderListing" />
+          ) : (
+            <OrderCard />
+          )}
         </View>
       </ScrollView>
     </ParentView>

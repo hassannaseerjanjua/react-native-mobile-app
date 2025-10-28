@@ -7,7 +7,7 @@ const useDebouncedSearch = (callback: (search: string) => any) => {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedSearch(search);
-    }, 500);
+    }, 300);
 
     return () => {
       clearTimeout(handler);

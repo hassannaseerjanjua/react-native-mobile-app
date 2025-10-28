@@ -7,6 +7,7 @@ import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 import { AppStackScreen } from '../../../types/navigation.types.ts';
 
 const mockFavorites = [
@@ -97,6 +98,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({ route }) => {
   const navigation = useNavigation();
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [Steps, setSteps] = useState(1);
+  const [isLoading, setIsLoading] = useState(true);
 
   const [cameFromProfile, setCameFromProfile] = useState(false);
 
@@ -115,12 +117,31 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({ route }) => {
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setSteps(1);
+      setIsLoading(true);
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 500);
+      return () => clearTimeout(timer);
     });
     return unsubscribe;
   }, [navigation]);
 
+  // Simulate data loadings
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [selectedFilter]);
+
   const handleStepPress = (item: any) => {
     setSteps(2);
+    setIsLoading(true);
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 500);
+    return () => clearTimeout(timer);
   };
 
   const handleProductPress = (item: any) => {
@@ -166,18 +187,24 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({ route }) => {
 
       {Steps === 1 ? (
         <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
-          <View style={styles.favoritesContainer}>
-            {mockFavorites.map(item => (
-              <View style={styles.favoriteItemContainer} key={item.id}>
-                <FavoriteItemCard
-                  key={item.id}
-                  item={item}
-                  onPress={handleStepPress}
-                />
-              </View>
-            ))}
-          </View>
+          {isLoading ? (
+            <SkeletonLoader screenType="storeCard" />
+          ) : (
+            <View style={styles.favoritesContainer}>
+              {mockFavorites.map(item => (
+                <View style={styles.favoriteItemContainer} key={item.id}>
+                  <FavoriteItemCard
+                    key={item.id}
+                    item={item}
+                    onPress={handleStepPress}
+                  />
+                </View>
+              ))}
+            </View>
+          )}
         </ScrollView>
+      ) : isLoading ? (
+        <SkeletonLoader screenType="productListing" />
       ) : (
         <FlatList
           columnWrapperStyle={{

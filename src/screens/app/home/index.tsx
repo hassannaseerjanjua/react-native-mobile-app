@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
 import ImageSlider from '../../../components/global/ImageSlider';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 import useStyles from './style';
 import {
   SvgGiftOneGetOne,
@@ -59,13 +60,17 @@ const HomeScreen: React.FC = () => {
           {getString('HOME_WELCOME')}
           <Text style={styles.userName}>{user?.FullNameEn}</Text>
         </Text>
-        <View style={styles.heroImage}>
-          <ImageSlider
-            sliders={sliderResponse || undefined}
-            loading={sliderLoading}
-            error={sliderError}
-          />
-        </View>
+        {sliderLoading ? (
+          <SkeletonLoader screenType="home" />
+        ) : (
+          <View style={styles.heroImage}>
+            <ImageSlider
+              sliders={sliderResponse || undefined}
+              loading={sliderLoading}
+              error={sliderError}
+            />
+          </View>
+        )}
         <Text style={styles.sectionTitle}>
           {getString('HOME_WHAT_ARE_YOU')}
         </Text>

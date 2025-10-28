@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, StatusBar, FlatList, ScrollView } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 import useStyles from './style';
 import {
   ActiveUser,
@@ -10,6 +11,7 @@ import {
 } from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
+import useDebouncedSearch from '../../../hooks/useDebouncedSearch';
 import { useAuthStore } from '../../../store/reducer/auth';
 import api from '../../../utils/api';
 import ParentView from '../../../components/app/ParentView';
@@ -32,7 +34,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     showConnectOnly = false,
   } = route.params || {};
 
-  const [searchQuery, setSearchQuery] = useState('');
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [pageIndex, setPageIndex] = useState(1);
   const [updatedUsers, setUpdatedUsers] = useState<Record<number, number>>({});
   const [loadingUsers, setLoadingUsers] = useState<Record<number, boolean>>({});
@@ -46,13 +48,20 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     new Set(),
   );
 
+  // Use debounced search hook
+  const { search: searchQuery, setSearch: setSearchQuery } = useDebouncedSearch(
+    (debouncedValue: string) => {
+      setDebouncedSearchQuery(debouncedValue);
+    },
+  );
+
   const activeUsersApi = useGetApi<ActiveUser[]>(
     apiEndpoints.GET_ACTIVE_USERS(
       user?.UserId,
       pageIndex,
       20,
       showFriendsOnly,
-      searchQuery || undefined,
+      debouncedSearchQuery || undefined,
     ),
     {
       transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
@@ -61,7 +70,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
 
   useEffect(() => {
     activeUsersApi.refetch();
-  }, [searchQuery]);
+  }, [debouncedSearchQuery]);
 
   const updateLoadingState = (userId: number, isLoading: boolean) => {
     setLoadingUsers(prev => {
@@ -185,42 +194,59 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.listCard}>
-          {activeUsersApi.loading ||
-          (searchQuery && activeUsersApi.data?.length === 0) ? (
-            <View style={styles.loadingContainer}>
-              <Text style={styles.loadingText}>
-                {activeUsersApi.loading ? 'Loading...' : 'No results found'}
-              </Text>
-            </View>
+          {activeUsersApi.loading ? (
+            <SkeletonLoader screenType="search" />
           ) : (
-            <FlatList
-              data={
-                showConnectOnly
-                  ? activeUsersApi.data?.filter(
-                      (user: any) => user.RelationStatus === 2,
-                    )
-                  : activeUsersApi?.data
+            (() => {
+              const filteredData = showConnectOnly
+                ? activeUsersApi.data?.filter(
+                    (user: any) => user.RelationStatus === 2,
+                  )
+                : activeUsersApi?.data;
+
+              const isEmpty = !filteredData || filteredData.length === 0;
+
+              if (isEmpty) {
+                return (
+                  <View style={styles.loadingContainer}>
+                    <Text style={styles.loadingText}>
+                      {showConnectOnly
+                        ? 'No users found to connect'
+                        : searchQuery
+                        ? 'No results found'
+                        : 'No users found'}
+                    </Text>
+                  </View>
+                );
               }
-              keyExtractor={item => item.UserId.toString()}
-              renderItem={({ item, index }) => (
-                <SearchUserItem
-                  item={item}
-                  index={index}
-                  isLast={index === (activeUsersApi.data?.length ?? 0) - 1}
-                  updatedUsers={updatedUsers}
-                  loadingUsers={loadingUsers}
-                  handleAddUser={handleAddUser}
-                  tempAddedUserIds={tempAddedUserIds}
-                  isGeneralSearchScreen={!showFriendsOnly && !showConnectOnly}
+
+              return (
+                <FlatList
+                  data={filteredData}
+                  keyExtractor={item => item.UserId.toString()}
+                  renderItem={({ item, index }) => (
+                    <SearchUserItem
+                      item={item}
+                      index={index}
+                      isLast={index === (filteredData?.length ?? 0) - 1}
+                      updatedUsers={updatedUsers}
+                      loadingUsers={loadingUsers}
+                      handleAddUser={handleAddUser}
+                      tempAddedUserIds={tempAddedUserIds}
+                      isGeneralSearchScreen={
+                        !showFriendsOnly && !showConnectOnly
+                      }
+                    />
+                  )}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.listContainer}
+                  // onEndReached={
+                  //   searchQuery ? undefined : () => setPageIndex(prev => prev + 1)
+                  // }
+                  onEndReachedThreshold={0.5}
                 />
-              )}
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.listContainer}
-              // onEndReached={
-              //   searchQuery ? undefined : () => setPageIndex(prev => prev + 1)
-              // }
-              onEndReachedThreshold={0.5}
-            />
+              );
+            })()
           )}
         </View>
       </ScrollView>

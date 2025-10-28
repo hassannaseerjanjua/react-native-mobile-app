@@ -18,12 +18,12 @@ const useStyles = () => {
       },
       scrollView: {
         flex: 1,
+        // paddingHorizontal: sizes.PADDING,
       },
-      scrollContent: {
-        paddingHorizontal: sizes.PADDING,
-      },
+      scrollContent: {},
       contentContainer: {
         flex: 1,
+        paddingHorizontal: sizes.PADDING,
       },
       orderCard: {
         backgroundColor: colors.WHITE,
@@ -43,7 +43,7 @@ const useStyles = () => {
         flex: 1,
       },
       imageContainer: {
-        marginRight: sizes.PADDING * 0.8,
+        marginRight: sizes.PADDING * 0.5,
       },
       orderCardImage: {
         width: scaleWithMax(72, 78),
