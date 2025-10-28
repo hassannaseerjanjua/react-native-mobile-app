@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
 import fonts from '../../../assets/fonts';
+import { scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -45,8 +46,8 @@ const useStyles = () => {
         marginRight: sizes.PADDING * 0.8,
       },
       orderCardImage: {
-        width: sizes.WIDTH * 0.18,
-        height: sizes.WIDTH * 0.18,
+        width: scaleWithMax(72, 78),
+        height: scaleWithMax(72, 78),
         borderRadius: sizes.BORDER_RADIUS,
         resizeMode: 'cover',
       },
@@ -57,38 +58,38 @@ const useStyles = () => {
       orderCardTitle: {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE,
-        color: colors.PRIMARY_TEXT,
+        color: colors.BLACK,
       },
       orderCardSubtitle: {
         fontFamily: fonts.Quicksand.medium,
-        fontSize: sizes.FONTSIZE,
-        color: colors.SECONDARY_TEXT,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: colors.BLACK,
         marginTop: sizes.PADDING * 0.1,
       },
       rightSection: {
         alignItems: 'flex-end',
       },
       statusBadge: {
-        backgroundColor: '#d3d1de  ',
-        borderRadius: sizes.BORDER_RADIUS * 0.6,
-        paddingHorizontal: sizes.PADDING * 0.6,
-        paddingVertical: sizes.PADDING * 0.25,
         marginBottom: sizes.PADDING * 0.4,
       },
       orderCardStatus: {
         fontFamily: fonts.Quicksand.bold,
-        fontSize: sizes.FONTSIZE,
-        color: '#1C1254', // purple like in the image
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: colors.PRIMARY,
+        backgroundColor: colors.SECONDARY,
+        borderRadius: sizes.BORDER_RADIUS * 0.6,
+        paddingHorizontal: sizes.PADDING * 0.8,
+        paddingVertical: sizes.PADDING * 0.25,
       },
       orderNumberBadge: {
-        backgroundColor: '#2E206A',
+        backgroundColor: colors.PRIMARY,
         borderRadius: sizes.BORDER_RADIUS * 0.6,
         paddingHorizontal: sizes.PADDING * 0.8,
         paddingVertical: sizes.PADDING * 0.25,
       },
       orderCardNumber: {
         fontFamily: fonts.Quicksand.medium,
-        fontSize: sizes.FONTSIZE,
+        fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.WHITE,
       },
       orderDetailsContainer: {

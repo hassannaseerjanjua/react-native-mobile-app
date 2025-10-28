@@ -7,6 +7,7 @@ import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx';
+import { AppStackScreen } from '../../../types/navigation.types.ts';
 
 const mockFavorites = [
   {
@@ -91,11 +92,25 @@ const filterOptions = [
   { id: 'cake', title: 'Cake' },
 ];
 
-const FavoritesScreen: React.FC = () => {
+const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({ route }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [Steps, setSteps] = useState(1);
+
+  const [cameFromProfile, setCameFromProfile] = useState(false);
+
+  // Use a more reliable method to detect if we came from profile
+  useEffect(() => {
+    // Check if we have route params indicating we came from profile
+    const routeParams = route.params as any;
+    console.log('Favorites route params:', routeParams);
+    if (routeParams?.redirectionType === 'profile') {
+      setCameFromProfile(true);
+    } else {
+      setCameFromProfile(false);
+    }
+  }, [route.params]);
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -113,10 +128,19 @@ const FavoritesScreen: React.FC = () => {
   };
 
   const handleBackPress = () => {
+    console.log('Back pressed, cameFromProfile:', cameFromProfile);
     if (Steps === 2) {
       setSteps(1);
     } else {
-      navigation.goBack();
+      // If we came from profile, navigate back to profile
+      // Otherwise use default goBack behavior
+      if (cameFromProfile) {
+        console.log('Navigating back to Profile');
+        navigation.navigate('Profile' as never);
+      } else {
+        console.log('Using default goBack');
+        navigation.goBack();
+      }
     }
   };
 

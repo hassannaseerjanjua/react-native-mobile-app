@@ -17,7 +17,9 @@ export type AppStackParamList = {
   FAQ: undefined;
   Settings: undefined;
   ContactUs: undefined;
-  Favorites: undefined;
+  Favorites: {
+    redirectionType: 'home' | 'profile';
+  };
   Occasions: undefined;
   Notifications: undefined;
   Profile: undefined;

@@ -89,19 +89,13 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             onPress={handleBackPress}
             activeOpacity={0.7}
           >
-            <SvgHomeBack
-            // width={scaleWithMax(38, 38)}
-            // height={scaleWithMax(22, 25)}
-            />
+            <SvgHomeBack />
           </TouchableOpacity>
         )}
         {title && (
-          <TouchableWithoutFeedback
-            style={styles.title}
-            onPress={handleBackPress}
-          >
-            <Text style={styles.title}>{title}</Text>
-          </TouchableWithoutFeedback>
+          <Text style={styles.title} onPress={handleBackPress}>
+            {title}
+          </Text>
         )}
         {showLogo && (
           <SvgLogoHeader

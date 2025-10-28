@@ -126,7 +126,11 @@ const ProfileScreen: React.FC = () => {
       title: getString('P_MY_FAVOURITES'),
       icon: <SvgProfileFavorites />,
       onPress: () => {
-        (navigation as any).navigate('BottomTabs', { screen: 'Favorites' });
+        // Navigate to bottom tabs and then to favorites with profile parameter
+        (navigation as any).navigate('BottomTabs', {
+          screen: 'Favorites',
+          params: { redirectionType: 'profile' },
+        });
       },
     },
     {
@@ -228,7 +232,7 @@ const ProfileScreen: React.FC = () => {
         showBackButton={false}
         rightSideIcon={<SvgProfileCrossIcon />}
         rightSideTitle={true as any}
-        rightSideTitlePress={() => navigation.goBack()}
+        rightSideTitlePress={() => navigation.navigate('BottomTabs' as never)}
       />
 
       <ScrollView

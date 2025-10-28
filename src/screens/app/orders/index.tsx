@@ -1,5 +1,13 @@
 import React from 'react';
-import { View, StatusBar, ScrollView, Image } from 'react-native';
+import {
+  View,
+  StatusBar,
+  ScrollView,
+  Image,
+  TouchableOpacity,
+  Linking,
+  Alert,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
 import { Text } from '../../../utils/elements';
@@ -44,6 +52,32 @@ const OrderCard: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
 
+  const openWhatsApp = (phoneNumber: string) => {
+    // Remove any non-numeric characters and add country code if needed
+    const cleanNumber = phoneNumber.replace(/\D/g, '');
+    const whatsappNumber = cleanNumber.startsWith('92')
+      ? cleanNumber
+      : `92${cleanNumber}`;
+    const whatsappUrl = `whatsapp://send?phone=${whatsappNumber}`;
+
+    Linking.canOpenURL(whatsappUrl)
+      .then(supported => {
+        if (supported) {
+          Linking.openURL(whatsappUrl);
+        } else {
+          Alert.alert(
+            'WhatsApp not installed',
+            'WhatsApp is not installed on this device. Please install WhatsApp to continue.',
+            [{ text: 'OK' }],
+          );
+        }
+      })
+      .catch(err => {
+        console.error('Error opening WhatsApp:', err);
+        Alert.alert('Error', 'Unable to open WhatsApp. Please try again.');
+      });
+  };
+
   return (
     <View style={styles.orderCard}>
       <View style={styles.rowContainer}>
@@ -75,7 +109,9 @@ const OrderCard: React.FC = () => {
       <View style={styles.orderDetailsContainer}>
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>{getString('O_PHONE_NUMBER')}</Text>
-          <Text style={styles.detailValue}>0300-16413168</Text>
+          <TouchableOpacity onPress={() => openWhatsApp('0300-16413168')}>
+            <Text style={[styles.detailValue]}>0300-16413168</Text>
+          </TouchableOpacity>
         </View>
 
         <View style={styles.detailRow}>

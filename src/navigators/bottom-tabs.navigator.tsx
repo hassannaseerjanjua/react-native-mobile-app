@@ -55,13 +55,14 @@ const BottomTabNavigator = () => {
           />
           <Tab.Screen
             name="Favorites"
-            component={Favorites}
+            component={Favorites as any}
             options={{
               tabBarLabel: getString('FOOTER_FAVORITES'),
               tabBarIcon: ({ color, size }) => (
                 <SvgFavourite width={size} height={size} fill={color} />
               ),
             }}
+            initialParams={{ redirectionType: 'home' }}
           />
           <Tab.Screen
             name="Occasions"

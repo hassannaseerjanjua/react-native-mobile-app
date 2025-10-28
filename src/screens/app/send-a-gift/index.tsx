@@ -172,72 +172,74 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
             }}
           />
         </View>
-
+        <View
+          style={[
+            styles.tabContainer,
+            { paddingHorizontal: theme.sizes.PADDING },
+          ]}
+        >
+          <TabItem
+            title="Send through a link"
+            onPress={() => {}}
+            isLink={true}
+          />
+        </View>
         <ScrollView
           showsVerticalScrollIndicator={false}
           style={styles.scrollableContent}
           contentContainerStyle={styles.scrollableContentContainer}
         >
-          <View>
-            <View style={styles.tabContainer}>
-              <TabItem
-                title="Send through a link"
-                onPress={() => {}}
-                isLink={true}
+          <Text style={styles.sectionTitle}>Friends</Text>
+          {isLoading ? (
+            <View style={styles.listCard}>
+              <ActivityIndicator
+                size="large"
+                color={theme.colors.PRIMARY}
+                style={{
+                  paddingVertical: theme.sizes.HEIGHT * 0.02,
+                }}
               />
             </View>
-            <Text style={styles.sectionTitle}>Friends</Text>
-            {isLoading ? (
-              <View style={styles.listCard}>
-                <ActivityIndicator
-                  size="large"
-                  color={theme.colors.PRIMARY}
-                  style={{
-                    paddingVertical: theme.sizes.HEIGHT * 0.02,
-                  }}
-                />
-              </View>
-            ) : displayData.length > 1 ? (
-              <View style={styles.listCard}>
-                <FlatList
-                  data={displayData}
-                  keyExtractor={item => item.UserId.toString()}
-                  renderItem={({ item, index }) => (
-                    <SearchUserItem
-                      item={item}
-                      index={index}
-                      isLast={index === displayData.length - 1}
-                      showAddButton={false}
-                      showSelection={false}
-                    />
-                  )}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.listContainer}
-                  scrollEnabled={false}
-                />
-              </View>
-            ) : (
-              <View style={styles.noFriendsContainer}>
-                <SvgFindFriendsIcon
-                  width={scaleWithMax(36, 40)}
-                  height={scaleWithMax(36, 40)}
-                />
-                <Text style={styles.noFriendsText}>No Friends yet</Text>
+          ) : displayData.length > 1 ? (
+            <View style={styles.listCard}>
+              <FlatList
+                data={displayData}
+                keyExtractor={item => item.UserId.toString()}
+                renderItem={({ item, index }) => (
+                  <SearchUserItem
+                    item={item}
+                    index={index}
+                    isLast={index === displayData.length - 1}
+                    showAddButton={false}
+                    showSelection={false}
+                  />
+                )}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+                scrollEnabled={false}
+              />
+            </View>
+          ) : (
+            <View style={styles.noFriendsContainer}>
+              <SvgFindFriendsIcon
+                width={scaleWithMax(36, 40)}
+                height={scaleWithMax(36, 40)}
+              />
+              <Text style={styles.noFriendsText}>No Friends yet</Text>
 
-                <CustomButton
-                  icon={<SvgSearchFindFriendsIcon />}
-                  title="Find Friends"
-                  onPress={() => {
-                    navigation.navigate('Search', {
-                      title: 'Connect',
-                      showConnectOnly: true,
-                    });
-                  }}
-                  type="primary"
-                />
-              </View>
-            )}
-          </View>
+              <CustomButton
+                icon={<SvgSearchFindFriendsIcon />}
+                title="Find Friends"
+                onPress={() => {
+                  navigation.navigate('Search', {
+                    title: 'Connect',
+                    showConnectOnly: true,
+                  });
+                }}
+                type="primary"
+              />
+            </View>
+          )}
         </ScrollView>
       </View>
 
