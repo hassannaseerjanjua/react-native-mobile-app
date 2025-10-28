@@ -6,6 +6,7 @@ import { Text } from '../../../utils/elements';
 import HomeHeader from '../../../components/global/HomeHeader';
 import WalletCard from '../../../components/app/WalletCard';
 import ParentView from '../../../components/app/ParentView';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -34,21 +35,25 @@ const WalletScreen: React.FC = () => {
         onBackPress={() => navigation.goBack()}
       />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.walletSection}>
-          <WalletCard
-            balance={
-              walletBalance?.data?.WalletBalance
-                ? Number(walletBalance?.data?.WalletBalance).toFixed(2)
-                : '0.00'
-            }
-          />
-        </View>
-      </ScrollView>
+      {walletBalance.loading ? (
+        <SkeletonLoader screenType="wallet" />
+      ) : (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.walletSection}>
+            <WalletCard
+              balance={
+                walletBalance?.data?.WalletBalance
+                  ? Number(walletBalance?.data?.WalletBalance).toFixed(2)
+                  : '0.00'
+              }
+            />
+          </View>
+        </ScrollView>
+      )}
     </ParentView>
   );
 };

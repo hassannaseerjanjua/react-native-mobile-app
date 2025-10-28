@@ -5,6 +5,7 @@ import useStyles from './style';
 import { Text } from '../../../utils/elements';
 import HomeHeader from '../../../components/global/HomeHeader';
 import ParentView from '../../../components/app/ParentView';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 import FAQItem from '../../../components/app/FAQItem';
 import { FAQ } from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
@@ -38,17 +39,21 @@ const FAQScreen: React.FC = () => {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.faqContainer}>
-          {GetFaqs?.data?.map(item => (
-            <FAQItem
-              key={item.FaqId}
-              item={item}
-              onPress={() => {}}
-              style={styles.faqItem}
-              textStyle={styles.faqItemText}
-            />
-          ))}
-        </View>
+        {GetFaqs.loading ? (
+          <SkeletonLoader screenType="faq" />
+        ) : (
+          <View style={styles.faqContainer}>
+            {GetFaqs?.data?.map(item => (
+              <FAQItem
+                key={item.FaqId}
+                item={item}
+                onPress={() => {}}
+                style={styles.faqItem}
+                textStyle={styles.faqItemText}
+              />
+            ))}
+          </View>
+        )}
       </ScrollView>
     </ParentView>
   );

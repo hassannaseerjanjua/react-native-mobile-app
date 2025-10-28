@@ -1,13 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import {
-  View,
-  StatusBar,
-  FlatList,
-  ScrollView,
-  ActivityIndicator,
-} from 'react-native';
+import { View, StatusBar, FlatList, ScrollView } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 import useStyles from './style';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import ParentView from '../../../components/app/ParentView';
@@ -192,13 +187,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           <Text style={styles.sectionTitle}>Friends</Text>
           {isLoading ? (
             <View style={styles.listCard}>
-              <ActivityIndicator
-                size="large"
-                color={theme.colors.PRIMARY}
-                style={{
-                  paddingVertical: theme.sizes.HEIGHT * 0.02,
-                }}
-              />
+              <SkeletonLoader screenType="sendAGift" />
             </View>
           ) : displayData.length > 1 ? (
             <View style={styles.listCard}>

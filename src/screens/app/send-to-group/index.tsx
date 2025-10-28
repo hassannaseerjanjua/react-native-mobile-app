@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { View, StatusBar, ActivityIndicator } from 'react-native';
+import { View, StatusBar } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import useStyles from './style';
 import ParentView from '../../../components/app/ParentView';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 import HomeHeader from '../../../components/global/HomeHeader';
 import TabItem from '../../../components/global/TabItem';
 import { MemberSelectionModal } from '../../../components/send-a-gift';
@@ -172,8 +173,8 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         searchPlaceholder="Search Group"
       />
       <View style={styles.content}>
-        {getGroupsData.loading ? (
-          <ActivityIndicator size="large" color={theme.colors.PRIMARY} />
+        {getGroupsData?.loading ? (
+          <SkeletonLoader screenType="sendToGroup" />
         ) : getGroupsData?.data?.length === 0 ? (
           <Text
             style={[
