@@ -1,5 +1,13 @@
-import { Text as RNText, TextProps } from 'react-native';
+import { Text as RNText, TextProps, I18nManager } from 'react-native';
 
 export const Text = (props: TextProps) => {
-  return <RNText {...props} allowFontScaling={false} />;
+  const isRTL = I18nManager.isRTL;
+
+  return (
+    <RNText
+      {...props}
+      allowFontScaling={false}
+      style={[{ writingDirection: isRTL ? 'rtl' : 'ltr' }, props.style]}
+    />
+  );
 };

@@ -139,7 +139,7 @@ const SettingsScreen: React.FC = () => {
       />
 
       <HomeHeader
-        title={getString('S_SETTINGS')}
+        title={shimmerLoading ? '' : getString('S_SETTINGS')}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
       />
@@ -175,7 +175,11 @@ const SettingsScreen: React.FC = () => {
                       <View style={styles.radioButtonSelected} />
                     )}
                   </View>
-                  <Text style={styles.languageText}>{language}</Text>
+                  <Text style={styles.languageText}>
+                    {language === 'English'
+                      ? getString('S_ENGLISH')
+                      : getString('S_ARABIC')}
+                  </Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -198,7 +202,7 @@ const SettingsScreen: React.FC = () => {
                             : undefined
                         }
                         fieldProps={{
-                          placeholder: 'Full name',
+                          placeholder: getString('AU_PL_FULL_NAME'),
                           value: formik.values.Fullname,
                           onChangeText: (value: string) => {
                             formik.setFieldValue('Fullname', value);
@@ -217,7 +221,7 @@ const SettingsScreen: React.FC = () => {
                             : undefined
                         }
                         fieldProps={{
-                          placeholder: 'Username',
+                          placeholder: getString('AU_PL_USERNAME'),
                           value: formik.values.username,
                           onChangeText: (value: string) => {
                             formik.setFieldValue(
@@ -242,7 +246,7 @@ const SettingsScreen: React.FC = () => {
                             : undefined
                         }
                         fieldProps={{
-                          placeholder: 'Email',
+                          placeholder: getString('AU_PL_EMAIL'),
                           value: formik.values.email,
                           onChangeText: (value: string) => {
                             formik.setFieldValue('email', value);
@@ -264,7 +268,7 @@ const SettingsScreen: React.FC = () => {
                         options={filteredOptions}
                         searchValue={areaSearch}
                         onSearchChange={setAreaSearch}
-                        placeholder="City"
+                        placeholder={getString('AU_PL_CITY')}
                         selectedValue={formik.values.CityId}
                         onSelect={value => {
                           setSelectedOption(value);
@@ -289,7 +293,7 @@ const SettingsScreen: React.FC = () => {
                             : undefined
                         }
                         fieldProps={{
-                          placeholder: 'Phone number',
+                          placeholder: getString('AU_PHONE_NUMBER'),
                           value: formik.values.phoneNumber,
                           onChangeText: (value: string) => {
                             formik.setFieldValue('phoneNumber', value);
@@ -314,7 +318,7 @@ const SettingsScreen: React.FC = () => {
                               : undefined
                           }
                           fieldProps={{
-                            placeholder: 'Birthday',
+                            placeholder: getString('S_BIRTHDAY'),
                             value: formik.values.Dob,
                             editable: false,
                             pointerEvents: 'none',

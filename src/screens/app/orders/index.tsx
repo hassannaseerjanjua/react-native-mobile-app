@@ -80,15 +80,18 @@ const OrderCard: React.FC = () => {
           Linking.openURL(whatsappUrl);
         } else {
           Alert.alert(
-            'WhatsApp not installed',
-            'WhatsApp is not installed on this device. Please install WhatsApp to continue.',
-            [{ text: 'OK' }],
+            getString('O_WHATSAPP_NOT_INSTALLED'),
+            getString('O_WHATSAPP_NOT_INSTALLED_MESSAGE'),
+            [{ text: getString('O_OK') }],
           );
         }
       })
       .catch(err => {
         console.error('Error opening WhatsApp:', err);
-        Alert.alert('Error', 'Unable to open WhatsApp. Please try again.');
+        Alert.alert(
+          getString('O_ERROR'),
+          getString('O_UNABLE_TO_OPEN_WHATSAPP'),
+        );
       });
   };
 
@@ -103,14 +106,18 @@ const OrderCard: React.FC = () => {
             />
           </View>
           <View style={styles.productInfo}>
-            <Text style={styles.orderCardTitle}>Flower bouquet</Text>
-            <Text style={styles.orderCardSubtitle}>Coffematics</Text>
+            <Text style={styles.orderCardTitle}>
+              {getString('O_FLOWER_BOUQUET')}
+            </Text>
+            <Text style={styles.orderCardSubtitle}>
+              {getString('O_COFFEEMATICS')}
+            </Text>
           </View>
         </View>
 
         <View style={styles.rightSection}>
           <View style={styles.statusBadge}>
-            <Text style={styles.orderCardStatus}>Pending</Text>
+            <Text style={styles.orderCardStatus}>{getString('O_PENDING')}</Text>
           </View>
           <View style={styles.orderNumberBadge}>
             <Text style={styles.orderCardNumber}>
@@ -134,9 +141,9 @@ const OrderCard: React.FC = () => {
         </View>
 
         <View style={styles.itemRow}>
-          <Text style={styles.detailLabel}>1 x Iced Latte</Text>
+          <Text style={styles.detailLabel}>{getString('O_1X_ICED_LATTE')}</Text>
           <View style={styles.itemDetails}>
-            <Text style={styles.itemSize}>Regular</Text>
+            <Text style={styles.itemSize}>{getString('O_REGULAR')}</Text>
             <View style={styles.priceContainer}>
               <SvgRiyalIcon
                 width={scaleWithMax(12, 14)}

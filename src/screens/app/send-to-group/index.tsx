@@ -19,11 +19,13 @@ import useGetApi from '../../../hooks/useGetApi';
 import api from '../../../utils/api';
 import { useAuthStore } from '../../../store/reducer/auth';
 import { Text } from '../../../utils/elements';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface SendToGroupProps extends AppStackScreen<'SendToGroup'> {}
 
 const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const [searchQuery, setSearchQuery] = useState('');
   const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
   const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
@@ -152,7 +154,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         barStyle="dark-content"
       />
       <HomeHeader
-        title={'Send to Group'}
+        title={getString('STG_SEND_TO_GROUP')}
         showBackButton
         onBackPress={() => {
           isEditGroupOpen ? setIsEditGroupOpen(false) : navigation.goBack();
@@ -163,14 +165,14 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
           isEditGroupOpen
             ? ''
             : getGroupsData?.data?.length !== 0
-            ? 'Edit Group'
+            ? getString('STG_EDIT_GROUP')
             : ''
         }
         rightSideTitlePress={() => setIsEditGroupOpen(true)}
         rightSideIcon={<SvgEditGroup />}
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
-        searchPlaceholder="Search Group"
+        searchPlaceholder={getString('STG_SEARCH_GROUP')}
       />
       <View style={styles.content}>
         {getGroupsData?.loading ? (
@@ -184,7 +186,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
               },
             ]}
           >
-            No group found
+            {getString('STG_NO_GROUP_FOUND')}
           </Text>
         ) : (
           getGroupsData?.data?.map((group, index) => (
@@ -220,7 +222,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         onClose={() => setIsViewMembersOpen(false)}
         existingMembers={getGroupMembersData()}
         onSave={() => {}}
-        title={selectedGroup?.GroupName || 'Group Members'}
+        title={selectedGroup?.GroupName || getString('STG_GROUP_MEMBERS')}
         listings={[
           {
             users: getGroupMembersData(),
@@ -234,7 +236,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         onClose={() => setIsMemberSelectionOpen(false)}
         existingMembers={getGroupMembersData()}
         onSave={handleSaveGroupMembers}
-        title="Edit Group Members"
+        title={getString('STG_EDIT_GROUP_MEMBERS')}
         existingGroupImage={selectedGroup?.ImageUrl}
         existingGroupName={selectedGroup?.GroupName}
         listings={[

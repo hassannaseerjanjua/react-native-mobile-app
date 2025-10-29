@@ -91,11 +91,11 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           setCurrentFormValues(values);
           setIsBottomSheetOpen(true);
         } else {
-          setApiError(response.error || 'An error occurred');
+          setApiError(response.error || getString('AU_ERROR_OCCURRED'));
         }
       } catch (error) {
         console.error('Sign in error', error);
-        setApiError('Network error. Please try again.');
+        setApiError(getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'));
       } finally {
         setTimeout(() => {
           setIsLoading(false);

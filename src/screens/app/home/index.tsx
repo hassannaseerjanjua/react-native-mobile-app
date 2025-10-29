@@ -62,6 +62,7 @@ const HomeScreen: React.FC = () => {
           <>
             <Text style={styles.welcomeText}>
               {getString('HOME_WELCOME')}
+              {', '}
               <Text style={styles.userName}>{user?.FullNameEn}</Text>
             </Text>
             <View style={styles.heroImage}>
@@ -96,8 +97,8 @@ const HomeScreenTabsContainer: React.FC = () => {
     {
       id: 'gift-one-get-one',
       icon: <SvgGiftOneGetOne />,
-      title: 'Gift One',
-      titlePrimary: 'Get one',
+      title: getString('HOME_GIFT_ONE'),
+      titlePrimary: getString('HOME_GET_ONE'),
       description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
       onPress: undefined,
     },
@@ -111,8 +112,8 @@ const HomeScreenTabsContainer: React.FC = () => {
     {
       id: 'catch',
       image: require('../../../assets/images/catchIcon.png'),
-      title: 'Catch',
-      titlePrimary: '\nInstant gifts, limited time',
+      title: getString('HOME_CATCH'),
+      titlePrimary: '\n' + getString('HOME_CATCH_INSTANT_GIFTS_LIMITED_TIME'),
       description: getString('HOME_CATCH_INSTANT_GIFT_DESC'),
       onPress: undefined,
     },

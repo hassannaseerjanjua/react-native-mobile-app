@@ -1,9 +1,16 @@
-import { StyleSheet, TextInput, TextInputProps, View } from 'react-native';
+import {
+  StyleSheet,
+  TextInput,
+  TextInputProps,
+  View,
+  I18nManager,
+} from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
-import { scaleWithMax } from '../../utils';
+import { scaleWithMax, rtlTextAlign, rtlPadding } from '../../utils';
 import { SvgPhone } from '../../assets/icons';
 import { Text } from '../../utils/elements';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 type Props = {
   error?: any;
@@ -24,6 +31,7 @@ const InputField = ({
   isPhone,
 }: Props) => {
   const { theme, styles } = useStyles();
+  const { isRtl } = useLocaleStore();
   const isMultiline = fieldProps.multiline;
 
   return (
@@ -52,7 +60,12 @@ const InputField = ({
           style={[
             isMultiline ? styles.textarea : styles.input,
             {
-              paddingLeft: isPhone || icon ? theme.sizes.PADDING : 0,
+              ...rtlPadding(
+                isRtl,
+                isPhone || icon ? theme.sizes.PADDING : 0,
+                0,
+              ),
+              textAlign: rtlTextAlign(isRtl),
             },
             fieldProps.style,
           ]}

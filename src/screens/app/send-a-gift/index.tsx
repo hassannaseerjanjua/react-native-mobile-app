@@ -87,19 +87,19 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const tabs = [
     {
       id: 'friends',
-      title: 'Friends',
+      title: getString('SG_FRIENDS'),
       onPress: () => {
         setActiveTab('friends');
       },
     },
     {
       id: 'group',
-      title: 'Group',
+      title: getString('SG_GROUP'),
       onPress: () => navigation.navigate('SendToGroup' as any),
     },
     {
       id: 'others',
-      title: 'Others',
+      title: getString('SG_OTHERS'),
       onPress: () => {
         setActiveTab('others');
       },
@@ -116,7 +116,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     if (!searchQuery && user) {
       const currentUser: ActiveUser = {
         UserId: user.UserId,
-        FullName: `${user.FullNameEn || user.FullNameAr || 'User'} (Me)`,
+        FullName: `${
+          user.FullNameEn || user.FullNameAr || getString('SG_USER_ME')
+        }${getString('SG_ME')}`,
         Email: user.Email,
         PhoneNo: user.PhoneNo,
         ProfileUrl: user.ProfileUrl,
@@ -174,7 +176,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           ]}
         >
           <TabItem
-            title="Send through a link"
+            title={getString('SG_SEND_THROUGH_LINK')}
             onPress={() => {}}
             isLink={true}
           />
@@ -184,7 +186,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           style={styles.scrollableContent}
           contentContainerStyle={styles.scrollableContentContainer}
         >
-          <Text style={styles.sectionTitle}>Friends</Text>
+          <Text style={styles.sectionTitle}>{getString('SG_FRIENDS')}</Text>
           {isLoading ? (
             <View style={styles.listCard}>
               <SkeletonLoader screenType="sendAGift" />
@@ -214,14 +216,16 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                 width={scaleWithMax(36, 40)}
                 height={scaleWithMax(36, 40)}
               />
-              <Text style={styles.noFriendsText}>No Friends yet</Text>
+              <Text style={styles.noFriendsText}>
+                {getString('SG_NO_FRIENDS_YET')}
+              </Text>
 
               <CustomButton
                 icon={<SvgSearchFindFriendsIcon />}
-                title="Find Friends"
+                title={getString('SG_FIND_FRIENDS')}
                 onPress={() => {
                   navigation.navigate('Search', {
-                    title: 'Connect',
+                    title: getString('C_CONNECT'),
                     showConnectOnly: true,
                   });
                 }}
@@ -246,7 +250,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         title={getString('NG_ADD_MEMBERS')}
         listings={[
           {
-            title: 'Friends',
+            title: getString('NG_TITLE_FRIENDS'),
             users: activeUsersApi?.data || [],
           },
         ]}

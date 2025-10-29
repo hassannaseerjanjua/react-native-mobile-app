@@ -17,7 +17,8 @@ import {
 } from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
-import { scaleWithMax } from '../../utils';
+import { scaleWithMax, rtlTransform } from '../../utils';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface TabItemProps {
   title: string;
@@ -47,6 +48,7 @@ const TabItem = ({
   hideRightIcon,
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
+  const { isRtl } = useLocaleStore();
 
   return (
     <TouchableOpacity
@@ -77,7 +79,9 @@ const TabItem = ({
           </View>
         </>
       ) : (
-        !hideRightIcon && <SvgNextIcon />
+        !hideRightIcon && (
+          <SvgNextIcon style={{ transform: rtlTransform(isRtl) }} />
+        )
       )}
     </TouchableOpacity>
   );

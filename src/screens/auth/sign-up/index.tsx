@@ -87,11 +87,15 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                 setCurrentStep(currentStep + 1);
               } else {
                 console.log('Username verification failed:', response.error);
-                setUsernameApiError('Username already exists');
+                setUsernameApiError(
+                  getString('API_THIS_USERNAME_ALREADY_EXISTS'),
+                );
               }
             } catch (error) {
               console.log('API Error:', error);
-              setUsernameApiError('Username already exists');
+              setUsernameApiError(
+                getString('API_THIS_USERNAME_ALREADY_EXISTS'),
+              );
             }
           } else {
             setCurrentStep(currentStep + 1);
@@ -192,7 +196,9 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             : currentStep === 2
             ? getString('AU_SELECT_CITY')
             : currentStep === 3
-            ? `${getString('AU_PHONE_NUMBER')} & ${getString('AU_EMAIL')}`
+            ? `${getString('AU_PHONE_NUMBER')}${getString(
+                'AU_PHONE_AND_EMAIL',
+              )}${getString('AU_EMAIL')}`
             : ''
         }
       >

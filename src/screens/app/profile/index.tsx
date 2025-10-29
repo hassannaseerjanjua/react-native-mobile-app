@@ -62,16 +62,20 @@ const ProfileScreen: React.FC = () => {
       }`;
       const shareOptions = Platform.select({
         ios: {
-          message: `Gift me on Giftee\n\n${inviteLink}`,
+          message: `${getString('P_GIFT_ME_ON_GIFTEE')}\n\n${inviteLink}`,
           url: giftLink,
         },
         android: {
-          message: `Gift me on Giftee!\n\n${inviteLink}`,
-          title: 'Gift me on Giftee',
+          message: `${getString(
+            'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
+          )}\n\n${inviteLink}`,
+          title: getString('P_GIFT_ME_ON_GIFTEE'),
         },
       }) || {
-        message: `Gift me on Giftee!\n\n${inviteLink}`,
-        title: 'Gift me on Giftee',
+        message: `${getString(
+          'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
+        )}\n\n${inviteLink}`,
+        title: getString('P_GIFT_ME_ON_GIFTEE'),
       };
 
       const result = await Share.share(shareOptions);
@@ -265,10 +269,11 @@ const ProfileScreen: React.FC = () => {
       />
 
       <HomeHeader
-        title="Profile"
+        title={getString('P_PROFILE')}
         showBackButton={false}
         rightSideIcon={<SvgProfileCrossIcon />}
         rightSideTitle={true as any}
+        onBackPress={() => navigation.navigate('BottomTabs' as never)}
         rightSideTitlePress={() => navigation.navigate('BottomTabs' as never)}
       />
 

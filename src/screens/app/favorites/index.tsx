@@ -9,96 +9,98 @@ import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { AppStackScreen } from '../../../types/navigation.types.ts';
-
-const mockFavorites = [
-  {
-    id: '1',
-    title: 'Perfume House',
-    subtitle: 'Perfume & Cologne',
-    backgroundImage: require('../../../assets/images/perfumeHouseCover.png'),
-    overlayImage: require('../../../assets/images/perfumeHouse.png'),
-  },
-  {
-    id: '2',
-    title: 'Gym',
-    subtitle: 'Health & Fitness',
-    backgroundImage: require('../../../assets/images/storeCover.png'),
-    overlayImage: require('../../../assets/images/storeLogo.png'),
-  },
-  {
-    id: '3',
-    title: 'Coffematics',
-    subtitle: 'Cafe Shops',
-    backgroundImage: require('../../../assets/images/coffeematicsCover.png'),
-    overlayImage: require('../../../assets/images/coffeematics.png'),
-  },
-];
-
-const mockfavoriteItems = [
-  {
-    id: '1',
-    title: 'Pink Charm Delight Bouquet',
-    subtitle: 'Bouquet',
-    coverImage: require('../../../assets/images/dummy1.png'),
-    price: 100,
-    isFavorite: true,
-  },
-  {
-    id: '2',
-    title: 'Pink Charm Delight Bouquet',
-    subtitle: 'Bouquet',
-    coverImage: require('../../../assets/images/dummy2.png'),
-    price: 100,
-    isFavorite: true,
-  },
-  {
-    id: '3',
-    title: 'Pink Charm Delight Cake',
-    subtitle: 'Cake House',
-    coverImage: require('../../../assets/images/dummy3.png'),
-    price: 100,
-    isFavorite: true,
-  },
-  {
-    id: '4',
-    title: 'Pink Charm Delight Cake',
-    subtitle: 'Cake House',
-    coverImage: require('../../../assets/images/dummy4.png'),
-    price: 100,
-    isFavorite: true,
-  },
-  {
-    id: '5',
-    title: 'Pink Charm Delight Cake',
-    subtitle: 'Cake House',
-    coverImage: require('../../../assets/images/dummy4.png'),
-    price: 100,
-    isFavorite: true,
-  },
-  {
-    id: '6',
-    title: 'Pink Charm Delight Cake',
-    subtitle: 'Cake House',
-    coverImage: require('../../../assets/images/dummy4.png'),
-    price: 100,
-    isFavorite: true,
-  },
-];
-
-const filterOptions = [
-  { id: 'all', title: 'All' },
-  { id: 'bouquet', title: 'Bouquet' },
-  { id: 'roses', title: 'Roses' },
-  { id: 'flowers', title: 'Flowers' },
-  { id: 'cake', title: 'Cake' },
-];
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({ route }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const navigation = useNavigation();
+
+  const mockFavorites = [
+    {
+      id: '1',
+      title: getString('FAV_MOCK_PERFUME_HOUSE'),
+      subtitle: getString('FAV_MOCK_PERFUME_COLOGNE'),
+      backgroundImage: require('../../../assets/images/perfumeHouseCover.png'),
+      overlayImage: require('../../../assets/images/perfumeHouse.png'),
+    },
+    {
+      id: '2',
+      title: getString('FAV_MOCK_GYM'),
+      subtitle: getString('FAV_MOCK_HEALTH_FITNESS'),
+      backgroundImage: require('../../../assets/images/storeCover.png'),
+      overlayImage: require('../../../assets/images/storeLogo.png'),
+    },
+    {
+      id: '3',
+      title: getString('FAV_MOCK_COFFEMATICS'),
+      subtitle: getString('FAV_MOCK_CAFE_SHOPS'),
+      backgroundImage: require('../../../assets/images/coffeematicsCover.png'),
+      overlayImage: require('../../../assets/images/coffeematics.png'),
+    },
+  ];
+
+  const mockfavoriteItems = [
+    {
+      id: '1',
+      title: getString('FAV_MOCK_PINK_CHARM_BOUQUET'),
+      subtitle: getString('FAV_MOCK_BOUQUET'),
+      coverImage: require('../../../assets/images/dummy1.png'),
+      price: 100,
+      isFavorite: true,
+    },
+    {
+      id: '2',
+      title: getString('FAV_MOCK_PINK_CHARM_BOUQUET'),
+      subtitle: getString('FAV_MOCK_BOUQUET'),
+      coverImage: require('../../../assets/images/dummy2.png'),
+      price: 100,
+      isFavorite: true,
+    },
+    {
+      id: '3',
+      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
+      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
+      coverImage: require('../../../assets/images/dummy3.png'),
+      price: 100,
+      isFavorite: true,
+    },
+    {
+      id: '4',
+      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
+      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
+      coverImage: require('../../../assets/images/dummy4.png'),
+      price: 100,
+      isFavorite: true,
+    },
+    {
+      id: '5',
+      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
+      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
+      coverImage: require('../../../assets/images/dummy4.png'),
+      price: 100,
+      isFavorite: true,
+    },
+    {
+      id: '6',
+      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
+      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
+      coverImage: require('../../../assets/images/dummy4.png'),
+      price: 100,
+      isFavorite: true,
+    },
+  ];
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [Steps, setSteps] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
+
+  const filterOptions = [
+    { id: 'all', title: getString('FAV_ALL') },
+    { id: 'bouquet', title: getString('FAV_BOUQUET') },
+    { id: 'roses', title: getString('FAV_ROSES') },
+    { id: 'flowers', title: getString('FAV_FLOWERS') },
+    { id: 'cake', title: getString('FAV_CAKE') },
+  ];
 
   const [cameFromProfile, setCameFromProfile] = useState(false);
 
@@ -172,7 +174,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({ route }) => {
         barStyle="dark-content"
       />
       <HomeHeader
-        title="Favorites"
+        title={getString('FAV_FAVORITES')}
         showBackButton={true}
         onBackPress={handleBackPress}
         showSearchBar={true}

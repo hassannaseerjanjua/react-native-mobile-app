@@ -18,7 +18,8 @@ type SkeletonLoaderProps = {
     | 'storeCard'
     | 'productListing'
     | 'orderListing'
-    | 'settings';
+    | 'settings'
+    | 'landing';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -797,6 +798,30 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                 height={screenHeight * 0.064}
                 borderRadius={screenWidth * 0.02}
               />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
+        );
+
+      case 'landing':
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item>
+              <SkeletonPlaceholder.Item
+                gap={16}
+                alignItems="center"
+                marginBottom={screenHeight * 0.01}
+              >
+                <SkeletonPlaceholder.Item
+                  width="100%"
+                  height={screenHeight * 0.062}
+                  borderRadius={screenWidth * 0.02}
+                />
+                <SkeletonPlaceholder.Item
+                  width="100%"
+                  height={screenHeight * 0.062}
+                  borderRadius={screenWidth * 0.02}
+                />
+              </SkeletonPlaceholder.Item>
             </SkeletonPlaceholder.Item>
           </SkeletonPlaceholder>
         );

@@ -3,9 +3,11 @@ import { View, StatusBar } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
 import { Text } from '../../../utils/elements';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const navigation = useNavigation();
   return (
     <View style={styles.container}>
@@ -15,7 +17,7 @@ const NotificationsScreen: React.FC = () => {
       />
 
       <View style={styles.content}>
-        <Text style={styles.title}>Notifications</Text>
+        <Text style={styles.title}>{getString('NOT_NOTIFICATIONS')}</Text>
       </View>
     </View>
   );

@@ -211,10 +211,10 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   <View style={styles.loadingContainer}>
                     <Text style={styles.loadingText}>
                       {showConnectOnly
-                        ? 'No users found to connect'
+                        ? getString('SEARCH_NO_USERS_FOUND_TO_CONNECT')
                         : searchQuery
-                        ? 'No results found'
-                        : 'No users found'}
+                        ? getString('SEARCH_NO_RESULTS_FOUND')
+                        : getString('SEARCH_NO_USERS_FOUND')}
                     </Text>
                   </View>
                 );
@@ -253,13 +253,13 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
 
       <ConfirmationModal
         visible={unfriendModal.visible}
-        title="Unfriend User"
+        title={getString('SEARCH_UNFRIEND_USER')}
         message={
           unfriendModal.isLinkedToGroup
-            ? 'This user is linked to one or more groups, would you like to continue?'
-            : 'Are you sure you want to unfriend this user?'
+            ? getString('SEARCH_USER_LINKED_TO_GROUPS_MESSAGE')
+            : getString('SEARCH_ARE_YOU_SURE_UNFRIEND')
         }
-        confirmText="Yes"
+        confirmText={getString('SEARCH_YES')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={() =>
           unfriendModal.userId && unfriendUser(unfriendModal.userId)

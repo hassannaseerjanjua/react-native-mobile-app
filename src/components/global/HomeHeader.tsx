@@ -18,7 +18,12 @@ import {
   SvgDummyAvatar,
   SvgHomeBack,
 } from '../../assets/icons';
-import { isAndroid, isAndroidThen, scaleWithMax } from '../../utils';
+import {
+  isAndroid,
+  isAndroidThen,
+  scaleWithMax,
+  rtlTransform,
+} from '../../utils';
 import fonts from '../../assets/fonts';
 import { useAuthStore } from '../../store/reducer/auth';
 import { useLocaleStore } from '../../store/reducer/locale';
@@ -62,7 +67,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const { user } = useAuthStore();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const defaultSearchPlaceholder =
     searchPlaceholder || getString('HOME_SEARCH');
   const handleSearchPress = () => {
@@ -89,7 +94,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             onPress={handleBackPress}
             activeOpacity={0.7}
           >
-            <SvgHomeBack />
+            <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
           </TouchableOpacity>
         )}
         {title && (

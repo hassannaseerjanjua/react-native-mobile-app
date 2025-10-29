@@ -30,6 +30,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [hasVerified, setHasVerified] = useState(false);
+  const [lastVerifiedOtp, setLastVerifiedOtp] = useState<string>('');
 
   // Get email and phone from route parameters
   const { email, phone, fullName, username, city, signIn } = route.params;
@@ -59,19 +60,27 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   // Auto-verify when all digits are entered
   useEffect(() => {
     const isComplete = otp.every(digit => digit !== '');
-    if (isComplete && !isLoading && !hasVerified) {
+    const otpString = otp.join('');
+
+    if (
+      isComplete &&
+      !isLoading &&
+      !hasVerified &&
+      otpString !== lastVerifiedOtp
+    ) {
       // Small delay to ensure all inputs are updated
       setTimeout(() => {
         Keyboard.dismiss();
         handleVerify();
       }, 200);
     }
-  }, [otp, isLoading, hasVerified]);
+  }, [otp, isLoading, hasVerified, lastVerifiedOtp]);
 
   const handleOtpChange = (value: string, index: number) => {
     // Reset verification flag when OTP changes
     if (hasVerified) {
       setHasVerified(false);
+      setLastVerifiedOtp(''); // Clear last verified OTP when user changes input
     }
 
     // Handle only single digit or empty string
@@ -108,6 +117,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     }
 
     setHasVerified(true);
+    setLastVerifiedOtp(otpString);
     const endpoint = signIn
       ? apiEndpoints.VERIFY_OTP_SIGNIN
       : apiEndpoints.VERIFY_OTP;
@@ -149,6 +159,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   };
 
   const handleResendCode = async () => {
+    setOtp(['', '', '', '', '', '']);
     setIsResending(true);
     setTimer(60);
     setIsTimerActive(true);
@@ -234,7 +245,9 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                   disabled={isResending}
                   style={[styles.resendText, isResending && { opacity: 0.5 }]}
                 >
-                  {isResending ? 'Resending...' : 'Resend Code'}
+                  {isResending
+                    ? getString('AU_RESENDING')
+                    : getString('AU_RESEND_CODE')}
                 </Text>
               )}
             </Text>
