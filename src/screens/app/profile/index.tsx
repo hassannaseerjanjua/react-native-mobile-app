@@ -6,6 +6,7 @@ import {
   Image,
   TouchableOpacity,
   Platform,
+  Share,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -49,6 +50,42 @@ const ProfileScreen: React.FC = () => {
 
   const handleLogout = () => {
     dispatch(logout());
+  };
+
+  const handleShareGiftLink = async () => {
+    try {
+      const giftLink = `https://giftee.app/share/${
+        user?.UserName || 'user123'
+      }`;
+      const inviteLink = `giftee.com/inviteby/abc123?${
+        user?.UserName || 'user123'
+      }`;
+      const shareOptions = Platform.select({
+        ios: {
+          message: `Gift me on Giftee\n\n${inviteLink}`,
+          url: giftLink,
+        },
+        android: {
+          message: `Gift me on Giftee!\n\n${inviteLink}`,
+          title: 'Gift me on Giftee',
+        },
+      }) || {
+        message: `Gift me on Giftee!\n\n${inviteLink}`,
+        title: 'Gift me on Giftee',
+      };
+
+      const result = await Share.share(shareOptions);
+
+      if (result.action === Share.sharedAction) {
+        // Content was shared
+        console.log('Gift link shared successfully');
+      } else if (result.action === Share.dismissedAction) {
+        // Share sheet was dismissed
+        console.log('Share sheet dismissed');
+      }
+    } catch (error) {
+      console.error('Error sharing gift link:', error);
+    }
   };
 
   const handleImageSelect = () => {
@@ -119,7 +156,7 @@ const ProfileScreen: React.FC = () => {
       id: 'gift-link',
       title: getString('P_MY_GIFT_LINK'),
       icon: <SvgProfileLink />,
-      onPress: () => {},
+      onPress: handleShareGiftLink,
     },
     {
       id: 'favourites',

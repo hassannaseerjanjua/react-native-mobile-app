@@ -18,7 +18,7 @@ const useStyles = () => {
         flex: 1,
         alignItems: 'center',
         justifyContent: 'center',
-        marginTop: sizes.HEIGHT * 0.14,
+        marginTop: sizes.HEIGHT * 0.088,
       },
       logo: {
         width: scaleWithMax(146, 160),
@@ -30,6 +30,13 @@ const useStyles = () => {
         justifyContent: 'flex-end',
         alignItems: 'center',
         paddingBottom: 10,
+      },
+      languageContainer: {
+        position: 'absolute',
+        top: sizes.PADDING * 0.5,
+        // end: 0,
+
+        zIndex: 1,
       },
     });
   }, [theme]);

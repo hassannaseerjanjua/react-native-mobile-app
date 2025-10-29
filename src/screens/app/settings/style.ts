@@ -35,17 +35,17 @@ const useStyles = () => {
       title: {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_LESS_HIGH,
-        color: colors.PRIMARY_TEXT,
-        marginBottom: 6,
+        // color: colors.PRIMARY_TEXT,
+        marginBottom: sizes.PADDING * 0.2,
       },
       languageContainer: {
         // marginBottom: sizes.PADDING * 1.5,
-        paddingVertical: sizes.PADDING * 0.2,
+        paddingVertical: sizes.PADDING * 0.1,
       },
       languageOption: {
         flexDirection: 'row',
         alignItems: 'center',
-        paddingVertical: sizes.PADDING * 0.5,
+        paddingVertical: sizes.PADDING * 0.4,
         // paddingHorizontal: sizes.PADDING * 0.5,
       },
       radioButton: {

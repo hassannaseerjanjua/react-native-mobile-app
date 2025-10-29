@@ -17,7 +17,8 @@ type SkeletonLoaderProps = {
     | 'faq'
     | 'storeCard'
     | 'productListing'
-    | 'orderListing';
+    | 'orderListing'
+    | 'settings';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -27,13 +28,78 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
         return (
           <SkeletonPlaceholder>
             <SkeletonPlaceholder.Item>
+              {/* Welcome Text with User Name */}
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.6}
+                height={screenHeight * 0.025}
+                borderRadius={screenWidth * 0.01}
+                marginTop={screenHeight * 0.015}
+              />
+
               {/* Hero Image Slider */}
               <SkeletonPlaceholder.Item
                 width={screenWidth * 0.92}
                 height={screenHeight * 0.34}
                 borderRadius={12}
-                marginTop={15}
+                marginTop={screenHeight * 0.01}
               />
+
+              {/* Section Title */}
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.7}
+                height={screenHeight * 0.025}
+                borderRadius={screenWidth * 0.01}
+                marginTop={screenHeight * 0.01}
+                marginBottom={screenHeight * 0.01}
+              />
+
+              {/* Tabs Layout - First Row (2 tabs) */}
+              <SkeletonPlaceholder.Item
+                flexDirection="row"
+                justifyContent="space-between"
+                marginBottom={screenHeight * 0.01}
+              >
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.45}
+                  height={screenHeight * 0.12}
+                  borderRadius={screenWidth * 0.02}
+                />
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.45}
+                  height={screenHeight * 0.12}
+                  borderRadius={screenWidth * 0.02}
+                />
+              </SkeletonPlaceholder.Item>
+
+              {/* Tabs Layout - Second Row (1 tab) */}
+              <SkeletonPlaceholder.Item
+                flexDirection="row"
+                // justifyContent="flex-start"
+                marginBottom={screenHeight * 0.01}
+              >
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.92}
+                  height={screenHeight * 0.12}
+                  borderRadius={screenWidth * 0.02}
+                />
+              </SkeletonPlaceholder.Item>
+
+              <SkeletonPlaceholder.Item
+                flexDirection="row"
+                justifyContent="space-between"
+                marginBottom={screenHeight * 0.01}
+              >
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.45}
+                  height={screenHeight * 0.12}
+                  borderRadius={screenWidth * 0.02}
+                />
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.45}
+                  height={screenHeight * 0.12}
+                  borderRadius={screenWidth * 0.02}
+                />
+              </SkeletonPlaceholder.Item>
             </SkeletonPlaceholder.Item>
           </SkeletonPlaceholder>
         );
@@ -634,6 +700,105 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               </View>
             ))}
           </>
+        );
+
+      case 'settings':
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item>
+              {/* Language Selection Title */}
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.35}
+                height={screenHeight * 0.024}
+                borderRadius={screenWidth * 0.01}
+                marginTop={screenHeight * 0.006}
+                marginBottom={screenHeight * 0.016}
+              />
+
+              {/* Language Options - Stacked Vertically */}
+              <SkeletonPlaceholder.Item marginBottom={screenHeight * 0.0}>
+                {[...Array(2)].map((_, index) => (
+                  <SkeletonPlaceholder.Item
+                    key={index}
+                    flexDirection="row"
+                    alignItems="center"
+                    marginBottom={screenHeight * 0.012}
+                  >
+                    {/* Radio Button */}
+                    <SkeletonPlaceholder.Item
+                      width={screenWidth * 0.06}
+                      height={screenWidth * 0.06}
+                      borderRadius={99999}
+                      marginRight={screenWidth * 0.02}
+                    />
+                    {/* Language Text */}
+                    <SkeletonPlaceholder.Item
+                      width={screenWidth * 0.15}
+                      height={screenHeight * 0.018}
+                      borderRadius={screenWidth * 0.01}
+                    />
+                  </SkeletonPlaceholder.Item>
+                ))}
+              </SkeletonPlaceholder.Item>
+
+              {/* Form Fields */}
+              {[...Array(6)].map((_, index) => (
+                <SkeletonPlaceholder.Item
+                  key={index}
+                  marginBottom={screenHeight * 0.02}
+                  position="relative"
+                >
+                  {/* Input Field - Same style as button loader */}
+                  <SkeletonPlaceholder.Item
+                    width="100%"
+                    height={screenHeight * 0.06}
+                    borderRadius={screenWidth * 0.02}
+                  />
+                  {/* Icon Overlay on Left Side */}
+                  <SkeletonPlaceholder.Item
+                    position="absolute"
+                    left={screenWidth * 0.04}
+                    top={screenHeight * 0.0175}
+                    width={screenWidth * 0.06}
+                    height={screenWidth * 0.06}
+                    borderRadius={screenWidth * 0.01}
+                  />
+                </SkeletonPlaceholder.Item>
+              ))}
+
+              {/* Gender Selection Container */}
+              <SkeletonPlaceholder.Item
+                marginBottom={screenHeight * 0.029}
+                position="relative"
+              >
+                {/* Gender Field - Same style as other field loaders */}
+                <SkeletonPlaceholder.Item
+                  width="100%"
+                  height={screenHeight * 0.06}
+                  borderRadius={screenWidth * 0.02}
+                />
+                {/* Radio Button Overlays */}
+                {[...Array(2)].map((_, index) => (
+                  <SkeletonPlaceholder.Item
+                    key={index}
+                    position="absolute"
+                    left={index === 0 ? screenWidth * 0.04 : screenWidth * 0.5}
+                    top={screenHeight * 0.0175}
+                    width={screenWidth * 0.06}
+                    height={screenWidth * 0.06}
+                    borderRadius={99999}
+                  />
+                ))}
+              </SkeletonPlaceholder.Item>
+
+              {/* Update Button */}
+              <SkeletonPlaceholder.Item
+                width="100%"
+                height={screenHeight * 0.064}
+                borderRadius={screenWidth * 0.02}
+              />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
         );
 
       default:

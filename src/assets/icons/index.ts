@@ -66,6 +66,8 @@ import SvgItemFavouriteIconInActive from './item-not-fav-heart.svg';
 import SvgWhatsappIcon from './whatsapp-icon.svg';
 import SvgFindFriendsIcon from './no-friends.svg';
 import SvgSearchFindFriendsIcon from './search-find-friends.svg';
+import SvgEnglishIcon from './english-icon.svg';
+import SvgArabicIcon from './arabic-icon.svg';
 
 export {
   SvgLogoBlue,
@@ -136,4 +138,6 @@ export {
   SvgWhatsappIcon,
   SvgFindFriendsIcon,
   SvgSearchFindFriendsIcon,
+  SvgEnglishIcon,
+  SvgArabicIcon,
 };

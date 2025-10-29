@@ -56,25 +56,27 @@ const HomeScreen: React.FC = () => {
         }}
       />
       <View style={styles.mainContent}>
-        <Text style={styles.welcomeText}>
-          {getString('HOME_WELCOME')}
-          <Text style={styles.userName}>{user?.FullNameEn}</Text>
-        </Text>
         {sliderLoading ? (
           <SkeletonLoader screenType="home" />
         ) : (
-          <View style={styles.heroImage}>
-            <ImageSlider
-              sliders={sliderResponse || undefined}
-              loading={sliderLoading}
-              error={sliderError}
-            />
-          </View>
+          <>
+            <Text style={styles.welcomeText}>
+              {getString('HOME_WELCOME')}
+              <Text style={styles.userName}>{user?.FullNameEn}</Text>
+            </Text>
+            <View style={styles.heroImage}>
+              <ImageSlider
+                sliders={sliderResponse || undefined}
+                loading={sliderLoading}
+                error={sliderError}
+              />
+            </View>
+            <Text style={styles.sectionTitle}>
+              {getString('HOME_WHAT_ARE_YOU')}
+            </Text>
+            <HomeScreenTabsContainer />
+          </>
         )}
-        <Text style={styles.sectionTitle}>
-          {getString('HOME_WHAT_ARE_YOU')}
-        </Text>
-        <HomeScreenTabsContainer />
       </View>
     </View>
   );
