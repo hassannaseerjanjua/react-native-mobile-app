@@ -117,7 +117,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
             <Image
               source={{ uri: slider.ImageUrl }}
               style={[styles.image]}
-              resizeMode="stretch"
+              resizeMode="cover"
             />
           </View>
         ))}
@@ -139,9 +139,9 @@ const useStyles = () => {
           position: 'relative',
           width: theme.sizes.PADDED_WIDTH,
           height: isProMax
-            ? theme.sizes.HEIGHT * 0.48
+            ? theme.sizes.HEIGHT * 0.382
             : isBaseModel
-            ? theme.sizes.HEIGHT * 0.32
+            ? theme.sizes.HEIGHT * 0.355
             : theme.sizes.HEIGHT * 0.35,
           marginTop: theme.sizes.PADDING * 0.6,
         },
