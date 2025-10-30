@@ -140,7 +140,7 @@ const SettingsScreen: React.FC = () => {
 
       <HomeHeader
         title={shimmerLoading ? '' : getString('S_SETTINGS')}
-        showBackButton={true}
+        showBackButton={!shimmerLoading}
         onBackPress={() => navigation.goBack()}
       />
 

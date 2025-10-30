@@ -12,6 +12,7 @@ import { Slider } from '../../types';
 import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
 import { SvgPlaceholderImage } from '../../assets/icons';
+import { isIOS, isIOSThen } from '../../utils';
 
 interface ImageSliderProps {
   sliders?: Slider[] | undefined;
@@ -128,13 +129,20 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
 
 const useStyles = () => {
   const theme = useTheme();
+  const isProMax = theme.sizes.WIDTH > 430 && isIOS;
+  const isBaseModel = theme.sizes.WIDTH < 430 && isIOS;
+  console.log('isProMax', isProMax);
   const styles = useMemo(
     () =>
       StyleSheet.create({
         container: {
           position: 'relative',
           width: theme.sizes.PADDED_WIDTH,
-          height: theme.sizes.HEIGHT * 0.34,
+          height: isProMax
+            ? theme.sizes.HEIGHT * 0.48
+            : isBaseModel
+            ? theme.sizes.HEIGHT * 0.32
+            : theme.sizes.HEIGHT * 0.35,
           marginTop: theme.sizes.PADDING * 0.6,
         },
         scrollView: {
@@ -142,7 +150,7 @@ const useStyles = () => {
         },
         slideContainer: {
           width: theme.sizes.PADDED_WIDTH,
-          height: theme.sizes.HEIGHT * 0.34,
+          // height: theme.sizes.HEIGHT * 0.34,
           justifyContent: 'center',
           alignItems: 'center',
           borderRadius: theme.sizes.BORDER_RADIUS_MID,

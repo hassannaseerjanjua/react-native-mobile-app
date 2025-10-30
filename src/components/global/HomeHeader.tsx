@@ -23,6 +23,7 @@ import {
   isAndroidThen,
   scaleWithMax,
   rtlTransform,
+  rtlTextAlign,
 } from '../../utils';
 import fonts from '../../assets/fonts';
 import { useAuthStore } from '../../store/reducer/auth';
@@ -152,7 +153,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           </View>
           <TextInput
             allowFontScaling={false}
-            style={styles.searchInput}
+            style={[styles.searchInput, { textAlign: rtlTextAlign(isRtl) }]}
             placeholder={defaultSearchPlaceholder}
             placeholderTextColor="#A0A0A0EE"
             value={searchValue}

@@ -3,6 +3,8 @@ import React from 'react';
 import { View, Dimensions } from 'react-native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { SvgNextIcon } from '../../assets/icons';
+import { useLocaleStore } from '../../store/reducer/locale';
+import { rtlTransform } from '../../utils';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -23,6 +25,8 @@ type SkeletonLoaderProps = {
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
+  const { isRtl } = useLocaleStore();
+
   const renderContent = () => {
     switch (screenType) {
       case 'home':
@@ -317,7 +321,11 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
 
                   {/* Right Arrow Icon - Faded */}
                   <View style={{ opacity: 0.2 }}>
-                    <SvgNextIcon width={16} height={16} />
+                    <SvgNextIcon
+                      width={16}
+                      height={16}
+                      style={{ transform: rtlTransform(isRtl) }}
+                    />
                   </View>
                 </View>
               </View>
@@ -612,7 +620,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
 
                   {/* Real Arrow Icon with opacity */}
                   <View style={{ opacity: 0.2 }}>
-                    <SvgNextIcon />
+                    <SvgNextIcon style={{ transform: rtlTransform(isRtl) }} />
                   </View>
                 </View>
                 {index < 3 && <View style={{ height: 14 }} />}
@@ -697,7 +705,11 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                   opacity: 0.15,
                 }}
               >
-                <SvgNextIcon width={16} height={16} />
+                <SvgNextIcon
+                  width={16}
+                  height={16}
+                  style={{ transform: rtlTransform(isRtl) }}
+                />
               </View>
             ))}
           </>

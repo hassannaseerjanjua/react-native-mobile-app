@@ -1,10 +1,11 @@
 import React from 'react';
 import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
-import { scaleWithMax } from '../../utils';
+import { scaleWithMax, rtlTransform } from '../../utils';
 import { Text } from '../../utils/elements';
 import { SvgNextIcon } from '../../assets/icons';
 import { useSizes } from '../../styles/sizes';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface FavoriteItem {
   id: string;
@@ -25,6 +26,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
   onPress,
   style,
 }) => {
+  const { isRtl } = useLocaleStore();
   const { theme, styles } = useStyles();
 
   return (
@@ -55,6 +57,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
             width={scaleWithMax(15, 18)}
             height={scaleWithMax(15, 18)}
             color={theme.colors.PRIMARY}
+            style={{ transform: rtlTransform(isRtl) }}
           />
         </View>
       </View>

@@ -36,7 +36,7 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
         style={[
           styles.languageContainer,
           {
-            right: langState === 'en' ? 0 : undefined,
+            justifyContent: langState === 'en' ? 'flex-end' : 'flex-start',
             transform: [{ translateX: 0 }],
           },
         ]}

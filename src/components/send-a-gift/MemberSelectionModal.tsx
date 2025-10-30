@@ -22,7 +22,7 @@ import fonts from '../../assets/fonts';
 import api from '../../utils/api';
 import apiEndpoints from '../../constants/api-endpoints';
 import { useNavigation } from '@react-navigation/native';
-import { isIOSThen, scaleWithMax } from '../../utils';
+import { isIOSThen, scaleWithMax, rtlTextAlign } from '../../utils';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 
@@ -63,7 +63,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   existingGroupImage,
 }) => {
   const { styles } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const [modalAnimation] = useState(new Animated.Value(0));
   const [modalStep, setModalStep] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
@@ -468,12 +468,12 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   }
                   subTitle={
                     viewOnly
-                      ? `${allUsers.length} members`
+                      ? `${allUsers.length} ${getString('NG_MEMBERS')}`
                       : `${selectedUsers.size}/${allUsers.length}`
                   }
                   rightSideTitle={viewOnly ? '' : getString('NG_NEXT')}
                   showSearchBar={true}
-                  searchPlaceholder="Search"
+                  searchPlaceholder={getString('STG_SEARCH')}
                   searchValue={searchQuery}
                   onSearchChange={setSearchQuery}
                   leftSideTitlePress={closeModal}
@@ -533,7 +533,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       </TouchableOpacity>
                       <TextInput
                         allowFontScaling={false}
-                        style={styles.groupNameInput}
+                        style={[
+                          styles.groupNameInput,
+                          { textAlign: rtlTextAlign(isRtl) },
+                        ]}
                         placeholder={getString('NG_ENTER_GROUP_NAME')}
                         placeholderTextColor={theme.colors.SECONDARY_GRAY}
                         value={groupName}

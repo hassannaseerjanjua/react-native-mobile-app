@@ -5,6 +5,7 @@ import { SvgImageIcon, SvgSearchIcon } from '../../assets/icons';
 import fonts from '../../assets/fonts';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Text } from '../../utils/elements';
+import { rtlTextAlign } from '../../utils';
 
 interface BottomSheetHeaderProps {
   title?: string;
@@ -34,7 +35,7 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
   isGroup,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const defaultSearchPlaceholder =
     searchPlaceholder || getString('HOME_SEARCH');
 
@@ -74,7 +75,7 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
           {/* <SvgSearchIcon width={20} height={20} /> */}
           <TextInput
             allowFontScaling={false}
-            style={styles.searchInput}
+            style={[styles.searchInput, { textAlign: rtlTextAlign(isRtl) }]}
             placeholder={defaultSearchPlaceholder}
             placeholderTextColor="#A0A0A0EE"
             value={searchValue}

@@ -32,10 +32,13 @@ const useStyles = () => {
         paddingBottom: 10,
       },
       languageContainer: {
-        position: 'absolute',
-        top: sizes.PADDING * 0.5,
+        // position: 'absolute',
+        // top: sizes.PADDING * 0.5,
         // end: 0,
-
+        display: 'flex',
+        flexDirection: 'row',
+        justifyContent: 'flex-end',
+        alignItems: 'center',
         zIndex: 1,
       },
     });
