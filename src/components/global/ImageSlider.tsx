@@ -142,7 +142,7 @@ const useStyles = () => {
             ? theme.sizes.HEIGHT * 0.382
             : isBaseModel
             ? theme.sizes.HEIGHT * 0.355
-            : theme.sizes.HEIGHT * 0.35,
+            : theme.sizes.HEIGHT * 0.36,
           marginTop: theme.sizes.PADDING * 0.6,
         },
         scrollView: {

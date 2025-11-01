@@ -1,4 +1,10 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, {
+  useState,
+  useMemo,
+  useEffect,
+  useCallback,
+  useRef,
+} from 'react';
 import {
   View,
   Modal,
@@ -11,6 +17,8 @@ import {
   TextInput,
   Platform,
   StatusBar,
+  Keyboard,
+  Dimensions,
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import BottomSheetHeader from '../app/BottomSheetHeader';
@@ -84,6 +92,9 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   );
 
   const [groupError, setGroupError] = useState('');
+  const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const textInputRef = useRef<TextInput>(null);
 
   const theme = useTheme();
   const navigation = useNavigation();
@@ -329,6 +340,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           paddingBottom: theme.sizes.HEIGHT * 0.02,
         }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
       >
         {filteredListings.length > 0 ? (
           filteredListings.map((listing, listingIndex) => (
@@ -431,6 +443,56 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     }
   }, [visible]);
 
+  // Handle keyboard events for Android
+  useEffect(() => {
+    if (Platform.OS !== 'android' || !visible) {
+      return;
+    }
+
+    const keyboardWillShowListener = Keyboard.addListener(
+      'keyboardDidShow',
+      e => {
+        setKeyboardHeight(e.endCoordinates.height);
+      },
+    );
+    const keyboardWillHideListener = Keyboard.addListener(
+      'keyboardDidHide',
+      () => {
+        setKeyboardHeight(0);
+      },
+    );
+
+    return () => {
+      keyboardWillShowListener.remove();
+      keyboardWillHideListener.remove();
+    };
+  }, [visible, modalStep]);
+
+  // Get screen dimensions for Android to prevent modal shift
+  const screenDimensions = useMemo(() => {
+    return Dimensions.get('screen');
+  }, []);
+
+  // Use screen dimensions (which don't change with keyboard) for Android to prevent shift
+  const modalContainerStyle = useMemo(() => {
+    if (Platform.OS === 'android') {
+      const screenHeight = screenDimensions.height;
+      const statusBarOffset =
+        (StatusBar.currentHeight || 0) + scaleWithMax(3, 5);
+      const modalHeight = screenHeight - statusBarOffset;
+      return [
+        styles.modalContainer,
+        {
+          height: modalHeight,
+          // Use explicit top positioning instead of bottom: 0 to prevent shift
+          bottom: undefined,
+          top: statusBarOffset,
+        },
+      ];
+    }
+    return styles.modalContainer;
+  }, [screenDimensions, styles.modalContainer]);
+
   return (
     <Modal
       visible={visible}
@@ -438,16 +500,29 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       animationType="none"
       onRequestClose={closeModal}
     >
-      <View style={styles.modalOverlay}>
+      <View
+        style={[
+          styles.modalOverlay,
+          Platform.OS === 'android' && {
+            height: screenDimensions.height,
+            width: screenDimensions.width,
+          },
+        ]}
+      >
         <Animated.View
           style={[
-            styles.modalContainer,
+            modalContainerStyle,
             {
               transform: [
                 {
                   translateY: modalAnimation.interpolate({
                     inputRange: [0, 1],
-                    outputRange: [theme.sizes.HEIGHT, 0],
+                    outputRange: [
+                      Platform.OS === 'android'
+                        ? screenDimensions.height
+                        : theme.sizes.HEIGHT,
+                      0,
+                    ],
                   }),
                 },
               ],
@@ -501,12 +576,18 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   rightSideTitlePress={handleSave}
                 />
                 <ScrollView
+                  ref={scrollViewRef}
                   style={{ flex: 1 }}
                   contentContainerStyle={{
                     paddingHorizontal: theme.sizes.PADDING,
-                    paddingBottom: theme.sizes.HEIGHT * 0.02,
+                    paddingBottom:
+                      theme.sizes.HEIGHT * 0.02 +
+                      (Platform.OS === 'android' && keyboardHeight > 0
+                        ? keyboardHeight
+                        : 0),
                   }}
                   showsVerticalScrollIndicator={false}
+                  keyboardShouldPersistTaps="handled"
                 >
                   <View style={styles.step2Container}>
                     <View
@@ -532,6 +613,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                         )}
                       </TouchableOpacity>
                       <TextInput
+                        ref={textInputRef}
                         allowFontScaling={false}
                         style={[
                           styles.groupNameInput,
@@ -543,6 +625,16 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                         onChangeText={text => {
                           setGroupName(text);
                           if (groupError) setGroupError('');
+                        }}
+                        onFocus={() => {
+                          if (Platform.OS === 'android') {
+                            setTimeout(() => {
+                              scrollViewRef.current?.scrollTo({
+                                y: 100,
+                                animated: true,
+                              });
+                            }, 300);
+                          }
                         }}
                       />
                     </View>
