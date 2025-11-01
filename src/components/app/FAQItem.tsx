@@ -11,7 +11,8 @@ import { Text } from '../../utils/elements';
 import { FAQ } from '../../types';
 import { SvgNextIcon } from '../../assets/icons';
 import useTheme from '../../styles/theme';
-import { scaleWithMax } from '../../utils';
+import { scaleWithMax, rtlTransform } from '../../utils';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface FAQItemProps {
   item: FAQ;
@@ -27,6 +28,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
   textStyle,
 }) => {
   const { styles, theme } = useStyles();
+  const { isRtl } = useLocaleStore();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const handlePress = () => {
@@ -51,7 +53,15 @@ const FAQItem: React.FC<FAQItemProps> = ({
           </Text>
         </View>
         <SvgNextIcon
-          style={[styles.arrowIcon, isExpanded && styles.arrowIconRotated]}
+          style={[
+            styles.arrowIcon,
+            {
+              transform: [
+                ...rtlTransform(isRtl),
+                ...(isExpanded ? [{ rotate: isRtl ? '-90deg' : '90deg' }] : []),
+              ],
+            },
+          ]}
         />
       </TouchableOpacity>
 
@@ -103,10 +113,7 @@ const useStyles = () => {
         flexShrink: 1,
       },
       arrowIcon: {
-        // transform: [{ rotate: '90deg' }],
-      },
-      arrowIconRotated: {
-        transform: [{ rotate: '90deg' }],
+        // Base arrow icon - RTL and rotation handled inline
       },
       answerContainer: {
         marginHorizontal: theme.sizes.PADDING,

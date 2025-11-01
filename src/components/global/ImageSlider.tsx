@@ -131,7 +131,6 @@ const useStyles = () => {
   const theme = useTheme();
   const isProMax = theme.sizes.WIDTH > 430 && isIOS;
   const isBaseModel = theme.sizes.WIDTH < 430 && isIOS;
-  console.log('isProMax', isProMax);
   const styles = useMemo(
     () =>
       StyleSheet.create({

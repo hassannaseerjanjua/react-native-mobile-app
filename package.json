@@ -6,6 +6,7 @@
     "upload-android": "node scripts/upload-android.js",
     "upload-ios": "bash scripts/upload-ios.sh",
     "android": "react-native run-android",
+    "android-release": "react-native run-android --variant=release",
     "ios": "react-native run-ios",
     "start": "react-native start"
   },

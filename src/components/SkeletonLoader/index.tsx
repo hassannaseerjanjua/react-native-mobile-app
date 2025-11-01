@@ -4,7 +4,8 @@ import { View, Dimensions } from 'react-native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { SvgNextIcon } from '../../assets/icons';
 import { useLocaleStore } from '../../store/reducer/locale';
-import { rtlTransform } from '../../utils';
+import { rtlTransform, isIOS } from '../../utils';
+import useTheme from '../../styles/theme';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -26,6 +27,23 @@ type SkeletonLoaderProps = {
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
   const { isRtl } = useLocaleStore();
+  const theme = useTheme();
+
+  // Calculate slider height same as ImageSlider component
+  const getSliderHeight = () => {
+    if (screenType === 'home') {
+      const isProMax = theme.sizes.WIDTH > 430 && isIOS;
+      const isBaseModel = theme.sizes.WIDTH < 430 && isIOS;
+      if (isProMax) {
+        return theme.sizes.HEIGHT * 0.382;
+      } else if (isBaseModel) {
+        return theme.sizes.HEIGHT * 0.355;
+      } else {
+        return theme.sizes.HEIGHT * 0.35;
+      }
+    }
+    return screenHeight * 0.34; // fallback for other screens
+  };
 
   const renderContent = () => {
     switch (screenType) {
@@ -44,7 +62,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               {/* Hero Image Slider */}
               <SkeletonPlaceholder.Item
                 width={screenWidth * 0.92}
-                height={screenHeight * 0.34}
+                height={getSliderHeight()}
                 borderRadius={12}
                 marginTop={screenHeight * 0.01}
               />
@@ -66,12 +84,12 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               >
                 <SkeletonPlaceholder.Item
                   width={screenWidth * 0.45}
-                  height={screenHeight * 0.12}
+                  height={screenHeight * 0.1}
                   borderRadius={screenWidth * 0.02}
                 />
                 <SkeletonPlaceholder.Item
                   width={screenWidth * 0.45}
-                  height={screenHeight * 0.12}
+                  height={screenHeight * 0.1}
                   borderRadius={screenWidth * 0.02}
                 />
               </SkeletonPlaceholder.Item>
@@ -84,7 +102,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               >
                 <SkeletonPlaceholder.Item
                   width={screenWidth * 0.92}
-                  height={screenHeight * 0.12}
+                  height={screenHeight * 0.1}
                   borderRadius={screenWidth * 0.02}
                 />
               </SkeletonPlaceholder.Item>
@@ -96,12 +114,12 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               >
                 <SkeletonPlaceholder.Item
                   width={screenWidth * 0.45}
-                  height={screenHeight * 0.12}
+                  height={screenHeight * 0.1}
                   borderRadius={screenWidth * 0.02}
                 />
                 <SkeletonPlaceholder.Item
                   width={screenWidth * 0.45}
-                  height={screenHeight * 0.12}
+                  height={screenHeight * 0.1}
                   borderRadius={screenWidth * 0.02}
                 />
               </SkeletonPlaceholder.Item>

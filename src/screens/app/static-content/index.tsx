@@ -13,12 +13,13 @@ import { AppStackScreen } from '../../../types/navigation.types';
 import { StaticContent } from '../../../types';
 import RenderHTML from 'react-native-render-html';
 import { useSizes } from '../../../styles/sizes';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface StaticProps extends AppStackScreen<'StaticContent'> {}
 
 const StaticConent: React.FC<StaticProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
-
+  const { langId } = useLocaleStore();
   const { code, title } = route.params;
 
   const getStaticContent = useGetApi<StaticContent>(
@@ -28,10 +29,13 @@ const StaticConent: React.FC<StaticProps> = ({ navigation, route }) => {
     },
   );
 
-  console.log('StaticContentResponse', getStaticContent?.data?.ContentEn);
+  // console.log('StaticContentResponse', getStaticContent?.data?.ContentEn);
 
   const source = {
-    html: getStaticContent?.data?.ContentEn || '<p>No content</p>',
+    html:
+      langId === 1
+        ? getStaticContent?.data?.ContentEn || '<p>No content</p>'
+        : getStaticContent?.data?.ContentAr || '<p>No content</p>',
   };
 
   const sizes = useSizes();
