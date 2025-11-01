@@ -4,23 +4,21 @@ import { isAndroid } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
-
+  const { sizes } = theme;
   return {
     styles: StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
+        paddingHorizontal: 0,
       },
       content: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 20,
+        // flex: 1,
+        paddingHorizontal: sizes.PADDING,
+        paddingTop: sizes.HEIGHT * 0.01,
       },
-      title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: theme.colors.PRIMARY_TEXT,
-        textAlign: 'center',
+      NotificationItem: {
+        height: sizes.HEIGHT * 0.092,
+        marginBottom: sizes.HEIGHT * 0.024,
       },
     }),
     theme,

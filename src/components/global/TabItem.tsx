@@ -57,7 +57,14 @@ const TabItem = ({
     >
       <View style={styles.contentContainer}>
         {isGroupImage ? (
-          <Image source={{ uri: isGroupImage }} style={styles.groupImage} />
+          <Image
+            source={
+              typeof isGroupImage === 'string'
+                ? { uri: isGroupImage }
+                : isGroupImage
+            }
+            style={styles.groupImage}
+          />
         ) : (
           isGroupImage === '' && <SvgGroup />
         )}

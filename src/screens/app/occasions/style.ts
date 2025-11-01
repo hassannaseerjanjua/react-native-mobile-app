@@ -4,23 +4,28 @@ import { isAndroid } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
-
+  const { sizes } = theme;
   return {
     styles: StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
+        paddingHorizontal: 0,
       },
       content: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: 20,
+        // flex: 1,
+        paddingHorizontal: sizes.PADDING,
+        paddingTop: sizes.HEIGHT * 0.01,
+        paddingBottom: sizes.HEIGHT * 0.12,
       },
-      title: {
-        fontSize: 24,
-        fontWeight: 'bold',
-        color: theme.colors.PRIMARY_TEXT,
-        textAlign: 'center',
+      TabItem: {
+        height: sizes.HEIGHT * 0.082,
+        marginBottom: sizes.HEIGHT * 0.024,
+      },
+      buttonContainer: {
+        position: 'absolute',
+        bottom: sizes.HEIGHT * 0.02,
+        left: sizes.PADDING,
+        right: sizes.PADDING,
       },
     }),
     theme,

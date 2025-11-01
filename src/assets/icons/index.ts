@@ -68,6 +68,7 @@ import SvgFindFriendsIcon from './no-friends.svg';
 import SvgSearchFindFriendsIcon from './search-find-friends.svg';
 import SvgEnglishIcon from './english-icon.svg';
 import SvgArabicIcon from './arabic-icon.svg';
+import SvgAddOccasion from './white-plus-icon.svg';
 
 export {
   SvgLogoBlue,
@@ -140,4 +141,5 @@ export {
   SvgSearchFindFriendsIcon,
   SvgEnglishIcon,
   SvgArabicIcon,
+  SvgAddOccasion,
 };

@@ -28,7 +28,6 @@ const HomeScreen: React.FC = () => {
   const navigation = useNavigation();
 
   const screenSize = useWindowDimensions();
-  const isBigScreen = screenSize.height > 820;
   const {
     data: sliderResponse,
     loading: sliderLoading,
@@ -51,9 +50,6 @@ const HomeScreen: React.FC = () => {
         }}
         showLogo={true}
         showSearch={true}
-        customContainerStyle={{
-          paddingTop: !isBigScreen ? theme.sizes.HEIGHT * 0.01 : 0,
-        }}
       />
       <View style={styles.mainContent}>
         {sliderLoading ? (

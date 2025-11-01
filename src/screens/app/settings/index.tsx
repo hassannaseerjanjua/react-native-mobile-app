@@ -1,6 +1,6 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { View, StatusBar, ScrollView, TouchableOpacity } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Formik } from 'formik';
 import useStyles from './style';
 import { Text } from '../../../utils/elements';
@@ -65,6 +65,21 @@ const SettingsScreen: React.FC = () => {
     option.label.toLowerCase().includes(areaSearch.toLowerCase()),
   );
   const [selectedOption, setSelectedOption] = useState<any>(null);
+
+  // Prevent navigation during shimmer loading
+  useFocusEffect(
+    React.useCallback(() => {
+      const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
+        if (shimmerLoading) {
+          // Prevent navigation during shimmer loading
+          e.preventDefault();
+          return;
+        }
+      });
+
+      return unsubscribe;
+    }, [navigation, shimmerLoading]),
+  );
 
   useEffect(() => {
     if (citiesApi.data && user?.CityId && !selectedOption) {
@@ -141,7 +156,11 @@ const SettingsScreen: React.FC = () => {
       <HomeHeader
         title={shimmerLoading ? '' : getString('S_SETTINGS')}
         showBackButton={!shimmerLoading}
-        onBackPress={() => navigation.goBack()}
+        onBackPress={() => {
+          if (!shimmerLoading) {
+            navigation.goBack();
+          }
+        }}
       />
 
       <ScrollView
