@@ -60,11 +60,7 @@ const InputField = ({
           style={[
             isMultiline ? styles.textarea : styles.input,
             {
-              ...rtlPadding(
-                isRtl,
-                isPhone || icon ? theme.sizes.PADDING : 0,
-                0,
-              ),
+              paddingStart: isPhone || icon ? theme.sizes.PADDING : 0,
               textAlign: rtlTextAlign(isRtl),
             },
             fieldProps.style,
@@ -163,7 +159,7 @@ const useStyles = () => {
         ...globalStyles.TEXT_STYLE,
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
-        marginLeft: 8,
+        marginStart: 8,
       },
     });
   }, [theme]);

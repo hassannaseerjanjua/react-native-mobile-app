@@ -12,6 +12,7 @@ import { useLocaleStore } from '../../store/reducer/locale';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
 import { Text } from '../../utils/elements';
+import { scaleWithMax } from '../../utils';
 
 interface SearchUserItemProps {
   item: ActiveUser;
@@ -120,7 +121,10 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
         >
           {isSelected && (
             <View style={styles.iconWrapper}>
-              <SvgSelectedCheck width={10} height={10} />
+              <SvgSelectedCheck
+                width={scaleWithMax(9, 10)}
+                height={scaleWithMax(9, 10)}
+              />
             </View>
           )}
         </TouchableOpacity>
@@ -215,9 +219,12 @@ const useStyles = () => {
       },
       iconWrapper: {
         position: 'absolute',
-        top: '50%',
-        left: '50%',
-        transform: [{ translateX: -5 }, { translateY: -5 }],
+        top: 0,
+        right: 0,
+        bottom: 0,
+        left: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
       },
     });
   }, [theme]);

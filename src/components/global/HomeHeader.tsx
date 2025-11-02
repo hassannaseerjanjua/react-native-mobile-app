@@ -248,6 +248,7 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.PRIMARY,
+        marginStart: 4,
       },
     });
   }, [theme]);

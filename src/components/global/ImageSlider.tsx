@@ -138,9 +138,9 @@ const useStyles = () => {
           position: 'relative',
           width: theme.sizes.PADDED_WIDTH,
           height: isProMax
-            ? theme.sizes.HEIGHT * 0.382
+            ? theme.sizes.HEIGHT * 0.387
             : isBaseModel
-            ? theme.sizes.HEIGHT * 0.355
+            ? theme.sizes.HEIGHT * 0.345
             : theme.sizes.HEIGHT * 0.36,
           marginTop: theme.sizes.PADDING * 0.6,
         },

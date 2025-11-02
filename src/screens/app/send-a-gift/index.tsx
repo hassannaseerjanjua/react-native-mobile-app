@@ -183,8 +183,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         </View>
         <ScrollView
           showsVerticalScrollIndicator={false}
-          style={styles.scrollableContent}
-          contentContainerStyle={styles.scrollableContentContainer}
+          style={styles.scrollableContentContainer}
+          contentContainerStyle={styles.scrollableContent}
         >
           <Text style={styles.sectionTitle}>{getString('SG_FRIENDS')}</Text>
           {isLoading ? (

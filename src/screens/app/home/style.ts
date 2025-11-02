@@ -14,11 +14,12 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         paddingHorizontal: 0,
+        backgroundColor: 'red',
       },
       mainContent: {
         flex: 1,
         paddingHorizontal: sizes.PADDING,
-        paddingBottom: sizes.HEIGHT * 0.02,
+        // paddingBottom: sizes.HEIGHT * 0.02,
       },
       contentContainer: {
         flex: 1,

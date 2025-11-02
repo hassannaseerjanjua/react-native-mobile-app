@@ -188,11 +188,11 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({ route }) => {
       </View>
 
       {Steps === 1 ? (
-        <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.content}>
           {isLoading ? (
             <SkeletonLoader screenType="storeCard" />
           ) : (
-            <View style={styles.favoritesContainer}>
+            <>
               {mockFavorites.map(item => (
                 <View style={styles.favoriteItemContainer} key={item.id}>
                   <FavoriteItemCard
@@ -202,9 +202,9 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({ route }) => {
                   />
                 </View>
               ))}
-            </View>
+            </>
           )}
-        </ScrollView>
+        </View>
       ) : isLoading ? (
         <SkeletonLoader screenType="productListing" />
       ) : (

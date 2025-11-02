@@ -61,17 +61,21 @@ const HomeScreen: React.FC = () => {
               {', '}
               <Text style={styles.userName}>{user?.FullNameEn}</Text>
             </Text>
-            <View style={styles.heroImage}>
-              <ImageSlider
+            <View
+              style={{ ...styles.heroImage, backgroundColor: 'blue', flex: 1 }}
+            >
+              {/* <ImageSlider
                 sliders={sliderResponse || undefined}
                 loading={sliderLoading}
                 error={sliderError}
-              />
+              /> */}
             </View>
-            <Text style={styles.sectionTitle}>
-              {getString('HOME_WHAT_ARE_YOU')}
-            </Text>
-            <HomeScreenTabsContainer />
+            <View style={{ flex: 1, backgroundColor: 'green' }}>
+              <Text style={styles.sectionTitle}>
+                {getString('HOME_WHAT_ARE_YOU')}
+              </Text>
+              <HomeScreenTabsContainer />
+            </View>
           </>
         )}
       </View>

@@ -83,7 +83,7 @@ const CustomButton = ({
         />
       ) : (
         <>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 5 }}>
+          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
             <View
               style={{
                 marginTop: 2,
@@ -104,6 +104,7 @@ const CustomButton = ({
                       ? theme.colors.RED
                       : theme.colors.PRIMARY,
                   fontSize: theme.sizes.FONTSIZE_BUTTON,
+                  marginStart: 5,
                 },
                 labelStyle,
               ]}
