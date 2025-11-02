@@ -141,8 +141,9 @@ const useStyles = () => {
             ? theme.sizes.HEIGHT * 0.387
             : isBaseModel
             ? theme.sizes.HEIGHT * 0.345
-            : theme.sizes.HEIGHT * 0.36,
+            : theme.sizes.HEIGHT * 0.345,
           marginTop: theme.sizes.PADDING * 0.6,
+          flex: 1,
         },
         scrollView: {
           flex: 1,
@@ -150,6 +151,7 @@ const useStyles = () => {
         slideContainer: {
           width: theme.sizes.PADDED_WIDTH,
           // height: theme.sizes.HEIGHT * 0.34,
+          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
           borderRadius: theme.sizes.BORDER_RADIUS_MID,

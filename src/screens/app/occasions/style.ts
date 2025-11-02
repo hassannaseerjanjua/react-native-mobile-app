@@ -27,6 +27,12 @@ const useStyles = () => {
         left: sizes.PADDING,
         right: sizes.PADDING,
       },
+      inputContainer: {
+        marginBottom: sizes.HEIGHT * 0.02,
+      },
+      button: {
+        marginTop: sizes.HEIGHT * 0.1,
+      },
     }),
     theme,
   };

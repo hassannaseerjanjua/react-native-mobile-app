@@ -14,7 +14,7 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         paddingHorizontal: 0,
-        backgroundColor: 'red',
+        // backgroundColor: 'red',
       },
       mainContent: {
         flex: 1,
@@ -37,6 +37,7 @@ const useStyles = () => {
       heroImage: {
         width: '100%',
         borderRadius: sizes.BORDER_RADIUS_MID,
+        flex: 1,
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.bold,
