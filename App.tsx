@@ -11,6 +11,7 @@ import { View } from 'react-native';
 import { Text } from './src/utils/elements';
 import { useLocaleStore } from './src/store/reducer/locale';
 import { I18nManager } from 'react-native';
+import { linking } from './src/navigators/deep-linking';
 
 const App = () => {
   return (
@@ -18,9 +19,11 @@ const App = () => {
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
           <DataWrapper>
-            <NavigationContainer>
+            <NavigationContainer
+              linking={linking}
+              fallback={<Text>Loading... Please wait...</Text>}
+            >
               <RootNavigator />
-              {/*  add toast here */}
             </NavigationContainer>
           </DataWrapper>
         </PersistGate>
