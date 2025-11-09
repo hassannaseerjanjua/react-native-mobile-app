@@ -2,6 +2,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 export type AppStackParamList = {
   BottomTabs: undefined;
+  ProductDetails: undefined;
   Search: {
     title?: string;
     showFriendsOnly?: boolean;
@@ -16,11 +17,14 @@ export type AppStackParamList = {
   Wallet: undefined;
   FAQ: undefined;
   Settings: undefined;
+  GiftMessage: undefined;
   ContactUs: undefined;
   Favorites: {
     redirectionType: 'home' | 'profile';
   };
   Occasions: undefined;
+  CheckOut: undefined;
+  AddCard: undefined;
   Notifications: undefined;
   Profile: undefined;
   Orders: undefined;
@@ -40,8 +44,16 @@ export type AuthStackParamList = {
   };
 };
 
+// export type RootStackParamList = {
+//   Auth: undefined;
+//   App: undefined;
+// };
+
 export type AppStackScreen<T extends keyof AppStackParamList> =
   NativeStackScreenProps<AppStackParamList, T>;
 
 export type AuthStackScreen<T extends keyof AuthStackParamList> =
   NativeStackScreenProps<AuthStackParamList, T>;
+
+// export type RootStackScreen<T extends keyof RootStackParamList> =
+//   NativeStackScreenProps<RootStackParamList, T>;

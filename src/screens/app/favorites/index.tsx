@@ -147,7 +147,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({ route }) => {
   };
 
   const handleProductPress = (item: any) => {
-    console.log('Navigate to product:', item.title);
+    navigation.navigate('ProductDetails' as never);
   };
 
   const handleBackPress = () => {

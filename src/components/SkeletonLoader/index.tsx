@@ -22,7 +22,8 @@ type SkeletonLoaderProps = {
     | 'productListing'
     | 'orderListing'
     | 'settings'
-    | 'landing';
+    | 'landing'
+    | 'productDetails';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -855,7 +856,98 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
             </SkeletonPlaceholder.Item>
           </SkeletonPlaceholder>
         );
+      case 'productDetails':
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item
+              flexDirection="row"
+              alignItems="flex-start"
+              paddingTop={screenHeight * 0.02}
+            >
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.35}
+                height={screenHeight * 0.024}
+                borderRadius={screenWidth * 0.01}
+                marginTop={screenHeight * 0.006}
+                marginBottom={screenHeight * 0.016}
+                marginRight={screenWidth * 0.35} // ✅ replace gap
+              />
 
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.2}
+                height={screenHeight * 0.024}
+                borderRadius={screenWidth * 0.01}
+                marginTop={screenHeight * 0.006}
+                marginBottom={screenHeight * 0.016}
+              />
+            </SkeletonPlaceholder.Item>
+            <SkeletonPlaceholder.Item
+              justifyContent="flex-end"
+              width={screenWidth * 0.35}
+              height={screenHeight * 0.018}
+              borderRadius={screenWidth * 0.01}
+              marginTop={screenHeight * 0.006}
+              marginLeft={'auto'}
+              marginBottom={screenHeight * 0.016}
+            />
+            <SkeletonPlaceholder.Item
+              width={screenWidth * 0.3}
+              height={screenHeight * 0.018}
+              borderRadius={screenWidth * 0.01}
+              marginTop={screenHeight * 0.006}
+              marginBottom={screenHeight * 0.016}
+            />
+            {[...Array(5)].map(() => (
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.85}
+                height={screenHeight * 0.01}
+                borderRadius={screenWidth * 0.01}
+                marginTop={screenHeight * 0.0008}
+                marginBottom={screenHeight * 0.01}
+              />
+            ))}
+            <SkeletonPlaceholder.Item
+              width={screenWidth * 0.35}
+              height={screenHeight * 0.024}
+              borderRadius={screenWidth * 0.01}
+              marginTop={screenHeight * 0.006}
+              marginBottom={screenHeight * 0.016}
+              marginRight={screenWidth * 0.35}
+            />
+            <SkeletonPlaceholder.Item
+              flexDirection="row"
+              alignItems="flex-start"
+              paddingTop={screenHeight * 0.009}
+            >
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.15}
+                height={screenHeight * 0.046}
+                borderRadius={screenWidth * 0.04}
+                marginTop={screenHeight * 0.006}
+                marginBottom={screenHeight * 0.016}
+                marginRight={screenWidth * 0.04} // ✅ replace gap
+              />
+
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.15}
+                height={screenHeight * 0.046}
+                borderRadius={screenWidth * 0.04}
+                marginTop={screenHeight * 0.006}
+                marginBottom={screenHeight * 0.016}
+                marginRight={screenWidth * 0.04} // ✅ replace gap
+              />
+
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.15}
+                height={screenHeight * 0.046}
+                borderRadius={screenWidth * 0.04}
+                marginTop={screenHeight * 0.006}
+                marginBottom={screenHeight * 0.016}
+                marginRight={screenWidth * 0.04} // ✅ replace gap
+              />
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
+        );
       default:
         return null;
     }

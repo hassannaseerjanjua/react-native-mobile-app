@@ -59,6 +59,7 @@ import SvgProfileWallet from './profile-wallet.svg';
 import SvgProfileCrossIcon from './profile-close.svg';
 import SvgProfileQrIcon from './profile-qrcode.svg';
 import SvgRiyalIcon from './riyal-icon.svg';
+import SvgRiyalIconWhite from './riyal-icon-white.svg';
 import SvgWalletGifteeIcon from './wallet-giftee-icon.svg';
 import SvgBirthdayIcon from './birthday-icon.svg';
 import SvgItemFavouriteIcon from './item-fav-heart.svg';
@@ -71,6 +72,14 @@ import SvgArabicIcon from './arabic-icon.svg';
 import SvgAddOccasion from './white-plus-icon.svg';
 import SvgCrownIcon from './crown.svg';
 import SvgDateIcon from './calendar.svg';
+import PlusIcon from './plus-sign.svg';
+import MinusIcon from './minus-sign.svg';
+import CameraIcon from './Camera.svg';
+import DecrementIcon from './decrement.svg';
+import GiftIcon from './gift.svg';
+import ArrowDownIcon from './arrow-down.svg';
+import VisaIcon from './visa.svg';
+import IncrementIcon from './increment.svg';
 
 export {
   SvgLogoBlue,
@@ -134,6 +143,7 @@ export {
   SvgProfileCrossIcon,
   SvgProfileQrIcon,
   SvgRiyalIcon,
+  SvgRiyalIconWhite,
   SvgWalletGifteeIcon,
   SvgBirthdayIcon,
   SvgItemFavouriteIcon,
@@ -146,4 +156,12 @@ export {
   SvgAddOccasion,
   SvgCrownIcon,
   SvgDateIcon,
+  PlusIcon,
+  MinusIcon,
+  CameraIcon,
+  DecrementIcon,
+  IncrementIcon,
+  GiftIcon,
+  ArrowDownIcon,
+  VisaIcon,
 };

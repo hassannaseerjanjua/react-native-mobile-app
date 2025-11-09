@@ -14,14 +14,23 @@ import FAQScreen from '../screens/app/faq/index.tsx';
 import SettingsScreen from '../screens/app/settings/index.tsx';
 import ContactUsScreen from '../screens/app/contact-us/index.tsx';
 import OrdersScreen from '../screens/app/orders/index.tsx';
-import { AppStackParamList } from '../types/navigation.types.ts';
+import {
+  AppStackParamList,
+  RootStackParamList,
+} from '../types/navigation.types.ts';
 
 // Navigators
 import AuthStackNavigator from './auth.navigator';
 import BottomTabNavigator from './bottom-tabs.navigator';
 import StaticConent from '../screens/app/static-content/index.tsx';
+import ProductDetails from '../screens/app/product-detail/index.tsx';
+import GiftMessage from '../screens/app/gift-message/index.tsx';
+import CheckOut from '../screens/app/checkout/index.tsx';
+import AddToCart from '../screens/app/add-card/index.tsx';
+import AddCart from '../screens/app/add-card/index.tsx';
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
+const RootStack = createNativeStackNavigator<RootStackParamList>();
 
 const AppStackNavigator = () => {
   return (
@@ -34,6 +43,11 @@ const AppStackNavigator = () => {
       <AppStack.Screen name="SendAGift" component={SendAGiftScreen} />
       <AppStack.Screen name="SendToGroup" component={SendToGroupScreen} />
       <AppStack.Screen name="Wallet" component={WalletScreen} />
+      <AppStack.Screen name="GiftMessage" component={GiftMessage} />
+      <AppStack.Screen name="CheckOut" component={CheckOut} />
+      <AppStack.Screen name="AddCard" component={AddCart} />
+
+      <AppStack.Screen name="ProductDetails" component={ProductDetails} />
       <AppStack.Screen name="FAQ" component={FAQScreen} />
       <AppStack.Screen name="Settings" component={SettingsScreen} />
       <AppStack.Screen name="ContactUs" component={ContactUsScreen} />
@@ -49,7 +63,15 @@ const RootNavigator = () => {
     (state: RootState) => state.auth.isAuthenticated,
   );
 
-  return isAuthenticated ? <AppStackNavigator /> : <AuthStackNavigator />;
+  return (
+    <RootStack.Navigator screenOptions={{ headerShown: false }}>
+      {isAuthenticated ? (
+        <RootStack.Screen name="App" component={AppStackNavigator} />
+      ) : (
+        <RootStack.Screen name="Auth" component={AuthStackNavigator} />
+      )}
+    </RootStack.Navigator>
+  );
 };
 
 export default RootNavigator;
