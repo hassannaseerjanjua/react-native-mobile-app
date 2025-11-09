@@ -17,6 +17,7 @@ interface FavoriteProductCardProps {
     coverImage: any;
     price: number;
     isFavorite: boolean;
+    description?: string;
   };
   onPress: (item: any) => void;
 }

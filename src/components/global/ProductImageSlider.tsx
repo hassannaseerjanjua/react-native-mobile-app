@@ -7,6 +7,8 @@ import {
   StyleSheet,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  ImageSourcePropType,
+  ViewStyle,
 } from 'react-native';
 import { Slider } from '../../types';
 import useTheme from '../../styles/theme';
@@ -15,15 +17,17 @@ import { SvgPlaceholderImage } from '../../assets/icons';
 import { isIOS, isIOSThen } from '../../utils';
 
 interface ImageSliderProps {
-  sliders?: string[] | undefined;
+  sliders?: ImageSourcePropType[] | undefined;
   loading?: boolean;
   error?: string | null;
+  contentContainerStyle?: ViewStyle;
 }
 
 const ProductImageSlider: React.FC<ImageSliderProps> = ({
   sliders = [],
   loading,
   error,
+  contentContainerStyle,
 }) => {
   const { styles, theme } = useStyles();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -83,7 +87,7 @@ const ProductImageSlider: React.FC<ImageSliderProps> = ({
   }
 
   return (
-    <View style={[styles.container]}>
+    <View style={[styles.container, contentContainerStyle]}>
       <ScrollView
         ref={scrollViewRef}
         horizontal
@@ -95,11 +99,7 @@ const ProductImageSlider: React.FC<ImageSliderProps> = ({
       >
         {sliders?.map((slider, index) => (
           <View key={index} style={styles.slideContainer}>
-            <Image
-              source={slider as any}
-              style={[styles.image]}
-              resizeMode="cover"
-            />
+            <Image source={slider} style={styles.image} resizeMode="cover" />
           </View>
         ))}
       </ScrollView>
@@ -129,11 +129,11 @@ const useStyles = () => {
         },
         slideContainer: {
           width: theme.sizes.WIDTH,
-          // height: theme.sizes.HEIGHT * 0.34,
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          borderBottomEndRadius: theme.sizes.BORDER_RADIUS_MID,
+          borderBottomEndRadius: theme.sizes.BORDER_RADIUS_HIGH,
+          borderBottomStartRadius: theme.sizes.BORDER_RADIUS_HIGH,
           overflow: 'hidden',
         },
         image: {

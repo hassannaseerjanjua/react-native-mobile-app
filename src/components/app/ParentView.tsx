@@ -1,21 +1,23 @@
-import { View, Text, ViewStyle } from 'react-native';
+import { ViewStyle } from 'react-native';
 import React from 'react';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { Edge, SafeAreaView } from 'react-native-safe-area-context';
 import useTheme from '../../styles/theme';
 
 interface ParentViewProps {
   children: React.ReactNode | React.ReactNode[];
   style?: ViewStyle;
+  edges?: Edge[];
 }
 
-const ParentView = ({ children, style }: ParentViewProps) => {
+const ParentView = ({ children, style, edges }: ParentViewProps) => {
   const theme = useTheme();
   return (
-    <View
-      style={{ flex: 1, backgroundColor: theme.colors.BACKGROUND, ...style }}
+    <SafeAreaView
+      style={[{ flex: 1, backgroundColor: theme.colors.BACKGROUND }, style]}
+      edges={edges}
     >
-      <SafeAreaView style={{ flex: 1 }}>{children}</SafeAreaView>
-    </View>
+      {children}
+    </SafeAreaView>
   );
 };
 

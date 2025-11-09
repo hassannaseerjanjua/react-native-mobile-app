@@ -7,9 +7,15 @@ const useStyles = () => {
   const { sizes } = theme;
   return {
     styles: StyleSheet.create({
+      scrollContent: {
+        paddingHorizontal: 0,
+        paddingBottom: sizes.HEIGHT * 0.13,
+        paddingTop: sizes.HEIGHT * 0.015,
+        gap: sizes.HEIGHT * 0.012,
+      },
       heading: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-        fontSize: sizes.FONTSIZE_LESS_HIGH,
+        fontSize: sizes.FONTSIZE_BUTTON,
         color: theme.colors.BLACK,
       },
       CartContainer: {
@@ -17,9 +23,11 @@ const useStyles = () => {
         alignItems: 'center',
         backgroundColor: theme.colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS,
-        marginVertical: sizes.PADDING * 0.6,
-        padding: sizes.PADDING,
+        marginTop: sizes.HEIGHT * 0.006,
+        paddingVertical: sizes.PADDING * 0.55,
+        paddingHorizontal: sizes.PADDING * 0.75,
         gap: sizes.WIDTH * 0.03,
+        ...theme.globalStyles.SHADOW_STYLE_LOW,
       },
       GiftContainer: {
         flexDirection: 'row',
@@ -28,9 +36,10 @@ const useStyles = () => {
         backgroundColor: theme.colors.WHITE,
         // backgroundColor: theme.colors.RED,
         borderRadius: sizes.BORDER_RADIUS,
-        marginVertical: sizes.PADDING,
-        padding: sizes.PADDING,
+        paddingVertical: sizes.PADDING * 0.5,
+        paddingHorizontal: sizes.PADDING * 0.75,
         gap: sizes.WIDTH * 0.03,
+        ...theme.globalStyles.SHADOW_STYLE_LOW,
       },
 
       CartProductImage: {
@@ -47,9 +56,8 @@ const useStyles = () => {
       },
       TextSmall: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-
-        fontSize: sizes.FONTSIZE,
-        color: theme.colors.BLACK,
+        fontSize: sizes.FONTSIZE_SMALL,
+        color: theme.colors.SECONDARY_TEXT,
       },
       TextMedium: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
@@ -92,15 +100,65 @@ const useStyles = () => {
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
-        borderBottomColor: theme.colors.BORDER_COLOR,
-        borderBottomWidth: 1,
-        paddingVertical: sizes.PADDING * 0.6,
+        borderBottomColor: theme.colors.SECONDARY_GRAY,
+        borderBottomWidth: 0.6,
+        paddingVertical: sizes.PADDING * 0.36,
       },
       CartPrice: {},
       checkoutCompletedContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
+      },
+      cartTitle: {
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: sizes.FONTSIZE_MED_HIGH,
+        color: theme.colors.BLACK,
+      },
+      quantityControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: sizes.WIDTH * 0.02,
+      },
+      quantityValue: {
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: theme.colors.BLACK,
+        minWidth: scaleWithMax(20, 22),
+        textAlign: 'center',
+      },
+      vatNote: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        textAlign: 'center',
+        paddingVertical: sizes.PADDING * 0.6,
+        fontSize: sizes.FONTSIZE_SMALL,
+        color: theme.colors.SECONDARY_TEXT,
+      },
+      footerContainer: {
+        position: 'absolute',
+        bottom: sizes.HEIGHT * 0.024,
+        left: 0,
+        right: 0,
+        paddingHorizontal: sizes.PADDING,
+      },
+      footerPriceWrapper: {
+        position: 'absolute',
+        top: sizes.HEIGHT * 0.016,
+        right: sizes.WIDTH * 0.03,
+      },
+      sectionHeaderRow: {
+        flexDirection: 'row',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+      },
+      addCardAction: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        color: theme.colors.PRIMARY,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+      },
+      section: {
+        marginHorizontal: sizes.PADDING,
+        gap: sizes.HEIGHT * 0.008,
       },
     }),
     theme,

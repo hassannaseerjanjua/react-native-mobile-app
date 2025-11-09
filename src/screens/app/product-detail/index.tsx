@@ -1,19 +1,12 @@
 import {
-  Dimensions,
-  Image,
   ScrollView,
   StatusBar,
-  StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import useStyles from './style';
-import HomeHeader from '../../../components/global/HomeHeader';
-import { useLocaleStore } from '../../../store/reducer/locale';
-import { useNavigation } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import {
   MinusIcon,
   PlusIcon,
@@ -23,23 +16,38 @@ import {
   SvgRiyalIcon,
 } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
-import useTheme from '../../../styles/theme';
 import ProductImageSlider from '../../../components/global/ProductImageSlider';
 import { GroupTabs } from '../../../components/send-a-gift';
 import CustomButton from '../../../components/global/Custombutton';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import { AppStackScreen } from '../../../types/navigation.types';
+import ParentView from '../../../components/app/ParentView';
 
-const ProductDetails: React.FC = () => {
+const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
+  route,
+  navigation,
+}) => {
   const { styles, theme } = useStyles();
-  const { height: screenHeight, width: screenWidth } = Dimensions.get('window');
+  const defaultProduct = useMemo(
+    () => ({
+      id: '0',
+      title: 'Gift Item',
+      subtitle: 'Premium selection',
+      coverImage: require('../../../assets/images/dummy1.png'),
+      price: 0,
+      isFavorite: false,
+      description:
+        'Details for this product are loading. Please check back in a moment.',
+    }),
+    [],
+  );
 
-  const { getString } = useLocaleStore();
-  const { sizes } = useTheme();
+  const product = route?.params?.product ?? defaultProduct;
+  const { sizes } = theme;
   const [selectedFilter, setSelectedFilter] = useState<string>('large');
   const [quantity, setQuantity] = useState<number>(1);
   const [loading, setLoading] = useState(false);
-  const dummyImage = require('../../../assets/images/bouquet.png');
-  const navigation = useNavigation();
+  const [isFavorite, setIsFavorite] = useState<boolean>(product.isFavorite);
   const filterOptions = [
     { id: 'large', title: 'Large' },
     { id: 'medium', title: 'Medium' },
@@ -54,22 +62,33 @@ const ProductDetails: React.FC = () => {
       }
     }
   };
+  const productImages = useMemo(() => {
+    const imageSource = product.coverImage;
+    if (Array.isArray(imageSource)) {
+      return imageSource;
+    }
+    return [imageSource];
+  }, [product.coverImage]);
+
   return (
-    <View style={{ flex: 1 }}>
+    <ParentView edges={['bottom']}>
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="light-content"
       />
-      <ProductImageSlider
-        loading={loading}
-        sliders={[dummyImage, dummyImage, dummyImage]}
-      />
+      <View style={styles.sliderWrapper}>
+        <ProductImageSlider
+          loading={loading}
+          sliders={productImages}
+          contentContainerStyle={styles.sliderContent}
+        />
+      </View>
       <View
         style={{
           ...styles.spaceBetween,
           position: 'absolute',
           paddingHorizontal: sizes.PADDING,
-          top: 40,
+          top: sizes.HEIGHT * 0.05,
           zIndex: 10,
           width: '100%',
         }}
@@ -80,17 +99,27 @@ const ProductDetails: React.FC = () => {
         >
           <SvgBackIcon
             style={{
-              width: scaleWithMax(20, 25),
-              height: scaleWithMax(20, 25),
+              width: scaleWithMax(15, 18),
+              height: scaleWithMax(15, 18),
             }}
           />
         </TouchableOpacity>
-        <View style={styles.rounded_white_background}>
-          <SvgItemFavouriteIconInActive
-            width={scaleWithMax(14, 16)}
-            height={scaleWithMax(14, 16)}
-          />
-        </View>
+        <TouchableOpacity
+          style={styles.rounded_white_background}
+          onPress={() => setIsFavorite(prev => !prev)}
+        >
+          {isFavorite ? (
+            <SvgItemFavouriteIcon
+              width={scaleWithMax(14, 16)}
+              height={scaleWithMax(14, 16)}
+            />
+          ) : (
+            <SvgItemFavouriteIconInActive
+              width={scaleWithMax(14, 16)}
+              height={scaleWithMax(14, 16)}
+            />
+          )}
+        </TouchableOpacity>
       </View>
       {loading ? (
         <View style={{}}>
@@ -109,13 +138,12 @@ const ProductDetails: React.FC = () => {
       ) : (
         <ScrollView
           style={{ ...styles.container, marginBottom: sizes.HEIGHT * 0.025 }}
+          contentContainerStyle={styles.scrollViewContent}
         >
           <View style={styles.LowerContainer}>
             <View style={styles.ProductTitleContainer}>
-              <View style={styles.spaceBetween}>
-                <View>
-                  <Text style={styles.ProductTitle}>Flower Bouquet</Text>
-                </View>
+              <View style={styles.titleRow}>
+                <Text style={styles.ProductTitle}>{product.title}</Text>
                 <View style={styles.priceContainer}>
                   <SvgRiyalIcon
                     width={scaleWithMax(15, 18)}
@@ -124,24 +152,18 @@ const ProductDetails: React.FC = () => {
                       marginTop: 3.5,
                     }}
                   />
-                  <Text style={styles.price}>499</Text>
+                  <Text style={styles.price}>{product.price}</Text>
                 </View>
               </View>
-              <View style={{ alignItems: 'flex-end' }}>
-                <Text style={styles.TaxIncludeText}>All Price Include tax</Text>
-              </View>
+              {/* <Text style={styles.SubTitle}>{product.subtitle}</Text> */}
+              <Text style={styles.TaxIncludeText}>All Price Include tax</Text>
             </View>
 
             <View style={styles.ProductDescriptionContainer}>
               <Text style={styles.Heading}>Description</Text>
-              <Text style={styles.Description}>
-                is simply dummy text of the printing and typesetting industry.
-                Lorem Ipsum has been the industry's standard dummy text ever
-                since the 1500s, when an unknown printer took a galley of type
-                and scrambled it to make a type specimen book.
-              </Text>
+              <Text style={styles.Description}>{product.description}</Text>
             </View>
-            <Text style={styles.Heading}>Varients</Text>
+            <Text style={styles.Heading}>Variants</Text>
           </View>
           <View style={styles.tabsContainer}>
             <GroupTabs
@@ -194,10 +216,8 @@ const ProductDetails: React.FC = () => {
           />
         </View>
       </View>
-    </View>
+    </ParentView>
   );
 };
 
 export default ProductDetails;
-
-const styles = StyleSheet.create({});

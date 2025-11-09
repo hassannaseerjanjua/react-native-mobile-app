@@ -1,8 +1,21 @@
+import { ImageSourcePropType } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+
+export interface ProductDetailsParam {
+  product: {
+    id: string;
+    title: string;
+    subtitle: string;
+    coverImage: ImageSourcePropType;
+    price: number;
+    isFavorite: boolean;
+    description?: string;
+  };
+}
 
 export type AppStackParamList = {
   BottomTabs: undefined;
-  ProductDetails: undefined;
+  ProductDetails: ProductDetailsParam;
   Search: {
     title?: string;
     showFriendsOnly?: boolean;

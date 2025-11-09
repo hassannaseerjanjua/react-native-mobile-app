@@ -7,6 +7,7 @@ const defaultColors = {
   PRIMARY_TEXT: '#313131',
   SECONDARY: '#DBEDFD',
   SECONDARY_TEXT: '#A0A0A0',
+  BORDER_COLOR: '#ECECEC',
   RED: '#FF0000',
   BLACK: 'black',
   WHITE: 'white',

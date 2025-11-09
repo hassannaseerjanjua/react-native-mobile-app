@@ -19,6 +19,7 @@ const getSizes = (width: number, height: number) => ({
   FONTSIZE_BUTTON: scaleWithMax(14, 15),
   FONTSIZE: scaleWithMax(13, 14),
   FONTSIZE_HIGH: scaleWithMax(19, 21),
+  FONT_SIZE_EXTRA_HIGH: scaleWithMax(22, 24),
   FONTSIZE_LESS_HIGH: scaleWithMax(16, 17),
   FONTSIZE_SMALL: scaleWithMax(9, 10),
   FONTSIZE_MEDIUM: scaleWithMax(11, 12),

@@ -15,7 +15,7 @@ const useStyles = () => {
       },
       label: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-        fontSize: sizes.FONTSIZE,
+        fontSize: sizes.FONTSIZE_MEDIUM,
         paddingVertical: sizes.PADDING * 0.5,
         paddingHorizontal: sizes.PADDING * 0.3,
       },

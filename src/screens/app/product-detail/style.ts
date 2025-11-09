@@ -23,11 +23,27 @@ const useStyles = () => {
         height: scaleWithMax(25, 30),
         alignItems: 'center',
         justifyContent: 'center',
+        shadowColor: '#00000020',
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 2 },
+        elevation: 4,
       },
       ProductImage: {
         width: '100%',
         height: 300,
         position: 'relative',
+      },
+      scrollViewContent: {
+        paddingBottom: sizes.HEIGHT * 0.14,
+      },
+      sliderWrapper: {
+        paddingHorizontal: 0,
+        backgroundColor: theme.colors.BACKGROUND,
+      },
+      sliderContent: {
+        justifyContent: 'center',
+        alignItems: 'center',
       },
       spaceBetween: {
         flexDirection: 'row',
@@ -56,8 +72,21 @@ const useStyles = () => {
       },
       ProductTitle: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-        fontSize: sizes.FONTSIZE_HIGH,
+        fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.BLACK,
+        lineHeight: sizes.FONTSIZE_MED_HIGH * 1.3,
+        flex: 1,
+      },
+      SubTitle: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: colors.SECONDARY_TEXT,
+        // marginTop: sizes.HEIGHT * 0.004,
+      },
+      titleRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: sizes.WIDTH * 0.03,
       },
       priceContainer: {
         flexDirection: 'row',
@@ -69,38 +98,43 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.SECONDARY_TEXT,
         // paddingHorizontal: sizes.PADDING,
+        alignSelf: 'flex-end',
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         color: theme.colors.PRIMARY_TEXT,
-        fontSize: sizes.FONTSIZE_HIGH,
+        fontSize: sizes.FONTSIZE_LESS_HIGH,
       },
       ProductTitleContainer: {
         paddingVertical: sizes.HEIGHT * 0.015,
-        borderBottomColor: colors.BORDER_COLOR,
+        borderBottomColor: colors.SECONDARY_GRAY,
         borderBottomWidth: 1,
 
-        paddingBottom: sizes.HEIGHT * 0.02,
+        paddingBottom: sizes.HEIGHT * 0.016,
       },
 
       ProductDescriptionContainer: {
-        paddingVertical: sizes.HEIGHT * 0.015,
+        // paddingVertical: sizes.HEIGHT * 0.015,
 
-        paddingBottom: sizes.HEIGHT * 0.02,
+        paddingBottom: sizes.HEIGHT * 0.006,
+        // borderBottomColor: colors.SECONDARY_GRAY,
+        // borderBottomWidth: 1,
+        gap: sizes.HEIGHT * 0.01,
       },
       Heading: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-        fontSize: sizes.FONTSIZE_HIGH,
+        fontSize: sizes.FONTSIZE_MED_HIGH,
         color: theme.colors.BLACK,
       },
       Description: {
         ...theme.globalStyles.TEXT_STYLE,
-        fontSize: sizes.FONTSIZE_BUTTON,
+        fontSize: sizes.FONTSIZE_MEDIUM,
         color: theme.colors.BLACK,
+        // lineHeight: sizes.FONTSIZE_MEDIUM * 1.6,
       },
       tabsContainer: {
         marginVertical: sizes.HEIGHT * 0.02,
-        height: sizes.HEIGHT * 0.044,
+        height: sizes.HEIGHT * 0.04,
       },
 
       button: {
@@ -119,7 +153,6 @@ const useStyles = () => {
         alignItems: 'center',
         gap: sizes.WIDTH * 0.02,
         borderColor: colors.PRIMARY,
-        color: colors.PRIMARY,
         borderWidth: 1.3,
         width: sizes.WIDTH * 0.28,
         borderRadius: 10,
@@ -128,11 +161,12 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       QuantityText: {
-        fontSize: theme.sizes.FONT_SIZE_EXTRA_HIGH,
+        fontSize: sizes.FONTSIZE_MED_HIGH,
         color: theme.colors.PRIMARY,
       },
       LowerContainer: {
         marginHorizontal: sizes.PADDING,
+        gap: sizes.HEIGHT * 0.02,
       },
     });
   }, [theme]);
