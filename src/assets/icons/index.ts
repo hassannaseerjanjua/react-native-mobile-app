@@ -80,6 +80,13 @@ import GiftIcon from './gift.svg';
 import ArrowDownIcon from './arrow-down.svg';
 import VisaIcon from './visa.svg';
 import IncrementIcon from './increment.svg';
+import RoundedBackIcon from './rounded-back-icon.svg';
+import SmsTrackingIcon from './sms-tracking.svg';
+import DummyLocationSvg from './Dummy-Location.svg';
+import GiftPlacedSvg from './gift-placed.svg';
+import GiftSendSvg from './gift-send.svg';
+import DummyQrSvg from './dummy-qr.svg';
+import LocationArrowSvg from './location-Arrow.svg';
 
 export {
   SvgLogoBlue,
@@ -163,5 +170,12 @@ export {
   IncrementIcon,
   GiftIcon,
   ArrowDownIcon,
+  RoundedBackIcon,
   VisaIcon,
+  SmsTrackingIcon,
+  DummyLocationSvg,
+  GiftPlacedSvg,
+  GiftSendSvg,
+  DummyQrSvg,
+  LocationArrowSvg,
 };

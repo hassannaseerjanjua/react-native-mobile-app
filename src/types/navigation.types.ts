@@ -41,6 +41,10 @@ export type AppStackParamList = {
   Notifications: undefined;
   Profile: undefined;
   Orders: undefined;
+  LocationSelection: undefined;
+  ScanQr: undefined;
+  OutBox: undefined;
+  Inbox: undefined;
 };
 
 export type AuthStackParamList = {
@@ -57,10 +61,10 @@ export type AuthStackParamList = {
   };
 };
 
-// export type RootStackParamList = {
-//   Auth: undefined;
-//   App: undefined;
-// };
+export type RootStackParamList = {
+  Auth: undefined;
+  App: undefined;
+};
 
 export type AppStackScreen<T extends keyof AppStackParamList> =
   NativeStackScreenProps<AppStackParamList, T>;
@@ -68,5 +72,5 @@ export type AppStackScreen<T extends keyof AppStackParamList> =
 export type AuthStackScreen<T extends keyof AuthStackParamList> =
   NativeStackScreenProps<AuthStackParamList, T>;
 
-// export type RootStackScreen<T extends keyof RootStackParamList> =
-//   NativeStackScreenProps<RootStackParamList, T>;
+export type RootStackScreen<T extends keyof RootStackParamList> =
+  NativeStackScreenProps<RootStackParamList, T>;

@@ -28,6 +28,10 @@ import GiftMessage from '../screens/app/gift-message/index.tsx';
 import CheckOut from '../screens/app/checkout/index.tsx';
 import AddToCart from '../screens/app/add-card/index.tsx';
 import AddCart from '../screens/app/add-card/index.tsx';
+import OutBox from '../screens/app/outbox/index.tsx';
+import Inbox from '../screens/app/inbox/index.tsx';
+import LocationSelection from '../screens/app/location-selection/index.tsx';
+import ScanQr from '../screens/app/scan-qr/index.tsx';
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -46,6 +50,10 @@ const AppStackNavigator = () => {
       <AppStack.Screen name="GiftMessage" component={GiftMessage} />
       <AppStack.Screen name="CheckOut" component={CheckOut} />
       <AppStack.Screen name="AddCard" component={AddCart} />
+      <AppStack.Screen name="OutBox" component={OutBox} />
+      <AppStack.Screen name="Inbox" component={Inbox} />
+      <AppStack.Screen name="LocationSelection" component={LocationSelection} />
+      <AppStack.Screen name="ScanQr" component={ScanQr} />
 
       <AppStack.Screen name="ProductDetails" component={ProductDetails} />
       <AppStack.Screen name="FAQ" component={FAQScreen} />
