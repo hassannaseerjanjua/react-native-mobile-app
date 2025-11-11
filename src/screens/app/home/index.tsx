@@ -94,7 +94,7 @@ const HomeScreenTabsContainer: React.FC = () => {
       title: getString('HOME_GIFT_ONE'),
       titlePrimary: getString('HOME_GET_ONE'),
       description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
-      onPress: undefined,
+      onPress: () => navigation.navigate('GiftOneGetOne' as never),
     },
     {
       id: 'send-a-gift',

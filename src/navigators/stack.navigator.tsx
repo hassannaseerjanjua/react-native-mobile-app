@@ -33,6 +33,8 @@ import Inbox from '../screens/app/inbox/index.tsx';
 import LocationSelection from '../screens/app/location-selection/index.tsx';
 import ScanQr from '../screens/app/scan-qr/index.tsx';
 import CatchScreen from '../screens/app/catch/index.tsx';
+import GiftOneGetOneScreen from '../screens/app/gift-one-get-one/index.tsx';
+import StoreDetailsScreen from '../screens/app/store-details/index.tsx';
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -56,6 +58,8 @@ const AppStackNavigator = () => {
       <AppStack.Screen name="LocationSelection" component={LocationSelection} />
       <AppStack.Screen name="ScanQr" component={ScanQr} />
       <AppStack.Screen name="Catch" component={CatchScreen} />
+      <AppStack.Screen name="GiftOneGetOne" component={GiftOneGetOneScreen} />
+      <AppStack.Screen name="StoreDetails" component={StoreDetailsScreen} />
 
       <AppStack.Screen name="ProductDetails" component={ProductDetails} />
       <AppStack.Screen name="FAQ" component={FAQScreen} />

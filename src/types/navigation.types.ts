@@ -13,9 +13,21 @@ export interface ProductDetailsParam {
   };
 }
 
+export interface StoreDetailsParam {
+  store: {
+    id: string;
+    title: string;
+    subtitle: string;
+    backgroundImage: ImageSourcePropType;
+    overlayImage: ImageSourcePropType;
+    category?: string;
+  };
+}
+
 export type AppStackParamList = {
   BottomTabs: undefined;
   ProductDetails: ProductDetailsParam;
+  StoreDetails: StoreDetailsParam;
   Search: {
     title?: string;
     showFriendsOnly?: boolean;
@@ -46,6 +58,7 @@ export type AppStackParamList = {
   OutBox: undefined;
   Inbox: undefined;
   Catch: undefined;
+  GiftOneGetOne: undefined;
 };
 
 export type AuthStackParamList = {
