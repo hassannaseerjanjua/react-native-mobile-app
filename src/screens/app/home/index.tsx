@@ -87,10 +87,6 @@ const HomeScreenTabsContainer: React.FC = () => {
   const { getString } = useLocaleStore();
   const navigation = useNavigation();
 
-  const handleSendAGiftPress = () => {
-    navigation.navigate('SendAGift' as never);
-  };
-
   const homeScreenTabs = [
     {
       id: 'gift-one-get-one',
@@ -105,7 +101,7 @@ const HomeScreenTabsContainer: React.FC = () => {
       icon: <SvgSendAGift />,
       title: getString('HOME_SEND_A_GIFT'),
       description: getString('HOME_SEND_A_GIFT_DESC'),
-      onPress: handleSendAGiftPress,
+      onPress: () => navigation.navigate('SendAGift' as never),
     },
     {
       id: 'catch',
@@ -120,7 +116,7 @@ const HomeScreenTabsContainer: React.FC = () => {
       icon: <SvgInboxGift />,
       title: getString('HOME_INBOX'),
       description: getString('HOME_INBOX_DESC'),
-      onPress: undefined,
+      onPress: () => navigation.navigate('Inbox' as never),
     },
     {
       id: 'outbox',
@@ -133,7 +129,7 @@ const HomeScreenTabsContainer: React.FC = () => {
       ),
       title: getString('HOME_OUTBOX'),
       description: getString('HOME_OUTBOX_DESC'),
-      onPress: undefined,
+      onPress: () => navigation.navigate('OutBox' as never),
     },
   ];
 

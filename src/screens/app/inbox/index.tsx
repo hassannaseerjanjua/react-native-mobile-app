@@ -119,7 +119,7 @@ const InboxItem = ({
               <Text
                 style={{
                   // backgroundColor: theme.colors.WHITE,
-                  fontSize: theme.sizes.FONTSIZE_LESS_MEDIUM,
+                  fontSize: theme.sizes.FONTSIZE,
                 }}
               >
                 {OutBox.time}
@@ -143,7 +143,7 @@ const InboxItem = ({
                 />
                 <Text
                   style={{
-                    fontSize: theme.sizes.FONTSIZE_LESS_MEDIUM,
+                    fontSize: theme.sizes.FONTSIZE,
                     color: theme.colors.SECONDARY_TEXT,
                   }}
                 >
