@@ -25,8 +25,10 @@ interface AppBottomSheetProps {
   enablePanDownToClose?: boolean;
   snapPoints?: string[];
   blurType?: 'light' | 'dark' | 'regular';
+  hasBackDrop?: boolean;
   blurAmount?: number;
   fullHeight?: boolean;
+  pressBehavior?: 'close' | 'none';
 }
 
 const AppBottomSheet = ({
@@ -38,7 +40,9 @@ const AppBottomSheet = ({
   snapPoints,
   blurType = 'light',
   blurAmount = 10,
+  pressBehavior = 'close',
   fullHeight = false,
+  hasBackDrop = true,
 }: AppBottomSheetProps) => {
   const theme = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -68,6 +72,7 @@ const AppBottomSheet = ({
         appearsOnIndex={0}
         disappearsOnIndex={-1}
         opacity={0.5}
+        pressBehavior={pressBehavior}
       >
         <BlurView
           style={{
@@ -109,7 +114,7 @@ const AppBottomSheet = ({
           ref={bottomSheetRef}
           index={isOpen ? 0 : -1}
           snapPoints={calculatedSnapPoints}
-          backdropComponent={renderBackdrop}
+          backdropComponent={e => hasBackDrop && renderBackdrop(e)}
           enablePanDownToClose={enablePanDownToClose}
           handleStyle={{
             borderTopLeftRadius: scaleWithMax(24, 30),
@@ -138,7 +143,7 @@ const AppBottomSheet = ({
             <View
               style={{
                 flex: 1,
-                padding: fullHeight ? 0 : scaleWithMax(16, 20),
+                // padding: fullHeight ? 0 : scaleWithMax(16, 20),
               }}
             >
               {children}

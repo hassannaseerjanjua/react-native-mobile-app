@@ -54,6 +54,10 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           paddingHorizontal: sizes.PADDING,
           paddingTop: isAndroid ? sizes.PADDING * 0.4 : 0,
         },
+        BORDER_BOTTOM_NORMAL: {
+          borderBottomWidth: 0.7,
+          borderBottomColor: '#EEEEEE',
+        },
       }),
     [colors, sizes],
   );

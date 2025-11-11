@@ -17,6 +17,7 @@ import {
   SmsTrackingIcon,
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 interface OutboxItemProps {
   name: string;
@@ -50,6 +51,7 @@ const outBoxes: OutboxItemProps[] = [
 ];
 const Inbox: React.FC = () => {
   const { styles, theme } = useStyles();
+  const navigation = useNavigation();
 
   return (
     <LinearGradient
@@ -66,6 +68,7 @@ const Inbox: React.FC = () => {
               isLast={index === outBoxes.length - 1}
               key={index}
               OutBox={item}
+              onPress={() => navigation.navigate('LocationSelection' as never)}
             />
           ))}
         </ScrollView>
@@ -76,13 +79,16 @@ const Inbox: React.FC = () => {
 const InboxItem = ({
   OutBox,
   isLast,
+  onPress,
 }: {
   OutBox: OutboxItemProps;
   isLast: boolean;
+  onPress: () => void;
 }) => {
   const { styles, theme } = useStyles();
   return (
-    <View
+    <TouchableOpacity
+      onPress={onPress}
       style={{
         ...styles.inboxTop,
         borderBottomWidth: isLast ? 0 : 0.7,
@@ -169,7 +175,7 @@ const InboxItem = ({
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 

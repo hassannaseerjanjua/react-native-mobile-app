@@ -16,6 +16,7 @@ import {
   RoundedBackIcon,
   SmsTrackingIcon,
 } from '../../../assets/icons';
+import { useNavigation } from '@react-navigation/native';
 
 interface OutboxItemProps {
   name: string;
@@ -51,6 +52,7 @@ const outBoxes: OutboxItemProps[] = [
 ];
 const OutBox: React.FC = () => {
   const { styles, theme } = useStyles();
+  const navigation = useNavigation();
 
   return (
     <ParentView>
@@ -61,6 +63,7 @@ const OutBox: React.FC = () => {
             isLast={index === outBoxes.length - 1}
             key={index}
             OutBox={item}
+            onPress={() => navigation.navigate('ScanQr' as never)}
           />
         ))}
       </ScrollView>
@@ -70,13 +73,16 @@ const OutBox: React.FC = () => {
 const OutboxItem = ({
   OutBox,
   isLast,
+  onPress,
 }: {
   OutBox: OutboxItemProps;
   isLast: boolean;
+  onPress: () => void;
 }) => {
   const { styles, theme } = useStyles();
   return (
-    <View
+    <TouchableOpacity
+      onPress={onPress}
       style={{
         ...styles.inboxTop,
         borderBottomWidth: isLast ? 0 : 0.7,
@@ -113,7 +119,7 @@ const OutboxItem = ({
               <Text
                 style={{
                   // backgroundColor: theme.colors.WHITE,
-                  fontSize: theme.sizes.FONTSIZE_LESS_MEDIUM,
+                  fontSize: theme.sizes.FONTSIZE,
                 }}
               >
                 {OutBox.time}
@@ -137,7 +143,7 @@ const OutboxItem = ({
                 />
                 <Text
                   style={{
-                    fontSize: theme.sizes.FONTSIZE_LESS_MEDIUM,
+                    fontSize: theme.sizes.FONTSIZE,
                     color: theme.colors.SECONDARY_TEXT,
                   }}
                 >
@@ -169,7 +175,7 @@ const OutboxItem = ({
           </View>
         </View>
       </View>
-    </View>
+    </TouchableOpacity>
   );
 };
 
