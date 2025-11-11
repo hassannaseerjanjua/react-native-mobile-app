@@ -45,6 +45,7 @@ export type AppStackParamList = {
   ScanQr: undefined;
   OutBox: undefined;
   Inbox: undefined;
+  Catch: undefined;
 };
 
 export type AuthStackParamList = {
