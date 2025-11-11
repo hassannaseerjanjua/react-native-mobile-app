@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "android-wireless": "powershell -ExecutionPolicy Bypass -File ./scripts/adb-connect.ps1",
     "upload-android": "node scripts/upload-android.js",
     "upload-ios": "bash scripts/upload-ios.sh",
     "android": "react-native run-android",

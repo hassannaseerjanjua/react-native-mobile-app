@@ -128,7 +128,7 @@ const useStyles = () => {
       },
       Description: {
         ...theme.globalStyles.TEXT_STYLE,
-        fontSize: sizes.FONTSIZE_MEDIUM,
+        fontSize: sizes.FONTSIZE,
         color: theme.colors.BLACK,
         // lineHeight: sizes.FONTSIZE_MEDIUM * 1.6,
       },

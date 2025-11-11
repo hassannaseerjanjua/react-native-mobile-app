@@ -26,6 +26,7 @@ const getSizes = (width: number, height: number) => ({
   HEADER_FOOTER_SIZE: height * 0.1,
   FONTSIZE_MED_HIGH: scaleWithMax(17, 18),
   FONTSIZE_HEADING: scaleWithMax(19, 20),
+  FONTSIZE_SMALL_HEADING: scaleWithMax(15, 16),
   // Sizes
   APP_LOGO: width * 0.4,
 });

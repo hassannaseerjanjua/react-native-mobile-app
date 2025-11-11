@@ -49,13 +49,16 @@ const CheckOut: React.FC = () => {
           <Text style={styles.heading}>Order Details</Text>
           <View style={styles.CartContainer}>
             <Image source={Product} style={styles.CartProductImage} />
-            <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.008 }}>
+            <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
               <View>
                 <Text style={styles.cartTitle}>Flower bouquet</Text>
                 <Text style={styles.TextMedium}>Coffematics</Text>
               </View>
               <View style={{ ...styles.row, justifyContent: 'space-between' }}>
-                <PriceWithIcon Price={200} />
+                <PriceWithIcon
+                  Price={200}
+                  style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+                />
                 <View style={styles.quantityControls}>
                   <DecrementIcon
                     onPress={() => handleQuantityChange('decrement')}
@@ -80,10 +83,10 @@ const CheckOut: React.FC = () => {
             >
               <Image source={Product} style={styles.GiftContainerImage} />
               <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
-                <Text style={styles.TextSmall}>My Employee</Text>
+                <Text style={styles.TextMedium}>My Employee</Text>
               </View>
             </View>
-            <View style={styles.row}>
+            <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.025 }]}>
               <GiftIcon />
               <ArrowDownIcon />
             </View>
@@ -111,7 +114,7 @@ const CheckOut: React.FC = () => {
                 style={{
                   ...styles.row,
                   flex: 1,
-                  gap: theme.sizes.WIDTH * 0.02,
+                  gap: theme.sizes.WIDTH * 0.03,
                 }}
               >
                 <CheckBox Selected={selectedCircle} />
@@ -120,7 +123,7 @@ const CheckOut: React.FC = () => {
                   width={scaleWithMax(32, 35)}
                 />
                 <View>
-                  <Text style={styles.TextSmall}>424242XXXXXX4242</Text>
+                  <Text style={styles.TextMedium}>424242XXXXXX4242</Text>
                   <Text style={styles.TextMedium}>Visa</Text>
                 </View>
               </View>
