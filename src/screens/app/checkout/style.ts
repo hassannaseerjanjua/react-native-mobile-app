@@ -112,7 +112,7 @@ const useStyles = () => {
       },
       cartTitle: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-        fontSize: sizes.FONTSIZE_MED_HIGH,
+        fontSize: sizes.FONTSIZE_SMALL_HEADING,
         color: theme.colors.BLACK,
       },
       quantityControls: {

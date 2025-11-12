@@ -11,7 +11,7 @@ import { ReactElement } from 'react';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
 import { Text } from '../../utils/elements';
-import { isIOSThen, scaleWithMax } from '../../utils';
+import { isIOS, isIOSThen, scaleWithMax } from '../../utils';
 
 interface HomeScreenTabsProps {
   icon?: ReactElement;
@@ -34,6 +34,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
 }) => {
   const theme = useTheme();
   const { colors, sizes } = theme;
+  const isProMax = sizes.WIDTH >= 430 && isIOS;
 
   const cardStyles = useMemo(
     () =>
@@ -43,7 +44,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           flexDirection: 'row',
           alignItems: 'center',
           borderRadius: sizes.BORDER_RADIUS_MID,
-          padding: scaleWithMax(12, 14),
+          padding: isProMax ? scaleWithMax(14, 15) : scaleWithMax(11, 11),
           backgroundColor: colors.SECONDARY,
           position: 'relative',
         },
@@ -90,7 +91,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           alignItems: 'center',
         },
       }),
-    [theme],
+    [theme, isProMax],
   );
 
   return (

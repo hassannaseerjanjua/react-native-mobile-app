@@ -19,7 +19,7 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import useGetApi from '../../../hooks/useGetApi';
-import { isIOSThen, scaleWithMax } from '../../../utils';
+import { isIOS, isIOSThen, scaleWithMax } from '../../../utils';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -83,9 +83,10 @@ const HomeScreen: React.FC = () => {
 
 // Component to handle all the tabs
 const HomeScreenTabsContainer: React.FC = () => {
-  const { styles } = useStyles();
+  const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const navigation = useNavigation();
+  const isProMax = theme.sizes.WIDTH >= 430 && isIOS;
 
   const homeScreenTabs = [
     {
@@ -168,7 +169,7 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              paddingVertical: scaleWithMax(20, 30),
+              paddingVertical: isProMax ? scaleWithMax(24, 36) : scaleWithMax(20, 30),
             }}
           />
         ))}
