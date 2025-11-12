@@ -1,7 +1,6 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, StatusBar, ScrollView, FlatList } from 'react-native';
 import useStyles from './style.ts';
-import ParentView from '../../../components/app/ParentView.tsx';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
@@ -9,6 +8,11 @@ import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { AppStackScreen } from '../../../types/navigation.types.ts';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import { useListingApi } from '../../../hooks/useListingApi.ts';
+import apiEndpoints from '../../../constants/api-endpoints.ts';
+
+import { FavStores } from '../../../types/index.ts';
+import { useFocusEffect } from '@react-navigation/native';
 
 const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   route,
@@ -17,29 +21,43 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
 
-  const mockFavorites = [
+  const FavStoreListing = useListingApi<FavStores>(
+    apiEndpoints.GET_FAV_STORE,
+    '',
     {
-      id: '1',
-      title: getString('FAV_MOCK_PERFUME_HOUSE'),
-      subtitle: getString('FAV_MOCK_PERFUME_COLOGNE'),
-      backgroundImage: require('../../../assets/images/perfumeHouseCover.png'),
-      overlayImage: require('../../../assets/images/perfumeHouse.png'),
+      transformData: data => {
+        return {
+          data: data.Data.Items || [],
+          showingText: data?.Data?.ShowingText || '',
+          totalCount: data?.Data?.TotalCount,
+        };
+      },
     },
-    {
-      id: '2',
-      title: getString('FAV_MOCK_GYM'),
-      subtitle: getString('FAV_MOCK_HEALTH_FITNESS'),
-      backgroundImage: require('../../../assets/images/storeCover.png'),
-      overlayImage: require('../../../assets/images/storeLogo.png'),
-    },
-    {
-      id: '3',
-      title: getString('FAV_MOCK_COFFEMATICS'),
-      subtitle: getString('FAV_MOCK_CAFE_SHOPS'),
-      backgroundImage: require('../../../assets/images/coffeematicsCover.png'),
-      overlayImage: require('../../../assets/images/coffeematics.png'),
-    },
-  ];
+  );
+
+  // const mockFavorites = [
+  //   {
+  //     id: '1',
+  //     title: getString('FAV_MOCK_PERFUME_HOUSE'),
+  //     subtitle: getString('FAV_MOCK_PERFUME_COLOGNE'),
+  //     backgroundImage: require('../../../assets/images/perfumeHouseCover.png'),
+  //     overlayImage: require('../../../assets/images/perfumeHouse.png'),
+  //   },
+  //   {
+  //     id: '2',
+  //     title: getString('FAV_MOCK_GYM'),
+  //     subtitle: getString('FAV_MOCK_HEALTH_FITNESS'),
+  //     backgroundImage: require('../../../assets/images/storeCover.png'),
+  //     overlayImage: require('../../../assets/images/storeLogo.png'),
+  //   },
+  //   {
+  //     id: '3',
+  //     title: getString('FAV_MOCK_COFFEMATICS'),
+  //     subtitle: getString('FAV_MOCK_CAFE_SHOPS'),
+  //     backgroundImage: require('../../../assets/images/coffeematicsCover.png'),
+  //     overlayImage: require('../../../assets/images/coffeematics.png'),
+  //   },
+  // ];
 
   const mockfavoriteItems = [
     {
@@ -150,17 +168,22 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     return () => clearTimeout(timer);
   }, [selectedFilter]);
 
-  const handleStepPress = (item: any) => {
-    setSteps(2);
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+  const handleStepPress = (item: FavStores) => {
+    // setSteps(2);
+    // setIsLoading(true);
+    // const timer = setTimeout(() => {
+    //   setIsLoading(false);
+    // }, 500);
+    // return () => clearTimeout(timer);
+    navigation.navigate('CatchScreen', {
+      storeID: item.StoreId,
+      storeBranchID: item.StoreBranchID,
+      type: 'favorite',
+    });
   };
 
   const handleProductPress = (item: (typeof mockfavoriteItems)[number]) => {
-    navigation.navigate('ProductDetails', { product: item.id });
+    navigation.navigate('ProductDetails', { product: item as any });
   };
 
   const handleBackPress = () => {
@@ -202,14 +225,14 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
 
       {Steps === 1 ? (
         <View style={styles.content}>
-          {isLoading ? (
+          {FavStoreListing.loading ? (
             <SkeletonLoader screenType="storeCard" />
           ) : (
             <>
-              {mockFavorites.map(item => (
-                <View style={styles.favoriteItemContainer} key={item.id}>
+              {FavStoreListing.data.map(item => (
+                <View style={styles.favoriteItemContainer} key={item.StoreId}>
                   <FavoriteItemCard
-                    key={item.id}
+                    key={item.StoreId}
                     item={item}
                     onPress={handleStepPress}
                   />
@@ -221,19 +244,20 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
       ) : isLoading ? (
         <SkeletonLoader screenType="productListing" />
       ) : (
-        <FlatList
-          columnWrapperStyle={{
-            gap: 16,
-          }}
-          data={mockfavoriteItems}
-          numColumns={2}
-          keyExtractor={item => item.id}
-          contentContainerStyle={styles.content}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <FavoriteProductCard item={item} onPress={handleProductPress} />
-          )}
-        />
+        <></>
+        // <FlatList
+        //   columnWrapperStyle={{
+        //     gap: 16,
+        //   }}
+        //   data={mockfavoriteItems}
+        //   numColumns={2}
+        //   keyExtractor={item => item.id}
+        //   contentContainerStyle={styles.content}
+        //   showsVerticalScrollIndicator={false}
+        //   renderItem={({ item }) => (
+        //     <FavoriteProductCard item={item} onPress={handleProductPress} />
+        //   )}
+        // />
       )}
     </View>
   );

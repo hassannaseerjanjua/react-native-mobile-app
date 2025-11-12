@@ -7,9 +7,15 @@ import useStyles from './style';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs';
+import { useListingApi } from '../../../hooks/useListingApi';
+import { FaveItems } from '../../../types';
+import apiEndpoints from '../../../constants/api-endpoints';
+import CatchProductCard from '../../../components/app/CatchProductCard';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
+  route,
 }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
@@ -77,6 +83,27 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     },
   ];
 
+  const listingApi = useListingApi<FaveItems>(
+    route.params.type === 'favorite'
+      ? apiEndpoints.GET_FAV_STORE_ITEMS
+      : apiEndpoints.GET_FAV_STORE_ITEMS,
+    '',
+
+    {
+      transformData: data => {
+        return {
+          data: data.Data.Items || [],
+          showingText: data?.Data?.ShowingText || '',
+          totalCount: data?.Data?.TotalCount,
+        };
+      },
+      extraParams: {
+        storeID: route.params.storeID,
+        storeBranchID: route.params.storeBranchID,
+      },
+    },
+  );
+
   const filterOptions = useMemo(
     () => [
       { id: 'all', title: getString('FAV_ALL') },
@@ -104,7 +131,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         barStyle="dark-content"
       />
       <HomeHeader
-        title={getString('HOME_CATCH')}
+        title={
+          route.params.type === 'favorite'
+            ? getString('FAV_FAVORITES')
+            : getString('HOME_CATCH')
+        }
         showBackButton
         onBackPress={() => navigation.goBack()}
         showSearchBar
@@ -118,21 +149,33 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             onTabPress={setSelectedFilter}
           />
         </View>
-        <FlatList
-          data={filteredItems}
-          numColumns={2}
-          keyExtractor={item => item.id}
-          columnWrapperStyle={styles.columnWrapper}
-          contentContainerStyle={[styles.listContent, styles.listContainer]}
-          showsVerticalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <FavoriteProductCard
-              isCatch
-              item={item}
-              onPress={handleProductPress}
-            />
-          )}
-        />
+        {listingApi.loading ? (
+          <SkeletonLoader screenType="tabItem" />
+        ) : route.params.type === 'favorite' ? (
+          <FlatList
+            data={listingApi.data}
+            numColumns={2}
+            keyExtractor={item => item.FavItemId.toString()}
+            columnWrapperStyle={styles.columnWrapper}
+            contentContainerStyle={[styles.listContent, styles.listContainer]}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <FavoriteProductCard item={item} onPress={handleProductPress} />
+            )}
+          />
+        ) : (
+          <FlatList
+            data={filteredItems}
+            numColumns={2}
+            keyExtractor={item => item.id}
+            columnWrapperStyle={styles.columnWrapper}
+            contentContainerStyle={[styles.listContent, styles.listContainer]}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }) => (
+              <CatchProductCard item={item} onPress={handleProductPress} />
+            )}
+          />
+        )}
       </View>
     </ParentView>
   );

@@ -6,6 +6,7 @@ import { Text } from '../../utils/elements';
 import { SvgNextIcon } from '../../assets/icons';
 import { useSizes } from '../../styles/sizes';
 import { useLocaleStore } from '../../store/reducer/locale';
+import { FavStores } from '../../types';
 
 interface FavoriteItem {
   id: string;
@@ -16,8 +17,8 @@ interface FavoriteItem {
 }
 
 interface FavoriteItemCardProps {
-  item: FavoriteItem;
-  onPress: (item: FavoriteItem) => void;
+  item: FavStores;
+  onPress: (item: FavStores) => void;
   style?: any;
 }
 
@@ -36,19 +37,33 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
       activeOpacity={0.8}
     >
       {/* Background Image */}
-      <Image source={item.backgroundImage} style={styles.backgroundImage} />
+      <Image
+        source={
+          item.ImageLogo
+            ? { uri: item.ImageLogo }
+            : require('../../assets/images/perfumeHouseCover.png')
+        }
+        style={styles.backgroundImage}
+      />
 
       {/* Content Overlay */}
       <View style={styles.contentOverlay}>
         {/* Circular Overlay Image */}
         <View style={styles.overlayImageContainer}>
-          <Image source={item.overlayImage} style={styles.overlayImage} />
+          <Image
+            source={
+              item.ImageCover
+                ? { uri: item.ImageCover }
+                : require('../../assets/images/perfumeHouse.png')
+            }
+            style={styles.overlayImage}
+          />
         </View>
 
         {/* Text Content */}
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{item.title}</Text>
-          <Text style={styles.subtitle}>{item.subtitle}</Text>
+          <Text style={styles.title}>{item.StoreNameEn}</Text>
+          <Text style={styles.subtitle}>{item.BusinessTypeNameEn}</Text>
         </View>
 
         {/* Navigation Icon */}

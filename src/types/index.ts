@@ -134,6 +134,43 @@ export interface UpdateProfileApiResponse {
   Success: boolean;
   ResponseMessage: string;
 }
+export interface FavStoreItems {
+  FavItemId: number;
+  ItemId: number;
+  ItemNameEn: string;
+  ItemNameAr: string;
+  ItemImage: string;
+  StoreId: number;
+  StoreBranchId: number;
+  CategoryId: number;
+  CategoryNameEn: string;
+  CategoryNameAr: string;
+}
+export interface FavStores {
+  FavStoreId: number;
+  StoreId: number;
+  StoreBranchID: number;
+  StoreNameEn: string;
+  StoreNameAr: string;
+  ImageLogo: string | null;
+  ImageCover: string | null;
+  BusinessTypeId: string;
+  BusinessTypeNameEn: string;
+  BusinessTypeNameAr: string;
+}
+export interface FaveItems {
+  FavItemId: number;
+  ItemId: number;
+  ItemNameEn: string;
+  ItemNameAr: string;
+  ItemImage: string;
+  StoreId: number;
+  StoreBranchId: number;
+  CategoryId: number;
+  CategoryNameEn: string;
+  CategoryNameAr: string;
+  Price: number;
+}
 export interface OccasionsApiResponse {
   Data: {
     Items: Occasion[];

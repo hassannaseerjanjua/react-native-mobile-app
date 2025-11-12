@@ -17,7 +17,6 @@ const apiEndpoints = {
 
   // Home
   GET_HOME_SLIDER: `/${version}/Home/GetSliders`,
-  GET_OCCASIONS: `/${version}/User/GetAllOccasions`,
 
   // Social
   GET_ACTIVE_USERS: (
@@ -45,6 +44,17 @@ const apiEndpoints = {
   DELETE_GROUP: `/${version}/Friends/DeleteGroup`,
   CHECK_USER_LINKED_WITH_GROUP: (friendUserId?: number) =>
     `/${version}/Friends/CheckFriendInGroups?friendUserId=${friendUserId}`,
+
+  //occasions
+  CREATE_OCCASION: `/${version}/User/CreateNewOccasion`,
+  UPDATE_OCCASION: `/${version}/User/UpdateOccasion`,
+  GET_OCCASION_DETAIL: `/${version}/User/GetOccasionById`,
+  GET_OCCASIONS: `/${version}/User/GetAllOccasions`,
+  DELETE_OCCASION: (id: any) => `/${version}/User/DeleteOccasion?id=${id}`,
+
+  //store
+  GET_FAV_STORE: `/${version}/User/GetFavStores`,
+  GET_FAV_STORE_ITEMS: `/${version}/User/GetFavItems`,
 
   // Settings
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,

@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import api, { getAuthHeader } from '../utils/api';
+import { useFocusEffect } from '@react-navigation/native';
 
 const useGetApi = <T>(
   url: string,
@@ -32,7 +33,11 @@ const useGetApi = <T>(
     }
     setLoading(false);
   };
-
+  useFocusEffect(
+    useCallback(() => {
+      fetchData();
+    }, []),
+  );
   useEffect(() => {
     fetchData();
   }, []);

@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import useDebouncedSearch from './useDebouncedSearch';
 import { getQueryFromObject } from '../utils';
 import api, { getAuthHeader } from '../utils/api';
 import notify from '../utils/notify';
+import { useFocusEffect } from '@react-navigation/native';
 
 export const useListingApi = <T>(
   url: string,
@@ -73,7 +74,11 @@ export const useListingApi = <T>(
         setIsInitialLoad(true);
       });
   };
-
+  useFocusEffect(
+    useCallback(() => {
+      recall();
+    }, []),
+  );
   const { search, setSearch } = useDebouncedSearch(search => {
     if (!isInitialLoad) return;
     fetchData(search);

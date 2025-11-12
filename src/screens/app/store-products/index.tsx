@@ -91,9 +91,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
   const [cameFromProfile, setCameFromProfile] = useState(false);
 
-  // Use a more reliable method to detect if we came from profile
   useEffect(() => {
-    // Check if we have route params indicating we came from profile
     const routeParams = route.params as any;
     console.log('Favorites route params:', routeParams);
     if (routeParams?.redirectionType === 'profile') {

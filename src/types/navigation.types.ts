@@ -49,7 +49,11 @@ export type AppStackParamList = {
   };
   StoreProducts: undefined;
   SelectStore: undefined;
-  CatchScreen: undefined;
+  CatchScreen: {
+    storeID: number;
+    storeBranchID: number;
+    type: 'favorite' | 'catch';
+  };
   ScanQr: undefined;
   Occasions: undefined;
   CheckOut: undefined;

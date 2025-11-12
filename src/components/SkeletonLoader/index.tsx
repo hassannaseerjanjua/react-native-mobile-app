@@ -4,7 +4,7 @@ import { View, Dimensions } from 'react-native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { SvgNextIcon } from '../../assets/icons';
 import { useLocaleStore } from '../../store/reducer/locale';
-import { rtlTransform, isIOS } from '../../utils';
+import { rtlTransform, isIOS, scaleWithMax } from '../../utils';
 import useTheme from '../../styles/theme';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -23,7 +23,8 @@ type SkeletonLoaderProps = {
     | 'orderListing'
     | 'settings'
     | 'landing'
-    | 'productDetails';
+    | 'productDetails'
+    | 'tabItem';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -946,6 +947,45 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                 marginRight={screenWidth * 0.04} // ✅ replace gap
               />
             </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
+        );
+      case 'tabItem':
+        return (
+          <SkeletonPlaceholder
+            borderRadius={8}
+            highlightColor="#f2f2f2"
+            backgroundColor="#e0e0e0"
+          >
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                width: '100%',
+                paddingHorizontal: 16,
+                paddingVertical: 14,
+                marginBottom: 10,
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 10,
+                  flex: 1,
+                  minWidth: 0,
+                }}
+              >
+                <View
+                  style={{
+                    flex: 1,
+                    height: 50,
+                    borderRadius: 10,
+                    width: '70%',
+                  }}
+                />
+              </View>
+            </View>
           </SkeletonPlaceholder>
         );
       default:
