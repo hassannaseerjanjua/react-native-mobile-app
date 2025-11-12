@@ -4,7 +4,6 @@ import useTheme from '../../../styles/theme';
 const useStyles = () => {
   const theme = useTheme();
   const { sizes } = theme;
-
   return {
     styles: StyleSheet.create({
       container: {
@@ -12,23 +11,31 @@ const useStyles = () => {
         paddingHorizontal: 0,
         flex: 1,
       },
-      tabsContainer: {
-        marginVertical: sizes.HEIGHT * 0.02,
-        // paddingHorizontal: sizes.PADDING,
-        height: sizes.HEIGHT * 0.044,
-      },
       content: {
-        flex: 1,
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.005,
-        // paddingBottom: sizes.PADDING * 3,
       },
-      listContent: {
-        paddingBottom: sizes.PADDING * 3,
-        gap: sizes.HEIGHT * 0.015,
+      favoritesContainer: {
+        // paddingTop: sizes.PADDING,
+        paddingHorizontal: sizes.PADDING,
+        paddingTop: sizes.HEIGHT * 0.005,
       },
       favoriteItemContainer: {
         paddingBottom: sizes.HEIGHT * 0.015,
+      },
+      tabsContainer: {
+        marginVertical: sizes.HEIGHT * 0.02,
+        height: sizes.HEIGHT * 0.044,
+      },
+      gridContainer: {
+        flexDirection: 'row',
+        flexWrap: 'wrap',
+        justifyContent: 'space-between',
+        gap: sizes.PADDING,
+      },
+      gridItem: {
+        // width: '48%',
+        // marginBottom: sizes.HEIGHT * 0.015,
       },
     }),
     theme,

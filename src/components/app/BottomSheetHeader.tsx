@@ -66,8 +66,7 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
         <View style={styles.searchBarContainer}>
           {isGroup ? (
             <View style={styles.imageIconContainer}>
-              {' '}
-              <SvgImageIcon />{' '}
+              <SvgImageIcon />
             </View>
           ) : (
             <SvgSearchIcon />

@@ -1,33 +1,31 @@
-import { ImageSourcePropType } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-export interface ProductDetailsParam {
-  product: {
-    id: string;
-    title: string;
-    subtitle: string;
-    coverImage: ImageSourcePropType;
-    price: number;
-    isFavorite: boolean;
-    description?: string;
-  };
-}
+type ProductCategory = 'all' | 'bouquet' | 'flowers' | 'roses' | 'cake';
 
-export interface StoreDetailsParam {
-  store: {
-    id: string;
-    title: string;
-    subtitle: string;
-    backgroundImage: ImageSourcePropType;
-    overlayImage: ImageSourcePropType;
-    category?: string;
-  };
-}
+type Product = {
+  id: string;
+  title: string;
+  subtitle: string;
+  coverImage: any;
+  price: number;
+  isFavorite: boolean;
+  description?: string;
+  category: ProductCategory;
+};
+
+type Store = {
+  id: string;
+  title: string;
+  subtitle: string;
+  backgroundImage: any;
+  overlayImage: any;
+};
 
 export type AppStackParamList = {
   BottomTabs: undefined;
-  ProductDetails: ProductDetailsParam;
-  StoreDetails: StoreDetailsParam;
+  ProductDetails: {
+    product: Product;
+  };
   Search: {
     title?: string;
     showFriendsOnly?: boolean;
@@ -40,6 +38,8 @@ export type AppStackParamList = {
   SendAGift: undefined;
   SendToGroup: undefined;
   Wallet: undefined;
+  OutBox: undefined;
+  Inbox: undefined;
   FAQ: undefined;
   Settings: undefined;
   GiftMessage: undefined;
@@ -47,6 +47,10 @@ export type AppStackParamList = {
   Favorites: {
     redirectionType: 'home' | 'profile';
   };
+  StoreProducts: undefined;
+  SelectStore: undefined;
+  CatchScreen: undefined;
+  ScanQr: undefined;
   Occasions: undefined;
   CheckOut: undefined;
   AddCard: undefined;
@@ -54,11 +58,10 @@ export type AppStackParamList = {
   Profile: undefined;
   Orders: undefined;
   LocationSelection: undefined;
-  ScanQr: undefined;
-  OutBox: undefined;
-  Inbox: undefined;
-  Catch: undefined;
   GiftOneGetOne: undefined;
+  StoreDetails: {
+    store: Store;
+  };
 };
 
 export type AuthStackParamList = {

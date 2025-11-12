@@ -109,7 +109,7 @@ const HomeScreenTabsContainer: React.FC = () => {
       title: getString('HOME_CATCH'),
       titlePrimary: '\n' + getString('HOME_CATCH_INSTANT_GIFTS_LIMITED_TIME'),
       description: getString('HOME_CATCH_INSTANT_GIFT_DESC'),
-      onPress: () => navigation.navigate('Catch' as never),
+      onPress: () => navigation.navigate('CatchScreen' as never),
     },
     {
       id: 'inbox',

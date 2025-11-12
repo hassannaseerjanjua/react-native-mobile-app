@@ -94,7 +94,7 @@ const GiftOneGetOneScreen: React.FC<AppStackScreen<'GiftOneGetOne'>> = ({
   }, [mockStores, selectedFilter]);
 
   const handleStorePress = (store: StoreItem) => {
-    navigation.navigate('StoreDetails', { store });
+    navigation.navigate('StoreProducts');
   };
 
   return (
@@ -104,7 +104,7 @@ const GiftOneGetOneScreen: React.FC<AppStackScreen<'GiftOneGetOne'>> = ({
         barStyle="dark-content"
       />
       <HomeHeader
-        title={`${getString('HOME_GIFT_ONE')} ${getString('HOME_GET_ONE')}`}
+        title={`Select Store`}
         showBackButton
         onBackPress={() => navigation.goBack()}
         showSearchBar

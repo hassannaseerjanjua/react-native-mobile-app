@@ -87,6 +87,7 @@ import GiftPlacedSvg from './gift-placed.svg';
 import GiftSendSvg from './gift-send.svg';
 import DummyQrSvg from './dummy-qr.svg';
 import LocationArrowSvg from './location-Arrow.svg';
+import ShareIcon from './share.svg';
 
 export {
   SvgLogoBlue,
@@ -178,4 +179,5 @@ export {
   GiftSendSvg,
   DummyQrSvg,
   LocationArrowSvg,
+  ShareIcon,
 };

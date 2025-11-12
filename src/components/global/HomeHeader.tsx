@@ -44,6 +44,7 @@ interface HomeHeaderProps {
   rightSideTitle?: string;
   rightSideTitlePress?: () => void;
   rightSideIcon?: any;
+  rightSideTitleStyle?: StyleProp<ViewStyle>;
   showLogo?: boolean;
   customContainerStyle?: StyleProp<ViewStyle>;
 }
@@ -64,6 +65,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   rightSideIcon,
   showLogo,
   customContainerStyle,
+  rightSideTitleStyle,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -133,11 +135,14 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           {rightSideTitle && (
             <TouchableOpacity
               onPress={rightSideTitlePress}
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 4,
-              }}
+              style={[
+                {
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 4,
+                },
+                rightSideTitleStyle,
+              ]}
             >
               {rightSideIcon && rightSideIcon}
               <Text style={styles.rightSideTitle}>{rightSideTitle}</Text>

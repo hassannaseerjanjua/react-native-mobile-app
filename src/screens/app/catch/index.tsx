@@ -8,7 +8,9 @@ import { AppStackScreen } from '../../../types/navigation.types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs';
 
-const CatchScreen: React.FC<AppStackScreen<'Catch'>> = ({ navigation }) => {
+const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
+  navigation,
+}) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -23,6 +25,9 @@ const CatchScreen: React.FC<AppStackScreen<'Catch'>> = ({ navigation }) => {
       description:
         'Hand-tied bouquet of blush roses and lilies designed for heartfelt celebrations, finished with silk ribbon twists and fragrant eucalyptus sprigs. Each stem is selected at peak bloom to create a lasting impression that feels both romantic and refined.',
       price: 100,
+      discountedPrice: 50,
+      isGift: false,
+      subTitle2: 'Sub 2',
       isFavorite: true,
     },
     {
@@ -34,6 +39,10 @@ const CatchScreen: React.FC<AppStackScreen<'Catch'>> = ({ navigation }) => {
       description:
         "Soft pink blooms paired with baby's breath to complement romantic gifting moments, offering a modern take on classic floral storytelling. The bouquet rests in a reusable glass vase, inviting the recipient to refresh it season after season.",
       price: 100,
+      discountedPrice: 50,
+      isGift: false,
+      subTitle2: 'Sub 2',
+
       isFavorite: true,
     },
     {
@@ -42,6 +51,10 @@ const CatchScreen: React.FC<AppStackScreen<'Catch'>> = ({ navigation }) => {
       subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
       coverImage: require('../../../assets/images/dummy3.png'),
       category: 'cake',
+      discountedPrice: 0,
+      isGift: true,
+      subTitle2: 'Sub 2',
+
       description:
         'Vanilla sponge layered with rose-infused frosting for a lightly floral dessert that melts at the first bite and finishes with a whisper of citrus. Finished with hand-piped rosettes, it transforms any gathering into an elegant celebration.',
       price: 100,
@@ -53,6 +66,10 @@ const CatchScreen: React.FC<AppStackScreen<'Catch'>> = ({ navigation }) => {
       subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
       coverImage: require('../../../assets/images/dummy4.png'),
       category: 'cake',
+      discountedPrice: 50,
+      subTitle2: 'Sub 2',
+      isGift: false,
+
       description:
         'Signature pink charm cake topped with sugared petals and a satin ribbon finish, offering layers of airy sponge, silky mousse, and a hidden berry compote center. Designed for milestone moments, it photographs beautifully and tastes even better.',
       price: 100,
@@ -77,9 +94,7 @@ const CatchScreen: React.FC<AppStackScreen<'Catch'>> = ({ navigation }) => {
   }, [mockCatchItems, selectedFilter]);
 
   const handleProductPress = (item: (typeof mockCatchItems)[number]) => {
-    navigation.navigate('ProductDetails', {
-      product: item,
-    });
+    navigation.navigate('CheckOut' as never);
   };
 
   return (
@@ -111,7 +126,11 @@ const CatchScreen: React.FC<AppStackScreen<'Catch'>> = ({ navigation }) => {
           contentContainerStyle={[styles.listContent, styles.listContainer]}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
-            <FavoriteProductCard item={item} onPress={handleProductPress} />
+            <FavoriteProductCard
+              isCatch
+              item={item}
+              onPress={handleProductPress}
+            />
           )}
         />
       </View>
@@ -120,4 +139,3 @@ const CatchScreen: React.FC<AppStackScreen<'Catch'>> = ({ navigation }) => {
 };
 
 export default CatchScreen;
-
