@@ -17,6 +17,8 @@ import {
   SmsTrackingIcon,
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
+import AppBottomSheet from '../../../components/global/AppBottomSheet';
+import CustomButton from '../../../components/global/Custombutton';
 import { useNavigation } from '@react-navigation/native';
 
 interface OutboxItemProps {
@@ -52,7 +54,7 @@ const outBoxes: OutboxItemProps[] = [
 const Inbox: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
-
+  const [openBottomSheet, setOpenBottomSheet] = useState(false);
   return (
     <LinearGradient
       colors={[theme.colors.GRADIENT_COLOR, theme.colors.BACKGROUND]}
@@ -68,10 +70,27 @@ const Inbox: React.FC = () => {
               isLast={index === outBoxes.length - 1}
               key={index}
               OutBox={item}
-              onPress={() => navigation.navigate('LocationSelection' as never)}
+              onClick={() => setOpenBottomSheet(true)}
             />
           ))}
         </ScrollView>
+        <AppBottomSheet
+          blurAmount={100}
+          isOpen={openBottomSheet}
+          fullHeight
+          snapPoints={['20%']}
+          onClose={() => setOpenBottomSheet(false)}
+        >
+          <View style={styles.bottomSheet}>
+            <CustomButton title="Pick Up" />
+            <CustomButton
+              title="Delivery"
+              type="secondary"
+              onPress={() => navigation.navigate('LocationSelection' as never)}
+              buttonStyle={{ backgroundColor: theme.colors.WHITE }}
+            />
+          </View>
+        </AppBottomSheet>
       </ParentView>
     </LinearGradient>
   );
@@ -79,97 +98,130 @@ const Inbox: React.FC = () => {
 const InboxItem = ({
   OutBox,
   isLast,
-  onPress,
+  onClick,
 }: {
   OutBox: OutboxItemProps;
   isLast: boolean;
-  onPress: () => void;
+  onClick?: () => void;
 }) => {
   const { styles, theme } = useStyles();
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={{
-        ...styles.inboxTop,
-        borderBottomWidth: isLast ? 0 : 0.7,
-        borderBottomColor: theme.colors.BORDER_COLOR,
-      }}
-    >
+    <TouchableOpacity onPress={onClick}>
+
+
+
+
+
+
       <View
         style={{
-          ...styles.row,
-          alignItems: 'flex-start',
+          ...styles.inboxTop,
+          borderBottomWidth: isLast ? 0 : 0.7,
+          borderBottomColor: theme.colors.BORDER_COLOR,
         }}
       >
-        <Image style={styles.inboxProfile} source={OutBox.ProfileImage} />
-        <View style={{ flex: 1 }}>
-          <View
-            style={{
-              display: 'flex',
-              // backgroundColor: theme.colors.RED,
-              flexDirection: 'column',
-              justifyContent: 'space-between',
-              paddingVertical: theme.sizes.PADDING * 0.26,
-              rowGap: theme.sizes.PADDING * 0.26,
-            }}
-          >
-            <View
-              style={{
-                flex: 1,
+        <View
+          style={{
+            ...styles.row,
+            alignItems: 'flex-start',
+          }}
+        >
+          <Image style={styles.inboxProfile} source={OutBox.ProfileImage} />
+          <View style={{ flex: 1 }}>
 
-                ...styles.row,
-                justifyContent: 'space-between',
-              }}
-            >
-              <Text>{OutBox.name}</Text>
-              <Text
-                style={{
-                  // backgroundColor: theme.colors.WHITE,
-                  fontSize: theme.sizes.FONTSIZE,
-                }}
-              >
-                {OutBox.time}
-              </Text>
-            </View>
+
+
+
             <View
               style={{
-                flex: 1,
-                ...styles.row,
+                display: 'flex',
+                // backgroundColor: theme.colors.RED,
+                flexDirection: 'column',
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
                 justifyContent: 'space-between',
+                paddingVertical: theme.sizes.PADDING * 0.26,
+                rowGap: theme.sizes.PADDING * 0.26,
               }}
             >
               <View
                 style={{
+                  flex: 1,
+
                   ...styles.row,
+                  justifyContent: 'space-between',
                 }}
               >
-                <GiftIcon
-                  height={theme.sizes.FONTSIZE}
-                  width={theme.sizes.FONTSIZE}
-                />
+                <Text>{OutBox.name}</Text>
+
+
+
                 <Text
                   style={{
+                    // backgroundColor: theme.colors.WHITE,
                     fontSize: theme.sizes.FONTSIZE,
-                    color: theme.colors.SECONDARY_TEXT,
+
                   }}
                 >
-                  {OutBox.place}
+                  {OutBox.time}
                 </Text>
-                <RoundedBackIcon />
+
               </View>
-              <SmsTrackingIcon />
+              <View
+                style={{
+                  flex: 1,
+                  ...styles.row,
+                  justifyContent: 'space-between',
+                }}
+              >
+                <View
+                  style={{
+                    ...styles.row,
+                  }}
+                >
+                  <GiftIcon
+                    height={theme.sizes.FONTSIZE}
+                    width={theme.sizes.FONTSIZE}
+                  />
+                  <Text
+                    style={{
+                      fontSize: theme.sizes.FONTSIZE,
+                      color: theme.colors.SECONDARY_TEXT,
+                    }}
+                  >
+                    {OutBox.place}
+                  </Text>
+                  <RoundedBackIcon />
+                </View>
+                <SmsTrackingIcon />
+              </View>
             </View>
-          </View>
-          <View
-            style={{
-              paddingVertical: theme.sizes.PADDING * 0.6,
-            }}
-          >
-            <Image source={OutBox.image} style={styles.inboxImage} />
-            <View style={styles.inboxImageBottom}>
-              <Text>Blue De Channel</Text>
-              <View style={styles.numCircle}>
-                <Text style={styles.numText}>2</Text>
+            <View
+              style={{
+                paddingVertical: theme.sizes.PADDING * 0.6,
+              }}
+            >
+              <Image source={OutBox.image} style={styles.inboxImage} />
+              <View style={styles.inboxImageBottom}>
+                <Text>Blue De Channel</Text>
+                <View style={styles.numCircle}>
+                  <Text style={styles.numText}>2</Text>
+                </View>
               </View>
             </View>
           </View>

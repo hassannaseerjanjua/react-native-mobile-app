@@ -160,7 +160,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   };
 
   const handleProductPress = (item: (typeof mockfavoriteItems)[number]) => {
-    navigation.navigate('ProductDetails', { product: item });
+    navigation.navigate('ProductDetails', { product: item.id });
   };
 
   const handleBackPress = () => {

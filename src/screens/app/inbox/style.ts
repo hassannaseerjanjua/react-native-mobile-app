@@ -79,6 +79,13 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'center',
       },
+      bottomSheet: {
+        width: sizes.PADDED_WIDTH,
+        alignSelf: 'center',
+        position: 'relative',
+        gap: sizes.HEIGHT * 0.01,
+        paddingBottom: sizes.PADDING * 1.3,
+      },
     }),
     theme,
   };
