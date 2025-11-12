@@ -17,6 +17,7 @@ const apiEndpoints = {
 
   // Home
   GET_HOME_SLIDER: `/${version}/Home/GetSliders`,
+  GET_OCCASIONS: `/${version}/User/GetAllOccasions`,
 
   // Social
   GET_ACTIVE_USERS: (

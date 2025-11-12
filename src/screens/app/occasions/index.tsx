@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, StatusBar, FlatList, TouchableOpacity } from 'react-native';
 import useStyles from './style.ts';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { Text } from '../../../utils/elements';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
@@ -17,12 +17,16 @@ import InputField from '../../../components/global/InputField.tsx';
 import { Formik } from 'formik';
 import * as Yup from 'yup';
 import DatePicker from 'react-native-date-picker';
+import apiEndpoints from '../../../constants/api-endpoints';
+import useGetApi from '../../../hooks/useGetApi';
+import { Occasion, OccasionsApiResponse } from '../../../types';
 
 const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const navigation = useNavigation();
   const [step, setStep] = useState(1);
+
   const [viewDetails, setViewDetails] = useState({
     occasionName: '',
     occasionDate: '',
@@ -39,20 +43,26 @@ const OccasionsScreen: React.FC = () => {
     console.log(values);
   };
 
-  const mockOccasions = [
-    {
-      id: 1,
-      title: getString('OCC_BIRTHDAY'),
-      image: require('../../../assets/images/birthday.png'),
-      date: '2025-01-01',
-    },
-    {
-      id: 2,
-      title: getString('OCC_ANNIVERSARY'),
-      image: require('../../../assets/images/anniversary.png'),
-      date: '2025-01-01',
-    },
-  ];
+  const {
+    data: occasions,
+    loading: occasionsLoading,
+    error: occasionsError,
+    refetch: getOccasions,
+  } = useGetApi<Occasion[]>(apiEndpoints.GET_OCCASIONS, {
+    transformData: (data: OccasionsApiResponse) => data.Data.Items || [],
+    withAuth: true,
+  });
+
+  const getOccasionsRef = useRef(getOccasions);
+  getOccasionsRef.current = getOccasions;
+
+  useFocusEffect(
+    React.useCallback(() => {
+      getOccasionsRef.current();
+    }, []),
+  );
+
+  console.log('occasions', occasions);
   return (
     <View style={styles.container}>
       <StatusBar
@@ -81,23 +91,30 @@ const OccasionsScreen: React.FC = () => {
       {step === 1 && (
         <>
           <FlatList
-            data={mockOccasions}
-            keyExtractor={item => item.id.toString()}
+            data={occasions || []}
+            keyExtractor={item => item.OccassionId.toString()}
             contentContainerStyle={styles.content}
-            renderItem={({ item }: { item: (typeof mockOccasions)[0] }) => (
-              <TabItem
-                isGroupImage={item.image}
-                title={item.title}
-                onPress={() => {
-                  setStep(2);
-                  setViewDetails({
-                    occasionName: item.title,
-                    occasionDate: item.date,
-                  });
-                }}
-                TabItemStyles={styles.TabItem}
-              />
-            )}
+            showsVerticalScrollIndicator={false}
+            renderItem={({ item }: { item: Occasion }) => {
+              const imageSource = item.ImageUrl
+                ? { uri: item.ImageUrl }
+                : require('../../../assets/images/birthday.png');
+
+              return (
+                <TabItem
+                  isGroupImage={imageSource}
+                  title={item.NameEn}
+                  onPress={() => {
+                    setStep(2);
+                    setViewDetails({
+                      occasionName: item.NameEn,
+                      occasionDate: item.OccasionDate || '',
+                    });
+                  }}
+                  TabItemStyles={styles.TabItem}
+                />
+              );
+            }}
           />
           <View style={styles.buttonContainer}>
             <CustomButton

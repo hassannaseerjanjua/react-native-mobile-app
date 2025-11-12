@@ -134,3 +134,26 @@ export interface UpdateProfileApiResponse {
   Success: boolean;
   ResponseMessage: string;
 }
+export interface OccasionsApiResponse {
+  Data: {
+    Items: Occasion[];
+    TotalCount: number;
+  };
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}
+
+export interface Occasion {
+  OccassionId: number;
+  NameEn: string;
+  NameAr: string;
+  OccasionDate: string | null;
+  Type: string | null;
+  ImageUrl: string;
+  Status: number;
+  CreatedOn: string;
+  CreatedBy: number;
+  ModifiedOn?: string | null;
+  ModifiedBy?: number | null;
+}
