@@ -86,7 +86,10 @@ const Inbox: React.FC = () => {
             <CustomButton
               title="Delivery"
               type="secondary"
-              onPress={() => navigation.navigate('LocationSelection' as never)}
+              onPress={() => {
+                navigation.navigate('LocationSelection' as never);
+                setOpenBottomSheet(false);
+              }}
               buttonStyle={{ backgroundColor: theme.colors.WHITE }}
             />
           </View>

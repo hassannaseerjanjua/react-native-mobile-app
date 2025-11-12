@@ -8,17 +8,20 @@ import { useSizes } from '../../styles/sizes';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { FavStores } from '../../types';
 
-interface FavoriteItem {
+interface MockStoreItem {
   id: string;
   title: string;
   subtitle: string;
   backgroundImage: any;
   overlayImage: any;
+  category?: string;
 }
 
+type StoreItem = FavStores | MockStoreItem;
+
 interface FavoriteItemCardProps {
-  item: FavStores;
-  onPress: (item: FavStores) => void;
+  item: StoreItem;
+  onPress: (item: StoreItem) => void;
   style?: any;
 }
 
@@ -30,6 +33,19 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
   const { isRtl } = useLocaleStore();
   const { theme, styles } = useStyles();
 
+  // Check if item is FavStores (API) or MockStoreItem
+  const isFavStores = 'StoreNameEn' in item;
+  
+  // Get values based on type
+  const storeName = isFavStores ? item.StoreNameEn : item.title;
+  const businessType = isFavStores ? item.BusinessTypeNameEn : item.subtitle;
+  const backgroundImage = isFavStores 
+    ? (item.ImageLogo ? { uri: item.ImageLogo } : require('../../assets/images/perfumeHouseCover.png'))
+    : item.backgroundImage;
+  const overlayImage = isFavStores
+    ? (item.ImageCover ? { uri: item.ImageCover } : require('../../assets/images/perfumeHouse.png'))
+    : item.overlayImage;
+
   return (
     <TouchableOpacity
       style={[styles.container, style]}
@@ -38,11 +54,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
     >
       {/* Background Image */}
       <Image
-        source={
-          item.ImageLogo
-            ? { uri: item.ImageLogo }
-            : require('../../assets/images/perfumeHouseCover.png')
-        }
+        source={backgroundImage}
         style={styles.backgroundImage}
       />
 
@@ -51,19 +63,15 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
         {/* Circular Overlay Image */}
         <View style={styles.overlayImageContainer}>
           <Image
-            source={
-              item.ImageCover
-                ? { uri: item.ImageCover }
-                : require('../../assets/images/perfumeHouse.png')
-            }
+            source={overlayImage}
             style={styles.overlayImage}
           />
         </View>
 
         {/* Text Content */}
         <View style={styles.textContainer}>
-          <Text style={styles.title}>{item.StoreNameEn}</Text>
-          <Text style={styles.subtitle}>{item.BusinessTypeNameEn}</Text>
+          <Text style={styles.title}>{storeName}</Text>
+          <Text style={styles.subtitle}>{businessType}</Text>
         </View>
 
         {/* Navigation Icon */}

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
-import { View, StatusBar, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, StatusBar, FlatList, TouchableOpacity, Platform } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
 import { Text } from '../../../utils/elements';
@@ -13,6 +14,7 @@ import {
   SvgCrownIcon,
   SvgDateIcon,
   SvgEditGroup,
+  SvgImageIcon,
 } from '../../../assets/icons';
 import InputField from '../../../components/global/InputField.tsx';
 import { Formik } from 'formik';
@@ -24,15 +26,19 @@ import useGetApi from '../../../hooks/useGetApi.ts';
 import { Occasion, OccasionsApiResponse } from '../../../types/index.ts';
 import SkeletonLoader from '../../../components/SkeletonLoader/index.tsx';
 
+interface ImageFile {
+  uri: string;
+  type: string;
+  name: string;
+}
+
+type ImageValue = string | ImageFile | null;
+
 const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString, isRtl } = useLocaleStore();
   const navigation = useNavigation();
-  const [step, setStep] = useState(1);
-  const [viewDetails, setViewDetails] = useState({
-    occasionName: '',
-    occasionDate: '',
-  });
+  const [loading, setLoading] = useState(false);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedOccasion, setSelectedOccasion] = useState<{
     id: number | null;
@@ -41,16 +47,81 @@ const OccasionsScreen: React.FC = () => {
     id: null,
     occasionType: 'none',
   });
+  const [formInitialValues, setFormInitialValues] = useState<{
+    occasionName: string;
+    occasionDate: string;
+    image: ImageValue;
+  }>({
+    occasionName: '',
+    occasionDate: '',
+    image: null,
+  });
+  const [date, setDate] = useState(new Date());
+  const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
+
   const validationSchema = Yup.object().shape({
     occasionName: Yup.string().required('required'),
     occasionDate: Yup.date().required('required'),
   });
-  const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
-  const [date, setDate] = useState(
-    viewDetails.occasionDate ? new Date(viewDetails.occasionDate) : new Date(),
-  );
-  const handleSubmit = (values: any) => {
-    console.log(values);
+  const handleImageSelect = (formik: any) => {
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        quality: 0.4,
+        selectionLimit: 1,
+        maxWidth: 800,
+        maxHeight: 800,
+        includeBase64: false,
+      },
+      response => {
+        if (response.assets && response.assets[0]) {
+          const asset = response.assets[0];
+          
+          // Check file size (if available) - warn if too large (e.g., > 2MB)
+          if (asset.fileSize && asset.fileSize > 2 * 1024 * 1024) {
+            console.warn('Image file size is large:', asset.fileSize, 'bytes');
+            // You might want to show a warning to the user here
+          }
+          
+          const imageFile: ImageFile = {
+            uri:
+              Platform.OS === 'ios'
+                ? asset.uri?.replace('file://', '') || ''
+                : asset.uri || '',
+            type: asset.type || 'image/jpeg',
+            name: asset.fileName || `occasion_image_${Date.now()}.jpg`,
+          };
+          // Update formik without triggering validation
+          formik.setFieldValue('image', imageFile, false);
+          formik.setFieldTouched('image', true, false);
+        }
+      },
+    );
+  };
+
+  const getImageDisplayValue = (image: ImageValue): string => {
+    if (!image) return '';
+    if (typeof image === 'string') {
+      // If it's a URL string (existing image), show a friendly message
+      if (image.startsWith('http') || image.length > 50) {
+        return 'Current image';
+      }
+      return image;
+    }
+    // For file objects, show the file name
+    return image.name || 'Image selected';
+  };
+
+  const handleSubmit = (values: {
+    occasionName: string;
+    occasionDate: string;
+    image: ImageValue;
+  }) => {
+    if (selectedOccasion.occasionType === 'create') {
+      _createOccasion(values);
+    } else {
+      _updateOccasion(values);
+    }
   };
   const {
     data: occasions,
@@ -61,26 +132,150 @@ const OccasionsScreen: React.FC = () => {
     transformData: (data: OccasionsApiResponse) => data.Data.Items || [],
     withAuth: true,
   });
-  const mockOccasions = [
-    {
-      id: 1,
-      title: getString('OCC_BIRTHDAY'),
-      image: require('../../../assets/images/birthday.png'),
-      date: '2025-01-01',
-    },
-    {
-      id: 2,
-      title: getString('OCC_ANNIVERSARY'),
-      image: require('../../../assets/images/anniversary.png'),
-      date: '2025-01-01',
-    },
-  ];
+  
   const _deleteOccasion = async (OccasionID: number) => {
-    const response = await api.put(apiEndpoints.DELETE_OCCASION(OccasionID));
-    if (response.success) {
-      // do something
+    if (loading) return;
+    setLoading(true);
+    try {
+      const response = await api.delete(apiEndpoints.DELETE_OCCASION(OccasionID));
+      if (response.success) {
+        getOccasions();
+      }
+    } catch (error) {
+      console.error('Delete occasion error:', error);
+    } finally {
+      setLoading(false);
     }
   };
+
+  const _createOccasion = async (values: {
+    occasionName: string;
+    occasionDate: string;
+    image: ImageValue;
+  }) => {
+    if (loading) return;
+    setLoading(true);
+    console.log('Creating occasion with values:', values);
+    try {
+      const formData = new FormData();
+      formData.append('NameEn', values.occasionName);
+      formData.append('NameAr', values.occasionName);
+      formData.append('OccasionDate', values.occasionDate);
+      
+      if (values.image && typeof values.image === 'object') {
+        formData.append('ImageUrl', {
+          uri: values.image.uri,
+          type: values.image.type,
+          name: values.image.name,
+        } as any);
+      }
+      
+      // Don't set Content-Type header - the axios interceptor handles it for FormData
+      const response = await api.post(apiEndpoints.CREATE_OCCASION, formData, {});
+      console.log('Create occasion response:', response);
+      
+      if (response.success) {
+        getOccasions();
+        setSelectedOccasion({
+          id: null,
+          occasionType: 'none',
+        });
+      } else if (response.failed) {
+        console.error('Create occasion failed:', response.error);
+        if (response.error.includes('413') || response.error.toLowerCase().includes('too large')) {
+          console.error('Image file is too large. Please try a smaller image.');
+        }
+      }
+    } catch (error: any) {
+      console.error('Create occasion error:', error);
+      // Check for 413 status code
+      if (error?.response?.status === 413 || error?.message?.includes('413')) {
+        console.error('Image file is too large. Please try a smaller image.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const _updateOccasion = async (values: {
+    occasionName: string;
+    occasionDate: string;
+    image: ImageValue;
+  }) => {
+    if (loading) return;
+    setLoading(true);
+    
+    try {
+      const formData = new FormData();
+      formData.append('OccassionId', selectedOccasion.id?.toString() || '');
+      formData.append('NameEn', values.occasionName);
+      
+      if (values.image && typeof values.image === 'object') {
+        formData.append('ImageUrl', {
+          uri: values.image.uri,
+          type: values.image.type,
+          name: values.image.name,
+        } as any);
+      }
+      
+      // Don't set Content-Type header - the axios interceptor handles it for FormData
+      const response = await api.put(
+        apiEndpoints.UPDATE_OCCASION(selectedOccasion.id),
+        formData,
+        {},
+      );
+      
+      console.log('Update occasion response:', response);
+      
+      if (response.success) {
+        getOccasions();
+        setSelectedOccasion({
+          id: null,
+          occasionType: 'none',
+        });
+      } else if (response.failed) {
+        console.error('Update occasion failed:', response.error);
+        if (response.error.includes('413') || response.error.toLowerCase().includes('too large')) {
+          console.error('Image file is too large. Please try a smaller image.');
+        }
+      }
+    } catch (error: any) {
+      console.error('Update occasion error:', error);
+      // Check for 413 status code
+      if (error?.response?.status === 413 || error?.message?.includes('413')) {
+        console.error('Image file is too large. Please try a smaller image.');
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const _getOccasionDetail = async (id: number) => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      const response = await api.get(apiEndpoints.GET_OCCASION_DETAIL(id));
+      console.log('Get occasion detail response:', response);
+      if (response.success && response.data) {
+        const occasionData = (response.data as any)?.Data;
+        if (occasionData) {
+          setFormInitialValues({
+            occasionName: occasionData.NameEn || '',
+            occasionDate: occasionData.OccasionDate || '',
+            image: occasionData.ImageUrl || null,
+          });
+          if (occasionData.OccasionDate) {
+            setDate(new Date(occasionData.OccasionDate));
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Get occasion detail error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -115,9 +310,10 @@ const OccasionsScreen: React.FC = () => {
               id: null,
               occasionType: 'none',
             });
-            setViewDetails({
+            setFormInitialValues({
               occasionName: '',
               occasionDate: '',
+              image: null,
             });
           }
         }}
@@ -138,29 +334,24 @@ const OccasionsScreen: React.FC = () => {
                   isGroupImage={imageSource}
                   title={item.NameEn}
                   isEditGroup={isEditGroupOpen}
-                  onEditPress={() =>
+                  onEditPress={async () => {
                     setSelectedOccasion({
                       occasionType: 'edit',
                       id: item.OccassionId,
-                    })
-                  }
+                    });
+                    await _getOccasionDetail(item.OccassionId);
+                  }}
                   onDeletePress={() =>
-                    setSelectedOccasion({
-                      occasionType: 'none',
-                      id: item.OccassionId,
-                    })
+                    _deleteOccasion(item.OccassionId)
                   }
-                  onPress={() => {
-                    setStep(2);
-                    !isEditGroupOpen &&
+                  onPress={async () => {
+                    if (!isEditGroupOpen) {
                       setSelectedOccasion({
                         occasionType: 'view',
                         id: item.OccassionId,
                       });
-                    setViewDetails({
-                      occasionName: item.NameEn,
-                      occasionDate: item.OccasionDate || '',
-                    });
+                      await _getOccasionDetail(item.OccassionId);
+                    }
                   }}
                   TabItemStyles={styles.TabItem}
                 />
@@ -173,46 +364,50 @@ const OccasionsScreen: React.FC = () => {
               type="primary"
               icon={<SvgAddOccasion />}
               onPress={() => {
-                if (selectedOccasion.occasionType === 'none')
-                  setSelectedOccasion({
-                    id: null,
-                    occasionType: 'create',
-                  });
-                else
-                  setSelectedOccasion({
-                    id: null,
-                    occasionType: 'none',
-                  });
+                setSelectedOccasion({
+                  id: null,
+                  occasionType: 'create',
+                });
+                setFormInitialValues({
+                  occasionName: '',
+                  occasionDate: '',
+                  image: null,
+                });
               }}
             />
           </View>
         </>
       )}
       {selectedOccasion.occasionType !== 'none' &&
-        (occasionsLoading ? (
-          <SkeletonLoader screenType="orderListing" />
-        ) : (
           <>
             <View style={styles.content}>
               <Formik
-                initialValues={{
-                  occasionName: viewDetails.occasionName,
-                  occasionDate: viewDetails.occasionDate,
-                }}
+                initialValues={formInitialValues}
+                enableReinitialize={true}
                 validationSchema={validationSchema}
+                validateOnChange={false}
+                validateOnBlur={true}
                 onSubmit={handleSubmit}
               >
                 {formik => (
                   <>
                     <View style={styles.inputContainer}>
                       <InputField
-                        error={formik.errors.occasionName}
+                        error={
+                          formik.touched.occasionName && formik.errors.occasionName
+                            ? formik.errors.occasionName
+                            : undefined
+                        }
                         icon={<SvgCrownIcon />}
                         fieldProps={{
                           placeholder: 'Event',
                           value: formik.values.occasionName,
                           onChangeText: (text: string) => {
-                            formik.setFieldValue('occasionName', text);
+                            formik.setFieldValue('occasionName', text, false);
+                            formik.setFieldTouched('occasionName', true, false);
+                          },
+                          onBlur: () => {
+                            formik.setFieldTouched('occasionName', true);
                           },
                           autoCapitalize: 'words',
                         }}
@@ -221,19 +416,64 @@ const OccasionsScreen: React.FC = () => {
                     <View style={styles.inputContainer}>
                       <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                         <InputField
-                          error={formik.errors.occasionDate}
+                          error={
+                            formik.touched.occasionDate && formik.errors.occasionDate
+                              ? formik.errors.occasionDate
+                              : undefined
+                          }
                           icon={<SvgDateIcon />}
                           fieldProps={{
                             placeholder: 'Date',
                             value: formik.values.occasionDate,
                             onChangeText: (text: string) => {
-                              formik.setFieldValue('occasionDate', text);
+                              formik.setFieldValue('occasionDate', text, false);
+                            },
+                            onFocus: () => {
+                              formik.setFieldTouched('occasionDate', true, false);
                             },
                             editable: false,
                             pointerEvents: 'none',
                           }}
                         />
                       </TouchableOpacity>
+                    </View>
+                    <View style={styles.inputContainer}>
+                      {selectedOccasion.occasionType !== 'view' ? (
+                        <TouchableOpacity onPress={() => handleImageSelect(formik)}>
+                          <InputField
+                            error={
+                              formik.touched.image && formik.errors.image
+                                ? formik.errors.image
+                                : undefined
+                            }
+                            icon={<SvgImageIcon />}
+                            fieldProps={{
+                              placeholder: 'Image',
+                              value: getImageDisplayValue(formik.values.image),
+                              onChangeText: () => {},
+                              editable: false,
+                              pointerEvents: 'none',
+                            }}
+                          />
+                        </TouchableOpacity>
+                      ) : (
+                        <InputField
+                          error={
+                            formik.touched.image && formik.errors.image
+                              ? formik.errors.image
+                              : undefined
+                          }
+                          icon={<SvgImageIcon />}
+                          fieldProps={{
+                            placeholder: 'Image',
+                            value: getImageDisplayValue(formik.values.image),
+                            onChangeText: () => {},
+                            editable: false,
+                            pointerEvents: 'none',
+                            
+                          }}
+                        />
+                      )}
                     </View>
                     {selectedOccasion.occasionType !== 'view' && (
                       <CustomButton
@@ -246,28 +486,17 @@ const OccasionsScreen: React.FC = () => {
                         buttonStyle={styles.button}
                         onPress={() => {
                           formik.handleSubmit();
-                          if (selectedOccasion === null)
-                            setSelectedOccasion({
-                              id: null,
-                              occasionType: 'none',
-                            });
-                          else
-                            setSelectedOccasion({
-                              id: null,
-                              occasionType: 'none',
-                            });
-
-                          // setViewDetails({
-                          //   occasionName: '',
-                          //   occasionDate: '',
-                          // });
                         }}
                       />
                     )}
                     <DatePicker
                       modal
                       open={showDatePicker}
-                      date={date}
+                      date={
+                        formik.values.occasionDate
+                          ? new Date(formik.values.occasionDate)
+                          : date
+                      }
                       mode="date"
                       maximumDate={new Date()}
                       onConfirm={selectedDate => {
@@ -275,10 +504,9 @@ const OccasionsScreen: React.FC = () => {
                         if (selectedDate <= today) {
                           setShowDatePicker(false);
                           setDate(selectedDate);
-                          formik.setFieldValue(
-                            'occasionDate',
-                            selectedDate.toISOString().split('T')[0],
-                          );
+                          const dateString = selectedDate.toISOString().split('T')[0];
+                          formik.setFieldValue('occasionDate', dateString, false);
+                          formik.setFieldTouched('occasionDate', true, false);
                         }
                       }}
                       onCancel={() => {
@@ -294,7 +522,7 @@ const OccasionsScreen: React.FC = () => {
               </Formik>
             </View>
           </>
-        ))}
+        }
     </View>
   );
 };

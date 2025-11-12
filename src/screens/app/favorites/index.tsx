@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, StatusBar, ScrollView, FlatList } from 'react-native';
+import { Text } from '../../../utils/elements';
 import useStyles from './style.ts';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
@@ -229,15 +230,20 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
             <SkeletonLoader screenType="storeCard" />
           ) : (
             <>
-              {FavStoreListing.data.map(item => (
-                <View style={styles.favoriteItemContainer} key={item.StoreId}>
-                  <FavoriteItemCard
-                    key={item.StoreId}
-                    item={item}
-                    onPress={handleStepPress}
-                  />
-                </View>
-              ))}
+              {
+              FavStoreListing.data.length > 0 ? (
+                FavStoreListing.data.map(item => (
+                  <View style={styles.favoriteItemContainer} key={item.StoreId}>
+                    <FavoriteItemCard
+                      key={item.StoreId}
+                      item={item}
+                      onPress={handleStepPress}
+                    />
+                  </View>
+                ))
+              ) : (
+                <Text>No favorites found</Text>
+              )}
             </>
           )}
         </View>

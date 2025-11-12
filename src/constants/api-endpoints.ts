@@ -47,8 +47,8 @@ const apiEndpoints = {
 
   //occasions
   CREATE_OCCASION: `/${version}/User/CreateNewOccasion`,
-  UPDATE_OCCASION: `/${version}/User/UpdateOccasion`,
-  GET_OCCASION_DETAIL: `/${version}/User/GetOccasionById`,
+  UPDATE_OCCASION: (id: any) => `/${version}/User/UpdateOccasion?id=${id}`,
+  GET_OCCASION_DETAIL: (id: any) => `/${version}/User/GetOccasionById?id=${id}`,
   GET_OCCASIONS: `/${version}/User/GetAllOccasions`,
   DELETE_OCCASION: (id: any) => `/${version}/User/DeleteOccasion?id=${id}`,
 
@@ -64,6 +64,7 @@ const apiEndpoints = {
   UPDATE_PROFILE: `/${version}/Home/UpdateProfile`,
   GET_FAQS: `/${version}/Home/GetAllFAQ`,
   UPDATE_PROFILE_IMAGE: `/${version}/Home/UpdateProfilePhoto`,
+  GET_ORDER_HISTORY: `/${version}/User/GetOrders`,
 };
 
 export default apiEndpoints;

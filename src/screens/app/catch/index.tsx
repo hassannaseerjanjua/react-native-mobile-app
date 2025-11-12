@@ -84,7 +84,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   ];
 
   const listingApi = useListingApi<FaveItems>(
-    route.params.type === 'favorite'
+    route?.params?.type === 'favorite'
       ? apiEndpoints.GET_FAV_STORE_ITEMS
       : apiEndpoints.GET_FAV_STORE_ITEMS,
     '',
@@ -98,8 +98,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         };
       },
       extraParams: {
-        storeID: route.params.storeID,
-        storeBranchID: route.params.storeBranchID,
+        storeID: route?.params?.storeID,
+        storeBranchID: route?.params?.storeBranchID,
       },
     },
   );
@@ -120,8 +120,37 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     return mockCatchItems.filter(item => item.category === selectedFilter);
   }, [mockCatchItems, selectedFilter]);
 
-  const handleProductPress = (item: (typeof mockCatchItems)[number]) => {
-    navigation.navigate('CheckOut' as never);
+  const handleProductPress = (item: (typeof mockCatchItems)[number] | FaveItems) => {
+    // Handle both mock catch items and API items (FaveItems)
+    if ('FavItemId' in item) {
+      // API item (FaveItems)
+      navigation.navigate('CheckOut', {
+        product: {
+          id: item.ItemId,
+          title: item.ItemNameEn,
+          subtitle: item.CategoryNameEn,
+          image: { uri: item.ItemImage },
+          price: item.Price,
+          storeId: item.StoreId,
+          storeBranchId: item.StoreBranchId,
+          itemId: item.ItemId,
+          categoryId: item.CategoryId,
+          categoryName: item.CategoryNameEn,
+        },
+      });
+    } else {
+      // Mock catch item
+      navigation.navigate('CheckOut', {
+        product: {
+          id: item.id,
+          title: item.title,
+          subtitle: item.subtitle,
+          image: item.coverImage,
+          price: item.discountedPrice || item.price,
+          discountedPrice: item.discountedPrice,
+        },
+      });
+    }
   };
 
   return (
@@ -132,7 +161,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       />
       <HomeHeader
         title={
-          route.params.type === 'favorite'
+          route?.params?.type === 'favorite'
             ? getString('FAV_FAVORITES')
             : getString('HOME_CATCH')
         }
@@ -151,7 +180,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         </View>
         {listingApi.loading ? (
           <SkeletonLoader screenType="tabItem" />
-        ) : route.params.type === 'favorite' ? (
+        ) : route?.params?.type === 'favorite' ? (
           <FlatList
             data={listingApi.data}
             numColumns={2}

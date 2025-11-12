@@ -140,12 +140,32 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   }, [selectedFilter]);
 
   const handleStepPress = (item: any) => {
-    navigation.navigate('StoreProducts' as never);
-
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
+    // Handle both FavStores (API) and MockStoreItem types
+    if ('StoreNameEn' in item) {
+      // API item (FavStores)
+      navigation.navigate('StoreProducts', {
+        store: {
+          id: item.StoreId,
+          storeId: item.StoreId,
+          storeBranchId: item.StoreBranchID,
+          title: item.StoreNameEn,
+          subtitle: item.BusinessTypeNameEn,
+          imageLogo: item.ImageLogo,
+          imageCover: item.ImageCover,
+        },
+      });
+    } else {
+      // Mock item
+      navigation.navigate('StoreProducts', {
+        store: {
+          id: item.id,
+          title: item.title,
+          subtitle: item.subtitle,
+          backgroundImage: item.backgroundImage,
+          overlayImage: item.overlayImage,
+        },
+      });
+    }
   };
 
   const handleProductPress = (item: any) => {

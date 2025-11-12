@@ -29,8 +29,25 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const navigation = useNavigation();
+  const store = route.params?.store;
 
-  const dummyCover = require('../../../assets/images/dummy4.png');
+  // Get store data from route params or use defaults
+  const storeTitle = store?.title || 'Perfume House';
+  const storeSubtitle = store?.subtitle || 'Perfume & Cologne';
+  
+  // Handle background/cover image - prefer backgroundImage, then imageLogo, then default
+  const storeCoverImage = store?.backgroundImage 
+    ? store.backgroundImage 
+    : (store?.imageLogo 
+      ? { uri: store.imageLogo } 
+      : require('../../../assets/images/dummy4.png'));
+  
+  // Handle overlay image - prefer overlayImage, then imageCover, then default
+  const storeOverlayImage = store?.overlayImage
+    ? store.overlayImage
+    : (store?.imageCover
+      ? { uri: store.imageCover }
+      : require('../../../assets/images/dummy4.png'));
 
   const mockfavoriteItems = [
     {
@@ -129,7 +146,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   return (
     <View style={{ flex: 1 }}>
       <View style={{ position: 'relative' }}>
-        <Image source={dummyCover} style={styles.topImage} />
+        <Image source={storeCoverImage} style={styles.topImage} />
 
         {/* Overlay icons */}
         <View
@@ -153,13 +170,13 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             <ShareIcon />
           </View>
         </View>
-        <Image source={dummyCover} style={styles.bottomImage} />
+        <Image source={storeOverlayImage} style={styles.bottomImage} />
       </View>
 
       <View style={styles.container}>
         <View style={styles.headingContainer}>
-          <Text style={styles.textLarge}>Perfume House</Text>
-          <Text style={styles.textMedium}>Perfume & Cologne</Text>
+          <Text style={styles.textLarge}>{storeTitle}</Text>
+          <Text style={styles.textMedium}>{storeSubtitle}</Text>
         </View>
         <StatusBar
           backgroundColor={theme.colors.BACKGROUND}

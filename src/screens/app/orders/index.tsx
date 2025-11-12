@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import {
   View,
   StatusBar,
   ScrollView,
   Image,
-  TouchableOpacity,
-  Linking,
-  Alert,
+  FlatList,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
@@ -17,20 +15,66 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 import { SvgRiyalIcon } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import useGetApi from '../../../hooks/useGetApi';
+import apiEndpoints from '../../../constants/api-endpoints';
+import { Order, OrdersApiResponse } from '../../../types/index';
+
+const getStatusText = (
+  status: number,
+  getString: (key: 'O_PENDING') => string,
+): string => {
+  const statusMap: { [key: number]: string } = {
+    1: getString('O_PENDING'),
+    2: 'Processing',
+    3: 'Shipped',
+    4: 'Delivered',
+    5: 'Cancelled',
+    6: 'Completed',
+  };
+  return statusMap[status] ?? getString('O_PENDING');
+};
+
+const formatDate = (dateString: string): string => {
+  const date = new Date(dateString);
+  const months = [
+    'January',
+    'February',
+    'March',
+    'April',
+    'May',
+    'June',
+    'July',
+    'August',
+    'September',
+    'October',
+    'November',
+    'December',
+  ];
+  const day = date.getDate();
+  const month = months[date.getMonth()];
+  const hours = date.getHours();
+  const minutes = date.getMinutes();
+  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const formattedHours = hours % 12 || 12;
+  const formattedMinutes = minutes.toString().padStart(2, '0');
+  return `${day}-${month} at ${formattedHours}:${formattedMinutes}${ampm}`;
+};
 
 const OrdersScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const { getString } = useLocaleStore();
-  const [isLoading, setIsLoading] = useState(true);
 
-  // Simulate data loading
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const orderHistory = useGetApi<OrdersApiResponse['Data']>(
+    apiEndpoints.GET_ORDER_HISTORY,
+    {
+      transformData: (data: any) => data?.Data,
+      withAuth: true,
+    },
+  );
+
+  const orders = orderHistory.data?.Items ?? [];
+  const isLoading = orderHistory.loading;
 
   return (
     <ParentView style={styles.container}>
@@ -45,83 +89,82 @@ const OrdersScreen: React.FC = () => {
         onBackPress={() => navigation.goBack()}
       />
 
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
-        showsVerticalScrollIndicator={false}
-      >
-        <View style={styles.contentContainer}>
-          {isLoading ? (
+      {isLoading ? (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.contentContainer}>
             <SkeletonLoader screenType="orderListing" />
-          ) : (
-            <OrderCard />
+          </View>
+        </ScrollView>
+      ) : orders.length === 0 ? (
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.contentContainer}>
+            <Text style={styles.detailLabel}>No orders found</Text>
+          </View>
+        </ScrollView>
+      ) : (
+        <FlatList
+          data={orders}
+          keyExtractor={item => item.OrderId.toString()}
+          contentContainerStyle={[styles.scrollContent, styles.contentContainer]}
+          showsVerticalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <View style={{ marginBottom: theme.sizes.PADDING * 0.8 }}>
+              <OrderCard order={item} />
+            </View>
           )}
-        </View>
-      </ScrollView>
+        />
+      )}
     </ParentView>
   );
 };
 
-const OrderCard: React.FC = () => {
-  const { styles, theme } = useStyles();
+interface OrderCardProps {
+  order: Order;
+}
+
+const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
+  const { styles } = useStyles();
   const { getString } = useLocaleStore();
 
-  const openWhatsApp = (phoneNumber: string) => {
-    // Remove any non-numeric characters and add country code if needed
-    const cleanNumber = phoneNumber.replace(/\D/g, '');
-    const whatsappNumber = cleanNumber.startsWith('92')
-      ? cleanNumber
-      : `92${cleanNumber}`;
-    const whatsappUrl = `whatsapp://send?phone=${whatsappNumber}`;
-
-    Linking.canOpenURL(whatsappUrl)
-      .then(supported => {
-        if (supported) {
-          Linking.openURL(whatsappUrl);
-        } else {
-          Alert.alert(
-            getString('O_WHATSAPP_NOT_INSTALLED'),
-            getString('O_WHATSAPP_NOT_INSTALLED_MESSAGE'),
-            [{ text: getString('O_OK') }],
-          );
-        }
-      })
-      .catch(err => {
-        console.error('Error opening WhatsApp:', err);
-        Alert.alert(
-          getString('O_ERROR'),
-          getString('O_UNABLE_TO_OPEN_WHATSAPP'),
-        );
-      });
-  };
+  const firstItem = order.Items?.[0];
+  const itemImage = firstItem?.Images?.[0]
+    ? { uri: firstItem.Images[0] }
+    : require('../../../assets/images/flowers.png');
+  const itemName = firstItem?.ItemName || getString('O_FLOWER_BOUQUET');
+  const storeName = order.FriendName || getString('O_COFFEEMATICS');
+  const phoneNumber = '0300-16413168';
+  const orderDate = order.OrderDate || order.CreatedOn || new Date().toISOString();
 
   return (
     <View style={styles.orderCard}>
       <View style={styles.rowContainer}>
         <View style={styles.leftSection}>
           <View style={styles.imageContainer}>
-            <Image
-              source={require('../../../assets/images/flowers.png')}
-              style={styles.orderCardImage}
-            />
+            <Image source={itemImage} style={styles.orderCardImage} />
           </View>
           <View style={styles.productInfo}>
-            <Text style={styles.orderCardTitle}>
-              {getString('O_FLOWER_BOUQUET')}
-            </Text>
-            <Text style={styles.orderCardSubtitle}>
-              {getString('O_COFFEEMATICS')}
-            </Text>
+            <Text style={styles.orderCardTitle}>{itemName}</Text>
+            <Text style={styles.orderCardSubtitle}>{storeName}</Text>
           </View>
         </View>
 
         <View style={styles.rightSection}>
           <View style={styles.statusBadge}>
-            <Text style={styles.orderCardStatus}>{getString('O_PENDING')}</Text>
+            <Text style={styles.orderCardStatus}>
+              {getStatusText(order.Status, getString)}
+            </Text>
           </View>
           <View style={styles.orderNumberBadge}>
             <Text style={styles.orderCardNumber}>
-              {getString('O_ORDER_NUMBER')} 4
+              {getString('O_ORDER_NUMBER')} {order.OrderId}
             </Text>
           </View>
         </View>
@@ -130,29 +173,38 @@ const OrderCard: React.FC = () => {
       <View style={styles.orderDetailsContainer}>
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>{getString('O_PHONE_NUMBER')}</Text>
-          <TouchableOpacity onPress={() => openWhatsApp('0300-16413168')}>
-            <Text style={[styles.detailValue]}>0300-16413168</Text>
-          </TouchableOpacity>
+          <Text style={styles.detailValue}>{phoneNumber}</Text>
         </View>
 
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>{getString('O_ORDER_TIME')}:</Text>
-          <Text style={styles.detailValue}>26-March at 08:10PM</Text>
+          <Text style={styles.detailValue}>{formatDate(orderDate)}</Text>
         </View>
 
-        <View style={styles.itemRow}>
-          <Text style={styles.detailLabel}>{getString('O_1X_ICED_LATTE')}</Text>
-          <View style={styles.itemDetails}>
-            <Text style={styles.itemSize}>{getString('O_REGULAR')}</Text>
-            <View style={styles.priceContainer}>
-              <SvgRiyalIcon
-                width={scaleWithMax(12, 14)}
-                height={scaleWithMax(12, 14)}
-              />
-              <Text style={styles.itemPrice}>8.0</Text>
+        {order.Items?.map((item) => {
+          const itemTotal = item.OrderAmount ?? item.UnitPrice * item.Quantity;
+          return (
+            <View key={item.OrderItemId} style={styles.itemRow}>
+              <Text style={styles.detailLabel}>
+                {item.Quantity}x {item.ItemName}
+              </Text>
+              <View style={styles.itemDetails}>
+                {item.Variant?.NameEn && (
+                  <Text style={styles.itemSize}>{item.Variant.NameEn}</Text>
+                )}
+                <View style={styles.priceContainer}>
+                  <SvgRiyalIcon
+                    width={scaleWithMax(12, 14)}
+                    height={scaleWithMax(12, 14)}
+                  />
+                  <Text style={styles.itemPrice}>
+                    {itemTotal.toFixed(2)}
+                  </Text>
+                </View>
+              </View>
             </View>
-          </View>
-        </View>
+          );
+        })}
 
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>{getString('O_TOTAL_AMOUNT')}</Text>
@@ -161,7 +213,9 @@ const OrderCard: React.FC = () => {
               width={scaleWithMax(12, 14)}
               height={scaleWithMax(12, 14)}
             />
-            <Text style={styles.totalValue}>8.0</Text>
+            <Text style={styles.totalValue}>
+              {order.TotalAmount.toFixed(2)}
+            </Text>
           </View>
         </View>
       </View>

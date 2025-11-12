@@ -2,16 +2,19 @@ import { Image, ScrollView, StatusBar, TextInput, View } from 'react-native';
 import React, { useState } from 'react';
 import useStyles from './style';
 import HomeHeader from '../../../components/global/HomeHeader';
-import { useNavigation } from '@react-navigation/native';
 import { CameraIcon } from '../../../assets/icons';
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
 import { Text } from '../../../utils/elements';
+import { AppStackScreen } from '../../../types/navigation.types';
 
-const GiftMessage: React.FC = () => {
+const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
+  route,
+  navigation,
+}) => {
   const { styles, theme } = useStyles();
   const [message, setMessage] = useState('');
-  const navigation = useNavigation();
+  const { product } = route.params;
   const GiftFilter = require('../../../assets/images/gift-filter.png');
   return (
     <ParentView style={styles.container}>
@@ -60,7 +63,9 @@ const GiftMessage: React.FC = () => {
           <View style={styles.footer}>
             <CustomButton
               title="Skip"
-              onPress={() => navigation.navigate('CheckOut' as never)}
+              onPress={() => {
+                navigation.navigate('CheckOut', { product });
+              }}
             />
           </View>
         </View>

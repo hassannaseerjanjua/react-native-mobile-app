@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import React, { useMemo } from 'react';
 import { useSizes } from '../../styles/sizes';
 import useTheme from '../../styles/theme';

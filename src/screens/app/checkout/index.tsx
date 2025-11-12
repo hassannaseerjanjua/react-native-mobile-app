@@ -1,4 +1,4 @@
-import { Image, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -20,12 +20,18 @@ import PriceWithIcon from '../../../components/global/Price';
 import CustomButton from '../../../components/global/Custombutton';
 import { useNavigation } from '@react-navigation/native';
 import CustomFooter from '../../../components/global/CustomFooter';
+import { Text } from '../../../utils/elements';
+import { AppStackScreen } from '../../../types/navigation.types';
 
-const CheckOut: React.FC = () => {
+const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
+  const navigation = useNavigation();
+  const { product } = route.params;
+
   const [quantity, setQuantity] = useState(1);
   const [checkoutCompleted, setCheckoutCompleted] = useState(false);
   const [selectedCircle, setSelectedCircle] = useState(false);
+
   const handleQuantityChange = (type: 'increment' | 'decrement') => {
     if (type === 'increment') {
       setQuantity(prevQuantity => prevQuantity + 1);
@@ -35,8 +41,16 @@ const CheckOut: React.FC = () => {
       }
     }
   };
-  const navigation = useNavigation();
-  const Product = require('../../../assets/images/dummy1.png');
+
+  // Default values if product is not provided
+  const productImage = product?.image || require('../../../assets/images/dummy1.png');
+  const productTitle = product?.title || 'Flower bouquet';
+  const productSubtitle = product?.subtitle || 'Coffematics';
+  // Product price is already the final price (discounted if applicable) from navigation
+  const productPrice = product?.price || 200;
+  const feelingFees = 15;
+  const totalAmount = (productPrice * quantity) + feelingFees;
+
   const GiftSend = require('../../../assets/images/gift-send.png');
   return !checkoutCompleted ? (
     <ParentView>
@@ -48,15 +62,15 @@ const CheckOut: React.FC = () => {
         <View style={styles.section}>
           <Text style={styles.heading}>Order Details</Text>
           <View style={styles.CartContainer}>
-            <Image source={Product} style={styles.CartProductImage} />
+            <Image source={productImage} style={styles.CartProductImage} />
             <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
               <View>
-                <Text style={styles.cartTitle}>Flower bouquet</Text>
-                <Text style={styles.TextMedium}>Coffematics</Text>
+                <Text style={styles.cartTitle}>{productTitle}</Text>
+                <Text style={styles.TextMedium}>{productSubtitle}</Text>
               </View>
               <View style={{ ...styles.row, justifyContent: 'space-between' }}>
                 <PriceWithIcon
-                  Price={200}
+                  Price={productPrice}
                   style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
                 />
                 <View style={styles.quantityControls}>
@@ -81,9 +95,9 @@ const CheckOut: React.FC = () => {
             <View
               style={{ ...styles.row, flex: 1, gap: theme.sizes.WIDTH * 0.025 }}
             >
-              <Image source={Product} style={styles.GiftContainerImage} />
+              <Image source={productImage} style={styles.GiftContainerImage} />
               <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
-                <Text style={styles.TextMedium}>My Employee</Text>
+                <Text style={styles.TextMedium}>{productSubtitle}</Text>
               </View>
             </View>
             <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.025 }]}>
@@ -140,11 +154,11 @@ const CheckOut: React.FC = () => {
           <Text style={styles.heading}>Order Info</Text>
           <View style={styles.Prices}>
             <Text style={styles.TextMedium}>Total Amount</Text>
-            <PriceWithIcon Price={200} />
+            <PriceWithIcon Price={productPrice * quantity} />
           </View>
           <View style={styles.Prices}>
             <Text style={styles.TextMedium}>Feeling Fees</Text>
-            <PriceWithIcon Price={15} />
+            <PriceWithIcon Price={feelingFees} />
           </View>
           <Text style={styles.vatNote}>All prices are 15% VAT Inclusive</Text>
         </View>
@@ -157,7 +171,7 @@ const CheckOut: React.FC = () => {
           />
           <View style={styles.footerPriceWrapper}>
             <PriceWithIcon
-              Price={215}
+              Price={totalAmount}
               style={{ color: theme.colors.WHITE }}
               Icon={
                 <SvgRiyalIconWhite

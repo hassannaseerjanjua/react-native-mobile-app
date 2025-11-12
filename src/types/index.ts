@@ -194,3 +194,55 @@ export interface Occasion {
   ModifiedOn?: string | null;
   ModifiedBy?: number | null;
 }
+
+export interface OrderItemVariant {
+  NameEn: string;
+  NameAr: string;
+  ItemVariantId: number;
+  Status: number;
+  Price: number;
+}
+
+export interface OrderItem {
+  OrderItemId: number;
+  ItemId: number;
+  ItemName: string;
+  UnitPrice: number;
+  Quantity: number;
+  OrderAmount: number;
+  DiscountAmount: number;
+  VatAmount: number;
+  FeelingFees: number;
+  DeliveryCharges: number;
+  TotalAmount: number;
+  Status: number;
+  Variant: OrderItemVariant | null;
+  Images: string[];
+}
+
+export interface Order {
+  OrderId: number;
+  FriendId: number;
+  FriendName: string | null;
+  StoreId: number;
+  StoreBranchId: number;
+  Status: number;
+  OrderAmount: number;
+  TotalDiscount: number;
+  TotalVat: number;
+  DeliveryCharges: number;
+  TotalAmount: number;
+  Items: OrderItem[];
+  CreatedOn?: string;
+  OrderDate?: string;
+}
+
+export interface OrdersApiResponse {
+  Data: {
+    Items: Order[];
+    TotalCount: number;
+  };
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}

@@ -1,4 +1,4 @@
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import React, { useState } from 'react';
 
 import useStyles from './style';
@@ -17,6 +17,7 @@ import CustomButton from '../../../components/global/Custombutton';
 import SuccessMessage from '../../../components/global/SuccessComponent';
 import { useNavigation } from '@react-navigation/native';
 import { scaleWithMax } from '../../../utils';
+import { Text } from '../../../utils/elements';
 
 const LocationSelection: React.FC = () => {
   const { styles, theme } = useStyles();

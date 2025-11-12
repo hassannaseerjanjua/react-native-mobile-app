@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useState } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -9,6 +9,7 @@ import useStyles from './style';
 import DatePicker from 'react-native-date-picker';
 import CustomFooter from '../../../components/global/CustomFooter';
 import CustomButton from '../../../components/global/Custombutton';
+import { Text } from '../../../utils/elements';
 const AddCart: React.FC = () => {
   const initialValues = {
     CardNumber: '',

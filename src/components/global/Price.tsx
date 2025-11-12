@@ -1,9 +1,10 @@
-import { StyleProp, StyleSheet, Text, TextStyle, View } from 'react-native';
+import { StyleProp, StyleSheet, TextStyle, View } from 'react-native';
 import React, { useMemo } from 'react';
 import { SvgRiyalIcon } from '../../assets/icons';
 import { useSizes } from '../../styles/sizes';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
+import { Text } from '../../utils/elements';
 
 const PriceWithIcon = ({
   Price,

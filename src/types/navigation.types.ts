@@ -42,12 +42,38 @@ export type AppStackParamList = {
   Inbox: undefined;
   FAQ: undefined;
   Settings: undefined;
-  GiftMessage: undefined;
+  GiftMessage: {
+    product: {
+      id?: string | number;
+      title: string;
+      subtitle: string;
+      image: any; // Can be require() or { uri: string }
+      price: number;
+      discountedPrice?: number;
+      storeId?: number;
+      storeBranchId?: number;
+      itemId?: number;
+      categoryId?: number;
+      categoryName?: string;
+    };
+  };
   ContactUs: undefined;
   Favorites: {
     redirectionType: 'home' | 'profile';
   };
-  StoreProducts: undefined;
+  StoreProducts: {
+    store?: {
+      id?: string | number;
+      storeId?: number;
+      storeBranchId?: number;
+      title: string;
+      subtitle: string;
+      backgroundImage?: any;
+      overlayImage?: any;
+      imageLogo?: string | null;
+      imageCover?: string | null;
+    };
+  };
   SelectStore: undefined;
   CatchScreen: {
     storeID: number;
@@ -56,7 +82,21 @@ export type AppStackParamList = {
   };
   ScanQr: undefined;
   Occasions: undefined;
-  CheckOut: undefined;
+  CheckOut: {
+    product: {
+      id?: string | number;
+      title: string;
+      subtitle: string;
+      image: any; // Can be require() or { uri: string }
+      price: number;
+      discountedPrice?: number;
+      storeId?: number;
+      storeBranchId?: number;
+      itemId?: number;
+      categoryId?: number;
+      categoryName?: string;
+    };
+  };
   AddCard: undefined;
   Notifications: undefined;
   Profile: undefined;

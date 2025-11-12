@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, StatusBar, FlatList, ScrollView } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -41,6 +41,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(20);
   const [isFetchingFriends, setIsFetchingFriends] = useState(true);
+  
+  // Use refs to access current values in the focus listener
+  const activeTabRef = useRef(activeTab);
+  const searchQueryRef = useRef(searchQuery);
 
   const activeUsersApi = useGetApi<ActiveUser[]>(
     apiEndpoints.GET_ACTIVE_USERS(
@@ -53,6 +57,21 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
       transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
     },
   );
+  
+  const activeUsersApiRefetchRef = useRef(activeUsersApi.refetch);
+  
+  // Update refs when values change
+  useEffect(() => {
+    activeTabRef.current = activeTab;
+  }, [activeTab]);
+  
+  useEffect(() => {
+    searchQueryRef.current = searchQuery;
+  }, [searchQuery]);
+  
+  useEffect(() => {
+    activeUsersApiRefetchRef.current = activeUsersApi.refetch;
+  }, [activeUsersApi.refetch]);
 
   const searchFriendsApi = useGetApi<ActiveUser[]>(
     apiEndpoints.SEARCH_FRIENDS(searchQuery, user?.UserId),
@@ -83,6 +102,19 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
       activeUsersApi.refetch();
     }
   }, [isFetchingFriends]);
+
+  // Refetch friends list when screen comes into focus (e.g., after adding friends from Search screen)
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // Refetch if not searching (search has its own refetch logic) and not on group tab
+      // Use refs to access current values since listener closure captures initial values
+      if (!searchQueryRef.current && activeTabRef.current !== 'group') {
+        activeUsersApiRefetchRef.current();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const tabs = [
     {

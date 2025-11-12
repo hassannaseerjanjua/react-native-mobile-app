@@ -1,11 +1,12 @@
 import React from 'react';
-import { View, Text, Image } from 'react-native';
+import { View, Image } from 'react-native';
 import useStyles from './style';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import { DummyQrSvg, SvgProfileCrossIcon } from '../../../assets/icons';
 import { useNavigation } from '@react-navigation/native';
 import { scaleWithMax } from '../../../utils';
+import { Text } from '../../../utils/elements';
 
 const ScanQr: React.FC = () => {
   const { styles, theme } = useStyles();

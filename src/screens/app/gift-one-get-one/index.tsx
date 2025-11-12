@@ -94,7 +94,15 @@ const GiftOneGetOneScreen: React.FC<AppStackScreen<'GiftOneGetOne'>> = ({
   }, [mockStores, selectedFilter]);
 
   const handleStorePress = (store: StoreItem) => {
-    navigation.navigate('StoreProducts');
+    navigation.navigate('StoreProducts', {
+      store: {
+        id: store.id,
+        title: store.title,
+        subtitle: store.subtitle,
+        backgroundImage: store.backgroundImage,
+        overlayImage: store.overlayImage,
+      },
+    });
   };
 
   return (

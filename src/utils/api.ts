@@ -9,6 +9,20 @@ const axiosInter = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
+// Request interceptor to handle FormData - remove Content-Type so axios can set it with boundary
+axiosInter.interceptors.request.use(
+  config => {
+    // If data is FormData, delete Content-Type header to let axios set it automatically
+    if (config.data instanceof FormData) {
+      delete config.headers['Content-Type'];
+    }
+    return config;
+  },
+  error => {
+    return Promise.reject(error);
+  },
+);
+
 interface ResponseObject<T> {
   success: boolean;
   failed: boolean;
@@ -56,12 +70,23 @@ const caller = async <T>(
     responseObject.error = '';
   } catch (err: any) {
     const response = err?.response?.data;
-    const errorMessage =
+    let errorMessage =
       response?.error?.message ||
       response?.message ||
       response?.ResponseMessage ||
       err?.message ||
       'Something went wrong';
+
+    // Handle specific HTTP status codes
+    if (err?.response?.status === 413) {
+      errorMessage = 'File size is too large. Please use a smaller image.';
+    } else if (err?.response?.status === 400) {
+      errorMessage = response?.message || 'Invalid request. Please check your input.';
+    } else if (err?.response?.status === 401) {
+      errorMessage = 'Unauthorized. Please login again.';
+    } else if (err?.response?.status >= 500) {
+      errorMessage = 'Server error. Please try again later.';
+    }
 
     responseObject.error = errorMessage;
     responseObject.data = response?.data || null;

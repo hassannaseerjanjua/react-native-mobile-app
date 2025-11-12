@@ -211,7 +211,17 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
           <CustomButton
             buttonStyle={styles.button}
-            onPress={() => navigation.navigate('GiftMessage' as never)}
+            onPress={() =>
+              navigation.navigate('GiftMessage', {
+                product: {
+                  id: product.id,
+                  title: product.title,
+                  subtitle: product.subtitle,
+                  image: product.coverImage,
+                  price: product.price,
+                },
+              })
+            }
             title="Add To Cart"
           />
         </View>
