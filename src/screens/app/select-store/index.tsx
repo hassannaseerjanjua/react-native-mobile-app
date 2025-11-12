@@ -2,13 +2,14 @@ import React, { useEffect, useState } from 'react';
 import { View, StatusBar, ScrollView, FlatList } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ParentView from '../../../components/app/ParentView.tsx';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
-import { AppStackScreen } from '../../../types/navigation.types.ts';
+import { AppStackScreen, AppStackParamList } from '../../../types/navigation.types.ts';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { ArrowDownIcon } from '../../../assets/icons/index.ts';
 import { scaleWithMax } from '../../../utils/index.ts';
@@ -16,7 +17,7 @@ import { scaleWithMax } from '../../../utils/index.ts';
 const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const mockFavorites = [
     {
@@ -169,7 +170,17 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   };
 
   const handleProductPress = (item: any) => {
-    navigation.navigate('ProductDetails' as never);
+    navigation.navigate('ProductDetails', {
+      product: {
+        id: item.id,
+        title: item.title,
+        subtitle: item.subtitle,
+        coverImage: item.coverImage,
+        price: item.price,
+        isFavorite: item.isFavorite,
+        category: 'all',
+      },
+    });
   };
 
   const handleBackPress = () => {
@@ -181,7 +192,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       // Otherwise use default goBack behavior
       if (cameFromProfile) {
         console.log('Navigating back to Profile');
-        navigation.navigate('Profile' as never);
+        navigation.navigate('Profile');
       } else {
         console.log('Using default goBack');
         navigation.goBack();

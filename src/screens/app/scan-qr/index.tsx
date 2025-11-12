@@ -78,7 +78,7 @@ const ScanQr: React.FC = () => {
             </Text>
             <Text
               style={{
-                fontSize: theme.sizes.FONTSIZE_LESS_MEDIUM,
+                fontSize: theme.sizes.FONTSIZE_MEDIUM,
                 color: '#808080',
               }}
             >

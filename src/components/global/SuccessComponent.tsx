@@ -71,7 +71,7 @@ const useStyles = () => {
           color: theme.colors.BLACK,
         },
         TextMed: {
-          fontSize: theme.sizes.FONTSIZE_LARGE,
+          fontSize: theme.sizes.FONT_SIZE_EXTRA_HIGH,
           color: theme.colors.BLACK,
         },
       }),
