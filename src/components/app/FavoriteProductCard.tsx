@@ -8,12 +8,11 @@ import {
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
 } from '../../assets/icons';
-import { FaveItems } from '../../types';
+import { FaveItems, StoreProduct } from '../../types';
 
 interface FavoriteProductCardProps {
-  item: FaveItems;
-
-  onPress: (item: any) => void;
+  item: FaveItems | StoreProduct;
+  onPress: (item: FaveItems | StoreProduct) => void;
 }
 
 const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
@@ -23,10 +22,39 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
   const { theme } = useStyles();
   const { styles } = useStyles();
 
+  // Check if item is StoreProduct or FaveItems
+  const isStoreProduct = 'ItemId' in item && 'Thumbnail' in item;
+  const isFaveItems = 'FavItemId' in item && 'ItemImage' in item;
+
+  // Get values based on type
+  const itemImage = isStoreProduct
+    ? (item as StoreProduct).Thumbnail
+    : isFaveItems
+    ? (item as FaveItems).ItemImage
+    : null;
+  const itemName = isStoreProduct
+    ? (item as StoreProduct).NameEn
+    : isFaveItems
+    ? (item as FaveItems).ItemNameEn
+    : '';
+  const categoryName = isStoreProduct
+    ? (item as StoreProduct).CategoryNameEn
+    : isFaveItems
+    ? (item as FaveItems).CategoryNameEn
+    : '';
+  const price = item.Price || 0;
+
   return (
     <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
       <View style={styles.imageContainer}>
-        <Image source={{ uri: item.ItemImage }} style={styles.image} />
+        <Image
+          source={
+            itemImage
+              ? { uri: itemImage }
+              : require('../../assets/images/dummy1.png')
+          }
+          style={styles.image}
+        />
         <View style={styles.favoriteIcon}>
           {true ? (
             <SvgItemFavouriteIcon
@@ -44,10 +72,10 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
 
       <View style={styles.contentContainer}>
         <Text style={styles.title} numberOfLines={1}>
-          {item.ItemNameEn}
+          {itemName}
         </Text>
         <Text style={styles.subtitle} numberOfLines={1}>
-          {item.CategoryNameEn}
+          {categoryName}
         </Text>
         <View style={styles.priceContainer}>
           <SvgRiyalIcon
@@ -57,7 +85,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
               marginTop: 3.5,
             }}
           />
-          <Text style={styles.price}>{item.Price || 'N/A'}</Text>
+          <Text style={styles.price}>{price || 'N/A'}</Text>
         </View>
       </View>
     </TouchableOpacity>

@@ -246,3 +246,73 @@ export interface OrdersApiResponse {
   Success: boolean;
   ResponseMessage: string;
 }
+
+export interface StoreDocument {
+  DocumentType: string;
+  FileUrl: string;
+}
+
+export interface Store {
+  StoreId: number;
+  UserId: number;
+  NameEn: string;
+  NameAr: string;
+  BrandNameEn: string;
+  BrandNameAr: string;
+  DescriptionEn: string | null;
+  DescriptionAr: string | null;
+  BankName: string;
+  IBAN: string;
+  CityId: number;
+  CityNameEn: string;
+  CityNameAr: string;
+  Email: string;
+  PhoneNo: string;
+  CompanyRegistrationNo: string;
+  VATNumber: string;
+  IsDeliveryEnabled: boolean;
+  NationalAddress: string;
+  CreatedOn: string;
+  BusinessTypeID: number;
+  BusinessTypeName: string;
+  Documents: StoreDocument[];
+}
+
+export interface StoreListApiResponse {
+  Data: {
+    Items: Store[];
+    TotalCount: number;
+  };
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}
+
+export interface StoreProduct {
+  CategoryNameEn: string;
+  CategoryNameAr: string;
+  ItemId: number;
+  NameEn: string;
+  NameAr: string;
+  DescEn: string;
+  DescAr: string;
+  Status: number;
+  Price: number;
+  Thumbnail: string | null;
+  CreatedOn: string;
+  CreatedBy: number;
+  StoreId: number;
+  StoreBranchId: number;
+  CategoryId: number;
+  Categories: any | null;
+}
+
+export interface StoreProductApiResponse {
+  Data: {
+    Items: StoreProduct[];
+    TotalCount: number;
+  };
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}

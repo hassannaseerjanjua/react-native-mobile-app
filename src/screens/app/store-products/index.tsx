@@ -1,18 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import {
-  View,
-  StatusBar,
-  ScrollView,
-  FlatList,
-  Image,
-  Text,
-} from 'react-native';
+import { View, StatusBar, FlatList, Image, Text } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
-import ParentView from '../../../components/app/ParentView.tsx';
-import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
-import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { AppStackScreen } from '../../../types/navigation.types.ts';
@@ -22,6 +12,9 @@ import {
   SvgBackIcon,
   SvgHomeBack,
 } from '../../../assets/icons/index.ts';
+import useGetApi from '../../../hooks/useGetApi.ts';
+import apiEndpoints from '../../../constants/api-endpoints.ts';
+import { StoreProduct, FaveItems } from '../../../types/index.ts';
 
 const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   route,
@@ -31,72 +24,20 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const navigation = useNavigation();
   const store = route.params?.store;
 
-  // Get store data from route params or use defaults
   const storeTitle = store?.title || 'Perfume House';
   const storeSubtitle = store?.subtitle || 'Perfume & Cologne';
-  
-  // Handle background/cover image - prefer backgroundImage, then imageLogo, then default
-  const storeCoverImage = store?.backgroundImage 
-    ? store.backgroundImage 
-    : (store?.imageLogo 
-      ? { uri: store.imageLogo } 
-      : require('../../../assets/images/dummy4.png'));
-  
-  // Handle overlay image - prefer overlayImage, then imageCover, then default
+  const storeCoverImage = store?.backgroundImage
+    ? store.backgroundImage
+    : store?.imageLogo
+    ? { uri: store.imageLogo }
+    : require('../../../assets/images/dummy4.png');
   const storeOverlayImage = store?.overlayImage
     ? store.overlayImage
-    : (store?.imageCover
-      ? { uri: store.imageCover }
-      : require('../../../assets/images/dummy4.png'));
+    : store?.imageCover
+    ? { uri: store.imageCover }
+    : require('../../../assets/images/dummy4.png');
 
-  const mockfavoriteItems = [
-    {
-      id: '1',
-      title: getString('FAV_MOCK_PINK_CHARM_BOUQUET'),
-      coverImage: require('../../../assets/images/dummy1.png'),
-      price: 100,
-      isFavorite: true,
-    },
-    {
-      id: '2',
-      title: getString('FAV_MOCK_PINK_CHARM_BOUQUET'),
-      coverImage: require('../../../assets/images/dummy2.png'),
-      price: 100,
-      isFavorite: true,
-    },
-    {
-      id: '3',
-      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
-      coverImage: require('../../../assets/images/dummy3.png'),
-      price: 100,
-      isFavorite: true,
-    },
-    {
-      id: '4',
-      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
-      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
-      coverImage: require('../../../assets/images/dummy4.png'),
-      price: 100,
-      isFavorite: true,
-    },
-    {
-      id: '5',
-      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
-      coverImage: require('../../../assets/images/dummy4.png'),
-      price: 100,
-      isFavorite: true,
-    },
-    {
-      id: '6',
-      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
-      coverImage: require('../../../assets/images/dummy4.png'),
-      price: 100,
-      isFavorite: true,
-    },
-  ];
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [Steps, setSteps] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
 
   const filterOptions = [
     { id: 'all', title: getString('FAV_ALL') },
@@ -106,49 +47,43 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     { id: 'cake', title: getString('FAV_CAKE') },
   ];
 
-  const [cameFromProfile, setCameFromProfile] = useState(false);
+  const getStoreProducts = useGetApi<StoreProduct[]>(
+    apiEndpoints.GET_STORE_DETAIL(store?.id),
+    {
+      transformData: (data: any) => data.Data.Items || [],
+    },
+  );
 
-  useEffect(() => {
-    const routeParams = route.params as any;
-    console.log('Favorites route params:', routeParams);
-    if (routeParams?.redirectionType === 'profile') {
-      setCameFromProfile(true);
+  const handleProductPress = (item: StoreProduct | FaveItems) => {
+    if ('ItemId' in item && 'Thumbnail' in item) {
+      const product = item as StoreProduct;
+      (navigation as any).navigate('ProductDetails', {
+        product: {
+          id: product.ItemId,
+          itemId: product.ItemId,
+          title: product.NameEn,
+          subtitle: product.CategoryNameEn,
+          coverImage: product.Thumbnail ? { uri: product.Thumbnail } : null,
+          price: product.Price,
+          description: product.DescEn,
+        },
+      });
     } else {
-      setCameFromProfile(false);
+      (navigation as any).navigate('ProductDetails');
     }
-  }, [route.params]);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      setSteps(1);
-      setIsLoading(true);
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    });
-    return unsubscribe;
-  }, [navigation]);
-
-  // Simulate data loadings
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [selectedFilter]);
-
-  const handleProductPress = (item: any) => {
-    navigation.navigate('ProductDetails' as never);
   };
+
+  const filteredProducts =
+    getStoreProducts.data?.filter(product => {
+      if (selectedFilter === 'all') return true;
+      return true;
+    }) || [];
 
   return (
     <View style={{ flex: 1 }}>
       <View style={{ position: 'relative' }}>
         <Image source={storeCoverImage} style={styles.topImage} />
 
-        {/* Overlay icons */}
         <View
           style={{
             position: 'absolute',
@@ -191,16 +126,16 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           />
         </View>
 
-        {isLoading ? (
+        {getStoreProducts.loading ? (
           <SkeletonLoader screenType="productListing" />
         ) : (
           <FlatList
             columnWrapperStyle={{
               gap: 16,
             }}
-            data={mockfavoriteItems}
+            data={filteredProducts}
             numColumns={2}
-            keyExtractor={item => item.id}
+            keyExtractor={item => item.ItemId.toString()}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
             renderItem={({ item }) => (

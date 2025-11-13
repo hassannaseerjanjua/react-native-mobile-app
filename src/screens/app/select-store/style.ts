@@ -12,7 +12,7 @@ const useStyles = () => {
         flex: 1,
       },
       content: {
-        paddingHorizontal: sizes.PADDING,
+        // paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.005,
       },
       favoritesContainer: {

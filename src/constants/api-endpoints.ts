@@ -55,6 +55,9 @@ const apiEndpoints = {
   //store
   GET_FAV_STORE: `/${version}/User/GetFavStores`,
   GET_FAV_STORE_ITEMS: `/${version}/User/GetFavItems`,
+  GET_STORE_LIST: `/${version}/Panel/GetAllActiveStores`,
+  GET_STORE_DETAIL: (storeId?: any, storeBranchId?: any) =>
+    `/${version}/Panel/GetAllItems?StoreId=${storeId}`,
 
   // Settings
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,
