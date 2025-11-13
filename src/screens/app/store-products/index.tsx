@@ -1,5 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StatusBar, FlatList, Image, Text } from 'react-native';
+import {
+  View,
+  StatusBar,
+  FlatList,
+  Image,
+  Text,
+  TouchableOpacity,
+} from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
@@ -98,9 +105,12 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             width: '100%',
           }}
         >
-          <View style={styles.backContainer}>
+          <TouchableOpacity
+            style={styles.backContainer}
+            onPress={() => navigation.goBack()}
+          >
             <SvgHomeBack />
-          </View>
+          </TouchableOpacity>
           <View style={styles.backContainer}>
             <ShareIcon />
           </View>

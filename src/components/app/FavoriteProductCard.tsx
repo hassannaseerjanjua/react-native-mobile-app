@@ -103,6 +103,7 @@ const useStyles = () => {
         borderRadius: 12,
         marginBottom: sizes.HEIGHT * 0.018,
         flex: 1,
+        maxWidth: '48%',
         // marginHorizontal: 4,
       },
       imageContainer: {

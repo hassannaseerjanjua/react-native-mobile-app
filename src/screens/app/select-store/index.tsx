@@ -83,15 +83,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
           title={'Select Store'}
           showBackButton={true}
           onBackPress={() => navigation.goBack()}
-          rightSideTitle={'Title'}
-          rightSideIcon={
-            <ArrowDownIcon
-              width={scaleWithMax(8, 9)}
-              height={scaleWithMax(8, 9)}
-            />
-          }
           showSearchBar={true}
-          rightSideTitleStyle={{ flexDirection: 'row-reverse' }}
         />
         <View style={styles.tabsContainer}>
           <GroupTabs
