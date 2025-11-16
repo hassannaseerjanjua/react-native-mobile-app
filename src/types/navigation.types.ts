@@ -103,9 +103,6 @@ export type AppStackParamList = {
   Orders: undefined;
   LocationSelection: undefined;
   GiftOneGetOne: undefined;
-  StoreDetails: {
-    store: Store;
-  };
 };
 
 export type AuthStackParamList = {
