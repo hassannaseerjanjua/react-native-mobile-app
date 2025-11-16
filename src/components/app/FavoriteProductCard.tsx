@@ -13,11 +13,15 @@ import { FaveItems, StoreProduct } from '../../types';
 interface FavoriteProductCardProps {
   item: FaveItems | StoreProduct;
   onPress: (item: FaveItems | StoreProduct) => void;
+  onFavoritePress?: () => void;
+  isFavorite?: boolean;
 }
 
 const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
   item,
   onPress,
+  isFavorite,
+  onFavoritePress,
 }) => {
   const { theme } = useStyles();
   const { styles } = useStyles();
@@ -55,8 +59,8 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
           }
           style={styles.image}
         />
-        <View style={styles.favoriteIcon}>
-          {true ? (
+        <TouchableOpacity style={styles.favoriteIcon} onPress={onFavoritePress}>
+          {isFavorite ? (
             <SvgItemFavouriteIcon
               width={scaleWithMax(14, 16)}
               height={scaleWithMax(14, 16)}
@@ -67,7 +71,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
               height={scaleWithMax(14, 16)}
             />
           )}
-        </View>
+        </TouchableOpacity>
       </View>
 
       <View style={styles.contentContainer}>

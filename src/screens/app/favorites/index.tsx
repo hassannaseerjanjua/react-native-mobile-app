@@ -1,19 +1,17 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, StatusBar, ScrollView, FlatList } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, StatusBar, FlatList } from 'react-native';
 import { Text } from '../../../utils/elements';
 import useStyles from './style.ts';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
-import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { AppStackScreen } from '../../../types/navigation.types.ts';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { useListingApi } from '../../../hooks/useListingApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
-
-import { FaveItems, FavStores } from '../../../types/index.ts';
-import { useFocusEffect } from '@react-navigation/native';
+import { FavStores } from '../../../types/index.ts';
+import api from '../../../utils/api.ts';
 
 const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   route,
@@ -38,7 +36,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
 
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [Steps, setSteps] = useState(1);
-  const [isLoading, setIsLoading] = useState(true);
 
   const filterOptions = [
     { id: 'all', title: getString('FAV_ALL') },
@@ -50,9 +47,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
 
   const [cameFromProfile, setCameFromProfile] = useState(false);
 
-  // Use a more reliable method to detect if we came from profile
   useEffect(() => {
-    // Check if we have route params indicating we came from profile
     const routeParams = route.params as any;
     console.log('Favorites route params:', routeParams);
     if (routeParams?.redirectionType === 'profile') {
@@ -62,29 +57,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     }
   }, [route.params]);
 
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      setSteps(1);
-      setIsLoading(true);
-      const timer = setTimeout(() => {
-        setIsLoading(false);
-      }, 500);
-      return () => clearTimeout(timer);
-    });
-    return unsubscribe;
-  }, [navigation]);
-
-  // Simulate data loadings
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [selectedFilter]);
-
   const handleStepPress = (item: FavStores | any) => {
-    // Handle FavStores type
     if ('StoreNameEn' in item && 'StoreBranchID' in item) {
       const favStore = item as FavStores;
       navigation.navigate('CatchScreen', {
@@ -110,6 +83,24 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     }
   };
 
+  const handleFavoritePress = async (payload: {
+    ItemId: number;
+    IsFavorite: boolean;
+  }) => {
+    console.log('onFavoritePress', payload);
+    try {
+      const res = await api.post<any>(
+        apiEndpoints.HANDLE_FAVORITE_ITEM,
+        payload,
+      );
+      if (res.data.success) {
+        console.log('Favorite item updated successfully');
+      }
+    } catch (error) {
+      console.log('Error updating favorite item', error);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -132,23 +123,23 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
 
       <View style={styles.content}>
         {FavStoreListing.loading ? (
-          <SkeletonLoader screenType="storeCard" />
+          <View style={styles.favoritesContainer}>
+            <SkeletonLoader screenType="storeCard" />
+          </View>
         ) : (
-          <>
-            {FavStoreListing.data.length > 0 ? (
-              FavStoreListing.data.map(item => (
-                <View style={styles.favoriteItemContainer} key={item.StoreId}>
-                  <FavoriteItemCard
-                    key={item.StoreId}
-                    item={item}
-                    onPress={handleStepPress}
-                  />
-                </View>
-              ))
-            ) : (
-              <Text>No favorites found</Text>
+          <FlatList
+            style={styles.list}
+            data={FavStoreListing.data}
+            keyExtractor={item => item.StoreId.toString()}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.favoritesContainer}
+            renderItem={({ item }) => (
+              <View style={styles.favoriteItemContainer}>
+                <FavoriteItemCard item={item} onPress={handleStepPress} />
+              </View>
             )}
-          </>
+            ListEmptyComponent={<Text>No favorites found</Text>}
+          />
         )}
       </View>
     </View>

@@ -113,8 +113,10 @@ export interface StaticContent {
 
 export interface FAQ {
   FaqId: number;
-  Question: string;
-  Answer: string;
+  QuestionEn: string;
+  QuestionAr: string;
+  AnswerEn: string;
+  AnswerAr: string;
   Status: number;
 }
 
@@ -170,6 +172,7 @@ export interface FaveItems {
   CategoryNameEn: string;
   CategoryNameAr: string;
   Price: number;
+  IsFavorite: boolean;
 }
 export interface OccasionsApiResponse {
   Data: {
@@ -289,6 +292,7 @@ export interface StoreListApiResponse {
 }
 
 export interface StoreProduct {
+  IsFavorite: boolean;
   CategoryNameEn: string;
   CategoryNameAr: string;
   ItemId: number;

@@ -22,6 +22,7 @@ import {
 import useGetApi from '../../../hooks/useGetApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
 import { StoreProduct, FaveItems } from '../../../types/index.ts';
+import api from '../../../utils/api.ts';
 
 const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   route,
@@ -30,19 +31,17 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const { getString } = useLocaleStore();
   const navigation = useNavigation();
   const store = route.params?.store;
-
-  const storeTitle = store?.title || 'Perfume House';
-  const storeSubtitle = store?.subtitle || 'Perfume & Cologne';
-  const storeCoverImage = store?.backgroundImage
-    ? store.backgroundImage
-    : store?.imageLogo
-    ? { uri: store.imageLogo }
-    : require('../../../assets/images/dummy4.png');
-  const storeOverlayImage = store?.overlayImage
-    ? store.overlayImage
-    : store?.imageCover
+  const friendUserId = route.params?.friendUserId ?? null;
+  // Track favorite state for each item by ItemId
+  const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
+    {},
+  );
+  const storeCoverImage = store?.imageCover
     ? { uri: store.imageCover }
-    : require('../../../assets/images/dummy4.png');
+    : require('../../../assets/images/img-placeholder.png');
+  const storeOverlayImage = store?.imageLogo
+    ? { uri: store.imageLogo }
+    : require('../../../assets/images/img-placeholder.png');
 
   const [selectedFilter, setSelectedFilter] = useState('all');
 
@@ -61,22 +60,57 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     },
   );
 
+  // Initialize favorite states from API data
+  useEffect(() => {
+    if (getStoreProducts.data) {
+      const initialState: Record<number, boolean> = {};
+      getStoreProducts.data.forEach(item => {
+        initialState[item.ItemId] = item.IsFavorite ?? false;
+      });
+      setFavoriteStates(initialState);
+    }
+  }, [getStoreProducts.data]);
+
   const handleProductPress = (item: StoreProduct | FaveItems) => {
     if ('ItemId' in item && 'Thumbnail' in item) {
       const product = item as StoreProduct;
       (navigation as any).navigate('ProductDetails', {
-        product: {
-          id: product.ItemId,
-          itemId: product.ItemId,
-          title: product.NameEn,
-          subtitle: product.CategoryNameEn,
-          coverImage: product.Thumbnail ? { uri: product.Thumbnail } : null,
-          price: product.Price,
-          description: product.DescEn,
-        },
+        itemId: product.ItemId,
+        friendUserId,
       });
     } else {
-      (navigation as any).navigate('ProductDetails');
+      (navigation as any).navigate('ProductDetails', {
+        itemId: (item as any)?.ItemId ?? 0,
+        friendUserId,
+      });
+    }
+  };
+
+  const handleFavoritePress = async (payload: {
+    ItemId: number;
+    IsFavorite: boolean;
+  }) => {
+    console.log('onFavoritePress', payload);
+    // Optimistically update the specific item's favorite state
+    setFavoriteStates(prev => ({
+      ...prev,
+      [payload.ItemId]: payload.IsFavorite,
+    }));
+    try {
+      const res = await api.post<any>(
+        apiEndpoints.HANDLE_FAVORITE_ITEM,
+        payload,
+      );
+      if (res.data.success) {
+        console.log('Favorite item updated successfully');
+      }
+    } catch (error) {
+      console.log('Error updating favorite item', error);
+      // Revert the state change on error
+      setFavoriteStates(prev => ({
+        ...prev,
+        [payload.ItemId]: !payload.IsFavorite,
+      }));
     }
   };
 
@@ -90,7 +124,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     <View style={{ flex: 1 }}>
       <View style={{ position: 'relative' }}>
         <Image source={storeCoverImage} style={styles.topImage} />
-
         <View
           style={{
             position: 'absolute',
@@ -120,8 +153,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
       <View style={styles.container}>
         <View style={styles.headingContainer}>
-          <Text style={styles.textLarge}>{storeTitle}</Text>
-          <Text style={styles.textMedium}>{storeSubtitle}</Text>
+          <Text style={styles.textLarge}>{store?.title}</Text>
+          <Text style={styles.textMedium}>{store?.subtitle}</Text>
         </View>
         <StatusBar
           backgroundColor={theme.colors.BACKGROUND}
@@ -148,8 +181,25 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             keyExtractor={item => item.ItemId.toString()}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={<Text>No products found</Text>}
             renderItem={({ item }) => (
-              <FavoriteProductCard item={item} onPress={handleProductPress} />
+              <FavoriteProductCard
+                item={item}
+                onPress={handleProductPress}
+                isFavorite={
+                  favoriteStates[item.ItemId] ?? item.IsFavorite ?? false
+                }
+                onFavoritePress={() => {
+                  handleFavoritePress({
+                    ItemId: item.ItemId,
+                    IsFavorite: !(
+                      favoriteStates[item.ItemId] ??
+                      item.IsFavorite ??
+                      false
+                    ),
+                  });
+                }}
+              />
             )}
           />
         )}

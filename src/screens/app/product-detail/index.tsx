@@ -5,7 +5,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import useStyles from './style';
 import {
   MinusIcon,
@@ -22,37 +22,57 @@ import CustomButton from '../../../components/global/Custombutton';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { AppStackScreen } from '../../../types/navigation.types';
 import ParentView from '../../../components/app/ParentView';
+import apiEndpoints from '../../../constants/api-endpoints';
+import api from '../../../utils/api';
 
 const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   route,
   navigation,
 }) => {
   const { styles, theme } = useStyles();
-  const defaultProduct = useMemo(
-    () => ({
-      id: '0',
-      title: 'Gift Item',
-      subtitle: 'Premium selection',
-      coverImage: require('../../../assets/images/dummy1.png'),
-      price: 0,
-      isFavorite: false,
-      description:
-        'Details for this product are loading. Please check back in a moment.',
-    }),
-    [],
-  );
-
-  const product = route?.params?.product ?? defaultProduct;
+  const itemId = route?.params?.itemId;
+  const friendUserId = route?.params?.friendUserId ?? null;
   const { sizes } = theme;
-  const [selectedFilter, setSelectedFilter] = useState<string>('large');
+  const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
-  const [loading, setLoading] = useState(false);
-  const [isFavorite, setIsFavorite] = useState<boolean>(product.isFavorite);
-  const filterOptions = [
-    { id: 'large', title: 'Large' },
-    { id: 'medium', title: 'Medium' },
-    { id: 'small', title: 'Small' },
-  ];
+  const [loading, setLoading] = useState<boolean>(true);
+  const [isFavorite, setIsFavorite] = useState<boolean>(false);
+  const [item, setItem] = useState<any>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchItem = async () => {
+      setLoading(true);
+      const res = await api.get<any>(apiEndpoints.GET_STORE_ITEM_BY_ID(itemId));
+      if (mounted) {
+        const data = (res.data as any)?.Data ?? null;
+        setItem(data);
+        console.log('data', data);
+        // default selected variant
+        const firstVariantId = data?.Variants?.[0]?.ItemVariantId;
+        setSelectedFilter(firstVariantId ? String(firstVariantId) : '');
+        setLoading(false);
+      }
+    };
+    if (itemId) {
+      fetchItem();
+    } else {
+      setLoading(false);
+    }
+    return () => {
+      mounted = false;
+    };
+  }, [itemId]);
+
+  const filterOptions = useMemo(() => {
+    return (
+      item?.Variants?.map((v: any) => ({
+        id: String(v.ItemVariantId),
+        title: v.NameEn,
+      })) ?? []
+    );
+  }, [item]);
+
   const handleQuantityChange = (type: 'increment' | 'decrement') => {
     if (type === 'increment') {
       setQuantity(prevQuantity => prevQuantity + 1);
@@ -63,12 +83,23 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     }
   };
   const productImages = useMemo(() => {
-    const imageSource = product.coverImage;
-    if (Array.isArray(imageSource)) {
-      return imageSource;
+    const imgs = item?.Images?.map((img: any) => ({ uri: img.ImageUrl })) ?? [];
+    return imgs;
+  }, [item]);
+
+  const handleFavorite = async () => {
+    setIsFavorite(prev => !prev);
+    try {
+      const res = await api.post<any>(apiEndpoints.HANDLE_FAVORITE_ITEM, {
+        ItemId: item?.ItemId,
+      });
+      if (res.data.success) {
+        setIsFavorite(prev => !prev);
+      }
+    } catch (error) {
+      setIsFavorite(prev => !prev);
     }
-    return [imageSource];
-  }, [product.coverImage]);
+  };
 
   return (
     <ParentView edges={['bottom']}>
@@ -106,7 +137,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.rounded_white_background}
-          onPress={() => setIsFavorite(prev => !prev)}
+          onPress={() => handleFavorite()}
         >
           {isFavorite ? (
             <SvgItemFavouriteIcon
@@ -143,7 +174,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           <View style={styles.LowerContainer}>
             <View style={styles.ProductTitleContainer}>
               <View style={styles.titleRow}>
-                <Text style={styles.ProductTitle}>{product.title}</Text>
+                <Text style={styles.ProductTitle}>{item?.NameEn ?? ''}</Text>
                 <View style={styles.priceContainer}>
                   <SvgRiyalIcon
                     width={scaleWithMax(15, 18)}
@@ -152,7 +183,11 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                       marginTop: 3.5,
                     }}
                   />
-                  <Text style={styles.price}>{product.price}</Text>
+                  <Text style={styles.price}>
+                    {item?.Price !== undefined && item?.Price !== null
+                      ? String(item?.Price)
+                      : ''}
+                  </Text>
                 </View>
               </View>
               {/* <Text style={styles.SubTitle}>{product.subtitle}</Text> */}
@@ -161,7 +196,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
             <View style={styles.ProductDescriptionContainer}>
               <Text style={styles.Heading}>Description</Text>
-              <Text style={styles.Description}>{product.description}</Text>
+              <Text style={styles.Description}>{item?.DescEn ?? ''}</Text>
             </View>
             <Text style={styles.Heading}>Variants</Text>
           </View>
@@ -214,11 +249,25 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             onPress={() =>
               navigation.navigate('GiftMessage', {
                 product: {
-                  id: product.id,
-                  title: product.title,
-                  subtitle: product.subtitle,
-                  image: product.coverImage,
-                  price: product.price,
+                  id: item?.ItemId,
+                  itemId: item?.ItemId,
+                  title: item?.NameEn ?? '',
+                  subtitle: item?.CategoryName ?? '',
+                  image: item?.Images?.[0]?.ImageUrl
+                    ? { uri: item.Images[0].ImageUrl }
+                    : undefined,
+                  price: item?.Price ?? 0,
+                  categoryName: item?.CategoryName,
+                },
+                // pass payload parts forward for checkout
+                friendUserId: friendUserId ?? undefined,
+                addToCartPayload: {
+                  FriendId: friendUserId ?? undefined,
+                  ItemId: item?.ItemId,
+                  ItemVariantId: selectedFilter
+                    ? Number(selectedFilter)
+                    : undefined,
+                  Quantity: quantity,
                 },
               })
             }

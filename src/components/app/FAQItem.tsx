@@ -31,6 +31,13 @@ const FAQItem: React.FC<FAQItemProps> = ({
   const { isRtl } = useLocaleStore();
   const [isExpanded, setIsExpanded] = useState(false);
 
+  const questionText = isRtl
+    ? item.QuestionAr ?? item.QuestionEn
+    : item.QuestionEn ?? item.QuestionAr;
+  const answerText = isRtl
+    ? item.AnswerAr ?? item.AnswerEn
+    : item.AnswerEn ?? item.AnswerAr;
+
   const handlePress = () => {
     setIsExpanded(!isExpanded);
     onPress?.();
@@ -45,11 +52,15 @@ const FAQItem: React.FC<FAQItemProps> = ({
       >
         <View style={styles.contentContainer}>
           <Text
-            style={[styles.titleText, textStyle]}
+            style={[
+              styles.titleText,
+              { textAlign: isRtl ? 'right' : 'left' },
+              textStyle,
+            ]}
             numberOfLines={isExpanded ? undefined : 1}
             ellipsizeMode="tail"
           >
-            {item.Question}
+            {questionText}
           </Text>
         </View>
         <SvgNextIcon
@@ -67,7 +78,11 @@ const FAQItem: React.FC<FAQItemProps> = ({
 
       {isExpanded && (
         <View style={styles.answerContainer}>
-          <Text style={styles.answerText}>{item.Answer}</Text>
+          <Text
+            style={[styles.answerText, { textAlign: isRtl ? 'right' : 'left' }]}
+          >
+            {answerText}
+          </Text>
         </View>
       )}
     </View>

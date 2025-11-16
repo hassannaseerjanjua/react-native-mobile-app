@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
@@ -73,9 +73,33 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const { getString, isRtl } = useLocaleStore();
   const defaultSearchPlaceholder =
     searchPlaceholder || getString('HOME_SEARCH');
+
+  // Internal state for search when onSearchChange is not provided
+  const [internalSearchValue, setInternalSearchValue] = useState(
+    searchValue || '',
+  );
+
+  // Sync internal state with prop when it changes
+  useEffect(() => {
+    if (onSearchChange) {
+      setInternalSearchValue(searchValue || '');
+    }
+  }, [searchValue, onSearchChange]);
+
   const handleSearchPress = () => {
     navigation.navigate('Search' as never);
   };
+
+  const handleSearchChange = (text: string) => {
+    if (onSearchChange) {
+      onSearchChange(text);
+    } else {
+      setInternalSearchValue(text);
+    }
+  };
+
+  // Use controlled value if onSearchChange is provided, otherwise use internal state
+  const displaySearchValue = onSearchChange ? searchValue : internalSearchValue;
 
   const handleBackPress = () => {
     if (onBackPress) {
@@ -161,8 +185,12 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             style={[styles.searchInput, { textAlign: rtlTextAlign(isRtl) }]}
             placeholder={defaultSearchPlaceholder}
             placeholderTextColor="#A0A0A0EE"
-            value={searchValue}
-            onChangeText={onSearchChange}
+            value={displaySearchValue}
+            onChangeText={handleSearchChange}
+            editable={true}
+            autoCorrect={false}
+            autoCapitalize="none"
+            returnKeyType="search"
           />
         </View>
       )}

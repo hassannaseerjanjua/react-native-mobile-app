@@ -1,11 +1,5 @@
 import React from 'react';
-import {
-  View,
-  StatusBar,
-  ScrollView,
-  Image,
-  FlatList,
-} from 'react-native';
+import { View, StatusBar, ScrollView, Image, FlatList } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
 import { Text } from '../../../utils/elements';
@@ -113,7 +107,10 @@ const OrdersScreen: React.FC = () => {
         <FlatList
           data={orders}
           keyExtractor={item => item.OrderId.toString()}
-          contentContainerStyle={[styles.scrollContent, styles.contentContainer]}
+          contentContainerStyle={[
+            styles.scrollContent,
+            styles.contentContainer,
+          ]}
           showsVerticalScrollIndicator={false}
           renderItem={({ item }) => (
             <View style={{ marginBottom: theme.sizes.PADDING * 0.8 }}>
@@ -132,7 +129,7 @@ interface OrderCardProps {
 
 const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   const { styles } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
 
   const firstItem = order.Items?.[0];
   const itemImage = firstItem?.Images?.[0]
@@ -141,7 +138,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   const itemName = firstItem?.ItemName || getString('O_FLOWER_BOUQUET');
   const storeName = order.FriendName || getString('O_COFFEEMATICS');
   const phoneNumber = '0300-16413168';
-  const orderDate = order.OrderDate || order.CreatedOn || new Date().toISOString();
+  const orderDate =
+    order.OrderDate || order.CreatedOn || new Date().toISOString();
 
   return (
     <View style={styles.orderCard}>
@@ -181,25 +179,32 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
           <Text style={styles.detailValue}>{formatDate(orderDate)}</Text>
         </View>
 
-        {order.Items?.map((item) => {
+        {order.Items?.map(item => {
           const itemTotal = item.OrderAmount ?? item.UnitPrice * item.Quantity;
+          const variantName = isRtl
+            ? item.Variant?.NameAr ?? item.Variant?.NameEn
+            : item.Variant?.NameEn ?? item.Variant?.NameAr;
           return (
             <View key={item.OrderItemId} style={styles.itemRow}>
               <Text style={styles.detailLabel}>
                 {item.Quantity}x {item.ItemName}
               </Text>
               <View style={styles.itemDetails}>
-                {item.Variant?.NameEn && (
-                  <Text style={styles.itemSize}>{item.Variant.NameEn}</Text>
+                {!!variantName && (
+                  <Text
+                    style={styles.itemSize}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    {variantName}
+                  </Text>
                 )}
                 <View style={styles.priceContainer}>
                   <SvgRiyalIcon
                     width={scaleWithMax(12, 14)}
                     height={scaleWithMax(12, 14)}
                   />
-                  <Text style={styles.itemPrice}>
-                    {itemTotal.toFixed(2)}
-                  </Text>
+                  <Text style={styles.itemPrice}>{itemTotal.toFixed(2)}</Text>
                 </View>
               </View>
             </View>

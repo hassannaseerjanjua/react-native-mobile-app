@@ -13,7 +13,8 @@ platform :ios do
       export_method: "ad-hoc",
       output_directory: "./build",
       output_name: "GifteeRN.ipa",
-      clean: true
+      clean: true,
+      export_xcargs: "-allowProvisioningUpdates"
     )
     
     # Upload to Firebase App Distribution

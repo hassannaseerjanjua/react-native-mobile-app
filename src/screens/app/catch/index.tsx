@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { StatusBar, FlatList, View } from 'react-native';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -12,6 +12,7 @@ import useGetApi from '../../../hooks/useGetApi';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { FaveItems } from '../../../types';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import api from '../../../utils/api';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -22,7 +23,10 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
   const storeID = route.params?.storeID;
-
+  // Track favorite state for each item by ItemId
+  const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
+    {},
+  );
   const mockCatchItems = [
     {
       id: '1',
@@ -94,6 +98,17 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     },
   );
 
+  // Initialize favorite states from API data when screenType is 'favorite'
+  useEffect(() => {
+    if (screenType === 'favorite' && getFavoriteItems.data) {
+      const initialState: Record<number, boolean> = {};
+      getFavoriteItems.data.forEach(item => {
+        initialState[item.ItemId] = item.IsFavorite ?? true;
+      });
+      setFavoriteStates(initialState);
+    }
+  }, [screenType, getFavoriteItems.data]);
+
   const filterOptions = useMemo(
     () => [
       { id: 'all', title: getString('FAV_ALL') },
@@ -129,31 +144,41 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     if (screenType === 'favorite') {
       const favItem = item as FaveItems;
       navigation.navigate('ProductDetails', {
-        product: {
-          id: favItem.ItemId.toString(),
-          title: favItem.ItemNameEn,
-          subtitle: favItem.CategoryNameEn,
-          coverImage: favItem.ItemImage ? { uri: favItem.ItemImage } : null,
-          price: favItem.Price,
-          description: '',
-          category: favItem.CategoryNameEn?.toLowerCase() as any,
-          isFavorite: true,
-        },
+        itemId: favItem.ItemId,
       });
     } else {
       const mockItem = item as (typeof mockCatchItems)[number];
       navigation.navigate('ProductDetails', {
-        product: {
-          id: mockItem.id,
-          title: mockItem.title,
-          subtitle: mockItem.subtitle,
-          coverImage: mockItem.coverImage,
-          price: mockItem.discountedPrice || mockItem.price,
-          isFavorite: mockItem.isFavorite,
-          description: mockItem.description,
-          category: mockItem.category as any,
-        },
+        itemId: Number(mockItem.id),
       });
+    }
+  };
+
+  const handleFavoritePress = async (payload: {
+    ItemId: number;
+    IsFavorite: boolean;
+  }) => {
+    console.log('onFavoritePress', payload);
+    // Optimistically update the specific item's favorite state
+    setFavoriteStates(prev => ({
+      ...prev,
+      [payload.ItemId]: payload.IsFavorite,
+    }));
+    try {
+      const res = await api.post<any>(
+        apiEndpoints.HANDLE_FAVORITE_ITEM,
+        payload,
+      );
+      if (res.data.success) {
+        console.log('Favorite item updated successfully');
+      }
+    } catch (error) {
+      console.log('Error updating favorite item', error);
+      // Revert the state change on error
+      setFavoriteStates(prev => ({
+        ...prev,
+        [payload.ItemId]: !payload.IsFavorite,
+      }));
     }
   };
 
@@ -199,6 +224,19 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                 <FavoriteProductCard
                   item={item as FaveItems}
                   onPress={handleProductPress}
+                  isFavorite={
+                    favoriteStates[item.ItemId] ?? item.IsFavorite ?? true
+                  }
+                  onFavoritePress={() => {
+                    handleFavoritePress({
+                      ItemId: item.ItemId,
+                      IsFavorite: !(
+                        favoriteStates[item.ItemId] ??
+                        item.IsFavorite ??
+                        true
+                      ),
+                    });
+                  }}
                 />
               ) : (
                 <CatchProductCard

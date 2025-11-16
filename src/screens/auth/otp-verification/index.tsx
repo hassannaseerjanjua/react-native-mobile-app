@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, TextInput, Keyboard } from 'react-native';
+import {
+  View,
+  TextInput,
+  Keyboard,
+  AppState,
+  AppStateStatus,
+} from 'react-native';
 import { useDispatch } from 'react-redux';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
@@ -31,23 +37,82 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const [isResending, setIsResending] = useState(false);
   const [hasVerified, setHasVerified] = useState(false);
   const [lastVerifiedOtp, setLastVerifiedOtp] = useState<string>('');
+  const backgroundTimeRef = useRef<number | null>(null);
+  const timerRef = useRef<number>(60);
+  const isTimerActiveRef = useRef<boolean>(true);
 
   // Get email and phone from route parameters
   const { email, phone, fullName, username, city, signIn } = route.params;
 
   console.log('params received', route.params);
 
+  // Sync refs with state
+  useEffect(() => {
+    timerRef.current = timer;
+  }, [timer]);
+
+  useEffect(() => {
+    isTimerActiveRef.current = isTimerActive;
+  }, [isTimerActive]);
+
+  // Handle app state changes (background/foreground)
+  useEffect(() => {
+    const subscription = AppState.addEventListener(
+      'change',
+      (nextAppState: AppStateStatus) => {
+        if (nextAppState === 'background' || nextAppState === 'inactive') {
+          // App is going to background - store the current time
+          backgroundTimeRef.current = Date.now();
+        } else if (nextAppState === 'active') {
+          // App is coming to foreground - calculate elapsed time
+          if (
+            backgroundTimeRef.current &&
+            isTimerActiveRef.current &&
+            timerRef.current > 0
+          ) {
+            const elapsedSeconds = Math.floor(
+              (Date.now() - backgroundTimeRef.current) / 1000,
+            );
+            const newTimer = Math.max(0, timerRef.current - elapsedSeconds);
+            setTimer(newTimer);
+            timerRef.current = newTimer;
+            if (newTimer === 0) {
+              setIsTimerActive(false);
+              isTimerActiveRef.current = false;
+            }
+            backgroundTimeRef.current = null;
+          }
+        }
+      },
+    );
+
+    return () => {
+      subscription.remove();
+    };
+  }, []);
+
+  // Timer countdown
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (isTimerActive && timer > 0) {
       interval = setInterval(() => {
-        setTimer(timer - 1);
+        setTimer(prevTimer => {
+          const newTimer = prevTimer - 1;
+          timerRef.current = newTimer;
+          if (newTimer <= 0) {
+            setIsTimerActive(false);
+            isTimerActiveRef.current = false;
+            return 0;
+          }
+          return newTimer;
+        });
       }, 1000);
     } else if (timer === 0) {
       setIsTimerActive(false);
+      isTimerActiveRef.current = false;
     }
     return () => clearInterval(interval);
-  }, [timer, isTimerActive]);
+  }, [isTimerActive, timer]);
 
   // Auto-focus first input to open keyboard
   useEffect(() => {
@@ -163,6 +228,9 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setIsResending(true);
     setTimer(60);
     setIsTimerActive(true);
+    timerRef.current = 60;
+    isTimerActiveRef.current = true;
+    backgroundTimeRef.current = null;
     const endpoint = signIn ? apiEndpoints.SIGNIN : apiEndpoints.SIGNUP;
     console.log('Resending OTP...');
     // Handle resend OTP logic here

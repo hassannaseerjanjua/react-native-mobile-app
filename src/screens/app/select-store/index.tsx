@@ -13,20 +13,19 @@ import {
   AppStackParamList,
 } from '../../../types/navigation.types.ts';
 import { useLocaleStore } from '../../../store/reducer/locale';
-import { ArrowDownIcon } from '../../../assets/icons/index.ts';
-import { scaleWithMax } from '../../../utils/index.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
 import { Store } from '../../../types/index.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 
 const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
+  const friendUserId = route?.params?.friendUserId ?? null;
+  console.log('friendUserId', friendUserId);
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const navigation =
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const [isLoading, setIsLoading] = useState(true);
 
   const filterOptions = [
     { id: 'all', title: getString('FAV_ALL') },
@@ -35,14 +34,6 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     { id: 'flowers', title: getString('FAV_FLOWERS') },
     { id: 'cake', title: getString('FAV_CAKE') },
   ];
-
-  useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [selectedFilter]);
 
   const handleStoreSelect = (item: Store | any) => {
     const store = item as Store;
@@ -63,6 +54,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         imageLogo: brandLogo || null,
         imageCover: brandLogoAttachment || brandLogo || null,
       },
+      friendUserId: friendUserId ?? undefined,
     });
   };
 
@@ -94,8 +86,14 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         </View>
 
         <View style={styles.content}>
-          {isLoading ? (
-            <SkeletonLoader screenType="storeCard" />
+          {storeListApi.loading ? (
+            <View
+              style={{
+                paddingHorizontal: theme.sizes.PADDING,
+              }}
+            >
+              <SkeletonLoader screenType="storeCard" />
+            </View>
           ) : (
             <>
               <FlatList

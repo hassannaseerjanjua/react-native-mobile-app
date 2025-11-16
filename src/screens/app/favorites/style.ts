@@ -12,12 +12,17 @@ const useStyles = () => {
         flex: 1,
       },
       content: {
-        paddingHorizontal: sizes.PADDING,
+        flex: 1,
+        // paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.005,
+      },
+      list: {
+        flex: 1,
       },
       favoritesContainer: {
         // paddingTop: sizes.PADDING,
         paddingHorizontal: sizes.PADDING,
+        paddingBottom: sizes.PADDING * 2,
         paddingTop: sizes.HEIGHT * 0.005,
       },
       favoriteItemContainer: {

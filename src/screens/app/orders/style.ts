@@ -22,8 +22,8 @@ const useStyles = () => {
       },
       scrollContent: {},
       contentContainer: {
-        flex: 1,
         paddingHorizontal: sizes.PADDING,
+        // paddingBottom: sizes.PADDING,
       },
       orderCard: {
         backgroundColor: colors.WHITE,
@@ -115,6 +115,8 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.regular,
         fontSize: sizes.FONTSIZE,
         color: colors.BLACK,
+        flexShrink: 1,
+        maxWidth: '48%',
       },
       detailValue: {
         fontFamily: fonts.Quicksand.medium,
@@ -128,13 +130,15 @@ const useStyles = () => {
         alignItems: 'center',
         gap: sizes.PADDING * 0.5,
         justifyContent: 'space-between',
-        flex: 0.6,
+        flex: 0.75,
       },
       itemSize: {
         fontFamily: fonts.Quicksand.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.BLACK,
         textAlign: 'center',
+        flex: 1,
+        minWidth: 0,
       },
       itemPrice: {
         fontFamily: fonts.Quicksand.semibold,
@@ -146,6 +150,8 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'flex-end',
+        flexShrink: 0,
+        marginLeft: sizes.PADDING * 0.5,
       },
       totalLabel: {
         fontFamily: fonts.Quicksand.semibold,

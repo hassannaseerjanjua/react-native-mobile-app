@@ -63,8 +63,6 @@ const OutBox: React.FC = () => {
             isLast={index === outBoxes.length - 1}
             key={index}
             OutBox={item}
-            // onPress={() => navigation.navigate('ScanQr' as never)}
-            onPress={() => {}}
           />
         ))}
       </ScrollView>
@@ -74,16 +72,13 @@ const OutBox: React.FC = () => {
 const OutboxItem = ({
   OutBox,
   isLast,
-  onPress,
 }: {
   OutBox: OutboxItemProps;
   isLast: boolean;
-  onPress: () => void;
 }) => {
   const { styles, theme } = useStyles();
   return (
-    <TouchableOpacity
-      onPress={onPress}
+    <View
       style={{
         ...styles.inboxTop,
         borderBottomWidth: isLast ? 0 : 0.7,
@@ -176,7 +171,7 @@ const OutboxItem = ({
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 

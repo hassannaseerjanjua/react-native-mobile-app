@@ -22,34 +22,54 @@ import { useNavigation } from '@react-navigation/native';
 import CustomFooter from '../../../components/global/CustomFooter';
 import { Text } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
+import api from '../../../utils/api';
+import apiEndpoints from '../../../constants/api-endpoints';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
-  const { product } = route.params;
+  const { product, addToCartPayload } = route.params as any;
 
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState(addToCartPayload?.Quantity ?? 1);
   const [checkoutCompleted, setCheckoutCompleted] = useState(false);
   const [selectedCircle, setSelectedCircle] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const handleQuantityChange = (type: 'increment' | 'decrement') => {
     if (type === 'increment') {
-      setQuantity(prevQuantity => prevQuantity + 1);
+      setQuantity((prevQuantity: number) => prevQuantity + 1);
     } else {
       if (quantity > 1) {
-        setQuantity(prevQuantity => prevQuantity - 1);
+        setQuantity((prevQuantity: number) => prevQuantity - 1);
       }
     }
   };
 
-  // Default values if product is not provided
-  const productImage = product?.image || require('../../../assets/images/dummy1.png');
-  const productTitle = product?.title || 'Flower bouquet';
-  const productSubtitle = product?.subtitle || 'Coffematics';
-  // Product price is already the final price (discounted if applicable) from navigation
-  const productPrice = product?.price || 200;
-  const feelingFees = 15;
-  const totalAmount = (productPrice * quantity) + feelingFees;
+  const productImage =
+    product?.image || require('../../../assets/images/img-placeholder.png');
+  const productTitle = product?.title;
+  const productSubtitle = product?.subtitle;
+  const productPrice = product?.price;
+  const totalAmount = productPrice * quantity;
+
+  const submitAddToCart = async () => {
+    try {
+      setSubmitting(true);
+      console.log('addToCartPayload', addToCartPayload);
+      const payload = {
+        FriendId: addToCartPayload?.FriendId ?? null,
+        ItemId: addToCartPayload.ItemId,
+        ItemVariantId: addToCartPayload.ItemVariantId,
+        Quantity: quantity ?? addToCartPayload.Quantity ?? 1,
+      };
+      await api.post(apiEndpoints.ADD_TO_CART, payload);
+      setCheckoutCompleted(true);
+    } catch (e) {
+      setCheckoutCompleted(true);
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   const GiftSend = require('../../../assets/images/gift-send.png');
   return !checkoutCompleted ? (
@@ -156,19 +176,16 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             <Text style={styles.TextMedium}>Total Amount</Text>
             <PriceWithIcon Price={productPrice * quantity} />
           </View>
-          <View style={styles.Prices}>
+          {/* <View style={styles.Prices}>
             <Text style={styles.TextMedium}>Feeling Fees</Text>
             <PriceWithIcon Price={feelingFees} />
-          </View>
+          </View> */}
           <Text style={styles.vatNote}>All prices are 15% VAT Inclusive</Text>
         </View>
       </ScrollView>
       <View style={styles.footerContainer}>
         <View style={{ position: 'relative' }}>
-          <CustomButton
-            title="Proceed to Checkout"
-            onPress={() => setCheckoutCompleted(true)}
-          />
+          <CustomButton title="Proceed to Checkout" onPress={submitAddToCart} />
           <View style={styles.footerPriceWrapper}>
             <PriceWithIcon
               Price={totalAmount}

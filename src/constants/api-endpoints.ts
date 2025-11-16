@@ -64,6 +64,7 @@ const apiEndpoints = {
     `/${version}/Panel/GetAllItems?StoreId=${storeId}`,
   GET_STORE_ITEM_BY_ID: (itemId?: any) =>
     `/${version}/Panel/GetItemById?itemId=${itemId}`,
+  ADD_TO_CART: `/${version}/User/AddToGiftCart`,
 
   // Settings
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,

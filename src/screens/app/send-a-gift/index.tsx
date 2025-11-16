@@ -236,7 +236,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                     showAddButton={false}
                     showSelection={false}
                     onPress={() => {
-                      navigation.navigate('SelectStore' as never);
+                      navigation.navigate('SelectStore', {
+                        friendUserId: item.UserId,
+                      });
                     }}
                   />
                 )}

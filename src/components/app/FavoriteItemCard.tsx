@@ -58,7 +58,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
     backgroundImage =
       brandLogoAttachment || brandLogo
         ? { uri: brandLogoAttachment || brandLogo }
-        : require('../../assets/images/perfumeHouseCover.png');
+        : require('../../assets/images/img-placeholder.png');
     overlayImage = brandLogo
       ? { uri: brandLogo }
       : require('../../assets/images/perfumeHouse.png');
@@ -68,10 +68,10 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
     businessType = favStore.BusinessTypeNameEn;
     backgroundImage = favStore.ImageLogo
       ? { uri: favStore.ImageLogo }
-      : require('../../assets/images/perfumeHouseCover.png');
+      : require('../../assets/images/img-placeholder.png');
     overlayImage = favStore.ImageCover
       ? { uri: favStore.ImageCover }
-      : require('../../assets/images/perfumeHouse.png');
+      : require('../../assets/images/img-placeholder.png');
   } else {
     const mockItem = item as MockStoreItem;
     storeName = mockItem.title;

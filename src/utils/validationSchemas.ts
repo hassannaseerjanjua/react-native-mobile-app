@@ -27,14 +27,50 @@ export const usernameValidation = (getString: GetString) =>
     .trim()
     .required(getString('AU_SU_USERNAME_IS_REQUIRED'))
     .min(3, getString('AU_SU_USERNAME_ATLEAST'))
-    .max(50, getString('AU_SU_USERNAME_LESS_THAN'));
+    .max(50, getString('AU_SU_USERNAME_LESS_THAN'))
+    .matches(
+      /^[a-zA-Z0-9_-]+$/,
+      getString('AU_SU_USERNAME_INVALID') ||
+        'Username can only contain letters, numbers, underscores, and hyphens',
+    )
+    .test(
+      'no-emoji',
+      getString('AU_SU_USERNAME_NO_EMOJI') ||
+        'Username cannot contain emojis or special characters',
+      value => {
+        if (!value) return true;
+        // Check for emojis and other invalid characters
+        const emojiRegex =
+          /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu;
+        return !emojiRegex.test(value);
+      },
+    );
 
 export const fullNameValidation = (getString: GetString) =>
   Yup.string()
     .trim()
     .required(getString('AU_SU_FULLNAME_REQUIRE'))
     .min(3, getString('AU_SU_FULLNAME_ATLEAST'))
-    .max(50, getString('AU_SU_FULLNAME_LESS_THAN'));
+    .max(50, getString('AU_SU_FULLNAME_LESS_THAN'))
+    .matches(
+      /^[a-zA-Z\s'-]+$/,
+      getString('AU_SU_FULLNAME_INVALID') ||
+        'Name can only contain letters, spaces, hyphens, and apostrophes',
+    )
+    .test(
+      'no-emoji',
+      getString('AU_SU_FULLNAME_NO_EMOJI') ||
+        'Name cannot contain emojis, numbers, or special characters',
+      value => {
+        if (!value) return true;
+        // Check for emojis
+        const emojiRegex =
+          /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu;
+        // Check for numbers
+        const numberRegex = /\d/;
+        return !emojiRegex.test(value) && !numberRegex.test(value);
+      },
+    );
 
 export const cityValidation = (getString: GetString) =>
   Yup.string().required(getString('AU_SU_CITY_REQUIRED'));
