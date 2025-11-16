@@ -24,12 +24,14 @@ import { AppStackScreen } from '../../../types/navigation.types';
 import ParentView from '../../../components/app/ParentView';
 import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   route,
   navigation,
 }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const itemId = route?.params?.itemId;
   const friendUserId = route?.params?.friendUserId ?? null;
   const { sizes } = theme;
@@ -194,14 +196,18 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                 </View>
               </View>
               {/* <Text style={styles.SubTitle}>{product.subtitle}</Text> */}
-              <Text style={styles.TaxIncludeText}>All Price Include tax</Text>
+              <Text style={styles.TaxIncludeText}>
+                {getString('PRODUCT_ALL_PRICE_INCLUDE_TAX')}
+              </Text>
             </View>
 
             <View style={styles.ProductDescriptionContainer}>
-              <Text style={styles.Heading}>Description</Text>
+              <Text style={styles.Heading}>
+                {getString('PRODUCT_DESCRIPTION')}
+              </Text>
               <Text style={styles.Description}>{item?.DescEn ?? ''}</Text>
             </View>
-            <Text style={styles.Heading}>Variants</Text>
+            <Text style={styles.Heading}>{getString('PRODUCT_VARIANTS')}</Text>
           </View>
           <View style={styles.tabsContainer}>
             <GroupTabs
@@ -274,7 +280,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                 },
               })
             }
-            title="Add To Cart"
+            title={getString('PRODUCT_ADD_TO_CART')}
           />
         </View>
       </View>

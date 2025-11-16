@@ -13,6 +13,7 @@ import { scaleWithMax } from '../../utils';
 import { SvgDropDown } from '../../assets/icons';
 import InputField from './InputField';
 import { Text } from '../../utils/elements';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 export type DropdownOption = {
   label: any;
@@ -51,6 +52,7 @@ const DropdownField = ({
   selectedOption,
 }: Props) => {
   const { theme, styles } = useStyles();
+  const { getString } = useLocaleStore();
   const [isVisible, setIsVisible] = useState(false);
 
   const handleSelect = (option: DropdownOption) => {
@@ -193,8 +195,8 @@ const DropdownField = ({
                     <View style={styles.emptyContainer}>
                       <Text style={styles.emptyText}>
                         {searchValue
-                          ? 'No results found'
-                          : 'No options available'}
+                          ? getString('EMPTY_NO_RESULTS_FOUND')
+                          : getString('EMPTY_NO_OPTIONS_AVAILABLE')}
                       </Text>
                     </View>
                   )}

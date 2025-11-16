@@ -10,6 +10,7 @@ import DatePicker from 'react-native-date-picker';
 import CustomFooter from '../../../components/global/CustomFooter';
 import CustomButton from '../../../components/global/Custombutton';
 import { Text } from '../../../utils/elements';
+import { useLocaleStore } from '../../../store/reducer/locale';
 const AddCart: React.FC = () => {
   const initialValues = {
     CardNumber: '',
@@ -41,6 +42,7 @@ const AddCart: React.FC = () => {
     return new Date();
   });
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const formatCardNumber = (raw: string) => {
     const digitsOnly = raw.replace(/\D+/g, '').slice(0, 19);
@@ -53,7 +55,7 @@ const AddCart: React.FC = () => {
   };
   return (
     <ParentView>
-      <HomeHeader title="Add Card" showBackButton />
+      <HomeHeader title={getString('ADD_CARD_TITLE')} showBackButton />
       <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
         <Formik
           initialValues={initialValues}
@@ -64,7 +66,7 @@ const AddCart: React.FC = () => {
           {formik => (
             <>
               <View style={styles.formContainer}>
-                <Text style={styles.label}>Card Number</Text>
+                <Text style={styles.label}>{getString('ADD_CARD_NUMBER_LABEL')}</Text>
                 <View style={styles.inputContainer}>
                   <InputField
                     error={
@@ -73,7 +75,7 @@ const AddCart: React.FC = () => {
                         : undefined
                     }
                     fieldProps={{
-                      placeholder: 'Card number',
+                      placeholder: getString('ADD_CARD_NUMBER_PLACEHOLDER'),
                       value: formik.values.CardNumber,
                       onChangeText: (value: string) => {
                         const formatted = formatCardNumber(value);
@@ -96,7 +98,7 @@ const AddCart: React.FC = () => {
                 }}
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.label}>Expiry Date </Text>
+                  <Text style={styles.label}>{getString('ADD_CARD_EXPIRY_LABEL')} </Text>
                   <View style={styles.inputContainer}>
                     <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                       <InputField
@@ -106,7 +108,7 @@ const AddCart: React.FC = () => {
                             : undefined
                         }
                         fieldProps={{
-                          placeholder: '08/27',
+                          placeholder: getString('ADD_CARD_EXPIRY_PLACEHOLDER'),
                           value: formik.values.ExpiryDate,
                           // onChangeText: (value: string) => {
                           //   formik.setFieldValue('CardNumber', value);
@@ -141,7 +143,7 @@ const AddCart: React.FC = () => {
                   </View>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.label}>CVV</Text>
+                  <Text style={styles.label}>{getString('ADD_CARD_CVV_LABEL')}</Text>
                   <View style={styles.inputContainer}>
                     <InputField
                       error={
@@ -150,7 +152,7 @@ const AddCart: React.FC = () => {
                           : undefined
                       }
                       fieldProps={{
-                        placeholder: 'CVV',
+                        placeholder: getString('ADD_CARD_CVV_PLACEHOLDER'),
                         value: formik.values.CVV,
                         onChangeText: (value: string) => {
                           const digits = value.replace(/\D+/g, '').slice(0, 4);
@@ -166,7 +168,7 @@ const AddCart: React.FC = () => {
                 </View>
               </View>
               <View style={styles.formContainer}>
-                <Text style={styles.label}>Card Holder</Text>
+                <Text style={styles.label}>{getString('ADD_CARD_HOLDER_LABEL')}</Text>
                 <View style={styles.inputContainer}>
                   <InputField
                     error={
@@ -175,7 +177,7 @@ const AddCart: React.FC = () => {
                         : undefined
                     }
                     fieldProps={{
-                      placeholder: 'Card holder',
+                      placeholder: getString('ADD_CARD_HOLDER_PLACEHOLDER'),
                       value: formik.values.CardHolder,
                       onChangeText: (value: string) => {
                         formik.setFieldValue('CardHolder', value);
@@ -190,7 +192,7 @@ const AddCart: React.FC = () => {
         </Formik>
       </View>
       <CustomFooter>
-        <CustomButton title="Add New Card" onPress={() => {}} />
+        <CustomButton title={getString('ADD_CARD_BUTTON')} onPress={() => {}} />
       </CustomFooter>
     </ParentView>
   );

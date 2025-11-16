@@ -112,7 +112,7 @@ const GiftOneGetOneScreen: React.FC<AppStackScreen<'GiftOneGetOne'>> = ({
         barStyle="dark-content"
       />
       <HomeHeader
-        title={`Select Store`}
+        title={getString('SELECT_STORE_TITLE')}
         showBackButton
         onBackPress={() => navigation.goBack()}
         showSearchBar

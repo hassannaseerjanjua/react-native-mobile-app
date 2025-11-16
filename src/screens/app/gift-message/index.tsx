@@ -7,12 +7,14 @@ import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
 import { Text } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   route,
   navigation,
 }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const [message, setMessage] = useState('');
   const { product, addToCartPayload, friendUserId } = route.params as any;
   const GiftFilter = require('../../../assets/images/gift-filter.png');
@@ -23,7 +25,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         barStyle="dark-content"
       />
       <HomeHeader
-        title={'Gift Message'}
+        title={getString('GIFT_MESSAGE_TITLE')}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
       />
@@ -37,12 +39,14 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 value={message}
                 onChangeText={setMessage}
                 placeholderTextColor={theme.colors.SECONDARY_TEXT}
-                placeholder="Type Text..."
+                placeholder={getString('GIFT_MESSAGE_PLACEHOLDER')}
               />
             </View>
             <CameraIcon style={styles.cameraIcon} />
           </View>
-          <Text style={styles.sectionTitle}>Gift Filter</Text>
+          <Text style={styles.sectionTitle}>
+            {getString('GIFT_MESSAGE_FILTER')}
+          </Text>
           <View style={styles.filtersWrapper}>
             <ScrollView
               horizontal

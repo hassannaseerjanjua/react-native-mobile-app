@@ -24,9 +24,11 @@ import { Text } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const navigation = useNavigation();
   const { product, addToCartPayload } = route.params as any;
 
@@ -73,13 +75,15 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const GiftSend = require('../../../assets/images/gift-send.png');
   return !checkoutCompleted ? (
     <ParentView>
-      <HomeHeader title="Checkout" showBackButton={true} />
+      <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.section}>
-          <Text style={styles.heading}>Order Details</Text>
+          <Text style={styles.heading}>
+            {getString('CHECKOUT_ORDER_DETAILS')}
+          </Text>
           <View style={styles.CartContainer}>
             <Image source={productImage} style={styles.CartProductImage} />
             <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
@@ -109,7 +113,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.heading}>Send A Gift</Text>
+          <Text style={styles.heading}>
+            {getString('CHECKOUT_SEND_A_GIFT')}
+          </Text>
           <View style={styles.GiftContainer}>
             <View
               style={{ ...styles.row, flex: 1, gap: theme.sizes.WIDTH * 0.025 }}
@@ -128,7 +134,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
-            <Text style={styles.heading}>Payment Management</Text>
+            <Text style={styles.heading}>
+              {getString('CHECKOUT_PAYMENT_MANAGEMENT')}
+            </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('AddCard' as never)}
             >
@@ -137,7 +145,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   height={scaleWithMax(15, 18)}
                   width={scaleWithMax(15, 18)}
                 />
-                <Text style={styles.addCardAction}>Add Card</Text>
+                <Text style={styles.addCardAction}>
+                  {getString('CHECKOUT_ADD_CARD')}
+                </Text>
               </View>
             </TouchableOpacity>
           </View>
@@ -170,21 +180,28 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.heading}>Order Info</Text>
+          <Text style={styles.heading}>
+            {getString('CHECKOUT_ORDER_DETAILS')}
+          </Text>
           <View style={styles.Prices}>
-            <Text style={styles.TextMedium}>Total Amount</Text>
+            <Text style={styles.TextMedium}>
+              {getString('CHECKOUT_TOTAL_AMOUNT')}
+            </Text>
             <PriceWithIcon Price={productPrice * quantity} />
           </View>
           {/* <View style={styles.Prices}>
             <Text style={styles.TextMedium}>Feeling Fees</Text>
             <PriceWithIcon Price={feelingFees} />
           </View> */}
-          <Text style={styles.vatNote}>All prices are 15% VAT Inclusive</Text>
+          <Text style={styles.vatNote}>{getString('CHECKOUT_VAT_NOTE')}</Text>
         </View>
       </ScrollView>
       <View style={styles.footerContainer}>
         <View style={{ position: 'relative' }}>
-          <CustomButton title="Proceed to Checkout" onPress={submitAddToCart} />
+          <CustomButton
+            title={getString('CHECKOUT_PROCEED_TO_CHECKOUT')}
+            onPress={submitAddToCart}
+          />
           <View style={styles.footerPriceWrapper}>
             <PriceWithIcon
               Price={totalAmount}
@@ -203,11 +220,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   ) : (
     <View style={styles.checkoutCompletedContainer}>
       <Image source={GiftSend} />
-      <Text style={styles.TextLarge}>Your Gift has been sent</Text>
+      <Text style={styles.TextLarge}>{getString('CHECKOUT_GIFT_SENT')}</Text>
       <CustomFooter>
         <View style={{ position: 'relative' }}>
           <CustomButton
-            title="Home"
+            title={getString('CHECKOUT_HOME')}
             onPress={() => navigation.navigate('BottomTabs' as never)}
           />
         </View>

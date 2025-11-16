@@ -130,7 +130,9 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
                 <FavoriteItemCard item={item} onPress={handleStepPress} />
               </View>
             )}
-            ListEmptyComponent={<Text>No favorites found</Text>}
+            ListEmptyComponent={
+              <Text>{getString('EMPTY_NO_FAVORITES_FOUND')}</Text>
+            }
           />
         )}
       </View>

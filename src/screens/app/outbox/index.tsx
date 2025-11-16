@@ -18,6 +18,7 @@ import {
 } from '../../../assets/icons';
 import { useNavigation } from '@react-navigation/native';
 import { scaleWithMax } from '../../../utils';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface OutboxItemProps {
   name: string;
@@ -53,11 +54,16 @@ const outBoxes: OutboxItemProps[] = [
 ];
 const OutBox: React.FC = () => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const navigation = useNavigation();
 
   return (
     <ParentView>
-      <HomeHeader showBackButton title="Outbox" showSearchBar />
+      <HomeHeader
+        showBackButton
+        title={getString('OUTBOX_TITLE')}
+        showSearchBar
+      />
       <ScrollView style={{ paddingVertical: theme.sizes.PADDING * 0.5 }}>
         {outBoxes.map((item, index) => (
           <OutboxItem

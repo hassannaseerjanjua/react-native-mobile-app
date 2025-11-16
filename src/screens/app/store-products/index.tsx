@@ -178,7 +178,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             keyExtractor={item => item.ItemId.toString()}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
-            ListEmptyComponent={<Text>No products found</Text>}
+            ListEmptyComponent={
+              <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
+            }
             renderItem={({ item }) => (
               <FavoriteProductCard
                 item={item}

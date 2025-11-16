@@ -69,7 +69,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
           barStyle="dark-content"
         />
         <HomeHeader
-          title={'Select Store'}
+          title={getString('SELECT_STORE_TITLE')}
           showBackButton={true}
           onBackPress={() => navigation.goBack()}
           showSearchBar={true}

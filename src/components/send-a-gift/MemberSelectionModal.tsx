@@ -376,7 +376,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   />
                 ) : (
                   <View style={styles.emptyStateContainer}>
-                    <Text style={styles.emptyStateText}>No users to show</Text>
+                    <Text style={styles.emptyStateText}>{getString('EMPTY_NO_USERS_TO_SHOW')}</Text>
                   </View>
                 )}
               </View>
@@ -385,7 +385,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         ) : (
           <View style={styles.listCard}>
             <View style={styles.emptyStateContainer}>
-              <Text style={styles.emptyStateText}>No results found</Text>
+              <Text style={styles.emptyStateText}>{getString('EMPTY_NO_RESULTS_FOUND')}</Text>
             </View>
           </View>
         )}
@@ -538,7 +538,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       ? title
                       : isSendAGift
                       ? getString('NG_ADD_MEMBERS')
-                      : 'Edit Group Members'
+                      : getString('NG_EDIT_GROUP_MEMBERS')
                   }
                   subTitle={
                     viewOnly
@@ -566,7 +566,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                 <BottomSheetHeader
                   leftSideTitle={getString('NG_BACK')}
                   title={
-                    isSendAGift ? getString('NG_NEW_GROUP') : 'Review Members'
+                    isSendAGift ? getString('NG_NEW_GROUP') : getString('NG_REVIEW_MEMBERS')
                   }
                   subTitle=""
                   rightSideTitle={getString('NG_SAVE')}

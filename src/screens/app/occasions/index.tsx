@@ -101,12 +101,12 @@ const OccasionsScreen: React.FC = () => {
     if (typeof image === 'string') {
       // If it's a URL string (existing image), show a friendly message
       if (image.startsWith('http') || image.length > 50) {
-        return 'Current image';
+        return getString('OCC_CURRENT_IMAGE');
       }
       return image;
     }
     // For file objects, show the file name
-    return image.name || 'Image selected';
+    return image.name || getString('OCC_IMAGE_SELECTED');
   };
 
   const handleSubmit = (values: {
@@ -269,8 +269,8 @@ const OccasionsScreen: React.FC = () => {
             : selectedOccasion.occasionType === 'create'
             ? getString('OCC_CREATE_OCCASION')
             : selectedOccasion.occasionType === 'edit'
-            ? 'Edit Occasion'
-            : 'View Occasion'
+            ? getString('OCC_EDIT_OCCASION')
+            : getString('OCC_VIEW_OCCASION')
         }
         rightSideTitle={
           isEditGroupOpen
@@ -380,7 +380,7 @@ const OccasionsScreen: React.FC = () => {
                         }
                         icon={<SvgCrownIcon />}
                         fieldProps={{
-                          placeholder: 'Event',
+                          placeholder: getString('OCC_EVENT'),
                           value: formik.values.occasionName,
                           onChangeText: (text: string) => {
                             formik.setFieldValue('occasionName', text, false);
@@ -403,7 +403,7 @@ const OccasionsScreen: React.FC = () => {
                           }
                           icon={<SvgDateIcon />}
                           fieldProps={{
-                            placeholder: 'Date',
+                            placeholder: getString('OCC_DATE'),
                             value: formik.values.occasionDate,
                             onChangeText: (text: string) => {
                               formik.setFieldValue('occasionDate', text, false);
@@ -428,7 +428,7 @@ const OccasionsScreen: React.FC = () => {
                             }
                             icon={<SvgImageIcon />}
                             fieldProps={{
-                              placeholder: 'Image',
+                              placeholder: getString('OCC_IMAGE'),
                               value: getImageDisplayValue(formik.values.image),
                               onChangeText: () => {},
                               editable: false,
@@ -445,7 +445,7 @@ const OccasionsScreen: React.FC = () => {
                           }
                           icon={<SvgImageIcon />}
                           fieldProps={{
-                            placeholder: 'Image',
+                            placeholder: getString('OCC_IMAGE'),
                             value: getImageDisplayValue(formik.values.image),
                             onChangeText: () => {},
                             editable: false,
@@ -459,8 +459,8 @@ const OccasionsScreen: React.FC = () => {
                       <CustomButton
                         title={
                           selectedOccasion.occasionType === 'edit'
-                            ? 'Save'
-                            : 'Create'
+                            ? getString('OCC_SAVE')
+                            : getString('OCC_CREATE')
                         }
                         type="primary"
                         buttonStyle={styles.button}
