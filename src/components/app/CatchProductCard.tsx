@@ -5,13 +5,10 @@ import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import {
   GiftIcon,
-  PlusIcon,
-  SvgItemFavouriteIcon,
-  SvgItemFavouriteIconInActive,
+  SvgAddOccasion,
+  SvgCatchAddIcon,
   SvgRiyalIcon,
 } from '../../assets/icons';
-import PriceWithIcon from '../global/Price';
-import { FaveItems } from '../../types';
 
 interface FavoriteProductCardProps {
   item: {
@@ -25,8 +22,6 @@ interface FavoriteProductCardProps {
     discountedPrice: number;
     isGift: boolean;
     subTitle2: string;
-
-    isFavorite: boolean;
   };
   onPress: (item: any) => void;
 }
@@ -42,19 +37,12 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
     <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
       <View style={styles.imageContainer}>
         <Image source={item.coverImage} style={styles.image} />
-        <View style={styles.favoriteIcon}>
-          {true ? (
-            <SvgItemFavouriteIcon
-              width={scaleWithMax(14, 16)}
-              height={scaleWithMax(14, 16)}
-            />
-          ) : (
-            <SvgItemFavouriteIconInActive
-              width={scaleWithMax(14, 16)}
-              height={scaleWithMax(14, 16)}
-            />
-          )}
-        </View>
+        <TouchableOpacity style={styles.AddContainer}>
+          <SvgCatchAddIcon
+            width={scaleWithMax(15, 16)}
+            height={scaleWithMax(15, 16)}
+          />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.contentContainer}>
@@ -79,20 +67,19 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
               {item.subtitle}
             </Text>
           )}
-          {!item.isGift && item.discountedPrice && (
-            <View style={{ ...styles.priceContainer }}>
-              <SvgRiyalIcon
-                width={scaleWithMax(11, 13)}
-                height={scaleWithMax(11, 13)}
-                style={{
-                  marginTop: 3.5,
-                }}
-              />
-              <Text style={styles.discountedPrice}>
-                {item.discountedPrice || 100}
-              </Text>
-            </View>
-          )}
+          {/* Cut price (original price with strikethrough) in same row as category */}
+          {!item.isGift &&
+            item.discountedPrice &&
+            item.discountedPrice > 0 &&
+            item.discountedPrice < item.price && (
+              <View style={styles.priceContainer}>
+                <SvgRiyalIcon
+                  width={scaleWithMax(9, 11)}
+                  height={scaleWithMax(9, 11)}
+                />
+                <Text style={styles.originalPrice}>{item.price}</Text>
+              </View>
+            )}
         </View>
 
         <View
@@ -100,7 +87,6 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
             justifyContent: 'space-between',
             flexDirection: 'row',
             alignItems: 'center',
-            // backgroundColor: theme.colors.RED,
           }}
         >
           {item.subTitle2 && (
@@ -108,32 +94,21 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
           )}
 
           {!item.isGift ? (
-            <View style={{ ...styles.priceContainer }}>
+            <View style={styles.priceContainer}>
               <SvgRiyalIcon
                 width={scaleWithMax(11, 13)}
                 height={scaleWithMax(11, 13)}
-                style={{
-                  marginTop: 3.5,
-                }}
               />
-              <Text style={styles.price}>{item.discountedPrice}</Text>
+              <Text style={styles.discountedPrice}>
+                {item.discountedPrice && item.discountedPrice > 0
+                  ? item.discountedPrice
+                  : item.price}
+              </Text>
             </View>
           ) : (
             item.isGift && <GiftIcon />
           )}
         </View>
-        {!item.isGift && !item.discountedPrice && (
-          <View style={{ ...styles.priceContainer }}>
-            <SvgRiyalIcon
-              width={scaleWithMax(11, 13)}
-              height={scaleWithMax(11, 13)}
-              style={{
-                marginTop: 3.5,
-              }}
-            />
-            <Text style={styles.price}>{item.discountedPrice || 100}</Text>
-          </View>
-        )}
       </View>
     </TouchableOpacity>
   );
@@ -161,8 +136,8 @@ const useStyles = () => {
         ...theme.globalStyles.SHADOW_STYLE,
         backgroundColor: colors.WHITE,
         borderRadius: 9999,
-        width: scaleWithMax(25, 30),
-        height: scaleWithMax(25, 30),
+        width: scaleWithMax(28, 32),
+        height: scaleWithMax(28, 32),
         position: 'absolute',
         bottom: -10,
         right: 0,
@@ -209,7 +184,6 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 3,
-        // backgroundColor: 'red',
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
@@ -219,14 +193,13 @@ const useStyles = () => {
       originalPrice: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         textDecorationLine: 'line-through',
-        color: theme.colors.UNDERLINE,
+        color: '#A0A0A0',
         fontSize: sizes.FONTSIZE_SMALL,
       },
       discountedPrice: {
-        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
         color: theme.colors.PRIMARY,
-        fontSize: sizes.FONTSIZE,
+        fontSize: sizes.FONTSIZE_BUTTON,
       },
     }),
     theme,

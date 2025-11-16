@@ -17,6 +17,7 @@ import {
   SmsTrackingIcon,
 } from '../../../assets/icons';
 import { useNavigation } from '@react-navigation/native';
+import { scaleWithMax } from '../../../utils';
 
 interface OutboxItemProps {
   name: string;
@@ -145,7 +146,22 @@ const OutboxItem = ({
                 >
                   {OutBox.place}
                 </Text>
-                <RoundedBackIcon />
+                <View
+                  style={{
+                    backgroundColor: theme.colors.PRIMARY,
+                    height: scaleWithMax(18, 18),
+                    width: scaleWithMax(18, 18),
+                    borderRadius: 9999,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    display: 'flex',
+                  }}
+                >
+                  <RoundedBackIcon
+                    width={scaleWithMax(10, 10)}
+                    height={scaleWithMax(10, 10)}
+                  />
+                </View>
               </View>
               <SmsTrackingIcon />
             </View>

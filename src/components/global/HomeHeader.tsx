@@ -17,6 +17,7 @@ import {
   SvgSearchIcon,
   SvgDummyAvatar,
   SvgHomeBack,
+  SvgLogoBlue,
 } from '../../assets/icons';
 import {
   isAndroid,
@@ -130,7 +131,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           </Text>
         )}
         {showLogo && (
-          <SvgLogoHeader
+          <SvgLogoBlue
             width={scaleWithMax(88, 93)}
             height={scaleWithMax(38, 43)}
           />

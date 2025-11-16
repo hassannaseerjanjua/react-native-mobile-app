@@ -27,7 +27,6 @@ const HomeScreen: React.FC = () => {
   const { user } = useAuthStore();
   const navigation = useNavigation();
 
-  const screenSize = useWindowDimensions();
   const {
     data: sliderResponse,
     loading: sliderLoading,

@@ -23,7 +23,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
   const storeID = route.params?.storeID;
-  // Track favorite state for each item by ItemId
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
@@ -38,9 +37,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         'Hand-tied bouquet of blush roses and lilies designed for heartfelt celebrations, finished with silk ribbon twists and fragrant eucalyptus sprigs. Each stem is selected at peak bloom to create a lasting impression that feels both romantic and refined.',
       price: 100,
       discountedPrice: 50,
-      isGift: false,
-      isFavorite: true,
-      subTitle2: '',
+      isGift: true,
+      subTitle2: 'Flowers',
     },
     {
       id: '2',
@@ -53,8 +51,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       price: 100,
       discountedPrice: 50,
       isGift: false,
-      isFavorite: true,
-      subTitle2: '',
+      subTitle2: 'Flowers',
     },
     {
       id: '3',
@@ -64,12 +61,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       category: 'cake',
       discountedPrice: 0,
       isGift: true,
-      subTitle2: 'Sub 2',
+      subTitle2: 'Cake',
 
       description:
         'Vanilla sponge layered with rose-infused frosting for a lightly floral dessert that melts at the first bite and finishes with a whisper of citrus. Finished with hand-piped rosettes, it transforms any gathering into an elegant celebration.',
       price: 100,
-      isFavorite: true,
     },
     {
       id: '4',
@@ -77,18 +73,15 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
       coverImage: require('../../../assets/images/dummy4.png'),
       category: 'cake',
-      discountedPrice: 50,
-      subTitle2: 'Sub 2',
+      discountedPrice: 12,
+      subTitle2: 'Cake',
       isGift: false,
-
       description:
         'Signature pink charm cake topped with sugared petals and a satin ribbon finish, offering layers of airy sponge, silky mousse, and a hidden berry compote center. Designed for milestone moments, it photographs beautifully and tastes even better.',
-      price: 100,
-      isFavorite: true,
+      price: 14,
     },
   ];
 
-  // Fetch favorite items when coming from favorites
   const getFavoriteItems = useGetApi<FaveItems[]>(
     screenType === 'favorite' && storeID
       ? apiEndpoints.GET_FAV_STORE_ITEMS(storeID)
@@ -98,7 +91,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     },
   );
 
-  // Initialize favorite states from API data when screenType is 'favorite'
   useEffect(() => {
     if (screenType === 'favorite' && getFavoriteItems.data) {
       const initialState: Record<number, boolean> = {};
@@ -125,12 +117,10 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         return items;
       }
       return items.filter((item: FaveItems) => {
-        // Filter by category name if available
         const categoryLower = item.CategoryNameEn?.toLowerCase() || '';
         return categoryLower.includes(selectedFilter);
       });
     } else {
-      // Use mock items for catch type
       if (selectedFilter === 'all') {
         return mockCatchItems;
       }
@@ -147,10 +137,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         itemId: favItem.ItemId,
       });
     } else {
-      const mockItem = item as (typeof mockCatchItems)[number];
-      navigation.navigate('ProductDetails', {
-        itemId: Number(mockItem.id),
-      });
+      console.log('item', item);
     }
   };
 
@@ -159,7 +146,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     IsFavorite: boolean;
   }) => {
     console.log('onFavoritePress', payload);
-    // Optimistically update the specific item's favorite state
     setFavoriteStates(prev => ({
       ...prev,
       [payload.ItemId]: payload.IsFavorite,

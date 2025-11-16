@@ -17,10 +17,10 @@
 <feGaussianBlur stdDeviation="10" result="effect1_foregroundBlur_1310_55"/>
 </filter>
 <radialGradient id="paint0_radial_1310_55" cx="0" cy="0" r="1" gradientTransform="matrix(-94.1462 -19.5431 -13.9598 -129.341 160.42 78.8034)" gradientUnits="userSpaceOnUse">
-<stop offset="1" stop-color="#1C1254" stop-opacity="0.4"/>
+<stop offset="1" stop-color="#F08080" stop-opacity="0.4"/>
 </radialGradient>
 <radialGradient id="paint1_radial_1310_55" cx="0" cy="0" r="1" gradientTransform="matrix(-29.8882 8.43015 30.024 -110.193 53.0017 29.1484)" gradientUnits="userSpaceOnUse">
-<stop offset="1" stop-color="#1C1254" stop-opacity="0.4"/>
+<stop offset="1" stop-color="#F08080" stop-opacity="0.4"/>
 </radialGradient>
 </defs>
 </svg>
