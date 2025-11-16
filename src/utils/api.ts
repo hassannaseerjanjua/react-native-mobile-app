@@ -81,7 +81,8 @@ const caller = async <T>(
     if (err?.response?.status === 413) {
       errorMessage = 'File size is too large. Please use a smaller image.';
     } else if (err?.response?.status === 400) {
-      errorMessage = response?.message || 'Invalid request. Please check your input.';
+      errorMessage =
+        response?.message || 'Invalid request. Please check your input.';
     } else if (err?.response?.status === 401) {
       errorMessage = 'Unauthorized. Please login again.';
     } else if (err?.response?.status >= 500) {

@@ -136,8 +136,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       navigation.navigate('ProductDetails', {
         itemId: favItem.ItemId,
       });
-    } else {
-      console.log('item', item);
     }
   };
 
@@ -145,7 +143,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     ItemId: number;
     IsFavorite: boolean;
   }) => {
-    console.log('onFavoritePress', payload);
     setFavoriteStates(prev => ({
       ...prev,
       [payload.ItemId]: payload.IsFavorite,
@@ -156,10 +153,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         payload,
       );
       if (res.data.success) {
-        console.log('Favorite item updated successfully');
       }
     } catch (error) {
-      console.log('Error updating favorite item', error);
       // Revert the state change on error
       setFavoriteStates(prev => ({
         ...prev,

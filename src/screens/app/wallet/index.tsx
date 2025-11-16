@@ -20,8 +20,6 @@ const WalletScreen: React.FC = () => {
     transformData: data => data.Data,
   });
 
-  console.log(walletBalance?.data?.WalletBalance);
-
   return (
     <ParentView style={styles.container}>
       <StatusBar

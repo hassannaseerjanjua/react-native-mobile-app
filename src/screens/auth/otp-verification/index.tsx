@@ -44,8 +44,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   // Get email and phone from route parameters
   const { email, phone, fullName, username, city, signIn } = route.params;
 
-  console.log('params received', route.params);
-
   // Sync refs with state
   useEffect(() => {
     timerRef.current = timer;
@@ -188,14 +186,12 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       : apiEndpoints.VERIFY_OTP;
 
     setIsLoading(true);
-    console.log('Verifying OTP:', otpString);
     try {
       const response = await api.post<LoginApiResponse>(endpoint, {
         OTP: otpString,
         Email: email,
         PhoneNo: phone,
       });
-      console.log('OTP verification response:', response);
       if (response.success && response.data?.Data?.User) {
         dispatch(login(response.data.Data.User));
       } else {
@@ -208,7 +204,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         setHasVerified(false);
       }
     } catch (error) {
-      console.log('OTP verification error:', error);
       // Show error button for 3 seconds
       setShowError(true);
       setTimeout(() => {
@@ -232,7 +227,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     isTimerActiveRef.current = true;
     backgroundTimeRef.current = null;
     const endpoint = signIn ? apiEndpoints.SIGNIN : apiEndpoints.SIGNUP;
-    console.log('Resending OTP...');
     // Handle resend OTP logic here
     try {
       const response = await api.post(endpoint, {
@@ -242,9 +236,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         Phone: phone,
         Email: email,
       });
-      console.log('Sign up response:', response);
     } catch (err) {
-      console.log('Sign up error:', err);
     } finally {
       setTimeout(() => {
         setIsResending(false);

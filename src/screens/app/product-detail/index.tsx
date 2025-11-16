@@ -47,7 +47,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       if (mounted) {
         const data = (res.data as any)?.Data ?? null;
         setItem(data);
-        console.log('data', data);
         // default selected variant
         const firstVariantId = data?.Variants?.[0]?.ItemVariantId;
         setSelectedFilter(firstVariantId ? String(firstVariantId) : '');

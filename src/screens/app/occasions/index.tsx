@@ -77,10 +77,7 @@ const OccasionsScreen: React.FC = () => {
         if (response.assets && response.assets[0]) {
           const asset = response.assets[0];
           
-          // Check file size (if available) - warn if too large (e.g., > 2MB)
           if (asset.fileSize && asset.fileSize > 2 * 1024 * 1024) {
-            console.warn('Image file size is large:', asset.fileSize, 'bytes');
-            // You might want to show a warning to the user here
           }
           
           const imageFile: ImageFile = {
@@ -142,7 +139,6 @@ const OccasionsScreen: React.FC = () => {
         getOccasions();
       }
     } catch (error) {
-      console.error('Delete occasion error:', error);
     } finally {
       setLoading(false);
     }
@@ -155,7 +151,6 @@ const OccasionsScreen: React.FC = () => {
   }) => {
     if (loading) return;
     setLoading(true);
-    console.log('Creating occasion with values:', values);
     try {
       const formData = new FormData();
       formData.append('NameEn', values.occasionName);
@@ -172,7 +167,6 @@ const OccasionsScreen: React.FC = () => {
       
       // Don't set Content-Type header - the axios interceptor handles it for FormData
       const response = await api.post(apiEndpoints.CREATE_OCCASION, formData, {});
-      console.log('Create occasion response:', response);
       
       if (response.success) {
         getOccasions();
@@ -181,16 +175,11 @@ const OccasionsScreen: React.FC = () => {
           occasionType: 'none',
         });
       } else if (response.failed) {
-        console.error('Create occasion failed:', response.error);
         if (response.error.includes('413') || response.error.toLowerCase().includes('too large')) {
-          console.error('Image file is too large. Please try a smaller image.');
         }
       }
     } catch (error: any) {
-      console.error('Create occasion error:', error);
-      // Check for 413 status code
       if (error?.response?.status === 413 || error?.message?.includes('413')) {
-        console.error('Image file is too large. Please try a smaller image.');
       }
     } finally {
       setLoading(false);
@@ -225,8 +214,6 @@ const OccasionsScreen: React.FC = () => {
         {},
       );
       
-      console.log('Update occasion response:', response);
-      
       if (response.success) {
         getOccasions();
         setSelectedOccasion({
@@ -234,16 +221,11 @@ const OccasionsScreen: React.FC = () => {
           occasionType: 'none',
         });
       } else if (response.failed) {
-        console.error('Update occasion failed:', response.error);
         if (response.error.includes('413') || response.error.toLowerCase().includes('too large')) {
-          console.error('Image file is too large. Please try a smaller image.');
         }
       }
     } catch (error: any) {
-      console.error('Update occasion error:', error);
-      // Check for 413 status code
       if (error?.response?.status === 413 || error?.message?.includes('413')) {
-        console.error('Image file is too large. Please try a smaller image.');
       }
     } finally {
       setLoading(false);
@@ -255,7 +237,6 @@ const OccasionsScreen: React.FC = () => {
     setLoading(true);
     try {
       const response = await api.get(apiEndpoints.GET_OCCASION_DETAIL(id));
-      console.log('Get occasion detail response:', response);
       if (response.success && response.data) {
         const occasionData = (response.data as any)?.Data;
         if (occasionData) {
@@ -270,7 +251,6 @@ const OccasionsScreen: React.FC = () => {
         }
       }
     } catch (error) {
-      console.error('Get occasion detail error:', error);
     } finally {
       setLoading(false);
     }

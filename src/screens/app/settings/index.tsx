@@ -37,7 +37,6 @@ const SettingsScreen: React.FC = () => {
   const navigation = useNavigation();
   const { user } = useAuthStore();
   const dispatch = useDispatch();
-  console.log('User:', user);
   const { getString, langCode } = useLocaleStore();
   const [selectedLanguage, setSelectedLanguage] = useState<
     'English' | 'Arabic'
@@ -131,15 +130,12 @@ const SettingsScreen: React.FC = () => {
         },
       })
       .then(response => {
-        console.log('Update profile:', response);
         if (response.data?.Data) {
-          console.log('==>>', response.data.Data);
           dispatch(login({ ...user, ...response.data.Data }));
         }
       })
 
       .catch(error => {
-        console.log('Update profile error:', error);
       })
       .finally(() => {
         setLoading(false);

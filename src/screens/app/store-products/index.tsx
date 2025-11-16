@@ -90,7 +90,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     ItemId: number;
     IsFavorite: boolean;
   }) => {
-    console.log('onFavoritePress', payload);
     // Optimistically update the specific item's favorite state
     setFavoriteStates(prev => ({
       ...prev,
@@ -102,10 +101,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         payload,
       );
       if (res.data.success) {
-        console.log('Favorite item updated successfully');
       }
     } catch (error) {
-      console.log('Error updating favorite item', error);
       // Revert the state change on error
       setFavoriteStates(prev => ({
         ...prev,

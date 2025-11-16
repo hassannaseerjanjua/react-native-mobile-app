@@ -49,7 +49,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
 
   useEffect(() => {
     const routeParams = route.params as any;
-    console.log('Favorites route params:', routeParams);
     if (routeParams?.redirectionType === 'profile') {
       setCameFromProfile(true);
     } else {
@@ -69,15 +68,12 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   };
 
   const handleBackPress = () => {
-    console.log('Back pressed, cameFromProfile:', cameFromProfile);
     if (Steps === 2) {
       setSteps(1);
     } else {
       if (cameFromProfile) {
-        console.log('Navigating back to Profile');
         navigation.navigate('Profile' as never);
       } else {
-        console.log('Using default goBack');
         navigation.goBack();
       }
     }
@@ -87,18 +83,14 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     ItemId: number;
     IsFavorite: boolean;
   }) => {
-    console.log('onFavoritePress', payload);
     try {
       const res = await api.post<any>(
         apiEndpoints.HANDLE_FAVORITE_ITEM,
         payload,
       );
       if (res.data.success) {
-        console.log('Favorite item updated successfully');
       }
-    } catch (error) {
-      console.log('Error updating favorite item', error);
-    }
+    } catch (error) {}
   };
 
   return (

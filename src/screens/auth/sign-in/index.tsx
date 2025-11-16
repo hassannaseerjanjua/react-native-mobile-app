@@ -44,7 +44,6 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   ) => {
     // Bypass the API call, Dev purposes only.
     if (values.phone === '555555555' || values.email === 'dev@gmail.com') {
-      console.log(values);
       const devUser: User = {
         UserId: 0,
         FullNameEn: 'Dev User',
@@ -94,7 +93,6 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           setApiError(response.error || getString('AU_ERROR_OCCURRED'));
         }
       } catch (error) {
-        console.error('Sign in error', error);
         setApiError(getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'));
       } finally {
         setTimeout(() => {

@@ -78,21 +78,14 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                 apiEndpoints.VERIFY_USERNAME,
                 formData.username,
               );
-              console.log('API Response:', response);
               if (response.success) {
-                console.log(
-                  'Username verification successful:',
-                  response.success,
-                );
                 setCurrentStep(currentStep + 1);
               } else {
-                console.log('Username verification failed:', response.error);
                 setUsernameApiError(
                   getString('API_THIS_USERNAME_ALREADY_EXISTS'),
                 );
               }
             } catch (error) {
-              console.log('API Error:', error);
               setUsernameApiError(
                 getString('API_THIS_USERNAME_ALREADY_EXISTS'),
               );
@@ -100,18 +93,15 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           } else {
             setCurrentStep(currentStep + 1);
           }
-          console.log('Form data:', formData);
         } else {
           setIsBottomSheetOpen(true);
         }
       }
     } catch (error) {
-      console.log('Validation error:', error);
     }
   };
 
   const handleSignUp = async () => {
-    console.log('Sign up data:', formData);
     const response = await api
       .post(apiEndpoints.SIGNUP, {
         FullName: formData.fullName,
@@ -121,7 +111,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         Email: formData.email,
       })
       .then(res => {
-        console.log('Sign up response:', res);
         if (res.success) {
           navigation.navigate('OtpVerification', {
             email: formData.email,
@@ -133,12 +122,10 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         }
       })
       .catch(err => {
-        console.log('Sign up error:', err);
       })
       .finally(() => {
         setIsBottomSheetOpen(false);
       });
-    console.log('Sign up response:', response);
     setIsBottomSheetOpen(false);
   };
 

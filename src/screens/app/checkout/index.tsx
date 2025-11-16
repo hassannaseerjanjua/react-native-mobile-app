@@ -55,7 +55,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const submitAddToCart = async () => {
     try {
       setSubmitting(true);
-      console.log('addToCartPayload', addToCartPayload);
       const payload = {
         FriendId: addToCartPayload?.FriendId ?? null,
         ItemId: addToCartPayload.ItemId,

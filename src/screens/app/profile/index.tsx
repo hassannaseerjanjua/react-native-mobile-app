@@ -81,14 +81,9 @@ const ProfileScreen: React.FC = () => {
       const result = await Share.share(shareOptions);
 
       if (result.action === Share.sharedAction) {
-        // Content was shared
-        console.log('Gift link shared successfully');
       } else if (result.action === Share.dismissedAction) {
-        // Share sheet was dismissed
-        console.log('Share sheet dismissed');
       }
     } catch (error) {
-      console.error('Error sharing gift link:', error);
     }
   };
 
@@ -134,13 +129,11 @@ const ProfileScreen: React.FC = () => {
         },
       )
       .then(response => {
-        console.log('Profile image updated:', response);
         if (response.data?.Data) {
           dispatch(login({ ...user, ...response.data.Data }));
         }
       })
       .catch(error => {
-        console.error('Profile image update error:', error);
       })
       .finally(() => {
         setIsUploading(false);

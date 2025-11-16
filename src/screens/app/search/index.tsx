@@ -110,7 +110,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         }, 3000);
       }
     } catch (err) {
-      console.log('Add friend error:', err);
       updateUserStatus(userId, null);
     } finally {
       updateLoadingState(userId, false);
@@ -133,7 +132,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         isLinkedToGroup: isLinked,
       });
     } catch (err) {
-      console.log('Check user linked with group error:', err);
     } finally {
       updateLoadingState(userId, false);
     }
@@ -154,7 +152,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
 
       activeUsersApi.refetch();
     } catch (err) {
-      console.log('Unfriend error:', err);
       updateUserStatus(userId, null);
     } finally {
       setUnfriendModal(prev => ({ ...prev, loading: false }));

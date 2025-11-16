@@ -27,8 +27,6 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
   const langState = langCode as 'en' | 'ar';
   const [shimmerLoading, setShimmerLoading] = useState(false);
 
-  console.log('langState', langState);
-
   return (
     <ParentView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />

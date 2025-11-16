@@ -37,11 +37,9 @@ const ContactUsScreen: React.FC = () => {
     api
       .post(apiEndpoints.CONTACT_US_SUBMIT, values)
       .then(response => {
-        console.log('Contact us submission:', response);
         navigation.goBack();
       })
       .catch(error => {
-        console.log('Contact us submission error:', error);
       })
       .finally(() => setLoading(false));
   };

@@ -43,8 +43,6 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
     },
   );
 
-  console.log('activeUsersApi', activeUsersApi?.data);
-
   const getGroupsData = useGetApi<GroupData[]>(
     apiEndpoints.GET_GROUPS(searchQuery),
     {
@@ -83,11 +81,10 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         },
       })
       .then(response => {
-        console.log('Deleting group:', response);
         getGroupsData.refetch();
       })
       .catch(error => {
-        console.log('Error deleting group:', error);
+        // Error deleting group
       });
   };
 
@@ -108,9 +105,6 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
     const removedMemberIds = originalMemberIds.filter(
       id => !newMemberIds.includes(id),
     );
-
-    console.log('Added members:', addedMemberIds);
-    console.log('Removed members:', removedMemberIds);
 
     const formData = new FormData();
     formData.append('UserGroupId', selectedGroup.UserGroupId.toString());
@@ -137,13 +131,12 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then(response => {
-        console.log('Group updated successfully:', response.data);
         getGroupsData.refetch();
         setIsEditGroupOpen(false);
         setIsMemberSelectionOpen(false);
       })
       .catch(error => {
-        console.log('Error updating group:', error);
+        // Error updating group
       });
   };
 

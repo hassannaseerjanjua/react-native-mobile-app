@@ -80,8 +80,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     },
   );
 
-  console.log('activeUsersApi', activeUsersApi?.data);
-
   useEffect(() => {
     if (searchQuery) {
       searchFriendsApi.refetch();
@@ -282,7 +280,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         onSave={() => {
           // setIsMemberSelectionOpen(false);
           // navigation.navigate('SendToGroup' as any);
-          console.log('Hellooo');
         }}
         title={getString('NG_ADD_MEMBERS')}
         listings={[

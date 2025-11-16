@@ -22,11 +22,10 @@ import {
 // Navigators
 import AuthStackNavigator from './auth.navigator';
 import BottomTabNavigator from './bottom-tabs.navigator';
-import StaticConent from '../screens/app/static-content/index.tsx';
+import StaticContent from '../screens/app/static-content/index.tsx';
 import ProductDetails from '../screens/app/product-detail/index.tsx';
 import GiftMessage from '../screens/app/gift-message/index.tsx';
 import CheckOut from '../screens/app/checkout/index.tsx';
-import AddToCart from '../screens/app/add-card/index.tsx';
 import AddCart from '../screens/app/add-card/index.tsx';
 import OutBox from '../screens/app/outbox/index.tsx';
 import Inbox from '../screens/app/inbox/index.tsx';
@@ -68,7 +67,7 @@ const AppStackNavigator = () => {
       <AppStack.Screen name="ContactUs" component={ContactUsScreen} />
       <AppStack.Screen name="Profile" component={ProfileScreen} />
       <AppStack.Screen name="Orders" component={OrdersScreen} />
-      <AppStack.Screen name="StaticContent" component={StaticConent} />
+      <AppStack.Screen name="StaticContent" component={StaticContent} />
     </AppStack.Navigator>
   );
 };

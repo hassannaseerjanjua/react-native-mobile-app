@@ -99,7 +99,7 @@ export interface SearchFriendsApiResponse {
   Data: ActiveUser[];
 }
 
-export interface StaticContent {
+export interface StaticContentType {
   StaticPageId: number;
   Code: string;
   ContentEn: string;

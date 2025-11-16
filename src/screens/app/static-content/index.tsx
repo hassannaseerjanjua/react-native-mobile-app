@@ -10,19 +10,19 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { AppStackScreen } from '../../../types/navigation.types';
-import { StaticContent } from '../../../types';
+import { StaticContentType } from '../../../types';
 import RenderHTML from 'react-native-render-html';
 import { useSizes } from '../../../styles/sizes';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface StaticProps extends AppStackScreen<'StaticContent'> {}
 
-const StaticConent: React.FC<StaticProps> = ({ navigation, route }) => {
+const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
   const { langId } = useLocaleStore();
   const { code, title } = route.params;
 
-  const getStaticContent = useGetApi<StaticContent>(
+  const getStaticContent = useGetApi<StaticContentType>(
     apiEndpoints.GET_STATIC_CONTENT(code),
     {
       transformData: data => data.Data,
@@ -68,4 +68,4 @@ const StaticConent: React.FC<StaticProps> = ({ navigation, route }) => {
   );
 };
 
-export default StaticConent;
+export default StaticContent;

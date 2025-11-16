@@ -246,7 +246,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           navigation.navigate('SendToGroup' as never);
         })
         .catch(error => {
-          console.error('Create group error:', error);
         });
     } else {
       onSave(selectedUsersData, groupName, groupImage);

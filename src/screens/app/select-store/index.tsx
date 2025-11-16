@@ -19,7 +19,6 @@ import useGetApi from '../../../hooks/useGetApi.ts';
 
 const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const friendUserId = route?.params?.friendUserId ?? null;
-  console.log('friendUserId', friendUserId);
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const navigation =
@@ -61,8 +60,6 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const storeListApi = useGetApi<Store[]>(apiEndpoints.GET_STORE_LIST, {
     transformData: (data: any) => data.Data.Items || [],
   });
-
-  console.log('Store list:', storeListApi.data);
 
   return (
     <ParentView>
