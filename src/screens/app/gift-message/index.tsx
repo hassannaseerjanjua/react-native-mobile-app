@@ -8,13 +8,14 @@ import ParentView from '../../../components/app/ParentView';
 import { Text } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import { rtlPosition, scaleWithMax, rtlMargin } from '../../../utils';
 
 const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   route,
   navigation,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const [message, setMessage] = useState('');
   const { product, addToCartPayload, friendUserId } = route.params as any;
   const GiftFilter = require('../../../assets/images/gift-filter.png');
@@ -42,7 +43,12 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 placeholder={getString('GIFT_MESSAGE_PLACEHOLDER')}
               />
             </View>
-            <CameraIcon style={styles.cameraIcon} />
+            <CameraIcon
+              style={[
+                styles.cameraIcon,
+                rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
+              ]}
+            />
           </View>
           <Text style={styles.sectionTitle}>
             {getString('GIFT_MESSAGE_FILTER')}
@@ -54,7 +60,13 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               contentContainerStyle={styles.filtersScrollContent}
             >
               {[...Array(3)].map((item, index) => (
-                <View key={index} style={styles.imageContainer}>
+                <View
+                  key={index}
+                  style={[
+                    styles.imageContainer,
+                    rtlMargin(isRtl, 0, scaleWithMax(15, 18)),
+                  ]}
+                >
                   <Image
                     style={styles.filterImage}
                     source={GiftFilter}

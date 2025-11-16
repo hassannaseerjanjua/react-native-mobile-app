@@ -11,6 +11,7 @@ import CustomFooter from '../../../components/global/CustomFooter';
 import CustomButton from '../../../components/global/Custombutton';
 import { Text } from '../../../utils/elements';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import { rtlFlexDirection } from '../../../utils';
 const AddCart: React.FC = () => {
   const initialValues = {
     CardNumber: '',
@@ -42,7 +43,7 @@ const AddCart: React.FC = () => {
     return new Date();
   });
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const [showDatePicker, setShowDatePicker] = useState(false);
   const formatCardNumber = (raw: string) => {
     const digitsOnly = raw.replace(/\D+/g, '').slice(0, 19);
@@ -91,7 +92,7 @@ const AddCart: React.FC = () => {
               <View
                 style={{
                   ...styles.formContainer,
-                  flexDirection: 'row',
+                  flexDirection: rtlFlexDirection(isRtl),
                   gap: theme.sizes.WIDTH * 0.04,
                   justifyContent: 'space-between',
                   alignItems: 'center',

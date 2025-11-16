@@ -14,7 +14,12 @@ import {
   SvgSelectedCheck,
   VisaIcon,
 } from '../../../assets/icons';
-import { scaleWithMax } from '../../../utils';
+import {
+  scaleWithMax,
+  rtlTransform,
+  rtlFlexDirection,
+  rtlPosition,
+} from '../../../utils';
 import CheckBox from '../../../components/global/CheckBox';
 import PriceWithIcon from '../../../components/global/Price';
 import CustomButton from '../../../components/global/Custombutton';
@@ -28,7 +33,7 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const navigation = useNavigation();
   const { product, addToCartPayload } = route.params as any;
 
@@ -84,19 +89,35 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           <Text style={styles.heading}>
             {getString('CHECKOUT_ORDER_DETAILS')}
           </Text>
-          <View style={styles.CartContainer}>
+          <View
+            style={[
+              styles.CartContainer,
+              { flexDirection: rtlFlexDirection(isRtl) },
+            ]}
+          >
             <Image source={productImage} style={styles.CartProductImage} />
             <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
               <View>
                 <Text style={styles.cartTitle}>{productTitle}</Text>
                 <Text style={styles.TextMedium}>{productSubtitle}</Text>
               </View>
-              <View style={{ ...styles.row, justifyContent: 'space-between' }}>
+              <View
+                style={{
+                  ...styles.row,
+                  flexDirection: rtlFlexDirection(isRtl),
+                  justifyContent: 'space-between',
+                }}
+              >
                 <PriceWithIcon
                   Price={productPrice}
                   style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
                 />
-                <View style={styles.quantityControls}>
+                <View
+                  style={[
+                    styles.quantityControls,
+                    { flexDirection: rtlFlexDirection(isRtl) },
+                  ]}
+                >
                   <DecrementIcon
                     onPress={() => handleQuantityChange('decrement')}
                   />
@@ -118,29 +139,49 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           </Text>
           <View style={styles.GiftContainer}>
             <View
-              style={{ ...styles.row, flex: 1, gap: theme.sizes.WIDTH * 0.025 }}
+              style={{
+                ...styles.row,
+                flex: 1,
+                gap: theme.sizes.WIDTH * 0.025,
+                flexDirection: rtlFlexDirection(isRtl),
+              }}
             >
               <Image source={productImage} style={styles.GiftContainerImage} />
               <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
                 <Text style={styles.TextMedium}>{productSubtitle}</Text>
               </View>
             </View>
-            <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.025 }]}>
+            <View
+              style={[
+                styles.row,
+                {
+                  gap: theme.sizes.WIDTH * 0.025,
+                  flexDirection: rtlFlexDirection(isRtl),
+                },
+              ]}
+            >
               <GiftIcon />
-              <ArrowDownIcon />
+              <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
             </View>
           </View>
         </View>
 
         <View style={styles.section}>
-          <View style={styles.sectionHeaderRow}>
+          <View
+            style={[
+              styles.sectionHeaderRow,
+              { flexDirection: rtlFlexDirection(isRtl) },
+            ]}
+          >
             <Text style={styles.heading}>
               {getString('CHECKOUT_PAYMENT_MANAGEMENT')}
             </Text>
             <TouchableOpacity
               onPress={() => navigation.navigate('AddCard' as never)}
             >
-              <View style={styles.row}>
+              <View
+                style={[styles.row, { flexDirection: rtlFlexDirection(isRtl) }]}
+              >
                 <PlusIcon
                   height={scaleWithMax(15, 18)}
                   width={scaleWithMax(15, 18)}
@@ -152,12 +193,18 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             </TouchableOpacity>
           </View>
           <TouchableOpacity onPress={() => setSelectedCircle(!selectedCircle)}>
-            <View style={styles.GiftContainer}>
+            <View
+              style={[
+                styles.GiftContainer,
+                { flexDirection: rtlFlexDirection(isRtl) },
+              ]}
+            >
               <View
                 style={{
                   ...styles.row,
                   flex: 1,
                   gap: theme.sizes.WIDTH * 0.03,
+                  flexDirection: rtlFlexDirection(isRtl),
                 }}
               >
                 <CheckBox Selected={selectedCircle} />
@@ -183,7 +230,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           <Text style={styles.heading}>
             {getString('CHECKOUT_ORDER_DETAILS')}
           </Text>
-          <View style={styles.Prices}>
+          <View
+            style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}
+          >
             <Text style={styles.TextMedium}>
               {getString('CHECKOUT_TOTAL_AMOUNT')}
             </Text>
@@ -202,7 +251,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             title={getString('CHECKOUT_PROCEED_TO_CHECKOUT')}
             onPress={submitAddToCart}
           />
-          <View style={styles.footerPriceWrapper}>
+          <View
+            style={[
+              styles.footerPriceWrapper,
+              rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.03),
+            ]}
+          >
             <PriceWithIcon
               Price={totalAmount}
               style={{ color: theme.colors.WHITE }}

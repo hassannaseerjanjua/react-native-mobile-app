@@ -17,7 +17,7 @@ import {
   SmsTrackingIcon,
 } from '../../../assets/icons';
 import { useNavigation } from '@react-navigation/native';
-import { scaleWithMax } from '../../../utils';
+import { scaleWithMax, rtlTransform, rtlFlexDirection } from '../../../utils';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface OutboxItemProps {
@@ -84,6 +84,7 @@ const OutboxItem = ({
   isLast: boolean;
 }) => {
   const { styles, theme } = useStyles();
+  const { isRtl } = useLocaleStore();
   return (
     <View
       style={{
@@ -115,6 +116,7 @@ const OutboxItem = ({
                 flex: 1,
 
                 ...styles.row,
+                flexDirection: rtlFlexDirection(isRtl),
                 justifyContent: 'space-between',
               }}
             >
@@ -132,12 +134,14 @@ const OutboxItem = ({
               style={{
                 flex: 1,
                 ...styles.row,
+                flexDirection: rtlFlexDirection(isRtl),
                 justifyContent: 'space-between',
               }}
             >
               <View
                 style={{
                   ...styles.row,
+                  flexDirection: rtlFlexDirection(isRtl),
                 }}
               >
                 <GiftIcon
@@ -166,6 +170,7 @@ const OutboxItem = ({
                   <RoundedBackIcon
                     width={scaleWithMax(10, 10)}
                     height={scaleWithMax(10, 10)}
+                    style={{ transform: rtlTransform(isRtl) }}
                   />
                 </View>
               </View>

@@ -19,6 +19,7 @@ import {
   SvgBackIcon,
   SvgHomeBack,
 } from '../../../assets/icons/index.ts';
+import { rtlTransform, rtlFlexDirection } from '../../../utils';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
 import { StoreProduct, FaveItems } from '../../../types/index.ts';
@@ -28,7 +29,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   route,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const navigation = useNavigation();
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
@@ -139,7 +140,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             style={styles.backContainer}
             onPress={() => navigation.goBack()}
           >
-            <SvgHomeBack />
+            <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
           </TouchableOpacity>
           <View style={styles.backContainer}>
             <ShareIcon />

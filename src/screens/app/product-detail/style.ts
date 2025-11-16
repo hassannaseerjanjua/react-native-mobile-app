@@ -98,7 +98,6 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.SECONDARY_TEXT,
         // paddingHorizontal: sizes.PADDING,
-        alignSelf: 'flex-end',
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
