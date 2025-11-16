@@ -12,7 +12,7 @@ const useStyles = () => {
         container: {
           ...theme.globalStyles.CONTAINER_STYLE,
           position: 'relative',
-          // paddingHorizontal: 0,
+          paddingHorizontal: 0,
         },
         content: {
           flex: 1,
@@ -20,12 +20,12 @@ const useStyles = () => {
         body: {
           flexGrow: 1,
           flex: 1,
-          // paddingHorizontal: sizes.PADDING,
+          paddingHorizontal: sizes.PADDING,
           paddingTop: sizes.HEIGHT * 0.02,
           paddingBottom: sizes.PADDING + sizes.HEIGHT * 0.1,
         },
         messageContainer: {
-          height: sizes.HEIGHT * 0.58,
+          height: sizes.HEIGHT * 0.52,
         },
         inputWrapper: {
           flex: 1,
@@ -80,8 +80,8 @@ const useStyles = () => {
           bottom: 0,
           left: 0,
           right: 0,
-          // paddingHorizontal: sizes.PADDING,
-          paddingBottom: sizes.HEIGHT * 0.01,
+          paddingHorizontal: sizes.PADDING,
+          // paddingBottom: sizes.HEIGHT * 0.01,
         },
       }),
     [sizes, theme],

@@ -54,10 +54,16 @@ const apiEndpoints = {
 
   //store
   GET_FAV_STORE: `/${version}/User/GetFavStores`,
-  GET_FAV_STORE_ITEMS: `/${version}/User/GetFavItems`,
+  GET_FAV_STORE_ITEMS: (storeId?: any) =>
+    storeId
+      ? `/${version}/User/GetFavItems?StoreId=${storeId}`
+      : `/${version}/User/GetFavItems`,
+  HANDLE_FAVORITE_ITEM: `/${version}/User/FavoriteUnFavoriteItem`,
   GET_STORE_LIST: `/${version}/Panel/GetAllActiveStores`,
   GET_STORE_DETAIL: (storeId?: any, storeBranchId?: any) =>
     `/${version}/Panel/GetAllItems?StoreId=${storeId}`,
+  GET_STORE_ITEM_BY_ID: (itemId?: any) =>
+    `/${version}/Panel/GetItemById?itemId=${itemId}`,
 
   // Settings
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,

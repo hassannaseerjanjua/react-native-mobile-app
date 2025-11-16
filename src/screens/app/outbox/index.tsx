@@ -63,7 +63,8 @@ const OutBox: React.FC = () => {
             isLast={index === outBoxes.length - 1}
             key={index}
             OutBox={item}
-            onPress={() => navigation.navigate('ScanQr' as never)}
+            // onPress={() => navigation.navigate('ScanQr' as never)}
+            onPress={() => {}}
           />
         ))}
       </ScrollView>

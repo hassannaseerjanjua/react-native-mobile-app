@@ -41,7 +41,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const [pageIndex, setPageIndex] = useState(1);
   const [pageSize] = useState(20);
   const [isFetchingFriends, setIsFetchingFriends] = useState(true);
-  
+
   // Use refs to access current values in the focus listener
   const activeTabRef = useRef(activeTab);
   const searchQueryRef = useRef(searchQuery);
@@ -57,18 +57,18 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
       transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
     },
   );
-  
+
   const activeUsersApiRefetchRef = useRef(activeUsersApi.refetch);
-  
+
   // Update refs when values change
   useEffect(() => {
     activeTabRef.current = activeTab;
   }, [activeTab]);
-  
+
   useEffect(() => {
     searchQueryRef.current = searchQuery;
   }, [searchQuery]);
-  
+
   useEffect(() => {
     activeUsersApiRefetchRef.current = activeUsersApi.refetch;
   }, [activeUsersApi.refetch]);
@@ -235,6 +235,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                     isLast={index === displayData.length - 1}
                     showAddButton={false}
                     showSelection={false}
+                    onPress={() => {
+                      navigation.navigate('SelectStore' as never);
+                    }}
                   />
                 )}
                 showsVerticalScrollIndicator={false}

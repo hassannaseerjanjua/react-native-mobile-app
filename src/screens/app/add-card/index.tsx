@@ -18,7 +18,19 @@ const AddCart: React.FC = () => {
     CardHolder: '',
   };
   const validationSchema = Yup.object().shape({
-    CardNumber: Yup.string().required('Card number is required'),
+    CardNumber: Yup.string()
+      .required('Card number is required')
+      .test('card-digits-length', 'Enter a valid card number', value => {
+        if (!value) return false;
+        const digits = value.replace(/\s+/g, '');
+        return (
+          digits.length >= 13 && digits.length <= 19 && /^\d+$/.test(digits)
+        );
+      }),
+    CVV: Yup.string()
+      .required('CVV is required')
+      .matches(/^\d{3,4}$/, 'CVV must be 3 or 4 digits'),
+    ExpiryDate: Yup.string().required('Expiry date is required'),
 
     // Dob: birthdayValidation(getString),
   });
@@ -30,6 +42,15 @@ const AddCart: React.FC = () => {
   });
   const { styles, theme } = useStyles();
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const formatCardNumber = (raw: string) => {
+    const digitsOnly = raw.replace(/\D+/g, '').slice(0, 19);
+    return digitsOnly.replace(/(\d{4})(?=\d)/g, '$1 ').trim();
+  };
+  const formatExpiry = (d: Date) => {
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const yy = String(d.getFullYear()).slice(-2);
+    return `${mm}/${yy}`;
+  };
   return (
     <ParentView>
       <HomeHeader title="Add Card" showBackButton />
@@ -55,9 +76,12 @@ const AddCart: React.FC = () => {
                       placeholder: 'Card number',
                       value: formik.values.CardNumber,
                       onChangeText: (value: string) => {
-                        formik.setFieldValue('CardNumber', value);
+                        const formatted = formatCardNumber(value);
+                        formik.setFieldValue('CardNumber', formatted);
                       },
-                      autoCapitalize: 'words',
+                      keyboardType: 'number-pad',
+                      maxLength: 23,
+                      autoCapitalize: 'none',
                     }}
                   />
                 </View>
@@ -82,13 +106,13 @@ const AddCart: React.FC = () => {
                             : undefined
                         }
                         fieldProps={{
-                          placeholder: '8/27',
+                          placeholder: '08/27',
                           value: formik.values.ExpiryDate,
                           // onChangeText: (value: string) => {
                           //   formik.setFieldValue('CardNumber', value);
                           // },
                           editable: false,
-                          autoCapitalize: 'words',
+                          autoCapitalize: 'none',
                         }}
                       />
                     </TouchableOpacity>
@@ -97,17 +121,14 @@ const AddCart: React.FC = () => {
                       open={showDatePicker}
                       date={date}
                       mode="date"
-                      maximumDate={new Date()}
+                      minimumDate={new Date()}
                       onConfirm={selectedDate => {
-                        const today = new Date();
-                        if (selectedDate <= today) {
-                          setShowDatePicker(false);
-                          setDate(selectedDate);
-                          formik.setFieldValue(
-                            'ExpiryDate',
-                            selectedDate.toISOString().split('T')[0],
-                          );
-                        }
+                        setShowDatePicker(false);
+                        setDate(selectedDate);
+                        formik.setFieldValue(
+                          'ExpiryDate',
+                          formatExpiry(selectedDate),
+                        );
                       }}
                       onCancel={() => {
                         setShowDatePicker(false);
@@ -124,17 +145,21 @@ const AddCart: React.FC = () => {
                   <View style={styles.inputContainer}>
                     <InputField
                       error={
-                        formik.touched.CardNumber && formik.errors.CardNumber
-                          ? formik.errors.CardNumber
+                        formik.touched.CVV && formik.errors.CVV
+                          ? formik.errors.CVV
                           : undefined
                       }
                       fieldProps={{
-                        placeholder: 'Card number',
-                        value: formik.values.CardNumber,
+                        placeholder: 'CVV',
+                        value: formik.values.CVV,
                         onChangeText: (value: string) => {
-                          formik.setFieldValue('CardNumber', value);
+                          const digits = value.replace(/\D+/g, '').slice(0, 4);
+                          formik.setFieldValue('CVV', digits);
                         },
-                        autoCapitalize: 'words',
+                        keyboardType: 'number-pad',
+                        maxLength: 4,
+                        autoCapitalize: 'none',
+                        secureTextEntry: true,
                       }}
                     />
                   </View>

@@ -12,7 +12,7 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import { useListingApi } from '../../../hooks/useListingApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
 
-import { FavStores } from '../../../types/index.ts';
+import { FaveItems, FavStores } from '../../../types/index.ts';
 import { useFocusEffect } from '@react-navigation/native';
 
 const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
@@ -36,92 +36,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     },
   );
 
-  // const mockFavorites = [
-  //   {
-  //     id: '1',
-  //     title: getString('FAV_MOCK_PERFUME_HOUSE'),
-  //     subtitle: getString('FAV_MOCK_PERFUME_COLOGNE'),
-  //     backgroundImage: require('../../../assets/images/perfumeHouseCover.png'),
-  //     overlayImage: require('../../../assets/images/perfumeHouse.png'),
-  //   },
-  //   {
-  //     id: '2',
-  //     title: getString('FAV_MOCK_GYM'),
-  //     subtitle: getString('FAV_MOCK_HEALTH_FITNESS'),
-  //     backgroundImage: require('../../../assets/images/storeCover.png'),
-  //     overlayImage: require('../../../assets/images/storeLogo.png'),
-  //   },
-  //   {
-  //     id: '3',
-  //     title: getString('FAV_MOCK_COFFEMATICS'),
-  //     subtitle: getString('FAV_MOCK_CAFE_SHOPS'),
-  //     backgroundImage: require('../../../assets/images/coffeematicsCover.png'),
-  //     overlayImage: require('../../../assets/images/coffeematics.png'),
-  //   },
-  // ];
-
-  const mockfavoriteItems = [
-    {
-      id: '1',
-      title: getString('FAV_MOCK_PINK_CHARM_BOUQUET'),
-      subtitle: getString('FAV_MOCK_BOUQUET'),
-      coverImage: require('../../../assets/images/dummy1.png'),
-      description:
-        'Hand-tied bouquet of blush roses and lilies designed for heartfelt celebrations, finished with silk ribbon twists and fragrant eucalyptus sprigs. Each stem is selected at peak bloom to create a lasting impression that feels both romantic and refined.',
-      price: 100,
-      isFavorite: true,
-    },
-    {
-      id: '2',
-      title: getString('FAV_MOCK_PINK_CHARM_BOUQUET'),
-      subtitle: getString('FAV_MOCK_BOUQUET'),
-      coverImage: require('../../../assets/images/dummy2.png'),
-      description:
-        "Soft pink blooms paired with baby's breath to complement romantic gifting moments, offering a modern take on classic floral storytelling. The bouquet rests in a reusable glass vase, inviting the recipient to refresh it season after season.",
-      price: 100,
-      isFavorite: true,
-    },
-    {
-      id: '3',
-      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
-      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
-      coverImage: require('../../../assets/images/dummy3.png'),
-      description:
-        'Vanilla sponge layered with rose-infused frosting for a lightly floral dessert that melts at the first bite and finishes with a whisper of citrus. Finished with hand-piped rosettes, it transforms any gathering into an elegant celebration.',
-      price: 100,
-      isFavorite: true,
-    },
-    {
-      id: '4',
-      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
-      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
-      coverImage: require('../../../assets/images/dummy4.png'),
-      description:
-        'Signature pink charm cake topped with sugared petals and a satin ribbon finish, offering layers of airy sponge, silky mousse, and a hidden berry compote center. Designed for milestone moments, it photographs beautifully and tastes even better.',
-      price: 100,
-      isFavorite: true,
-    },
-    {
-      id: '5',
-      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
-      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
-      coverImage: require('../../../assets/images/dummy4.png'),
-      description:
-        'Decadent strawberry mousse cake created for birthdays, anniversaries, and sweet surprises, balancing tart fruit layers with velvety vanilla accents. Each slice is adorned with edible pearls to elevate an ordinary evening into a memory worth keeping.',
-      price: 100,
-      isFavorite: true,
-    },
-    {
-      id: '6',
-      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
-      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
-      coverImage: require('../../../assets/images/dummy4.png'),
-      description:
-        'Petal-pink buttercream cake layered with berry compote to share with loved ones, offering an irresistible balance of sweetness and citrus brightness. Wrapped in a textured frosting pattern, it invites guests to linger over dessert and conversation.',
-      price: 100,
-      isFavorite: true,
-    },
-  ];
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [Steps, setSteps] = useState(1);
   const [isLoading, setIsLoading] = useState(true);
@@ -169,22 +83,16 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     return () => clearTimeout(timer);
   }, [selectedFilter]);
 
-  const handleStepPress = (item: FavStores) => {
-    // setSteps(2);
-    // setIsLoading(true);
-    // const timer = setTimeout(() => {
-    //   setIsLoading(false);
-    // }, 500);
-    // return () => clearTimeout(timer);
-    navigation.navigate('CatchScreen', {
-      storeID: item.StoreId,
-      storeBranchID: item.StoreBranchID,
-      type: 'favorite',
-    });
-  };
-
-  const handleProductPress = (item: (typeof mockfavoriteItems)[number]) => {
-    navigation.navigate('ProductDetails', { product: item as any });
+  const handleStepPress = (item: FavStores | any) => {
+    // Handle FavStores type
+    if ('StoreNameEn' in item && 'StoreBranchID' in item) {
+      const favStore = item as FavStores;
+      navigation.navigate('CatchScreen', {
+        storeID: favStore.StoreId,
+        storeBranchID: favStore.StoreBranchID,
+        type: 'favorite',
+      });
+    }
   };
 
   const handleBackPress = () => {
@@ -192,8 +100,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     if (Steps === 2) {
       setSteps(1);
     } else {
-      // If we came from profile, navigate back to profile
-      // Otherwise use default goBack behavior
       if (cameFromProfile) {
         console.log('Navigating back to Profile');
         navigation.navigate('Profile' as never);
@@ -224,47 +130,27 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         />
       </View>
 
-      {Steps === 1 ? (
-        <View style={styles.content}>
-          {FavStoreListing.loading ? (
-            <SkeletonLoader screenType="storeCard" />
-          ) : (
-            <>
-              {
-              FavStoreListing.data.length > 0 ? (
-                FavStoreListing.data.map(item => (
-                  <View style={styles.favoriteItemContainer} key={item.StoreId}>
-                    <FavoriteItemCard
-                      key={item.StoreId}
-                      item={item}
-                      onPress={handleStepPress}
-                    />
-                  </View>
-                ))
-              ) : (
-                <Text>No favorites found</Text>
-              )}
-            </>
-          )}
-        </View>
-      ) : isLoading ? (
-        <SkeletonLoader screenType="productListing" />
-      ) : (
-        <></>
-        // <FlatList
-        //   columnWrapperStyle={{
-        //     gap: 16,
-        //   }}
-        //   data={mockfavoriteItems}
-        //   numColumns={2}
-        //   keyExtractor={item => item.id}
-        //   contentContainerStyle={styles.content}
-        //   showsVerticalScrollIndicator={false}
-        //   renderItem={({ item }) => (
-        //     <FavoriteProductCard item={item} onPress={handleProductPress} />
-        //   )}
-        // />
-      )}
+      <View style={styles.content}>
+        {FavStoreListing.loading ? (
+          <SkeletonLoader screenType="storeCard" />
+        ) : (
+          <>
+            {FavStoreListing.data.length > 0 ? (
+              FavStoreListing.data.map(item => (
+                <View style={styles.favoriteItemContainer} key={item.StoreId}>
+                  <FavoriteItemCard
+                    key={item.StoreId}
+                    item={item}
+                    onPress={handleStepPress}
+                  />
+                </View>
+              ))
+            ) : (
+              <Text>No favorites found</Text>
+            )}
+          </>
+        )}
+      </View>
     </View>
   );
 };

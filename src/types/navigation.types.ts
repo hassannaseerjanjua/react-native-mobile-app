@@ -76,9 +76,9 @@ export type AppStackParamList = {
   };
   SelectStore: undefined;
   CatchScreen: {
-    storeID: number;
-    storeBranchID: number;
-    type: 'favorite' | 'catch';
+    storeID?: number;
+    storeBranchID?: number;
+    type?: 'favorite' | 'catch';
   };
   ScanQr: undefined;
   Occasions: undefined;

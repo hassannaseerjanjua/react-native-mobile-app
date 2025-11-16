@@ -82,7 +82,13 @@ const Inbox: React.FC = () => {
           onClose={() => setOpenBottomSheet(false)}
         >
           <View style={styles.bottomSheet}>
-            <CustomButton title="Pick Up" />
+            <CustomButton
+              title="Pick Up"
+              onPress={() => {
+                navigation.navigate('ScanQr' as never);
+                setOpenBottomSheet(false);
+              }}
+            />
             <CustomButton
               title="Delivery"
               type="secondary"
@@ -110,12 +116,6 @@ const InboxItem = ({
   const { styles, theme } = useStyles();
   return (
     <TouchableOpacity onPress={onClick}>
-
-
-
-
-
-
       <View
         style={{
           ...styles.inboxTop,
@@ -131,31 +131,11 @@ const InboxItem = ({
         >
           <Image style={styles.inboxProfile} source={OutBox.ProfileImage} />
           <View style={{ flex: 1 }}>
-
-
-
-
             <View
               style={{
                 display: 'flex',
                 // backgroundColor: theme.colors.RED,
                 flexDirection: 'column',
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
                 justifyContent: 'space-between',
                 paddingVertical: theme.sizes.PADDING * 0.26,
@@ -172,18 +152,14 @@ const InboxItem = ({
               >
                 <Text>{OutBox.name}</Text>
 
-
-
                 <Text
                   style={{
                     // backgroundColor: theme.colors.WHITE,
                     fontSize: theme.sizes.FONTSIZE,
-
                   }}
                 >
                   {OutBox.time}
                 </Text>
-
               </View>
               <View
                 style={{

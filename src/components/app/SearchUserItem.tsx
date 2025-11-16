@@ -27,6 +27,7 @@ interface SearchUserItemProps {
   onSelectionPress?: () => void;
   tempAddedUserIds?: Set<number>;
   isGeneralSearchScreen?: boolean;
+  onPress?: () => void;
 }
 
 const SearchUserItem: React.FC<SearchUserItemProps> = ({
@@ -42,6 +43,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   onSelectionPress,
   tempAddedUserIds,
   isGeneralSearchScreen = false,
+  onPress,
 }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
@@ -59,7 +61,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   return (
     <TouchableOpacity
       style={[styles.userRow, !isLast && styles.userRowDivider]}
-      onPress={showSelection ? onSelectionPress : undefined}
+      onPress={showSelection ? onSelectionPress : onPress}
       activeOpacity={1}
     >
       <View style={styles.userInfo}>
