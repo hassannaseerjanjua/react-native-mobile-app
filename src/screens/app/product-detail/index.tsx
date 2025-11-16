@@ -116,10 +116,14 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       </View>
       <View
         style={{
-          ...styles.spaceBetween,
           position: 'absolute',
-          paddingHorizontal: sizes.PADDING,
-          top: sizes.HEIGHT * 0.05,
+          top: 68,
+          left: 0,
+          right: 0,
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          paddingHorizontal: 10,
+          alignItems: 'center',
           zIndex: 10,
           width: '100%',
         }}
