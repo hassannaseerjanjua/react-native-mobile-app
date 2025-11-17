@@ -28,11 +28,11 @@ export const usernameValidation = (getString: GetString) =>
     .required(getString('AU_SU_USERNAME_IS_REQUIRED'))
     .min(3, getString('AU_SU_USERNAME_ATLEAST'))
     .max(50, getString('AU_SU_USERNAME_LESS_THAN'))
-    .matches(
-      /^[a-zA-Z0-9_-]+$/,
-      getString('AU_SU_USERNAME_INVALID') ||
-        'Username can only contain letters, numbers, underscores, and hyphens',
-    )
+    // .matches(
+    //   /^[a-zA-Z0-9_-]+$/,
+    //   getString('AU_SU_USERNAME_INVALID') ||
+    //     'Username can only contain letters, numbers, underscores, and hyphens',
+    // )
     .test(
       'no-emoji',
       getString('AU_SU_USERNAME_NO_EMOJI') ||

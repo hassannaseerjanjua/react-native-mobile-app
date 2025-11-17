@@ -97,8 +97,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           setIsBottomSheetOpen(true);
         }
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleSignUp = async () => {
@@ -121,8 +120,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           });
         }
       })
-      .catch(err => {
-      })
+      .catch(err => {})
       .finally(() => {
         setIsBottomSheetOpen(false);
       });
@@ -317,6 +315,7 @@ const StepContent: React.FC<StepContentProps> = ({
                 onChangeText: value =>
                   updateFormData('fullName', value, formik),
                 autoCapitalize: 'words',
+                autoCorrect: false,
               }}
             />
           </View>
