@@ -34,12 +34,14 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const { getString } = useLocaleStore();
   const itemId = route?.params?.itemId;
   const friendUserId = route?.params?.friendUserId ?? null;
+  const storeBranchId = route?.params?.storeBranchId ?? null;
   const { sizes } = theme;
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [item, setItem] = useState<any>(null);
+  const [submitting, setSubmitting] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
@@ -99,6 +101,27 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       }
     } catch (error) {
       setIsFavorite(prev => !prev);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (submitting) return;
+    try {
+      setSubmitting(true);
+      const payload = {
+        FriendId: friendUserId ?? null,
+        ItemId: item?.ItemId,
+        ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
+        Quantity: quantity,
+        StoreBranchId: storeBranchId ?? null,
+      };
+      await api.post(apiEndpoints.ADD_TO_CART, payload);
+      // Navigate back or show success message
+      navigation.goBack();
+    } catch (error) {
+      // Handle error
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -255,32 +278,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
           <CustomButton
             buttonStyle={styles.button}
-            onPress={() =>
-              navigation.navigate('GiftMessage', {
-                product: {
-                  id: item?.ItemId,
-                  itemId: item?.ItemId,
-                  title: item?.NameEn ?? '',
-                  subtitle: item?.CategoryName ?? '',
-                  image: item?.Images?.[0]?.ImageUrl
-                    ? { uri: item.Images[0].ImageUrl }
-                    : undefined,
-                  price: item?.Price ?? 0,
-                  categoryName: item?.CategoryName,
-                },
-                // pass payload parts forward for checkout
-                friendUserId: friendUserId ?? undefined,
-                addToCartPayload: {
-                  FriendId: friendUserId ?? undefined,
-                  ItemId: item?.ItemId,
-                  ItemVariantId: selectedFilter
-                    ? Number(selectedFilter)
-                    : undefined,
-                  Quantity: quantity,
-                },
-              })
-            }
+            onPress={handleAddToCart}
             title={getString('PRODUCT_ADD_TO_CART')}
+            disabled={submitting}
           />
         </View>
       </View>

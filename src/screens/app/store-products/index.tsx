@@ -33,6 +33,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const navigation = useNavigation();
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
+  const storeBranchId = route.params?.storeBranchId ?? null;
   // Track favorite state for each item by ItemId
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
@@ -77,11 +78,13 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       const product = item as StoreProduct;
       (navigation as any).navigate('ProductDetails', {
         itemId: product.ItemId,
+        storeBranchId: product.StoreBranchId ?? storeBranchId,
         friendUserId,
       });
     } else {
       (navigation as any).navigate('ProductDetails', {
         itemId: (item as any)?.ItemId ?? 0,
+        storeBranchId: (item as any)?.StoreBranchId ?? storeBranchId ?? null,
         friendUserId,
       });
     }

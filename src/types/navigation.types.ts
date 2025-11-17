@@ -26,6 +26,7 @@ export type AppStackParamList = {
   ProductDetails: {
     itemId: number;
     friendUserId?: number | null;
+    storeBranchId?: number | null;
   };
   Search: {
     title?: string;
@@ -57,9 +58,11 @@ export type AppStackParamList = {
       categoryId?: number;
       categoryName?: string;
     };
+    storeBranchId?: number | null;
     friendUserId?: number | null;
     addToCartPayload?: {
       FriendId?: number | null;
+      StoreBranchId?: number | null;
       ItemId: number;
       ItemVariantId?: number;
       Quantity: number;
@@ -82,9 +85,11 @@ export type AppStackParamList = {
       imageCover?: string | null;
     };
     friendUserId?: number | null;
+    storeBranchId?: number | null;
   };
   SelectStore: {
     friendUserId?: number | null;
+    storeBranchId?: number | null;
   };
   CatchScreen: {
     storeID?: number;
@@ -108,11 +113,13 @@ export type AppStackParamList = {
       categoryName?: string;
     };
     friendUserId?: number | null;
+    storeBranchId?: number | null;
     addToCartPayload?: {
       FriendId?: number | null;
       ItemId: number;
       ItemVariantId?: number;
       Quantity: number;
+      storeBranchId?: number | null;
     };
   };
   AddCard: undefined;

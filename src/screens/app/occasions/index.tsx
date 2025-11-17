@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, StatusBar, FlatList, TouchableOpacity, Platform } from 'react-native';
+import {
+  View,
+  StatusBar,
+  FlatList,
+  TouchableOpacity,
+  Platform,
+} from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
@@ -14,6 +20,7 @@ import {
   SvgCrownIcon,
   SvgDateIcon,
   SvgEditGroup,
+  SvgGalleryIcon,
   SvgImageIcon,
 } from '../../../assets/icons';
 import InputField from '../../../components/global/InputField.tsx';
@@ -76,10 +83,10 @@ const OccasionsScreen: React.FC = () => {
       response => {
         if (response.assets && response.assets[0]) {
           const asset = response.assets[0];
-          
+
           if (asset.fileSize && asset.fileSize > 2 * 1024 * 1024) {
           }
-          
+
           const imageFile: ImageFile = {
             uri:
               Platform.OS === 'ios'
@@ -129,12 +136,14 @@ const OccasionsScreen: React.FC = () => {
     transformData: (data: OccasionsApiResponse) => data.Data.Items || [],
     withAuth: true,
   });
-  
+
   const _deleteOccasion = async (OccasionID: number) => {
     if (loading) return;
     setLoading(true);
     try {
-      const response = await api.delete(apiEndpoints.DELETE_OCCASION(OccasionID));
+      const response = await api.delete(
+        apiEndpoints.DELETE_OCCASION(OccasionID),
+      );
       if (response.success) {
         getOccasions();
       }
@@ -156,7 +165,7 @@ const OccasionsScreen: React.FC = () => {
       formData.append('NameEn', values.occasionName);
       formData.append('NameAr', values.occasionName);
       formData.append('OccasionDate', values.occasionDate);
-      
+
       if (values.image && typeof values.image === 'object') {
         formData.append('ImageUrl', {
           uri: values.image.uri,
@@ -164,10 +173,14 @@ const OccasionsScreen: React.FC = () => {
           name: values.image.name,
         } as any);
       }
-      
+
       // Don't set Content-Type header - the axios interceptor handles it for FormData
-      const response = await api.post(apiEndpoints.CREATE_OCCASION, formData, {});
-      
+      const response = await api.post(
+        apiEndpoints.CREATE_OCCASION,
+        formData,
+        {},
+      );
+
       if (response.success) {
         getOccasions();
         setSelectedOccasion({
@@ -175,7 +188,10 @@ const OccasionsScreen: React.FC = () => {
           occasionType: 'none',
         });
       } else if (response.failed) {
-        if (response.error.includes('413') || response.error.toLowerCase().includes('too large')) {
+        if (
+          response.error.includes('413') ||
+          response.error.toLowerCase().includes('too large')
+        ) {
         }
       }
     } catch (error: any) {
@@ -193,12 +209,12 @@ const OccasionsScreen: React.FC = () => {
   }) => {
     if (loading) return;
     setLoading(true);
-    
+
     try {
       const formData = new FormData();
       formData.append('OccassionId', selectedOccasion.id?.toString() || '');
       formData.append('NameEn', values.occasionName);
-      
+
       if (values.image && typeof values.image === 'object') {
         formData.append('ImageUrl', {
           uri: values.image.uri,
@@ -206,14 +222,14 @@ const OccasionsScreen: React.FC = () => {
           name: values.image.name,
         } as any);
       }
-      
+
       // Don't set Content-Type header - the axios interceptor handles it for FormData
       const response = await api.put(
         apiEndpoints.UPDATE_OCCASION(selectedOccasion.id),
         formData,
         {},
       );
-      
+
       if (response.success) {
         getOccasions();
         setSelectedOccasion({
@@ -221,7 +237,10 @@ const OccasionsScreen: React.FC = () => {
           occasionType: 'none',
         });
       } else if (response.failed) {
-        if (response.error.includes('413') || response.error.toLowerCase().includes('too large')) {
+        if (
+          response.error.includes('413') ||
+          response.error.toLowerCase().includes('too large')
+        ) {
         }
       }
     } catch (error: any) {
@@ -273,17 +292,19 @@ const OccasionsScreen: React.FC = () => {
             : getString('OCC_VIEW_OCCASION')
         }
         rightSideTitle={
-          isEditGroupOpen
-            ? getString('STG_EDIT_GROUP')
-            : [1]?.length !== 0
-            ? getString('STG_EDIT_GROUP')
+          isEditGroupOpen || selectedOccasion.occasionType !== 'none'
+            ? ''
+            : occasions?.length !== 0
+            ? getString('OCC_EDIT_OCCASION')
             : ''
         }
         rightSideTitlePress={() => setIsEditGroupOpen(!isEditGroupOpen)}
         rightSideIcon={<SvgEditGroup />}
         showBackButton={true}
         onBackPress={() => {
-          if (selectedOccasion.occasionType === 'none') {
+          if (isEditGroupOpen) {
+            setIsEditGroupOpen(false);
+          } else if (selectedOccasion.occasionType === 'none') {
             navigation.goBack();
           } else {
             setSelectedOccasion({
@@ -321,9 +342,7 @@ const OccasionsScreen: React.FC = () => {
                     });
                     await _getOccasionDetail(item.OccassionId);
                   }}
-                  onDeletePress={() =>
-                    _deleteOccasion(item.OccassionId)
-                  }
+                  onDeletePress={() => _deleteOccasion(item.OccassionId)}
                   onPress={async () => {
                     if (!isEditGroupOpen) {
                       setSelectedOccasion({
@@ -358,151 +377,157 @@ const OccasionsScreen: React.FC = () => {
           </View>
         </>
       )}
-      {selectedOccasion.occasionType !== 'none' &&
-          <>
-            <View style={styles.content}>
-              <Formik
-                initialValues={formInitialValues}
-                enableReinitialize={true}
-                validationSchema={validationSchema}
-                validateOnChange={false}
-                validateOnBlur={true}
-                onSubmit={handleSubmit}
-              >
-                {formik => (
-                  <>
-                    <View style={styles.inputContainer}>
+      {selectedOccasion.occasionType !== 'none' && (
+        <>
+          <View style={styles.content}>
+            <Formik
+              initialValues={formInitialValues}
+              enableReinitialize={true}
+              validationSchema={validationSchema}
+              validateOnChange={false}
+              validateOnBlur={true}
+              onSubmit={handleSubmit}
+            >
+              {formik => (
+                <>
+                  <View style={styles.inputContainer}>
+                    <InputField
+                      error={
+                        formik.touched.occasionName &&
+                        formik.errors.occasionName
+                          ? formik.errors.occasionName
+                          : undefined
+                      }
+                      icon={<SvgCrownIcon />}
+                      fieldProps={{
+                        placeholder: getString('OCC_EVENT'),
+                        value: formik.values.occasionName,
+                        onChangeText: (text: string) => {
+                          formik.setFieldValue('occasionName', text, false);
+                          formik.setFieldTouched('occasionName', true, false);
+                        },
+                        onBlur: () => {
+                          formik.setFieldTouched('occasionName', true);
+                        },
+                        autoCapitalize: 'words',
+                      }}
+                    />
+                  </View>
+                  <View style={styles.inputContainer}>
+                    <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                       <InputField
                         error={
-                          formik.touched.occasionName && formik.errors.occasionName
-                            ? formik.errors.occasionName
+                          formik.touched.occasionDate &&
+                          formik.errors.occasionDate
+                            ? formik.errors.occasionDate
                             : undefined
                         }
-                        icon={<SvgCrownIcon />}
+                        icon={<SvgDateIcon />}
                         fieldProps={{
-                          placeholder: getString('OCC_EVENT'),
-                          value: formik.values.occasionName,
+                          placeholder: getString('OCC_DATE'),
+                          value: formik.values.occasionDate,
                           onChangeText: (text: string) => {
-                            formik.setFieldValue('occasionName', text, false);
-                            formik.setFieldTouched('occasionName', true, false);
+                            formik.setFieldValue('occasionDate', text, false);
                           },
-                          onBlur: () => {
-                            formik.setFieldTouched('occasionName', true);
+                          onFocus: () => {
+                            formik.setFieldTouched('occasionDate', true, false);
                           },
-                          autoCapitalize: 'words',
+                          editable: false,
+                          pointerEvents: 'none',
                         }}
                       />
-                    </View>
-                    <View style={styles.inputContainer}>
-                      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                    </TouchableOpacity>
+                  </View>
+                  <View style={styles.inputContainer}>
+                    {selectedOccasion.occasionType !== 'view' ? (
+                      <TouchableOpacity
+                        onPress={() => handleImageSelect(formik)}
+                      >
                         <InputField
-                          error={
-                            formik.touched.occasionDate && formik.errors.occasionDate
-                              ? formik.errors.occasionDate
-                              : undefined
-                          }
-                          icon={<SvgDateIcon />}
-                          fieldProps={{
-                            placeholder: getString('OCC_DATE'),
-                            value: formik.values.occasionDate,
-                            onChangeText: (text: string) => {
-                              formik.setFieldValue('occasionDate', text, false);
-                            },
-                            onFocus: () => {
-                              formik.setFieldTouched('occasionDate', true, false);
-                            },
-                            editable: false,
-                            pointerEvents: 'none',
-                          }}
-                        />
-                      </TouchableOpacity>
-                    </View>
-                    <View style={styles.inputContainer}>
-                      {selectedOccasion.occasionType !== 'view' ? (
-                        <TouchableOpacity onPress={() => handleImageSelect(formik)}>
-                          <InputField
-                            error={
-                              formik.touched.image && formik.errors.image
-                                ? formik.errors.image
-                                : undefined
-                            }
-                            icon={<SvgImageIcon />}
-                            fieldProps={{
-                              placeholder: getString('OCC_IMAGE'),
-                              value: getImageDisplayValue(formik.values.image),
-                              onChangeText: () => {},
-                              editable: false,
-                              pointerEvents: 'none',
-                            }}
-                          />
-                        </TouchableOpacity>
-                      ) : (
-                        <InputField
+                          isOccasion={true}
                           error={
                             formik.touched.image && formik.errors.image
                               ? formik.errors.image
                               : undefined
                           }
-                          icon={<SvgImageIcon />}
+                          icon={<SvgGalleryIcon />}
                           fieldProps={{
                             placeholder: getString('OCC_IMAGE'),
                             value: getImageDisplayValue(formik.values.image),
                             onChangeText: () => {},
                             editable: false,
                             pointerEvents: 'none',
-                            
                           }}
                         />
-                      )}
-                    </View>
-                    {selectedOccasion.occasionType !== 'view' && (
-                      <CustomButton
-                        title={
-                          selectedOccasion.occasionType === 'edit'
-                            ? getString('OCC_SAVE')
-                            : getString('OCC_CREATE')
+                      </TouchableOpacity>
+                    ) : (
+                      <InputField
+                        error={
+                          formik.touched.image && formik.errors.image
+                            ? formik.errors.image
+                            : undefined
                         }
-                        type="primary"
-                        buttonStyle={styles.button}
-                        onPress={() => {
-                          formik.handleSubmit();
+                        icon={<SvgGalleryIcon />}
+                        fieldProps={{
+                          placeholder: getString('OCC_IMAGE'),
+                          value: getImageDisplayValue(formik.values.image),
+                          onChangeText: () => {},
+                          editable: false,
+                          pointerEvents: 'none',
                         }}
                       />
                     )}
-                    <DatePicker
-                      modal
-                      open={showDatePicker}
-                      date={
-                        formik.values.occasionDate
-                          ? new Date(formik.values.occasionDate)
-                          : date
+                  </View>
+                  {selectedOccasion.occasionType !== 'view' && (
+                    <CustomButton
+                      title={
+                        selectedOccasion.occasionType === 'edit'
+                          ? getString('OCC_SAVE')
+                          : getString('OCC_CREATE')
                       }
-                      mode="date"
-                      maximumDate={new Date()}
-                      onConfirm={selectedDate => {
-                        const today = new Date();
-                        if (selectedDate <= today) {
-                          setShowDatePicker(false);
-                          setDate(selectedDate);
-                          const dateString = selectedDate.toISOString().split('T')[0];
-                          formik.setFieldValue('occasionDate', dateString, false);
-                          formik.setFieldTouched('occasionDate', true, false);
-                        }
-                      }}
-                      onCancel={() => {
-                        setShowDatePicker(false);
-                      }}
-                      theme="light"
-                      style={{
-                        backgroundColor: theme.colors.BACKGROUND,
+                      type="primary"
+                      buttonStyle={styles.button}
+                      onPress={() => {
+                        formik.handleSubmit();
                       }}
                     />
-                  </>
-                )}
-              </Formik>
-            </View>
-          </>
-        }
+                  )}
+                  <DatePicker
+                    modal
+                    open={showDatePicker}
+                    date={
+                      formik.values.occasionDate
+                        ? new Date(formik.values.occasionDate)
+                        : date
+                    }
+                    mode="date"
+                    maximumDate={new Date()}
+                    onConfirm={selectedDate => {
+                      const today = new Date();
+                      if (selectedDate <= today) {
+                        setShowDatePicker(false);
+                        setDate(selectedDate);
+                        const dateString = selectedDate
+                          .toISOString()
+                          .split('T')[0];
+                        formik.setFieldValue('occasionDate', dateString, false);
+                        formik.setFieldTouched('occasionDate', true, false);
+                      }
+                    }}
+                    onCancel={() => {
+                      setShowDatePicker(false);
+                    }}
+                    theme="light"
+                    style={{
+                      backgroundColor: theme.colors.BACKGROUND,
+                    }}
+                  />
+                </>
+              )}
+            </Formik>
+          </View>
+        </>
+      )}
     </View>
   );
 };

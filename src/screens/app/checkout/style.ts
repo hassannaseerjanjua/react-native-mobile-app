@@ -7,6 +7,9 @@ const useStyles = () => {
   const { sizes } = theme;
   return {
     styles: StyleSheet.create({
+      container: {
+        flex: 1,
+      },
       scrollContent: {
         paddingHorizontal: 0,
         paddingBottom: sizes.HEIGHT * 0.13,

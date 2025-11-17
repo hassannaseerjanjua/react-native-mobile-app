@@ -17,7 +17,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   const { styles, theme } = useStyles();
   const { getString, isRtl } = useLocaleStore();
   const [message, setMessage] = useState('');
-  const { product, addToCartPayload, friendUserId } = route.params as any;
+  const { product, addToCartPayload, friendUserId, storeBranchId } =
+    route.params as any;
   const GiftFilter = require('../../../assets/images/gift-filter.png');
   return (
     <ParentView style={styles.container}>
@@ -80,11 +81,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             <CustomButton
               title="Skip"
               onPress={() => {
-                navigation.navigate('CheckOut', {
-                  product,
-                  addToCartPayload,
-                  friendUserId,
-                });
+                navigation.goBack();
               }}
             />
           </View>

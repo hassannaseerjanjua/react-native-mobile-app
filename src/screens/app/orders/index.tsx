@@ -132,9 +132,9 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   const { getString, isRtl } = useLocaleStore();
 
   const firstItem = order.Items?.[0];
-  const itemImage = firstItem?.Images?.[0]
-    ? { uri: firstItem.Images[0] }
-    : require('../../../assets/images/flowers.png');
+  const itemImage = order?.Items?.[0]?.Images?.[0]
+    ? { uri: order.Items[0].ThumbnailUrl }
+    : require('../../../assets/images/img-placeholder.png');
   const itemName = firstItem?.ItemName || getString('O_FLOWER_BOUQUET');
   const storeName = order.FriendName || getString('O_COFFEEMATICS');
   const phoneNumber = '0300-16413168';

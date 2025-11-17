@@ -31,7 +31,7 @@ const useStyles = () => {
         marginBottom: sizes.HEIGHT * 0.02,
       },
       button: {
-        marginTop: sizes.HEIGHT * 0.1,
+        marginTop: sizes.HEIGHT * 0.02,
       },
     }),
     theme,

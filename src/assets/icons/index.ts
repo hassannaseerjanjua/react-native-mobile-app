@@ -89,6 +89,9 @@ import DummyQrSvg from './dummy-qr.svg';
 import LocationArrowSvg from './location-Arrow.svg';
 import ShareIcon from './share.svg';
 import SvgCatchAddIcon from './add-catch.svg';
+import SvgGalleryIcon from './gallery.svg';
+import SvgGalleryUploadIcon from './gallery-upload.svg';
+import SvgCartIcon from './cart-icon.svg';
 
 export {
   SvgLogoBlue,
@@ -182,4 +185,7 @@ export {
   LocationArrowSvg,
   ShareIcon,
   SvgCatchAddIcon,
+  SvgGalleryIcon,
+  SvgGalleryUploadIcon,
+  SvgCartIcon,
 };

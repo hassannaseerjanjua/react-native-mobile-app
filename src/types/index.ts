@@ -221,6 +221,7 @@ export interface OrderItem {
   Status: number;
   Variant: OrderItemVariant | null;
   Images: string[];
+  ThumbnailUrl: string | null;
 }
 
 export interface Order {
@@ -309,6 +310,56 @@ export interface StoreProduct {
   StoreBranchId: number;
   CategoryId: number;
   Categories: any | null;
+}
+
+export interface CartItemImage {
+  ItemImageId: number;
+  DisplaySeqNo: number | null;
+  isDefault: boolean | null;
+  ImageUrl: string | null;
+  ImageUrls: string;
+  ItemVariantId: number | null;
+}
+
+export interface CartItemVariant {
+  NameEn: string;
+  NameAr: string;
+  ItemVariantId: number;
+  Status: number;
+  Price: number;
+}
+
+export interface CartItem {
+  OrderItemId: number;
+  ItemId: number;
+  ItemName: string;
+  ThumbnailUrl: string | null;
+  UnitPrice: number;
+  Quantity: number;
+  OrderAmount: number;
+  DiscountAmount: number;
+  VatAmount: number;
+  FeelingFees: number;
+  DeliveryCharges: number;
+  TotalAmount: number;
+  Status: number;
+  Variant: CartItemVariant;
+  Images: CartItemImage[];
+}
+
+export interface CartResponse {
+  OrderId: number;
+  FriendId: number | null;
+  FriendName: string | null;
+  StoreId: number;
+  StoreBranchId: number;
+  Status: number;
+  OrderAmount: number;
+  TotalDiscount: number;
+  TotalVat: number;
+  DeliveryCharges: number;
+  TotalAmount: number;
+  Items: CartItem[];
 }
 
 export interface StoreProductApiResponse {

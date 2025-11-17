@@ -49,6 +49,7 @@ const HomeScreen: React.FC = () => {
         }}
         showLogo={true}
         showSearch={true}
+        showCartIcon={true}
       />
       <View style={styles.mainContent}>
         {sliderLoading ? (
@@ -172,8 +173,8 @@ const HomeScreenTabsContainer: React.FC = () => {
             onPress={tab.onPress}
             style={{
               paddingVertical: isProMax
-                ? scaleWithMax(24, 26)
-                : scaleWithMax(20, 30),
+                ? scaleWithMax(22, 22)
+                : scaleWithMax(20, 22),
             }}
           />
         ))}

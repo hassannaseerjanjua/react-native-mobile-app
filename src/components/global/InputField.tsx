@@ -8,7 +8,7 @@ import {
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
 import { scaleWithMax, rtlTextAlign, rtlPadding } from '../../utils';
-import { SvgPhone } from '../../assets/icons';
+import { SvgGalleryUploadIcon, SvgPhone } from '../../assets/icons';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 
@@ -18,7 +18,7 @@ type Props = {
   style?: any;
   iconColor?: string;
   fieldProps: TextInputProps;
-
+  isOccasion?: boolean;
   isPhone?: boolean;
 };
 
@@ -29,6 +29,7 @@ const InputField = ({
   style,
   fieldProps,
   isPhone,
+  isOccasion,
 }: Props) => {
   const { theme, styles } = useStyles();
   const { isRtl } = useLocaleStore();
@@ -71,6 +72,15 @@ const InputField = ({
           underlineColorAndroid="transparent"
         />
       </View>
+      {isOccasion && (
+        <View style={styles.galleryUploadContainer}>
+          <SvgGalleryUploadIcon
+            width={scaleWithMax(15, 18)}
+            height={scaleWithMax(15, 18)}
+          />
+          <Text style={styles.galleryUploadText}>{'Upload'}</Text>
+        </View>
+      )}
       {!!error && (
         <Text
           style={[
@@ -160,6 +170,24 @@ const useStyles = () => {
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         marginStart: 8,
+      },
+      galleryUploadContainer: {
+        position: 'absolute',
+        top: sizes.HEIGHT * 0.014,
+        end: sizes.WIDTH * 0.02,
+        backgroundColor: theme.colors.WHITE,
+        padding: sizes.PADDING * 0.2,
+        paddingHorizontal: sizes.PADDING * 0.4,
+        borderRadius: 4,
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      galleryUploadText: {
+        ...theme.globalStyles.TEXT_STYLE,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: theme.colors.PRIMARY,
+        marginStart: 4,
       },
     });
   }, [theme]);

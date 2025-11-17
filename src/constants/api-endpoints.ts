@@ -64,7 +64,12 @@ const apiEndpoints = {
     `/${version}/Panel/GetAllItems?StoreId=${storeId}`,
   GET_STORE_ITEM_BY_ID: (itemId?: any) =>
     `/${version}/Panel/GetItemById?itemId=${itemId}`,
+
+  // Cart APIS
   ADD_TO_CART: `/${version}/User/AddToGiftCart`,
+  GET_CART_ITEMS: `/${version}/User/GetGiftCart`,
+  UPDATE_CART_ITEM_QUANTITY: `/${version}/User/UpdateCart`,
+  INITIATE_CHECKOUT: `/${version}/User/InitOrder`,
 
   // Settings
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,

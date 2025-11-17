@@ -24,7 +24,8 @@ type SkeletonLoaderProps = {
     | 'settings'
     | 'landing'
     | 'productDetails'
-    | 'tabItem';
+    | 'tabItem'
+    | 'checkout';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -37,9 +38,9 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       const isProMax = theme.sizes.WIDTH > 430 && isIOS;
       const isBaseModel = theme.sizes.WIDTH < 430 && isIOS;
       if (isProMax) {
-        return theme.sizes.HEIGHT * 0.382;
+        return theme.sizes.HEIGHT * 0.358;
       } else if (isBaseModel) {
-        return theme.sizes.HEIGHT * 0.355;
+        return theme.sizes.HEIGHT * 0.342;
       } else {
         return theme.sizes.HEIGHT * 0.35;
       }
@@ -55,10 +56,10 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
             <SkeletonPlaceholder.Item>
               {/* Welcome Text with User Name */}
               <SkeletonPlaceholder.Item
-                width={screenWidth * 0.6}
+                width={screenWidth * 0.7}
                 height={screenHeight * 0.025}
                 borderRadius={screenWidth * 0.01}
-                marginTop={screenHeight * 0.015}
+                marginTop={screenHeight * 0.01}
               />
 
               {/* Hero Image Slider */}
@@ -986,6 +987,272 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                 />
               </View>
             </View>
+          </SkeletonPlaceholder>
+        );
+      case 'checkout':
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item paddingHorizontal={theme.sizes.PADDING}>
+              {/* Section: Order Details */}
+              <SkeletonPlaceholder.Item marginTop={screenHeight * 0.015}>
+                {/* Section Heading */}
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.4}
+                  height={screenHeight * 0.022}
+                  borderRadius={screenWidth * 0.01}
+                  // marginBottom={screenHeight * 0.001}
+                />
+
+                {/* Cart Items */}
+                {[...Array(3)].map((_, index) => (
+                  <SkeletonPlaceholder.Item
+                    key={index}
+                    flexDirection="row"
+                    alignItems="center"
+                    backgroundColor="#fff"
+                    borderRadius={theme.sizes.BORDER_RADIUS}
+                    marginTop={
+                      index === 0 ? screenHeight * 0.006 : screenHeight * 0.01
+                    }
+                    paddingVertical={theme.sizes.PADDING * 0.55}
+                    paddingHorizontal={theme.sizes.PADDING * 0.75}
+                    gap={theme.sizes.WIDTH * 0.03}
+                  >
+                    {/* Product Image */}
+                    <SkeletonPlaceholder.Item
+                      width={scaleWithMax(80, 85)}
+                      height={scaleWithMax(80, 85)}
+                      borderRadius={theme.sizes.BORDER_RADIUS}
+                    />
+
+                    {/* Product Info */}
+                    <SkeletonPlaceholder.Item
+                      flex={1}
+                      gap={theme.sizes.HEIGHT * 0.006}
+                    >
+                      {/* Item Name */}
+                      <SkeletonPlaceholder.Item
+                        width={screenWidth * 0.4}
+                        height={screenHeight * 0.02}
+                        borderRadius={screenWidth * 0.01}
+                      />
+                      {/* Variant Name */}
+                      <SkeletonPlaceholder.Item
+                        width={screenWidth * 0.3}
+                        height={screenHeight * 0.017}
+                        borderRadius={screenWidth * 0.01}
+                      />
+
+                      {/* Price and Quantity Row */}
+                      <SkeletonPlaceholder.Item
+                        flexDirection="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        marginTop={screenHeight * 0.01}
+                      >
+                        {/* Price */}
+                        <SkeletonPlaceholder.Item
+                          width={screenWidth * 0.15}
+                          height={screenHeight * 0.022}
+                          borderRadius={screenWidth * 0.01}
+                        />
+                        {/* Quantity Controls */}
+                        <SkeletonPlaceholder.Item
+                          flexDirection="row"
+                          alignItems="center"
+                          gap={theme.sizes.WIDTH * 0.01}
+                        >
+                          <SkeletonPlaceholder.Item
+                            width={scaleWithMax(16, 17)}
+                            height={scaleWithMax(16, 17)}
+                            borderRadius={999}
+                          />
+                          <SkeletonPlaceholder.Item
+                            width={scaleWithMax(16, 18)}
+                            height={scaleWithMax(14, 15)}
+                            borderRadius={screenWidth * 0.01}
+                            marginHorizontal={theme.sizes.WIDTH * 0.01}
+                          />
+                          <SkeletonPlaceholder.Item
+                            width={scaleWithMax(16, 17)}
+                            height={scaleWithMax(16, 17)}
+                            borderRadius={999}
+                          />
+                        </SkeletonPlaceholder.Item>
+                      </SkeletonPlaceholder.Item>
+                    </SkeletonPlaceholder.Item>
+                  </SkeletonPlaceholder.Item>
+                ))}
+              </SkeletonPlaceholder.Item>
+
+              {/* Section: Send a Gift */}
+              <SkeletonPlaceholder.Item marginTop={screenHeight * 0.02}>
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.35}
+                  height={screenHeight * 0.022}
+                  borderRadius={screenWidth * 0.01}
+                  marginBottom={screenHeight * 0.006}
+                />
+                <SkeletonPlaceholder.Item
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  backgroundColor="#fff"
+                  borderRadius={theme.sizes.BORDER_RADIUS}
+                  paddingVertical={theme.sizes.PADDING * 0.5}
+                  paddingHorizontal={theme.sizes.PADDING * 0.75}
+                  gap={theme.sizes.WIDTH * 0.03}
+                >
+                  <SkeletonPlaceholder.Item
+                    flexDirection="row"
+                    flex={1}
+                    gap={theme.sizes.WIDTH * 0.025}
+                    alignItems="center"
+                  >
+                    <SkeletonPlaceholder.Item
+                      width={scaleWithMax(30, 35)}
+                      height={scaleWithMax(30, 35)}
+                      borderRadius={999}
+                    />
+                    <SkeletonPlaceholder.Item
+                      width={screenWidth * 0.25}
+                      height={screenHeight * 0.017}
+                      borderRadius={screenWidth * 0.01}
+                    />
+                  </SkeletonPlaceholder.Item>
+                  <SkeletonPlaceholder.Item
+                    flexDirection="row"
+                    gap={theme.sizes.WIDTH * 0.025}
+                  >
+                    <SkeletonPlaceholder.Item
+                      width={20}
+                      height={20}
+                      borderRadius={screenWidth * 0.01}
+                    />
+                    <SkeletonPlaceholder.Item
+                      width={20}
+                      height={20}
+                      borderRadius={screenWidth * 0.01}
+                    />
+                  </SkeletonPlaceholder.Item>
+                </SkeletonPlaceholder.Item>
+              </SkeletonPlaceholder.Item>
+
+              {/* Section: Payment Management */}
+              <SkeletonPlaceholder.Item marginTop={screenHeight * 0.02}>
+                <SkeletonPlaceholder.Item
+                  flexDirection="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  marginBottom={screenHeight * 0.006}
+                >
+                  <SkeletonPlaceholder.Item
+                    width={screenWidth * 0.4}
+                    height={screenHeight * 0.022}
+                    borderRadius={screenWidth * 0.01}
+                  />
+                  <SkeletonPlaceholder.Item
+                    flexDirection="row"
+                    gap={theme.sizes.WIDTH * 0.013}
+                    alignItems="center"
+                  >
+                    <SkeletonPlaceholder.Item
+                      width={15}
+                      height={15}
+                      borderRadius={screenWidth * 0.01}
+                    />
+                    <SkeletonPlaceholder.Item
+                      width={screenWidth * 0.2}
+                      height={screenHeight * 0.017}
+                      borderRadius={screenWidth * 0.01}
+                    />
+                  </SkeletonPlaceholder.Item>
+                </SkeletonPlaceholder.Item>
+                <SkeletonPlaceholder.Item
+                  flexDirection="row"
+                  alignItems="center"
+                  justifyContent="space-between"
+                  backgroundColor="#fff"
+                  borderRadius={theme.sizes.BORDER_RADIUS}
+                  paddingVertical={theme.sizes.PADDING * 0.5}
+                  paddingHorizontal={theme.sizes.PADDING * 0.75}
+                  gap={theme.sizes.WIDTH * 0.03}
+                >
+                  <SkeletonPlaceholder.Item
+                    flexDirection="row"
+                    flex={1}
+                    gap={theme.sizes.WIDTH * 0.03}
+                    alignItems="center"
+                  >
+                    <SkeletonPlaceholder.Item
+                      width={20}
+                      height={20}
+                      borderRadius={999}
+                    />
+                    <SkeletonPlaceholder.Item
+                      width={scaleWithMax(32, 35)}
+                      height={scaleWithMax(32, 35)}
+                      borderRadius={screenWidth * 0.01}
+                    />
+                    <SkeletonPlaceholder.Item gap={screenHeight * 0.004}>
+                      <SkeletonPlaceholder.Item
+                        width={screenWidth * 0.25}
+                        height={screenHeight * 0.017}
+                        borderRadius={screenWidth * 0.01}
+                      />
+                      <SkeletonPlaceholder.Item
+                        width={screenWidth * 0.15}
+                        height={screenHeight * 0.017}
+                        borderRadius={screenWidth * 0.01}
+                      />
+                    </SkeletonPlaceholder.Item>
+                  </SkeletonPlaceholder.Item>
+                  <SkeletonPlaceholder.Item
+                    width={scaleWithMax(16, 18)}
+                    height={scaleWithMax(16, 18)}
+                    borderRadius={screenWidth * 0.01}
+                  />
+                </SkeletonPlaceholder.Item>
+              </SkeletonPlaceholder.Item>
+
+              {/* Section: Order Details Totals */}
+              <SkeletonPlaceholder.Item marginTop={screenHeight * 0.02}>
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.4}
+                  height={screenHeight * 0.022}
+                  borderRadius={screenWidth * 0.01}
+                  marginBottom={screenHeight * 0.006}
+                />
+                {/* Total Amount Row */}
+                <SkeletonPlaceholder.Item
+                  flexDirection="row"
+                  justifyContent="space-between"
+                  alignItems="center"
+                  paddingVertical={theme.sizes.PADDING * 0.36}
+                  borderBottomWidth={0.6}
+                  borderBottomColor="#EDEDED"
+                >
+                  <SkeletonPlaceholder.Item
+                    width={screenWidth * 0.3}
+                    height={screenHeight * 0.017}
+                    borderRadius={screenWidth * 0.01}
+                  />
+                  <SkeletonPlaceholder.Item
+                    width={screenWidth * 0.15}
+                    height={screenHeight * 0.017}
+                    borderRadius={screenWidth * 0.01}
+                  />
+                </SkeletonPlaceholder.Item>
+                {/* VAT Note */}
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.6}
+                  height={screenHeight * 0.017}
+                  borderRadius={screenWidth * 0.01}
+                  alignSelf="center"
+                  marginTop={theme.sizes.PADDING * 0.6}
+                />
+              </SkeletonPlaceholder.Item>
+            </SkeletonPlaceholder.Item>
           </SkeletonPlaceholder>
         );
       default:

@@ -18,6 +18,7 @@ import {
   SvgDummyAvatar,
   SvgHomeBack,
   SvgLogoBlue,
+  SvgCartIcon,
 } from '../../assets/icons';
 import {
   isAndroid,
@@ -36,6 +37,7 @@ interface HomeHeaderProps {
   showBackButton?: boolean;
   onBackPress?: () => void;
   showSearch?: boolean;
+  showCartIcon?: boolean;
   showProfileIcon?: boolean;
   showSearchBar?: boolean;
   searchPlaceholder?: string;
@@ -55,6 +57,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   showBackButton = false,
   onBackPress,
   showSearch = false,
+  showCartIcon = false,
   showProfileIcon = false,
   showSearchBar = false,
   searchPlaceholder,
@@ -138,6 +141,17 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         )}
 
         <View style={styles.rightSection}>
+          {showCartIcon && (
+            <TouchableOpacity
+              style={[
+                styles.searchContainer,
+                { marginEnd: theme.sizes.WIDTH * 0.038 },
+              ]}
+              onPress={() => navigation.navigate('CheckOut' as never)}
+            >
+              <SvgCartIcon />
+            </TouchableOpacity>
+          )}
           {showSearch && (
             <TouchableOpacity
               style={styles.searchContainer}
@@ -147,6 +161,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               <SvgSearchIcon />
             </TouchableOpacity>
           )}
+
           {showProfileIcon && (
             <Pressable style={styles.avatarContainer} onPress={onProfilePress}>
               <Image
@@ -233,7 +248,7 @@ const useStyles = () => {
         elevation: 2,
       },
       avatarContainer: {
-        marginStart: sizes.WIDTH * 0.05,
+        marginStart: sizes.WIDTH * 0.04,
       },
       backButton: {
         // paddingVertical: sizes.PADDING,

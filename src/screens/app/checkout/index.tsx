@@ -1,5 +1,6 @@
 import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -23,62 +24,283 @@ import {
 import CheckBox from '../../../components/global/CheckBox';
 import PriceWithIcon from '../../../components/global/Price';
 import CustomButton from '../../../components/global/Custombutton';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import CustomFooter from '../../../components/global/CustomFooter';
 import { Text } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import { CartResponse, CartItem } from '../../../types';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
   const { getString, isRtl } = useLocaleStore();
   const navigation = useNavigation();
-  const { product, addToCartPayload } = route.params as any;
 
-  const [quantity, setQuantity] = useState(addToCartPayload?.Quantity ?? 1);
-  const [checkoutCompleted, setCheckoutCompleted] = useState(false);
+  const [cartData, setCartData] = useState<CartResponse | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const [selectedCircle, setSelectedCircle] = useState(false);
+  const [checkoutCompleted, setCheckoutCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [updatingQuantities, setUpdatingQuantities] = useState<Set<number>>(
+    new Set(),
+  );
 
-  const handleQuantityChange = (type: 'increment' | 'decrement') => {
-    if (type === 'increment') {
-      setQuantity((prevQuantity: number) => prevQuantity + 1);
-    } else {
-      if (quantity > 1) {
-        setQuantity((prevQuantity: number) => prevQuantity - 1);
+  const getCartItems = async () => {
+    try {
+      setLoading(true);
+      const res = await api.get<any>(apiEndpoints.GET_CART_ITEMS);
+      // API response structure may vary, handle both cases
+      const cartData = res.data?.Data || res.data;
+      if (cartData) {
+        setCartData(cartData as CartResponse);
       }
+    } catch (error) {
+      console.error('Error fetching cart items:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  const productImage =
-    product?.image || require('../../../assets/images/img-placeholder.png');
-  const productTitle = product?.title;
-  const productSubtitle = product?.subtitle;
-  const productPrice = product?.price;
-  const totalAmount = productPrice * quantity;
+  useEffect(() => {
+    getCartItems();
+  }, []);
 
-  const submitAddToCart = async () => {
+  useFocusEffect(
+    useCallback(() => {
+      getCartItems();
+    }, []),
+  );
+
+  const handleQuantityChange = async (
+    item: CartItem,
+    type: 'increment' | 'decrement',
+  ) => {
+    const newQuantity =
+      type === 'increment' ? item.Quantity + 1 : item.Quantity - 1;
+
+    // Prevent decrementing below 1
+    if (newQuantity < 1) {
+      return;
+    }
+
+    // Prevent multiple simultaneous updates for the same item
+    if (updatingQuantities.has(item.OrderItemId)) {
+      return;
+    }
+
+    // Store original state for potential rollback
+    const originalCartData = cartData
+      ? JSON.parse(JSON.stringify(cartData))
+      : null;
+
+    // Optimistically update the UI
+    if (cartData) {
+      const updatedItems = cartData.Items.map(cartItem => {
+        if (cartItem.OrderItemId === item.OrderItemId) {
+          // Calculate new total amount based on unit price and new quantity
+          const newTotalAmount = cartItem.UnitPrice * newQuantity;
+          return {
+            ...cartItem,
+            Quantity: newQuantity,
+            TotalAmount: newTotalAmount,
+            OrderAmount: newTotalAmount,
+          };
+        }
+        return cartItem;
+      });
+
+      // Recalculate cart totals
+      const newOrderAmount = updatedItems.reduce(
+        (sum, cartItem) => sum + cartItem.OrderAmount,
+        0,
+      );
+      const newTotalDiscount = cartData.TotalDiscount;
+      const newTotalVat = cartData.TotalVat;
+      const newDeliveryCharges = cartData.DeliveryCharges;
+      const newTotalAmount =
+        newOrderAmount - newTotalDiscount + newTotalVat + newDeliveryCharges;
+
+      setCartData({
+        ...cartData,
+        Items: updatedItems,
+        OrderAmount: newOrderAmount,
+        TotalAmount: newTotalAmount,
+      });
+    }
+
+    try {
+      setUpdatingQuantities(prev => new Set(prev).add(item.OrderItemId));
+
+      const payload = {
+        ItemId: item.ItemId,
+        ItemVariantId: item.Variant?.ItemVariantId,
+        Quantity: newQuantity,
+      };
+
+      await api.put(apiEndpoints.UPDATE_CART_ITEM_QUANTITY, payload);
+    } catch (error) {
+      console.error('Error updating cart item quantity:', error);
+      // Revert to original state on error
+      if (originalCartData) {
+        setCartData(originalCartData);
+      }
+    } finally {
+      setUpdatingQuantities(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(item.OrderItemId);
+        return newSet;
+      });
+    }
+  };
+
+  const renderCartItem = (item: CartItem) => {
+    const itemImage = item.Images?.[0]?.ImageUrls || item.ThumbnailUrl;
+    const imageSource = itemImage
+      ? { uri: itemImage }
+      : require('../../../assets/images/img-placeholder.png');
+
+    return (
+      <View
+        style={[
+          styles.CartContainer,
+          { flexDirection: rtlFlexDirection(isRtl) },
+        ]}
+      >
+        <Image source={imageSource} style={styles.CartProductImage} />
+        <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
+          <View>
+            <Text style={styles.cartTitle}>{item.ItemName}</Text>
+            {item.Variant?.NameEn && (
+              <Text style={styles.TextMedium}>{item.Variant.NameEn}</Text>
+            )}
+          </View>
+          <View
+            style={{
+              ...styles.row,
+              flexDirection: rtlFlexDirection(isRtl),
+              justifyContent: 'space-between',
+            }}
+          >
+            <PriceWithIcon
+              Price={item.TotalAmount}
+              style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+            />
+            <View
+              style={[
+                styles.quantityControls,
+                { flexDirection: rtlFlexDirection(isRtl) },
+              ]}
+            >
+              <TouchableOpacity
+                onPress={() => handleQuantityChange(item, 'decrement')}
+                disabled={updatingQuantities.has(item.OrderItemId)}
+                style={{
+                  opacity: updatingQuantities.has(item.OrderItemId) ? 0.5 : 1,
+                }}
+              >
+                <DecrementIcon />
+              </TouchableOpacity>
+              <Text style={styles.quantityValue}>
+                {`${item.Quantity < 10 ? '0' : ''}${item.Quantity}`}
+              </Text>
+              <TouchableOpacity
+                onPress={() => handleQuantityChange(item, 'increment')}
+                disabled={updatingQuantities.has(item.OrderItemId)}
+                style={{
+                  opacity: updatingQuantities.has(item.OrderItemId) ? 0.5 : 1,
+                }}
+              >
+                <IncrementIcon />
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </View>
+    );
+  };
+
+  const handleProceedToCheckout = async () => {
+    if (!cartData || submitting) return;
+
     try {
       setSubmitting(true);
       const payload = {
-        FriendId: addToCartPayload?.FriendId ?? null,
-        ItemId: addToCartPayload.ItemId,
-        ItemVariantId: addToCartPayload.ItemVariantId,
-        Quantity: quantity ?? addToCartPayload.Quantity ?? 1,
+        orderid: cartData.OrderId,
+        orderPaymentType: 1,
       };
-      await api.post(apiEndpoints.ADD_TO_CART, payload);
-      setCheckoutCompleted(true);
-    } catch (e) {
-      setCheckoutCompleted(true);
+
+      const response = await api.post<any>(
+        apiEndpoints.INITIATE_CHECKOUT,
+        payload,
+      );
+
+      if (response.success) {
+        setCheckoutCompleted(true);
+      }
+    } catch (error) {
+      console.error('Error initiating checkout:', error);
     } finally {
       setSubmitting(false);
     }
   };
 
   const GiftSend = require('../../../assets/images/gift-send.png');
-  return !checkoutCompleted ? (
+
+  if (checkoutCompleted) {
+    return (
+      <View style={styles.checkoutCompletedContainer}>
+        <Image source={GiftSend} />
+        <Text style={styles.TextLarge}>{getString('CHECKOUT_GIFT_SENT')}</Text>
+        <CustomFooter>
+          <View style={{ position: 'relative' }}>
+            <CustomButton
+              title={getString('CHECKOUT_HOME')}
+              onPress={() => navigation.dispatch(StackActions.popToTop())}
+            />
+          </View>
+        </CustomFooter>
+      </View>
+    );
+  }
+
+  if (loading) {
+    return (
+      <ParentView>
+        <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
+        <SkeletonLoader screenType="checkout" />
+      </ParentView>
+    );
+  }
+
+  if (!cartData || !cartData.Items || cartData.Items.length === 0) {
+    return (
+      <ParentView>
+        <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
+        <View style={styles.container}>
+          <Text
+            style={[
+              styles.TextMedium,
+              { textAlign: 'center', marginTop: theme.sizes.HEIGHT * 0.3 },
+            ]}
+          >
+            {getString('EMPTY_NO_PRODUCTS_FOUND') || 'Your cart is empty'}
+          </Text>
+        </View>
+      </ParentView>
+    );
+  }
+
+  // Get first item for gift section (or use a default)
+  const firstItem = cartData.Items[0];
+  const giftImage = firstItem.Images?.[0]?.ImageUrls || firstItem.ThumbnailUrl;
+  const giftImageSource = giftImage
+    ? { uri: giftImage }
+    : require('../../../assets/images/img-placeholder.png');
+
+  return (
     <ParentView>
       <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
       <ScrollView
@@ -89,82 +311,55 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           <Text style={styles.heading}>
             {getString('CHECKOUT_ORDER_DETAILS')}
           </Text>
-          <View
-            style={[
-              styles.CartContainer,
-              { flexDirection: rtlFlexDirection(isRtl) },
-            ]}
-          >
-            <Image source={productImage} style={styles.CartProductImage} />
-            <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
-              <View>
-                <Text style={styles.cartTitle}>{productTitle}</Text>
-                <Text style={styles.TextMedium}>{productSubtitle}</Text>
-              </View>
+          {cartData.Items.map((item, index) => (
+            <View key={item.OrderItemId}>
+              {renderCartItem(item)}
+              {index < cartData.Items.length - 1 && (
+                <View style={{ height: theme.sizes.HEIGHT * 0.01 }} />
+              )}
+            </View>
+          ))}
+        </View>
+
+        {cartData.FriendId && (
+          <View style={styles.section}>
+            <Text style={styles.heading}>
+              {getString('CHECKOUT_SEND_A_GIFT')}
+            </Text>
+            <View style={styles.GiftContainer}>
               <View
                 style={{
                   ...styles.row,
-                  flexDirection: rtlFlexDirection(isRtl),
-                  justifyContent: 'space-between',
-                }}
-              >
-                <PriceWithIcon
-                  Price={productPrice}
-                  style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
-                />
-                <View
-                  style={[
-                    styles.quantityControls,
-                    { flexDirection: rtlFlexDirection(isRtl) },
-                  ]}
-                >
-                  <DecrementIcon
-                    onPress={() => handleQuantityChange('decrement')}
-                  />
-                  <Text style={styles.quantityValue}>
-                    {`${quantity < 10 ? '0' : ''}${quantity}`}
-                  </Text>
-                  <IncrementIcon
-                    onPress={() => handleQuantityChange('increment')}
-                  />
-                </View>
-              </View>
-            </View>
-          </View>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.heading}>
-            {getString('CHECKOUT_SEND_A_GIFT')}
-          </Text>
-          <View style={styles.GiftContainer}>
-            <View
-              style={{
-                ...styles.row,
-                flex: 1,
-                gap: theme.sizes.WIDTH * 0.025,
-                flexDirection: rtlFlexDirection(isRtl),
-              }}
-            >
-              <Image source={productImage} style={styles.GiftContainerImage} />
-              <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
-                <Text style={styles.TextMedium}>{productSubtitle}</Text>
-              </View>
-            </View>
-            <View
-              style={[
-                styles.row,
-                {
+                  flex: 1,
                   gap: theme.sizes.WIDTH * 0.025,
                   flexDirection: rtlFlexDirection(isRtl),
-                },
-              ]}
-            >
-              <GiftIcon />
-              <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+                }}
+              >
+                <Image
+                  source={giftImageSource}
+                  style={styles.GiftContainerImage}
+                />
+                <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
+                  <Text style={styles.TextMedium}>
+                    {cartData.FriendName || 'Friend'}
+                  </Text>
+                </View>
+              </View>
+              <View
+                style={[
+                  styles.row,
+                  {
+                    gap: theme.sizes.WIDTH * 0.025,
+                    flexDirection: rtlFlexDirection(isRtl),
+                  },
+                ]}
+              >
+                <GiftIcon />
+                <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+              </View>
             </View>
           </View>
-        </View>
+        )}
 
         <View style={styles.section}>
           <View
@@ -236,12 +431,41 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             <Text style={styles.TextMedium}>
               {getString('CHECKOUT_TOTAL_AMOUNT')}
             </Text>
-            <PriceWithIcon Price={productPrice * quantity} />
+            <PriceWithIcon Price={cartData.TotalAmount} />
           </View>
-          {/* <View style={styles.Prices}>
-            <Text style={styles.TextMedium}>Feeling Fees</Text>
-            <PriceWithIcon Price={feelingFees} />
-          </View> */}
+          {cartData.TotalDiscount > 0 && (
+            <View
+              style={[
+                styles.Prices,
+                { flexDirection: rtlFlexDirection(isRtl) },
+              ]}
+            >
+              <Text style={styles.TextMedium}>Discount</Text>
+              <PriceWithIcon Price={cartData.TotalDiscount} />
+            </View>
+          )}
+          {cartData.TotalVat > 0 && (
+            <View
+              style={[
+                styles.Prices,
+                { flexDirection: rtlFlexDirection(isRtl) },
+              ]}
+            >
+              <Text style={styles.TextMedium}>VAT</Text>
+              <PriceWithIcon Price={cartData.TotalVat} />
+            </View>
+          )}
+          {cartData.DeliveryCharges > 0 && (
+            <View
+              style={[
+                styles.Prices,
+                { flexDirection: rtlFlexDirection(isRtl) },
+              ]}
+            >
+              <Text style={styles.TextMedium}>Delivery Charges</Text>
+              <PriceWithIcon Price={cartData.DeliveryCharges} />
+            </View>
+          )}
           <Text style={styles.vatNote}>{getString('CHECKOUT_VAT_NOTE')}</Text>
         </View>
       </ScrollView>
@@ -249,7 +473,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         <View style={{ position: 'relative' }}>
           <CustomButton
             title={getString('CHECKOUT_PROCEED_TO_CHECKOUT')}
-            onPress={submitAddToCart}
+            onPress={handleProceedToCheckout}
+            disabled={submitting}
           />
           <View
             style={[
@@ -258,7 +483,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             ]}
           >
             <PriceWithIcon
-              Price={totalAmount}
+              Price={cartData.TotalAmount}
               style={{ color: theme.colors.WHITE }}
               Icon={
                 <SvgRiyalIconWhite
@@ -271,19 +496,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         </View>
       </View>
     </ParentView>
-  ) : (
-    <View style={styles.checkoutCompletedContainer}>
-      <Image source={GiftSend} />
-      <Text style={styles.TextLarge}>{getString('CHECKOUT_GIFT_SENT')}</Text>
-      <CustomFooter>
-        <View style={{ position: 'relative' }}>
-          <CustomButton
-            title={getString('CHECKOUT_HOME')}
-            onPress={() => navigation.navigate('BottomTabs' as never)}
-          />
-        </View>
-      </CustomFooter>
-    </View>
   );
 };
 
