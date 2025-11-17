@@ -154,9 +154,9 @@ const useStyles = () => {
       borderRadius: 9999,
       overflow: 'hidden',
       position: 'absolute',
-      top: -sizes.HEIGHT * 0.056,
+      top: scaleWithMax(-35, -46),
       start: sizes.WIDTH * 0.028,
-      bottom: -sizes.HEIGHT * 0.005,
+      // bottom: -sizes.HEIGHT * 0.005,
       zIndex: 1,
     },
     overlayImage: {

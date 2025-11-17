@@ -99,12 +99,12 @@ export type AppStackParamList = {
   ScanQr: undefined;
   Occasions: undefined;
   CheckOut: {
-    product: {
+    product?: {
       id?: string | number;
-      title: string;
-      subtitle: string;
-      image: any; // Can be require() or { uri: string }
-      price: number;
+      title?: string;
+      subtitle?: string;
+      image?: any; // Can be require() or { uri: string }
+      price?: number;
       discountedPrice?: number;
       storeId?: number;
       storeBranchId?: number;
@@ -121,7 +121,7 @@ export type AppStackParamList = {
       Quantity: number;
       storeBranchId?: number | null;
     };
-  };
+  } | undefined;
   AddCard: undefined;
   Notifications: undefined;
   Profile: undefined;

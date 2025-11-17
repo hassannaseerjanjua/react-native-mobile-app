@@ -42,6 +42,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [item, setItem] = useState<any>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [itemAddedToCart, setItemAddedToCart] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
@@ -116,13 +117,17 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         StoreBranchId: storeBranchId ?? null,
       };
       await api.post(apiEndpoints.ADD_TO_CART, payload);
-      // Navigate back or show success message
-      navigation.goBack();
+      // Mark as added and change button to "Go to Cart"
+      setItemAddedToCart(true);
     } catch (error) {
       // Handle error
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleGoToCart = () => {
+    navigation.navigate('CheckOut', undefined);
   };
 
   return (
@@ -190,7 +195,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             }}
           >
             <View>
-              <SkeletonLoader screenType="productDetails" />
+              <SkeletonLoader screenType="sendToGroup" />
             </View>
           </ScrollView>
         </View>
@@ -278,8 +283,10 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
           <CustomButton
             buttonStyle={styles.button}
-            onPress={handleAddToCart}
-            title={getString('PRODUCT_ADD_TO_CART')}
+            onPress={itemAddedToCart ? handleGoToCart : handleAddToCart}
+            title={
+              itemAddedToCart ? 'Go to Cart' : getString('PRODUCT_ADD_TO_CART')
+            }
             disabled={submitting}
           />
         </View>
