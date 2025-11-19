@@ -32,6 +32,7 @@ const useFetchLocale = () => {
     dispatch(
       setLocale({
         strings: response?.data?.Data?.ResourceDictionary || {},
+        stringsLangId: langId,
       }),
     );
 
@@ -41,7 +42,7 @@ const useFetchLocale = () => {
 
   useEffect(() => {
     fetchLocale(langId);
-  }, []);
+  }, [langId]);
 
   return {
     loading,

@@ -9,6 +9,7 @@ export interface LocaleState {
     langCode: string;
     isRtl: boolean;
     strings: Record<LocaleString, string> | null;
+    stringsLangId: number | null;
   };
 }
 
@@ -19,6 +20,7 @@ const initState: LocaleState = {
     langCode: 'en',
     isRtl: false,
     strings: null,
+    stringsLangId: null,
   },
 };
 
@@ -48,16 +50,15 @@ export const useLanguageShifter = () => {
   const dispatch = useDispatch();
 
   const shiftLanguage = (langCode: 'en' | 'ar') => {
+    const newLangId = langCode === 'en' ? 1 : 2;
     dispatch(
       setLocale({
-        langId: langCode === 'en' ? 1 : 2,
+        langId: newLangId,
         langCode: langCode,
         isRtl: langCode === 'ar',
-        strings: null,
       }),
     );
 
-    // restart app here
     setTimeout(() => {
       RNRestart.restart();
     }, 500);
@@ -75,6 +76,9 @@ export const useLocaleStore = () => {
   return {
     ...locale,
     getString: (key: LocaleString) => {
+      if (locale?.stringsLangId !== locale?.langId) {
+        return key;
+      }
       return locale?.strings?.[key] || key;
     },
   };
