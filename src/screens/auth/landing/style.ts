@@ -32,9 +32,8 @@ const useStyles = () => {
         paddingBottom: 10,
       },
       languageContainer: {
-        // position: 'absolute',
-        // top: sizes.PADDING * 0.5,
-        // end: 0,
+        position: 'absolute',
+        top: sizes.HEIGHT * 0.08,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'flex-end',

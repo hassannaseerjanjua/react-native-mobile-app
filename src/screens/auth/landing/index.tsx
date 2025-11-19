@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { View, StatusBar, TouchableOpacity } from 'react-native';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
@@ -15,6 +15,7 @@ import {
 import ParentView from '../../../components/app/ParentView';
 import useTheme from '../../../styles/theme';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import { rtlPosition } from '../../../utils/rtl';
 
 interface LandingProps extends AuthStackScreen<'Landing'> {}
 
@@ -24,8 +25,14 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
   const { shiftLanguage } = useLanguageShifter();
   const { sizes } = useTheme();
 
-  const langState = langCode as 'en' | 'ar';
+  const displayLangCode = useRef(langCode as 'en' | 'ar');
   const [shimmerLoading, setShimmerLoading] = useState(false);
+
+  useEffect(() => {
+    if (!shimmerLoading) {
+      displayLangCode.current = langCode as 'en' | 'ar';
+    }
+  }, [langCode, shimmerLoading]);
 
   return (
     <ParentView style={styles.container}>
@@ -33,10 +40,11 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
       <TouchableOpacity
         style={[
           styles.languageContainer,
-          {
-            justifyContent: langState === 'en' ? 'flex-end' : 'flex-start',
-            transform: [{ translateX: 0 }],
-          },
+          rtlPosition(
+            displayLangCode.current === 'ar',
+            undefined,
+            sizes.PADDING,
+          ),
         ]}
         onPress={() => {
           setShimmerLoading(true);
@@ -47,7 +55,7 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
           }, 1000);
         }}
       >
-        {langState === 'en' ? (
+        {displayLangCode.current === 'en' ? (
           <SvgArabicIcon
             width={sizes.WIDTH * 0.08}
             height={sizes.WIDTH * 0.08}

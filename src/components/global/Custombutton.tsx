@@ -104,7 +104,7 @@ const CustomButton = ({
                       ? theme.colors.RED
                       : theme.colors.PRIMARY,
                   fontSize: theme.sizes.FONTSIZE_BUTTON,
-                  marginStart: 5,
+                  marginStart: icon ? 5 : 0,
                 },
                 labelStyle,
               ]}

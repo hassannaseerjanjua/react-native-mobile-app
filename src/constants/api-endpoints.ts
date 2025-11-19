@@ -74,6 +74,7 @@ const apiEndpoints = {
   INITIATE_CHECKOUT: `/${version}/User/InitOrder`,
   REMOVE_CART_BY_ID: `/${version}/User/RemoveItemFromCart`,
   GET_CART_COUNT: `/${version}/Home/GetCartItemCount`,
+  CLEAR_CART: `/${version}/User/ClearCart`,
 
   // Settings
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,

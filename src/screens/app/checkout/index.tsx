@@ -1,6 +1,5 @@
 import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
-import React, { useState, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
+import React, { useState, useEffect } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -35,14 +34,13 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import { CartResponse, CartItem } from '../../../types';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import notify from '../../../utils/notify';
+import useGetApi from '../../../hooks/useGetApi';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
   const { getString, isRtl } = useLocaleStore();
   const navigation = useNavigation();
 
-  const [cartData, setCartData] = useState<CartResponse | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
   >(null);
@@ -52,27 +50,20 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     Record<number, 'increment' | 'decrement' | null>
   >({});
 
-  const getCartItems = async () => {
-    try {
-      setLoading(true);
-      const res = await api.get<any>(apiEndpoints.GET_CART_ITEMS);
-      const cartData = res.data?.Data || res.data;
-      if (cartData) {
-        setCartData(cartData as CartResponse);
-      }
-    } catch (error: any) {
-      console.error('Error fetching cart items:', error);
-      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-    } finally {
-      setLoading(false);
-    }
-  };
+  const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
+    transformData: (data: any) => (data?.Data || data) as CartResponse,
+  });
 
-  useFocusEffect(
-    useCallback(() => {
-      getCartItems();
-    }, []),
+  const [cartData, setCartData] = useState<CartResponse | null>(
+    cartItemsApi.data,
   );
+  const loading = cartItemsApi.loading;
+
+  useEffect(() => {
+    if (cartItemsApi.data) {
+      setCartData(cartItemsApi.data);
+    }
+  }, [cartItemsApi.data]);
 
   const handleQuantityChange = async (
     item: CartItem,
@@ -159,6 +150,18 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         delete newState[item.OrderItemId];
         return newState;
       });
+    }
+  };
+
+  const handleClearCart = async () => {
+    const response = await api.put(apiEndpoints.CLEAR_CART, {});
+    if (response.success) {
+      setCartData(null);
+      setTimeout(() => {
+        navigation.dispatch(StackActions.popToTop());
+      }, 200);
+    } else {
+      notify.error(response.error || getString('AU_ERROR_OCCURRED'));
     }
   };
 
@@ -322,9 +325,30 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         contentContainerStyle={styles.scrollContent}
       >
         <View style={styles.section}>
-          <Text style={styles.heading}>
-            {getString('CHECKOUT_ORDER_DETAILS')}
-          </Text>
+          <View
+            style={[
+              styles.sectionHeaderRow,
+              { flexDirection: rtlFlexDirection(isRtl) },
+            ]}
+          >
+            <Text style={styles.heading}>
+              {getString('CHECKOUT_ORDER_DETAILS')}
+            </Text>
+            <TouchableOpacity onPress={handleClearCart}>
+              <Text
+                style={[
+                  styles.TextMedium,
+                  {
+                    color: theme.colors.PRIMARY,
+                    textDecorationLine: 'underline',
+                  },
+                ]}
+              >
+                Remove
+              </Text>
+            </TouchableOpacity>
+          </View>
+
           {cartData.Items.map((item, index) => (
             <View key={item.OrderItemId}>
               {renderCartItem(item)}
@@ -483,9 +507,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         </View>
 
         <View style={styles.section}>
-          <Text style={styles.heading}>
-            {getString('CHECKOUT_ORDER_DETAILS')}
-          </Text>
+          <Text style={styles.heading}>{getString('CHECKOUT_ORDER_INFO')}</Text>
           <View
             style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}
           >

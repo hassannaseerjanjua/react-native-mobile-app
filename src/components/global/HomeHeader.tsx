@@ -81,12 +81,10 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const defaultSearchPlaceholder =
     searchPlaceholder || getString('HOME_SEARCH');
 
-  // Internal state for search when onSearchChange is not provided
   const [internalSearchValue, setInternalSearchValue] = useState(
     searchValue || '',
   );
 
-  // Sync internal state with prop when it changes
   useEffect(() => {
     if (onSearchChange) {
       setInternalSearchValue(searchValue || '');
@@ -105,7 +103,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     }
   };
 
-  // Use controlled value if onSearchChange is provided, otherwise use internal state
   const displaySearchValue = onSearchChange ? searchValue : internalSearchValue;
 
   const handleBackPress = () => {
@@ -116,13 +113,11 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     }
   };
 
-  const backSize = scaleWithMax(20, 25);
   const dummyImage = require('../../assets/images/user.png');
 
   const getCartCount = useGetApi<any>(apiEndpoints.GET_CART_COUNT, {
     transformData: data => data.Data,
   });
-  console.log('getCartCount', getCartCount);
 
   return (
     <View>
