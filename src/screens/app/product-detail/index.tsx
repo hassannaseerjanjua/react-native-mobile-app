@@ -25,6 +25,7 @@ import ParentView from '../../../components/app/ParentView';
 import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import notify from '../../../utils/notify';
 
 const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   route,
@@ -48,14 +49,27 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     let mounted = true;
     const fetchItem = async () => {
       setLoading(true);
-      const res = await api.get<any>(apiEndpoints.GET_STORE_ITEM_BY_ID(itemId));
-      if (mounted) {
-        const data = (res.data as any)?.Data ?? null;
-        setItem(data);
-        // default selected variant
-        const firstVariantId = data?.Variants?.[0]?.ItemVariantId;
-        setSelectedFilter(firstVariantId ? String(firstVariantId) : '');
-        setLoading(false);
+      try {
+        const res = await api.get<any>(
+          apiEndpoints.GET_STORE_ITEM_BY_ID(itemId),
+        );
+        if (mounted) {
+          if (res.success) {
+            const data = (res.data as any)?.Data ?? null;
+            setItem(data);
+            // default selected variant
+            const firstVariantId = data?.Variants?.[0]?.ItemVariantId;
+            setSelectedFilter(firstVariantId ? String(firstVariantId) : '');
+          } else {
+            notify.error(res.error || getString('AU_ERROR_OCCURRED'));
+          }
+          setLoading(false);
+        }
+      } catch (error: any) {
+        if (mounted) {
+          notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+          setLoading(false);
+        }
       }
     };
     if (itemId) {
@@ -97,11 +111,15 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       const res = await api.post<any>(apiEndpoints.HANDLE_FAVORITE_ITEM, {
         ItemId: item?.ItemId,
       });
-      if (res.data.success) {
+      if (res.success) {
         setIsFavorite(prev => !prev);
+      } else {
+        setIsFavorite(prev => !prev);
+        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
-    } catch (error) {
+    } catch (error: any) {
       setIsFavorite(prev => !prev);
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
 
@@ -116,11 +134,15 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         Quantity: quantity,
         StoreId: storeId ?? null,
       };
-      await api.post(apiEndpoints.ADD_TO_CART, payload);
-      // Mark as added and change button to "Go to Cart"
-      setItemAddedToCart(true);
-    } catch (error) {
-      // Handle error
+      const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
+      if (response.success) {
+        // Mark as added and change button to "Go to Cart"
+        setItemAddedToCart(true);
+      } else {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+      }
+    } catch (error: any) {
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       setSubmitting(false);
     }

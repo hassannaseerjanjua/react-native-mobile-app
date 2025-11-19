@@ -29,6 +29,7 @@ import useGetApi from '../../../hooks/useGetApi';
 import { City, UpdateProfileApiResponse } from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
+import notify from '../../../utils/notify';
 import { useDispatch } from 'react-redux';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 
@@ -130,12 +131,14 @@ const SettingsScreen: React.FC = () => {
         },
       })
       .then(response => {
-        if (response.data?.Data) {
+        if (response.success && response.data?.Data) {
           dispatch(login({ ...user, ...response.data.Data }));
+        } else if (response.failed) {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
         }
       })
-
       .catch(error => {
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
       })
       .finally(() => {
         setLoading(false);

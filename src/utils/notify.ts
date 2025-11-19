@@ -1,11 +1,21 @@
-import { ToastAndroid } from 'react-native';
+import Toast from 'react-native-toast-message';
 
 const notify = {
   error: (message: string) => {
-    ToastAndroid.show(message, ToastAndroid.LONG);
+    Toast.show({
+      type: 'error',
+      text1: message,
+      // text2: message,
+      position: 'bottom',
+    });
   },
   success: (message: string) => {
-    ToastAndroid.show(message, ToastAndroid.LONG);
+    Toast.show({
+      type: 'success',
+      text1: message,
+      // text2: message,
+      position: 'bottom',
+    });
   },
 };
 

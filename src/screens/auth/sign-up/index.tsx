@@ -24,6 +24,7 @@ import { Formik } from 'formik';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import { createSignUpSchema } from '../../../utils/validationSchemas';
+import notify from '../../../utils/notify';
 
 interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
@@ -118,13 +119,18 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             username: formData.username,
             city: formData.city,
           });
+        } else {
+          notify.error(res.error || getString('AU_ERROR_OCCURRED'));
         }
       })
-      .catch(err => {})
+      .catch(err => {
+        notify.error(
+          err?.error || getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'),
+        );
+      })
       .finally(() => {
         setIsBottomSheetOpen(false);
       });
-    setIsBottomSheetOpen(false);
   };
 
   const updateFormData = (field: string, value: string, formik?: any) => {

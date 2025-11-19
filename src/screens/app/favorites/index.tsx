@@ -12,6 +12,7 @@ import { useListingApi } from '../../../hooks/useListingApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
 import { FavStores } from '../../../types/index.ts';
 import api from '../../../utils/api.ts';
+import notify from '../../../utils/notify';
 
 const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   route,
@@ -88,9 +89,13 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         apiEndpoints.HANDLE_FAVORITE_ITEM,
         payload,
       );
-      if (res.data.success) {
+      if (res.success) {
+      } else {
+        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
-    } catch (error) {}
+    } catch (error: any) {
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+    }
   };
 
   return (

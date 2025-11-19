@@ -33,6 +33,7 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { CartResponse, CartItem } from '../../../types';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import notify from '../../../utils/notify';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
@@ -57,8 +58,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       if (cartData) {
         setCartData(cartData as CartResponse);
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error fetching cart items:', error);
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       setLoading(false);
     }
@@ -140,9 +142,20 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         Quantity: newQuantity,
       };
 
-      await api.put(apiEndpoints.UPDATE_CART_ITEM_QUANTITY, payload);
-    } catch (error) {
+      const response = await api.put(
+        apiEndpoints.UPDATE_CART_ITEM_QUANTITY,
+        payload,
+      );
+      if (!response.success) {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        // Revert to original state on error
+        if (originalCartData) {
+          setCartData(originalCartData);
+        }
+      }
+    } catch (error: any) {
       console.error('Error updating cart item quantity:', error);
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
       // Revert to original state on error
       if (originalCartData) {
         setCartData(originalCartData);
@@ -239,9 +252,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
       if (response.success) {
         setCheckoutCompleted(true);
+      } else {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error initiating checkout:', error);
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       setSubmitting(false);
     }

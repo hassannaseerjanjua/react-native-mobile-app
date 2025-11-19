@@ -29,6 +29,7 @@ import * as Yup from 'yup';
 import DatePicker from 'react-native-date-picker';
 import api from '../../../utils/api.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
+import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import { Occasion, OccasionsApiResponse } from '../../../types/index.ts';
 import SkeletonLoader from '../../../components/SkeletonLoader/index.tsx';
@@ -146,8 +147,11 @@ const OccasionsScreen: React.FC = () => {
       );
       if (response.success) {
         getOccasions();
+      } else {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
       }
-    } catch (error) {
+    } catch (error: any) {
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       setLoading(false);
     }
@@ -188,15 +192,10 @@ const OccasionsScreen: React.FC = () => {
           occasionType: 'none',
         });
       } else if (response.failed) {
-        if (
-          response.error.includes('413') ||
-          response.error.toLowerCase().includes('too large')
-        ) {
-        }
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
       }
     } catch (error: any) {
-      if (error?.response?.status === 413 || error?.message?.includes('413')) {
-      }
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       setLoading(false);
     }
@@ -237,15 +236,10 @@ const OccasionsScreen: React.FC = () => {
           occasionType: 'none',
         });
       } else if (response.failed) {
-        if (
-          response.error.includes('413') ||
-          response.error.toLowerCase().includes('too large')
-        ) {
-        }
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
       }
     } catch (error: any) {
-      if (error?.response?.status === 413 || error?.message?.includes('413')) {
-      }
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       setLoading(false);
     }
@@ -267,9 +261,12 @@ const OccasionsScreen: React.FC = () => {
           if (occasionData.OccasionDate) {
             setDate(new Date(occasionData.OccasionDate));
           }
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
         }
       }
-    } catch (error) {
+    } catch (error: any) {
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       setLoading(false);
     }

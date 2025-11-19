@@ -24,6 +24,7 @@ import useGetApi from '../../../hooks/useGetApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
 import { StoreProduct, FaveItems } from '../../../types/index.ts';
 import api from '../../../utils/api.ts';
+import notify from '../../../utils/notify';
 
 const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   route,
@@ -67,7 +68,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     if (getStoreProducts.data) {
       const initialState: Record<number, boolean> = {};
       getStoreProducts.data.forEach(item => {
-        initialState[item.ItemId] = item.IsFavorite ?? false;
+        initialState[item.ItemId] = item.isFavourite ?? false;
       });
       setFavoriteStates(initialState);
     }
@@ -92,26 +93,34 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
   const handleFavoritePress = async (payload: {
     ItemId: number;
-    IsFavorite: boolean;
+    isFavorite: boolean;
   }) => {
     // Optimistically update the specific item's favorite state
     setFavoriteStates(prev => ({
       ...prev,
-      [payload.ItemId]: payload.IsFavorite,
+      [payload.ItemId]: payload.isFavorite,
     }));
     try {
       const res = await api.post<any>(
         apiEndpoints.HANDLE_FAVORITE_ITEM,
         payload,
       );
-      if (res.data.success) {
+      if (res.success) {
+      } else {
+        // Revert the state change on error
+        setFavoriteStates(prev => ({
+          ...prev,
+          [payload.ItemId]: !payload.isFavorite,
+        }));
+        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
-    } catch (error) {
+    } catch (error: any) {
       // Revert the state change on error
       setFavoriteStates(prev => ({
         ...prev,
-        [payload.ItemId]: !payload.IsFavorite,
+        [payload.ItemId]: !payload.isFavorite,
       }));
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
 
@@ -180,6 +189,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             data={filteredProducts}
             numColumns={2}
             keyExtractor={item => item.ItemId.toString()}
+            extraData={favoriteStates}
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
@@ -199,14 +209,14 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                 item={item}
                 onPress={handleProductPress}
                 isFavorite={
-                  favoriteStates[item.ItemId] ?? item.IsFavorite ?? false
+                  favoriteStates[item.ItemId] ?? item.isFavourite ?? false
                 }
                 onFavoritePress={() => {
                   handleFavoritePress({
                     ItemId: item.ItemId,
-                    IsFavorite: !(
+                    isFavorite: !(
                       favoriteStates[item.ItemId] ??
-                      item.IsFavorite ??
+                      item.isFavourite ??
                       false
                     ),
                   });

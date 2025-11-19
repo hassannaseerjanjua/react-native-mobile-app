@@ -81,10 +81,14 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         },
       })
       .then(response => {
-        getGroupsData.refetch();
+        if (response.success) {
+          getGroupsData.refetch();
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
       })
       .catch(error => {
-        // Error deleting group
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
       });
   };
 
@@ -131,12 +135,16 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
       .then(response => {
-        getGroupsData.refetch();
-        setIsEditGroupOpen(false);
-        setIsMemberSelectionOpen(false);
+        if (response.success) {
+          getGroupsData.refetch();
+          setIsEditGroupOpen(false);
+          setIsMemberSelectionOpen(false);
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
       })
       .catch(error => {
-        // Error updating group
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
       });
   };
 

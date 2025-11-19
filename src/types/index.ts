@@ -172,7 +172,7 @@ export interface FaveItems {
   CategoryNameEn: string;
   CategoryNameAr: string;
   Price: number;
-  IsFavorite: boolean;
+  isFavourite: boolean;
 }
 export interface OccasionsApiResponse {
   Data: {
@@ -302,7 +302,7 @@ export interface StoreListApiResponse {
 }
 
 export interface StoreProduct {
-  IsFavorite: boolean;
+  isFavourite: boolean;
   CategoryNameEn: string;
   CategoryNameAr: string;
   ItemId: number;

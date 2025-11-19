@@ -14,7 +14,7 @@ import { scaleWithMax } from '../../../utils';
 import { createContactUsSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
-
+import notify from '../../../utils/notify';
 const ContactUsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -37,9 +37,14 @@ const ContactUsScreen: React.FC = () => {
     api
       .post(apiEndpoints.CONTACT_US_SUBMIT, values)
       .then(response => {
-        navigation.goBack();
+        if (response.success) {
+          navigation.goBack();
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
       })
       .catch(error => {
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
       })
       .finally(() => setLoading(false));
   };

@@ -13,6 +13,7 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import { FaveItems } from '../../../types';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
+import notify from '../../../utils/notify';
 import { Text } from '../../../utils/elements';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
@@ -153,14 +154,22 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         apiEndpoints.HANDLE_FAVORITE_ITEM,
         payload,
       );
-      if (res.data.success) {
+      if (res.success) {
+      } else {
+        // Revert the state change on error
+        setFavoriteStates(prev => ({
+          ...prev,
+          [payload.ItemId]: !payload.IsFavorite,
+        }));
+        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
-    } catch (error) {
+    } catch (error: any) {
       // Revert the state change on error
       setFavoriteStates(prev => ({
         ...prev,
         [payload.ItemId]: !payload.IsFavorite,
       }));
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
 

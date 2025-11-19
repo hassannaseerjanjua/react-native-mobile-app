@@ -12,6 +12,7 @@ import { Text } from './src/utils/elements';
 import { useLocaleStore } from './src/store/reducer/locale';
 import { I18nManager } from 'react-native';
 import { linking } from './src/navigators/deep-linking';
+import Toast from 'react-native-toast-message';
 
 const App = () => {
   return (
@@ -25,6 +26,7 @@ const App = () => {
             >
               <RootNavigator />
             </NavigationContainer>
+            <Toast />
           </DataWrapper>
         </PersistGate>
       </Provider>

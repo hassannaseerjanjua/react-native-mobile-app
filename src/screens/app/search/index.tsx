@@ -19,6 +19,7 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import SearchUserItem from '../../../components/app/SearchUserItem';
 import ConfirmationModal from '../../../components/global/ConfirmationModal';
 import { Text } from '../../../utils/elements';
+import notify from '../../../utils/notify';
 
 interface SearchProps extends AppStackScreen<'Search'> {}
 
@@ -109,8 +110,9 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
           });
         }, 3000);
       }
-    } catch (err) {
+    } catch (err: any) {
       updateUserStatus(userId, null);
+      notify.error(err?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       updateLoadingState(userId, false);
     }
@@ -131,7 +133,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         userId,
         isLinkedToGroup: isLinked,
       });
-    } catch (err) {
+    } catch (err: any) {
+      notify.error(err?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       updateLoadingState(userId, false);
     }
@@ -151,8 +154,9 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       });
 
       activeUsersApi.refetch();
-    } catch (err) {
+    } catch (err: any) {
       updateUserStatus(userId, null);
+      notify.error(err?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       setUnfriendModal(prev => ({ ...prev, loading: false }));
     }
