@@ -67,6 +67,9 @@ const apiEndpoints = {
   GET_BUSINESS_TYPE: `/${version}/Panel/GetBusinessTypesForPanel`,
   GET_CATEGORIES: `/${version}/Panel/GetCategoriesForPanel`,
 
+  // Catch
+  GET_CATCH_ITEMS: `/${version}/User/GetCatchesForUsers`,
+
   // Cart APIS
   ADD_TO_CART: `/${version}/User/AddToGiftCart`,
   GET_CART_ITEMS: `/${version}/User/GetGiftCart`,

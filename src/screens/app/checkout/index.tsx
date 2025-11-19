@@ -9,6 +9,7 @@ import {
   GiftIcon,
   IncrementIcon,
   PlusIcon,
+  SvgEhsanIcon,
   SvgGifteeWalletIcon,
   SvgRiyalIcon,
   SvgRiyalIconWhite,
@@ -35,6 +36,7 @@ import { CartResponse, CartItem } from '../../../types';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi';
+import InputField from '../../../components/global/InputField';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
@@ -72,10 +74,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     const newQuantity =
       type === 'increment' ? item.Quantity + 1 : item.Quantity - 1;
 
-    if (newQuantity < 1) {
-      return;
-    }
-
     if (updatingQuantities[item.OrderItemId]) {
       return;
     }
@@ -83,6 +81,67 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     const originalCartData = cartData
       ? JSON.parse(JSON.stringify(cartData))
       : null;
+
+    if (newQuantity < 1) {
+      if (cartData) {
+        const updatedItems = cartData.Items.filter(
+          cartItem => cartItem.OrderItemId !== item.OrderItemId,
+        );
+
+        const newOrderAmount = updatedItems.reduce(
+          (sum, cartItem) => sum + cartItem.OrderAmount,
+          0,
+        );
+        const newTotalDiscount = cartData.TotalDiscount;
+        const newTotalVat = cartData.TotalVat;
+        const newDeliveryCharges = cartData.DeliveryCharges;
+        const newTotalAmount =
+          newOrderAmount - newTotalDiscount + newTotalVat + newDeliveryCharges;
+
+        setCartData({
+          ...cartData,
+          Items: updatedItems,
+          OrderAmount: newOrderAmount,
+          TotalAmount: newTotalAmount,
+        });
+      }
+
+      try {
+        setUpdatingQuantities(prev => ({
+          ...prev,
+          [item.OrderItemId]: 'decrement',
+        }));
+
+        const payload = {
+          ItemId: item.ItemId,
+          ItemVariantId: item.Variant?.ItemVariantId,
+        };
+
+        const response = await api.post(
+          apiEndpoints.REMOVE_CART_BY_ID,
+          payload,
+        );
+        if (!response.success) {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+          if (originalCartData) {
+            setCartData(originalCartData);
+          }
+        }
+      } catch (error: any) {
+        console.error('Error removing cart item:', error);
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+        if (originalCartData) {
+          setCartData(originalCartData);
+        }
+      } finally {
+        setUpdatingQuantities(prev => {
+          const newState = { ...prev };
+          delete newState[item.OrderItemId];
+          return newState;
+        });
+      }
+      return;
+    }
 
     if (cartData) {
       const updatedItems = cartData.Items.map(cartItem => {
@@ -549,6 +608,20 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               <PriceWithIcon Price={cartData.DeliveryCharges} />
             </View>
           )}
+          <View style={{ marginTop: theme.sizes.HEIGHT * 0.004 }}>
+            <Text style={styles.TextMedium}>Send gift with Ehsan</Text>
+            <InputField
+              style={{
+                marginTop: theme.sizes.HEIGHT * 0.005,
+              }}
+              icon={<SvgEhsanIcon />}
+              fieldProps={{
+                placeholder: 'Enter amount',
+                keyboardType: 'numeric',
+                maxLength: 10,
+              }}
+            />
+          </View>
           <Text style={styles.vatNote}>{getString('CHECKOUT_VAT_NOTE')}</Text>
         </View>
       </ScrollView>

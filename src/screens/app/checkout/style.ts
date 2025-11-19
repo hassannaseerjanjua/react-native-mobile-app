@@ -112,7 +112,7 @@ const useStyles = () => {
         textAlign: 'center',
         paddingVertical: sizes.PADDING * 0.6,
         fontSize: sizes.FONTSIZE_MEDIUM,
-        color: theme.colors.SECONDARY_TEXT,
+        color: theme.colors.BLACK,
       },
       footerContainer: {
         position: 'absolute',

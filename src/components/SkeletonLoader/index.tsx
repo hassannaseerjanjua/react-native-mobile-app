@@ -861,92 +861,87 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       case 'productDetails':
         return (
           <SkeletonPlaceholder>
-            <SkeletonPlaceholder.Item
-              flexDirection="row"
-              alignItems="flex-start"
-              paddingTop={screenHeight * 0.02}
-            >
+            <SkeletonPlaceholder.Item>
+              {/* Product Title and Price Row */}
               <SkeletonPlaceholder.Item
-                width={screenWidth * 0.35}
-                height={screenHeight * 0.024}
-                borderRadius={screenWidth * 0.01}
-                marginTop={screenHeight * 0.006}
-                marginBottom={screenHeight * 0.016}
-                marginRight={screenWidth * 0.35} // ✅ replace gap
-              />
-
-              <SkeletonPlaceholder.Item
-                width={screenWidth * 0.2}
-                height={screenHeight * 0.024}
-                borderRadius={screenWidth * 0.01}
-                marginTop={screenHeight * 0.006}
-                marginBottom={screenHeight * 0.016}
-              />
-            </SkeletonPlaceholder.Item>
-            <SkeletonPlaceholder.Item
-              justifyContent="flex-end"
-              width={screenWidth * 0.35}
-              height={screenHeight * 0.018}
-              borderRadius={screenWidth * 0.01}
-              marginTop={screenHeight * 0.006}
-              marginLeft={'auto'}
-              marginBottom={screenHeight * 0.016}
-            />
-            <SkeletonPlaceholder.Item
-              width={screenWidth * 0.3}
-              height={screenHeight * 0.018}
-              borderRadius={screenWidth * 0.01}
-              marginTop={screenHeight * 0.006}
-              marginBottom={screenHeight * 0.016}
-            />
-            {[...Array(5)].map(() => (
-              <SkeletonPlaceholder.Item
-                width={screenWidth * 0.85}
-                height={screenHeight * 0.01}
-                borderRadius={screenWidth * 0.01}
-                marginTop={screenHeight * 0.0008}
+                flexDirection="row"
+                justifyContent="space-between"
+                alignItems="flex-start"
+                marginTop={screenHeight * 0.02}
                 marginBottom={screenHeight * 0.01}
-              />
-            ))}
-            <SkeletonPlaceholder.Item
-              width={screenWidth * 0.35}
-              height={screenHeight * 0.024}
-              borderRadius={screenWidth * 0.01}
-              marginTop={screenHeight * 0.006}
-              marginBottom={screenHeight * 0.016}
-              marginRight={screenWidth * 0.35}
-            />
-            <SkeletonPlaceholder.Item
-              flexDirection="row"
-              alignItems="flex-start"
-              paddingTop={screenHeight * 0.009}
-            >
+              >
+                {/* Product Title */}
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.55}
+                  height={screenHeight * 0.028}
+                  borderRadius={screenWidth * 0.01}
+                />
+                {/* Price Container */}
+                <SkeletonPlaceholder.Item
+                  flexDirection="row"
+                  alignItems="center"
+                  gap={screenWidth * 0.01}
+                >
+                  <SkeletonPlaceholder.Item
+                    width={screenWidth * 0.15}
+                    height={screenHeight * 0.024}
+                    borderRadius={screenWidth * 0.01}
+                  />
+                </SkeletonPlaceholder.Item>
+              </SkeletonPlaceholder.Item>
+
+              {/* Tax Include Text */}
               <SkeletonPlaceholder.Item
-                width={screenWidth * 0.15}
-                height={screenHeight * 0.046}
-                borderRadius={screenWidth * 0.04}
-                marginTop={screenHeight * 0.006}
-                marginBottom={screenHeight * 0.016}
-                marginRight={screenWidth * 0.04} // ✅ replace gap
+                width={screenWidth * 0.5}
+                height={screenHeight * 0.018}
+                borderRadius={screenWidth * 0.01}
+                marginBottom={screenHeight * 0.025}
               />
 
+              {/* Description Section */}
+              <SkeletonPlaceholder.Item marginBottom={screenHeight * 0.02}>
+                {/* Description Heading */}
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.35}
+                  height={screenHeight * 0.022}
+                  borderRadius={screenWidth * 0.01}
+                  marginBottom={screenHeight * 0.012}
+                />
+                {/* Description Lines */}
+                {[...Array(4)].map((_, index) => (
+                  <SkeletonPlaceholder.Item
+                    key={index}
+                    width={index === 3 ? screenWidth * 0.7 : screenWidth * 0.95}
+                    height={screenHeight * 0.018}
+                    borderRadius={screenWidth * 0.01}
+                    marginBottom={screenHeight * 0.008}
+                  />
+                ))}
+              </SkeletonPlaceholder.Item>
+
+              {/* Variants Heading */}
               <SkeletonPlaceholder.Item
-                width={screenWidth * 0.15}
-                height={screenHeight * 0.046}
-                borderRadius={screenWidth * 0.04}
-                marginTop={screenHeight * 0.006}
-                marginBottom={screenHeight * 0.016}
-                marginRight={screenWidth * 0.04} // ✅ replace gap
+                width={screenWidth * 0.3}
+                height={screenHeight * 0.022}
+                borderRadius={screenWidth * 0.01}
+                marginBottom={screenHeight * 0.015}
               />
 
+              {/* Variant Tabs */}
               <SkeletonPlaceholder.Item
-                width={screenWidth * 0.15}
-                height={screenHeight * 0.046}
-                borderRadius={screenWidth * 0.04}
-                marginTop={screenHeight * 0.006}
-                marginBottom={screenHeight * 0.016}
-                marginRight={screenWidth * 0.04} // ✅ replace gap
-              />
+                flexDirection="row"
+                gap={screenWidth * 0.02}
+                marginBottom={screenHeight * 0.02}
+              >
+                {[...Array(3)].map((_, index) => (
+                  <SkeletonPlaceholder.Item
+                    key={index}
+                    width={screenWidth * 0.25}
+                    height={screenHeight * 0.04}
+                    borderRadius={screenWidth * 0.02}
+                  />
+                ))}
+              </SkeletonPlaceholder.Item>
             </SkeletonPlaceholder.Item>
           </SkeletonPlaceholder>
         );

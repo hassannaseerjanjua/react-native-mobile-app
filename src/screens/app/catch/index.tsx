@@ -10,19 +10,23 @@ import CatchProductCard from '../../../components/app/CatchProductCard';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard';
 import useGetApi from '../../../hooks/useGetApi';
 import apiEndpoints from '../../../constants/api-endpoints';
-import { FaveItems } from '../../../types';
+import {
+  FaveItems,
+  CatchItem,
+  CatchItemsApiResponse,
+  Category,
+} from '../../../types';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 import { Text } from '../../../utils/elements';
-import { mockCatchItems } from '../../../types/index';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
   route,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl, langCode } = useLocaleStore();
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
   const storeID = route.params?.storeID;
@@ -30,12 +34,25 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     {},
   );
 
+  const categoriesApi = useGetApi<Category[]>(apiEndpoints.GET_CATEGORIES, {
+    transformData: (data: any) => data.Data?.Items || [],
+  });
+
   const getFavoriteItems = useGetApi<FaveItems[]>(
     screenType === 'favorite' && storeID
       ? apiEndpoints.GET_FAV_STORE_ITEMS(storeID)
       : '',
     {
       transformData: (data: any) => data.Data?.Items || [],
+    },
+  );
+
+  const getCatchItems = useGetApi<CatchItem[]>(
+    screenType === 'catch' ? apiEndpoints.GET_CATCH_ITEMS : '',
+    {
+      transformData: (data: CatchItemsApiResponse) => {
+        return data.Data?.Items || [];
+      },
     },
   );
 
@@ -49,14 +66,33 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     }
   }, [screenType, getFavoriteItems.data]);
 
-  const filterOptions = useMemo(
-    () => [
-      { id: 'all', title: getString('FAV_ALL') },
-      { id: 'bouquet', title: getString('FAV_BOUQUET') },
-      { id: 'cake', title: getString('FAV_CAKE') },
-    ],
-    [getString],
-  );
+  const filterOptions = useMemo(() => {
+    const allOption = { id: 'all', title: getString('FAV_ALL') };
+    if (!categoriesApi.data || categoriesApi.data.length === 0) {
+      return [allOption];
+    }
+    const categoryOptions = categoriesApi.data.map(category => ({
+      id: String(category.CategoryId),
+      title: langCode === 'ar' ? category.NameAr : category.NameEn,
+    }));
+    return [allOption, ...categoryOptions];
+  }, [categoriesApi.data, getString, langCode]);
+
+  const transformedCatchItems = useMemo(() => {
+    if (!getCatchItems.data) return [];
+    return getCatchItems.data.map((item: CatchItem) => ({
+      id: item.CatchId.toString(),
+      title: isRtl ? item.ItemNameAr : item.ItemNameEn,
+      subtitle: isRtl ? item.CategoryNameAr : item.CategoryNameEn,
+      coverImage: { uri: item.ItemImage },
+      category: item.CategoryNameEn?.toLowerCase() || 'all',
+      price: item.ItemPrice,
+      discountedPrice: item.DiscountedPrice || 0,
+      isGift: false,
+      subTitle2: isRtl ? item.CategoryNameAr : item.CategoryNameEn,
+      catchItem: item,
+    }));
+  }, [getCatchItems.data, isRtl]);
 
   const filteredItems = useMemo(() => {
     if (screenType === 'favorite') {
@@ -64,25 +100,36 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       if (selectedFilter === 'all') {
         return items;
       }
+      const categoryId = Number(selectedFilter);
       return items.filter((item: FaveItems) => {
-        const categoryLower = item.CategoryNameEn?.toLowerCase() || '';
-        return categoryLower.includes(selectedFilter);
+        return item.CategoryId === categoryId;
       });
     } else {
+      const items = transformedCatchItems;
       if (selectedFilter === 'all') {
-        return mockCatchItems;
+        return items;
       }
-      return mockCatchItems.filter(item => item.category === selectedFilter);
+      const categoryId = Number(selectedFilter);
+      return items.filter(item => {
+        return item.catchItem?.CategoryId === categoryId;
+      });
     }
-  }, [selectedFilter, screenType, getFavoriteItems.data]) as
-    | FaveItems[]
-    | typeof mockCatchItems;
+  }, [
+    selectedFilter,
+    screenType,
+    getFavoriteItems.data,
+    transformedCatchItems,
+  ]);
 
   const handleProductPress = (item: any) => {
     if (screenType === 'favorite') {
       const favItem = item as FaveItems;
       navigation.navigate('ProductDetails', {
         itemId: favItem.ItemId,
+      });
+    } else if (screenType === 'catch' && item.catchItem) {
+      navigation.navigate('ProductDetails', {
+        itemId: item.catchItem.ItemId,
       });
     }
   };
@@ -141,14 +188,17 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             onTabPress={setSelectedFilter}
           />
         </View>
-        {screenType === 'favorite' && getFavoriteItems.loading ? (
+        {(screenType === 'favorite' && getFavoriteItems.loading) ||
+        (screenType === 'catch' && getCatchItems.loading) ? (
           <SkeletonLoader screenType="productListing" />
         ) : (
           <FlatList
             data={filteredItems as any}
             numColumns={2}
             keyExtractor={(item: any) =>
-              screenType === 'favorite' ? item.ItemId.toString() : item.id
+              screenType === 'favorite'
+                ? item.ItemId.toString()
+                : item.id || item.catchItem?.CatchId.toString()
             }
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={[styles.listContent, styles.listContainer]}
@@ -184,10 +234,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   }}
                 />
               ) : (
-                <CatchProductCard
-                  item={item as (typeof mockCatchItems)[number]}
-                  onPress={handleProductPress}
-                />
+                <CatchProductCard item={item} onPress={handleProductPress} />
               )
             }
           />

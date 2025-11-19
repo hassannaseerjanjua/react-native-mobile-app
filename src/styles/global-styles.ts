@@ -35,7 +35,7 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
             width: 0,
             height: 1,
           },
-          shadowOpacity: 0.12,
+          shadowOpacity: 0.1,
           shadowRadius: 5,
           elevation: 5,
           borderColor: colors.LIGHT_GRAY,

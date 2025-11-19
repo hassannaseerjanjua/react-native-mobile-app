@@ -398,6 +398,41 @@ export interface StoreProductApiResponse {
   ResponseMessage: string;
 }
 
+export interface CatchItem {
+  CatchId: number;
+  ItemId: number;
+  ItemNameEn: string;
+  ItemNameAr: string;
+  ItemImage: string;
+  ItemPrice: number;
+  DiscountedPrice: number;
+  StartDate: string;
+  EndDate: string;
+  ItemQuantity: number;
+  Type: number;
+  Percentage: number;
+  Status: number;
+  StoreId: number;
+  StoreNameEn: string;
+  StoreNameAr: string;
+  StoreBranchId: number;
+  StoreBranchNameEn: string;
+  StoreBranchNameAr: string;
+  CategoryId: number;
+  CategoryNameEn: string;
+  CategoryNameAr: string;
+}
+
+export interface CatchItemsApiResponse {
+  Data: {
+    Items: CatchItem[];
+    TotalCount: number;
+  };
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}
+
 export const mockCatchItems = [
   {
     id: '1',

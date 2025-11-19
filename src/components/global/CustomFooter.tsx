@@ -13,6 +13,7 @@ const CustomFooter = ({ children }: { children: React.ReactNode }) => {
         left: 0,
         right: 0,
         paddingHorizontal: theme.sizes.PADDING,
+        ...theme.globalStyles.SHADOW_STYLE,
       }}
     >
       {children}

@@ -211,7 +211,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             }}
           >
             <View>
-              <SkeletonLoader screenType="sendToGroup" />
+              <SkeletonLoader screenType="productDetails" />
             </View>
           </ScrollView>
         </View>
@@ -269,6 +269,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           bottom: 0,
           left: 0,
           right: 0,
+          ...theme.globalStyles.SHADOW_STYLE,
         }}
       >
         <View
