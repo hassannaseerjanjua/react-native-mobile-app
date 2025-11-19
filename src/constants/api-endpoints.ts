@@ -64,6 +64,8 @@ const apiEndpoints = {
     `/${version}/Panel/GetAllItems?StoreId=${storeId}`,
   GET_STORE_ITEM_BY_ID: (itemId?: any) =>
     `/${version}/Panel/GetItemById?itemId=${itemId}`,
+  GET_BUSINESS_TYPE: `/${version}/Panel/GetBusinessTypesForPanel`,
+  GET_CATEGORIES: `/${version}/Panel/GetCategoriesForPanel`,
 
   // Cart APIS
   ADD_TO_CART: `/${version}/User/AddToGiftCart`,

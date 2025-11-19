@@ -87,9 +87,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                 );
               }
             } catch (error) {
-              setUsernameApiError(
-                getString('API_THIS_USERNAME_ALREADY_EXISTS'),
-              );
+              notify.error((error as string) || getString('AU_ERROR_OCCURRED'));
             }
           } else {
             setCurrentStep(currentStep + 1);

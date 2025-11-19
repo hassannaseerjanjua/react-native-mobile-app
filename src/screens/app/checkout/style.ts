@@ -77,28 +77,6 @@ const useStyles = () => {
         alignItems: 'center',
         gap: sizes.WIDTH * 0.013,
       },
-      selectionCircle: {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        borderWidth: 2,
-        borderColor: theme.colors.SECONDARY_GRAY,
-        backgroundColor: 'transparent',
-        position: 'relative',
-      },
-      selectedCircle: {
-        backgroundColor: theme.colors.PRIMARY,
-        borderColor: theme.colors.PRIMARY,
-      },
-      iconWrapper: {
-        position: 'absolute',
-        top: 0,
-        right: 0,
-        bottom: 0,
-        left: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
       Prices: {
         justifyContent: 'space-between',
         alignItems: 'center',
@@ -107,7 +85,6 @@ const useStyles = () => {
         borderBottomWidth: 0.6,
         paddingVertical: sizes.PADDING * 0.36,
       },
-      CartPrice: {},
       checkoutCompletedContainer: {
         flex: 1,
         justifyContent: 'center',

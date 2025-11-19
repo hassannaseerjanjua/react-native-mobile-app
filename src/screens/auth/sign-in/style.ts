@@ -49,7 +49,7 @@ const useStyles = () => {
       tabContainer: {
         flexDirection: 'row',
         marginBottom: 25,
-        padding: 4,
+        paddingVertical: 4,
         gap: 5,
       },
       tab: {

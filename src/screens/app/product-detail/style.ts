@@ -81,7 +81,6 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.SECONDARY_TEXT,
-        // marginTop: sizes.HEIGHT * 0.004,
       },
       titleRow: {
         flexDirection: 'row',
@@ -97,7 +96,6 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.SECONDARY_TEXT,
-        // paddingHorizontal: sizes.PADDING,
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
@@ -108,16 +106,11 @@ const useStyles = () => {
         paddingVertical: sizes.HEIGHT * 0.015,
         borderBottomColor: colors.SECONDARY_GRAY,
         borderBottomWidth: 1,
-
         paddingBottom: sizes.HEIGHT * 0.016,
       },
 
       ProductDescriptionContainer: {
-        // paddingVertical: sizes.HEIGHT * 0.015,
-
         paddingBottom: sizes.HEIGHT * 0.006,
-        // borderBottomColor: colors.SECONDARY_GRAY,
-        // borderBottomWidth: 1,
         gap: sizes.HEIGHT * 0.01,
       },
       Heading: {
@@ -129,23 +122,13 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE,
         fontSize: sizes.FONTSIZE,
         color: theme.colors.BLACK,
-        // lineHeight: sizes.FONTSIZE_MEDIUM * 1.6,
       },
       tabsContainer: {
         marginVertical: sizes.HEIGHT * 0.02,
         height: sizes.HEIGHT * 0.04,
       },
-
       button: {
-        // backgroundColor: colors.PRIMARY,
-        // color: colors.WHITE,
-        // borderRadius: 10,
-        // justifyContent: 'center',
-        // alignItems: 'center',
-        // height: sizes.HEIGHT * 0.07,
-
         width: sizes.WIDTH * 0.6,
-        // padding: scaleWithMax(15, 18),
       },
       QuantityContainer: {
         flexDirection: 'row',
@@ -156,7 +139,6 @@ const useStyles = () => {
         width: sizes.WIDTH * 0.28,
         borderRadius: 10,
         height: scaleWithMax(45, 50),
-        // paddingHorizontal: scaleWithMax(10, 12),
         justifyContent: 'center',
       },
       QuantityText: {

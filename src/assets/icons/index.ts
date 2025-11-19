@@ -92,6 +92,8 @@ import SvgCatchAddIcon from './add-catch.svg';
 import SvgGalleryIcon from './gallery.svg';
 import SvgGalleryUploadIcon from './gallery-upload.svg';
 import SvgCartIcon from './cart-icon.svg';
+import SvgBackIconProduct from './product-back-icon.svg';
+import SvgGifteeWalletIcon from './empty-wallet.svg';
 
 export {
   SvgLogoBlue,
@@ -188,4 +190,6 @@ export {
   SvgGalleryIcon,
   SvgGalleryUploadIcon,
   SvgCartIcon,
+  SvgBackIconProduct,
+  SvgGifteeWalletIcon,
 };

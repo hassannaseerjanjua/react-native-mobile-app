@@ -28,18 +28,51 @@ export const usernameValidation = (getString: GetString) =>
     .required(getString('AU_SU_USERNAME_IS_REQUIRED'))
     .min(3, getString('AU_SU_USERNAME_ATLEAST'))
     .max(50, getString('AU_SU_USERNAME_LESS_THAN'))
-    // .matches(
-    //   /^[a-zA-Z0-9_-]+$/,
-    //   getString('AU_SU_USERNAME_INVALID') ||
-    //     'Username can only contain letters, numbers, underscores, and hyphens',
-    // )
+    .test(
+      'has-letter',
+      getString('AU_SU_USERNAME_INVALID') ||
+        'Username must contain at least one letter',
+      value => {
+        if (!value) return true;
+        return /[a-zA-Z]/.test(value);
+      },
+    )
+    .test(
+      'not-only-numbers',
+      getString('AU_SU_USERNAME_INVALID') || 'Username cannot be only numbers',
+      value => {
+        if (!value) return true;
+        return !/^[0-9]+$/.test(value);
+      },
+    )
+    .test(
+      'not-more-special-chars',
+      getString('AU_SU_USERNAME_INVALID') ||
+        'Username cannot have more special characters than letters and numbers',
+      value => {
+        if (!value) return true;
+        const alphanumericCount = (value.match(/[a-zA-Z0-9]/g) || []).length;
+        const specialCharsCount = value.length - alphanumericCount;
+        return alphanumericCount >= specialCharsCount;
+      },
+    )
+    .test(
+      'not-more-numbers',
+      getString('AU_SU_USERNAME_INVALID') ||
+        'Username cannot have more numbers than letters',
+      value => {
+        if (!value) return true;
+        const lettersCount = (value.match(/[a-zA-Z]/g) || []).length;
+        const numbersCount = (value.match(/[0-9]/g) || []).length;
+        return lettersCount >= numbersCount;
+      },
+    )
     .test(
       'no-emoji',
       getString('AU_SU_USERNAME_NO_EMOJI') ||
         'Username cannot contain emojis or special characters',
       value => {
         if (!value) return true;
-        // Check for emojis and other invalid characters
         const emojiRegex =
           /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu;
         return !emojiRegex.test(value);

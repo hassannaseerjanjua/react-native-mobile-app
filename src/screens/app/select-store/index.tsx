@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, StatusBar, FlatList } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
@@ -14,25 +14,37 @@ import {
 } from '../../../types/navigation.types.ts';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
-import { Store } from '../../../types/index.ts';
+import { Store, BusinessType } from '../../../types/index.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 
 const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const friendUserId = route?.params?.friendUserId ?? null;
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, langCode } = useLocaleStore();
   const navigation =
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
 
-  const filterOptions = [
-    { id: 'all', title: getString('FAV_ALL') },
-    { id: 'bouquet', title: getString('FAV_BOUQUET') },
-    { id: 'roses', title: getString('FAV_ROSES') },
-    { id: 'flowers', title: getString('FAV_FLOWERS') },
-    { id: 'cake', title: getString('FAV_CAKE') },
-  ];
+  const businessTypeApi = useGetApi<BusinessType[]>(
+    apiEndpoints.GET_BUSINESS_TYPE,
+    {
+      transformData: (data: any) => data.Data.Items || [],
+    },
+  );
+
+  // Create filter options from business types
+  const filterOptions = useMemo(() => {
+    const allOption = { id: 'all', title: getString('FAV_ALL') };
+    if (!businessTypeApi.data || businessTypeApi.data.length === 0) {
+      return [allOption];
+    }
+    const businessTypeOptions = businessTypeApi.data.map(businessType => ({
+      id: String(businessType.BusinessTypeId),
+      title: langCode === 'ar' ? businessType.NameAr : businessType.NameEn,
+    }));
+    return [allOption, ...businessTypeOptions];
+  }, [businessTypeApi.data, getString, langCode]);
 
   const handleStoreSelect = (item: Store | any) => {
     const store = item as Store;
@@ -60,6 +72,16 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const storeListApi = useGetApi<Store[]>(apiEndpoints.GET_STORE_LIST, {
     transformData: (data: any) => data.Data.Items || [],
   });
+
+  // Filter stores based on selected business type
+  const filteredStores = useMemo(() => {
+    if (!storeListApi.data) return [];
+    if (selectedFilter === 'all') return storeListApi.data;
+    const businessTypeId = Number(selectedFilter);
+    return storeListApi.data.filter(
+      store => store.BusinessTypeID === businessTypeId,
+    );
+  }, [storeListApi.data, selectedFilter]);
 
   return (
     <ParentView>
@@ -99,7 +121,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                   paddingBottom: theme.sizes.HEIGHT * 0.16,
                   paddingHorizontal: theme.sizes.PADDING,
                 }}
-                data={storeListApi?.data}
+                data={filteredStores}
                 renderItem={({ item }) => (
                   <View style={styles.favoriteItemContainer} key={item.StoreId}>
                     <FavoriteItemCard

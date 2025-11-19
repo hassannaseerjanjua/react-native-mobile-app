@@ -87,14 +87,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
           {isLoading ? (
             <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
           ) : (
-            <View
-              style={{
-                flexDirection: 'row',
-                alignItems: 'center',
-                gap: 2,
-                justifyContent: 'center',
-              }}
-            >
+            <View style={[styles.buttonContent]}>
               {/* {!isAdded && !isTempAdded && (
                 <SvgSearchAdd width={16} height={16} />
               )} */}
@@ -139,19 +132,19 @@ const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors } = theme;
+    const { colors, sizes } = theme;
 
     return StyleSheet.create({
       userRow: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingVertical: 8,
-        paddingHorizontal: 14,
+        paddingVertical: scaleWithMax(8, 8),
+        paddingHorizontal: scaleWithMax(14, 14),
       },
       userRowDivider: {
         borderBottomWidth: 1,
-        borderBottomColor: '#F1F1F1',
+        borderBottomColor: colors.DIVIDER_COLOR,
       },
 
       userInfo: {
@@ -161,56 +154,53 @@ const useStyles = () => {
       },
 
       avatarWrapper: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
+        width: scaleWithMax(36, 36),
+        height: scaleWithMax(36, 36),
+        borderRadius: scaleWithMax(36, 36) / 2,
         overflow: 'hidden',
         alignItems: 'center',
         justifyContent: 'center',
-        marginRight: 12,
-        backgroundColor: '#FFFFFF',
+        marginRight: scaleWithMax(12, 12),
+        backgroundColor: colors.WHITE,
       },
 
       userName: {
         fontFamily: fonts.Quicksand.medium,
-        fontSize: 15,
+        fontSize: sizes.FONTSIZE_BUTTON,
         letterSpacing: 0.15,
         color: colors.PRIMARY_TEXT,
       },
       addButton: {
-        borderWidth: 1,
-        borderColor: '#DDEAFB',
-        borderRadius: 8,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
+        borderRadius: sizes.BORDER_RADIUS,
+        paddingHorizontal: theme.sizes.WIDTH * 0.018,
+        paddingVertical: theme.sizes.HEIGHT * 0.006,
         backgroundColor: colors.SECONDARY,
-        minWidth: 68,
+        minWidth: scaleWithMax(68, 68),
         alignItems: 'center',
         justifyContent: 'center',
       },
       addButtonText: {
         fontFamily: fonts.Quicksand.medium,
-        fontSize: 14,
+        fontSize: sizes.FONTSIZE,
         color: colors.PRIMARY,
       },
       addedButton: {
-        backgroundColor: '#EAF3FF',
-        borderColor: '#EAF3FF',
+        backgroundColor: colors.SECONDARY,
       },
       addedButtonText: {
         // color: colors.PRIMARY,
         // fontWeight: '600',
       },
       avatar: {
-        width: 36,
-        height: 36,
-        borderRadius: 18,
+        width: scaleWithMax(36, 36),
+        height: scaleWithMax(36, 36),
+        borderRadius: scaleWithMax(36, 36) / 2,
       },
       selectionCircle: {
-        width: 20,
-        height: 20,
-        borderRadius: 10,
-        borderWidth: 2,
+        width: scaleWithMax(20, 20),
+        height: scaleWithMax(20, 20),
+        borderRadius: scaleWithMax(20, 20) / 2,
+        borderWidth: scaleWithMax(2, 2),
         borderColor: colors.SECONDARY_GRAY,
         backgroundColor: 'transparent',
         position: 'relative',
@@ -226,6 +216,12 @@ const useStyles = () => {
         bottom: 0,
         left: 0,
         alignItems: 'center',
+        justifyContent: 'center',
+      },
+      buttonContent: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: scaleWithMax(2, 2),
         justifyContent: 'center',
       },
     });

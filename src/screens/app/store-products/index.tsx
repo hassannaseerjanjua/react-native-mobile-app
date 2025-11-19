@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import {
   View,
   StatusBar,
@@ -22,7 +22,7 @@ import {
 import { rtlTransform, rtlFlexDirection } from '../../../utils';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
-import { StoreProduct, FaveItems } from '../../../types/index.ts';
+import { StoreProduct, FaveItems, Category } from '../../../types/index.ts';
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
 
@@ -30,7 +30,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   route,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString, isRtl } = useLocaleStore();
+  const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation();
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
@@ -48,13 +48,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
   const [selectedFilter, setSelectedFilter] = useState('all');
 
-  const filterOptions = [
-    { id: 'all', title: getString('FAV_ALL') },
-    { id: 'bouquet', title: getString('FAV_BOUQUET') },
-    { id: 'roses', title: getString('FAV_ROSES') },
-    { id: 'flowers', title: getString('FAV_FLOWERS') },
-    { id: 'cake', title: getString('FAV_CAKE') },
-  ];
+  const categoriesApi = useGetApi<Category[]>(apiEndpoints.GET_CATEGORIES, {
+    transformData: (data: any) => data.Data.Items || [],
+  });
 
   const getStoreProducts = useGetApi<StoreProduct[]>(
     apiEndpoints.GET_STORE_DETAIL(store?.id),
@@ -62,6 +58,19 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       transformData: (data: any) => data.Data.Items || [],
     },
   );
+
+  // Create filter options from categories
+  const filterOptions = useMemo(() => {
+    const allOption = { id: 'all', title: getString('FAV_ALL') };
+    if (!categoriesApi.data || categoriesApi.data.length === 0) {
+      return [allOption];
+    }
+    const categoryOptions = categoriesApi.data.map(category => ({
+      id: String(category.CategoryId),
+      title: langCode === 'ar' ? category.NameAr : category.NameEn,
+    }));
+    return [allOption, ...categoryOptions];
+  }, [categoriesApi.data, getString, langCode]);
 
   // Initialize favorite states from API data
   useEffect(() => {
@@ -124,11 +133,15 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     }
   };
 
-  const filteredProducts =
-    getStoreProducts.data?.filter(product => {
-      if (selectedFilter === 'all') return true;
-      return true;
-    }) || [];
+  // Filter products based on selected category
+  const filteredProducts = useMemo(() => {
+    if (!getStoreProducts.data) return [];
+    if (selectedFilter === 'all') return getStoreProducts.data;
+    const categoryId = Number(selectedFilter);
+    return getStoreProducts.data.filter(
+      product => product.CategoryId === categoryId,
+    );
+  }, [getStoreProducts.data, selectedFilter]);
 
   return (
     <View style={{ flex: 1 }}>

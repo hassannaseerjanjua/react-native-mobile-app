@@ -80,23 +80,23 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     }
   };
 
-  const handleFavoritePress = async (payload: {
-    ItemId: number;
-    IsFavorite: boolean;
-  }) => {
-    try {
-      const res = await api.post<any>(
-        apiEndpoints.HANDLE_FAVORITE_ITEM,
-        payload,
-      );
-      if (res.success) {
-      } else {
-        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
-      }
-    } catch (error: any) {
-      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-    }
-  };
+  // const handleFavoritePress = async (payload: {
+  //   ItemId: number;
+  //   IsFavorite: boolean;
+  // }) => {
+  //   try {
+  //     const res = await api.post<any>(
+  //       apiEndpoints.HANDLE_FAVORITE_ITEM,
+  //       payload,
+  //     );
+  //     if (res.success) {
+  //     } else {
+  //       notify.error(res.error || getString('AU_ERROR_OCCURRED'));
+  //     }
+  //   } catch (error: any) {
+  //     notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+  //   }
+  // };
 
   return (
     <View style={styles.container}>

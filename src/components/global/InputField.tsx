@@ -127,12 +127,10 @@ const useStyles = () => {
       input: {
         ...globalStyles.TEXT_STYLE,
         flex: 1,
-        height: '100%',
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         paddingVertical: 0,
         paddingHorizontal: 0,
-        position: 'relative',
       },
       textarea: {
         ...globalStyles.TEXT_STYLE,

@@ -15,6 +15,7 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 import { Text } from '../../../utils/elements';
+import { mockCatchItems } from '../../../types/index';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -28,61 +29,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
-  const mockCatchItems = [
-    {
-      id: '1',
-      title: getString('FAV_MOCK_PINK_CHARM_BOUQUET'),
-      subtitle: getString('FAV_MOCK_BOUQUET'),
-      coverImage: require('../../../assets/images/dummy1.png'),
-      category: 'bouquet',
-      description:
-        'Hand-tied bouquet of blush roses and lilies designed for heartfelt celebrations, finished with silk ribbon twists and fragrant eucalyptus sprigs. Each stem is selected at peak bloom to create a lasting impression that feels both romantic and refined.',
-      price: 100,
-      discountedPrice: 50,
-      isGift: true,
-      subTitle2: 'Flowers',
-    },
-    {
-      id: '2',
-      title: getString('FAV_MOCK_PINK_CHARM_BOUQUET'),
-      subtitle: getString('FAV_MOCK_BOUQUET'),
-      coverImage: require('../../../assets/images/dummy2.png'),
-      category: 'bouquet',
-      description:
-        "Soft pink blooms paired with baby's breath to complement romantic gifting moments, offering a modern take on classic floral storytelling. The bouquet rests in a reusable glass vase, inviting the recipient to refresh it season after season.",
-      price: 100,
-      discountedPrice: 50,
-      isGift: false,
-      subTitle2: 'Flowers',
-    },
-    {
-      id: '3',
-      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
-      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
-      coverImage: require('../../../assets/images/dummy3.png'),
-      category: 'cake',
-      discountedPrice: 0,
-      isGift: true,
-      subTitle2: 'Cake',
-
-      description:
-        'Vanilla sponge layered with rose-infused frosting for a lightly floral dessert that melts at the first bite and finishes with a whisper of citrus. Finished with hand-piped rosettes, it transforms any gathering into an elegant celebration.',
-      price: 100,
-    },
-    {
-      id: '4',
-      title: getString('FAV_MOCK_PINK_CHARM_CAKE'),
-      subtitle: getString('FAV_MOCK_CAKE_HOUSE'),
-      coverImage: require('../../../assets/images/dummy4.png'),
-      category: 'cake',
-      discountedPrice: 12,
-      subTitle2: 'Cake',
-      isGift: false,
-      description:
-        'Signature pink charm cake topped with sugared petals and a satin ribbon finish, offering layers of airy sponge, silky mousse, and a hidden berry compote center. Designed for milestone moments, it photographs beautifully and tastes even better.',
-      price: 14,
-    },
-  ];
 
   const getFavoriteItems = useGetApi<FaveItems[]>(
     screenType === 'favorite' && storeID
@@ -97,7 +43,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     if (screenType === 'favorite' && getFavoriteItems.data) {
       const initialState: Record<number, boolean> = {};
       getFavoriteItems.data.forEach(item => {
-        initialState[item.ItemId] = item.IsFavorite ?? true;
+        initialState[item.ItemId] = item.isFavourite ?? true;
       });
       setFavoriteStates(initialState);
     }
@@ -154,9 +100,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         apiEndpoints.HANDLE_FAVORITE_ITEM,
         payload,
       );
-      if (res.success) {
-      } else {
-        // Revert the state change on error
+      if (!res.success) {
         setFavoriteStates(prev => ({
           ...prev,
           [payload.ItemId]: !payload.IsFavorite,
@@ -164,7 +108,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
     } catch (error: any) {
-      // Revert the state change on error
       setFavoriteStates(prev => ({
         ...prev,
         [payload.ItemId]: !payload.IsFavorite,
@@ -227,14 +170,14 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   item={item as FaveItems}
                   onPress={handleProductPress}
                   isFavorite={
-                    favoriteStates[item.ItemId] ?? item.IsFavorite ?? true
+                    favoriteStates[item.ItemId] ?? item.isFavourite ?? true
                   }
                   onFavoritePress={() => {
                     handleFavoritePress({
                       ItemId: item.ItemId,
                       IsFavorite: !(
                         favoriteStates[item.ItemId] ??
-                        item.IsFavorite ??
+                        item.isFavourite ??
                         true
                       ),
                     });

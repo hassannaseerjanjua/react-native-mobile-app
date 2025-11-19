@@ -1,5 +1,5 @@
 import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -10,6 +10,7 @@ import {
   GiftIcon,
   IncrementIcon,
   PlusIcon,
+  SvgGifteeWalletIcon,
   SvgRiyalIcon,
   SvgRiyalIconWhite,
   SvgSelectedCheck,
@@ -42,18 +43,19 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   const [cartData, setCartData] = useState<CartResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-  const [selectedCircle, setSelectedCircle] = useState(false);
+  const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
+    string | null
+  >(null);
   const [checkoutCompleted, setCheckoutCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
-  const [updatingQuantities, setUpdatingQuantities] = useState<Set<number>>(
-    new Set(),
-  );
+  const [updatingQuantities, setUpdatingQuantities] = useState<
+    Record<number, 'increment' | 'decrement' | null>
+  >({});
 
   const getCartItems = async () => {
     try {
       setLoading(true);
       const res = await api.get<any>(apiEndpoints.GET_CART_ITEMS);
-      // API response structure may vary, handle both cases
       const cartData = res.data?.Data || res.data;
       if (cartData) {
         setCartData(cartData as CartResponse);
@@ -65,10 +67,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       setLoading(false);
     }
   };
-
-  useEffect(() => {
-    getCartItems();
-  }, []);
 
   useFocusEffect(
     useCallback(() => {
@@ -83,26 +81,21 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     const newQuantity =
       type === 'increment' ? item.Quantity + 1 : item.Quantity - 1;
 
-    // Prevent decrementing below 1
     if (newQuantity < 1) {
       return;
     }
 
-    // Prevent multiple simultaneous updates for the same item
-    if (updatingQuantities.has(item.OrderItemId)) {
+    if (updatingQuantities[item.OrderItemId]) {
       return;
     }
 
-    // Store original state for potential rollback
     const originalCartData = cartData
       ? JSON.parse(JSON.stringify(cartData))
       : null;
 
-    // Optimistically update the UI
     if (cartData) {
       const updatedItems = cartData.Items.map(cartItem => {
         if (cartItem.OrderItemId === item.OrderItemId) {
-          // Calculate new total amount based on unit price and new quantity
           const newTotalAmount = cartItem.UnitPrice * newQuantity;
           return {
             ...cartItem,
@@ -114,7 +107,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         return cartItem;
       });
 
-      // Recalculate cart totals
       const newOrderAmount = updatedItems.reduce(
         (sum, cartItem) => sum + cartItem.OrderAmount,
         0,
@@ -134,7 +126,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
 
     try {
-      setUpdatingQuantities(prev => new Set(prev).add(item.OrderItemId));
+      setUpdatingQuantities(prev => ({
+        ...prev,
+        [item.OrderItemId]: type,
+      }));
 
       const payload = {
         ItemId: item.ItemId,
@@ -148,7 +143,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       );
       if (!response.success) {
         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
-        // Revert to original state on error
         if (originalCartData) {
           setCartData(originalCartData);
         }
@@ -156,15 +150,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     } catch (error: any) {
       console.error('Error updating cart item quantity:', error);
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-      // Revert to original state on error
       if (originalCartData) {
         setCartData(originalCartData);
       }
     } finally {
       setUpdatingQuantities(prev => {
-        const newSet = new Set(prev);
-        newSet.delete(item.OrderItemId);
-        return newSet;
+        const newState = { ...prev };
+        delete newState[item.OrderItemId];
+        return newState;
       });
     }
   };
@@ -209,9 +202,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             >
               <TouchableOpacity
                 onPress={() => handleQuantityChange(item, 'decrement')}
-                disabled={updatingQuantities.has(item.OrderItemId)}
+                disabled={!!updatingQuantities[item.OrderItemId]}
                 style={{
-                  opacity: updatingQuantities.has(item.OrderItemId) ? 0.5 : 1,
+                  opacity:
+                    updatingQuantities[item.OrderItemId] === 'decrement'
+                      ? 0.5
+                      : 1,
                 }}
               >
                 <DecrementIcon />
@@ -221,9 +217,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               </Text>
               <TouchableOpacity
                 onPress={() => handleQuantityChange(item, 'increment')}
-                disabled={updatingQuantities.has(item.OrderItemId)}
+                disabled={!!updatingQuantities[item.OrderItemId]}
                 style={{
-                  opacity: updatingQuantities.has(item.OrderItemId) ? 0.5 : 1,
+                  opacity:
+                    updatingQuantities[item.OrderItemId] === 'increment'
+                      ? 0.5
+                      : 1,
                 }}
               >
                 <IncrementIcon />
@@ -309,7 +308,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     );
   }
 
-  // Get first item for gift section (or use a default)
   const firstItem = cartData.Items[0];
   const giftImage = firstItem.Images?.[0]?.ImageUrls || firstItem.ThumbnailUrl;
   const giftImageSource = giftImage
@@ -403,7 +401,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               </View>
             </TouchableOpacity>
           </View>
-          <TouchableOpacity onPress={() => setSelectedCircle(!selectedCircle)}>
+          <TouchableOpacity
+            onPress={() =>
+              setSelectedPaymentMethod(
+                selectedPaymentMethod === 'visa' ? null : 'visa',
+              )
+            }
+          >
             <View
               style={[
                 styles.GiftContainer,
@@ -418,7 +422,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   flexDirection: rtlFlexDirection(isRtl),
                 }}
               >
-                <CheckBox Selected={selectedCircle} />
+                <CheckBox Selected={selectedPaymentMethod === 'visa'} />
                 <VisaIcon
                   height={scaleWithMax(32, 35)}
                   width={scaleWithMax(32, 35)}
@@ -431,7 +435,48 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               <SvgSelectedCheck
                 width={scaleWithMax(16, 18)}
                 height={scaleWithMax(16, 18)}
-                style={{ opacity: selectedCircle ? 1 : 0 }}
+                style={{ opacity: selectedPaymentMethod === 'visa' ? 1 : 0 }}
+              />
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() =>
+              setSelectedPaymentMethod(
+                selectedPaymentMethod === 'wallet' ? null : 'wallet',
+              )
+            }
+          >
+            <View
+              style={[
+                styles.GiftContainer,
+                {
+                  flexDirection: rtlFlexDirection(isRtl),
+                  marginTop: theme.sizes.HEIGHT * 0.005,
+                },
+              ]}
+            >
+              <View
+                style={{
+                  ...styles.row,
+                  flex: 1,
+                  gap: theme.sizes.WIDTH * 0.03,
+                  flexDirection: rtlFlexDirection(isRtl),
+                }}
+              >
+                <CheckBox Selected={selectedPaymentMethod === 'wallet'} />
+                <SvgGifteeWalletIcon
+                  height={scaleWithMax(32, 35)}
+                  width={scaleWithMax(32, 35)}
+                />
+                <View>
+                  <Text style={styles.TextMedium}>Giftee Wallet</Text>
+                  <Text style={styles.TextMedium}>Visa</Text>
+                </View>
+              </View>
+              <SvgSelectedCheck
+                width={scaleWithMax(16, 18)}
+                height={scaleWithMax(16, 18)}
+                style={{ opacity: selectedPaymentMethod === 'wallet' ? 1 : 0 }}
               />
             </View>
           </TouchableOpacity>

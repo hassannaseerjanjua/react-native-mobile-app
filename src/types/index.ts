@@ -265,6 +265,23 @@ export interface StoreDocument {
   FileUrl: string;
 }
 
+export interface BusinessType {
+  BusinessTypeId: number;
+  NameEn: string;
+  NameAr: string;
+  IsActive: boolean;
+  Status: number;
+}
+
+export interface Category {
+  CategoryId: number;
+  NameEn: string;
+  NameAr: string;
+  CategoryImage: string;
+  IsActive: boolean;
+  Status: number;
+}
+
 export interface Store {
   StoreId: number;
   UserId: number;
@@ -380,3 +397,59 @@ export interface StoreProductApiResponse {
   Success: boolean;
   ResponseMessage: string;
 }
+
+export const mockCatchItems = [
+  {
+    id: '1',
+    title: 'Pink Charm Bouquet',
+    subtitle: 'Bouquet',
+    coverImage: require('../assets/images/dummy1.png'),
+    category: 'bouquet',
+    description:
+      'Hand-tied bouquet of blush roses and lilies designed for heartfelt celebrations, finished with silk ribbon twists and fragrant eucalyptus sprigs. Each stem is selected at peak bloom to create a lasting impression that feels both romantic and refined.',
+    price: 100,
+    discountedPrice: 50,
+    isGift: true,
+    subTitle2: 'Flowers',
+  },
+  {
+    id: '2',
+    title: 'Pink Charm Bouquet',
+    subtitle: 'Bouquet',
+    coverImage: require('../assets/images/dummy2.png'),
+    category: 'bouquet',
+    description:
+      "Soft pink blooms paired with baby's breath to complement romantic gifting moments, offering a modern take on classic floral storytelling. The bouquet rests in a reusable glass vase, inviting the recipient to refresh it season after season.",
+    price: 100,
+    discountedPrice: 50,
+    isGift: false,
+    subTitle2: 'Flowers',
+  },
+  {
+    id: '3',
+    title: 'Pink Charm Cake',
+    subtitle: 'Cake',
+    coverImage: require('../assets/images/dummy3.png'),
+    category: 'cake',
+    discountedPrice: 0,
+    isGift: true,
+    subTitle2: 'Cake',
+
+    description:
+      'Vanilla sponge layered with rose-infused frosting for a lightly floral dessert that melts at the first bite and finishes with a whisper of citrus. Finished with hand-piped rosettes, it transforms any gathering into an elegant celebration.',
+    price: 100,
+  },
+  {
+    id: '4',
+    title: 'Pink Charm Cake',
+    subtitle: 'Cake',
+    coverImage: require('../assets/images/dummy4.png'),
+    category: 'cake',
+    discountedPrice: 12,
+    subTitle2: 'Cake',
+    isGift: false,
+    description:
+      'Signature pink charm cake topped with sugared petals and a satin ribbon finish, offering layers of airy sponge, silky mousse, and a hidden berry compote center. Designed for milestone moments, it photographs beautifully and tastes even better.',
+    price: 14,
+  },
+];

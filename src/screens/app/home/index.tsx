@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { View, StatusBar, useWindowDimensions } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -26,6 +26,7 @@ const HomeScreen: React.FC = () => {
   const { getString } = useLocaleStore();
   const { user } = useAuthStore();
   const navigation = useNavigation();
+  const hasLoadedOnceRef = useRef(false);
 
   const {
     data: sliderResponse,
@@ -34,6 +35,12 @@ const HomeScreen: React.FC = () => {
   } = useGetApi<Slider[]>(apiEndpoints.GET_HOME_SLIDER, {
     transformData: (data: SliderApiResponse) => data?.Data || [],
   });
+
+  if (sliderResponse && !hasLoadedOnceRef.current) {
+    hasLoadedOnceRef.current = true;
+  }
+
+  const showShimmer = sliderLoading && !hasLoadedOnceRef.current;
 
   return (
     <View style={styles.container}>
@@ -52,7 +59,7 @@ const HomeScreen: React.FC = () => {
         showCartIcon={true}
       />
       <View style={styles.mainContent}>
-        {sliderLoading ? (
+        {showShimmer ? (
           <SkeletonLoader screenType="home" />
         ) : (
           <>
@@ -64,7 +71,7 @@ const HomeScreen: React.FC = () => {
             <View style={styles.heroImage}>
               <ImageSlider
                 sliders={sliderResponse || undefined}
-                loading={sliderLoading}
+                loading={sliderLoading && !hasLoadedOnceRef.current}
                 error={sliderError}
               />
             </View>

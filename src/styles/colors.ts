@@ -16,6 +16,7 @@ const defaultColors = {
   LIGHT_GRAY: '#F9F9F9',
   SECONDARY_GRAY: '#D9D9D9',
   STATUS_BAR_BACKGROUND: 'rgba(255, 255, 255, 0.75)',
+  DIVIDER_COLOR: '#F1F1F1',
 };
 
 const colorsDark = {

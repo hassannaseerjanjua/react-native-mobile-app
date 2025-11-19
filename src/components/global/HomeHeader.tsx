@@ -157,7 +157,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               ]}
               onPress={() => navigation.navigate('CheckOut' as never)}
             >
-              {getCartCount.data && (
+              {getCartCount.data && getCartCount.data?.Count > 0 && (
                 <View style={styles.cartCount}>
                   <Text style={styles.cartCountText}>
                     {getCartCount.data?.Count}

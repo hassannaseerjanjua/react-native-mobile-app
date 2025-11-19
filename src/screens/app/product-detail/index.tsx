@@ -10,12 +10,12 @@ import useStyles from './style';
 import {
   MinusIcon,
   PlusIcon,
-  SvgBackIcon,
+  SvgBackIconProduct,
   SvgItemFavouriteIcon,
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
 } from '../../../assets/icons';
-import { scaleWithMax } from '../../../utils';
+import { scaleWithMax, rtlTransform } from '../../../utils';
 import ProductImageSlider from '../../../components/global/ProductImageSlider';
 import { GroupTabs } from '../../../components/send-a-gift';
 import CustomButton from '../../../components/global/Custombutton';
@@ -32,7 +32,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   navigation,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const itemId = route?.params?.itemId;
   const friendUserId = route?.params?.friendUserId ?? null;
   const storeId = route?.params?.storeId ?? null;
@@ -40,7 +40,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [loading, setLoading] = useState<boolean>(true);
-  const [isFavorite, setIsFavorite] = useState<boolean>(false);
   const [item, setItem] = useState<any>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [itemAddedToCart, setItemAddedToCart] = useState<boolean>(false);
@@ -57,7 +56,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           if (res.success) {
             const data = (res.data as any)?.Data ?? null;
             setItem(data);
-            // default selected variant
             const firstVariantId = data?.Variants?.[0]?.ItemVariantId;
             setSelectedFilter(firstVariantId ? String(firstVariantId) : '');
           } else {
@@ -106,19 +104,21 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   }, [item]);
 
   const handleFavorite = async () => {
-    setIsFavorite(prev => !prev);
+    if (!item) return;
+    const previousFavoriteState = item.isFavourite ?? false;
+    setItem({ ...item, isFavourite: !previousFavoriteState });
     try {
       const res = await api.post<any>(apiEndpoints.HANDLE_FAVORITE_ITEM, {
-        ItemId: item?.ItemId,
+        ItemId: item.ItemId,
+        isFavorite: !previousFavoriteState,
       });
       if (res.success) {
-        setIsFavorite(prev => !prev);
       } else {
-        setIsFavorite(prev => !prev);
+        setItem({ ...item, isFavourite: previousFavoriteState });
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
     } catch (error: any) {
-      setIsFavorite(prev => !prev);
+      setItem({ ...item, isFavourite: previousFavoriteState });
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
@@ -136,7 +136,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       };
       const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
       if (response.success) {
-        // Mark as added and change button to "Go to Cart"
         setItemAddedToCart(true);
       } else {
         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
@@ -179,18 +178,17 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           onPress={navigation.goBack}
           style={styles.rounded_white_background}
         >
-          <SvgBackIcon
-            style={{
-              width: scaleWithMax(15, 18),
-              height: scaleWithMax(15, 18),
-            }}
+          <SvgBackIconProduct
+            width={scaleWithMax(14, 16)}
+            height={scaleWithMax(14, 16)}
+            style={{ transform: rtlTransform(isRtl) }}
           />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.rounded_white_background}
           onPress={() => handleFavorite()}
         >
-          {isFavorite ? (
+          {item?.isFavourite ? (
             <SvgItemFavouriteIcon
               width={scaleWithMax(14, 16)}
               height={scaleWithMax(14, 16)}
@@ -241,7 +239,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                   </Text>
                 </View>
               </View>
-              {/* <Text style={styles.SubTitle}>{product.subtitle}</Text> */}
               <Text style={styles.TaxIncludeText}>
                 {getString('PRODUCT_ALL_PRICE_INCLUDE_TAX')}
               </Text>
@@ -266,14 +263,12 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       )}
       <View
         style={{
-          // ...theme.globalStyles.SHADOW_STYLE,
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
           position: 'absolute',
           bottom: 0,
           left: 0,
           right: 0,
-          // backgroundColor: theme.colors.RED,
         }}
       >
         <View
