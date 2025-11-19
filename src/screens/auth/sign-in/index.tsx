@@ -42,30 +42,6 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     values: typeof currentFormValues,
     formik: any,
   ) => {
-    // Bypass the API call, Dev purposes only.
-    if (values.phone === '555555555' || values.email === 'dev@gmail.com') {
-      const devUser: User = {
-        UserId: 0,
-        FullNameEn: 'Dev User',
-        FullNameAr: null,
-        UserName: 'dev',
-        Email: 'dev@gmail.com',
-        Password: null,
-        DateOfBirth: null,
-        GenderId: null,
-        ProfileUrl: null,
-        Status: 1,
-        PhoneNo: '555555555',
-        CreatedOn: new Date().toISOString(),
-        CreatedBy: 0,
-        ModifiedOn: null,
-        ModifiedBy: null,
-        CityId: 0,
-        City: null,
-      };
-      dispatch(login(devUser));
-    }
-
     const touched = {
       phone: activeTab === 'Phone',
       email: activeTab === 'Email',
@@ -78,37 +54,41 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       (activeTab === 'Email' && errors.email);
 
     if (!hasErrors) {
-      setIsLoading(true);
-      setApiError(''); // Clear previous API errors
-      try {
-        const response = await api.post(apiEndpoints.SIGNIN, {
-          PhoneNo: values.phone,
-          Email: values.email,
-        });
-
-        if (response.success) {
-          setCurrentFormValues(values);
-          setIsBottomSheetOpen(true);
-        } else {
-          setApiError(response.error || getString('AU_ERROR_OCCURRED'));
-        }
-      } catch (error) {
-        setApiError(getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'));
-      } finally {
-        setTimeout(() => {
-          setIsLoading(false);
-        }, 1000);
-      }
+      setApiError('');
+      setCurrentFormValues(values);
+      setIsBottomSheetOpen(true);
     }
   };
 
-  const handleConfirmAndNavigate = () => {
-    setIsBottomSheetOpen(false);
-    navigation.navigate('OtpVerification', {
-      phone: currentFormValues.phone,
-      email: currentFormValues.email,
-      signIn: true,
-    });
+  const handleConfirmAndNavigate = async () => {
+    setIsLoading(true);
+    setApiError('');
+    try {
+      const payload =
+        activeTab === 'Phone'
+          ? { PhoneNo: currentFormValues.phone }
+          : { Email: currentFormValues.email };
+      const response = await api.post(apiEndpoints.SIGNIN, payload);
+
+      if (response.success) {
+        setIsBottomSheetOpen(false);
+        navigation.navigate('OtpVerification', {
+          phone: currentFormValues.phone,
+          email: currentFormValues.email,
+          signIn: true,
+        });
+      } else {
+        setIsBottomSheetOpen(false);
+        setApiError(response.error || getString('AU_ERROR_OCCURRED'));
+      }
+    } catch (error) {
+      setIsBottomSheetOpen(false);
+      setApiError(getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'));
+    } finally {
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+    }
   };
 
   return (
@@ -203,7 +183,6 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   title={getString('AU_SIGN_IN_BUTTON')}
                   type="primary"
                   onPress={handleSubmit}
-                  loading={isLoading}
                 />
               </View>
             );
@@ -250,7 +229,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           </Text>
 
           <CustomButton
-            disabled={!isBottomSheetOpen}
+            disabled={!isBottomSheetOpen || isLoading}
             title={
               activeTab === 'Phone'
                 ? getString('AU_SEND_CODE_BY_SMS')
@@ -259,6 +238,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             type="primary"
             buttonStyle={{ marginBottom: scaleWithMax(15, 20) }}
             onPress={handleConfirmAndNavigate}
+            loading={isLoading}
           />
 
           <CustomButton

@@ -26,7 +26,7 @@ export type AppStackParamList = {
   ProductDetails: {
     itemId: number;
     friendUserId?: number | null;
-    storeBranchId?: number | null;
+    storeId?: number | null;
   };
   Search: {
     title?: string;
@@ -76,7 +76,6 @@ export type AppStackParamList = {
     store?: {
       id?: string | number;
       storeId?: number;
-      storeBranchId?: number;
       title: string;
       subtitle: string;
       backgroundImage?: any;
@@ -85,11 +84,11 @@ export type AppStackParamList = {
       imageCover?: string | null;
     };
     friendUserId?: number | null;
-    storeBranchId?: number | null;
+    storeId?: number | null;
   };
   SelectStore: {
     friendUserId?: number | null;
-    storeBranchId?: number | null;
+    storeId?: number | null;
   };
   CatchScreen: {
     storeID?: number;
@@ -98,30 +97,32 @@ export type AppStackParamList = {
   };
   ScanQr: undefined;
   Occasions: undefined;
-  CheckOut: {
-    product?: {
-      id?: string | number;
-      title?: string;
-      subtitle?: string;
-      image?: any; // Can be require() or { uri: string }
-      price?: number;
-      discountedPrice?: number;
-      storeId?: number;
-      storeBranchId?: number;
-      itemId?: number;
-      categoryId?: number;
-      categoryName?: string;
-    };
-    friendUserId?: number | null;
-    storeBranchId?: number | null;
-    addToCartPayload?: {
-      FriendId?: number | null;
-      ItemId: number;
-      ItemVariantId?: number;
-      Quantity: number;
-      storeBranchId?: number | null;
-    };
-  } | undefined;
+  CheckOut:
+    | {
+        product?: {
+          id?: string | number;
+          title?: string;
+          subtitle?: string;
+          image?: any; // Can be require() or { uri: string }
+          price?: number;
+          discountedPrice?: number;
+          storeId?: number;
+          storeBranchId?: number;
+          itemId?: number;
+          categoryId?: number;
+          categoryName?: string;
+        };
+        friendUserId?: number | null;
+        storeBranchId?: number | null;
+        addToCartPayload?: {
+          FriendId?: number | null;
+          ItemId: number;
+          ItemVariantId?: number;
+          Quantity: number;
+          storeBranchId?: number | null;
+        };
+      }
+    | undefined;
   AddCard: undefined;
   Notifications: undefined;
   Profile: undefined;

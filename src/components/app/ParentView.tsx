@@ -1,4 +1,4 @@
-import { ViewStyle } from 'react-native';
+import { StatusBar, ViewStyle } from 'react-native';
 import React from 'react';
 import { Edge, SafeAreaView } from 'react-native-safe-area-context';
 import useTheme from '../../styles/theme';
@@ -16,6 +16,11 @@ const ParentView = ({ children, style, edges }: ParentViewProps) => {
       style={[{ flex: 1, backgroundColor: theme.colors.BACKGROUND }, style]}
       edges={edges}
     >
+      <StatusBar
+        backgroundColor={theme.colors.BACKGROUND}
+        barStyle="dark-content"
+      />
+
       {children}
     </SafeAreaView>
   );

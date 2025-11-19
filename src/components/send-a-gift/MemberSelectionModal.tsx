@@ -245,8 +245,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           closeModal();
           navigation.navigate('SendToGroup' as never);
         })
-        .catch(error => {
-        });
+        .catch(error => {});
     } else {
       onSave(selectedUsersData, groupName, groupImage);
       closeModal();
@@ -369,6 +368,16 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                         onSelectionPress={() =>
                           handleUserSelection(item.UserId)
                         }
+                        onPress={
+                          viewOnly
+                            ? () => {
+                                closeModal();
+                                (navigation as any).navigate('SelectStore', {
+                                  friendUserId: item.UserId,
+                                });
+                              }
+                            : undefined
+                        }
                       />
                     )}
                     showsVerticalScrollIndicator={false}
@@ -376,7 +385,9 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   />
                 ) : (
                   <View style={styles.emptyStateContainer}>
-                    <Text style={styles.emptyStateText}>{getString('EMPTY_NO_USERS_TO_SHOW')}</Text>
+                    <Text style={styles.emptyStateText}>
+                      {getString('EMPTY_NO_USERS_TO_SHOW')}
+                    </Text>
                   </View>
                 )}
               </View>
@@ -385,7 +396,9 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         ) : (
           <View style={styles.listCard}>
             <View style={styles.emptyStateContainer}>
-              <Text style={styles.emptyStateText}>{getString('EMPTY_NO_RESULTS_FOUND')}</Text>
+              <Text style={styles.emptyStateText}>
+                {getString('EMPTY_NO_RESULTS_FOUND')}
+              </Text>
             </View>
           </View>
         )}
@@ -566,7 +579,9 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                 <BottomSheetHeader
                   leftSideTitle={getString('NG_BACK')}
                   title={
-                    isSendAGift ? getString('NG_NEW_GROUP') : getString('NG_REVIEW_MEMBERS')
+                    isSendAGift
+                      ? getString('NG_NEW_GROUP')
+                      : getString('NG_REVIEW_MEMBERS')
                   }
                   subTitle=""
                   rightSideTitle={getString('NG_SAVE')}

@@ -13,6 +13,7 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import { FaveItems } from '../../../types';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
+import { Text } from '../../../utils/elements';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -200,6 +201,17 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={[styles.listContent, styles.listContainer]}
             showsVerticalScrollIndicator={false}
+            ListEmptyComponent={
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
+              </View>
+            }
             renderItem={({ item }) =>
               screenType === 'favorite' ? (
                 <FavoriteProductCard

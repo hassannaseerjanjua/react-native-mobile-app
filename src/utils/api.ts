@@ -77,16 +77,8 @@ const caller = async <T>(
       err?.message ||
       'Something went wrong';
 
-    // Handle specific HTTP status codes
     if (err?.response?.status === 413) {
       errorMessage = 'File size is too large. Please use a smaller image.';
-    } else if (err?.response?.status === 400) {
-      errorMessage =
-        response?.message || 'Invalid request. Please check your input.';
-    } else if (err?.response?.status === 401) {
-      errorMessage = 'Unauthorized. Please login again.';
-    } else if (err?.response?.status >= 500) {
-      errorMessage = 'Server error. Please try again later.';
     }
 
     responseObject.error = errorMessage;
@@ -95,7 +87,6 @@ const caller = async <T>(
     responseObject.success = false;
   }
 
-  // These are logs for DevTools
   if (true) {
     console.log('\n\n');
     console.log('Api Call --> ', `[${type?.toUpperCase()}]`, url);

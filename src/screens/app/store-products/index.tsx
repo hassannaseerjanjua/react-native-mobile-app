@@ -33,7 +33,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const navigation = useNavigation();
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
-  const storeBranchId = route.params?.storeBranchId ?? null;
+  const storeId = route.params?.storeId ?? null;
   // Track favorite state for each item by ItemId
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
@@ -78,13 +78,13 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       const product = item as StoreProduct;
       (navigation as any).navigate('ProductDetails', {
         itemId: product.ItemId,
-        storeBranchId: product.StoreBranchId ?? storeBranchId,
+        storeId: product.StoreId ?? storeId,
         friendUserId,
       });
     } else {
       (navigation as any).navigate('ProductDetails', {
         itemId: (item as any)?.ItemId ?? 0,
-        storeBranchId: (item as any)?.StoreBranchId ?? storeBranchId ?? null,
+        storeId: (item as any)?.StoreId ?? storeId ?? null,
         friendUserId,
       });
     }
@@ -183,7 +183,16 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             contentContainerStyle={styles.content}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
-              <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  height: theme.sizes.HEIGHT * 0.5,
+                }}
+              >
+                <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
+              </View>
             }
             renderItem={({ item }) => (
               <FavoriteProductCard

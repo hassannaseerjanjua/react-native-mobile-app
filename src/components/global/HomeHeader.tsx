@@ -31,6 +31,9 @@ import fonts from '../../assets/fonts';
 import { useAuthStore } from '../../store/reducer/auth';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Text } from '../../utils/elements';
+import api from '../../utils/api';
+import apiEndpoints from '../../constants/api-endpoints';
+import useGetApi from '../../hooks/useGetApi';
 
 interface HomeHeaderProps {
   title?: string;
@@ -116,6 +119,11 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const backSize = scaleWithMax(20, 25);
   const dummyImage = require('../../assets/images/user.png');
 
+  const getCartCount = useGetApi<any>(apiEndpoints.GET_CART_COUNT, {
+    transformData: data => data.Data,
+  });
+  console.log('getCartCount', getCartCount);
+
   return (
     <View>
       <View style={[styles.container, customContainerStyle]}>
@@ -149,6 +157,13 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               ]}
               onPress={() => navigation.navigate('CheckOut' as never)}
             >
+              {getCartCount.data && (
+                <View style={styles.cartCount}>
+                  <Text style={styles.cartCountText}>
+                    {getCartCount.data?.Count}
+                  </Text>
+                </View>
+              )}
               <SvgCartIcon />
             </TouchableOpacity>
           )}
@@ -246,6 +261,20 @@ const useStyles = () => {
         shadowOpacity: 0.08,
         shadowRadius: 4,
         elevation: 2,
+        position: 'relative',
+      },
+      cartCount: {
+        position: 'absolute',
+        top: 0,
+        right: 0,
+        backgroundColor: colors.PRIMARY,
+        borderRadius: 10,
+        paddingHorizontal: 5,
+      },
+      cartCountText: {
+        fontFamily: fonts.Quicksand.regular,
+        fontSize: 12,
+        color: colors.WHITE,
       },
       avatarContainer: {
         marginStart: sizes.WIDTH * 0.04,

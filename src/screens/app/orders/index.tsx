@@ -137,9 +137,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
     : require('../../../assets/images/img-placeholder.png');
   const itemName = firstItem?.ItemName || getString('O_FLOWER_BOUQUET');
   const storeName = order.FriendName || getString('O_COFFEEMATICS');
-  const phoneNumber = '0300-16413168';
-  const orderDate =
-    order.OrderDate || order.CreatedOn || new Date().toISOString();
+  const phoneNumber = order.stores?.PhoneNo || 'nahi mila';
+  const orderDate = order.OrderTime || new Date().toISOString();
 
   return (
     <View style={styles.orderCard}>

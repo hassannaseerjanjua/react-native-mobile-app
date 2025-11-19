@@ -239,6 +239,15 @@ export interface Order {
   Items: OrderItem[];
   CreatedOn?: string;
   OrderDate?: string;
+  OrderTime?: any;
+  stores?: {
+    StoreId: number;
+    NameEn: string;
+    NameAr: string;
+    Email: string;
+    PhoneNo: string;
+    NationalAddress: string | null;
+  };
 }
 
 export interface OrdersApiResponse {

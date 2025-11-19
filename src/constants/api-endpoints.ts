@@ -70,6 +70,8 @@ const apiEndpoints = {
   GET_CART_ITEMS: `/${version}/User/GetGiftCart`,
   UPDATE_CART_ITEM_QUANTITY: `/${version}/User/UpdateCart`,
   INITIATE_CHECKOUT: `/${version}/User/InitOrder`,
+  REMOVE_CART_BY_ID: `/${version}/User/RemoveItemFromCart`,
+  GET_CART_COUNT: `/${version}/Home/GetCartItemCount`,
 
   // Settings
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,

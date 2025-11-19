@@ -34,7 +34,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const { getString } = useLocaleStore();
   const itemId = route?.params?.itemId;
   const friendUserId = route?.params?.friendUserId ?? null;
-  const storeBranchId = route?.params?.storeBranchId ?? null;
+  const storeId = route?.params?.storeId ?? null;
   const { sizes } = theme;
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
@@ -114,7 +114,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         ItemId: item?.ItemId,
         ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
         Quantity: quantity,
-        StoreBranchId: storeBranchId ?? null,
+        StoreId: storeId ?? null,
       };
       await api.post(apiEndpoints.ADD_TO_CART, payload);
       // Mark as added and change button to "Go to Cart"
@@ -132,10 +132,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
   return (
     <ParentView edges={['bottom']}>
-      <StatusBar
-        backgroundColor={theme.colors.BACKGROUND}
-        barStyle="light-content"
-      />
       <View style={styles.sliderWrapper}>
         <ProductImageSlider
           loading={loading}

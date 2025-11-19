@@ -35,7 +35,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   ];
 
   const handleStoreSelect = (item: Store | any) => {
-    const store = item as Store & { StoreBranchId?: number };
+    const store = item as Store;
     const brandLogo = store.Documents.find(
       doc => doc.DocumentType === 'BrandLogo',
     )?.FileUrl;
@@ -52,7 +52,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         imageLogo: brandLogo || null,
         imageCover: brandLogoAttachment || brandLogo || null,
       },
-      storeBranchId: store.StoreBranchId ?? null,
+      storeId: store.StoreId ?? null,
       friendUserId: friendUserId ?? undefined,
     });
   };
