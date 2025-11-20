@@ -14,7 +14,7 @@ import CustomButton from '../../../components/global/Custombutton';
 import { InboxOrder } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import {
-  useInbox,
+  useInboxOutboxActions,
   formatRelativeTime,
   getProfileImage,
   getUserName,
@@ -24,8 +24,18 @@ import {
   getItemName,
 } from './actions';
 import { scaleWithMax } from '../../../utils';
+import { useRoute } from '@react-navigation/native';
 
-const Inbox: React.FC = () => {
+const InboxOutbox: React.FC = () => {
+  const route = useRoute();
+  const params = route.params as
+    | {
+        title?: string;
+        isInbox?: boolean;
+      }
+    | undefined;
+  const isInbox = params?.isInbox ?? true;
+  const title = params?.title ?? (isInbox ? 'Inbox' : 'Outbox');
   const { styles, theme } = useStyles();
   const {
     orders,
@@ -36,43 +46,74 @@ const Inbox: React.FC = () => {
     handlePickUpPress,
     handleDeliveryPress,
     handleCloseBottomSheet,
-  } = useInbox();
+  } = useInboxOutboxActions(isInbox);
 
   return (
-    // <LinearGradient
-    //   colors={[theme.colors.GRADIENT_COLOR, theme.colors.BACKGROUND]}
-    //   start={{ x: 0, y: 0 }}
-    //   style={{ flex: 1 }}
-    //   end={{ x: 0, y: 0.3 }}
-    // >
     <ParentView>
-      <HomeHeader showBackButton title="Inbox" showSearchBar />
-      <FlatList
-        showsVerticalScrollIndicator={false}
-        data={orders}
-        renderItem={({ item, index }) => (
-          <InboxItem
-            isLast={index === orders.length - 1}
-            order={item}
-            isRtl={isRtl}
-            onClick={handleItemPress}
+      {isInbox && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            height: theme.sizes.HEIGHT * 0.35,
+            zIndex: 0,
+            overflow: 'hidden',
+          }}
+        >
+          <LinearGradient
+            colors={['#FEECDC', '#FFFFFF']}
+            locations={[0.0005, 0.8847]}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 0, y: 1 }}
+            style={{
+              flex: 1,
+              width: '100%',
+            }}
           />
-        )}
-        keyExtractor={item => item.OrderId.toString()}
-        ListEmptyComponent={() => (
-          <View style={{ padding: theme.sizes.PADDING }}>
-            <Text
-              style={{
-                textAlign: 'center',
-                color: theme.colors.SECONDARY_TEXT,
-              }}
-            >
-              No orders found
-            </Text>
-          </View>
-        )}
-        contentContainerStyle={orders.length === 0 ? { flex: 1 } : undefined}
-      />
+        </View>
+      )}
+      <View style={{ zIndex: 1, backgroundColor: 'transparent' }}>
+        <HomeHeader
+          showBackButton
+          title={title}
+          showSearchBar
+          customContainerStyle={
+            isInbox ? { backgroundColor: 'transparent' } : undefined
+          }
+        />
+      </View>
+      {isLoading ? (
+        <SkeletonLoader screenType="inbox" />
+      ) : (
+        <FlatList
+          showsVerticalScrollIndicator={false}
+          data={orders}
+          renderItem={({ item, index }) => (
+            <InboxItem
+              isLast={index === orders.length - 1}
+              order={item}
+              isRtl={isRtl}
+              onClick={handleItemPress}
+            />
+          )}
+          keyExtractor={item => item.OrderId.toString()}
+          ListEmptyComponent={() => (
+            <View style={{ padding: theme.sizes.PADDING }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  color: theme.colors.SECONDARY_TEXT,
+                }}
+              >
+                No orders found
+              </Text>
+            </View>
+          )}
+          contentContainerStyle={orders.length === 0 ? { flex: 1 } : undefined}
+        />
+      )}
       <AppBottomSheet
         blurAmount={100}
         isOpen={openBottomSheet}
@@ -206,4 +247,4 @@ const InboxItem: React.FC<InboxItemProps> = ({
   );
 };
 
-export default Inbox;
+export default InboxOutbox;

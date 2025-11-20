@@ -40,8 +40,10 @@ export type AppStackParamList = {
   SendAGift: undefined;
   SendToGroup: undefined;
   Wallet: undefined;
-  OutBox: undefined;
-  Inbox: undefined;
+  InboxOutbox: {
+    title?: string;
+    isInbox?: boolean;
+  };
   FAQ: undefined;
   Settings: undefined;
   GiftMessage: {

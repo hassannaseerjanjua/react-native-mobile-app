@@ -27,7 +27,8 @@ type SkeletonLoaderProps = {
     | 'tabItem'
     | 'checkout'
     | 'occasionView'
-    | 'occasionList';
+    | 'occasionList'
+    | 'inbox';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -1380,6 +1381,122 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               </View>
             ))}
           </>
+        );
+      case 'inbox':
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item>
+              {[...Array(3)].map((_, index) => (
+                <SkeletonPlaceholder.Item
+                  key={index}
+                  marginTop={screenHeight * 0.01}
+                  marginHorizontal={theme.sizes.PADDING}
+                  paddingTop={theme.sizes.PADDING}
+                  marginBottom={index === 2 ? 0 : screenHeight * 0.01}
+                >
+                  <SkeletonPlaceholder.Item
+                    flexDirection="row"
+                    alignItems="flex-start"
+                  >
+                    {/* Profile Image */}
+                    <SkeletonPlaceholder.Item
+                      width={scaleWithMax(45, 50)}
+                      height={scaleWithMax(45, 50)}
+                      borderRadius={999}
+                      marginRight={theme.sizes.PADDING * 0.6}
+                    />
+                    {/* Content Section */}
+                    <SkeletonPlaceholder.Item flex={1}>
+                      {/* Top Row: User Name and Time */}
+                      <SkeletonPlaceholder.Item
+                        flexDirection="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        marginBottom={screenHeight * 0.01}
+                      >
+                        <SkeletonPlaceholder.Item
+                          width={screenWidth * 0.3}
+                          height={screenHeight * 0.02}
+                          borderRadius={screenWidth * 0.01}
+                        />
+                        <SkeletonPlaceholder.Item
+                          width={screenWidth * 0.15}
+                          height={screenHeight * 0.017}
+                          borderRadius={screenWidth * 0.01}
+                        />
+                      </SkeletonPlaceholder.Item>
+                      {/* Second Row: Store Info and Icon */}
+                      <SkeletonPlaceholder.Item
+                        flexDirection="row"
+                        justifyContent="space-between"
+                        alignItems="center"
+                        marginBottom={screenHeight * 0.015}
+                      >
+                        <SkeletonPlaceholder.Item
+                          flexDirection="row"
+                          alignItems="center"
+                          gap={screenWidth * 0.013}
+                        >
+                          <SkeletonPlaceholder.Item
+                            width={theme.sizes.FONTSIZE}
+                            height={theme.sizes.FONTSIZE}
+                            borderRadius={screenWidth * 0.01}
+                          />
+                          <SkeletonPlaceholder.Item
+                            width={screenWidth * 0.25}
+                            height={screenHeight * 0.017}
+                            borderRadius={screenWidth * 0.01}
+                          />
+                          <SkeletonPlaceholder.Item
+                            width={scaleWithMax(16, 16)}
+                            height={scaleWithMax(16, 16)}
+                            borderRadius={999}
+                          />
+                        </SkeletonPlaceholder.Item>
+                        <SkeletonPlaceholder.Item
+                          width={scaleWithMax(18, 18)}
+                          height={scaleWithMax(18, 18)}
+                          borderRadius={screenWidth * 0.01}
+                        />
+                      </SkeletonPlaceholder.Item>
+                      {/* Image Container */}
+                      <SkeletonPlaceholder.Item
+                        borderRadius={12}
+                        overflow="hidden"
+                        marginTop={screenHeight * 0.01}
+                      >
+                        <SkeletonPlaceholder.Item
+                          width="100%"
+                          height={theme.sizes.HEIGHT * 0.34}
+                          borderRadius={12}
+                        />
+                        {/* Bottom Section with Item Name */}
+                        <SkeletonPlaceholder.Item
+                          flexDirection="row"
+                          justifyContent="space-between"
+                          alignItems="center"
+                          paddingVertical={theme.sizes.PADDING * 0.5}
+                          paddingHorizontal={theme.sizes.PADDING}
+                          backgroundColor="#fff"
+                        >
+                          <SkeletonPlaceholder.Item
+                            width={screenWidth * 0.3}
+                            height={screenHeight * 0.02}
+                            borderRadius={screenWidth * 0.01}
+                          />
+                          <SkeletonPlaceholder.Item
+                            width={scaleWithMax(24, 25)}
+                            height={scaleWithMax(24, 25)}
+                            borderRadius={999}
+                          />
+                        </SkeletonPlaceholder.Item>
+                      </SkeletonPlaceholder.Item>
+                    </SkeletonPlaceholder.Item>
+                  </SkeletonPlaceholder.Item>
+                </SkeletonPlaceholder.Item>
+              ))}
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
         );
       default:
         return null;

@@ -127,7 +127,11 @@ const HomeScreenTabsContainer: React.FC = () => {
       icon: <SvgInboxGift />,
       title: getString('HOME_INBOX'),
       description: getString('HOME_INBOX_DESC'),
-      onPress: () => navigation.navigate('Inbox' as never),
+      onPress: () =>
+        (navigation as any).navigate('InboxOutbox', {
+          title: getString('HOME_INBOX'),
+          isInbox: true,
+        }),
     },
     {
       id: 'outbox',
@@ -140,7 +144,11 @@ const HomeScreenTabsContainer: React.FC = () => {
       ),
       title: getString('HOME_OUTBOX'),
       description: getString('HOME_OUTBOX_DESC'),
-      onPress: () => navigation.navigate('OutBox' as never),
+      onPress: () =>
+        (navigation as any).navigate('InboxOutbox', {
+          title: getString('HOME_OUTBOX'),
+          isInbox: false,
+        }),
     },
   ];
 

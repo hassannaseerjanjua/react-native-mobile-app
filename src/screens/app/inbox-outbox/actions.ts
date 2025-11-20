@@ -107,13 +107,13 @@ export const getItemName = (order: InboxOrder): string => {
   return '';
 };
 
-export const useInbox = () => {
+export const useInboxOutboxActions = (isInbox: boolean = true) => {
   const navigation = useNavigation();
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
   const { isRtl } = useLocaleStore();
 
   const getInboxOutboxDetails = useGetApi<InboxApiResponseData['Data']>(
-    apiEndpoints.GET_INBOX_OUTBOX_DETAILS(true),
+    apiEndpoints.GET_INBOX_OUTBOX_DETAILS(isInbox),
     {
       transformData: (data: any) => data?.Data,
       withAuth: true,

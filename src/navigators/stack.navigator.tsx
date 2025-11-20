@@ -27,8 +27,7 @@ import ProductDetails from '../screens/app/product-detail/index.tsx';
 import GiftMessage from '../screens/app/gift-message/index.tsx';
 import CheckOut from '../screens/app/checkout/index.tsx';
 import AddCart from '../screens/app/add-card/index.tsx';
-import OutBox from '../screens/app/outbox/index.tsx';
-import Inbox from '../screens/app/inbox/index.tsx';
+import InboxOutbox from '../screens/app/inbox-outbox/index.tsx';
 import LocationSelection from '../screens/app/location-selection/index.tsx';
 import ScanQr from '../screens/app/scan-qr/index.tsx';
 import CatchScreen from '../screens/app/catch/index.tsx';
@@ -53,8 +52,7 @@ const AppStackNavigator = () => {
       <AppStack.Screen name="GiftMessage" component={GiftMessage} />
       <AppStack.Screen name="CheckOut" component={CheckOut} />
       <AppStack.Screen name="AddCard" component={AddCart} />
-      <AppStack.Screen name="OutBox" component={OutBox} />
-      <AppStack.Screen name="Inbox" component={Inbox} />
+      <AppStack.Screen name="InboxOutbox" component={InboxOutbox} />
       <AppStack.Screen name="LocationSelection" component={LocationSelection} />
       <AppStack.Screen name="ScanQr" component={ScanQr} />
       <AppStack.Screen name="CatchScreen" component={CatchScreen} />
