@@ -260,6 +260,110 @@ export interface OrdersApiResponse {
   ResponseMessage: string;
 }
 
+export interface InboxOrderImage {
+  OrderImageId: number;
+  FilterId: number;
+  Status: number;
+  OrderId: number;
+  CreatedOn: string;
+  CreatedBy: number;
+  ImageUrl: string;
+}
+
+export interface InboxOrderItemImage {
+  ItemImageId: number;
+  DisplaySeqNo: number | null;
+  isDefault: boolean | null;
+  ImageUrl: string | null;
+  ImageUrls: string;
+  ItemVariantId: number | null;
+}
+
+export interface InboxOrderItemVariant {
+  NameEn: string;
+  NameAr: string;
+  ItemVariantId: number;
+  Status: number;
+  Price: number;
+}
+
+export interface InboxOrderItem {
+  OrderItemId: number;
+  ItemId: number;
+  ItemName: string;
+  ThumbnailUrl: string | null;
+  UnitPrice: number;
+  Quantity: number;
+  OrderAmount: number;
+  DiscountAmount: number;
+  VatAmount: number;
+  FeelingFees: number;
+  DeliveryCharges: number;
+  TotalAmount: number;
+  Status: number;
+  Variant: InboxOrderItemVariant | null;
+  Images: InboxOrderItemImage[];
+}
+
+export interface InboxOrderUser {
+  UserId: number;
+  FullName: string;
+  GenderID: number | null;
+  DOB: string | null;
+  PhoneNo: string;
+  CityId: number | null;
+}
+
+export interface InboxOrderStore {
+  StoreId: number;
+  NameEn: string;
+  NameAr: string;
+  Email: string;
+  PhoneNo: string;
+  NationalAddress: string | null;
+}
+
+export interface InboxOrder {
+  OrderId: number;
+  FriendId: number;
+  UserId: number;
+  FriendName: string | null;
+  FriendImageUrl: string | null;
+  StoreId: number;
+  StoreBranchId: number;
+  Status: number;
+  OrderAmount: number;
+  TotalDiscount: number;
+  TotalVat: number;
+  DeliveryCharges: number;
+  TotalAmount: number;
+  OrderTime: string;
+  Items: InboxOrderItem[];
+  orderImages: InboxOrderImage[];
+  users: InboxOrderUser;
+  stores: InboxOrderStore;
+  catchId: number;
+  OrderMessage: string | null;
+  CampaginType: string | null;
+}
+
+export interface InboxApiResponseData {
+  Data: {
+    Items: InboxOrder[];
+    TotalCount: number;
+  };
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}
+
+export interface InboxApiResponse {
+  success: boolean;
+  failed: boolean;
+  data: InboxApiResponseData;
+  error: string;
+}
+
 export interface StoreDocument {
   DocumentType: string;
   FileUrl: string;

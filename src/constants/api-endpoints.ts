@@ -17,6 +17,8 @@ const apiEndpoints = {
 
   // Home
   GET_HOME_SLIDER: `/${version}/Home/GetSliders`,
+  GET_INBOX_OUTBOX_DETAILS: (isInbox: boolean) =>
+    `/${version}/User/GetOrdersForInboxOutbox?inbox=${isInbox}`,
 
   // Social
   GET_ACTIVE_USERS: (
