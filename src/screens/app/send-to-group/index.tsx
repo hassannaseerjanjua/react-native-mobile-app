@@ -20,6 +20,7 @@ import api from '../../../utils/api';
 import { useAuthStore } from '../../../store/reducer/auth';
 import { Text } from '../../../utils/elements';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import notify from '../../../utils/notify';
 
 interface SendToGroupProps extends AppStackScreen<'SendToGroup'> {}
 

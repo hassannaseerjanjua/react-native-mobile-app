@@ -305,6 +305,7 @@ export interface Store {
   CreatedOn: string;
   BusinessTypeID: number;
   BusinessTypeName: string;
+  isFavourite: boolean;
   Documents: StoreDocument[];
 }
 
@@ -438,7 +439,7 @@ export const mockCatchItems = [
     id: '1',
     title: 'Pink Charm Bouquet',
     subtitle: 'Bouquet',
-    coverImage: require('../assets/images/dummy1.png'),
+    coverImage: require('../assets/images/img-placeholder.png'),
     category: 'bouquet',
     description:
       'Hand-tied bouquet of blush roses and lilies designed for heartfelt celebrations, finished with silk ribbon twists and fragrant eucalyptus sprigs. Each stem is selected at peak bloom to create a lasting impression that feels both romantic and refined.',
@@ -451,7 +452,7 @@ export const mockCatchItems = [
     id: '2',
     title: 'Pink Charm Bouquet',
     subtitle: 'Bouquet',
-    coverImage: require('../assets/images/dummy2.png'),
+    coverImage: require('../assets/images/img-placeholder.png'),
     category: 'bouquet',
     description:
       "Soft pink blooms paired with baby's breath to complement romantic gifting moments, offering a modern take on classic floral storytelling. The bouquet rests in a reusable glass vase, inviting the recipient to refresh it season after season.",
@@ -464,7 +465,7 @@ export const mockCatchItems = [
     id: '3',
     title: 'Pink Charm Cake',
     subtitle: 'Cake',
-    coverImage: require('../assets/images/dummy3.png'),
+    coverImage: require('../assets/images/img-placeholder.png'),
     category: 'cake',
     discountedPrice: 0,
     isGift: true,
@@ -478,7 +479,7 @@ export const mockCatchItems = [
     id: '4',
     title: 'Pink Charm Cake',
     subtitle: 'Cake',
-    coverImage: require('../assets/images/dummy4.png'),
+    coverImage: require('../assets/images/img-placeholder.png'),
     category: 'cake',
     discountedPrice: 12,
     subTitle2: 'Cake',

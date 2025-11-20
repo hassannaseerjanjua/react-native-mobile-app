@@ -71,6 +71,7 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: theme.sizes.FONT_SIZE_EXTRA_HIGH,
         color: theme.colors.BLACK,
+        marginTop: sizes.HEIGHT * 0.02,
       },
       row: {
         flexDirection: 'row',

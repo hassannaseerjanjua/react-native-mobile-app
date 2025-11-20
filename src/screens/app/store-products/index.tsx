@@ -16,13 +16,18 @@ import { AppStackScreen } from '../../../types/navigation.types.ts';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import {
   ShareIcon,
-  SvgBackIcon,
   SvgHomeBack,
+  SvgRiyalIconWhite,
 } from '../../../assets/icons/index.ts';
-import { rtlTransform, rtlFlexDirection } from '../../../utils';
+import { rtlTransform, scaleWithMax } from '../../../utils';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
-import { StoreProduct, FaveItems, Category } from '../../../types/index.ts';
+import {
+  StoreProduct,
+  FaveItems,
+  Category,
+  CartResponse,
+} from '../../../types/index.ts';
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
 
@@ -35,7 +40,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
   const storeId = route.params?.storeId ?? null;
-  // Track favorite state for each item by ItemId
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
@@ -59,7 +63,17 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     },
   );
 
-  // Create filter options from categories
+  const cartApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
+    transformData: (data: any) => (data?.Data || data) as CartResponse,
+  });
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      cartApi.refetch();
+    });
+    return unsubscribe;
+  }, [navigation, cartApi.refetch]);
+
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
     if (!categoriesApi.data || categoriesApi.data.length === 0) {
@@ -72,7 +86,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     return [allOption, ...categoryOptions];
   }, [categoriesApi.data, getString, langCode]);
 
-  // Initialize favorite states from API data
   useEffect(() => {
     if (getStoreProducts.data) {
       const initialState: Record<number, boolean> = {};
@@ -104,7 +117,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     ItemId: number;
     isFavorite: boolean;
   }) => {
-    // Optimistically update the specific item's favorite state
     setFavoriteStates(prev => ({
       ...prev,
       [payload.ItemId]: payload.isFavorite,
@@ -116,7 +128,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       );
       if (res.success) {
       } else {
-        // Revert the state change on error
         setFavoriteStates(prev => ({
           ...prev,
           [payload.ItemId]: !payload.isFavorite,
@@ -124,7 +135,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
     } catch (error: any) {
-      // Revert the state change on error
       setFavoriteStates(prev => ({
         ...prev,
         [payload.ItemId]: !payload.isFavorite,
@@ -133,7 +143,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     }
   };
 
-  // Filter products based on selected category
   const filteredProducts = useMemo(() => {
     if (!getStoreProducts.data) return [];
     if (selectedFilter === 'all') return getStoreProducts.data;
@@ -142,6 +151,19 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       product => product.CategoryId === categoryId,
     );
   }, [getStoreProducts.data, selectedFilter]);
+
+  const isCartFromCurrentStore = useMemo(() => {
+    if (
+      !cartApi.data ||
+      !cartApi.data.Items ||
+      cartApi.data.Items.length === 0
+    ) {
+      return false;
+    }
+    const currentStoreId = store?.id || storeId;
+    if (!currentStoreId) return false;
+    return cartApi.data.StoreId === Number(currentStoreId);
+  }, [cartApi.data, store?.id, storeId]);
 
   return (
     <View style={{ flex: 1 }}>
@@ -203,7 +225,12 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             numColumns={2}
             keyExtractor={item => item.ItemId.toString()}
             extraData={favoriteStates}
-            contentContainerStyle={styles.content}
+            contentContainerStyle={[
+              styles.content,
+              isCartFromCurrentStore && {
+                paddingBottom: theme.sizes.HEIGHT * 0.12,
+              },
+            ]}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View
@@ -239,6 +266,37 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           />
         )}
       </View>
+
+      {isCartFromCurrentStore && cartApi.data && (
+        <View style={styles.footerContainer}>
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={() => {
+              (navigation as any).navigate('CheckOut');
+            }}
+            activeOpacity={0.8}
+          >
+            <View style={styles.footerQuantityBadge}>
+              <Text style={styles.footerQuantityText}>
+                {cartApi.data.Items.reduce(
+                  (sum, item) => sum + item.Quantity,
+                  0,
+                )}
+              </Text>
+            </View>
+            <Text style={styles.footerButtonText}>View Cart</Text>
+            <View style={styles.footerPriceRow}>
+              <SvgRiyalIconWhite
+                width={scaleWithMax(16, 18)}
+                height={scaleWithMax(16, 18)}
+              />
+              <Text style={styles.footerPriceText}>
+                {cartApi.data.TotalAmount.toFixed(2)}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 };

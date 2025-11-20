@@ -9,14 +9,12 @@ import {
   Platform,
 } from 'react-native';
 import React, { useMemo } from 'react';
-import {
-  SvgGiftLink,
-  SvgGroup,
-} from '../../assets/icons';
+import { SvgGiftLink, SvgGroup } from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { I18nManager } from 'react-native';
+import { scaleWithMax } from '../../utils';
 
 interface NotificationItemProps {
   title: string;
@@ -56,9 +54,7 @@ const NotificationItem = ({
       );
     }
     return (
-      <Text style={[styles.titleText, NotificationTextStyles]}>
-        {title}
-      </Text>
+      <Text style={[styles.titleText, NotificationTextStyles]}>{title}</Text>
     );
   };
 
@@ -110,12 +106,8 @@ const useStyles = () => {
         width: '100%',
         paddingHorizontal: theme.sizes.PADDING * 0.85,
         paddingVertical: theme.sizes.HEIGHT * 0.014,
-        shadowColor: '#000',
-        shadowOpacity: 0.02,
-        shadowRadius: 2,
-        shadowOffset: { width: 0, height: 1 },
-        elevation: Platform.OS === 'android' ? 2 : 1,
-        borderRadius: 12,
+        ...theme.globalStyles.SHADOW_STYLE,
+        borderRadius: theme.sizes.BORDER_RADIUS_MID,
         position: 'relative',
       },
       contentContainer: {
@@ -126,19 +118,18 @@ const useStyles = () => {
         minWidth: 0,
       },
       titleText: {
-        fontFamily: 'Quicksand-Medium',
-        fontSize: theme.sizes.FONTSIZE,
+        ...theme.globalStyles.TEXT_STYLE,
+        fontSize: scaleWithMax(13, 14),
         color: colors.PRIMARY_TEXT,
         flex: 1,
         textAlign: isRtl ? 'right' : 'left',
       },
       boldText: {
-        fontFamily: 'Quicksand-Bold',
-        fontWeight: 'bold',
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
       },
       groupImage: {
-        width: 56,
-        height: 56,
+        width: scaleWithMax(50, 55),
+        height: scaleWithMax(50, 55),
         borderRadius: 999,
       },
       timeContainer: {
@@ -150,7 +141,7 @@ const useStyles = () => {
         zIndex: 1,
       },
       timeText: {
-        fontFamily: 'Quicksand-Regular',
+        ...theme.globalStyles.TEXT_STYLE,
         fontSize: theme.sizes.FONTSIZE_SMALL,
         color: colors.SECONDARY_GRAY,
       },
@@ -161,4 +152,3 @@ const useStyles = () => {
 };
 
 export default NotificationItem;
-

@@ -99,12 +99,7 @@ const useStyles = () => {
       container: {
         backgroundColor: colors.WHITE,
         width: '100%',
-        shadowColor: '#000',
-        shadowOpacity: 0.03,
-        shadowRadius: 2,
-        shadowOffset: { width: 0, height: 1 },
-        elevation: 1,
-        borderRadius: 8,
+        ...theme.globalStyles.SHADOW_STYLE,
       },
       questionContainer: {
         flexDirection: 'row',
@@ -132,8 +127,8 @@ const useStyles = () => {
       },
       answerContainer: {
         marginHorizontal: theme.sizes.PADDING,
-        paddingBottom: theme.sizes.HEIGHT * 0.017,
-        paddingTop: theme.sizes.HEIGHT * 0.005,
+        // paddingBottom: theme.sizes.HEIGHT * 0.017,
+        paddingTop: theme.sizes.HEIGHT * 0.01,
         borderTopWidth: 1,
         borderTopColor: colors.SECONDARY_GRAY,
         marginTop: scaleWithMax(8, 12),

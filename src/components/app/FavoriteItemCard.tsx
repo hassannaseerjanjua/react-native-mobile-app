@@ -3,7 +3,11 @@ import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
 import { scaleWithMax, rtlTransform } from '../../utils';
 import { Text } from '../../utils/elements';
-import { SvgNextIcon } from '../../assets/icons';
+import {
+  SvgNextIcon,
+  SvgItemFavouriteIcon,
+  SvgItemFavouriteIconInActive,
+} from '../../assets/icons';
 import { useSizes } from '../../styles/sizes';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { FavStores, Store } from '../../types';
@@ -23,12 +27,18 @@ interface FavoriteItemCardProps {
   item: StoreItem;
   onPress: (item: StoreItem) => void;
   style?: any;
+  isFavorite?: boolean;
+  onFavoritePress?: () => void;
+  showFavorite?: boolean;
 }
 
 const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
   item,
   onPress,
   style,
+  isFavorite,
+  onFavoritePress,
+  showFavorite = false,
 }) => {
   const { isRtl } = useLocaleStore();
   const { theme, styles } = useStyles();
@@ -61,7 +71,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
         : require('../../assets/images/img-placeholder.png');
     overlayImage = brandLogo
       ? { uri: brandLogo }
-      : require('../../assets/images/perfumeHouse.png');
+      : require('../../assets/images/img-placeholder.png');
   } else if (isFavStores) {
     const favStore = item as FavStores;
     storeName = favStore.StoreNameEn;
@@ -87,23 +97,38 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
         onPress={() => onPress(item)}
         activeOpacity={0.8}
       >
-        {/* Background Image */}
-        <Image source={backgroundImage} style={styles.backgroundImage} />
-
-        {/* Content Overlay */}
+        <View style={styles.imageWrapper}>
+          <Image source={backgroundImage} style={styles.backgroundImage} />
+          {showFavorite && onFavoritePress && (
+            <TouchableOpacity
+              style={styles.favoriteIcon}
+              onPress={e => {
+                e.stopPropagation();
+                onFavoritePress();
+              }}
+            >
+              {isFavorite ? (
+                <SvgItemFavouriteIcon
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
+              ) : (
+                <SvgItemFavouriteIconInActive
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
         <View style={styles.contentOverlay}>
-          {/* Circular Overlay Image */}
           <View style={styles.overlayImageContainer}>
             <Image source={overlayImage} style={styles.overlayImage} />
           </View>
-
-          {/* Text Content */}
           <View style={styles.textContainer}>
             <Text style={styles.title}>{storeName}</Text>
             <Text style={styles.subtitle}>{businessType}</Text>
           </View>
-
-          {/* Navigation Icon */}
           <View style={styles.iconContainer}>
             <SvgNextIcon
               width={scaleWithMax(15, 18)}
@@ -135,10 +160,26 @@ const useStyles = () => {
       overflow: 'hidden',
       backgroundColor: theme.colors.WHITE,
     },
+    imageWrapper: {
+      position: 'relative',
+      width: '100%',
+    },
     backgroundImage: {
       width: '100%',
       height: scaleWithMax(115, 120),
       resizeMode: 'cover',
+    },
+    favoriteIcon: {
+      backgroundColor: theme.colors.WHITE,
+      borderRadius: 9999,
+      width: scaleWithMax(25, 30),
+      height: scaleWithMax(25, 30),
+      position: 'absolute',
+      top: 10,
+      right: 10,
+      alignItems: 'center',
+      justifyContent: 'center',
+      ...theme.globalStyles.SHADOW_STYLE,
     },
     contentOverlay: {
       flexDirection: 'row',

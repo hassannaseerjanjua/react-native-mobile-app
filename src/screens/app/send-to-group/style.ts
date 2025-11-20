@@ -14,10 +14,10 @@ const useStyles = () => {
       },
       content: {
         paddingHorizontal: sizes.PADDING,
-        paddingTop: sizes.HEIGHT * 0.03,
+        paddingTop: sizes.HEIGHT * 0.02,
       },
       tabSpacing: {
-        height: sizes.HEIGHT * 0.025,
+        height: sizes.HEIGHT * 0.016,
       },
       modalOverlay: {
         flex: 1,
@@ -64,19 +64,15 @@ const useStyles = () => {
       },
       listCard: {
         backgroundColor: colors.WHITE,
-        borderRadius: 16,
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowRadius: 6,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 3,
+        ...theme.globalStyles.SHADOW_STYLE,
+        borderRadius: sizes.BORDER_RADIUS,
         marginBottom: sizes.HEIGHT * 0.018,
       },
       listContainer: {
         paddingVertical: 0,
       },
       TabItem: {
-        height: sizes.HEIGHT * 0.082,
+        height: sizes.HEIGHT * 0.075,
       },
     });
   }, [theme]);

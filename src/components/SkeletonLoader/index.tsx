@@ -25,7 +25,9 @@ type SkeletonLoaderProps = {
     | 'landing'
     | 'productDetails'
     | 'tabItem'
-    | 'checkout';
+    | 'checkout'
+    | 'occasionView'
+    | 'occasionList';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -603,48 +605,52 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       case 'sendToGroup':
         return (
           <>
-            {[...Array(4)].map((_, index) => (
+            {[...Array(3)].map((_, index) => (
               <View key={index}>
                 <View
                   style={{
+                    backgroundColor: '#f5f5f5',
+                    borderRadius: theme.sizes.BORDER_RADIUS_MID,
+                    paddingHorizontal: theme.sizes.PADDING,
+                    paddingVertical: theme.sizes.HEIGHT * 0.017,
+                    marginBottom: theme.sizes.HEIGHT * 0.016,
+                    height: theme.sizes.HEIGHT * 0.075,
                     flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    paddingVertical: screenHeight * 0.025,
-                    paddingHorizontal: screenWidth * 0.025,
-                    backgroundColor: '#fff',
-                    borderRadius: 8,
+                    gap: 10,
+                    width: '100%',
+                    // ...theme.globalStyles.SHADOW_STYLE,
                   }}
                 >
-                  <SkeletonPlaceholder>
+                  <SkeletonPlaceholder
+                    borderRadius={8}
+                    highlightColor="#f2f2f2"
+                    backgroundColor="#e0e0e0"
+                  >
                     <SkeletonPlaceholder.Item
                       flexDirection="row"
                       alignItems="center"
                       flex={1}
+                      gap={10}
+                      minWidth={0}
                     >
-                      {/* Group Icon - Circle (52x52) - Bigger */}
                       <SkeletonPlaceholder.Item
-                        width={52}
-                        height={52}
+                        width={40}
+                        height={40}
                         borderRadius={999}
-                        marginRight={12}
                       />
-
-                      {/* Group Name - Single line only - Bigger text */}
                       <SkeletonPlaceholder.Item
-                        width={screenWidth * 0.55}
-                        height={18}
+                        width={screenWidth * 0.5}
+                        height={theme.sizes.FONTSIZE_LESS_HIGH}
                         borderRadius={4}
                       />
                     </SkeletonPlaceholder.Item>
                   </SkeletonPlaceholder>
-
-                  {/* Real Arrow Icon with opacity */}
                   <View style={{ opacity: 0.2 }}>
                     <SvgNextIcon style={{ transform: rtlTransform(isRtl) }} />
                   </View>
                 </View>
-                {index < 3 && <View style={{ height: 14 }} />}
               </View>
             ))}
           </>
@@ -1249,6 +1255,131 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               </SkeletonPlaceholder.Item>
             </SkeletonPlaceholder.Item>
           </SkeletonPlaceholder>
+        );
+      case 'occasionView':
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item>
+              {/* First Input Field - Event Name */}
+              <SkeletonPlaceholder.Item
+                marginTop={screenHeight * 0.01}
+                marginBottom={screenHeight * 0.02}
+                position="relative"
+              >
+                {/* Input Field Container */}
+                <SkeletonPlaceholder.Item
+                  width="100%"
+                  height={scaleWithMax(45, 50)}
+                  borderRadius={theme.sizes.BORDER_RADIUS}
+                />
+                {/* Icon on Left Side */}
+                <SkeletonPlaceholder.Item
+                  position="absolute"
+                  left={theme.sizes.PADDING}
+                  top={scaleWithMax(12.5, 15)}
+                  width={scaleWithMax(20, 25)}
+                  height={scaleWithMax(20, 25)}
+                  borderRadius={screenWidth * 0.01}
+                />
+              </SkeletonPlaceholder.Item>
+
+              {/* Second Input Field - Date */}
+              <SkeletonPlaceholder.Item
+                marginBottom={screenHeight * 0.02}
+                position="relative"
+              >
+                {/* Input Field Container */}
+                <SkeletonPlaceholder.Item
+                  width="100%"
+                  height={scaleWithMax(45, 50)}
+                  borderRadius={theme.sizes.BORDER_RADIUS}
+                />
+                {/* Icon on Left Side */}
+                <SkeletonPlaceholder.Item
+                  position="absolute"
+                  left={theme.sizes.PADDING}
+                  top={scaleWithMax(12.5, 15)}
+                  width={scaleWithMax(20, 25)}
+                  height={scaleWithMax(20, 25)}
+                  borderRadius={screenWidth * 0.01}
+                />
+              </SkeletonPlaceholder.Item>
+
+              {/* Third Input Field - Image */}
+              <SkeletonPlaceholder.Item
+                marginBottom={screenHeight * 0.02}
+                position="relative"
+              >
+                {/* Input Field Container */}
+                <SkeletonPlaceholder.Item
+                  width="100%"
+                  height={scaleWithMax(45, 50)}
+                  borderRadius={theme.sizes.BORDER_RADIUS}
+                />
+                {/* Icon on Left Side */}
+                <SkeletonPlaceholder.Item
+                  position="absolute"
+                  left={theme.sizes.PADDING}
+                  top={scaleWithMax(12.5, 15)}
+                  width={scaleWithMax(20, 25)}
+                  height={scaleWithMax(20, 25)}
+                  borderRadius={screenWidth * 0.01}
+                />
+              </SkeletonPlaceholder.Item>
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
+        );
+      case 'occasionList':
+        return (
+          <>
+            {[...Array(2)].map((_, index) => (
+              <View
+                key={index}
+                style={{
+                  backgroundColor: '#f5f5f5',
+                  borderRadius: theme.sizes.BORDER_RADIUS_MID,
+                  paddingHorizontal: theme.sizes.PADDING,
+                  paddingVertical: theme.sizes.HEIGHT * 0.017,
+                  marginBottom: theme.sizes.HEIGHT * 0.016,
+                  height: theme.sizes.HEIGHT * 0.075,
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  gap: 10,
+                  width: '100%',
+                  // ...theme.globalStyles.SHADOW_STYLE,
+                }}
+              >
+                <SkeletonPlaceholder
+                  borderRadius={8}
+                  highlightColor="#f2f2f2"
+                  backgroundColor="#e0e0e0"
+                >
+                  <SkeletonPlaceholder.Item
+                    flexDirection="row"
+                    alignItems="center"
+                    flex={1}
+                    gap={10}
+                    minWidth={0}
+                  >
+                    <SkeletonPlaceholder.Item
+                      width={40}
+                      height={40}
+                      borderRadius={999}
+                    />
+                    <SkeletonPlaceholder.Item
+                      width={screenWidth * 0.5}
+                      height={theme.sizes.FONTSIZE_LESS_HIGH}
+                      borderRadius={4}
+                    />
+                  </SkeletonPlaceholder.Item>
+                </SkeletonPlaceholder>
+                <View style={{ opacity: 0.2 }}>
+                  <SvgNextIcon style={{ transform: rtlTransform(isRtl) }} />
+                </View>
+              </View>
+            ))}
+          </>
         );
       default:
         return null;

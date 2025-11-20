@@ -42,6 +42,13 @@ const useStyles = () => {
         // width: '48%',
         // marginBottom: sizes.HEIGHT * 0.015,
       },
+      emptyContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        flex: 1,
+        minHeight: '100%',
+        paddingVertical: sizes.HEIGHT * 0.1,
+      },
     }),
     theme,
   };

@@ -15,11 +15,12 @@ const useStyles = () => {
         // flex: 1,
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.01,
-        paddingBottom: sizes.HEIGHT * 0.12,
+        paddingBottom: sizes.HEIGHT * 0.1,
       },
       TabItem: {
-        height: sizes.HEIGHT * 0.082,
-        marginBottom: sizes.HEIGHT * 0.024,
+        height: sizes.HEIGHT * 0.075,
+        marginBottom: sizes.HEIGHT * 0.016,
+        borderRadius: sizes.BORDER_RADIUS_MID,
       },
       buttonContainer: {
         position: 'absolute',

@@ -56,6 +56,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     transformData: (data: any) => (data?.Data || data) as CartResponse,
   });
 
+  const walletBalance = useGetApi<any>(apiEndpoints.GET_WALLET_BALANCE, {
+    transformData: data => data.Data,
+  });
+
   const [cartData, setCartData] = useState<CartResponse | null>(
     cartItemsApi.data,
   );
@@ -505,7 +509,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   flexDirection: rtlFlexDirection(isRtl),
                 }}
               >
-                <CheckBox Selected={selectedPaymentMethod === 'visa'} />
+                <CheckBox
+                  Selected={selectedPaymentMethod === 'visa'}
+                  onSelectionPress={() =>
+                    setSelectedPaymentMethod(
+                      selectedPaymentMethod === 'visa' ? null : 'visa',
+                    )
+                  }
+                />
                 <VisaIcon
                   height={scaleWithMax(32, 35)}
                   width={scaleWithMax(32, 35)}
@@ -546,14 +557,31 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   flexDirection: rtlFlexDirection(isRtl),
                 }}
               >
-                <CheckBox Selected={selectedPaymentMethod === 'wallet'} />
+                <CheckBox
+                  Selected={selectedPaymentMethod === 'wallet'}
+                  onSelectionPress={() =>
+                    setSelectedPaymentMethod(
+                      selectedPaymentMethod === 'wallet' ? null : 'wallet',
+                    )
+                  }
+                />
                 <SvgGifteeWalletIcon
                   height={scaleWithMax(32, 35)}
                   width={scaleWithMax(32, 35)}
                 />
                 <View>
                   <Text style={styles.TextMedium}>Giftee Wallet</Text>
-                  <Text style={styles.TextMedium}>Visa</Text>
+                  <View style={styles.row}>
+                    <SvgRiyalIcon
+                      width={scaleWithMax(12, 14)}
+                      height={scaleWithMax(12, 14)}
+                    />
+                    <Text style={styles.TextMedium}>
+                      {walletBalance?.data?.WalletBalance
+                        ? Number(walletBalance.data.WalletBalance).toFixed(2)
+                        : '0.00'}
+                    </Text>
+                  </View>
                 </View>
               </View>
               <SvgSelectedCheck

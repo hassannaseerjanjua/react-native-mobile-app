@@ -59,6 +59,7 @@ const apiEndpoints = {
       ? `/${version}/User/GetFavItems?StoreId=${storeId}`
       : `/${version}/User/GetFavItems`,
   HANDLE_FAVORITE_ITEM: `/${version}/User/FavoriteUnFavoriteItem`,
+  HANDLE_FAVORITE_STORE: `/${version}/User/FavoriteUnFavoriteStore`,
   GET_STORE_LIST: `/${version}/Panel/GetAllActiveStores`,
   GET_STORE_DETAIL: (storeId?: any, storeBranchId?: any) =>
     `/${version}/Panel/GetAllItems?StoreId=${storeId}`,

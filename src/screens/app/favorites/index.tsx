@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
 import { View, StatusBar, FlatList } from 'react-native';
 import { Text } from '../../../utils/elements';
 import useStyles from './style.ts';
@@ -10,7 +10,8 @@ import { AppStackScreen } from '../../../types/navigation.types.ts';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { useListingApi } from '../../../hooks/useListingApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
-import { FavStores } from '../../../types/index.ts';
+import { FavStores, BusinessType } from '../../../types/index.ts';
+import useGetApi from '../../../hooks/useGetApi.ts';
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
 
@@ -19,7 +20,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   navigation,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, langCode } = useLocaleStore();
 
   const FavStoreListing = useListingApi<FavStores>(
     apiEndpoints.GET_FAV_STORE,
@@ -35,16 +36,51 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     },
   );
 
+  const businessTypeApi = useGetApi<BusinessType[]>(
+    apiEndpoints.GET_BUSINESS_TYPE,
+    {
+      transformData: (data: any) => data.Data.Items || [],
+    },
+  );
+
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [Steps, setSteps] = useState(1);
+  const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
+    {},
+  );
 
-  const filterOptions = [
-    { id: 'all', title: getString('FAV_ALL') },
-    { id: 'bouquet', title: getString('FAV_BOUQUET') },
-    { id: 'roses', title: getString('FAV_ROSES') },
-    { id: 'flowers', title: getString('FAV_FLOWERS') },
-    { id: 'cake', title: getString('FAV_CAKE') },
-  ];
+  // Initialize favorite states from API data (all should be true since they're favorites)
+  useEffect(() => {
+    if (FavStoreListing.data) {
+      const initialState: Record<number, boolean> = {};
+      FavStoreListing.data.forEach(store => {
+        initialState[store.StoreId] = true; // All stores in favorites are favorited
+      });
+      setFavoriteStates(initialState);
+    }
+  }, [FavStoreListing.data]);
+
+  const filterOptions = useMemo(() => {
+    const allOption = { id: 'all', title: getString('FAV_ALL') };
+    if (!businessTypeApi.data || businessTypeApi.data.length === 0) {
+      return [allOption];
+    }
+    const businessTypeOptions = businessTypeApi.data.map(businessType => ({
+      id: String(businessType.BusinessTypeId),
+      title: langCode === 'ar' ? businessType.NameAr : businessType.NameEn,
+    }));
+    return [allOption, ...businessTypeOptions];
+  }, [businessTypeApi.data, getString, langCode]);
+
+  const filteredFavorites = useMemo(() => {
+    if (!FavStoreListing.data) return [];
+    if (selectedFilter === 'all') {
+      return FavStoreListing.data;
+    }
+    return FavStoreListing.data.filter(
+      item => String(item.BusinessTypeId) === selectedFilter,
+    );
+  }, [FavStoreListing.data, selectedFilter]);
 
   const [cameFromProfile, setCameFromProfile] = useState(false);
 
@@ -80,23 +116,44 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     }
   };
 
-  // const handleFavoritePress = async (payload: {
-  //   ItemId: number;
-  //   IsFavorite: boolean;
-  // }) => {
-  //   try {
-  //     const res = await api.post<any>(
-  //       apiEndpoints.HANDLE_FAVORITE_ITEM,
-  //       payload,
-  //     );
-  //     if (res.success) {
-  //     } else {
-  //       notify.error(res.error || getString('AU_ERROR_OCCURRED'));
-  //     }
-  //   } catch (error: any) {
-  //     notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-  //   }
-  // };
+  const handleFavoritePress = async (store: FavStores) => {
+    const storeId = store.StoreId;
+    const storeBranchId = store.StoreBranchID;
+
+    const previousFavoriteState = favoriteStates[storeId] ?? true;
+    const newFavoriteState = !previousFavoriteState;
+
+    // Optimistically update the favorite state
+    setFavoriteStates(prev => ({
+      ...prev,
+      [storeId]: newFavoriteState,
+    }));
+
+    try {
+      const res = await api.post<any>(apiEndpoints.HANDLE_FAVORITE_STORE, {
+        StoreID: storeId,
+        StoreBranchID: storeBranchId,
+        IsFavorite: newFavoriteState,
+      });
+      if (res.success) {
+        // Item stays in list, only favorite state changes
+      } else {
+        // Revert the state change on error
+        setFavoriteStates(prev => ({
+          ...prev,
+          [storeId]: previousFavoriteState,
+        }));
+        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
+      }
+    } catch (error: any) {
+      // Revert the state change on error
+      setFavoriteStates(prev => ({
+        ...prev,
+        [storeId]: previousFavoriteState,
+      }));
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+    }
+  };
 
   return (
     <View style={styles.container}>
@@ -119,24 +176,32 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
       </View>
 
       <View style={styles.content}>
-        {FavStoreListing.loading ? (
+        {FavStoreListing.loading || businessTypeApi.loading ? (
           <View style={styles.favoritesContainer}>
             <SkeletonLoader screenType="storeCard" />
           </View>
         ) : (
           <FlatList
             style={styles.list}
-            data={FavStoreListing.data}
+            data={filteredFavorites}
             keyExtractor={item => item.StoreId.toString()}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.favoritesContainer}
             renderItem={({ item }) => (
               <View style={styles.favoriteItemContainer}>
-                <FavoriteItemCard item={item} onPress={handleStepPress} />
+                <FavoriteItemCard
+                  item={item}
+                  onPress={handleStepPress}
+                  showFavorite={true}
+                  isFavorite={favoriteStates[item.StoreId] ?? true}
+                  onFavoritePress={() => handleFavoritePress(item)}
+                />
               </View>
             )}
             ListEmptyComponent={
-              <Text>{getString('EMPTY_NO_FAVORITES_FOUND')}</Text>
+              <View style={styles.emptyContainer}>
+                <Text>{getString('EMPTY_NO_FAVORITES_FOUND')}</Text>
+              </View>
             }
           />
         )}

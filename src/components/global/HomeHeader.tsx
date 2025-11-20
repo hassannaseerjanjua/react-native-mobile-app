@@ -132,9 +132,11 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           </TouchableOpacity>
         )}
         {title && (
-          <Text style={styles.title} onPress={handleBackPress}>
-            {title}
-          </Text>
+          <View style={styles.titleContainer}>
+            <Pressable onPress={handleBackPress} style={styles.titlePressable}>
+              <Text style={styles.title}>{title}</Text>
+            </Pressable>
+          </View>
         )}
         {showLogo && (
           <SvgLogoBlue
@@ -144,24 +146,24 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         )}
 
         <View style={styles.rightSection}>
-          {showCartIcon && (
-            <TouchableOpacity
-              style={[
-                styles.searchContainer,
-                { marginEnd: theme.sizes.WIDTH * 0.038 },
-              ]}
-              onPress={() => navigation.navigate('CheckOut' as never)}
-            >
-              {getCartCount.data && getCartCount.data?.Count > 0 && (
+          {showCartIcon &&
+            getCartCount.data &&
+            getCartCount.data?.Count > 0 && (
+              <TouchableOpacity
+                style={[
+                  styles.searchContainer,
+                  { marginEnd: theme.sizes.WIDTH * 0.038 },
+                ]}
+                onPress={() => navigation.navigate('CheckOut' as never)}
+              >
                 <View style={styles.cartCount}>
                   <Text style={styles.cartCountText}>
                     {getCartCount.data?.Count}
                   </Text>
                 </View>
-              )}
-              <SvgCartIcon />
-            </TouchableOpacity>
-          )}
+                <SvgCartIcon />
+              </TouchableOpacity>
+            )}
           {showSearch && (
             <TouchableOpacity
               style={styles.searchContainer}
@@ -279,13 +281,19 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'center',
       },
+      titleContainer: {
+        flex: 1,
+        marginStart: sizes.WIDTH * 0.024,
+        justifyContent: 'center',
+      },
+      titlePressable: {
+        alignSelf: 'flex-start',
+      },
       title: {
         fontFamily: fonts.Quicksand.bold,
         fontSize: 20,
         lineHeight: 32,
         color: colors.PRIMARY_TEXT,
-        flex: 1,
-        marginStart: sizes.WIDTH * 0.024,
       },
       searchBarContainer: {
         flexDirection: 'row',

@@ -42,7 +42,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [item, setItem] = useState<any>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
-  const [itemAddedToCart, setItemAddedToCart] = useState<boolean>(false);
 
   useEffect(() => {
     let mounted = true;
@@ -136,7 +135,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       };
       const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
       if (response.success) {
-        setItemAddedToCart(true);
+        // Navigate back to store listing
+        navigation.goBack();
       } else {
         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
       }
@@ -145,10 +145,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handleGoToCart = () => {
-    navigation.navigate('CheckOut', undefined);
   };
 
   return (
@@ -297,10 +293,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
           <CustomButton
             buttonStyle={styles.button}
-            onPress={itemAddedToCart ? handleGoToCart : handleAddToCart}
-            title={
-              itemAddedToCart ? 'Go to Cart' : getString('PRODUCT_ADD_TO_CART')
-            }
+            onPress={handleAddToCart}
+            title={getString('PRODUCT_ADD_TO_CART')}
             disabled={submitting}
           />
         </View>

@@ -1,5 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StatusBar, FlatList, ScrollView } from 'react-native';
+import {
+  View,
+  StatusBar,
+  FlatList,
+  ScrollView,
+  Platform,
+  Share,
+} from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import SkeletonLoader from '../../../components/SkeletonLoader';
@@ -101,11 +108,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     }
   }, [isFetchingFriends]);
 
-  // Refetch friends list when screen comes into focus (e.g., after adding friends from Search screen)
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      // Refetch if not searching (search has its own refetch logic) and not on group tab
-      // Use refs to access current values since listener closure captures initial values
       if (!searchQueryRef.current && activeTabRef.current !== 'group') {
         activeUsersApiRefetchRef.current();
       }
@@ -136,13 +140,11 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
     },
   ];
 
-  // Create display data with current user at the top
   const getDisplayData = () => {
     const baseData = searchQuery
       ? searchFriendsApi.data || []
       : activeUsersApi.data || [];
 
-    // Only add current user to the top if we're not searching and user data is available
     if (!searchQuery && user) {
       const currentUser: ActiveUser = {
         UserId: user.UserId,
@@ -152,7 +154,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         Email: user.Email,
         PhoneNo: user.PhoneNo,
         ProfileUrl: user.ProfileUrl,
-        RelationStatus: 1, // Set as already "added" since it's the current user
+        RelationStatus: 1,
       };
 
       return [currentUser, ...baseData];
@@ -165,6 +167,40 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const isLoading = searchQuery
     ? searchFriendsApi.loading
     : activeUsersApi.loading;
+
+  const handleShareGiftLink = async () => {
+    try {
+      const giftLink = `https://giftee.app/share/${
+        user?.UserName || 'user123'
+      }`;
+      const inviteLink = `giftee.com/inviteby/abc123?${
+        user?.UserName || 'user123'
+      }`;
+      const shareOptions = Platform.select({
+        ios: {
+          message: `${getString('P_GIFT_ME_ON_GIFTEE')}\n\n${inviteLink}`,
+          url: giftLink,
+        },
+        android: {
+          message: `${getString(
+            'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
+          )}\n\n${inviteLink}`,
+          title: getString('P_GIFT_ME_ON_GIFTEE'),
+        },
+      }) || {
+        message: `${getString(
+          'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
+        )}\n\n${inviteLink}`,
+        title: getString('P_GIFT_ME_ON_GIFTEE'),
+      };
+
+      const result = await Share.share(shareOptions);
+
+      if (result.action === Share.sharedAction) {
+      } else if (result.action === Share.dismissedAction) {
+      }
+    } catch (error) {}
+  };
 
   return (
     <ParentView style={styles.container}>
@@ -207,7 +243,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         >
           <TabItem
             title={getString('SG_SEND_THROUGH_LINK')}
-            onPress={() => {}}
+            onPress={handleShareGiftLink}
             isLink={true}
           />
         </View>

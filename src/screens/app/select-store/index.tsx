@@ -16,6 +16,8 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
 import { Store, BusinessType } from '../../../types/index.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
+import api from '../../../utils/api.ts';
+import notify from '../../../utils/notify';
 
 const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const friendUserId = route?.params?.friendUserId ?? null;
@@ -25,6 +27,9 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
+    {},
+  );
 
   const businessTypeApi = useGetApi<BusinessType[]>(
     apiEndpoints.GET_BUSINESS_TYPE,
@@ -72,6 +77,57 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const storeListApi = useGetApi<Store[]>(apiEndpoints.GET_STORE_LIST, {
     transformData: (data: any) => data.Data.Items || [],
   });
+
+  // Initialize favorite states from API data
+  useEffect(() => {
+    if (storeListApi.data) {
+      const initialState: Record<number, boolean> = {};
+      storeListApi.data.forEach(store => {
+        initialState[store.StoreId] = store.isFavourite ?? false;
+      });
+      setFavoriteStates(initialState);
+    }
+  }, [storeListApi.data]);
+
+  const handleFavoritePress = async (store: Store) => {
+    const storeId = store.StoreId;
+    // Default to 1 if StoreBranchID is not available in the Store type
+    const storeBranchId = 1;
+
+    const previousFavoriteState =
+      favoriteStates[storeId] ?? store.isFavourite ?? false;
+    const newFavoriteState = !previousFavoriteState;
+
+    // Optimistically update the favorite state
+    setFavoriteStates(prev => ({
+      ...prev,
+      [storeId]: newFavoriteState,
+    }));
+
+    try {
+      const res = await api.post<any>(apiEndpoints.HANDLE_FAVORITE_STORE, {
+        StoreID: storeId,
+        StoreBranchID: storeBranchId,
+        IsFavorite: newFavoriteState,
+      });
+      if (res.success) {
+      } else {
+        // Revert the state change on error
+        setFavoriteStates(prev => ({
+          ...prev,
+          [storeId]: previousFavoriteState,
+        }));
+        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
+      }
+    } catch (error: any) {
+      // Revert the state change on error
+      setFavoriteStates(prev => ({
+        ...prev,
+        [storeId]: previousFavoriteState,
+      }));
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+    }
+  };
 
   // Filter stores based on selected business type
   const filteredStores = useMemo(() => {
@@ -122,12 +178,20 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                   paddingHorizontal: theme.sizes.PADDING,
                 }}
                 data={filteredStores}
+                extraData={favoriteStates}
                 renderItem={({ item }) => (
                   <View style={styles.favoriteItemContainer} key={item.StoreId}>
                     <FavoriteItemCard
                       key={item.StoreId}
                       item={item}
                       onPress={handleStoreSelect}
+                      showFavorite={true}
+                      isFavorite={
+                        favoriteStates[item.StoreId] ??
+                        item.isFavourite ??
+                        false
+                      }
+                      onFavoritePress={() => handleFavoritePress(item)}
                     />
                   </View>
                 )}

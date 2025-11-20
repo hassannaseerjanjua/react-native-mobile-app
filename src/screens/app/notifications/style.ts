@@ -17,8 +17,10 @@ const useStyles = () => {
         paddingTop: sizes.HEIGHT * 0.01,
       },
       NotificationItem: {
-        height: sizes.HEIGHT * 0.092,
-        marginBottom: sizes.HEIGHT * 0.024,
+        height: sizes.HEIGHT * 0.08,
+        marginBottom: sizes.HEIGHT * 0.016,
+        borderRadius: sizes.BORDER_RADIUS,
+        ...theme.globalStyles.SHADOW_STYLE,
       },
     }),
     theme,
