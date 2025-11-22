@@ -24,10 +24,12 @@ const useStyles = () => {
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 2 },
         elevation: 3,
-        marginBottom: sizes.HEIGHT * 0.018,
+        marginBottom: sizes.HEIGHT * 0.2,
+        borderStartColor: 'red',
       },
       listContainer: {
         paddingVertical: 0,
+        marginBottom: sizes.HEIGHT * 0.2,
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.semibold,
@@ -64,12 +66,12 @@ const useStyles = () => {
       scrollableContent: {
         flex: 1,
         // overflow: 'visible',
-        paddingHorizontal: theme.sizes.PADDING,
       },
       scrollableContentContainer: {
         flexGrow: 1,
         // overflow: 'visible',
         // paddingBottom: sizes.HEIGHT * 0.02,
+        paddingHorizontal: theme.sizes.PADDING,
       },
       bottomSheetContainer: {
         width: sizes.PADDED_WIDTH,

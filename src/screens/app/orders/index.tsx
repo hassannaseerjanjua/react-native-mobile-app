@@ -132,9 +132,10 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   const { getString, isRtl } = useLocaleStore();
 
   const firstItem = order.Items?.[0];
-  const itemImage = order?.Items?.[0]?.Images?.[0]
-    ? { uri: order.Items[0].ThumbnailUrl }
-    : require('../../../assets/images/img-placeholder.png');
+  const thumbnailUrl = order?.Items?.[0]?.ThumbnailUrl;
+  const itemImage = thumbnailUrl && thumbnailUrl.trim()
+    ? { uri: thumbnailUrl }
+    : require('../../../assets/images/dummy1.png');
   const itemName = firstItem?.ItemName || getString('O_FLOWER_BOUQUET');
   const storeName = order.FriendName || getString('O_COFFEEMATICS');
   const phoneNumber = order.stores?.PhoneNo || 'nahi mila';

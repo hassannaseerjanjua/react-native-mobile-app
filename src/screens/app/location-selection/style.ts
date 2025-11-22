@@ -14,8 +14,9 @@ const useStyles = () => {
       },
       bottomSheetHeading: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
-        fontSize: sizes.FONT_SIZE_EXTRA_HIGH,
+        fontSize: sizes.FONTSIZE_LESS_HIGH,
         color: theme.colors.PRIMARY_TEXT,
+        marginBottom: scaleWithMax(2, 3),
       },
       bottomSheetDescription: {
         ...theme.globalStyles.TEXT_STYLE,

@@ -43,7 +43,7 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.bold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
-        marginVertical: isIOSThen(scaleWithMax(9, 11), scaleWithMax(5, 7)),
+        marginVertical: isIOSThen(scaleWithMax(7, 8), scaleWithMax(5, 7)),
       },
       optionsWrapper: {
         flexDirection: 'row',

@@ -1,5 +1,5 @@
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
-import React from 'react';
+import React, { useState } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -24,9 +24,10 @@ import {
   getItemName,
 } from './actions';
 import { scaleWithMax } from '../../../utils';
-import { useRoute } from '@react-navigation/native';
-
+import { useNavigation, useRoute } from '@react-navigation/native';
 const InboxOutbox: React.FC = () => {
+  const [openBottomSheet, setOpenBottomSheet] = useState(false);
+  const navigation = useNavigation();
   const route = useRoute();
   const params = route.params as
     | {
@@ -37,16 +38,25 @@ const InboxOutbox: React.FC = () => {
   const isInbox = params?.isInbox ?? true;
   const title = params?.title ?? (isInbox ? 'Inbox' : 'Outbox');
   const { styles, theme } = useStyles();
-  const {
-    orders,
-    isLoading,
-    openBottomSheet,
-    isRtl,
-    handleItemPress,
-    handlePickUpPress,
-    handleDeliveryPress,
-    handleCloseBottomSheet,
-  } = useInboxOutboxActions(isInbox);
+  const { orders, isLoading, isRtl } = useInboxOutboxActions(isInbox);
+
+  const handleItemPress = () => {
+    setOpenBottomSheet(true);
+  };
+
+  const handleCloseBottomSheet = () => {
+    setOpenBottomSheet(false);
+  };
+
+  const handlePickUpPress = () => {
+    navigation.navigate('ScanQr' as never);
+    setOpenBottomSheet(false);
+  };
+
+  const handleDeliveryPress = () => {
+    navigation.navigate('LocationSelection' as never);
+    setOpenBottomSheet(false);
+  };
 
   return (
     <ParentView>
@@ -93,9 +103,10 @@ const InboxOutbox: React.FC = () => {
           renderItem={({ item, index }) => (
             <InboxItem
               isLast={index === orders.length - 1}
+              isInbox={isInbox}
               order={item}
               isRtl={isRtl}
-              onClick={handleItemPress}
+              onClick={isInbox ? handleItemPress : undefined}
             />
           )}
           keyExtractor={item => item.OrderId.toString()}
@@ -140,6 +151,7 @@ interface InboxItemProps {
   order: InboxOrder;
   isLast: boolean;
   isRtl: boolean;
+  isInbox: boolean;
   onClick?: () => void;
 }
 
@@ -148,6 +160,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   isLast,
   isRtl,
   onClick,
+  isInbox,
 }) => {
   const { styles, theme } = useStyles();
 
@@ -160,7 +173,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const timeAgo = formatRelativeTime(order.OrderTime);
 
   return (
-    <TouchableOpacity onPress={onClick}>
+    <TouchableOpacity onPress={onClick} activeOpacity={isInbox ? 0.8 : 1}>
       <View
         style={{
           ...styles.inboxTop,

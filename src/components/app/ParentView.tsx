@@ -14,7 +14,7 @@ const ParentView = ({ children, style, edges }: ParentViewProps) => {
   return (
     <SafeAreaView
       style={[{ flex: 1, backgroundColor: theme.colors.BACKGROUND }, style]}
-      edges={edges}
+      edges={edges || ['top', 'left', 'right']}
     >
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}

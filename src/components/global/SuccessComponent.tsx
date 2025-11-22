@@ -63,7 +63,7 @@ const useStyles = () => {
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
-          rowGap: sizes.HEIGHT * 0.007,
+          rowGap: sizes.HEIGHT * 0.009,
         },
         TextLarge: {
           ...theme.globalStyles.TEXT_STYLE_MEDIUM,
@@ -71,7 +71,8 @@ const useStyles = () => {
           color: theme.colors.BLACK,
         },
         TextMed: {
-          fontSize: theme.sizes.FONT_SIZE_EXTRA_HIGH,
+          ...theme.globalStyles.TEXT_STYLE,
+          fontSize: theme.sizes.FONTSIZE_BUTTON,
           color: theme.colors.BLACK,
         },
       }),

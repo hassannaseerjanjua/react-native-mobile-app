@@ -187,9 +187,7 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              paddingVertical: isProMax
-                ? scaleWithMax(22, 22)
-                : scaleWithMax(20, 22),
+              minHeight: isProMax ? scaleWithMax(80, 86) : scaleWithMax(75, 80),
             }}
           />
         ))}

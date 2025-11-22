@@ -84,7 +84,10 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       id: item.CatchId.toString(),
       title: isRtl ? item.ItemNameAr : item.ItemNameEn,
       subtitle: isRtl ? item.CategoryNameAr : item.CategoryNameEn,
-      coverImage: { uri: item.ItemImage },
+      coverImage:
+        item.ItemImage && item.ItemImage.trim()
+          ? { uri: item.ItemImage }
+          : require('../../../assets/images/dummy1.png'),
       category: item.CategoryNameEn?.toLowerCase() || 'all',
       price: item.ItemPrice,
       discountedPrice: item.DiscountedPrice || 0,

@@ -98,8 +98,22 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     }
   };
   const productImages = useMemo(() => {
-    const imgs = item?.Images?.map((img: any) => ({ uri: img.ImageUrl })) ?? [];
-    return imgs;
+    const dummyImages = [
+      require('../../../assets/images/dummy1.png'),
+      require('../../../assets/images/dummy2.png'),
+      require('../../../assets/images/dummy3.png'),
+      require('../../../assets/images/dummy4.png'),
+    ];
+
+    if (!item?.Images || item.Images.length === 0) {
+      return [dummyImages[0]];
+    }
+    const imgs = item.Images.map((img: any, index: number) =>
+      img.ImageUrl && img.ImageUrl.trim()
+        ? { uri: img.ImageUrl }
+        : dummyImages[index % dummyImages.length],
+    );
+    return imgs.length > 0 ? imgs : [dummyImages[0]];
   }, [item]);
 
   const handleFavorite = async () => {

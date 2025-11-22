@@ -65,23 +65,35 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
 
     storeName = store.NameEn;
     businessType = store.BusinessTypeName;
+
+    // Use dummy store images if URLs are missing or empty (like select store uses)
+    const hasValidBackgroundImage = brandLogoAttachment || brandLogo;
     backgroundImage =
-      brandLogoAttachment || brandLogo
+      hasValidBackgroundImage && (brandLogoAttachment || brandLogo)?.trim()
         ? { uri: brandLogoAttachment || brandLogo }
-        : require('../../assets/images/img-placeholder.png');
-    overlayImage = brandLogo
+        : require('../../assets/images/storeCover.png');
+
+    const hasValidOverlayImage = brandLogo && brandLogo.trim();
+    overlayImage = hasValidOverlayImage
       ? { uri: brandLogo }
-      : require('../../assets/images/img-placeholder.png');
+      : require('../../assets/images/storeLogo.png');
   } else if (isFavStores) {
     const favStore = item as FavStores;
     storeName = favStore.StoreNameEn;
     businessType = favStore.BusinessTypeNameEn;
-    backgroundImage = favStore.ImageLogo
+
+    // Use dummy store images if URLs are missing or empty (like select store uses)
+    const hasValidBackgroundImage =
+      favStore.ImageLogo && favStore.ImageLogo.trim();
+    backgroundImage = hasValidBackgroundImage
       ? { uri: favStore.ImageLogo }
-      : require('../../assets/images/img-placeholder.png');
-    overlayImage = favStore.ImageCover
+      : require('../../assets/images/storeCover.png');
+
+    const hasValidOverlayImage =
+      favStore.ImageCover && favStore.ImageCover.trim();
+    overlayImage = hasValidOverlayImage
       ? { uri: favStore.ImageCover }
-      : require('../../assets/images/img-placeholder.png');
+      : require('../../assets/images/storeLogo.png');
   } else {
     const mockItem = item as MockStoreItem;
     storeName = mockItem.title;

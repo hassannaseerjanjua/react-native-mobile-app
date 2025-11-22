@@ -53,9 +53,9 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
       <View style={styles.imageContainer}>
         <Image
           source={
-            itemImage
+            itemImage && itemImage.trim()
               ? { uri: itemImage }
-              : require('../../assets/images/img-placeholder.png')
+              : require('../../assets/images/dummy1.png')
           }
           style={styles.image}
         />

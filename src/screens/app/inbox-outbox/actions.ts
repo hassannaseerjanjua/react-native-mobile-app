@@ -7,7 +7,7 @@ import { InboxOrder, InboxApiResponseData } from '../../../types/index';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
 const defaultProfileImage = require('../../../assets/images/user.png');
-const defaultItemImage = require('../../../assets/images/img-placeholder.png');
+const defaultItemImage = require('../../../assets/images/dummy1.png');
 
 export const formatRelativeTime = (dateString: string): string => {
   const date = new Date(dateString);
@@ -70,18 +70,21 @@ export const getStoreName = (order: InboxOrder, isRtl: boolean): string => {
 
 export const getMainImage = (order: InboxOrder): ImageSourcePropType => {
   if (order.orderImages && order.orderImages.length > 0) {
-    return { uri: order.orderImages[0].ImageUrl };
+    const imageUrl = order.orderImages[0].ImageUrl;
+    if (imageUrl && imageUrl.trim()) {
+      return { uri: imageUrl };
+    }
   }
 
   if (order.Items && order.Items.length > 0) {
     const firstItem = order.Items[0];
-    if (firstItem.ThumbnailUrl) {
+    if (firstItem.ThumbnailUrl && firstItem.ThumbnailUrl.trim()) {
       return { uri: firstItem.ThumbnailUrl };
     }
     if (firstItem.Images && firstItem.Images.length > 0) {
       const imageUrl =
         firstItem.Images[0].ImageUrls || firstItem.Images[0].ImageUrl;
-      if (imageUrl) {
+      if (imageUrl && imageUrl.trim()) {
         return { uri: imageUrl };
       }
     }
@@ -123,32 +126,9 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
   const orders = getInboxOutboxDetails.data?.Items || [];
   const isLoading = getInboxOutboxDetails.loading;
 
-  const handleItemPress = () => {
-    setOpenBottomSheet(true);
-  };
-
-  const handlePickUpPress = () => {
-    navigation.navigate('ScanQr' as never);
-    setOpenBottomSheet(false);
-  };
-
-  const handleDeliveryPress = () => {
-    navigation.navigate('LocationSelection' as never);
-    setOpenBottomSheet(false);
-  };
-
-  const handleCloseBottomSheet = () => {
-    setOpenBottomSheet(false);
-  };
-
   return {
     orders,
     isLoading,
-    openBottomSheet,
     isRtl,
-    handleItemPress,
-    handlePickUpPress,
-    handleDeliveryPress,
-    handleCloseBottomSheet,
   };
 };

@@ -44,8 +44,12 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           flexDirection: 'row',
           alignItems: 'center',
           borderRadius: sizes.BORDER_RADIUS_MID,
-          paddingHorizontal: isProMax ? scaleWithMax(14, 15) : scaleWithMax(11, 11),
-          paddingVertical: isProMax ? scaleWithMax(16, 17) : scaleWithMax(11, 11),
+          paddingHorizontal: isProMax
+            ? scaleWithMax(14, 15)
+            : scaleWithMax(11, 11),
+          paddingVertical: isProMax
+            ? scaleWithMax(16, 17)
+            : scaleWithMax(11, 11),
           backgroundColor: colors.SECONDARY,
           position: 'relative',
         },
@@ -66,7 +70,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           marginLeft: scaleWithMax(10, 12),
         },
         title: {
-          fontSize: isProMax ? scaleWithMax(12, 14) : scaleWithMax(11, 14),
+          fontSize: isProMax ? scaleWithMax(14, 14) : scaleWithMax(12, 13),
           fontFamily: fonts.Quicksand.bold,
           color: colors.PRIMARY_TEXT,
           flexShrink: 1,

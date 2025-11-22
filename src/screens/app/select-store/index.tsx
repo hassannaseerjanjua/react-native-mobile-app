@@ -60,14 +60,21 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       doc => doc.DocumentType === 'BrandLogoAttachment',
     )?.FileUrl;
 
+    // Use placeholder fallback pattern - pass null if URLs are missing or empty
+    const validBrandLogo = brandLogo && brandLogo.trim() ? brandLogo : null;
+    const validBrandLogoAttachment =
+      brandLogoAttachment && brandLogoAttachment.trim()
+        ? brandLogoAttachment
+        : null;
+
     navigation.navigate('StoreProducts', {
       store: {
         id: store.StoreId,
         storeId: store.StoreId,
         title: store.NameEn,
         subtitle: store.BusinessTypeName,
-        imageLogo: brandLogo || null,
-        imageCover: brandLogoAttachment || brandLogo || null,
+        imageLogo: validBrandLogo,
+        imageCover: validBrandLogoAttachment || validBrandLogo,
       },
       storeId: store.StoreId ?? null,
       friendUserId: friendUserId ?? undefined,

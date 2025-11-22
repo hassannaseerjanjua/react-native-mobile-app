@@ -14,7 +14,7 @@ const useStyles = () => {
       content: {
         flex: 1,
         // paddingHorizontal: sizes.PADDING,
-        paddingTop: sizes.HEIGHT * 0.005,
+        // paddingTop: sizes.HEIGHT * 0.005,
       },
       list: {
         flex: 1,
@@ -23,7 +23,7 @@ const useStyles = () => {
         // paddingTop: sizes.PADDING,
         paddingHorizontal: sizes.PADDING,
         paddingBottom: sizes.PADDING * 2,
-        paddingTop: sizes.HEIGHT * 0.005,
+        // paddingTop: sizes.HEIGHT * 0.005,
       },
       favoriteItemContainer: {
         paddingBottom: sizes.HEIGHT * 0.015,

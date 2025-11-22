@@ -247,10 +247,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
             isLink={true}
           />
         </View>
-        <ScrollView
-          showsVerticalScrollIndicator={false}
+        <View
+          // showsVerticalScrollIndicator={false}
           style={styles.scrollableContentContainer}
-          contentContainerStyle={styles.scrollableContent}
+          // contentContainerStyle={styles.scrollableContent}
         >
           <Text style={styles.sectionTitle}>{getString('SG_FRIENDS')}</Text>
           {isLoading ? (
@@ -278,7 +278,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                 )}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContainer}
-                scrollEnabled={false}
+                // scrollEnabled={false}
               />
             </View>
           ) : (
@@ -304,7 +304,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
               />
             </View>
           )}
-        </ScrollView>
+        </View>
       </View>
 
       <MemberSelectionModal

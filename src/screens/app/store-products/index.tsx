@@ -30,6 +30,7 @@ import {
 } from '../../../types/index.ts';
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
+import ParentView from '../../../components/app/ParentView';
 
 const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   route,
@@ -43,12 +44,15 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
-  const storeCoverImage = store?.imageCover
-    ? { uri: store.imageCover }
-    : require('../../../assets/images/img-placeholder.png');
-  const storeOverlayImage = store?.imageLogo
-    ? { uri: store.imageLogo }
-    : require('../../../assets/images/img-placeholder.png');
+  // Use dummy store images if URLs are missing or empty (like select store uses)
+  const storeCoverImage =
+    store?.imageCover && store.imageCover.trim()
+      ? { uri: store.imageCover }
+      : require('../../../assets/images/storeCover.png');
+  const storeOverlayImage =
+    store?.imageLogo && store.imageLogo.trim()
+      ? { uri: store.imageLogo }
+      : require('../../../assets/images/storeLogo.png');
 
   const [selectedFilter, setSelectedFilter] = useState('all');
 
@@ -166,7 +170,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   }, [cartApi.data, store?.id, storeId]);
 
   return (
-    <View style={{ flex: 1 }}>
+    <ParentView edges={['left', 'right']}>
       <View style={{ position: 'relative' }}>
         <Image source={storeCoverImage} style={styles.topImage} />
         <View
@@ -297,7 +301,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           </TouchableOpacity>
         </View>
       )}
-    </View>
+    </ParentView>
   );
 };
 

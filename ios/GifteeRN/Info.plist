@@ -4,7 +4,9 @@
 <dict>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
-    	<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
@@ -25,7 +27,7 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>30</string>
+	<string>32</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -53,23 +55,17 @@
 	<array>
 		<string>arm64</string>
 	</array>
-	<key>UISupportedInterfaceOrientations</key>
-	<array>
-		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
-	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-		  	<key>CFBundleURLName</key>
-		  	<string>giftee</string>
-		  	<key>CFBundleURLSchemes</key>
-		  	<array>
-		  	  <string>giftee</string>
-		  	</array>
+			<key>CFBundleURLName</key>
+			<string>giftee</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>giftee</string>
+			</array>
 		</dict>
 	</array>
 </dict>

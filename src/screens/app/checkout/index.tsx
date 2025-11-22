@@ -230,9 +230,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   const renderCartItem = (item: CartItem) => {
     const itemImage = item.Images?.[0]?.ImageUrls || item.ThumbnailUrl;
-    const imageSource = itemImage
-      ? { uri: itemImage }
-      : require('../../../assets/images/img-placeholder.png');
+    const imageSource =
+      itemImage && itemImage.trim()
+        ? { uri: itemImage }
+        : require('../../../assets/images/dummy1.png');
 
     return (
       <View
@@ -376,9 +377,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   const firstItem = cartData.Items[0];
   const giftImage = firstItem.Images?.[0]?.ImageUrls || firstItem.ThumbnailUrl;
-  const giftImageSource = giftImage
-    ? { uri: giftImage }
-    : require('../../../assets/images/img-placeholder.png');
+  const giftImageSource =
+    giftImage && giftImage.trim()
+      ? { uri: giftImage }
+      : require('../../../assets/images/dummy1.png');
 
   return (
     <ParentView>

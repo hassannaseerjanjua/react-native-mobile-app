@@ -4,7 +4,7 @@ import useStyles from './style';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import { DummyQrSvg, SvgProfileCrossIcon } from '../../../assets/icons';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { scaleWithMax } from '../../../utils';
 import { Text } from '../../../utils/elements';
 
@@ -20,8 +20,8 @@ const ScanQr: React.FC = () => {
         showBackButton={false}
         rightSideIcon={<SvgProfileCrossIcon />}
         rightSideTitle={true as any}
-        onBackPress={() => navigation.navigate('Profile' as never)}
-        rightSideTitlePress={() => navigation.navigate('Profile' as never)}
+        onBackPress={() => navigation.dispatch(StackActions.popToTop())}
+        rightSideTitlePress={() => navigation.dispatch(StackActions.popToTop())}
       />
       <View
         style={{

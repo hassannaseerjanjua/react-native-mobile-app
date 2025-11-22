@@ -15,7 +15,7 @@ import { Formik } from 'formik';
 import * as Yup from 'yup';
 import CustomButton from '../../../components/global/Custombutton';
 import SuccessMessage from '../../../components/global/SuccessComponent';
-import { useNavigation } from '@react-navigation/native';
+import { StackActions, useNavigation } from '@react-navigation/native';
 import { scaleWithMax } from '../../../utils';
 import { Text } from '../../../utils/elements';
 
@@ -117,7 +117,7 @@ const LocationSelection: React.FC = () => {
       SuccessSubMessage="Store will contact you shortly"
       SuccessMessage="Your order has been placed"
       BtnTitle="Home"
-      onPress={() => navigation.navigate('BottomTabs' as never)}
+      onPress={() => navigation.dispatch(StackActions.popToTop())}
     />
   );
 };
