@@ -23,7 +23,7 @@ const useStyles = () => {
       scrollContent: {},
       contentContainer: {
         paddingHorizontal: sizes.PADDING,
-        // paddingBottom: sizes.PADDING,
+        paddingBottom: sizes.HEIGHT * 0.02,
       },
       orderCard: {
         backgroundColor: colors.WHITE,

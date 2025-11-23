@@ -93,16 +93,6 @@ const OrdersScreen: React.FC = () => {
             <SkeletonLoader screenType="orderListing" />
           </View>
         </ScrollView>
-      ) : orders.length === 0 ? (
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.contentContainer}>
-            <Text style={styles.detailLabel}>No orders found</Text>
-          </View>
-        </ScrollView>
       ) : (
         <FlatList
           data={orders}
@@ -112,6 +102,19 @@ const OrdersScreen: React.FC = () => {
             styles.contentContainer,
           ]}
           showsVerticalScrollIndicator={false}
+          ListEmptyComponent={() => (
+            <View style={{ padding: theme.sizes.PADDING }}>
+              <Text
+                style={{
+                  textAlign: 'center',
+                  paddingVertical: theme.sizes.HEIGHT * 0.35,
+                  color: theme.colors.SECONDARY_TEXT,
+                }}
+              >
+                {getString('O_NO_ORDER_FOUND')}
+              </Text>
+            </View>
+          )}
           renderItem={({ item }) => (
             <View style={{ marginBottom: theme.sizes.PADDING * 0.8 }}>
               <OrderCard order={item} />
@@ -133,9 +136,10 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
 
   const firstItem = order.Items?.[0];
   const thumbnailUrl = order?.Items?.[0]?.ThumbnailUrl;
-  const itemImage = thumbnailUrl && thumbnailUrl.trim()
-    ? { uri: thumbnailUrl }
-    : require('../../../assets/images/dummy1.png');
+  const itemImage =
+    thumbnailUrl && thumbnailUrl.trim()
+      ? { uri: thumbnailUrl }
+      : require('../../../assets/images/dummy1.png');
   const itemName = firstItem?.ItemName || getString('O_FLOWER_BOUQUET');
   const storeName = order.FriendName || getString('O_COFFEEMATICS');
   const phoneNumber = order.stores?.PhoneNo || 'nahi mila';

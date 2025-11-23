@@ -14,7 +14,7 @@ const useStyles = () => {
       content: {
         // flex: 1,
         paddingHorizontal: sizes.PADDING,
-        paddingTop: sizes.HEIGHT * 0.01,
+        paddingTop: sizes.HEIGHT * 0.012,
         paddingBottom: sizes.HEIGHT * 0.1,
       },
       TabItem: {

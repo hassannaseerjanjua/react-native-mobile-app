@@ -25,8 +25,10 @@ import {
 } from './actions';
 import { scaleWithMax } from '../../../utils';
 import { useNavigation, useRoute } from '@react-navigation/native';
+import { useLocaleStore } from '../../../store/reducer/locale';
 const InboxOutbox: React.FC = () => {
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
+  const { getString } = useLocaleStore();
   const navigation = useNavigation();
   const route = useRoute();
   const params = route.params as
@@ -115,10 +117,11 @@ const InboxOutbox: React.FC = () => {
               <Text
                 style={{
                   textAlign: 'center',
+                  paddingVertical: theme.sizes.HEIGHT * 0.35,
                   color: theme.colors.SECONDARY_TEXT,
                 }}
               >
-                No orders found
+                {getString('O_NO_ORDER_FOUND')}
               </Text>
             </View>
           )}
@@ -128,7 +131,8 @@ const InboxOutbox: React.FC = () => {
       <AppBottomSheet
         blurAmount={100}
         isOpen={openBottomSheet}
-        fullHeight
+        // fullHeight
+        height={theme.sizes.HEIGHT * 0.3}
         snapPoints={['20%']}
         onClose={handleCloseBottomSheet}
       >

@@ -21,6 +21,7 @@ const useStyles = () => {
       scrollContent: {
         // backgroundColor: 'red',
         paddingHorizontal: sizes.PADDING,
+        paddingVertical: sizes.PADDING * 0,
         paddingBottom: sizes.HEIGHT * 0.02,
       },
       formContainer: {

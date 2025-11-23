@@ -42,7 +42,7 @@ const LocationSelection: React.FC = () => {
       <AppBottomSheet
         blurAmount={0}
         blurType="light"
-        height={theme.sizes.HEIGHT * 0.37}
+        height={theme.sizes.HEIGHT * 0.35}
         isOpen={!giftPlaced}
         pressBehavior="none"
         hasBackDrop={false}

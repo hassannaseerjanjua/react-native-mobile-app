@@ -203,7 +203,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       <AppBottomSheet
         blurAmount={100}
         blurType="light"
-        height={theme.sizes.HEIGHT * 0.45}
+        height={theme.sizes.HEIGHT * 0.42}
         isOpen={isBottomSheetOpen}
         onClose={() => setIsBottomSheetOpen(false)}
       >

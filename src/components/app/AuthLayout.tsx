@@ -24,7 +24,10 @@ const AuthLayout = ({
 }: AuthLayoutProps) => {
   const { styles, theme } = useStyles();
   return (
-    <ParentView style={styles.container}>
+    <ParentView
+      style={styles.container}
+      edges={['bottom', 'left', 'right', 'top']}
+    >
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <AuthHeader
         onBackPress={onBackPress}
