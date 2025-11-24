@@ -20,6 +20,7 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 import { Text } from '../../../utils/elements';
+import { useListingApi } from '../../../hooks/useListingApi';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -47,14 +48,20 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     },
   );
 
-  const getCatchItems = useGetApi<CatchItem[]>(
+  const getCatchItems = useListingApi<CatchItem>(
     screenType === 'catch' ? apiEndpoints.GET_CATCH_ITEMS : '',
+    '',
     {
       transformData: (data: CatchItemsApiResponse) => {
-        return data.Data?.Items || [];
+        return {
+          data: data.Data?.Items || [],
+          totalCount: data.Data?.TotalCount || 0,
+        };
       },
     },
   );
+
+  console.log('getCatchItems', getCatchItems);
 
   useEffect(() => {
     if (screenType === 'favorite' && getFavoriteItems.data) {
@@ -81,7 +88,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const transformedCatchItems = useMemo(() => {
     if (!getCatchItems.data) return [];
     return getCatchItems.data.map((item: CatchItem) => ({
-      id: item.CatchId.toString(),
+      id: `${item.CampaignId}-${item.ItemId}`,
       title: isRtl ? item.ItemNameAr : item.ItemNameEn,
       subtitle: isRtl ? item.CategoryNameAr : item.CategoryNameEn,
       coverImage:
@@ -201,7 +208,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             keyExtractor={(item: any) =>
               screenType === 'favorite'
                 ? item.ItemId.toString()
-                : item.id || item.catchItem?.CatchId.toString()
+                : item.id ||
+                  `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`
             }
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={[styles.listContent, styles.listContainer]}

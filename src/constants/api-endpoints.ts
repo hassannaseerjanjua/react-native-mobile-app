@@ -71,7 +71,7 @@ const apiEndpoints = {
   GET_CATEGORIES: `/${version}/Panel/GetCategoriesForPanel`,
 
   // Catch
-  GET_CATCH_ITEMS: `/${version}/User/GetCatchesForUsers`,
+  GET_CATCH_ITEMS: `/${version}/User/GetCampaignsForUsers`,
 
   // Cart APIS
   ADD_TO_CART: `/${version}/User/AddToGiftCart`,

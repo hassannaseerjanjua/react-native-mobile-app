@@ -660,9 +660,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           <CustomButton
             title={getString('CHECKOUT_PROCEED_TO_CHECKOUT')}
             onPress={handleProceedToCheckout}
-            // buttonStyle={{
-            //   opacity: !selectedPaymentMethod ? 0.5 : 1,
-            // }}
+            buttonStyle={{
+              backgroundColor: !selectedPaymentMethod
+                ? 'rgba(240, 128, 128, 0.5)'
+                : theme.colors.PRIMARY,
+              borderColor: !selectedPaymentMethod
+                ? 'transparent'
+                : theme.colors.PRIMARY,
+            }}
             disabled={submitting || !selectedPaymentMethod}
           />
           <View

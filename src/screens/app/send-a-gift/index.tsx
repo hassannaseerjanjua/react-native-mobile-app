@@ -260,7 +260,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           ) : displayData.length > 1 ? (
             <View style={styles.listCard}>
               <FlatList
-                data={displayData}
+                data={displayData.slice(0, 4)}
                 keyExtractor={item => item.UserId.toString()}
                 renderItem={({ item, index }) => (
                   <SearchUserItem

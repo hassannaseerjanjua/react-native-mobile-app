@@ -212,7 +212,10 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             {activeTab === 'Phone' ? (
               <SvgPhoneIcon width={scaleWithMax(48, 55)} />
             ) : (
-              <SvgEmail width={100} height={scaleWithMax(48, 55)} />
+              <SvgEmail
+                width={scaleWithMax(55, 55)}
+                height={scaleWithMax(40, 40)}
+              />
             )}
           </View>
 

@@ -24,12 +24,12 @@ const useStyles = () => {
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 2 },
         elevation: 3,
-        marginBottom: sizes.HEIGHT * 0.2,
+        marginBottom: sizes.HEIGHT * 0.24,
         borderStartColor: 'red',
       },
       listContainer: {
         paddingVertical: 0,
-        marginBottom: sizes.HEIGHT * 0.2,
+        // marginBottom: sizes.HEIGHT * 0.2,
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.semibold,
@@ -48,8 +48,8 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'center',
         flex: 1,
-        minHeight: '60%',
-        paddingVertical: sizes.HEIGHT * 0.1,
+        height: '50%',
+        paddingBottom: sizes.HEIGHT * 0.2,
       },
       noFriendsText: {
         ...theme.globalStyles.TEXT_STYLE,

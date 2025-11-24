@@ -504,11 +504,12 @@ export interface StoreProductApiResponse {
 }
 
 export interface CatchItem {
-  CatchId: number;
+  CampaignId: number;
   ItemId: number;
   ItemNameEn: string;
   ItemNameAr: string;
   ItemImage: string;
+  ItemVariantId: number | null;
   ItemPrice: number;
   DiscountedPrice: number;
   StartDate: string;
@@ -526,6 +527,29 @@ export interface CatchItem {
   CategoryId: number;
   CategoryNameEn: string;
   CategoryNameAr: string;
+
+  // CatchId: number;
+  // ItemId: number;
+  // ItemNameEn: string;
+  // ItemNameAr: string;
+  // ItemImage: string;
+  // ItemPrice: number;
+  // DiscountedPrice: number;
+  // StartDate: string;
+  // EndDate: string;
+  // ItemQuantity: number;
+  // Type: number;
+  // Percentage: number;
+  // Status: number;
+  // StoreId: number;
+  // StoreNameEn: string;
+  // StoreNameAr: string;
+  // StoreBranchId: number;
+  // StoreBranchNameEn: string;
+  // StoreBranchNameAr: string;
+  // CategoryId: number;
+  // CategoryNameEn: string;
+  // CategoryNameAr: string;
 }
 
 export interface CatchItemsApiResponse {
