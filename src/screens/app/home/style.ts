@@ -18,24 +18,25 @@ const useStyles = () => {
       },
       mainContent: {
         flex: 1,
-        paddingHorizontal: sizes.PADDING,
+
         // paddingBottom: sizes.HEIGHT * 0.02,
       },
       contentContainer: {
         flex: 1,
         gap: scaleWithMax(8, 10),
+        paddingHorizontal: sizes.PADDING,
       },
       welcomeText: {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
+        paddingHorizontal: sizes.PADDING,
         // backgroundColor: 'red',
       },
       userName: {
         fontFamily: fonts.Quicksand.bold,
       },
       heroImage: {
-        width: '100%',
         borderRadius: sizes.BORDER_RADIUS_MID,
         flex: 1,
       },
@@ -43,7 +44,8 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.bold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
-        marginVertical: isIOSThen(scaleWithMax(7, 8), scaleWithMax(5, 7)),
+        marginVertical: isIOSThen(scaleWithMax(8, 9), scaleWithMax(5, 7)),
+        paddingHorizontal: sizes.PADDING,
       },
       optionsWrapper: {
         flexDirection: 'row',

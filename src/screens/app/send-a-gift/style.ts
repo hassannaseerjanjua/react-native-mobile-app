@@ -19,13 +19,8 @@ const useStyles = () => {
       listCard: {
         backgroundColor: colors.WHITE,
         borderRadius: 16,
-        shadowColor: '#000',
-        shadowOpacity: 0.08,
-        shadowRadius: 6,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 3,
         marginBottom: sizes.HEIGHT * 0.24,
-        borderStartColor: 'red',
+        ...theme.globalStyles.SHADOW_STYLE,
       },
       listContainer: {
         paddingVertical: 0,

@@ -2,6 +2,7 @@ import { StyleSheet, View } from 'react-native';
 import React, { useMemo } from 'react';
 import { useSizes } from '../../styles/sizes';
 import useTheme from '../../styles/theme';
+import { scaleWithMax } from '../../utils';
 
 const CustomFooter = ({ children }: { children: React.ReactNode }) => {
   const { styles, theme } = useStyles();
@@ -9,7 +10,7 @@ const CustomFooter = ({ children }: { children: React.ReactNode }) => {
     <View
       style={{
         position: 'absolute',
-        bottom: 25,
+        bottom: scaleWithMax(18, 20),
         left: 0,
         right: 0,
         paddingHorizontal: theme.sizes.PADDING,

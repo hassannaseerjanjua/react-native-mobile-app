@@ -144,7 +144,7 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: 12,
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.HEIGHT * 0.015,
+        paddingVertical: sizes.HEIGHT * 0.018,
         marginTop: sizes.PADDING * 0.8,
         marginBottom: sizes.PADDING * 0.8,
         shadowColor: '#000',

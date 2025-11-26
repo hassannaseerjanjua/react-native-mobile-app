@@ -69,6 +69,8 @@ const apiEndpoints = {
     `/${version}/Panel/GetItemById?itemId=${itemId}`,
   GET_BUSINESS_TYPE: `/${version}/Panel/GetBusinessTypesForPanel`,
   GET_CATEGORIES: `/${version}/Panel/GetCategoriesForPanel`,
+  SEND_GIFT_FILTER: `/${version}/User/AddGiftMessageToOrder`,
+  GET_ALL_FILTERS: `/${version}/Panel/GetAllFilters`,
 
   // Catch
   GET_CATCH_ITEMS: `/${version}/User/GetCampaignsForUsers`,

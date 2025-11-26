@@ -738,12 +738,12 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS_MID,
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.HEIGHT * 0.015,
-        ...shadowStyle,
+        paddingVertical: sizes.HEIGHT * 0.01,
+        ...theme.globalStyles.SHADOW_STYLE,
       },
       groupNameIconWrapper: {
-        width: scaleWithMax(28, 28),
-        height: scaleWithMax(28, 28),
+        width: scaleWithMax(34, 34),
+        height: scaleWithMax(34, 34),
         borderRadius: 999,
         backgroundColor: colors.SECONDARY,
         alignItems: 'center',
@@ -823,12 +823,13 @@ const useStyles = () => {
       },
       selectedUsersContainer: {
         marginHorizontal: sizes.PADDING,
-        marginVertical: sizes.HEIGHT * 0.01,
+        marginVertical: sizes.HEIGHT * 0.003,
+        marginBottom: sizes.HEIGHT * 0.01,
         paddingVertical: sizes.BORDER_RADIUS_MID,
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS_MID,
-        ...shadowStyle,
-        elevation: 3,
+
+        ...theme.globalStyles.SHADOW_STYLE,
       },
       selectedUsersList: {
         flexDirection: 'row',

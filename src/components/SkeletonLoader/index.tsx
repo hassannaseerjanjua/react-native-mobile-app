@@ -28,7 +28,8 @@ type SkeletonLoaderProps = {
     | 'checkout'
     | 'occasionView'
     | 'occasionList'
-    | 'inbox';
+    | 'inbox'
+    | 'giftFilters';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -1006,7 +1007,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                 />
 
                 {/* Cart Items */}
-                {[...Array(3)].map((_, index) => (
+                {[...Array(2)].map((_, index) => (
                   <SkeletonPlaceholder.Item
                     key={index}
                     flexDirection="row"
@@ -1494,6 +1495,22 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                     </SkeletonPlaceholder.Item>
                   </SkeletonPlaceholder.Item>
                 </SkeletonPlaceholder.Item>
+              ))}
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
+        );
+      case 'giftFilters':
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item flexDirection="row">
+              {[...Array(3)].map((_, index) => (
+                <SkeletonPlaceholder.Item
+                  key={index}
+                  width={screenWidth * 0.6}
+                  height={screenHeight * 0.21}
+                  borderRadius={12}
+                  marginRight={index < 2 ? scaleWithMax(15, 18) : 0}
+                />
               ))}
             </SkeletonPlaceholder.Item>
           </SkeletonPlaceholder>

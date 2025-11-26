@@ -29,17 +29,28 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           color: colors.PRIMARY_TEXT,
           fontFamily: fonts.Quicksand.bold,
         },
-        SHADOW_STYLE: {
-          shadowColor: colors.PRIMARY_TEXT,
-          shadowOffset: {
-            width: 0,
-            height: 1,
-          },
+        SHADOW_STYLE_STORE_CARD: {
+          shadowColor: '#000000',
+          shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 0.07,
-          shadowRadius: 4,
-          elevation: 5,
-          borderColor: colors.LIGHT_GRAY,
-          borderWidth: Platform.OS == 'android' && colors.isDark ? 0.5 : 0,
+          shadowRadius: 40,
+          elevation: 40,
+        },
+        SHADOW_STYLE_SEARCH_BAR: {
+          shadowColor: '#000000',
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.05,
+          shadowRadius: 17,
+          elevation: 17,
+        },
+        SHADOW_STYLE: {
+          // shadowColor: colors.PRIMARY_TEXT,
+          shadowColor: '#000000',
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.05,
+          shadowRadius: 17,
+          elevation: 17,
+          // borderWidth: Platform.OS == 'android' && colors.isDark ? 0.5 : 0,
         },
         SHADOW_STYLE_LOW: {
           shadowColor: '#0000000D',

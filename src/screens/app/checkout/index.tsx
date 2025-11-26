@@ -662,11 +662,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             onPress={handleProceedToCheckout}
             buttonStyle={{
               backgroundColor: !selectedPaymentMethod
-                ? 'rgba(240, 128, 128, 0.5)'
+                ? '#FFA5A5'
                 : theme.colors.PRIMARY,
               borderColor: !selectedPaymentMethod
-                ? 'transparent'
+                ? '#FFA5A5'
                 : theme.colors.PRIMARY,
+            }}
+            labelStyle={{
+              color: theme.colors.WHITE,
             }}
             disabled={submitting || !selectedPaymentMethod}
           />
@@ -678,7 +681,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           >
             <PriceWithIcon
               Price={cartData.TotalAmount}
-              style={{ color: theme.colors.WHITE }}
+              style={{
+                color: theme.colors.WHITE,
+              }}
               Icon={
                 <SvgRiyalIconWhite
                   width={scaleWithMax(12, 14)}

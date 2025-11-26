@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
-import { scaleWithMax } from '../utils';
+import { isIOS, scaleWithMax } from '../utils';
 
 const getSizes = (width: number, height: number) => ({
   WIDTH: width,

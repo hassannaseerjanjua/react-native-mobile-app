@@ -410,6 +410,8 @@ export interface Store {
   BusinessTypeID: number;
   BusinessTypeName: string;
   isFavourite: boolean;
+  ImageLogo: string | null;
+  ImageCover: string | null;
   Documents: StoreDocument[];
 }
 
@@ -501,6 +503,15 @@ export interface StoreProductApiResponse {
   ResponseCode: number;
   Success: boolean;
   ResponseMessage: string;
+}
+
+export interface GiftFilter {
+  FilterId: number;
+  TextColor: string;
+  BgColor: string;
+  File: string | null;
+  ImageUrl: string;
+  Status: number;
 }
 
 export interface CatchItem {

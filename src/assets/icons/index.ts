@@ -95,6 +95,7 @@ import SvgCartIcon from './cart-icon.svg';
 import SvgBackIconProduct from './product-back-icon.svg';
 import SvgGifteeWalletIcon from './empty-wallet.svg';
 import SvgEhsanIcon from './ehsan-logo.svg';
+import SvgAddGiftMessageIcon from './gallery-icon.svg';
 
 export {
   SvgLogoBlue,
@@ -194,4 +195,5 @@ export {
   SvgBackIconProduct,
   SvgGifteeWalletIcon,
   SvgEhsanIcon,
+  SvgAddGiftMessageIcon,
 };

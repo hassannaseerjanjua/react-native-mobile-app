@@ -143,7 +143,7 @@ const useStyles = () => {
       timeText: {
         ...theme.globalStyles.TEXT_STYLE,
         fontSize: theme.sizes.FONTSIZE_SMALL,
-        color: colors.SECONDARY_GRAY,
+        color: '#A0A0A0',
       },
     });
   }, [theme, isRtl]);

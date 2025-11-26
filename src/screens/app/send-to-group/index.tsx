@@ -202,6 +202,9 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
                     : () => {
                         setSelectedGroup(group);
                         setIsViewMembersOpen(true);
+                        setTimeout(() => {
+                          setIsEditGroupOpen(false);
+                        }, 300);
                       }
                 }
                 isEditGroup={isEditGroupOpen}

@@ -2,7 +2,7 @@ import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   View,
   Image,
-  ScrollView,
+  FlatList,
   Dimensions,
   StyleSheet,
   NativeScrollEvent,
@@ -27,23 +27,23 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
 }) => {
   const { styles, theme } = useStyles();
   const [currentIndex, setCurrentIndex] = useState(0);
-  const scrollViewRef = useRef<ScrollView>(null);
+  const flatListRef = useRef<FlatList>(null);
   const { colors } = useTheme();
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const contentOffsetX = event.nativeEvent.contentOffset.x;
-    const index = Math.round(contentOffsetX / theme.sizes.PADDED_WIDTH);
+    const slideWidth = theme.sizes.PADDED_WIDTH + theme.sizes.PADDING;
+    const index = Math.round(contentOffsetX / slideWidth);
     setCurrentIndex(index);
   };
 
   const scrollToIndex = (index: number) => {
-    if (!scrollViewRef.current) return;
-    if (index >= sliders?.length) {
+    if (!flatListRef.current || !sliders?.length) return;
+    if (index >= sliders.length) {
       index = 0;
     }
-    scrollViewRef.current.scrollTo({
-      x: index * theme.sizes.PADDED_WIDTH,
-      y: 0,
+    flatListRef.current.scrollToIndex({
+      index,
       animated: true,
     });
   };
@@ -103,25 +103,51 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
 
   return (
     <View style={[styles.container]}>
-      <ScrollView
-        ref={scrollViewRef}
+      <FlatList
+        ref={flatListRef}
+        data={sliders}
         horizontal
-        pagingEnabled
+        pagingEnabled={false}
+        snapToInterval={theme.sizes.PADDED_WIDTH + theme.sizes.PADDING}
+        decelerationRate="fast"
         showsHorizontalScrollIndicator={false}
         onScroll={handleScroll}
         scrollEventThrottle={16}
         style={styles.scrollView}
-      >
-        {sliders?.map((slider, index) => (
-          <View key={slider.SliderId} style={styles.slideContainer}>
-            <Image
-              source={{ uri: slider.ImageUrl }}
-              style={[styles.image]}
-              resizeMode="cover"
-            />
+        contentContainerStyle={styles.scrollViewContent}
+        keyExtractor={item => item.SliderId.toString()}
+        renderItem={({ item: slider, index }) => (
+          <View style={styles.slideContainer}>
+            <View style={styles.imageWrapper}>
+              <Image
+                source={{ uri: slider.ImageUrl }}
+                style={[styles.image]}
+                resizeMode="cover"
+              />
+            </View>
           </View>
-        ))}
-      </ScrollView>
+        )}
+        ItemSeparatorComponent={() => <View style={styles.separator} />}
+        getItemLayout={(_, index) => {
+          const slideWidth = theme.sizes.PADDED_WIDTH + theme.sizes.PADDING;
+          return {
+            length: slideWidth,
+            offset: slideWidth * index,
+            index,
+          };
+        }}
+        onScrollToIndexFailed={info => {
+          const wait = new Promise<void>(resolve =>
+            setTimeout(() => resolve(), 500),
+          );
+          wait.then(() => {
+            flatListRef.current?.scrollToIndex({
+              index: info.index,
+              animated: true,
+            });
+          });
+        }}
+      />
       {renderDots()}
     </View>
   );
@@ -136,7 +162,7 @@ const useStyles = () => {
       StyleSheet.create({
         container: {
           position: 'relative',
-          width: theme.sizes.PADDED_WIDTH,
+          width: theme.sizes.WIDTH,
           height: isProMax
             ? theme.sizes.HEIGHT * 0.387
             : isBaseModel
@@ -148,12 +174,22 @@ const useStyles = () => {
         scrollView: {
           flex: 1,
         },
+        scrollViewContent: {
+          paddingHorizontal: theme.sizes.PADDING,
+        },
         slideContainer: {
           width: theme.sizes.PADDED_WIDTH,
-          // height: theme.sizes.HEIGHT * 0.34,
           flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
+        },
+        separator: {
+          width: theme.sizes.PADDING,
+        },
+        firstSlide: {},
+        imageWrapper: {
+          width: '100%',
+          height: '100%',
           borderRadius: theme.sizes.BORDER_RADIUS_MID,
           overflow: 'hidden',
         },

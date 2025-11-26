@@ -52,11 +52,10 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   const isLoading = loadingUsers[item.UserId] || false;
   const dummyImage = require('../../assets/images/user.png');
 
-  // On general search screen: hide button for existing friends unless temporarily showing "Added"
   const isTempAdded = tempAddedUserIds?.has(item.UserId) || false;
   const shouldShowButton = isGeneralSearchScreen
-    ? !isAdded || isTempAdded || isLoading // Show button if not added, temporarily showing "Added", or loading
-    : showAddButton; // For other screens, use the normal showAddButton prop
+    ? !isAdded || isTempAdded || isLoading
+    : showAddButton;
 
   return (
     <TouchableOpacity
@@ -88,9 +87,6 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
             <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
           ) : (
             <View style={[styles.buttonContent]}>
-              {/* {!isAdded && !isTempAdded && (
-                <SvgSearchAdd width={16} height={16} />
-              )} */}
               <Text
                 style={[
                   styles.addButtonText,
@@ -187,10 +183,7 @@ const useStyles = () => {
       addedButton: {
         backgroundColor: colors.SECONDARY,
       },
-      addedButtonText: {
-        // color: colors.PRIMARY,
-        // fontWeight: '600',
-      },
+      addedButtonText: {},
       avatar: {
         width: scaleWithMax(36, 36),
         height: scaleWithMax(36, 36),

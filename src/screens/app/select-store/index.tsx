@@ -38,7 +38,6 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     },
   );
 
-  // Create filter options from business types
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
     if (!businessTypeApi.data || businessTypeApi.data.length === 0) {
@@ -53,19 +52,6 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
   const handleStoreSelect = (item: Store | any) => {
     const store = item as Store;
-    const brandLogo = store.Documents.find(
-      doc => doc.DocumentType === 'BrandLogo',
-    )?.FileUrl;
-    const brandLogoAttachment = store.Documents.find(
-      doc => doc.DocumentType === 'BrandLogoAttachment',
-    )?.FileUrl;
-
-    // Use placeholder fallback pattern - pass null if URLs are missing or empty
-    const validBrandLogo = brandLogo && brandLogo.trim() ? brandLogo : null;
-    const validBrandLogoAttachment =
-      brandLogoAttachment && brandLogoAttachment.trim()
-        ? brandLogoAttachment
-        : null;
 
     navigation.navigate('StoreProducts', {
       store: {
@@ -73,8 +59,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         storeId: store.StoreId,
         title: store.NameEn,
         subtitle: store.BusinessTypeName,
-        imageLogo: validBrandLogo,
-        imageCover: validBrandLogoAttachment || validBrandLogo,
+        imageLogo: store.ImageLogo,
+        imageCover: store.ImageCover,
       },
       storeId: store.StoreId ?? null,
       friendUserId: friendUserId ?? undefined,
@@ -85,7 +71,6 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     transformData: (data: any) => data.Data.Items || [],
   });
 
-  // Initialize favorite states from API data
   useEffect(() => {
     if (storeListApi.data) {
       const initialState: Record<number, boolean> = {};
@@ -98,14 +83,12 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
   const handleFavoritePress = async (store: Store) => {
     const storeId = store.StoreId;
-    // Default to 1 if StoreBranchID is not available in the Store type
     const storeBranchId = 1;
 
     const previousFavoriteState =
       favoriteStates[storeId] ?? store.isFavourite ?? false;
     const newFavoriteState = !previousFavoriteState;
 
-    // Optimistically update the favorite state
     setFavoriteStates(prev => ({
       ...prev,
       [storeId]: newFavoriteState,
@@ -119,7 +102,6 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       });
       if (res.success) {
       } else {
-        // Revert the state change on error
         setFavoriteStates(prev => ({
           ...prev,
           [storeId]: previousFavoriteState,
@@ -127,7 +109,6 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
     } catch (error: any) {
-      // Revert the state change on error
       setFavoriteStates(prev => ({
         ...prev,
         [storeId]: previousFavoriteState,
@@ -136,7 +117,6 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     }
   };
 
-  // Filter stores based on selected business type
   const filteredStores = useMemo(() => {
     if (!storeListApi.data) return [];
     if (selectedFilter === 'all') return storeListApi.data;

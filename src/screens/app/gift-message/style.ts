@@ -20,17 +20,22 @@ const useStyles = () => {
         body: {
           flexGrow: 1,
           flex: 1,
-          paddingHorizontal: sizes.PADDING,
           paddingTop: sizes.HEIGHT * 0.02,
           paddingBottom: sizes.PADDING + sizes.HEIGHT * 0.1,
         },
         messageContainer: {
-          height: sizes.HEIGHT * 0.52,
+          height: sizes.HEIGHT * 0.512,
+          paddingHorizontal: sizes.PADDING,
         },
         inputWrapper: {
           flex: 1,
           height: '100%',
-          ...theme.globalStyles.SHADOW_STYLE,
+          // ...theme.globalStyles.SHADOW_STYLE,
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 0 },
+          shadowOpacity: 0.05,
+          shadowRadius: 15,
+          elevation: 8,
           borderRadius: 10,
           backgroundColor: '#fff',
         },
@@ -52,32 +57,32 @@ const useStyles = () => {
           ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
           fontSize: sizes.FONTSIZE_MED_HIGH,
           paddingVertical: sizes.HEIGHT * 0.01,
+          paddingHorizontal: sizes.PADDING,
         },
         filtersWrapper: {
           height: sizes.HEIGHT * 0.4,
-          // backgroundColor: 'red',
         },
         filtersScrollContent: {},
         imageContainer: {
-          width: sizes.WIDTH * 0.55,
+          width: sizes.WIDTH * 0.67,
           height: sizes.HEIGHT * 0.21,
           borderRadius: 12,
-          marginRight: scaleWithMax(15, 18),
+          paddingRight: sizes.PADDING,
           backgroundColor: '#fff',
           ...theme.globalStyles.SHADOW_STYLE,
-          overflow: 'hidden', // ensures image corners are clipped properly
+          overflow: 'hidden',
         },
 
         filterImage: {
           width: '100%',
           height: '100%',
-          resizeMode: 'cover', // keeps image proportionally contained
-          borderRadius: 12, // optional, for safety
+          resizeMode: 'cover',
+          borderRadius: 12,
         },
 
         footer: {
           position: 'absolute',
-          bottom: 0,
+          bottom: sizes.HEIGHT * 0.025,
           left: 0,
           right: 0,
           paddingHorizontal: sizes.PADDING,

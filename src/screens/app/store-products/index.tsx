@@ -48,11 +48,11 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const storeCoverImage =
     store?.imageCover && store.imageCover.trim()
       ? { uri: store.imageCover }
-      : require('../../../assets/images/storeCover.png');
+      : require('../../../assets/images/img-placeholder.png');
   const storeOverlayImage =
     store?.imageLogo && store.imageLogo.trim()
       ? { uri: store.imageLogo }
-      : require('../../../assets/images/storeLogo.png');
+      : require('../../../assets/images/img-placeholder.png');
 
   const [selectedFilter, setSelectedFilter] = useState('all');
 
@@ -276,16 +276,43 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           <TouchableOpacity
             style={styles.footerButton}
             onPress={() => {
-              (navigation as any).navigate('CheckOut');
+              if (!cartApi.data) return;
+
+              // Create a product object from cart data for GiftMessage
+              const cartData = cartApi.data;
+              const firstItem = cartData.Items[0];
+              const product = {
+                id: firstItem?.ItemId || 0,
+                title:
+                  cartData.Items.length > 1
+                    ? `${cartData.Items.length} Items`
+                    : firstItem?.ItemName || 'Cart Item',
+                subtitle:
+                  cartData.Items.length > 1
+                    ? 'Multiple items in cart'
+                    : firstItem?.ItemName || '',
+                image: firstItem?.ThumbnailUrl
+                  ? { uri: firstItem.ThumbnailUrl }
+                  : require('../../../assets/images/img-placeholder.png'),
+                price: cartData.TotalAmount,
+                storeId: cartData.StoreId,
+                storeBranchId: cartData.StoreBranchId,
+              };
+
+              (navigation as any).navigate('GiftMessage', {
+                product,
+                friendUserId,
+                storeBranchId: cartData.StoreBranchId,
+              });
             }}
             activeOpacity={0.8}
           >
             <View style={styles.footerQuantityBadge}>
               <Text style={styles.footerQuantityText}>
-                {cartApi.data.Items.reduce(
+                {cartApi.data?.Items.reduce(
                   (sum, item) => sum + item.Quantity,
                   0,
-                )}
+                ) || 0}
               </Text>
             </View>
             <Text style={styles.footerButtonText}>View Cart</Text>
@@ -295,7 +322,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                 height={scaleWithMax(16, 18)}
               />
               <Text style={styles.footerPriceText}>
-                {cartApi.data.TotalAmount.toFixed(2)}
+                {cartApi.data?.TotalAmount.toFixed(2) || '0.00'}
               </Text>
             </View>
           </TouchableOpacity>

@@ -62,7 +62,7 @@ const ProductImageSlider: React.FC<ImageSliderProps> = ({
   };
 
   if (loading) {
-    const placeholderImage = require('../../assets/images/dummy1.png');
+    const placeholderImage = require('../../assets/images/img-placeholder.png');
     return (
       <View style={[styles.container, styles.stateContainer]}>
         <Image source={placeholderImage} style={styles.image} />

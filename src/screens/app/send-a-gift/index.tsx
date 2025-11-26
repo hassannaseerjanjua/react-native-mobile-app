@@ -247,11 +247,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
             isLink={true}
           />
         </View>
-        <View
-          // showsVerticalScrollIndicator={false}
-          style={styles.scrollableContentContainer}
-          // contentContainerStyle={styles.scrollableContent}
-        >
+        <View style={styles.scrollableContentContainer}>
           <Text style={styles.sectionTitle}>{getString('SG_FRIENDS')}</Text>
           {isLoading ? (
             <View style={styles.listCard}>
@@ -278,7 +274,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                 )}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContainer}
-                // scrollEnabled={false}
               />
             </View>
           ) : (
@@ -313,10 +308,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           setIsMemberSelectionOpen(false);
         }}
         existingMembers={[]}
-        onSave={() => {
-          // setIsMemberSelectionOpen(false);
-          // navigation.navigate('SendToGroup' as any);
-        }}
+        onSave={() => {}}
         title={getString('NG_ADD_MEMBERS')}
         listings={[
           {

@@ -152,7 +152,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               <TouchableOpacity
                 style={[
                   styles.searchContainer,
-                  { marginEnd: theme.sizes.WIDTH * 0.038 },
+                  { marginEnd: theme.sizes.WIDTH * 0.03 },
                 ]}
                 onPress={() => navigation.navigate('CheckOut' as never)}
               >
@@ -191,7 +191,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                 {
                   flexDirection: 'row',
                   alignItems: 'center',
-                  gap: 4,
+                  gap: theme.sizes.PADDING * 0.1,
                 },
                 rightSideTitleStyle,
               ]}
@@ -206,13 +206,16 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
       {showSearchBar && (
         <View style={styles.searchBarContainer}>
           <View style={styles.searchIconWrapper}>
-            <SvgSearchIcon width={20} height={20} />
+            <SvgSearchIcon
+              width={scaleWithMax(20, 22)}
+              height={scaleWithMax(20, 22)}
+            />
           </View>
           <TextInput
             allowFontScaling={false}
             style={[styles.searchInput, { textAlign: rtlTextAlign(isRtl) }]}
             placeholder={defaultSearchPlaceholder}
-            placeholderTextColor="#A0A0A0EE"
+            placeholderTextColor={theme.colors.SECONDARY_TEXT}
             value={displaySearchValue}
             onChangeText={handleSearchChange}
             editable={true}
@@ -239,7 +242,6 @@ const useStyles = () => {
         justifyContent: 'space-between',
         paddingTop: isAndroidThen(sizes.PADDING, 0),
         paddingBottom: sizes.HEIGHT * 0.01,
-        // backgroundColor: 'blue',
         paddingHorizontal: theme.sizes.PADDING,
       },
       rightSection: {
@@ -247,17 +249,12 @@ const useStyles = () => {
         alignItems: 'center',
       },
       searchContainer: {
-        width: 35,
-        height: 35,
-        backgroundColor: colors.WHITE,
+        width: scaleWithMax(35, 38),
+        height: scaleWithMax(35, 38),
         justifyContent: 'center',
         alignItems: 'center',
-        borderRadius: 35 / 2,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 2,
+        borderRadius: scaleWithMax(35, 38) / 2,
+        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
         position: 'relative',
       },
       cartCount: {
@@ -265,19 +262,22 @@ const useStyles = () => {
         top: 0,
         right: 0,
         backgroundColor: colors.PRIMARY,
-        borderRadius: 10,
-        paddingHorizontal: 5,
+        borderRadius: 9999,
+        zIndex: 1,
+        height: scaleWithMax(14, 16),
+        width: scaleWithMax(14, 16),
+        justifyContent: 'center',
+        alignItems: 'center',
       },
       cartCountText: {
         fontFamily: fonts.Quicksand.regular,
-        fontSize: 12,
+        fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.WHITE,
       },
       avatarContainer: {
         marginStart: sizes.WIDTH * 0.04,
       },
       backButton: {
-        // paddingVertical: sizes.PADDING,
         alignItems: 'center',
         justifyContent: 'center',
       },
@@ -291,45 +291,40 @@ const useStyles = () => {
       },
       title: {
         fontFamily: fonts.Quicksand.bold,
-        fontSize: 20,
-        lineHeight: 32,
+        fontSize: sizes.FONTSIZE_HEADING,
+        lineHeight: sizes.FONTSIZE_HEADING * 1.6,
         color: colors.PRIMARY_TEXT,
       },
       searchBarContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: colors.WHITE,
-        borderRadius: 12,
+        borderRadius: sizes.BORDER_RADIUS_MID,
         marginHorizontal: theme.sizes.PADDING,
         paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.HEIGHT * 0.018,
-        // marginTop: sizes.PADDING,
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.08,
-        shadowRadius: 4,
-        elevation: 2,
+        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
       },
       searchIconWrapper: {
         marginRight: sizes.PADDING * 0.8,
       },
       searchInput: {
         flex: 1,
-        fontSize: 14,
+        fontSize: sizes.FONTSIZE,
         fontFamily: fonts.Quicksand.regular,
         color: colors.PRIMARY_TEXT,
         padding: 0,
       },
       avatar: {
-        width: 35,
-        height: 35,
-        borderRadius: 35 / 2,
+        width: scaleWithMax(35, 38),
+        height: scaleWithMax(35, 38),
+        borderRadius: scaleWithMax(35, 38) / 2,
       },
       rightSideTitle: {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.PRIMARY,
-        marginStart: 4,
+        marginStart: sizes.PADDING * 0.1,
       },
     });
   }, [theme]);

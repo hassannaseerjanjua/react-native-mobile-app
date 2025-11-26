@@ -8,20 +8,10 @@ import {
   SvgItemFavouriteIcon,
   SvgItemFavouriteIconInActive,
 } from '../../assets/icons';
-import { useSizes } from '../../styles/sizes';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { FavStores, Store } from '../../types';
 
-interface MockStoreItem {
-  id: string;
-  title: string;
-  subtitle: string;
-  backgroundImage: any;
-  overlayImage: any;
-  category?: string;
-}
-
-type StoreItem = Store | FavStores | MockStoreItem;
+type StoreItem = Store | FavStores;
 
 interface FavoriteItemCardProps {
   item: StoreItem;
@@ -43,64 +33,21 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
   const { isRtl } = useLocaleStore();
   const { theme, styles } = useStyles();
 
-  // Check item type
-  const isStore = 'StoreId' in item && 'NameEn' in item && 'Documents' in item;
-  const isFavStores = 'StoreNameEn' in item && !isStore;
-  const isMockItem = 'id' in item && !isStore && !isFavStores;
+  const isStore = 'StoreId' in item && 'NameEn' in item;
+  const storeName = isStore
+    ? (item as Store).NameEn
+    : (item as FavStores).StoreNameEn;
+  const businessType = isStore
+    ? (item as Store).BusinessTypeName
+    : (item as FavStores).BusinessTypeNameEn;
 
-  // Get values based on type
-  let storeName: string;
-  let businessType: string;
-  let backgroundImage: any;
-  let overlayImage: any;
-
-  if (isStore) {
-    const store = item as Store;
-    const brandLogo = store.Documents.find(
-      doc => doc.DocumentType === 'BrandLogo',
-    )?.FileUrl;
-    const brandLogoAttachment = store.Documents.find(
-      doc => doc.DocumentType === 'BrandLogoAttachment',
-    )?.FileUrl;
-
-    storeName = store.NameEn;
-    businessType = store.BusinessTypeName;
-
-    // Use dummy store images if URLs are missing or empty (like select store uses)
-    const hasValidBackgroundImage = brandLogoAttachment || brandLogo;
-    backgroundImage =
-      hasValidBackgroundImage && (brandLogoAttachment || brandLogo)?.trim()
-        ? { uri: brandLogoAttachment || brandLogo }
-        : require('../../assets/images/storeCover.png');
-
-    const hasValidOverlayImage = brandLogo && brandLogo.trim();
-    overlayImage = hasValidOverlayImage
-      ? { uri: brandLogo }
-      : require('../../assets/images/storeLogo.png');
-  } else if (isFavStores) {
-    const favStore = item as FavStores;
-    storeName = favStore.StoreNameEn;
-    businessType = favStore.BusinessTypeNameEn;
-
-    // Use dummy store images if URLs are missing or empty (like select store uses)
-    const hasValidBackgroundImage =
-      favStore.ImageLogo && favStore.ImageLogo.trim();
-    backgroundImage = hasValidBackgroundImage
-      ? { uri: favStore.ImageLogo }
-      : require('../../assets/images/storeCover.png');
-
-    const hasValidOverlayImage =
-      favStore.ImageCover && favStore.ImageCover.trim();
-    overlayImage = hasValidOverlayImage
-      ? { uri: favStore.ImageCover }
-      : require('../../assets/images/storeLogo.png');
-  } else {
-    const mockItem = item as MockStoreItem;
-    storeName = mockItem.title;
-    businessType = mockItem.subtitle;
-    backgroundImage = mockItem.backgroundImage;
-    overlayImage = mockItem.overlayImage;
-  }
+  const placeholderImage = require('../../assets/images/img-placeholder.png');
+  const backgroundImage = (item as Store | FavStores).ImageCover
+    ? { uri: (item as Store | FavStores).ImageCover! }
+    : placeholderImage;
+  const overlayImage = (item as Store | FavStores).ImageLogo
+    ? { uri: (item as Store | FavStores).ImageLogo! }
+    : placeholderImage;
 
   return (
     <View style={styles.shadowContainer}>
@@ -163,11 +110,9 @@ const useStyles = () => {
 
   const styles = StyleSheet.create({
     shadowContainer: {
-      ...theme.globalStyles.SHADOW_STYLE,
+      ...theme.globalStyles.SHADOW_STYLE_STORE_CARD,
     },
     container: {
-      // marginHorizontal: theme.sizes.PADDING,
-      // marginVertical: theme.sizes.PADDING / 2,
       borderRadius: theme.sizes.BORDER_RADIUS_MID,
       overflow: 'hidden',
       backgroundColor: theme.colors.WHITE,
@@ -197,7 +142,6 @@ const useStyles = () => {
       flexDirection: 'row',
       alignItems: 'center',
       padding: theme.sizes.PADDING,
-      // backgroundColor: theme.colors.RED,
       height: sizes.HEIGHT * 0.08,
       position: 'relative',
     },
@@ -209,7 +153,6 @@ const useStyles = () => {
       position: 'absolute',
       top: scaleWithMax(-35, -46),
       start: sizes.WIDTH * 0.028,
-      // bottom: -sizes.HEIGHT * 0.005,
       zIndex: 1,
     },
     overlayImage: {
