@@ -41,8 +41,9 @@ const InboxOutbox: React.FC = () => {
   const title = params?.title ?? (isInbox ? 'Inbox' : 'Outbox');
   const { styles, theme } = useStyles();
   const { orders, isLoading, isRtl } = useInboxOutboxActions(isInbox);
-
-  const handleItemPress = () => {
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const handleItemPress = (orderId: number) => {
+    setOrderId(orderId);
     setOpenBottomSheet(true);
   };
 
@@ -51,7 +52,8 @@ const InboxOutbox: React.FC = () => {
   };
 
   const handlePickUpPress = () => {
-    navigation.navigate('ScanQr' as never);
+    navigation.navigate('ScanQr' as never, { OrderId: orderId });
+    // console.log('orders[0].OrderId', orderId);
     setOpenBottomSheet(false);
   };
 
@@ -108,7 +110,9 @@ const InboxOutbox: React.FC = () => {
               isInbox={isInbox}
               order={item}
               isRtl={isRtl}
-              onClick={isInbox ? handleItemPress : undefined}
+              onClick={
+                isInbox ? () => handleItemPress(item.OrderId) : undefined
+              }
             />
           )}
           keyExtractor={item => item.OrderId.toString()}

@@ -97,7 +97,9 @@ export type AppStackParamList = {
     storeBranchID?: number;
     type?: 'favorite' | 'catch';
   };
-  ScanQr: undefined;
+  ScanQr: {
+    OrderId?: number | null;
+  };
   Occasions: undefined;
   CheckOut:
     | {
