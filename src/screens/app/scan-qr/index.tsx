@@ -15,9 +15,13 @@ import QRCode from 'react-native-qrcode-svg';
 
 const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
   const orderId = route?.params?.OrderId ?? null;
+  const productImage = route?.params?.productImage;
+  const storeName = route?.params?.storeName;
+  const quantity = route?.params?.quantity ?? 1;
+  const productName = route?.params?.productName;
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
-  const dummyImage = require('../../../assets/images/qr-product-dummy.png');
+  const defaultImage = require('../../../assets/images/qr-product-dummy.png');
   const [qrCodeData, setQrCodeData] = useState<QrCodeData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -173,7 +177,10 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
           </Text>
         </View>
         <View style={styles.ProductContainer}>
-          <Image style={styles.ProductImage} source={dummyImage} />
+          <Image
+            style={styles.ProductImage}
+            source={productImage || defaultImage}
+          />
 
           <View
             style={{ flexDirection: 'column', gap: theme.sizes.PADDING * 0.2 }}
@@ -184,7 +191,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                 fontSize: theme.sizes.FONTSIZE_BUTTON,
               }}
             >
-              Gucci Guilty
+              {productName || 'Product Name'}
             </Text>
             <Text
               style={{
@@ -192,12 +199,14 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                 color: '#808080',
               }}
             >
-              Perfume House
+              {storeName || 'Store Name'}
             </Text>
           </View>
-          <View style={styles.numCircle}>
-            <Text style={styles.numText}>1</Text>
-          </View>
+          {quantity > 0 && (
+            <View style={styles.numCircle}>
+              <Text style={styles.numText}>{quantity}</Text>
+            </View>
+          )}
         </View>
       </View>
     </ParentView>

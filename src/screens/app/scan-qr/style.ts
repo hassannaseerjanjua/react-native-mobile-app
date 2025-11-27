@@ -51,26 +51,24 @@ const useStyles = () => {
         width: scaleWithMax(50, 55),
       },
       numCircle: {
-        padding: scaleWithMax(12, 15),
-        overflow: 'hidden',
-        borderRadius: 99,
+        width: scaleWithMax(24, 25),
+        height: scaleWithMax(24, 25),
+        borderRadius: scaleWithMax(14, 16),
         backgroundColor: theme.colors.PRIMARY,
-        position: 'relative',
-        marginLeft: 'auto',
-
-        // marginRight: sizes.MARGIN,
-      },
-      numText: {
-        color: theme.colors.WHITE,
-        // fontWeight: 'bold',
-
-        position: 'absolute',
-        top: 4,
-        right: 0,
-        bottom: 0,
-        left: 10,
         alignItems: 'center',
         justifyContent: 'center',
+        marginLeft: 'auto',
+        zIndex: 1,
+      },
+      numText: {
+        ...theme.globalStyles.TEXT_STYLE,
+        fontSize: sizes.FONTSIZE,
+        color: theme.colors.WHITE,
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        textAlign: 'center',
+        zIndex: 0,
       },
     });
   }, [theme]);

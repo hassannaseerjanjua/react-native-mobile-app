@@ -99,6 +99,10 @@ export type AppStackParamList = {
   };
   ScanQr: {
     OrderId?: number | null;
+    productImage?: any; // Can be require() or { uri: string }
+    storeName?: string;
+    quantity?: number;
+    productName?: string;
   };
   Occasions: undefined;
   CheckOut:
