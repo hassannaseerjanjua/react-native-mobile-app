@@ -97,7 +97,13 @@ export type AppStackParamList = {
     storeBranchID?: number;
     type?: 'favorite' | 'catch';
   };
-  ScanQr: undefined;
+  ScanQr: {
+    OrderId?: number | null;
+    productImage?: any; // Can be require() or { uri: string }
+    storeName?: string;
+    quantity?: number;
+    productName?: string;
+  };
   Occasions: undefined;
   CheckOut:
     | {

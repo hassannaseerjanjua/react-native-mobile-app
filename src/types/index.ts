@@ -563,6 +563,22 @@ export interface CatchItem {
   // CategoryNameAr: string;
 }
 
+export interface QrCodeData {
+  OrderId: number;
+  QrCodeBase64: string;
+  UniqueCode: string;
+  ExpiresAt: string;
+}
+
+export interface QrCodeApiResponse {
+  Data: {
+    Data: QrCodeData;
+    ResponseCode: number;
+    Success: boolean;
+    ResponseMessage: string;
+  };
+}
+
 export interface CatchItemsApiResponse {
   Data: {
     Items: CatchItem[];

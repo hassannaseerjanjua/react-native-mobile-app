@@ -71,7 +71,8 @@ const apiEndpoints = {
   GET_CATEGORIES: `/${version}/Panel/GetCategoriesForPanel`,
   SEND_GIFT_FILTER: `/${version}/User/AddGiftMessageToOrder`,
   GET_ALL_FILTERS: `/${version}/Panel/GetAllFilters`,
-  GENERATE_QR_CODE: `/${version}/User/generate-qr`,
+  GENERATE_QR_CODE: (orderId: any) =>
+    `/${version}/User/generate-qr?orderId=${orderId}`,
 
   // Catch
   GET_CATCH_ITEMS: `/${version}/User/GetCampaignsForUsers`,
