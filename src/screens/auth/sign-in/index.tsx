@@ -168,7 +168,10 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                       onChangeText: isPhone
                         ? value => {
                             setApiError('');
-                            setFieldValue('phone', value.replace('+966 ', ''));
+                            const cleanValue = value
+                              .replace('+966 ', '')
+                              .replace(/[^0-9]/g, '');
+                            setFieldValue('phone', cleanValue);
                           }
                         : value => {
                             setApiError('');

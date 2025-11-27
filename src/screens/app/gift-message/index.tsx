@@ -66,9 +66,17 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   }, [message]);
 
   const addGiftMessage = async () => {
-    const response = await api.post(apiEndpoints.SEND_GIFT_FILTER, {
-      ...sendMessagePayload,
-      Message: message,
+    const formData = new FormData();
+    formData.append(
+      'ImageFilterId',
+      sendMessagePayload.ImageFilterId?.toString() || '',
+    );
+    formData.append('Message', message);
+    formData.append('VideoFile', sendMessagePayload.VideoFile);
+    const response = await api.post(apiEndpoints.SEND_GIFT_FILTER, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
     });
     if (response.success) {
       (navigation as any).navigate('CheckOut', {

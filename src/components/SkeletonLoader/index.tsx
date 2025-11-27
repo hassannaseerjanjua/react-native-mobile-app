@@ -57,7 +57,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       case 'home':
         return (
           <SkeletonPlaceholder>
-            <SkeletonPlaceholder.Item>
+            <SkeletonPlaceholder.Item paddingHorizontal={theme.sizes.PADDING}>
               {/* Welcome Text with User Name */}
               <SkeletonPlaceholder.Item
                 width={screenWidth * 0.7}

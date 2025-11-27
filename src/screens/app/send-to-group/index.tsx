@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, StatusBar } from 'react-native';
+import { View, StatusBar, FlatList } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import useStyles from './style';
 import ParentView from '../../../components/app/ParentView';
@@ -176,51 +176,59 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('STG_SEARCH_GROUP')}
       />
-      <View style={styles.content}>
-        {getGroupsData?.loading ? (
+      {getGroupsData?.loading ? (
+        <View style={styles.content}>
           <SkeletonLoader screenType="sendToGroup" />
-        ) : getGroupsData?.data?.length === 0 ? (
-          <Text
-            style={[
-              theme.globalStyles.TEXT_STYLE,
-              {
-                textAlign: 'center',
-              },
-            ]}
-          >
-            {getString('STG_NO_GROUP_FOUND')}
-          </Text>
-        ) : (
-          getGroupsData?.data?.map((group, index) => (
-            <View key={group.UserGroupId}>
-              <TabItem
-                isGroupImage={group.ImageUrl}
-                title={group.GroupName}
-                onPress={
-                  isEditGroupOpen
-                    ? () => handleEditGroup(group)
-                    : () => {
-                        setSelectedGroup(group);
-                        setIsViewMembersOpen(true);
-                        setTimeout(() => {
-                          setIsEditGroupOpen(false);
-                        }, 300);
-                      }
-                }
-                isEditGroup={isEditGroupOpen}
-                TabItemStyles={styles.TabItem}
-                onDeletePress={() => {
-                  handleDeleteGroup(group);
-                }}
-                onEditPress={() => handleEditGroup(group)}
-              />
-              {index < (getGroupsData?.data?.length || 0) - 1 && (
-                <View style={styles.tabSpacing} />
-              )}
+        </View>
+      ) : (
+        <FlatList
+          data={getGroupsData?.data || []}
+          keyExtractor={item => item.UserGroupId.toString()}
+          renderItem={({ item: group }) => (
+            <TabItem
+              isGroupImage={group.ImageUrl}
+              title={group.GroupName}
+              onPress={
+                isEditGroupOpen
+                  ? () => handleEditGroup(group)
+                  : () => {
+                      setSelectedGroup(group);
+                      setIsViewMembersOpen(true);
+                      setTimeout(() => {
+                        setIsEditGroupOpen(false);
+                      }, 300);
+                    }
+              }
+              isEditGroup={isEditGroupOpen}
+              TabItemStyles={styles.TabItem}
+              onDeletePress={() => {
+                handleDeleteGroup(group);
+              }}
+              onEditPress={() => handleEditGroup(group)}
+            />
+          )}
+          ItemSeparatorComponent={() => <View style={styles.tabSpacing} />}
+          ListEmptyComponent={
+            <View style={styles.content}>
+              <Text
+                style={[
+                  theme.globalStyles.TEXT_STYLE,
+                  {
+                    textAlign: 'center',
+                  },
+                ]}
+              >
+                {getString('STG_NO_GROUP_FOUND')}
+              </Text>
             </View>
-          ))
-        )}
-      </View>
+          }
+          contentContainerStyle={[
+            styles.content,
+            (getGroupsData?.data || []).length === 0 && { flexGrow: 1 },
+          ]}
+          showsVerticalScrollIndicator={false}
+        />
+      )}
 
       <MemberSelectionModal
         visible={isViewMembersOpen}

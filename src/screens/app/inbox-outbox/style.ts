@@ -88,7 +88,7 @@ const useStyles = () => {
       },
       timeText: {
         ...theme.globalStyles.TEXT_STYLE,
-        fontSize: sizes.FONTSIZE_SMALL,
+        fontSize: sizes.FONTSIZE_MEDIUM,
         color: theme.colors.BLACK,
       },
       storeNameText: {

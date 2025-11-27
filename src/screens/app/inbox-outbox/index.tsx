@@ -235,8 +235,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   </View>
                 </View>
                 <SmsTrackingIcon
-                  height={scaleWithMax(18, 18)}
-                  width={scaleWithMax(18, 18)}
+                  height={scaleWithMax(20, 20)}
+                  width={scaleWithMax(20, 20)}
                 />
               </View>
             </View>

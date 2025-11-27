@@ -14,7 +14,7 @@ const useStyles = () => {
       },
       content: {
         paddingHorizontal: sizes.PADDING,
-        paddingTop: sizes.HEIGHT * 0.02,
+        paddingVertical: sizes.HEIGHT * 0.02,
       },
       tabSpacing: {
         height: sizes.HEIGHT * 0.016,
