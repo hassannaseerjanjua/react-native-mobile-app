@@ -127,9 +127,9 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                 {error}
               </Text>
             </View>
-          ) : qrCodeData?.UniqueCode ? (
+          ) : qrCodeData?.OrderId && qrCodeData?.UniqueCode ? (
             <QRCode
-              value={qrCodeData.UniqueCode}
+              value={`${qrCodeData.OrderId}:${qrCodeData.UniqueCode}`}
               size={scaleWithMax(270, 275)}
               color={theme.colors.PRIMARY}
               backgroundColor={theme.colors.WHITE}
