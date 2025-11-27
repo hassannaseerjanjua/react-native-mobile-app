@@ -11,6 +11,7 @@ import { AppStackScreen } from '../../../types/navigation.types';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { QrCodeApiResponse, QrCodeData } from '../../../types';
+import QRCode from 'react-native-qrcode-svg';
 
 const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
   const orderId = route?.params?.OrderId ?? null;
@@ -126,29 +127,15 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                 {error}
               </Text>
             </View>
-          ) : qrCodeData?.QrCodeBase64 ? (
-            <Image
-              source={{ uri: qrCodeData.QrCodeBase64 }}
-              style={{
-                height: scaleWithMax(270, 275),
-                width: scaleWithMax(270, 275),
-              }}
-              resizeMode="contain"
-              onError={e => {
-                console.error('Image load error:', e.nativeEvent.error);
-                console.error(
-                  'QR Code Base64 (first 100 chars):',
-                  qrCodeData.QrCodeBase64.substring(0, 100),
-                );
-                setError('Failed to load QR code image');
-              }}
-              onLoad={() => {
-                console.log('QR code image loaded successfully');
-                console.log(
-                  'QR Code Base64 length:',
-                  qrCodeData.QrCodeBase64.length,
-                );
-              }}
+          ) : qrCodeData?.UniqueCode ? (
+            <QRCode
+              value={qrCodeData.UniqueCode}
+              size={scaleWithMax(270, 275)}
+              color={theme.colors.PRIMARY}
+              backgroundColor={theme.colors.WHITE}
+              logo={undefined}
+              quietZone={0}
+              ecl="Q"
             />
           ) : (
             <View
