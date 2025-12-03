@@ -1,7 +1,8 @@
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
+import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
 import useStyles from './style';
 import {
   GiftIcon,
@@ -28,6 +29,19 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 const InboxOutbox: React.FC = () => {
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
+  const [videoViewerData, setVideoViewerData] = useState<{
+    visible: boolean;
+    videoUrl: string;
+    profileImage: any;
+    userName: string;
+    timeAgo: string;
+  }>({
+    visible: false,
+    videoUrl: '',
+    profileImage: null,
+    userName: '',
+    timeAgo: '',
+  });
   const { getString } = useLocaleStore();
   const navigation = useNavigation();
   const route = useRoute();
@@ -75,6 +89,46 @@ const InboxOutbox: React.FC = () => {
   const handleDeliveryPress = () => {
     navigation.navigate('LocationSelection' as never);
     setOpenBottomSheet(false);
+  };
+
+  const videoViewerRef = useRef<{ preload: (url: string) => void } | null>(
+    null,
+  );
+
+  const handleVideoPress = (order: InboxOrder) => {
+    if (order.orderImages && order.orderImages.length > 0) {
+      const videoUrl = order.orderImages[0].ImageUrl;
+      const profileImage = getProfileImage(order);
+      const userName = getUserName(order);
+      const timeAgo = formatRelativeTime(order.OrderTime);
+
+      // Start preloading immediately
+      videoViewerRef.current?.preload(videoUrl);
+
+      // Set data but keep invisible initially
+      setVideoViewerData({
+        visible: false,
+        videoUrl,
+        profileImage,
+        userName,
+        timeAgo,
+      });
+
+      // Small delay to allow video buffering before showing player
+      setTimeout(() => {
+        setVideoViewerData(prev => ({
+          ...prev,
+          visible: true,
+        }));
+      }, 300);
+    }
+  };
+
+  const handleCloseVideoViewer = () => {
+    setVideoViewerData(prev => ({
+      ...prev,
+      visible: false,
+    }));
   };
 
   return (
@@ -128,6 +182,7 @@ const InboxOutbox: React.FC = () => {
               onClick={
                 isInbox ? () => handleItemPress(item.OrderId) : undefined
               }
+              onVideoPress={() => handleVideoPress(item)}
             />
           )}
           keyExtractor={item => item.OrderId.toString()}
@@ -164,6 +219,15 @@ const InboxOutbox: React.FC = () => {
           />
         </View>
       </AppBottomSheet>
+      <VideoStoryViewer
+        ref={videoViewerRef}
+        visible={videoViewerData.visible}
+        videoUrl={videoViewerData.videoUrl}
+        profileImage={videoViewerData.profileImage}
+        userName={videoViewerData.userName}
+        timeAgo={videoViewerData.timeAgo}
+        onClose={handleCloseVideoViewer}
+      />
     </ParentView>
   );
 };
@@ -174,6 +238,7 @@ interface InboxItemProps {
   isRtl: boolean;
   isInbox: boolean;
   onClick?: () => void;
+  onVideoPress?: () => void;
 }
 
 const InboxItem: React.FC<InboxItemProps> = ({
@@ -182,6 +247,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   isRtl,
   onClick,
   isInbox,
+  onVideoPress,
 }) => {
   const { styles, theme } = useStyles();
 
@@ -254,10 +320,18 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 {order.orderImages &&
                   Array.isArray(order.orderImages) &&
                   order.orderImages.length > 0 && (
-                    <SmsTrackingIcon
-                      height={scaleWithMax(20, 20)}
-                      width={scaleWithMax(20, 20)}
-                    />
+                    <TouchableOpacity
+                      onPress={e => {
+                        e.stopPropagation?.();
+                        onVideoPress?.();
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <SmsTrackingIcon
+                        height={scaleWithMax(20, 20)}
+                        width={scaleWithMax(20, 20)}
+                      />
+                    </TouchableOpacity>
                   )}
               </View>
             </View>

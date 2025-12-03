@@ -6,9 +6,11 @@ import {
   View,
   TouchableOpacity,
   Platform,
+  ActivityIndicator,
 } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { Video } from 'react-native-compressor';
 import useStyles from './style';
 import HomeHeader from '../../../components/global/HomeHeader';
 import {
@@ -29,6 +31,8 @@ import { GiftFilter } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
+
+const MAX_VIDEO_DURATION = 15; // Maximum video duration in seconds
 
 const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   route,
@@ -56,6 +60,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     Message: message,
     VideoFile: undefined,
   });
+
+  const [isCompressing, setIsCompressing] = useState(false);
+  const [compressionProgress, setCompressionProgress] = useState(0);
 
   useEffect(() => {
     setSendMessagePayload(prev => ({
@@ -112,7 +119,60 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     }
   };
 
+  const compressVideo = async (videoUri: string, fileName: string) => {
+    console.log('[GiftMessage] Starting video compression:', { videoUri });
+    setIsCompressing(true);
+    setCompressionProgress(0);
+
+    try {
+      const compressedUri = await Video.compress(
+        videoUri,
+        {
+          compressionMethod: 'auto',
+          maxSize: 720,
+          minimumFileSizeForCompress: 0,
+        },
+        progress => {
+          console.log('[GiftMessage] Compression progress:', progress);
+          setCompressionProgress(progress);
+        },
+      );
+
+      console.log('[GiftMessage] Video compressed successfully:', {
+        originalUri: videoUri,
+        compressedUri: compressedUri,
+      });
+
+      const processedUri =
+        Platform.OS === 'ios'
+          ? compressedUri.replace('file://', '')
+          : compressedUri;
+
+      setSendMessagePayload(prev => ({
+        ...prev,
+        VideoFile: {
+          uri: processedUri,
+          type: 'video/mp4',
+          name: fileName || `video_${Date.now()}.mp4`,
+        },
+      }));
+
+      notify.success('Video ready to send');
+    } catch (error: any) {
+      console.error('[GiftMessage] Video compression failed:', error);
+      notify.error('Failed to process video. Please try again.');
+    } finally {
+      setIsCompressing(false);
+      setCompressionProgress(0);
+    }
+  };
+
   const handleVideoSelect = () => {
+    if (isCompressing) {
+      notify.error('Please wait, video is being processed...');
+      return;
+    }
+
     launchImageLibrary(
       {
         mediaType: 'video',
@@ -120,12 +180,17 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         selectionLimit: 1,
         videoQuality: 'high',
       },
-      response => {
+      async response => {
         if (response.didCancel) {
+          console.log('[GiftMessage] User cancelled video selection');
           return;
         }
 
         if (response.errorMessage) {
+          console.error(
+            '[GiftMessage] Image picker error:',
+            response.errorMessage,
+          );
           notify.error(response.errorMessage);
           return;
         }
@@ -134,22 +199,29 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           const asset = response.assets[0];
           const duration = asset.duration || 0;
 
-          if (duration > 15) {
-            notify.error('Video duration must be 15 seconds or less');
+          console.log('[GiftMessage] Video selected:', {
+            uri: asset.uri,
+            duration: duration,
+            fileSize: asset.fileSize,
+            type: asset.type,
+            fileName: asset.fileName,
+          });
+
+          // Validate duration (backup check in case durationLimit doesn't work)
+          if (duration > MAX_VIDEO_DURATION) {
+            notify.error(
+              `Video must be ${MAX_VIDEO_DURATION} seconds or less. Selected video is ${Math.round(
+                duration,
+              )} seconds.`,
+            );
             return;
           }
 
-          setSendMessagePayload(prev => ({
-            ...prev,
-            VideoFile: {
-              uri:
-                Platform.OS === 'ios'
-                  ? asset.uri?.replace('file://', '') || asset.uri || ''
-                  : asset.uri || '',
-              type: asset.type || 'video/mp4',
-              name: asset.fileName || `video_${Date.now()}.mp4`,
-            },
-          }));
+          const videoUri = asset.uri || '';
+          const fileName = asset.fileName || `video_${Date.now()}.mp4`;
+
+          // Compress the video before setting it
+          await compressVideo(videoUri, fileName);
         }
       },
     );
@@ -161,6 +233,11 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     !!sendMessagePayload.VideoFile;
 
   const handleButtonPress = () => {
+    if (isCompressing) {
+      notify.error('Please wait, video is being processed...');
+      return;
+    }
+
     if (hasContent) {
       // Start upload in background and navigate immediately
       addGiftMessage();
@@ -197,13 +274,44 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 placeholder={getString('GIFT_MESSAGE_PLACEHOLDER')}
               />
             </View>
-            <TouchableOpacity onPress={handleVideoSelect}>
-              <SvgAddGiftMessageIcon
-                style={[
-                  styles.cameraIcon,
-                  rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
-                ]}
-              />
+            <TouchableOpacity
+              onPress={handleVideoSelect}
+              disabled={isCompressing}
+              style={{ opacity: isCompressing ? 0.5 : 1 }}
+            >
+              {isCompressing ? (
+                <View
+                  style={[
+                    styles.cameraIcon,
+                    rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
+                    {
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    },
+                  ]}
+                >
+                  <ActivityIndicator
+                    size="small"
+                    color={theme.colors.PRIMARY}
+                  />
+                  <Text
+                    style={{
+                      fontSize: 10,
+                      color: theme.colors.PRIMARY,
+                      marginTop: 2,
+                    }}
+                  >
+                    {Math.round(compressionProgress * 100)}%
+                  </Text>
+                </View>
+              ) : (
+                <SvgAddGiftMessageIcon
+                  style={[
+                    styles.cameraIcon,
+                    rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
+                  ]}
+                />
+              )}
             </TouchableOpacity>
           </View>
 
@@ -266,8 +374,15 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           </View>
           <View style={styles.footer}>
             <CustomButton
-              title={hasContent ? 'Next' : 'Skip'}
+              title={
+                isCompressing
+                  ? `Processing... ${Math.round(compressionProgress * 100)}%`
+                  : hasContent
+                  ? 'Next'
+                  : 'Skip'
+              }
               onPress={handleButtonPress}
+              disabled={isCompressing}
             />
           </View>
         </View>

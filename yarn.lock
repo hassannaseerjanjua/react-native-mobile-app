@@ -7082,6 +7082,11 @@ react-native-bootsplash@^6.3.11:
     ts-dedent "^2.2.0"
     xml-formatter "^3.6.5"
 
+react-native-compressor@^1.13.0:
+  version "1.13.0"
+  resolved "https://registry.yarnpkg.com/react-native-compressor/-/react-native-compressor-1.13.0.tgz#d260621bb7625046a716d5dff56b395267c7e6b0"
+  integrity sha512-vJYbrcjz2S7kgE3Q7444F71CjEDq5Qg6sGn67N9fJ0I1K6EhB/ZxpULdDe3FxJ4h/ncJc0oxOzNWZhxtGTqcQw==
+
 react-native-date-picker@^5.0.13:
   version "5.0.13"
   resolved "https://registry.yarnpkg.com/react-native-date-picker/-/react-native-date-picker-5.0.13.tgz#fe05f58652aaeee9e67f73cf7436c32a623ff3a4"
@@ -7201,6 +7206,11 @@ react-native-url-polyfill@^3.0.0:
   integrity sha512-aA5CiuUCUb/lbrliVCJ6lZ17/RpNJzvTO/C7gC/YmDQhTUoRD5q5HlJfwLWcxz4VgAhHwXKzhxH+wUN24tAdqg==
   dependencies:
     whatwg-url-without-unicode "8.0.0-3"
+
+react-native-video@^6.18.0:
+  version "6.18.0"
+  resolved "https://registry.yarnpkg.com/react-native-video/-/react-native-video-6.18.0.tgz#2f8fc0fff27e270f592e5a15a05972f88b20e8b0"
+  integrity sha512-9BjAtAh1uGq6h/GNCCh5yzb/iI9qJHuflwNGExyhoUxbhPD1s+15h+CdpJ2MKKJTXw6J7w+nQOp1Ywa54R8w7Q==
 
 react-native-worklets@^0.5.1:
   version "0.5.1"

@@ -12,6 +12,7 @@ import CustomButton from '../../../components/global/Custombutton';
 import { Text } from '../../../utils/elements';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { rtlFlexDirection } from '../../../utils';
+import { useNavigation } from '@react-navigation/native';
 const AddCart: React.FC = () => {
   const initialValues = {
     CardNumber: '',
@@ -33,7 +34,6 @@ const AddCart: React.FC = () => {
       .required('CVV is required')
       .matches(/^\d{3,4}$/, 'CVV must be 3 or 4 digits'),
     ExpiryDate: Yup.string().required('Expiry date is required'),
-
   });
   const [date, setDate] = useState(() => {
     if (false) {
@@ -53,6 +53,8 @@ const AddCart: React.FC = () => {
     const yy = String(d.getFullYear()).slice(-2);
     return `${mm}/${yy}`;
   };
+
+  const navigation = useNavigation();
   return (
     <ParentView>
       <HomeHeader title={getString('ADD_CARD_TITLE')} showBackButton />
@@ -66,7 +68,9 @@ const AddCart: React.FC = () => {
           {formik => (
             <>
               <View style={styles.formContainer}>
-                <Text style={styles.label}>{getString('ADD_CARD_NUMBER_LABEL')}</Text>
+                <Text style={styles.label}>
+                  {getString('ADD_CARD_NUMBER_LABEL')}
+                </Text>
                 <View style={styles.inputContainer}>
                   <InputField
                     error={
@@ -98,7 +102,9 @@ const AddCart: React.FC = () => {
                 }}
               >
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.label}>{getString('ADD_CARD_EXPIRY_LABEL')} </Text>
+                  <Text style={styles.label}>
+                    {getString('ADD_CARD_EXPIRY_LABEL')}{' '}
+                  </Text>
                   <View style={styles.inputContainer}>
                     <TouchableOpacity onPress={() => setShowDatePicker(true)}>
                       <InputField
@@ -140,7 +146,9 @@ const AddCart: React.FC = () => {
                   </View>
                 </View>
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.label}>{getString('ADD_CARD_CVV_LABEL')}</Text>
+                  <Text style={styles.label}>
+                    {getString('ADD_CARD_CVV_LABEL')}
+                  </Text>
                   <View style={styles.inputContainer}>
                     <InputField
                       error={
@@ -165,7 +173,9 @@ const AddCart: React.FC = () => {
                 </View>
               </View>
               <View style={styles.formContainer}>
-                <Text style={styles.label}>{getString('ADD_CARD_HOLDER_LABEL')}</Text>
+                <Text style={styles.label}>
+                  {getString('ADD_CARD_HOLDER_LABEL')}
+                </Text>
                 <View style={styles.inputContainer}>
                   <InputField
                     error={
@@ -189,7 +199,12 @@ const AddCart: React.FC = () => {
         </Formik>
       </View>
       <CustomFooter>
-        <CustomButton title={getString('ADD_CARD_BUTTON')} onPress={() => {}} />
+        <CustomButton
+          title={getString('ADD_CARD_BUTTON')}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        />
       </CustomFooter>
     </ParentView>
   );
