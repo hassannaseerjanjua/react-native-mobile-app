@@ -48,6 +48,8 @@ const ProfileScreen: React.FC = () => {
   const dummyImage = require('../../../assets/images/user.png');
   const [isUploading, setIsUploading] = useState(false);
 
+  console.log('Userdata', user);
+
   const handleLogout = () => {
     dispatch(logout());
   };

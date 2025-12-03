@@ -157,7 +157,7 @@ export const createSettingsSchema = (getString: GetString) => {
     username: usernameValidation(getString),
     CityId: cityValidation(getString),
     email: emailValidation(getString),
-    phoneNumber: phoneValidation(getString),
+    // phoneNumber: phoneValidation(getString),
   });
 };
 

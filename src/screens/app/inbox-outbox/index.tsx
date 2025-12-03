@@ -251,10 +251,14 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     />
                   </View>
                 </View>
-                <SmsTrackingIcon
-                  height={scaleWithMax(20, 20)}
-                  width={scaleWithMax(20, 20)}
-                />
+                {order.orderImages &&
+                  Array.isArray(order.orderImages) &&
+                  order.orderImages.length > 0 && (
+                    <SmsTrackingIcon
+                      height={scaleWithMax(20, 20)}
+                      width={scaleWithMax(20, 20)}
+                    />
+                  )}
               </View>
             </View>
             <View

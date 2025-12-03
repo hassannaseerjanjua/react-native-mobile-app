@@ -65,25 +65,50 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   }, [message]);
 
   const addGiftMessage = async () => {
-    const formData = new FormData();
-    formData.append(
-      'ImageFilterId',
-      sendMessagePayload.ImageFilterId?.toString() || '',
-    );
-    formData.append('Message', message);
-    formData.append('VideoFile', sendMessagePayload.VideoFile);
-    const response = await api.post(apiEndpoints.SEND_GIFT_FILTER, formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
+    console.log('[GiftMessage] Starting background upload:', {
+      hasFilter: !!sendMessagePayload.ImageFilterId,
+      hasMessage: !!message.trim(),
+      hasVideo: !!sendMessagePayload.VideoFile,
     });
-    if (response.success) {
-      (navigation as any).navigate('CheckOut', {
-        friendUserId,
-        storeBranchId,
+
+    // Navigate immediately without waiting for upload
+    (navigation as any).navigate('CheckOut', {
+      friendUserId,
+      storeBranchId,
+    });
+
+    // Upload in background
+    try {
+      const formData = new FormData();
+      formData.append(
+        'ImageFilterId',
+        sendMessagePayload.ImageFilterId?.toString() || '',
+      );
+      formData.append('Message', message);
+      if (sendMessagePayload.VideoFile) {
+        formData.append('VideoFile', sendMessagePayload.VideoFile);
+      }
+
+      console.log('[GiftMessage] Uploading file in background...');
+      const response = await api.post(apiEndpoints.SEND_GIFT_FILTER, formData, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
       });
-    } else {
-      notify.error(response.error);
+
+      if (response.success) {
+        console.log('[GiftMessage] Background upload completed successfully');
+        notify.success('Gift message uploaded successfully');
+      } else {
+        console.error(
+          '[GiftMessage] Background upload failed:',
+          response.error,
+        );
+        notify.error(response.error || 'Failed to upload gift message');
+      }
+    } catch (error: any) {
+      console.error('[GiftMessage] Background upload error:', error);
+      notify.error(error?.message || 'An error occurred while uploading');
     }
   };
 
@@ -135,9 +160,10 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     message.trim().length > 0 ||
     !!sendMessagePayload.VideoFile;
 
-  const handleButtonPress = async () => {
+  const handleButtonPress = () => {
     if (hasContent) {
-      await addGiftMessage();
+      // Start upload in background and navigate immediately
+      addGiftMessage();
     } else {
       (navigation as any).navigate('CheckOut', {
         friendUserId,
