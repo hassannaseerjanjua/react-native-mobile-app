@@ -38,6 +38,7 @@ export const useListingApi = <T>(
     config?.sortDirection || 'asc',
   );
   const isFetchingRef = useRef(false);
+  const isLoadingMoreRef = useRef(false);
   const extraParamsRef = useRef(config?.extraParams || {});
   const pageIndexRef = useRef(pageIndex);
 
@@ -52,7 +53,10 @@ export const useListingApi = <T>(
     const currentPage = pageOverride ?? pageIndexRef.current;
 
     if (showLoading && currentPage === 1) setLoading(true);
-    if (currentPage > 1) setLoadingMore(true);
+    if (currentPage > 1) {
+      setLoadingMore(true);
+      isLoadingMoreRef.current = true;
+    }
 
     let apiUrl = `${url}?pageIndex=${currentPage}&pageSize=${pageSize}`;
 
@@ -100,23 +104,29 @@ export const useListingApi = <T>(
               const filteredNew = newData.filter(
                 item => !existingIds.has(config.idExtractor!(item)),
               );
-              return [...prev, ...filteredNew];
+              const updatedData = [...prev, ...filteredNew];
+              setHasMore(
+                updatedData.length < newTotalCount && newData.length > 0,
+              );
+              return updatedData;
             }
-            return [...prev, ...newData];
+            const updatedData = [...prev, ...newData];
+            setHasMore(
+              updatedData.length < newTotalCount && newData.length > 0,
+            );
+            return updatedData;
           });
         } else {
           setData(newData);
+          setHasMore(newData.length < newTotalCount && newData.length > 0);
         }
-
-        const totalLoaded =
-          currentPage > 1 ? data.length + newData.length : newData.length;
-        setHasMore(totalLoaded < newTotalCount && newData.length > 0);
       })
       .finally(() => {
         setLoading(false);
         setLoadingMore(false);
         setIsInitialLoad(true);
         isFetchingRef.current = false;
+        isLoadingMoreRef.current = false;
       });
   };
   useFocusEffect(
@@ -180,10 +190,12 @@ export const useListingApi = <T>(
       loading ||
       loadingMore ||
       isFetchingRef.current ||
+      isLoadingMoreRef.current ||
       !hasMore ||
       !isInitialLoad
     )
       return;
+    isLoadingMoreRef.current = true;
     const nextPage = pageIndexRef.current + 1;
     pageIndexRef.current = nextPage;
     setPageIndex(nextPage);
