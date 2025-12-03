@@ -12,7 +12,7 @@ const useStyles = () => {
     const boxSpacing = width * 0.02;
     const boxCount = 6;
     const borderWidth = 1;
-    const totalBorderWidth = boxCount * borderWidth * 2; // Account for left and right borders
+    const totalBorderWidth = boxCount * borderWidth * 2;
     const availableWidth =
       width -
       sizes.PADDING * 2 -

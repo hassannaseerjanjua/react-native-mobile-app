@@ -39,7 +39,6 @@ const useStyles = () => {
         bottom: 0,
         left: 0,
         right: 0,
-        // overflow: 'hidden',
       },
       modalContent: {
         flex: 1,

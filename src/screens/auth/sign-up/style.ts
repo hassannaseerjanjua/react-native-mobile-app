@@ -33,10 +33,8 @@ const useStyles = () => {
       },
       mainContent: {
         flex: 1,
-        // backgroundColor: 'blue',
       },
       contentSection: {
-        // minHeight:20,
       },
       headerContainer: {
         marginBottom: 10,

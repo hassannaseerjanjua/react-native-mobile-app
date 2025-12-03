@@ -16,7 +16,6 @@ import {
   SvgNotificationInactive,
 } from '../assets/icons';
 
-// Screens
 import Home from '../screens/app/home/index';
 import Favorites from '../screens/app/favorites/index';
 import Occasions from '../screens/app/occasions/index';
@@ -103,8 +102,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
         paddingHorizontal: scaleWithMax(10, 12),
 
         height: isAndroidThen(scaleWithMax(70, 75), undefined),
-        // paddingBottom: 8,
-        // paddingTop: 8,
         borderTopLeftRadius: 14,
         borderTopRightRadius: 14,
         flexDirection: 'row',

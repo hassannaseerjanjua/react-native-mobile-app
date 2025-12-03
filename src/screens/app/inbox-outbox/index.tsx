@@ -150,7 +150,6 @@ const InboxOutbox: React.FC = () => {
       <AppBottomSheet
         blurAmount={100}
         isOpen={openBottomSheet}
-        // fullHeight
         height={theme.sizes.HEIGHT * 0.3}
         snapPoints={['20%']}
         onClose={handleCloseBottomSheet}
@@ -166,7 +165,6 @@ const InboxOutbox: React.FC = () => {
         </View>
       </AppBottomSheet>
     </ParentView>
-    // </LinearGradient>
   );
 };
 

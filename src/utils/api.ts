@@ -2,17 +2,14 @@ import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import apiEndpoints from '../constants/api-endpoints';
 import { store } from '../store/store';
 
-// setup base thing
 const axiosInter = axios.create({
   baseURL: apiEndpoints.BASE_URL,
   responseType: 'json',
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Request interceptor to handle FormData - remove Content-Type so axios can set it with boundary
 axiosInter.interceptors.request.use(
   config => {
-    // If data is FormData, delete Content-Type header to let axios set it automatically
     if (config.data instanceof FormData) {
       delete config.headers['Content-Type'];
     }
@@ -30,7 +27,6 @@ interface ResponseObject<T> {
   error: string;
 }
 
-// caller function
 const caller = async <T>(
   area: 'public' | 'private',
   type: 'post' | 'get' | 'put' | 'delete',
@@ -47,12 +43,14 @@ const caller = async <T>(
 
   const langId = store.getState().locale.localeData.langId;
   const userId = store.getState().auth.user?.UserId;
+  const token = store.getState().auth.token;
   config = {
     ...config,
     headers: {
       ...config?.headers,
       LangID: langId,
       UserId: userId,
+      ...(token && { Authorization: `Bearer ${token}` }),
     },
   };
 

@@ -30,7 +30,6 @@ const useStyles = () => {
         inputWrapper: {
           flex: 1,
           height: '100%',
-          // ...theme.globalStyles.SHADOW_STYLE,
           shadowColor: '#000',
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 0.05,
@@ -86,7 +85,6 @@ const useStyles = () => {
           left: 0,
           right: 0,
           paddingHorizontal: sizes.PADDING,
-          // paddingBottom: sizes.HEIGHT * 0.01,
         },
       }),
     [sizes, theme],

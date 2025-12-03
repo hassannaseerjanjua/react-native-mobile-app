@@ -96,7 +96,6 @@ const useStyles = () => {
         backgroundColor: colors.BACKGROUND,
       },
       backButton: {
-        // padding: 8,
         paddingVertical: sizes.PADDING,
         alignItems: 'center',
         justifyContent: 'center',

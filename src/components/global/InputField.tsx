@@ -161,7 +161,6 @@ const useStyles = () => {
         borderWidth: 0.5,
         borderColor: theme.colors.RED,
 
-        // bottom: sizes.HEIGHT * -0.0216,
       },
       prefixText: {
         ...globalStyles.TEXT_STYLE,

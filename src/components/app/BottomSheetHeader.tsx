@@ -41,7 +41,6 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
 
   return (
     <View style={styles.wrapper}>
-      {/* Header */}
       <View style={styles.container}>
         {leftSideTitle && (
           <TouchableOpacity onPress={leftSideTitlePress} activeOpacity={0.7}>
@@ -61,7 +60,6 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
         )}
       </View>
 
-      {/* Search Bar */}
       {showSearchBar && (
         <View style={styles.searchBarContainer}>
           {isGroup ? (
@@ -71,7 +69,6 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
           ) : (
             <SvgSearchIcon />
           )}
-          {/* <SvgSearchIcon width={20} height={20} /> */}
           <TextInput
             allowFontScaling={false}
             style={[styles.searchInput, { textAlign: rtlTextAlign(isRtl) }]}
@@ -130,7 +127,6 @@ const useStyles = () => {
         fontSize: 12,
         color: colors.SECONDARY_TEXT,
         textAlign: 'center',
-        // marginTop: 2,
       },
       rightSideTitle: {
         fontSize: 16,

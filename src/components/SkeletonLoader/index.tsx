@@ -1,4 +1,3 @@
-// components/SkeletonLoader.tsx
 import React from 'react';
 import { View, Dimensions } from 'react-native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
@@ -36,7 +35,6 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
   const { isRtl } = useLocaleStore();
   const theme = useTheme();
 
-  // Calculate slider height same as ImageSlider component
   const getSliderHeight = () => {
     if (screenType === 'home') {
       const isProMax = theme.sizes.WIDTH > 430 && isIOS;
@@ -49,7 +47,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
         return theme.sizes.HEIGHT * 0.35;
       }
     }
-    return screenHeight * 0.34; // fallback for other screens
+    return screenHeight * 0.34;
   };
 
   const renderContent = () => {
@@ -104,7 +102,6 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               {/* Tabs Layout - Second Row (1 tab) */}
               <SkeletonPlaceholder.Item
                 flexDirection="row"
-                // justifyContent="flex-start"
                 marginBottom={screenHeight * 0.01}
               >
                 <SkeletonPlaceholder.Item
@@ -622,7 +619,6 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                     justifyContent: 'space-between',
                     gap: 10,
                     width: '100%',
-                    // ...theme.globalStyles.SHADOW_STYLE,
                   }}
                 >
                   <SkeletonPlaceholder
@@ -1003,7 +999,6 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                   width={screenWidth * 0.4}
                   height={screenHeight * 0.022}
                   borderRadius={screenWidth * 0.01}
-                  // marginBottom={screenHeight * 0.001}
                 />
 
                 {/* Cart Items */}
@@ -1349,7 +1344,6 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                   justifyContent: 'space-between',
                   gap: 10,
                   width: '100%',
-                  // ...theme.globalStyles.SHADOW_STYLE,
                 }}
               >
                 <SkeletonPlaceholder

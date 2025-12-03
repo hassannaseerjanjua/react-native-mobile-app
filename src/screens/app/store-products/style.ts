@@ -18,7 +18,6 @@ const useStyles = () => {
         paddingBottom: sizes.HEIGHT * 0.0255,
       },
       favoritesContainer: {
-        // paddingTop: sizes.PADDING,
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.005,
       },
@@ -36,8 +35,6 @@ const useStyles = () => {
         gap: sizes.PADDING,
       },
       gridItem: {
-        // width: '48%',
-        // marginBottom: sizes.HEIGHT * 0.015,
       },
       topImage: {
         width: sizes.WIDTH,
@@ -76,7 +73,6 @@ const useStyles = () => {
       },
       headingContainer: {
         paddingTop: sizes.HEIGHT * 0.028,
-        // paddingBottom: sizes.HEIGHT * 0.02,
         paddingHorizontal: sizes.PADDING,
       },
       footerContainer: {

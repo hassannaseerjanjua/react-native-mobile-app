@@ -29,7 +29,6 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
     },
   );
 
-  // console.log('StaticContentResponse', getStaticContent?.data?.ContentEn);
 
   const source = {
     html:

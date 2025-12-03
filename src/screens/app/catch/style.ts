@@ -18,7 +18,6 @@ const useStyles = () => {
       },
       tabsContainer: {
         marginVertical: sizes.HEIGHT * 0.02,
-        // paddingHorizontal: sizes.PADDING,
         height: sizes.HEIGHT * 0.044,
       },
       listWrapper: {

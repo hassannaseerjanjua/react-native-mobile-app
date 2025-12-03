@@ -13,17 +13,13 @@ const useStyles = () => {
       },
       content: {
         flex: 1,
-        // paddingHorizontal: sizes.PADDING,
-        // paddingTop: sizes.HEIGHT * 0.005,
       },
       list: {
         flex: 1,
       },
       favoritesContainer: {
-        // paddingTop: sizes.PADDING,
         paddingHorizontal: sizes.PADDING,
         paddingBottom: sizes.PADDING * 2,
-        // paddingTop: sizes.HEIGHT * 0.005,
       },
       favoriteItemContainer: {
         paddingBottom: sizes.HEIGHT * 0.015,
@@ -39,8 +35,6 @@ const useStyles = () => {
         gap: sizes.PADDING,
       },
       gridItem: {
-        // width: '48%',
-        // marginBottom: sizes.HEIGHT * 0.015,
       },
       emptyContainer: {
         alignItems: 'center',

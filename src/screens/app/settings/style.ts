@@ -19,7 +19,6 @@ const useStyles = () => {
         flex: 1,
       },
       scrollContent: {
-        // backgroundColor: 'red',
         paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.PADDING * 0,
         paddingBottom: sizes.HEIGHT * 0.02,
@@ -36,18 +35,15 @@ const useStyles = () => {
       title: {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_LESS_HIGH,
-        // color: colors.PRIMARY_TEXT,
         marginBottom: sizes.PADDING * 0.2,
       },
       languageContainer: {
-        // marginBottom: sizes.PADDING * 1.5,
         paddingVertical: sizes.PADDING * 0.1,
       },
       languageOption: {
         flexDirection: 'row',
         alignItems: 'center',
         paddingVertical: sizes.PADDING * 0.4,
-        // paddingHorizontal: sizes.PADDING * 0.5,
       },
       radioButton: {
         width: scaleWithMax(20, 22),
@@ -90,8 +86,6 @@ const useStyles = () => {
       genderOptions: {
         flexDirection: 'row',
         gap: sizes.PADDING * 1.5,
-        // backgroundColor: 'red',
-        // justifyContent: 'flex-start',
       },
       genderOption: {
         flexDirection: 'row',

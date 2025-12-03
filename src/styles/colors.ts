@@ -22,21 +22,11 @@ const defaultColors = {
 const colorsDark = {
   ...defaultColors,
   isDark: true,
-  // BACKGROUND: 'black',
-  // TEXT: 'white',
-  // PRIMARY_BACKGROUND: '#F6F9FE',
-  // LIGHT_GRAY: '#5c5e5c',
-  // GRAY: 'grey',
 };
 
 const colorsLight = {
   ...defaultColors,
   isDark: false,
-  // BACKGROUND: 'white',
-  // PRIMARY_BACKGROUND: '#F6F9FE',
-  // TEXT: 'black',
-  // LIGHT_GRAY: '#c1c7c2',
-  // GRAY: 'grey',
 };
 
 export type Colors = typeof colorsDark;

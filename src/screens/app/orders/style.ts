@@ -18,7 +18,6 @@ const useStyles = () => {
       },
       scrollView: {
         flex: 1,
-        // paddingHorizontal: sizes.PADDING,
       },
       scrollContent: {},
       contentContainer: {

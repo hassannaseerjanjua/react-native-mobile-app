@@ -99,19 +99,16 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   const theme = useTheme();
   const navigation = useNavigation();
 
-  // Memoize all users to avoid recalculation on every render
   const allUsers = useMemo(
     () => listings?.flatMap(listing => listing.users || []) || [],
     [listings],
   );
 
-  // Memoize selected users data
   const selectedUsersData = useMemo(
     () => allUsers.filter(user => selectedUsers.has(user.UserId)),
     [allUsers, selectedUsers],
   );
 
-  // Centralized state reset function
   const resetModalState = useCallback(
     (prefillGroupName = false) => {
       setModalStep(1);
@@ -261,7 +258,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     navigation,
   ]);
 
-  // Memoize style for viewOnly to avoid recreation
   const selectedUsersContainerStyle = useMemo(
     () =>
       viewOnly
@@ -275,7 +271,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       return null;
     }
 
-    // Horizontal scroll view for selected users
     return (
       <View style={selectedUsersContainerStyle}>
         <ScrollView
@@ -312,7 +307,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     );
   };
 
-  // Memoize filtered listings
   const filteredListings = useMemo(() => {
     if (!searchQuery.trim()) {
       return listings;
@@ -406,7 +400,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     );
   };
 
-  // Memoize member rows to avoid recalculation
   const memberRows = useMemo(() => {
     const chunks: ActiveUser[][] = [];
     for (let i = 0; i < selectedUsersData.length; i += 4) {
@@ -455,7 +448,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     }
   }, [visible]);
 
-  // Handle keyboard events for Android
   useEffect(() => {
     if (Platform.OS !== 'android' || !visible) {
       return;
@@ -480,12 +472,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     };
   }, [visible, modalStep]);
 
-  // Get screen dimensions for Android to prevent modal shift
   const screenDimensions = useMemo(() => {
     return Dimensions.get('screen');
   }, []);
 
-  // Use screen dimensions (which don't change with keyboard) for Android to prevent shift
   const modalContainerStyle = useMemo(() => {
     if (Platform.OS === 'android') {
       const screenHeight = screenDimensions.height;
@@ -496,7 +486,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         styles.modalContainer,
         {
           height: modalHeight,
-          // Use explicit top positioning instead of bottom: 0 to prevent shift
           bottom: undefined,
           top: statusBarOffset,
         },
@@ -676,7 +665,6 @@ const useStyles = () => {
   const styles = useMemo(() => {
     const { colors, sizes } = theme;
 
-    // Shared shadow style
     const shadowStyle = {
       shadowColor: colors.BLACK,
       shadowOffset: { width: 0, height: 2 },

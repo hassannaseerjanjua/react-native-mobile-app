@@ -44,13 +44,11 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           elevation: 17,
         },
         SHADOW_STYLE: {
-          // shadowColor: colors.PRIMARY_TEXT,
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 0.05,
           shadowRadius: 17,
           elevation: 17,
-          // borderWidth: Platform.OS == 'android' && colors.isDark ? 0.5 : 0,
         },
         SHADOW_STYLE_LOW: {
           shadowColor: '#0000000D',

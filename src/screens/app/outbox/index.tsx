@@ -104,7 +104,6 @@ const OutboxItem = ({
           <View
             style={{
               display: 'flex',
-              // backgroundColor: theme.colors.RED,
               flexDirection: 'column',
               justifyContent: 'space-between',
               paddingVertical: theme.sizes.PADDING * 0.26,
@@ -123,7 +122,6 @@ const OutboxItem = ({
               <Text style={{}}>{OutBox.name}</Text>
               <Text
                 style={{
-                  // backgroundColor: theme.colors.WHITE,
                   fontSize: theme.sizes.FONTSIZE,
                 }}
               >

@@ -47,7 +47,6 @@ const AppBottomSheet = ({
   const theme = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  // Calculate snap points based on height or use provided snap points
   const calculatedSnapPoints = useMemo(() => {
     if (snapPoints) return snapPoints;
     if (height) {
@@ -64,7 +63,6 @@ const AppBottomSheet = ({
     return fullHeight ? ['100%'] : ['50%'];
   }, [height, snapPoints, fullHeight]);
 
-  // Custom backdrop component with blur effect
   const renderBackdrop = useCallback(
     (props: any) => (
       <BottomSheetBackdrop
@@ -91,7 +89,6 @@ const AppBottomSheet = ({
     [blurType, blurAmount],
   );
 
-  // Handle sheet changes
   const handleSheetChanges = useCallback(
     (index: number) => {
       if (index === -1) {
@@ -143,7 +140,6 @@ const AppBottomSheet = ({
             <View
               style={{
                 flex: 1,
-                // padding: fullHeight ? 0 : scaleWithMax(16, 20),
               }}
             >
               {children}

@@ -14,14 +14,12 @@ const useStyles = () => {
       },
       tabsContainer: {
         marginVertical: sizes.HEIGHT * 0.02,
-        // paddingHorizontal: sizes.PADDING,
         height: sizes.HEIGHT * 0.044,
       },
       content: {
         flex: 1,
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.005,
-        // paddingBottom: sizes.PADDING * 3,
       },
       listContent: {
         paddingBottom: sizes.PADDING * 3,

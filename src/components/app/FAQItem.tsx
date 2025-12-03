@@ -123,11 +123,9 @@ const useStyles = () => {
         flexShrink: 1,
       },
       arrowIcon: {
-        // Base arrow icon - RTL and rotation handled inline
       },
       answerContainer: {
         marginHorizontal: theme.sizes.PADDING,
-        // paddingBottom: theme.sizes.HEIGHT * 0.017,
         paddingTop: theme.sizes.HEIGHT * 0.01,
         borderTopWidth: 1,
         borderTopColor: colors.SECONDARY_GRAY,

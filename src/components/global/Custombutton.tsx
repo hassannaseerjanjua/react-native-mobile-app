@@ -43,7 +43,6 @@ const CustomButton = ({
 
   const baseStyle: ViewStyle = {
     width: '100%',
-    // height: height * 0.06,
     height: scaleWithMax(45, 50),
     borderRadius: 10,
     justifyContent: 'center',
