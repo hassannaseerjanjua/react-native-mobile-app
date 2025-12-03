@@ -36,7 +36,7 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 const SettingsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
   const dispatch = useDispatch();
   const { getString, langCode } = useLocaleStore();
   const [selectedLanguage, setSelectedLanguage] = useState<
@@ -66,12 +66,10 @@ const SettingsScreen: React.FC = () => {
   );
   const [selectedOption, setSelectedOption] = useState<any>(null);
 
-  // Prevent navigation during shimmer loading
   useFocusEffect(
     React.useCallback(() => {
       const unsubscribe = navigation.addListener('beforeRemove', (e: any) => {
         if (shimmerLoading) {
-          // Prevent navigation during shimmer loading
           e.preventDefault();
           return;
         }
@@ -131,8 +129,13 @@ const SettingsScreen: React.FC = () => {
         },
       })
       .then(response => {
-        if (response.success && response.data?.Data) {
-          dispatch(login({ ...user, ...response.data.Data }));
+        if (response.success && response.data?.Data && token) {
+          dispatch(
+            login({
+              user: { ...user, ...response.data.Data },
+              token: token,
+            }),
+          );
         } else if (response.failed) {
           notify.error(response.error || getString('AU_ERROR_OCCURRED'));
         }
@@ -182,7 +185,6 @@ const SettingsScreen: React.FC = () => {
                     setShimmerLoading(true);
                     shiftLanguage(language === 'English' ? 'en' : 'ar');
 
-                    // Hide shimmer after a short delay to show the transition
                     setTimeout(() => {
                       setShimmerLoading(false);
                     }, 1000);

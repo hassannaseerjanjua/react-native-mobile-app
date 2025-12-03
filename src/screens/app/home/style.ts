@@ -14,12 +14,10 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         paddingHorizontal: 0,
-        // backgroundColor: 'red',
       },
       mainContent: {
         flex: 1,
 
-        // paddingBottom: sizes.HEIGHT * 0.02,
       },
       contentContainer: {
         flex: 1,
@@ -31,7 +29,6 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
         paddingHorizontal: sizes.PADDING,
-        // backgroundColor: 'red',
       },
       userName: {
         fontFamily: fonts.Quicksand.bold,

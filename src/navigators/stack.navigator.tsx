@@ -3,7 +3,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 
-//Screens
 import Home from '../screens/app/home/index.tsx';
 import SearchScreen from '../screens/app/search/index.tsx';
 import SendAGiftScreen from '../screens/app/send-a-gift/index.tsx';
@@ -19,7 +18,6 @@ import {
   RootStackParamList,
 } from '../types/navigation.types.ts';
 
-// Navigators
 import AuthStackNavigator from './auth.navigator';
 import BottomTabNavigator from './bottom-tabs.navigator';
 import StaticContent from '../screens/app/static-content/index.tsx';

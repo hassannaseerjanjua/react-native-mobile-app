@@ -67,11 +67,6 @@ const useStyles = () => {
       },
       tabHeading: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-        // fontFamily: 'Quicksand-Medium',
-        // fontWeight: '500',
-        // fontSize: 15,
-        // textAlign: 'center',
-        // color: colors.PRIMARY_TEXT,
       },
       activeTabHeading: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,

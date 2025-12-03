@@ -43,7 +43,7 @@ const ProfileScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const dispatch = useDispatch();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
   const { getString } = useLocaleStore();
   const dummyImage = require('../../../assets/images/user.png');
   const [isUploading, setIsUploading] = useState(false);
@@ -83,8 +83,7 @@ const ProfileScreen: React.FC = () => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   const handleImageSelect = () => {
@@ -129,12 +128,16 @@ const ProfileScreen: React.FC = () => {
         },
       )
       .then(response => {
-        if (response.data?.Data) {
-          dispatch(login({ ...user, ...response.data.Data }));
+        if (response.data?.Data && token) {
+          dispatch(
+            login({
+              user: { ...user, ...response.data.Data },
+              token: token,
+            }),
+          );
         }
       })
-      .catch(error => {
-      })
+      .catch(error => {})
       .finally(() => {
         setIsUploading(false);
       });
@@ -160,7 +163,6 @@ const ProfileScreen: React.FC = () => {
       title: getString('P_MY_FAVOURITES'),
       icon: <SvgProfileFavorites />,
       onPress: () => {
-        // Navigate to bottom tabs and then to favorites with profile parameter
         (navigation as any).navigate('BottomTabs', {
           screen: 'Favorites',
           params: { redirectionType: 'profile' },

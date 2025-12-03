@@ -21,7 +21,6 @@ import { Text } from '../../../utils/elements';
 
 const LocationSelection: React.FC = () => {
   const { styles, theme } = useStyles();
-  // const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(true);
   const initialValues = {
     address: '',
   };
@@ -50,14 +49,11 @@ const LocationSelection: React.FC = () => {
         onClose={() => {}}
       >
         <View style={styles.bottomSheetContainer}>
-          {/* Need To work in this becuase the icon is not rendering due to the bottomsheet modal being in the top of the dom */}
-
           <View style={{ position: 'absolute', top: -80, zIndex: 5000 }}>
             <View style={styles.locationCircle}>
               <LocationArrowSvg />
             </View>
           </View>
-          {/* Need To work in this becuase the icon is not rendering due to the bottomsheet modal being in the top of the dom */}
           <Text style={styles.bottomSheetHeading}>Delivery Location</Text>
           <Text style={styles.bottomSheetDescription}>
             1107.5 KM. Gulshan - e - Maymar 1107.5 KM. Gulshan - e - Maymar

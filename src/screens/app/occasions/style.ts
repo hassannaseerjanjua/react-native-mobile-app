@@ -12,7 +12,6 @@ const useStyles = () => {
         paddingHorizontal: 0,
       },
       content: {
-        // flex: 1,
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.012,
         paddingBottom: sizes.HEIGHT * 0.1,

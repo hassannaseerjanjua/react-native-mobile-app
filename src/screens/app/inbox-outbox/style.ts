@@ -22,7 +22,6 @@ const useStyles = () => {
       },
       inboxProfile: {
         borderRadius: 99,
-        // marginRight: sizes.PADDING * 0.6,
         width: scaleWithMax(45, 50),
         height: scaleWithMax(45, 50),
         resizeMode: 'stretch',
@@ -79,7 +78,6 @@ const useStyles = () => {
         alignSelf: 'center',
         position: 'relative',
         gap: sizes.HEIGHT * 0.01,
-        // paddingBottom: sizes.PADDING * 1.3,
       },
       userNameText: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,

@@ -28,11 +28,9 @@ const useStyles = () => {
         borderRadius: 99,
         backgroundColor: theme.colors.PRIMARY,
         position: 'relative',
-        // marginRight: sizes.MARGIN,
       },
       locationNumText: {
         color: theme.colors.WHITE,
-        // fontWeight: 'bold',
 
         position: 'absolute',
         top: 4,

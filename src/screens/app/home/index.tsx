@@ -88,7 +88,6 @@ const HomeScreen: React.FC = () => {
   );
 };
 
-// Component to handle all the tabs
 const HomeScreenTabsContainer: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();

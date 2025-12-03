@@ -57,7 +57,6 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     VideoFile: undefined,
   });
 
-  // Sync message with payload
   useEffect(() => {
     setSendMessagePayload(prev => ({
       ...prev,
@@ -108,7 +107,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
 
         if (response.assets && response.assets[0]) {
           const asset = response.assets[0];
-          const duration = asset.duration || 0; // Duration in seconds
+          const duration = asset.duration || 0;
 
           if (duration > 15) {
             notify.error('Video duration must be 15 seconds or less');
@@ -131,7 +130,6 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     );
   };
 
-  // Check if there's any content (filter, message, or video)
   const hasContent =
     sendMessagePayload.ImageFilterId !== null ||
     message.trim().length > 0 ||
@@ -139,10 +137,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
 
   const handleButtonPress = async () => {
     if (hasContent) {
-      // If there's content, call the API
       await addGiftMessage();
     } else {
-      // If no content, skip and navigate to checkout
       (navigation as any).navigate('CheckOut', {
         friendUserId,
         storeBranchId,

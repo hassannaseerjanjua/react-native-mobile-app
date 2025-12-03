@@ -2,13 +2,11 @@ import { configureStore, combineReducers } from '@reduxjs/toolkit';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { persistStore, persistReducer } from 'redux-persist';
 
-// reducers
 import settings, { SettingsState } from './reducer/settings';
 import auth from './reducer/auth';
 import locale, { LocaleState } from './reducer/locale';
 import { User } from '../types';
 
-// config
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
@@ -23,7 +21,6 @@ const rootReducer = combineReducers({
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
 
-//  root reducer
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: getDefaultMiddleware =>
@@ -38,5 +35,6 @@ export interface RootState {
   auth: {
     isAuthenticated: boolean;
     user: User | null;
+    token: string | null;
   };
 }

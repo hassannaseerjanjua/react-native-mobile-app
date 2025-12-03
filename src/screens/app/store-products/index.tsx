@@ -44,7 +44,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
-  // Use dummy store images if URLs are missing or empty (like select store uses)
   const storeCoverImage =
     store?.imageCover && store.imageCover.trim()
       ? { uri: store.imageCover }
@@ -278,7 +277,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             onPress={() => {
               if (!cartApi.data) return;
 
-              // Create a product object from cart data for GiftMessage
               const cartData = cartApi.data;
               const firstItem = cartData.Items[0];
               const product = {

@@ -146,7 +146,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       };
       const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
       if (response.success) {
-        // Navigate back to store listing
         navigation.goBack();
       } else {
         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
@@ -213,7 +212,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           <ScrollView
             contentContainerStyle={{
               paddingHorizontal: sizes.PADDING,
-              // paddingTop: sizes.HEIGHT * 0.02,
               paddingBottom: sizes.HEIGHT * 0.15,
             }}
           >

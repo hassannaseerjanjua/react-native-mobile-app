@@ -67,7 +67,6 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
               {item.subtitle}
             </Text>
           )}
-          {/* Cut price (original price with strikethrough) in same row as category */}
           {!item.isGift &&
             item.discountedPrice &&
             item.discountedPrice > 0 &&
@@ -125,7 +124,6 @@ const useStyles = () => {
         borderRadius: 12,
         marginBottom: sizes.HEIGHT * 0.018,
         flex: 1,
-        // marginHorizontal: 4,
       },
       imageContainer: {
         position: 'relative',

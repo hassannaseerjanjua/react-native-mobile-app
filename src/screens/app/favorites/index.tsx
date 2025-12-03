@@ -49,12 +49,11 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     {},
   );
 
-  // Initialize favorite states from API data (all should be true since they're favorites)
   useEffect(() => {
     if (FavStoreListing.data) {
       const initialState: Record<number, boolean> = {};
       FavStoreListing.data.forEach(store => {
-        initialState[store.StoreId] = true; // All stores in favorites are favorited
+        initialState[store.StoreId] = true;
       });
       setFavoriteStates(initialState);
     }
@@ -123,7 +122,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     const previousFavoriteState = favoriteStates[storeId] ?? true;
     const newFavoriteState = !previousFavoriteState;
 
-    // Optimistically update the favorite state
     setFavoriteStates(prev => ({
       ...prev,
       [storeId]: newFavoriteState,
@@ -136,9 +134,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         IsFavorite: newFavoriteState,
       });
       if (res.success) {
-        // Item stays in list, only favorite state changes
       } else {
-        // Revert the state change on error
         setFavoriteStates(prev => ({
           ...prev,
           [storeId]: previousFavoriteState,
@@ -146,7 +142,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
     } catch (error: any) {
-      // Revert the state change on error
       setFavoriteStates(prev => ({
         ...prev,
         [storeId]: previousFavoriteState,

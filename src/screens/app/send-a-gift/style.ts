@@ -24,7 +24,6 @@ const useStyles = () => {
       },
       listContainer: {
         paddingVertical: 0,
-        // marginBottom: sizes.HEIGHT * 0.2,
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.semibold,
@@ -60,12 +59,9 @@ const useStyles = () => {
       },
       scrollableContent: {
         flex: 1,
-        // overflow: 'visible',
       },
       scrollableContentContainer: {
         flexGrow: 1,
-        // overflow: 'visible',
-        // paddingBottom: sizes.HEIGHT * 0.02,
         paddingHorizontal: theme.sizes.PADDING,
       },
       bottomSheetContainer: {
@@ -160,7 +156,6 @@ const useStyles = () => {
         width: '100%',
       },
       step2Container: {
-        // paddingHorizontal: sizes.WIDTH * 0.04,
         paddingVertical: sizes.HEIGHT * 0.02,
       },
       membersHeading: {

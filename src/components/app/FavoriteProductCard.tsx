@@ -26,11 +26,9 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
   const { theme } = useStyles();
   const { styles } = useStyles();
 
-  // Check if item is StoreProduct or FaveItems
   const isStoreProduct = 'ItemId' in item && 'Thumbnail' in item;
   const isFaveItems = 'FavItemId' in item && 'ItemImage' in item;
 
-  // Get values based on type
   const itemImage = isStoreProduct
     ? (item as StoreProduct).Thumbnail
     : isFaveItems
@@ -108,7 +106,6 @@ const useStyles = () => {
         marginBottom: sizes.HEIGHT * 0.018,
         flex: 1,
         maxWidth: '48%',
-        // marginHorizontal: 4,
       },
       imageContainer: {
         position: 'relative',
@@ -152,7 +149,6 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         gap: 3,
-        // backgroundColor: 'red',
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,

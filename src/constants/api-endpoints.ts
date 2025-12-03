@@ -1,26 +1,21 @@
 const version = `v1`;
 const apiEndpoints = {
-  // Base URL
   BASE_URL: `https://giftee-api-dev.hostinger.bitscollision.net`,
 
-  // App
   LOCALE: (langId: number) =>
     `/${version}/Home/GetResources?appType=1&langID=${langId}`,
 
-  // Auth
-  VERIFY_USERNAME: `/${version}/Home/VerifyUserName`,
-  SIGNUP: `/${version}/Home/RegisterUserAndSendOTP`,
-  VERIFY_OTP: `/${version}/Home/VerifyOTP`,
-  SIGNIN: `/${version}/Home/SignIn`,
-  VERIFY_OTP_SIGNIN: `/${version}/Home/VerifyOTP-SignIn`,
+  VERIFY_USERNAME: `/${version}/Auth/VerifyUserName`,
+  SIGNUP: `/${version}/Auth/RegisterUserAndSendOTP`,
+  VERIFY_OTP: `/${version}/Auth/VerifyOTP`,
+  SIGNIN: `/${version}/Auth/SignIn`,
+  VERIFY_OTP_SIGNIN: `/${version}/Auth/VerifyOTP-SignIn`,
   GET_CITY_LISTING: `/${version}/Home/GetCityListing`,
 
-  // Home
   GET_HOME_SLIDER: `/${version}/Home/GetSliders`,
   GET_INBOX_OUTBOX_DETAILS: (isInbox: boolean) =>
     `/${version}/User/GetOrdersForInboxOutbox?inbox=${isInbox}`,
 
-  // Social
   GET_ACTIVE_USERS: (
     userId?: number,
     pageIndex: number = 1,
@@ -47,14 +42,12 @@ const apiEndpoints = {
   CHECK_USER_LINKED_WITH_GROUP: (friendUserId?: number) =>
     `/${version}/Friends/CheckFriendInGroups?friendUserId=${friendUserId}`,
 
-  //occasions
   CREATE_OCCASION: `/${version}/User/CreateNewOccasion`,
   UPDATE_OCCASION: (id: any) => `/${version}/User/UpdateOccasion?id=${id}`,
   GET_OCCASION_DETAIL: (id: any) => `/${version}/User/GetOccasionById?id=${id}`,
   GET_OCCASIONS: `/${version}/User/GetAllOccasions`,
   DELETE_OCCASION: (id: any) => `/${version}/User/DeleteOccasion?id=${id}`,
 
-  //store
   GET_FAV_STORE: `/${version}/User/GetFavStores`,
   GET_FAV_STORE_ITEMS: (storeId?: any) =>
     storeId
@@ -74,10 +67,8 @@ const apiEndpoints = {
   GENERATE_QR_CODE: (orderId: any) =>
     `/${version}/User/generate-qr?orderId=${orderId}`,
 
-  // Catch
   GET_CATCH_ITEMS: `/${version}/User/GetCampaignsForUsers`,
 
-  // Cart APIS
   ADD_TO_CART: `/${version}/User/AddToGiftCart`,
   GET_CART_ITEMS: `/${version}/User/GetGiftCart`,
   UPDATE_CART_ITEM_QUANTITY: `/${version}/User/UpdateCart`,
@@ -86,7 +77,6 @@ const apiEndpoints = {
   GET_CART_COUNT: `/${version}/Home/GetCartItemCount`,
   CLEAR_CART: `/${version}/User/ClearCart`,
 
-  // Settings
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,
   CONTACT_US_SUBMIT: `/${version}/Home/ContactUsRequest`,
   GET_STATIC_CONTENT: (code: string) =>

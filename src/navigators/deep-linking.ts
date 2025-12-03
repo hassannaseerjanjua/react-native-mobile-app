@@ -8,13 +8,11 @@ export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
   prefixes: ['giftee://', 'https://giftee.app'],
   config: {
     screens: {
-      // Auth Screens
       Landing: 'landing',
       SignIn: 'signin',
       SignUp: 'signup',
       OtpVerification: 'otp',
 
-      // App Screens
       BottomTabs: {
         path: 'home',
         screens: {

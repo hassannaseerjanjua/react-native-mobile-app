@@ -58,7 +58,6 @@ const DropdownField = ({
   const handleSelect = (option: DropdownOption) => {
     onSelect(option);
     setIsVisible(false);
-    // Clear search field when option is selected
     onSearchChange?.('');
   };
 

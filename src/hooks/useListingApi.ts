@@ -123,14 +123,12 @@ export const useListingApi = <T>(
     sortColumn,
     sortDirection,
 
-    // Setters
     setPage,
     setSearch,
     setPageSize,
     setExtraParams,
     setSortColumn,
     setSortDirection,
-    // Functions
     setData,
     recall,
     add,

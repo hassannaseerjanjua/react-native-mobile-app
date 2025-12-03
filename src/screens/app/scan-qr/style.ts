@@ -40,7 +40,6 @@ const useStyles = () => {
         borderRadius: 12,
 
         marginVertical: sizes.PADDING * 0.6,
-        // justifyContent: 'space-between',
         flexDirection: 'row',
         gap: sizes.PADDING,
         alignItems: 'center',

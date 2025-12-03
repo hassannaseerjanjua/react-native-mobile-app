@@ -29,13 +29,10 @@ const useStyles = () => {
         resizeMode: 'contain',
       },
       inboxImage: {
-        // padding: sizes.PADDING,
         borderTopLeftRadius: 12,
         borderTopRightRadius: 12,
         width: '100%',
         height: scaleWithMax(290, 300),
-        // width: scaleWithMax(290, 300),
-        // height: scaleWithMax(290, 300),
         resizeMode: 'cover',
         flexDirection: 'row',
         alignItems: 'flex-start',
@@ -50,7 +47,6 @@ const useStyles = () => {
         gap: sizes.WIDTH * 0.013,
       },
       inboxImageBottom: {
-        // backgroundColor: theme.colors.RED,
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'space-between',

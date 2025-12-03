@@ -51,7 +51,7 @@ export type AppStackParamList = {
       id?: string | number;
       title: string;
       subtitle: string;
-      image: any; // Can be require() or { uri: string }
+      image: any;
       price: number;
       discountedPrice?: number;
       storeId?: number;
@@ -99,7 +99,7 @@ export type AppStackParamList = {
   };
   ScanQr: {
     OrderId?: number | null;
-    productImage?: any; // Can be require() or { uri: string }
+    productImage?: any;
     storeName?: string;
     quantity?: number;
     productName?: string;
@@ -111,7 +111,7 @@ export type AppStackParamList = {
           id?: string | number;
           title?: string;
           subtitle?: string;
-          image?: any; // Can be require() or { uri: string }
+          image?: any;
           price?: number;
           discountedPrice?: number;
           storeId?: number;

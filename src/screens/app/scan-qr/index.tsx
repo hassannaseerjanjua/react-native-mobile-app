@@ -46,9 +46,6 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
       console.log('QR Code API Response:', JSON.stringify(response, null, 2));
 
       if (response.success && response.data) {
-        // The API response structure based on user's example:
-        // response.data = { Data: QrCodeData, ResponseCode, Success, ResponseMessage }
-        // So response.data.Data contains the QrCodeData
         const qrData = response.data?.Data;
         if (qrData && qrData.QrCodeBase64) {
           setQrCodeData(qrData);

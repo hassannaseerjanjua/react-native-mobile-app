@@ -37,7 +37,6 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         backgroundColor: theme.colors.WHITE,
-        // backgroundColor: theme.colors.RED,
         borderRadius: sizes.BORDER_RADIUS,
         paddingVertical: sizes.PADDING * 0.5,
         paddingHorizontal: sizes.PADDING * 0.75,
@@ -49,13 +48,11 @@ const useStyles = () => {
         width: scaleWithMax(80, 85),
         height: scaleWithMax(80, 85),
         borderRadius: sizes.BORDER_RADIUS,
-        // marginRight: sizes.MARGIN,
       },
       GiftContainerImage: {
         width: scaleWithMax(30, 35),
         height: scaleWithMax(30, 35),
         borderRadius: 999,
-        // marginRight: sizes.MARGIN,
       },
       TextSmall: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,

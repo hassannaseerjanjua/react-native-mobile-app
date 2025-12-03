@@ -34,7 +34,6 @@ const AddCart: React.FC = () => {
       .matches(/^\d{3,4}$/, 'CVV must be 3 or 4 digits'),
     ExpiryDate: Yup.string().required('Expiry date is required'),
 
-    // Dob: birthdayValidation(getString),
   });
   const [date, setDate] = useState(() => {
     if (false) {
@@ -111,9 +110,6 @@ const AddCart: React.FC = () => {
                         fieldProps={{
                           placeholder: getString('ADD_CARD_EXPIRY_PLACEHOLDER'),
                           value: formik.values.ExpiryDate,
-                          // onChangeText: (value: string) => {
-                          //   formik.setFieldValue('CardNumber', value);
-                          // },
                           editable: false,
                           autoCapitalize: 'none',
                         }}

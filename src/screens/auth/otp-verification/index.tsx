@@ -41,10 +41,8 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const timerRef = useRef<number>(60);
   const isTimerActiveRef = useRef<boolean>(true);
 
-  // Get email and phone from route parameters
   const { email, phone, fullName, username, city, signIn } = route.params;
 
-  // Sync refs with state
   useEffect(() => {
     timerRef.current = timer;
   }, [timer]);
@@ -53,16 +51,13 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     isTimerActiveRef.current = isTimerActive;
   }, [isTimerActive]);
 
-  // Handle app state changes (background/foreground)
   useEffect(() => {
     const subscription = AppState.addEventListener(
       'change',
       (nextAppState: AppStateStatus) => {
         if (nextAppState === 'background' || nextAppState === 'inactive') {
-          // App is going to background - store the current time
           backgroundTimeRef.current = Date.now();
         } else if (nextAppState === 'active') {
-          // App is coming to foreground - calculate elapsed time
           if (
             backgroundTimeRef.current &&
             isTimerActiveRef.current &&
@@ -89,7 +84,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     };
   }, []);
 
-  // Timer countdown
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
     if (isTimerActive && timer > 0) {
@@ -112,7 +106,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     return () => clearInterval(interval);
   }, [isTimerActive, timer]);
 
-  // Auto-focus first input to open keyboard
   useEffect(() => {
     const timer = setTimeout(() => {
       inputRefs.current[0]?.focus();
@@ -120,7 +113,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     return () => clearTimeout(timer);
   }, []);
 
-  // Auto-verify when all digits are entered
   useEffect(() => {
     const isComplete = otp.every(digit => digit !== '');
     const otpString = otp.join('');
@@ -131,7 +123,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       !hasVerified &&
       otpString !== lastVerifiedOtp
     ) {
-      // Small delay to ensure all inputs are updated
       setTimeout(() => {
         Keyboard.dismiss();
         handleVerify();
@@ -140,22 +131,18 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   }, [otp, isLoading, hasVerified, lastVerifiedOtp]);
 
   const handleOtpChange = (value: string, index: number) => {
-    // Reset verification flag when OTP changes
     if (hasVerified) {
       setHasVerified(false);
-      setLastVerifiedOtp(''); // Clear last verified OTP when user changes input
+      setLastVerifiedOtp('');
     }
 
-    // Handle only single digit or empty string
     const sanitizedValue = value.replace(/[^0-9]/g, '').slice(0, 1);
 
     const newOtp = [...otp];
     newOtp[index] = sanitizedValue;
     setOtp(newOtp);
 
-    // Auto-focus next input when digit is entered
     if (sanitizedValue && index < 5) {
-      // Use setTimeout to prevent race conditions when typing fast
       setTimeout(() => {
         inputRefs.current[index + 1]?.focus();
       }, 10);
@@ -163,7 +150,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   };
 
   const handleKeyPress = (key: string, index: number) => {
-    // Handle backspace - move to previous input if current is empty
     if (key === 'Backspace' && !otp[index] && index > 0) {
       setTimeout(() => {
         inputRefs.current[index - 1]?.focus();
@@ -174,7 +160,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
   const handleVerify = async () => {
     const otpString = otp.join('');
 
-    // Prevent duplicate calls
     if (isLoading || otpString.length !== 6 || hasVerified) {
       return;
     }
@@ -192,24 +177,29 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         Email: email,
         PhoneNo: phone,
       });
-      if (response.success && response.data?.Data?.User) {
-        dispatch(login(response.data.Data.User));
+      if (
+        response.success &&
+        response.data?.Data?.User &&
+        response.data?.Data?.JwtToken
+      ) {
+        dispatch(
+          login({
+            user: response.data.Data.User,
+            token: response.data.Data.JwtToken,
+          }),
+        );
       } else {
-        // Show error button for 3 seconds
         setShowError(true);
         setTimeout(() => {
           setShowError(false);
         }, 3000);
-        // Reset verification flag on error so user can try again
         setHasVerified(false);
       }
     } catch (error) {
-      // Show error button for 3 seconds
       setShowError(true);
       setTimeout(() => {
         setShowError(false);
       }, 3000);
-      // Reset verification flag on error so user can try again
       setHasVerified(false);
     } finally {
       setTimeout(() => {
@@ -227,7 +217,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     isTimerActiveRef.current = true;
     backgroundTimeRef.current = null;
     const endpoint = signIn ? apiEndpoints.SIGNIN : apiEndpoints.SIGNUP;
-    // Handle resend OTP logic here
     try {
       const response = await api.post(endpoint, {
         FullName: fullName,

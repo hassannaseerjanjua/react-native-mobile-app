@@ -28,7 +28,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const { user } = useAuthStore();
   const { getString } = useLocaleStore();
 
-  // Get parameters from route
   const {
     title,
     showFriendsOnly = false,
@@ -49,7 +48,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     new Set(),
   );
 
-  // Use debounced search hook
   const { search: searchQuery, setSearch: setSearchQuery } = useDebouncedSearch(
     (debouncedValue: string) => {
       setDebouncedSearchQuery(debouncedValue);
@@ -97,11 +95,9 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       await api.post(apiEndpoints.ADD_FRIEND(user?.UserId), {
         friendUserId: userId,
       });
-      // Show temporary "Added" button only on general search screen
       if (!showFriendsOnly && !showConnectOnly) {
         setTempAddedUserIds(prev => new Set(prev).add(userId));
 
-        // Set individual timer for this user
         setTimeout(() => {
           setTempAddedUserIds(prev => {
             const newSet = new Set(prev);
@@ -241,9 +237,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   )}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContainer}
-                  // onEndReached={
-                  //   searchQuery ? undefined : () => setPageIndex(prev => prev + 1)
-                  // }
                   onEndReachedThreshold={0.5}
                 />
               );

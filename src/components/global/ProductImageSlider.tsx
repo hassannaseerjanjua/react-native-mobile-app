@@ -117,7 +117,6 @@ const useStyles = () => {
       StyleSheet.create({
         container: {
           position: 'relative',
-          //  width: theme.sizes.PADDED_WIDTH,
           height: isProMax
             ? theme.sizes.HEIGHT * 0.42
             : isBaseModel

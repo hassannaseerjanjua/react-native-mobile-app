@@ -35,5 +35,4 @@ export const dynamicArrayItem = (item: any, condition: boolean) => {
   return [];
 };
 
-// RTL Utilities
 export * from './rtl';

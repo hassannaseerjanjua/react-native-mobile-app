@@ -6,26 +6,31 @@ import { User } from '../../types';
 interface AuthState {
   isAuthenticated: boolean;
   user: User | null;
+  token: string | null;
 }
 
-// init states
 const initState: AuthState = {
   isAuthenticated: false,
   user: null,
+  token: null,
 };
 
-// reducer
 const auth = createSlice({
   name: 'auth',
   initialState: initState,
   reducers: {
-    login(state: AuthState, action: PayloadAction<User>) {
+    login(
+      state: AuthState,
+      action: PayloadAction<{ user: User; token: string }>,
+    ) {
       state.isAuthenticated = true;
-      state.user = action.payload;
+      state.user = action.payload.user;
+      state.token = action.payload.token;
     },
     logout(state: AuthState) {
       state.isAuthenticated = false;
       state.user = null;
+      state.token = null;
     },
   },
 });
