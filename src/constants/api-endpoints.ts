@@ -16,16 +16,7 @@ const apiEndpoints = {
   GET_INBOX_OUTBOX_DETAILS: (isInbox: boolean) =>
     `/${version}/User/GetOrdersForInboxOutbox?inbox=${isInbox}`,
 
-  GET_ACTIVE_USERS: (
-    userId?: number,
-    pageIndex: number = 1,
-    pageSize: number = 20,
-    friends: boolean = false,
-    searchTerm?: string,
-  ) =>
-    `/${version}/Friends/GetActiveUsers?userId=${userId}&friends=${friends}&PageIndex=${pageIndex}&PageSize=${pageSize}${
-      searchTerm ? `&searchTerm=${searchTerm}` : ''
-    }`,
+  GET_ACTIVE_USERS: `/${version}/Friends/GetActiveUsers`,
   SEARCH_FRIENDS: (searchQuery: string, userId?: number) =>
     `/${version}/Friends/SearchFriends?fullname=${searchQuery}&userId=${userId}`,
   ADD_FRIEND: (userId?: number) =>

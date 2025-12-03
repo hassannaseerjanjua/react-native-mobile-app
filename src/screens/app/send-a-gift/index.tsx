@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StatusBar,
@@ -19,18 +19,14 @@ import {
   MemberSelectionModal,
 } from '../../../components/send-a-gift';
 import TabItem from '../../../components/global/TabItem';
-import {
-  ActiveUser,
-  ActiveUsersApiResponse,
-  SearchFriendsApiResponse,
-} from '../../../types';
+import { ActiveUser, ActiveUsersApiResponse } from '../../../types';
 import {
   SvgAddGroup,
   SvgFindFriendsIcon,
   SvgSearchFindFriendsIcon,
 } from '../../../assets/icons';
 import apiEndpoints from '../../../constants/api-endpoints';
-import useGetApi from '../../../hooks/useGetApi';
+import { useListingApi } from '../../../hooks/useListingApi';
 import { useAuthStore } from '../../../store/reducer/auth';
 import { Text } from '../../../utils/elements';
 import { scaleWithMax } from '../../../utils';
@@ -41,80 +37,34 @@ interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
-  const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('friends');
   const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
-  const { user } = useAuthStore();
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize] = useState(20);
-  const [isFetchingFriends, setIsFetchingFriends] = useState(true);
+  const { user, token } = useAuthStore();
 
-  const activeTabRef = useRef(activeTab);
-  const searchQueryRef = useRef(searchQuery);
-
-  const activeUsersApi = useGetApi<ActiveUser[]>(
-    apiEndpoints.GET_ACTIVE_USERS(
-      user?.UserId,
-      pageIndex,
-      pageSize,
-      isFetchingFriends,
-    ),
+  const activeUsersApi = useListingApi<ActiveUser>(
+    apiEndpoints.GET_ACTIVE_USERS,
+    token,
     {
-      transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
+      idExtractor: (item: ActiveUser) => item.UserId,
+      transformData: (data: ActiveUsersApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
+      extraParams: {
+        userId: user?.UserId,
+        friends: activeTab === 'friends',
+      },
     },
   );
-
-  const activeUsersApiRefetchRef = useRef(activeUsersApi.refetch);
-
-  useEffect(() => {
-    activeTabRef.current = activeTab;
-  }, [activeTab]);
-
-  useEffect(() => {
-    searchQueryRef.current = searchQuery;
-  }, [searchQuery]);
-
-  useEffect(() => {
-    activeUsersApiRefetchRef.current = activeUsersApi.refetch;
-  }, [activeUsersApi.refetch]);
-
-  const searchFriendsApi = useGetApi<ActiveUser[]>(
-    apiEndpoints.SEARCH_FRIENDS(searchQuery, user?.UserId),
-    {
-      transformData: (data: SearchFriendsApiResponse) => data.Data,
-    },
-  );
-
-  useEffect(() => {
-    if (searchQuery) {
-      searchFriendsApi.refetch();
-    }
-  }, [searchQuery]);
-
-  useEffect(() => {
-    setSearchQuery('');
-    if (activeTab === 'friends') {
-      setIsFetchingFriends(true);
-    } else if (activeTab === 'others') {
-      setIsFetchingFriends(false);
-    }
-  }, [activeTab]);
 
   useEffect(() => {
     if (activeTab !== 'group') {
-      activeUsersApi.refetch();
+      activeUsersApi.setExtraParams({
+        userId: user?.UserId,
+        friends: activeTab === 'friends',
+      });
     }
-  }, [isFetchingFriends]);
-
-  useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
-      if (!searchQueryRef.current && activeTabRef.current !== 'group') {
-        activeUsersApiRefetchRef.current();
-      }
-    });
-
-    return unsubscribe;
-  }, [navigation]);
+  }, [activeTab, user?.UserId]);
 
   const tabs = [
     {
@@ -139,11 +89,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   ];
 
   const getDisplayData = () => {
-    const baseData = searchQuery
-      ? searchFriendsApi.data || []
-      : activeUsersApi.data || [];
+    const baseData = activeUsersApi.data || [];
 
-    if (!searchQuery && user) {
+    if (!activeUsersApi.search && user) {
       const currentUser: ActiveUser = {
         UserId: user.UserId,
         FullName: `${
@@ -162,9 +110,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
   };
 
   const displayData = getDisplayData();
-  const isLoading = searchQuery
-    ? searchFriendsApi.loading
-    : activeUsersApi.loading;
+  const isLoading = activeUsersApi.loading;
+  const searchQuery = activeUsersApi.search;
+  const setSearchQuery = activeUsersApi.setSearch;
 
   const handleShareGiftLink = async () => {
     try {
@@ -254,7 +202,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
           ) : displayData.length > 1 ? (
             <View style={styles.listCard}>
               <FlatList
-                data={displayData.slice(0, 4)}
+                data={displayData}
                 keyExtractor={item => item.UserId.toString()}
                 renderItem={({ item, index }) => (
                   <SearchUserItem
@@ -272,6 +220,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                 )}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContainer}
+                onEndReached={activeUsersApi.loadMore}
+                onEndReachedThreshold={0.5}
               />
             </View>
           ) : (
@@ -311,7 +261,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         listings={[
           {
             title: getString('NG_TITLE_FRIENDS'),
-            users: activeUsersApi?.data || [],
+            users: activeUsersApi.data || [],
           },
         ]}
         isSendAGift={true}

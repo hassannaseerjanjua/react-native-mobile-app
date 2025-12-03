@@ -1,17 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StatusBar, FlatList, ScrollView } from 'react-native';
+import { View, StatusBar, FlatList } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import useStyles from './style';
-import {
-  ActiveUser,
-  ActiveUsersApiResponse,
-  SearchFriendsApiResponse,
-} from '../../../types';
+import { ActiveUser, ActiveUsersApiResponse } from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
-import useGetApi from '../../../hooks/useGetApi';
-import useDebouncedSearch from '../../../hooks/useDebouncedSearch';
+import { useListingApi } from '../../../hooks/useListingApi';
 import { useAuthStore } from '../../../store/reducer/auth';
 import api from '../../../utils/api';
 import ParentView from '../../../components/app/ParentView';
@@ -25,7 +20,7 @@ interface SearchProps extends AppStackScreen<'Search'> {}
 
 const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
   const { getString } = useLocaleStore();
 
   const {
@@ -34,8 +29,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     showConnectOnly = false,
   } = route.params || {};
 
-  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
-  const [pageIndex, setPageIndex] = useState(1);
   const [updatedUsers, setUpdatedUsers] = useState<Record<number, number>>({});
   const [loadingUsers, setLoadingUsers] = useState<Record<number, boolean>>({});
   const [unfriendModal, setUnfriendModal] = useState({
@@ -48,28 +41,31 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     new Set(),
   );
 
-  const { search: searchQuery, setSearch: setSearchQuery } = useDebouncedSearch(
-    (debouncedValue: string) => {
-      setDebouncedSearchQuery(debouncedValue);
-    },
-  );
-
-  const activeUsersApi = useGetApi<ActiveUser[]>(
-    apiEndpoints.GET_ACTIVE_USERS(
-      user?.UserId,
-      pageIndex,
-      20,
-      showFriendsOnly,
-      debouncedSearchQuery || undefined,
-    ),
+  const activeUsersApi = useListingApi<ActiveUser>(
+    apiEndpoints.GET_ACTIVE_USERS,
+    token,
     {
-      transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
+      idExtractor: (item: ActiveUser) => item.UserId,
+      transformData: (data: ActiveUsersApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
+      extraParams: {
+        userId: user?.UserId,
+        friends: showFriendsOnly,
+      },
     },
   );
 
   useEffect(() => {
-    activeUsersApi.refetch();
-  }, [debouncedSearchQuery]);
+    activeUsersApi.setExtraParams({
+      userId: user?.UserId,
+      friends: showFriendsOnly,
+    });
+  }, [showFriendsOnly, user?.UserId]);
+
+  const searchQuery = activeUsersApi.search;
+  const setSearchQuery = activeUsersApi.setSearch;
 
   const updateLoadingState = (userId: number, isLoading: boolean) => {
     setLoadingUsers(prev => {
@@ -149,7 +145,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         isLinkedToGroup: false,
       });
 
-      activeUsersApi.refetch();
+      activeUsersApi.recall();
     } catch (err: any) {
       updateUserStatus(userId, null);
       notify.error(err?.error || getString('AU_ERROR_OCCURRED'));
@@ -185,11 +181,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         searchPlaceholder={getString('HOME_SEARCH')}
       />
 
-      <ScrollView
-        style={styles.content}
-        contentContainerStyle={styles.contentContainer}
-        showsVerticalScrollIndicator={false}
-      >
+      <View style={[styles.content, styles.contentContainer]}>
         <View style={styles.listCard}>
           {activeUsersApi.loading ? (
             <SkeletonLoader screenType="search" />
@@ -237,13 +229,14 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   )}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContainer}
+                  onEndReached={activeUsersApi.loadMore}
                   onEndReachedThreshold={0.5}
                 />
               );
             })()
           )}
         </View>
-      </ScrollView>
+      </View>
 
       <ConfirmationModal
         visible={unfriendModal.visible}

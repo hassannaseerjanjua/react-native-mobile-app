@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
 import useDebouncedSearch from './useDebouncedSearch';
 import { getQueryFromObject } from '../utils';
 import api, { getAuthHeader } from '../utils/api';
@@ -9,7 +9,7 @@ export const useListingApi = <T>(
   url: string,
   token: any,
   config?: {
-    page?: number;
+    pageIndex?: number;
     pageSize?: number;
     search?: string;
     sortColumn?: string;
@@ -22,9 +22,11 @@ export const useListingApi = <T>(
     idExtractor?: (data: T) => any;
   },
 ) => {
-  const [page, setPage] = useState(config?.page || 1);
-  const [pageSize, setPageSize] = useState(config?.pageSize || 10);
+  const [pageIndex, setPageIndex] = useState(config?.pageIndex || 1);
+  const [pageSize, setPageSize] = useState(config?.pageSize || 15);
   const [isInitialLoad, setIsInitialLoad] = useState(false);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
   const [data, setData] = useState<T[]>([]);
   const [totalCount, setTotalCount] = useState(0);
@@ -35,13 +37,28 @@ export const useListingApi = <T>(
   const [sortDirection, setSortDirection] = useState(
     config?.sortDirection || 'asc',
   );
+  const isFetchingRef = useRef(false);
+  const extraParamsRef = useRef(config?.extraParams || {});
+  const pageIndexRef = useRef(pageIndex);
 
-  const fetchData = (search: string = '', showLoading: boolean = true) => {
-    if (showLoading) setLoading(true);
-    let apiUrl = `${url}?page=${page}&pageSize=${pageSize}`;
+  const fetchData = (
+    searchParam: string = '',
+    showLoading: boolean = true,
+    pageOverride?: number,
+  ) => {
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
 
-    if (search) {
-      apiUrl += `&search=${search}`;
+    const currentPage = pageOverride ?? pageIndexRef.current;
+
+    if (showLoading && currentPage === 1) setLoading(true);
+    if (currentPage > 1) setLoadingMore(true);
+
+    let apiUrl = `${url}?pageIndex=${currentPage}&pageSize=${pageSize}`;
+
+    const searchValue = searchParam || search;
+    if (searchValue) {
+      apiUrl += `&searchTerm=${encodeURIComponent(searchValue)}`;
     }
 
     if (sortColumn && sortDirection) {
@@ -60,38 +77,116 @@ export const useListingApi = <T>(
           return;
         }
 
+        let newData: T[] = [];
+        let newTotalCount = 0;
+
         if (config?.transformData) {
-          const { data, totalCount } = config.transformData(res?.data);
-          setData(data);
-          setTotalCount(totalCount);
+          const transformed = config.transformData(res?.data);
+          newData = transformed.data;
+          newTotalCount = transformed.totalCount;
         } else {
-          setData(res.data?.items || []);
-          setTotalCount(res.data?.totalCount || 0);
+          newData = res.data?.items || [];
+          newTotalCount = res.data?.totalCount || 0;
         }
+
+        setTotalCount(newTotalCount);
+
+        if (currentPage > 1) {
+          setData(prev => {
+            if (config?.idExtractor) {
+              const existingIds = new Set(
+                prev.map(item => config.idExtractor!(item)),
+              );
+              const filteredNew = newData.filter(
+                item => !existingIds.has(config.idExtractor!(item)),
+              );
+              return [...prev, ...filteredNew];
+            }
+            return [...prev, ...newData];
+          });
+        } else {
+          setData(newData);
+        }
+
+        const totalLoaded =
+          currentPage > 1 ? data.length + newData.length : newData.length;
+        setHasMore(totalLoaded < newTotalCount && newData.length > 0);
       })
       .finally(() => {
         setLoading(false);
+        setLoadingMore(false);
         setIsInitialLoad(true);
+        isFetchingRef.current = false;
       });
   };
   useFocusEffect(
     useCallback(() => {
-      recall();
+      if (!isInitialLoad && !isFetchingRef.current) {
+        fetchData('', true, 1);
+      }
     }, []),
   );
-  const { search, setSearch } = useDebouncedSearch(search => {
+
+  const { search, setSearch } = useDebouncedSearch(searchValue => {
     if (!isInitialLoad) return;
-    fetchData(search);
+    pageIndexRef.current = 1;
+    setPageIndex(1);
+    setData([]);
+    setHasMore(true);
+    fetchData(searchValue, true, 1);
   });
 
   useEffect(() => {
-    if (loading) return;
-    fetchData();
-  }, [page, pageSize, extraParams, sortColumn, sortDirection]);
+    pageIndexRef.current = pageIndex;
+    if (!isInitialLoad || isFetchingRef.current) return;
+    if (pageIndex > 1) {
+      fetchData('', false, pageIndex);
+    }
+  }, [pageIndex]);
+
+  useEffect(() => {
+    if (!isInitialLoad || isFetchingRef.current) return;
+    const prevParams = JSON.stringify(extraParamsRef.current);
+    const currentParams = JSON.stringify(extraParams);
+    if (prevParams !== currentParams) {
+      extraParamsRef.current = extraParams;
+      pageIndexRef.current = 1;
+      setPageIndex(1);
+      setData([]);
+      setHasMore(true);
+      fetchData('', true, 1);
+    }
+  }, [extraParams]);
+
+  useEffect(() => {
+    if (!isInitialLoad || isFetchingRef.current) return;
+    pageIndexRef.current = 1;
+    setPageIndex(1);
+    setData([]);
+    setHasMore(true);
+    fetchData('', true, 1);
+  }, [pageSize, sortColumn, sortDirection]);
 
   const recall = (showLoading: boolean = true) => {
-    if (loading) return;
-    fetchData('', showLoading);
+    if (loading || isFetchingRef.current) return;
+    pageIndexRef.current = 1;
+    setPageIndex(1);
+    setHasMore(true);
+    fetchData('', showLoading, 1);
+  };
+
+  const loadMore = () => {
+    if (
+      loading ||
+      loadingMore ||
+      isFetchingRef.current ||
+      !hasMore ||
+      !isInitialLoad
+    )
+      return;
+    const nextPage = pageIndexRef.current + 1;
+    pageIndexRef.current = nextPage;
+    setPageIndex(nextPage);
   };
 
   const add = (data: T) => {
@@ -114,8 +209,10 @@ export const useListingApi = <T>(
 
   return {
     data,
-    page,
+    pageIndex,
     loading,
+    loadingMore,
+    hasMore,
     search,
     pageSize,
     totalCount,
@@ -123,7 +220,7 @@ export const useListingApi = <T>(
     sortColumn,
     sortDirection,
 
-    setPage,
+    setPageIndex,
     setSearch,
     setPageSize,
     setExtraParams,
@@ -131,6 +228,7 @@ export const useListingApi = <T>(
     setSortDirection,
     setData,
     recall,
+    loadMore,
     add,
     update,
     remove,
