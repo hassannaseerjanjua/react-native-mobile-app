@@ -177,11 +177,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         Email: email,
         PhoneNo: phone,
       });
-      if (
-        response.success &&
-        response.data?.Data?.User &&
-        response.data?.Data?.JwtToken
-      ) {
+      if (response.success && response.data?.Data?.User) {
         dispatch(
           login({
             user: response.data.Data.User,

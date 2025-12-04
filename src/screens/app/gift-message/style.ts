@@ -20,7 +20,7 @@ const useStyles = () => {
         body: {
           flexGrow: 1,
           flex: 1,
-          paddingTop: sizes.HEIGHT * 0.02,
+          paddingTop: sizes.HEIGHT * 0.006,
           paddingBottom: sizes.PADDING + sizes.HEIGHT * 0.1,
         },
         messageContainer: {

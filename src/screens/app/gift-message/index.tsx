@@ -7,8 +7,11 @@ import {
   TouchableOpacity,
   Platform,
   ActivityIndicator,
+  Keyboard,
+  TouchableWithoutFeedback,
+  ScrollView,
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Video } from 'react-native-compressor';
 import useStyles from './style';
@@ -63,6 +66,10 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
 
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+  const [isScrolling, setIsScrolling] = useState(false);
+  const scrollViewRef = useRef<ScrollView>(null);
+  const textInputRef = useRef<TextInput>(null);
 
   useEffect(() => {
     setSendMessagePayload(prev => ({
@@ -70,6 +77,30 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       Message: message,
     }));
   }, [message]);
+
+  useEffect(() => {
+    const keyboardDidShowListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
+      () => {
+        setIsKeyboardVisible(true);
+      },
+    );
+    const keyboardDidHideListener = Keyboard.addListener(
+      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
+      () => {
+        setIsKeyboardVisible(false);
+        // Scroll to top when keyboard closes
+        setTimeout(() => {
+          scrollViewRef.current?.scrollTo({ y: 0, animated: true });
+        }, 100);
+      },
+    );
+
+    return () => {
+      keyboardDidShowListener.remove();
+      keyboardDidHideListener.remove();
+    };
+  }, []);
 
   const addGiftMessage = async () => {
     console.log('[GiftMessage] Starting background upload:', {
@@ -259,132 +290,172 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       <HomeHeader
         title={getString('GIFT_MESSAGE_TITLE')}
         showBackButton={true}
-        onBackPress={() => navigation.goBack()}
+        onBackPress={() => {
+          Keyboard.dismiss();
+          navigation.goBack();
+        }}
       />
       <View style={styles.content}>
-        <View style={styles.body}>
-          <View style={styles.messageContainer}>
-            <View style={styles.inputWrapper}>
-              <TextInput
-                multiline
-                style={styles.textInput}
-                value={message}
-                onChangeText={setMessage}
-                placeholderTextColor={theme.colors.SECONDARY_TEXT}
-                placeholder={getString('GIFT_MESSAGE_PLACEHOLDER')}
-              />
-            </View>
-            <TouchableOpacity
-              onPress={handleVideoSelect}
-              disabled={isCompressing}
-              style={{ opacity: isCompressing ? 0.5 : 1 }}
-            >
-              {isCompressing ? (
-                <View
-                  style={[
-                    styles.cameraIcon,
-                    rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
-                    {
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                    },
-                  ]}
-                >
-                  <ActivityIndicator
-                    size="small"
-                    color={theme.colors.PRIMARY}
-                  />
-                  <Text
-                    style={{
-                      fontSize: 10,
-                      color: theme.colors.PRIMARY,
-                      marginTop: 2,
-                    }}
-                  >
-                    {Math.round(compressionProgress * 100)}%
-                  </Text>
-                </View>
-              ) : (
-                <SvgAddGiftMessageIcon
-                  style={[
-                    styles.cameraIcon,
-                    rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
-                  ]}
+        <ScrollView
+          ref={scrollViewRef}
+          style={{ flex: 1 }}
+          keyboardShouldPersistTaps="handled"
+          onTouchStart={() => {
+            if (isKeyboardVisible) {
+              textInputRef.current?.blur();
+              Keyboard.dismiss();
+              setIsScrolling(true);
+            }
+          }}
+          onScrollBeginDrag={() => {
+            textInputRef.current?.blur();
+            Keyboard.dismiss();
+            setIsScrolling(true);
+          }}
+          onScroll={() => {
+            // Keep input blurred during scroll to prevent keyboard from reopening
+            if (isKeyboardVisible) {
+              textInputRef.current?.blur();
+            }
+          }}
+          onScrollEndDrag={() => {
+            setTimeout(() => {
+              setIsScrolling(false);
+            }, 300);
+          }}
+          onMomentumScrollEnd={() => {
+            setTimeout(() => {
+              setIsScrolling(false);
+            }, 300);
+          }}
+          showsVerticalScrollIndicator={false}
+          scrollEnabled={isKeyboardVisible}
+        >
+          <View style={styles.body}>
+            <View style={styles.messageContainer}>
+              <View style={styles.inputWrapper}>
+                <TextInput
+                  ref={textInputRef}
+                  multiline
+                  style={styles.textInput}
+                  value={message}
+                  onChangeText={setMessage}
+                  placeholderTextColor={theme.colors.SECONDARY_TEXT}
+                  placeholder={getString('GIFT_MESSAGE_PLACEHOLDER')}
+                  editable={!isScrolling}
+                  onFocus={() => {
+                    if (isScrolling) {
+                      textInputRef.current?.blur();
+                    }
+                  }}
                 />
-              )}
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.filtersWrapper}>
-            <Text style={styles.sectionTitle}>
-              {getString('GIFT_MESSAGE_FILTER')}
-            </Text>
-            {getAllFiltersApi.loading ? (
-              <SkeletonLoader screenType="giftFilters" />
-            ) : (
-              <FlatList
-                data={filters}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                keyExtractor={item => item.FilterId.toString()}
-                renderItem={({ item: filter, index }) => (
+              </View>
+              <TouchableOpacity
+                onPress={handleVideoSelect}
+                disabled={isCompressing}
+                style={{ opacity: isCompressing ? 0.5 : 1 }}
+              >
+                {isCompressing ? (
                   <View
                     style={[
-                      styles.imageContainer,
-                      index === 0 ? { marginLeft: theme.sizes.PADDING } : {},
+                      styles.cameraIcon,
+                      rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
+                      {
+                        justifyContent: 'center',
+                        alignItems: 'center',
+                      },
                     ]}
                   >
-                    <TouchableOpacity
-                      onPress={() => {
-                        setSendMessagePayload(prev => ({
-                          ...prev,
-                          ImageFilterId:
-                            prev.ImageFilterId === filter.FilterId
-                              ? null
-                              : filter.FilterId,
-                        }));
+                    <ActivityIndicator
+                      size="small"
+                      color={theme.colors.PRIMARY}
+                    />
+                    <Text
+                      style={{
+                        fontSize: 10,
+                        color: theme.colors.PRIMARY,
+                        marginTop: 2,
                       }}
                     >
-                      <Image
-                        style={[
-                          styles.filterImage,
-                          {
-                            borderWidth:
-                              filter.FilterId ===
-                              sendMessagePayload.ImageFilterId
-                                ? 2
-                                : 0,
-                            borderColor: theme.colors.PRIMARY,
-                          },
-                        ]}
-                        source={{ uri: filter.ImageUrl }}
-                        resizeMode="cover"
-                      />
-                    </TouchableOpacity>
+                      {Math.round(compressionProgress * 100)}%
+                    </Text>
                   </View>
+                ) : (
+                  <SvgAddGiftMessageIcon
+                    style={[
+                      styles.cameraIcon,
+                      rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
+                    ]}
+                  />
                 )}
-                ListEmptyComponent={
-                  <View style={styles.imageContainer}>
-                    <Text>No filters available</Text>
-                  </View>
-                }
-                contentContainerStyle={styles.filtersScrollContent}
-              />
-            )}
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.filtersWrapper}>
+              <Text style={styles.sectionTitle}>
+                {getString('GIFT_MESSAGE_FILTER')}
+              </Text>
+              {getAllFiltersApi.loading ? (
+                <SkeletonLoader screenType="giftFilters" />
+              ) : (
+                <FlatList
+                  data={filters}
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  keyExtractor={item => item.FilterId.toString()}
+                  renderItem={({ item: filter, index }) => (
+                    <View
+                      style={[
+                        styles.imageContainer,
+                        index === 0 ? { marginLeft: theme.sizes.PADDING } : {},
+                      ]}
+                    >
+                      <TouchableOpacity
+                        onPress={() => {
+                          setSendMessagePayload(prev => ({
+                            ...prev,
+                            ImageFilterId:
+                              prev.ImageFilterId === filter.FilterId
+                                ? null
+                                : filter.FilterId,
+                          }));
+                        }}
+                      >
+                        <Image
+                          style={[
+                            styles.filterImage,
+                            {
+                              borderWidth:
+                                filter.FilterId ===
+                                sendMessagePayload.ImageFilterId
+                                  ? 2
+                                  : 0,
+                              borderColor: theme.colors.PRIMARY,
+                            },
+                          ]}
+                          source={{ uri: filter.ImageUrl }}
+                          resizeMode="cover"
+                        />
+                      </TouchableOpacity>
+                    </View>
+                  )}
+                  ListEmptyComponent={
+                    <View style={styles.imageContainer}>
+                      <Text>No filters available</Text>
+                    </View>
+                  }
+                  contentContainerStyle={styles.filtersScrollContent}
+                />
+              )}
+            </View>
           </View>
-          <View style={styles.footer}>
-            <CustomButton
-              title={
-                isCompressing
-                  ? `Processing... ${Math.round(compressionProgress * 100)}%`
-                  : hasContent
-                  ? 'Next'
-                  : 'Skip'
-              }
-              onPress={handleButtonPress}
-              disabled={isCompressing}
-            />
-          </View>
+        </ScrollView>
+        <View style={styles.footer}>
+          <CustomButton
+            title={hasContent ? 'Next' : 'Skip'}
+            onPress={handleButtonPress}
+            disabled={isCompressing}
+          />
         </View>
       </View>
     </ParentView>

@@ -69,13 +69,6 @@ export const getStoreName = (order: InboxOrder, isRtl: boolean): string => {
 };
 
 export const getMainImage = (order: InboxOrder): ImageSourcePropType => {
-  if (order.orderImages && order.orderImages.length > 0) {
-    const imageUrl = order.orderImages[0].ImageUrl;
-    if (imageUrl && imageUrl.trim()) {
-      return { uri: imageUrl };
-    }
-  }
-
   if (order.Items && order.Items.length > 0) {
     const firstItem = order.Items[0];
     if (firstItem.ThumbnailUrl && firstItem.ThumbnailUrl.trim()) {

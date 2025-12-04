@@ -16,6 +16,7 @@ import {
 } from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
+import { useListingApi } from '../../../hooks/useListingApi';
 import api from '../../../utils/api';
 import { useAuthStore } from '../../../store/reducer/auth';
 import { Text } from '../../../utils/elements';
@@ -32,15 +33,22 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
   const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
   const [isViewMembersOpen, setIsViewMembersOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<GroupData | null>(null);
-  const [pageIndex, setPageIndex] = useState(1);
-  const [pageSize] = useState(20);
 
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
 
-  const activeUsersApi = useGetApi<ActiveUser[]>(
-    apiEndpoints.GET_ACTIVE_USERS(user?.UserId, pageIndex, pageSize, true),
+  const activeUsersApi = useListingApi<ActiveUser>(
+    apiEndpoints.GET_ACTIVE_USERS,
+    token,
     {
-      transformData: (data: ActiveUsersApiResponse) => data.Data.Items || [],
+      idExtractor: (item: ActiveUser) => item.UserId,
+      transformData: (data: ActiveUsersApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
+      extraParams: {
+        userId: user?.UserId,
+        friends: true,
+      },
     },
   );
 
