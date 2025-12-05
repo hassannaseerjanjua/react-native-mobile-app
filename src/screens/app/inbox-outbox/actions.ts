@@ -7,7 +7,7 @@ import { InboxOrder, InboxApiResponseData } from '../../../types/index';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
 const defaultProfileImage = require('../../../assets/images/user.png');
-const defaultItemImage = require('../../../assets/images/dummy1.png');
+const defaultItemImage = require('../../../assets/images/img-placeholder.png');
 
 export const formatRelativeTime = (dateString: string): string => {
   const date = new Date(dateString);

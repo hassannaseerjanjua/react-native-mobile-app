@@ -53,7 +53,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
           source={
             itemImage && itemImage.trim()
               ? { uri: itemImage }
-              : require('../../assets/images/dummy1.png')
+              : require('../../assets/images/img-placeholder.png')
           }
           style={styles.image}
         />

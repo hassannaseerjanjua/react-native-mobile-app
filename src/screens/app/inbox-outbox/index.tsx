@@ -1,5 +1,5 @@
 import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useMemo } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
@@ -12,7 +12,7 @@ import {
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
-import { InboxOrder } from '../../../types/index';
+import { InboxOrder, GiftFilter } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import {
   useInboxOutboxActions,
@@ -27,6 +27,8 @@ import {
 import { scaleWithMax } from '../../../utils';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import useGetApi from '../../../hooks/useGetApi';
+import apiEndpoints from '../../../constants/api-endpoints';
 const InboxOutbox: React.FC = () => {
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
   const [videoViewerData, setVideoViewerData] = useState<{
@@ -35,12 +37,16 @@ const InboxOutbox: React.FC = () => {
     profileImage: any;
     userName: string;
     timeAgo: string;
+    filterImageUrl?: string | null;
+    messageText?: string | null;
   }>({
     visible: false,
     videoUrl: '',
     profileImage: null,
     userName: '',
     timeAgo: '',
+    filterImageUrl: null,
+    messageText: null,
   });
   const { getString } = useLocaleStore();
   const navigation = useNavigation();
@@ -57,6 +63,22 @@ const InboxOutbox: React.FC = () => {
   const { orders, isLoading, isRtl } = useInboxOutboxActions(isInbox);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<InboxOrder | null>(null);
+
+  // Fetch all filters to get filter image URLs
+  const filtersApi = useGetApi<GiftFilter[]>(apiEndpoints.GET_ALL_FILTERS, {
+    transformData: (data: any) => data.Data?.Items || data.Data || [],
+  });
+
+  // Create a map of filter ID to image URL for quick lookup
+  const filterMap = useMemo(() => {
+    const map = new Map<number, string>();
+    if (filtersApi.data) {
+      filtersApi.data.forEach(filter => {
+        map.set(filter.FilterId, filter.ImageUrl);
+      });
+    }
+    return map;
+  }, [filtersApi.data]);
 
   const handleItemPress = (orderId: number) => {
     const order = orders.find(o => o.OrderId === orderId);
@@ -102,6 +124,15 @@ const InboxOutbox: React.FC = () => {
       const userName = getUserName(order);
       const timeAgo = formatRelativeTime(order.OrderTime);
 
+      // Get filter image URL if OrderFilterId exists
+      const filterImageUrl =
+        order.OrderFilterId && filterMap.has(order.OrderFilterId)
+          ? filterMap.get(order.OrderFilterId) || null
+          : null;
+
+      // Get message text if OrderMessage exists
+      const messageText = order.OrderMessage || null;
+
       // Start preloading immediately
       videoViewerRef.current?.preload(videoUrl);
 
@@ -112,6 +143,8 @@ const InboxOutbox: React.FC = () => {
         profileImage,
         userName,
         timeAgo,
+        filterImageUrl,
+        messageText,
       });
 
       // Small delay to allow video buffering before showing player
@@ -226,6 +259,8 @@ const InboxOutbox: React.FC = () => {
         profileImage={videoViewerData.profileImage}
         userName={videoViewerData.userName}
         timeAgo={videoViewerData.timeAgo}
+        filterImageUrl={videoViewerData.filterImageUrl}
+        messageText={videoViewerData.messageText}
         onClose={handleCloseVideoViewer}
       />
     </ParentView>

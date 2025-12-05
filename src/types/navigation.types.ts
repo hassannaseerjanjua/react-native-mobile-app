@@ -129,6 +129,12 @@ export type AppStackParamList = {
           Quantity: number;
           storeBranchId?: number | null;
         };
+        videoUploadPayload?: {
+          ImageFilterId: number | null;
+          Message: string;
+          VideoFile: any;
+        };
+        isVideoUploading?: boolean;
       }
     | undefined;
   AddCard: undefined;

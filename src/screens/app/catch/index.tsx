@@ -94,7 +94,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       coverImage:
         item.ItemImage && item.ItemImage.trim()
           ? { uri: item.ItemImage }
-          : require('../../../assets/images/dummy1.png'),
+          : require('../../../assets/images/img-placeholder.png'),
       category: item.CategoryNameEn?.toLowerCase() || 'all',
       price: item.ItemPrice,
       discountedPrice: item.DiscountedPrice || 0,

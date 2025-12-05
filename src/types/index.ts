@@ -338,6 +338,7 @@ export interface InboxOrder {
   DeliveryCharges: number;
   TotalAmount: number;
   OrderTime: string;
+  OrderFilterId: number;
   Items: InboxOrderItem[];
   orderImages: InboxOrderImage[];
   users: InboxOrderUser;
@@ -484,6 +485,7 @@ export interface CartResponse {
   OrderId: number;
   FriendId: number | null;
   FriendName: string | null;
+  FriendImageUrl: string | null;
   StoreId: number;
   StoreBranchId: number;
   Status: number;

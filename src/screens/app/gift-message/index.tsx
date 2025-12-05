@@ -34,6 +34,15 @@ import { GiftFilter } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
+import {
+  setVideoUploadPromise,
+  clearVideoUploadPromise,
+} from '../../../utils/videoUploadState';
+import {
+  setPendingVideoPath,
+  cacheVideoPath,
+  clearPendingVideoPath,
+} from '../../../utils/videoCache';
 
 const MAX_VIDEO_DURATION = 15; // Maximum video duration in seconds
 
@@ -102,51 +111,93 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     };
   }, []);
 
-  const addGiftMessage = async () => {
-    console.log('[GiftMessage] Starting background upload:', {
-      hasFilter: !!sendMessagePayload.ImageFilterId,
-      hasMessage: !!message.trim(),
-      hasVideo: !!sendMessagePayload.VideoFile,
-    });
+  const handleButtonPress = () => {
+    if (isCompressing) {
+      notify.error('Please wait, video is being processed...');
+      return;
+    }
 
-    // Navigate immediately without waiting for upload
-    (navigation as any).navigate('CheckOut', {
-      friendUserId,
-      storeBranchId,
-    });
-
-    // Upload in background
-    try {
-      const formData = new FormData();
-      formData.append(
-        'ImageFilterId',
-        sendMessagePayload.ImageFilterId?.toString() || '',
-      );
-      formData.append('Message', message);
-      if (sendMessagePayload.VideoFile) {
-        formData.append('VideoFile', sendMessagePayload.VideoFile);
+    if (hasContent) {
+      // Store local video path for caching
+      const localVideoPath = sendMessagePayload.VideoFile?.uri || null;
+      if (localVideoPath) {
+        setPendingVideoPath(localVideoPath);
       }
 
-      console.log('[GiftMessage] Uploading file in background...');
-      const response = await api.post(apiEndpoints.SEND_GIFT_FILTER, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+      // Create upload promise
+      const uploadPromise = (async () => {
+        try {
+          const formData = new FormData();
+          formData.append(
+            'ImageFilterId',
+            sendMessagePayload.ImageFilterId?.toString() || '',
+          );
+          formData.append('Message', message);
+          if (sendMessagePayload.VideoFile) {
+            formData.append('VideoFile', sendMessagePayload.VideoFile);
+          }
+
+          console.log('[GiftMessage] Uploading file in background...');
+          const response = await api.post(
+            apiEndpoints.SEND_GIFT_FILTER,
+            formData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            },
+          );
+
+          if (response.success) {
+            console.log(
+              '[GiftMessage] Background upload completed successfully',
+            );
+
+            // Cache the video path if server URL is in response
+            const responseData = response.data as any;
+            const serverVideoUrl =
+              responseData?.Data?.ImageUrl || responseData?.ImageUrl;
+            if (serverVideoUrl && localVideoPath) {
+              await cacheVideoPath(serverVideoUrl, localVideoPath);
+            }
+
+            return { success: true, serverVideoUrl };
+          } else {
+            console.error(
+              '[GiftMessage] Background upload failed:',
+              response.error,
+            );
+            clearPendingVideoPath();
+            notify.error(response.error || 'Failed to upload gift message');
+            return { success: false, error: response.error };
+          }
+        } catch (error: any) {
+          console.error('[GiftMessage] Background upload error:', error);
+          clearPendingVideoPath();
+          notify.error(error?.message || 'An error occurred while uploading');
+          return { success: false, error: error?.message };
+        } finally {
+          clearVideoUploadPromise();
+        }
+      })();
+
+      // Store the promise so checkout can wait for it
+      setVideoUploadPromise(uploadPromise);
+
+      // Navigate to checkout with upload state
+      (navigation as any).navigate('CheckOut', {
+        friendUserId,
+        storeBranchId,
+        isVideoUploading: true,
       });
-
-      if (response.success) {
-        console.log('[GiftMessage] Background upload completed successfully');
-        notify.success('Gift message uploaded successfully');
-      } else {
-        console.error(
-          '[GiftMessage] Background upload failed:',
-          response.error,
-        );
-        notify.error(response.error || 'Failed to upload gift message');
-      }
-    } catch (error: any) {
-      console.error('[GiftMessage] Background upload error:', error);
-      notify.error(error?.message || 'An error occurred while uploading');
+    } else {
+      // Clear any existing upload promise
+      clearVideoUploadPromise();
+      (navigation as any).navigate('CheckOut', {
+        friendUserId,
+        storeBranchId,
+        isVideoUploading: false,
+      });
     }
   };
 
@@ -160,7 +211,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         videoUri,
         {
           compressionMethod: 'auto',
-          maxSize: 720,
+          maxSize: 1920,
           minimumFileSizeForCompress: 0,
         },
         progress => {
@@ -187,8 +238,6 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           name: fileName || `video_${Date.now()}.mp4`,
         },
       }));
-
-      notify.success('Video ready to send');
     } catch (error: any) {
       console.error('[GiftMessage] Video compression failed:', error);
       notify.error('Failed to process video. Please try again.');
@@ -263,24 +312,13 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     message.trim().length > 0 ||
     !!sendMessagePayload.VideoFile;
 
-  const handleButtonPress = () => {
-    if (isCompressing) {
-      notify.error('Please wait, video is being processed...');
-      return;
-    }
-
-    if (hasContent) {
-      // Start upload in background and navigate immediately
-      addGiftMessage();
-    } else {
-      (navigation as any).navigate('CheckOut', {
-        friendUserId,
-        storeBranchId,
-      });
-    }
-  };
-
   const filters = getAllFiltersApi.data || [];
+
+  // Find the selected filter for background
+  const selectedFilter = filters.find(
+    filter => filter.FilterId === sendMessagePayload.ImageFilterId,
+  );
+
   return (
     <ParentView style={styles.container}>
       <StatusBar
@@ -290,6 +328,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       <HomeHeader
         title={getString('GIFT_MESSAGE_TITLE')}
         showBackButton={true}
+        rightSideTitle="Next"
         onBackPress={() => {
           Keyboard.dismiss();
           navigation.goBack();
@@ -334,21 +373,37 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           <View style={styles.body}>
             <View style={styles.messageContainer}>
               <View style={styles.inputWrapper}>
-                <TextInput
-                  ref={textInputRef}
-                  multiline
-                  style={styles.textInput}
-                  value={message}
-                  onChangeText={setMessage}
-                  placeholderTextColor={theme.colors.SECONDARY_TEXT}
-                  placeholder={getString('GIFT_MESSAGE_PLACEHOLDER')}
-                  editable={!isScrolling}
-                  onFocus={() => {
-                    if (isScrolling) {
-                      textInputRef.current?.blur();
-                    }
-                  }}
-                />
+                {/* Filter background with low opacity */}
+                {selectedFilter && (
+                  <Image
+                    source={{ uri: selectedFilter.ImageUrl }}
+                    style={styles.filterBackground}
+                    resizeMode="cover"
+                  />
+                )}
+                <View style={styles.textInputWrapper}>
+                  <TextInput
+                    ref={textInputRef}
+                    multiline
+                    style={[
+                      styles.textInput,
+                      selectedFilter?.TextColor && {
+                        color: selectedFilter.TextColor,
+                      },
+                    ]}
+                    maxLength={100}
+                    value={message}
+                    onChangeText={setMessage}
+                    placeholderTextColor={theme.colors.SECONDARY_TEXT}
+                    placeholder={getString('GIFT_MESSAGE_PLACEHOLDER')}
+                    editable={!isScrolling}
+                    onFocus={() => {
+                      if (isScrolling) {
+                        textInputRef.current?.blur();
+                      }
+                    }}
+                  />
+                </View>
               </View>
               <TouchableOpacity
                 onPress={handleVideoSelect}
@@ -452,7 +507,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         </ScrollView>
         <View style={styles.footer}>
           <CustomButton
-            title={hasContent ? 'Next' : 'Skip'}
+            title={'Skip'}
             onPress={handleButtonPress}
             disabled={isCompressing}
           />

@@ -12,6 +12,7 @@ import {
   SvgDateIcon,
   SvgEditGroup,
   SvgGalleryIcon,
+  SvgBirthdayIcon,
 } from '../../../assets/icons';
 import InputField from '../../../components/global/InputField.tsx';
 import { Formik } from 'formik';
@@ -89,11 +90,44 @@ const OccasionsScreen: React.FC = () => {
             </View>
           ) : (
             <FlatList
-              data={occasions || []}
+              data={[
+                // Default Birthday entry - always at the top
+                {
+                  OccassionId: -1, // Special ID for default birthday
+                  NameEn: 'Birthday',
+                  NameAr: 'عيد الميلاد',
+                  OccasionDate: null,
+                  Type: null,
+                  ImageUrl: '',
+                  Status: 1,
+                  CreatedOn: '',
+                  CreatedBy: 0,
+                } as Occasion,
+                ...(occasions || []),
+              ]}
               keyExtractor={item => item.OccassionId.toString()}
               contentContainerStyle={styles.content}
               showsVerticalScrollIndicator={false}
               renderItem={({ item }: { item: Occasion }) => {
+                const isDefaultBirthday = item.OccassionId === -1;
+
+                // For default birthday, use birthday.png image
+                if (isDefaultBirthday) {
+                  return (
+                    <TabItem
+                      isGroupImage={require('../../../assets/images/birthday.png')}
+                      title={item.NameEn}
+                      isEditGroup={false} // Default birthday is not editable/deletable
+                      onPress={() => {
+                        // Default birthday is not clickable for view/edit
+                        // Can add custom behavior here if needed
+                      }}
+                      TabItemStyles={styles.TabItem}
+                    />
+                  );
+                }
+
+                // Regular occasions
                 const imageSource = item.ImageUrl
                   ? { uri: item.ImageUrl }
                   : require('../../../assets/images/birthday.png');

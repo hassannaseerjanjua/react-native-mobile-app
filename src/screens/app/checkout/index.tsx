@@ -37,17 +37,21 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi';
 import InputField from '../../../components/global/InputField';
+import { getVideoUploadPromise } from '../../../utils/videoUploadState';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
   const { getString, isRtl } = useLocaleStore();
   const navigation = useNavigation();
 
+  const { isVideoUploading } = (route.params as any) || {};
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<
     string | null
   >(null);
   const [checkoutCompleted, setCheckoutCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [waitingForVideoUpload, setWaitingForVideoUpload] = useState(false);
   const [updatingQuantities, setUpdatingQuantities] = useState<
     Record<number, 'increment' | 'decrement' | null>
   >({});
@@ -63,6 +67,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [cartData, setCartData] = useState<CartResponse | null>(
     cartItemsApi.data,
   );
+  console.log('cartData', cartData);
   const loading = cartItemsApi.loading;
 
   useEffect(() => {
@@ -230,10 +235,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   const renderCartItem = (item: CartItem) => {
     const itemImage = item.Images?.[0]?.ImageUrls || item.ThumbnailUrl;
-    const imageSource =
-      itemImage && itemImage.trim()
-        ? { uri: itemImage }
-        : require('../../../assets/images/dummy1.png');
+    const imageSource = itemImage
+      ? { uri: itemImage }
+      : require('../../../assets/images/img-placeholder.png');
 
     return (
       <View
@@ -302,10 +306,36 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   };
 
   const handleProceedToCheckout = async () => {
-    if (!cartData || submitting) return;
+    if (!cartData || submitting || waitingForVideoUpload) return;
 
     try {
       setSubmitting(true);
+
+      // Wait for video upload if it's in progress
+      if (isVideoUploading) {
+        setWaitingForVideoUpload(true);
+        const uploadPromise = getVideoUploadPromise();
+        if (uploadPromise) {
+          try {
+            const result = await uploadPromise;
+            console.log(
+              '[CheckOut] Video upload completed, proceeding with checkout',
+              result,
+            );
+            if (result && !result.success) {
+              // Upload failed, but we'll still proceed with checkout
+              console.warn(
+                '[CheckOut] Video upload had errors, but proceeding with checkout',
+              );
+            }
+          } catch (error) {
+            console.error('[CheckOut] Error waiting for video upload:', error);
+            // Continue with checkout even if upload failed
+          }
+        }
+        setWaitingForVideoUpload(false);
+      }
+
       const payload = {
         orderid: cartData.OrderId,
         orderPaymentType: 1,
@@ -326,6 +356,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     } finally {
       setSubmitting(false);
+      setWaitingForVideoUpload(false);
     }
   };
 
@@ -377,10 +408,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   const firstItem = cartData.Items[0];
   const giftImage = firstItem.Images?.[0]?.ImageUrls || firstItem.ThumbnailUrl;
-  const giftImageSource =
-    giftImage && giftImage.trim()
-      ? { uri: giftImage }
-      : require('../../../assets/images/dummy1.png');
+  const giftImageSource = cartData.FriendImageUrl
+    ? { uri: cartData.FriendImageUrl }
+    : require('../../../assets/images/img-placeholder.png');
 
   return (
     <ParentView>
@@ -671,7 +701,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             labelStyle={{
               color: theme.colors.WHITE,
             }}
-            disabled={submitting || !selectedPaymentMethod}
+            disabled={
+              submitting || waitingForVideoUpload || !selectedPaymentMethod
+            }
+            loading={submitting || waitingForVideoUpload}
           />
           <View
             style={[
