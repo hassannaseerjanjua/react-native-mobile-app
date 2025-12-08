@@ -103,7 +103,7 @@ const AddCart: React.FC = () => {
               >
                 <View style={{ flex: 1 }}>
                   <Text style={styles.label}>
-                    {getString('ADD_CARD_EXPIRY_LABEL')}{' '}
+                    {getString('ADD_CARD_EXPIRY_LABEL')}
                   </Text>
                   <View style={styles.inputContainer}>
                     <TouchableOpacity onPress={() => setShowDatePicker(true)}>

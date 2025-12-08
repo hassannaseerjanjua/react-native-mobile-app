@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { StatusBar, FlatList, View } from 'react-native';
+import { StatusBar, FlatList, View, TouchableOpacity } from 'react-native';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -15,12 +15,17 @@ import {
   CatchItem,
   CatchItemsApiResponse,
   Category,
+  StoreProduct,
+  CartResponse,
 } from '../../../types';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 import { Text } from '../../../utils/elements';
 import { useListingApi } from '../../../hooks/useListingApi';
+import { SvgRiyalIconWhite } from '../../../assets/icons';
+import { scaleWithMax } from '../../../utils';
+import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -34,13 +39,14 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
+  const friendUserId = route.params?.friendUserId ?? null;
 
   const categoriesApi = useGetApi<Category[]>(apiEndpoints.GET_CATEGORIES, {
     transformData: (data: any) => data.Data?.Items || [],
   });
 
   const getFavoriteItems = useGetApi<FaveItems[]>(
-    screenType === 'favorite' && storeID
+    route.params?.type === 'favorite' && storeID
       ? apiEndpoints.GET_FAV_STORE_ITEMS(storeID)
       : '',
     {
@@ -49,7 +55,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   );
 
   const getCatchItems = useListingApi<CatchItem>(
-    screenType === 'catch' ? apiEndpoints.GET_CATCH_ITEMS : '',
+    route.params?.type === 'catch' ? apiEndpoints.GET_CATCH_ITEMS : '',
     '',
     {
       transformData: (data: CatchItemsApiResponse) => {
@@ -60,8 +66,43 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       },
     },
   );
+  const getStoreProducts = useListingApi<StoreProduct>(
+    route.params?.type === 'GiftOneGetOne' ? apiEndpoints.GET_STORE_DETAIL : '',
+    '',
+    {
+      transformData: (data: any) => {
+        return {
+          data: data.Data?.Items || [],
+          totalCount: data.Data?.TotalCount || 0,
+        };
+      },
+    },
+  );
+  const cartApi = useGetApi<CartResponse>(
+    screenType === 'GiftOneGetOne' ? apiEndpoints.GET_CART_ITEMS : '',
+    {
+      transformData: (data: any) => (data?.Data || data) as CartResponse,
+    },
+  );
+  useEffect(() => {
+    if (route.params.type !== 'GiftOneGetOne') return;
+    const unsubscribe = navigation.addListener('focus', () => {
+      cartApi.refetch();
+    });
+    return unsubscribe;
+  }, [navigation, cartApi.refetch]);
+  useEffect(() => {
+    if (screenType !== 'GiftOneGetOne') return;
+    if (getStoreProducts.data) {
+      const initialState: Record<number, boolean> = {};
+      getStoreProducts.data.forEach(item => {
+        initialState[item.ItemId] = item.isFavourite ?? false;
+      });
+      setFavoriteStates(initialState);
+    }
+  }, [getStoreProducts.data]);
 
-  console.log('getCatchItems', getCatchItems);
+  console.log('getCatchItems', getStoreProducts);
 
   useEffect(() => {
     if (screenType === 'favorite' && getFavoriteItems.data) {
@@ -114,6 +155,15 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       return items.filter((item: FaveItems) => {
         return item.CategoryId === categoryId;
       });
+    } else if (screenType === 'GiftOneGetOne') {
+      const items = getStoreProducts.data || [];
+      if (selectedFilter === 'all') {
+        return items;
+      }
+      const categoryId = Number(selectedFilter);
+      return items.filter((item: StoreProduct) => {
+        return item.CategoryId === categoryId;
+      });
     } else {
       const items = transformedCatchItems;
       if (selectedFilter === 'all') {
@@ -129,6 +179,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     screenType,
     getFavoriteItems.data,
     transformedCatchItems,
+    getStoreProducts.data,
   ]);
 
   const handleProductPress = (item: any) => {
@@ -141,6 +192,21 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       navigation.navigate('ProductDetails', {
         itemId: item.catchItem.ItemId,
       });
+    } else if (screenType === 'GiftOneGetOne') {
+      if ('ItemId' in item && 'Thumbnail' in item) {
+        const product = item as StoreProduct;
+        (navigation as any).navigate('ProductDetails', {
+          itemId: product.ItemId,
+          storeId: product.StoreId,
+          friendUserId,
+        });
+      } else {
+        (navigation as any).navigate('ProductDetails', {
+          itemId: (item as any)?.ItemId ?? 0,
+          storeId: (item as any)?.StoreId ?? null,
+          friendUserId,
+        });
+      }
     }
   };
 
@@ -172,6 +238,14 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
+  const filteredProducts = useMemo(() => {
+    if (!getStoreProducts.data) return [];
+    if (selectedFilter === 'all') return getStoreProducts.data;
+    const categoryId = Number(selectedFilter);
+    return getStoreProducts.data.filter(
+      product => product.CategoryId === categoryId,
+    );
+  }, [getStoreProducts.data, selectedFilter]);
 
   return (
     <ParentView>
@@ -183,6 +257,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         title={
           screenType === 'favorite'
             ? getString('FAV_FAVORITES')
+            : screenType === 'GiftOneGetOne'
+            ? 'Gift One Get One'
             : getString('HOME_CATCH')
         }
         showBackButton
@@ -195,10 +271,20 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           <GroupTabs
             tabs={filterOptions}
             activeTab={selectedFilter}
-            onTabPress={setSelectedFilter}
+            onTabPress={id => {
+              setSelectedFilter(id);
+              screenType === 'GiftOneGetOne'
+                ? getStoreProducts.setExtraParams({
+                    categoryId: id === 'all' ? null : Number(id),
+                  })
+                : getCatchItems.setExtraParams({
+                    categoryId: id === 'all' ? null : Number(id),
+                  });
+            }}
           />
         </View>
         {(screenType === 'favorite' && getFavoriteItems.loading) ||
+        (screenType === 'GiftOneGetOne' && getStoreProducts.loading) ||
         (screenType === 'catch' && getCatchItems.loading) ? (
           <SkeletonLoader screenType="productListing" />
         ) : (
@@ -206,13 +292,19 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             data={filteredItems as any}
             numColumns={2}
             keyExtractor={(item: any) =>
-              screenType === 'favorite'
+              screenType === 'favorite' || screenType === 'GiftOneGetOne'
                 ? item.ItemId.toString()
                 : item.id ||
                   `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`
             }
             columnWrapperStyle={styles.columnWrapper}
-            contentContainerStyle={[styles.listContent, styles.listContainer]}
+            contentContainerStyle={[
+              styles.listContent,
+              styles.listContainer,
+              screenType === 'GiftOneGetOne' && {
+                paddingBottom: theme.sizes.HEIGHT * 0.12,
+              },
+            ]}
             showsVerticalScrollIndicator={false}
             ListEmptyComponent={
               <View
@@ -226,7 +318,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               </View>
             }
             renderItem={({ item }) =>
-              screenType === 'favorite' ? (
+              screenType === 'favorite' || screenType === 'GiftOneGetOne' ? (
                 <FavoriteProductCard
                   item={item as FaveItems}
                   onPress={handleProductPress}
@@ -251,6 +343,62 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           />
         )}
       </View>
+      {cartApi.data?.Items && (
+        <View style={styles.footerContainer}>
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={() => {
+              if (!cartApi.data) return;
+
+              const cartData = cartApi.data;
+              const firstItem = cartData.Items[0];
+              const product = {
+                id: firstItem?.ItemId || 0,
+                title:
+                  cartData.Items.length > 1
+                    ? `${cartData.Items.length} Items`
+                    : firstItem?.ItemName || 'Cart Item',
+                subtitle:
+                  cartData.Items.length > 1
+                    ? 'Multiple items in cart'
+                    : firstItem?.ItemName || '',
+                image: firstItem?.ThumbnailUrl
+                  ? { uri: firstItem.ThumbnailUrl }
+                  : require('../../../assets/images/img-placeholder.png'),
+                price: cartData.TotalAmount,
+                storeId: cartData.StoreId,
+                storeBranchId: cartData.StoreBranchId,
+              };
+
+              (navigation as any).navigate('GiftMessage', {
+                product,
+                friendUserId,
+                storeBranchId: cartData.StoreBranchId,
+              });
+            }}
+            activeOpacity={0.8}
+          >
+            <View style={styles.footerQuantityBadge}>
+              <Text style={styles.footerQuantityText}>
+                {cartApi.data?.Items?.reduce(
+                  (sum, item) => sum + item.Quantity,
+                  0,
+                ) || 0}
+              </Text>
+            </View>
+            <Text style={styles.footerButtonText}>View Cart</Text>
+            <View style={styles.footerPriceRow}>
+              <SvgRiyalIconWhite
+                width={scaleWithMax(16, 18)}
+                height={scaleWithMax(16, 18)}
+              />
+              <Text style={styles.footerPriceText}>
+                {cartApi.data?.TotalAmount.toFixed(2) || '0.00'}
+              </Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      )}
     </ParentView>
   );
 };

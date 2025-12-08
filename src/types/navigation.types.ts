@@ -94,8 +94,10 @@ export type AppStackParamList = {
   };
   CatchScreen: {
     storeID?: number;
+    friendUserId?: number | null;
+
     storeBranchID?: number;
-    type?: 'favorite' | 'catch';
+    type?: 'favorite' | 'catch' | 'GiftOneGetOne';
   };
   ScanQr: {
     OrderId?: number | null;

@@ -39,8 +39,8 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
         <Image source={item.coverImage} style={styles.image} />
         <TouchableOpacity style={styles.AddContainer}>
           <SvgCatchAddIcon
-            width={scaleWithMax(15, 16)}
-            height={scaleWithMax(15, 16)}
+            width={scaleWithMax(17, 18)}
+            height={scaleWithMax(17, 18)}
           />
         </TouchableOpacity>
       </View>
@@ -124,6 +124,7 @@ const useStyles = () => {
         borderRadius: 12,
         marginBottom: sizes.HEIGHT * 0.018,
         flex: 1,
+        maxWidth: sizes.WIDTH * 0.45,
       },
       imageContainer: {
         position: 'relative',
@@ -134,8 +135,8 @@ const useStyles = () => {
         ...theme.globalStyles.SHADOW_STYLE,
         backgroundColor: colors.WHITE,
         borderRadius: 9999,
-        width: scaleWithMax(28, 32),
-        height: scaleWithMax(28, 32),
+        width: scaleWithMax(30, 34),
+        height: scaleWithMax(30, 34),
         position: 'absolute',
         bottom: -10,
         right: 0,

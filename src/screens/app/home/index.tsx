@@ -101,7 +101,10 @@ const HomeScreenTabsContainer: React.FC = () => {
       title: getString('HOME_GIFT_ONE'),
       titlePrimary: getString('HOME_GET_ONE'),
       description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
-      onPress: () => navigation.navigate('SelectStore' as never),
+      onPress: () =>
+        (navigation as any).navigate('CatchScreen', {
+          type: 'GiftOneGetOne',
+        }),
     },
     {
       id: 'send-a-gift',

@@ -24,6 +24,7 @@ export const toOption = <T>(
 
 export const getQueryFromObject = (obj: Record<string, any>) => {
   return Object.entries(obj)
+    .filter(([_, value]) => value !== null && value !== undefined)
     .map(([key, value]) => `${key}=${value}`)
     .join('&');
 };

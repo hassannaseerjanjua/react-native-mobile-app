@@ -47,8 +47,7 @@ const apiEndpoints = {
   HANDLE_FAVORITE_ITEM: `/${version}/User/FavoriteUnFavoriteItem`,
   HANDLE_FAVORITE_STORE: `/${version}/User/FavoriteUnFavoriteStore`,
   GET_STORE_LIST: `/${version}/Panel/GetAllActiveStores`,
-  GET_STORE_DETAIL: (storeId?: any, storeBranchId?: any) =>
-    `/${version}/Panel/GetAllItems?StoreId=${storeId}`,
+  GET_STORE_DETAIL: `/${version}/Panel/GetAllItems`,
   GET_STORE_ITEM_BY_ID: (itemId?: any) =>
     `/${version}/Panel/GetItemById?itemId=${itemId}`,
   GET_BUSINESS_TYPE: `/${version}/Panel/GetBusinessTypesForPanel`,

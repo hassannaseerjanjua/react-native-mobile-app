@@ -16,6 +16,7 @@ const useGetApi = <T>(
   const token = 'Token';
 
   const fetchData = async () => {
+    if (url === '') return;
     setLoading(true);
     const response = await api.get<T>(
       url,

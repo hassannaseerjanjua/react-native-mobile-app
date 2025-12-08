@@ -193,7 +193,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         </Formik>
 
         <Text style={styles.linkContainer}>
-          {getString('AU_DONT_HAVE_AN_ACCOUNT')}{' '}
+          {getString('AU_DONT_HAVE_AN_ACCOUNT')}
           <Text
             style={styles.link}
             onPress={() => navigation.navigate('SignUp')}

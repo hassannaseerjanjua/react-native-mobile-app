@@ -254,7 +254,7 @@ const useStyles = () => {
         justifyContent: 'center',
         alignItems: 'center',
         borderRadius: scaleWithMax(35, 38) / 2,
-        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
+        // ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
         position: 'relative',
       },
       cartCount: {

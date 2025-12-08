@@ -645,7 +645,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       <Text style={styles.errorText}>{groupError}</Text>
                     ) : null}
                     <Text style={styles.membersHeading}>
-                      {getString('NG_MEMBERS')}: {selectedUsers.size}{' '}
+                      {getString('NG_MEMBERS')}: {selectedUsers.size}
                       {getString('NG_OUT_OF')} {allUsers.length}
                     </Text>
                     <SelectedMembersGrid />

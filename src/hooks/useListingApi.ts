@@ -47,6 +47,7 @@ export const useListingApi = <T>(
     showLoading: boolean = true,
     pageOverride?: number,
   ) => {
+    if (url === '') return;
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
 
