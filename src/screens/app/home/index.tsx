@@ -102,8 +102,8 @@ const HomeScreenTabsContainer: React.FC = () => {
       titlePrimary: getString('HOME_GET_ONE'),
       description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
       onPress: () =>
-        (navigation as any).navigate('CatchScreen', {
-          type: 'GiftOneGetOne',
+        (navigation as any).navigate('SendAGift' as never, {
+          routeTo: 'GiftOneGetOne',
         }),
     },
     {
@@ -111,7 +111,10 @@ const HomeScreenTabsContainer: React.FC = () => {
       icon: <SvgSendAGift />,
       title: getString('HOME_SEND_A_GIFT'),
       description: getString('HOME_SEND_A_GIFT_DESC'),
-      onPress: () => navigation.navigate('SendAGift' as never),
+      onPress: () =>
+        (navigation as any).navigate('SendAGift' as never, {
+          routeTo: 'SelectStore',
+        }),
     },
     {
       id: 'catch',

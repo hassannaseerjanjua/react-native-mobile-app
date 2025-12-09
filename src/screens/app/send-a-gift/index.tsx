@@ -34,7 +34,7 @@ import CustomButton from '../../../components/global/Custombutton';
 
 interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 
-const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
+const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const [activeTab, setActiveTab] = useState('friends');
@@ -155,7 +155,11 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
         barStyle="dark-content"
       />
       <HomeHeader
-        title={getString('HOME_SEND_A_GIFT')}
+        title={
+          route.params.routeTo === 'SelectStore'
+            ? getString('HOME_SEND_A_GIFT')
+            : getString('HOME_GIFT_ONE_GET_ONE')
+        }
         showBackButton
         onBackPress={() => navigation.goBack()}
         showSearch={false}
@@ -212,9 +216,14 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation }) => {
                     showAddButton={false}
                     showSelection={false}
                     onPress={() => {
-                      navigation.navigate('SelectStore', {
-                        friendUserId: item.UserId,
-                      });
+                      route.params.routeTo === 'SelectStore'
+                        ? navigation.navigate('SelectStore', {
+                            friendUserId: item.UserId,
+                          })
+                        : navigation.navigate('CatchScreen', {
+                            type: 'GiftOneGetOne',
+                            friendUserId: item.UserId,
+                          });
                     }}
                   />
                 )}

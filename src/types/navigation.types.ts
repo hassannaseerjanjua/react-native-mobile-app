@@ -37,7 +37,9 @@ export type AppStackParamList = {
     title?: string;
     code: string;
   };
-  SendAGift: undefined;
+  SendAGift: {
+    routeTo: 'GiftOneGetOne' | 'SelectStore';
+  };
   SendToGroup: undefined;
   Wallet: undefined;
   InboxOutbox: {

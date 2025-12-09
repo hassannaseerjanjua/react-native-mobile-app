@@ -187,6 +187,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       const favItem = item as FaveItems;
       navigation.navigate('ProductDetails', {
         itemId: favItem.ItemId,
+        friendUserId: friendUserId ?? undefined,
       });
     } else if (screenType === 'catch' && item.catchItem) {
       navigation.navigate('ProductDetails', {
@@ -258,7 +259,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           screenType === 'favorite'
             ? getString('FAV_FAVORITES')
             : screenType === 'GiftOneGetOne'
-            ? 'Gift One Get One'
+            ? getString('HOME_GIFT_ONE_GET_ONE')
             : getString('HOME_CATCH')
         }
         showBackButton

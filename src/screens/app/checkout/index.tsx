@@ -57,7 +57,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   >({});
 
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
-    transformData: (data: any) => (data?.Data || data) as CartResponse,
+    transformData: (data: any) => {
+      setCartData(data?.Data);
+      return (data?.Data || data) as CartResponse;
+    },
   });
 
   const walletBalance = useGetApi<any>(apiEndpoints.GET_WALLET_BALANCE, {
@@ -70,11 +73,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   console.log('cartData', cartData);
   const loading = cartItemsApi.loading;
 
-  useEffect(() => {
-    if (cartItemsApi.data) {
-      setCartData(cartItemsApi.data);
-    }
-  }, [cartItemsApi.data]);
+  // useEffect(() => {
+  //   if (cartItemsApi.data) {
+  //     setCartData(cartItemsApi.data);
+  //   }
+  // }, [cartItemsApi.data]);
 
   const handleQuantityChange = async (
     item: CartItem,
@@ -387,7 +390,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       </ParentView>
     );
   }
-
+  console.log('cartData', cartData, loading);
   if (!cartData || !cartData.Items || cartData.Items.length === 0) {
     return (
       <ParentView>
