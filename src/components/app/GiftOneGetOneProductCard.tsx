@@ -8,17 +8,17 @@ import {
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
 } from '../../assets/icons';
-import { FaveItems, StoreProduct } from '../../types';
+import { CatchItem } from '../../types'; // Update this import path as needed
 
-interface FavoriteProductCardProps {
-  item: FaveItems | StoreProduct;
-  onPress: (item: FaveItems | StoreProduct) => void;
+interface GiftOneGetOneProductCardProps {
+  item: CatchItem;
+  onPress: (item: CatchItem) => void;
   onFavoritePress?: () => void;
   isFavorite?: boolean;
   hasFavorite?: boolean;
 }
 
-const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
+const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
   item,
   onPress,
   isFavorite,
@@ -28,25 +28,13 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
   const { theme } = useStyles();
   const { styles } = useStyles();
 
-  const isStoreProduct = 'ItemId' in item && 'Thumbnail' in item;
-  const isFaveItems = 'FavItemId' in item && 'ItemImage' in item;
-
-  const itemImage = isStoreProduct
-    ? (item as StoreProduct).Thumbnail
-    : isFaveItems
-    ? (item as FaveItems).ItemImage
-    : null;
-  const itemName = isStoreProduct
-    ? (item as StoreProduct).NameEn
-    : isFaveItems
-    ? (item as FaveItems).ItemNameEn
-    : '';
-  const categoryName = isStoreProduct
-    ? (item as StoreProduct).CategoryNameEn
-    : isFaveItems
-    ? (item as FaveItems).CategoryNameEn
-    : '';
-  const price = item.Price || 0;
+  const itemImage = item.ItemImage;
+  const itemName = item.ItemNameEn;
+  const categoryName = item.CategoryNameEn;
+  const price = item.ItemPrice || 0;
+  const discountedPrice = item.DiscountedPrice;
+  const hasDiscount =
+    discountedPrice && discountedPrice > 0 && discountedPrice < price;
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
@@ -83,9 +71,26 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
         <Text style={styles.title} numberOfLines={1}>
           {itemName}
         </Text>
-        <Text style={styles.subtitle} numberOfLines={1}>
-          {categoryName}
-        </Text>
+        <View
+          style={{
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
+          <Text style={styles.subtitle} numberOfLines={1}>
+            {categoryName}
+          </Text>
+          {hasDiscount && (
+            <View style={styles.priceContainer}>
+              <SvgRiyalIcon
+                width={scaleWithMax(9, 11)}
+                height={scaleWithMax(9, 11)}
+              />
+              <Text style={styles.originalPrice}>{price}</Text>
+            </View>
+          )}
+        </View>
         <View style={styles.priceContainer}>
           <SvgRiyalIcon
             width={scaleWithMax(11, 13)}
@@ -94,7 +99,9 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
               marginTop: 3.5,
             }}
           />
-          <Text style={styles.price}>{price || 'N/A'}</Text>
+          <Text style={styles.price}>
+            {hasDiscount ? discountedPrice : price}
+          </Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -119,7 +126,6 @@ const useStyles = () => {
         height: sizes.HEIGHT * 0.21,
         width: '100%',
       },
-
       image: {
         width: '100%',
         height: '100%',
@@ -151,7 +157,6 @@ const useStyles = () => {
         color: '#A0A0A0',
         fontSize: sizes.FONTSIZE_MEDIUM,
       },
-
       priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
@@ -162,9 +167,15 @@ const useStyles = () => {
         color: theme.colors.PRIMARY_TEXT,
         fontSize: sizes.FONTSIZE_BUTTON,
       },
+      originalPrice: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        textDecorationLine: 'line-through',
+        color: '#A0A0A0',
+        fontSize: sizes.FONTSIZE_SMALL,
+      },
     }),
     theme,
   };
 };
 
-export default FavoriteProductCard;
+export default GiftOneGetOneProductCard;

@@ -34,10 +34,13 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
   const { styles } = useStyles();
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
+    <TouchableOpacity style={styles.container}>
       <View style={styles.imageContainer}>
         <Image source={item.coverImage} style={styles.image} />
-        <TouchableOpacity style={styles.AddContainer}>
+        <TouchableOpacity
+          onPress={() => onPress(item)}
+          style={styles.AddContainer}
+        >
           <SvgCatchAddIcon
             width={scaleWithMax(17, 18)}
             height={scaleWithMax(17, 18)}

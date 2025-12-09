@@ -132,14 +132,14 @@ const GiftOneGetOneScreen: React.FC<AppStackScreen<'GiftOneGetOne'>> = ({
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContent}
           >
-            {filteredStores.map(store => (
+            {/* {filteredStores.map(store => (
               <View style={styles.favoriteItemContainer} key={store.id}>
                 <FavoriteItemCard
                   item={store}
                   onPress={() => handleStorePress(store)}
                 />
               </View>
-            ))}
+            ))} */}
           </ScrollView>
         )}
       </View>

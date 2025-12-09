@@ -25,7 +25,7 @@ import { Text } from '../../../utils/elements';
 import { useListingApi } from '../../../hooks/useListingApi';
 import { SvgRiyalIconWhite } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
-import { get } from 'react-native/Libraries/TurboModule/TurboModuleRegistry';
+import GiftOneGetOneProductCard from '../../../components/app/GiftOneGetOneProductCard';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -40,7 +40,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     {},
   );
   const friendUserId = route.params?.friendUserId ?? null;
-
+  const [submitting, setSubmitting] = useState(false);
   const categoriesApi = useGetApi<Category[]>(apiEndpoints.GET_CATEGORIES, {
     transformData: (data: any) => data.Data?.Items || [],
   });
@@ -64,10 +64,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           totalCount: data.Data?.TotalCount || 0,
         };
       },
+      extraParams: { campaingType: 1 },
     },
   );
   const getStoreProducts = useListingApi<StoreProduct>(
-    route.params?.type === 'GiftOneGetOne' ? apiEndpoints.GET_STORE_DETAIL : '',
+    route.params?.type === 'GiftOneGetOne' ? apiEndpoints.GET_CATCH_ITEMS : '',
     '',
     {
       transformData: (data: any) => {
@@ -76,6 +77,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           totalCount: data.Data?.TotalCount || 0,
         };
       },
+      extraParams: { campaingType: 3 },
     },
   );
   const cartApi = useGetApi<CartResponse>(
@@ -247,7 +249,30 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       product => product.CategoryId === categoryId,
     );
   }, [getStoreProducts.data, selectedFilter]);
-
+  const handleAddToCart = async (item: CatchItem) => {
+    if (submitting) return;
+    try {
+      setSubmitting(true);
+      const payload = {
+        StoreId: item?.StoreId ?? null,
+        ItemId: item?.ItemId,
+        CampaignId: item.CampaignId,
+      };
+      const response = await api.post(
+        apiEndpoints.ADD_CAMPAIGN_TO_CART,
+        payload,
+      );
+      if (response.success) {
+        navigation.navigate('CheckOut' as never);
+      } else {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+      }
+    } catch (error: any) {
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+    } finally {
+      setSubmitting(false);
+    }
+  };
   return (
     <ParentView>
       <StatusBar
@@ -319,13 +344,33 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               </View>
             }
             renderItem={({ item }) =>
-              screenType === 'favorite' || screenType === 'GiftOneGetOne' ? (
+              screenType === 'favorite' ? (
                 <FavoriteProductCard
                   item={item as FaveItems}
                   onPress={handleProductPress}
                   isFavorite={
                     favoriteStates[item.ItemId] ?? item.isFavourite ?? true
                   }
+                  hasFavorite={screenType === 'favorite'}
+                  onFavoritePress={() => {
+                    handleFavoritePress({
+                      ItemId: item.ItemId,
+                      IsFavorite: !(
+                        favoriteStates[item.ItemId] ??
+                        item.isFavourite ??
+                        true
+                      ),
+                    });
+                  }}
+                />
+              ) : screenType === 'GiftOneGetOne' ? (
+                <GiftOneGetOneProductCard
+                  item={item}
+                  onPress={handleProductPress}
+                  isFavorite={
+                    favoriteStates[item.ItemId] ?? item.isFavourite ?? true
+                  }
+                  hasFavorite={false}
                   onFavoritePress={() => {
                     handleFavoritePress({
                       ItemId: item.ItemId,
