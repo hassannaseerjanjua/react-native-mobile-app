@@ -50,12 +50,15 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const loading = itemApi.loading;
 
   useEffect(() => {
-    if (itemApi.data) {
+    if (itemApi.error) {
+      notify.error(itemApi.error || getString('AU_ERROR_OCCURRED'));
+      navigation.goBack();
+    } else if (itemApi.data) {
       setItem(itemApi.data);
       const firstVariantId = itemApi.data?.Variants?.[0]?.ItemVariantId;
       setSelectedFilter(firstVariantId ? String(firstVariantId) : '');
     }
-  }, [itemApi.data]);
+  }, [itemApi.data, itemApi.error]);
 
   const filterOptions = useMemo(() => {
     return (
