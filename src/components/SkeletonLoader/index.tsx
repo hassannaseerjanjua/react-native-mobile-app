@@ -1496,7 +1496,10 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       case 'giftFilters':
         return (
           <SkeletonPlaceholder>
-            <SkeletonPlaceholder.Item flexDirection="row">
+            <SkeletonPlaceholder.Item
+              flexDirection="row"
+              marginHorizontal={theme.sizes.PADDING}
+            >
               {[...Array(3)].map((_, index) => (
                 <SkeletonPlaceholder.Item
                   key={index}

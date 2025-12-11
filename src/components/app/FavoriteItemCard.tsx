@@ -58,7 +58,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
       >
         <View style={styles.imageWrapper}>
           <Image source={backgroundImage} style={styles.backgroundImage} />
-          {showFavorite && onFavoritePress && (
+          {/* {showFavorite && onFavoritePress && (
             <TouchableOpacity
               style={styles.favoriteIcon}
               onPress={e => {
@@ -78,7 +78,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
                 />
               )}
             </TouchableOpacity>
-          )}
+          )} */}
         </View>
         <View style={styles.contentOverlay}>
           <View style={styles.overlayImageContainer}>

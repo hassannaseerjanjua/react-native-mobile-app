@@ -479,7 +479,6 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       <HomeHeader
         title={getString('GIFT_MESSAGE_TITLE')}
         showBackButton={true}
-        rightSideTitle="Next"
         onBackPress={() => {
           Keyboard.dismiss();
           navigation.goBack();
@@ -664,7 +663,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         </ScrollView>
         <View style={styles.footer}>
           <CustomButton
-            title={'Skip'}
+            title={hasContent ? 'Next' : 'Skip'}
             onPress={handleButtonPress}
             disabled={isCompressing}
           />
