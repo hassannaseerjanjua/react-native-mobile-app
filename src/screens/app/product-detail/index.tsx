@@ -26,6 +26,7 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import notify from '../../../utils/notify';
+import useGetApi from '../../../hooks/useGetApi';
 
 const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   route,
@@ -39,45 +40,25 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const { sizes } = theme;
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [item, setItem] = useState<any>(null);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [item, setItem] = useState<any>(null);
+
+  const itemApi = useGetApi<any>(apiEndpoints.GET_STORE_ITEM_BY_ID(itemId), {
+    transformData: (data: any) => data?.Data ?? null,
+  });
+
+  const loading = itemApi.loading;
 
   useEffect(() => {
-    let mounted = true;
-    const fetchItem = async () => {
-      setLoading(true);
-      try {
-        const res = await api.get<any>(
-          apiEndpoints.GET_STORE_ITEM_BY_ID(itemId),
-        );
-        if (mounted) {
-          if (res.success) {
-            const data = (res.data as any)?.Data ?? null;
-            setItem(data);
-            const firstVariantId = data?.Variants?.[0]?.ItemVariantId;
-            setSelectedFilter(firstVariantId ? String(firstVariantId) : '');
-          } else {
-            notify.error(res.error || getString('AU_ERROR_OCCURRED'));
-          }
-          setLoading(false);
-        }
-      } catch (error: any) {
-        if (mounted) {
-          notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-          setLoading(false);
-        }
-      }
-    };
-    if (itemId) {
-      fetchItem();
-    } else {
-      setLoading(false);
+    if (itemApi.error) {
+      notify.error(itemApi.error || getString('AU_ERROR_OCCURRED'));
+      navigation.goBack();
+    } else if (itemApi.data) {
+      setItem(itemApi.data);
+      const firstVariantId = itemApi.data?.Variants?.[0]?.ItemVariantId;
+      setSelectedFilter(firstVariantId ? String(firstVariantId) : '');
     }
-    return () => {
-      mounted = false;
-    };
-  }, [itemId]);
+  }, [itemApi.data, itemApi.error]);
 
   const filterOptions = useMemo(() => {
     return (
@@ -116,18 +97,20 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const handleFavorite = async () => {
     if (!item) return;
     const previousFavoriteState = item.isFavourite ?? false;
+    // Optimistically update the UI
     setItem({ ...item, isFavourite: !previousFavoriteState });
     try {
       const res = await api.post<any>(apiEndpoints.HANDLE_FAVORITE_ITEM, {
         ItemId: item.ItemId,
         isFavorite: !previousFavoriteState,
       });
-      if (res.success) {
-      } else {
+      if (!res.success) {
+        // Revert on error
         setItem({ ...item, isFavourite: previousFavoriteState });
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
     } catch (error: any) {
+      // Revert on error
       setItem({ ...item, isFavourite: previousFavoriteState });
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
