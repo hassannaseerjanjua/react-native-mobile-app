@@ -16,6 +16,7 @@ interface ConfirmationModalProps {
   message: string;
   confirmText?: string;
   cancelText?: string;
+  onbtn2Press?: () => void;
   onConfirm: () => void;
   onCancel: () => void;
   loading?: boolean;
@@ -29,6 +30,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   cancelText = 'Cancel',
   onConfirm,
   onCancel,
+  onbtn2Press,
   loading = false,
 }) => {
   const { styles, theme } = useStyles();
@@ -47,7 +49,7 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           <View style={styles.buttonContainer}>
             <TouchableOpacity
               style={[styles.button, styles.cancelButton]}
-              onPress={onCancel}
+              onPress={onbtn2Press || onCancel}
               disabled={loading}
             >
               <Text style={styles.cancelText}>{cancelText}</Text>

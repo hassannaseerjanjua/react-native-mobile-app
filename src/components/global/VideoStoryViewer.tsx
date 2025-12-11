@@ -25,6 +25,7 @@ import { Text } from '../../utils/elements';
 import { SvgCrossIcon } from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
 import { getCachedVideoPath } from '../../utils/videoCache';
+import VideoTrimmer from './VideoTrimmer';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -37,6 +38,9 @@ interface VideoStoryViewerProps {
   onClose: () => void;
   filterImageUrl?: string | null;
   messageText?: string | null;
+  isRecording?: boolean;
+  onRemove?: () => void;
+  isRecursive?: boolean;
 }
 
 export interface VideoStoryViewerRef {
@@ -54,6 +58,9 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
       onClose,
       filterImageUrl,
       messageText,
+      isRecording,
+      isRecursive,
+      onRemove,
     },
     ref,
   ) => {
@@ -67,6 +74,24 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
     const [currentStoryIndex, setCurrentStoryIndex] = useState(0);
     const textTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [resolvedVideoUrl, setResolvedVideoUrl] = useState<string>(videoUrl);
+    const [trimStart, setTrimStart] = useState(0);
+    const [trimEnd, setTrimEnd] = useState(0);
+    const [videoDuration, setVideoDuration] = useState(0); // Actual video duration, never changes after load
+    console.log('Trim End ==> ', trimEnd);
+    console.log('Video Duration ==> ', videoDuration);
+    console.log('[VideoStoryViewer] Video URL:', resolvedVideoUrl);
+    // Add trim handler - only updates trim positions, does NOT change videoDuration
+    const handleTrimChange = useCallback((start: number, end: number) => {
+      console.log('Trim change output', start, end);
+      setTrimStart(start);
+      setTrimEnd(end);
+      console.log('Trim End ==> 1', end);
+
+      // Seek video to the start position
+      if (videoRef.current) {
+        videoRef.current.seek(start);
+      }
+    }, []);
 
     // Check for cached local video path
     useEffect(() => {
@@ -74,7 +99,6 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
         if (videoUrl) {
           const cachedPath = await getCachedVideoPath(videoUrl);
           if (cachedPath) {
-            // Use local cached path (HD version)
             const localUri =
               Platform.OS === 'ios' && !cachedPath.startsWith('file://')
                 ? `file://${cachedPath}`
@@ -85,7 +109,6 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
             );
             setResolvedVideoUrl(localUri);
           } else {
-            // Use server URL
             setResolvedVideoUrl(videoUrl);
           }
         }
@@ -116,7 +139,6 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
         useNativeDriver: false,
       }).start();
 
-      // Auto-advance to video after 3 seconds
       textTimerRef.current = setTimeout(() => {
         setCurrentStoryIndex(prev => {
           const totalStories = hasTextStory ? 2 : 1;
@@ -136,14 +158,13 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
         setIsLoading(true);
         setPreloadUrl(null);
         setCurrentStoryIndex(0);
+        setIsPaused(false);
         if (textTimerRef.current) {
           clearTimeout(textTimerRef.current);
           textTimerRef.current = null;
         }
       } else {
-        // Show loading when video becomes visible
         setIsLoading(true);
-        // Start text story animation if it's the first story
         if (hasTextStory && currentStoryIndex === 0) {
           startTextStoryAnimation();
         }
@@ -164,11 +185,9 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
         const isOnVideoStory = currentStoryIndex === (hasTextStory ? 1 : 0);
 
         if (isOnTextStory) {
-          // On text story
           setIsLoading(false);
           startTextStoryAnimation();
         } else if (isOnVideoStory) {
-          // On video story
           setIsLoading(true);
           if (textTimerRef.current) {
             clearTimeout(textTimerRef.current);
@@ -180,8 +199,28 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
 
     const handleProgress = useCallback(
       (data: OnProgressData) => {
+        // In recording mode, check if we've exceeded the trim end time
+        if (isRecording && trimEnd > 0 && data.currentTime >= trimEnd) {
+          // Loop back to trim start
+          if (videoRef.current) {
+            videoRef.current.seek(trimStart);
+          }
+          return;
+        }
+
         if (data.seekableDuration > 0 && !isPaused) {
-          const newProgress = data.currentTime / data.seekableDuration;
+          // In recording mode, calculate progress relative to trimmed section
+          let newProgress;
+          if (isRecording && trimEnd > trimStart) {
+            // Progress within the trimmed range
+            const trimmedDuration = trimEnd - trimStart;
+            const relativeTime = Math.max(0, data.currentTime - trimStart);
+            newProgress = relativeTime / trimmedDuration;
+          } else {
+            // Normal progress for non-recording mode
+            newProgress = data.currentTime / data.seekableDuration;
+          }
+
           Animated.timing(progressAnim, {
             toValue: newProgress,
             duration: 250,
@@ -189,27 +228,58 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
           }).start();
         }
       },
-      [progressAnim, isPaused],
+      [progressAnim, isPaused, isRecording, trimStart, trimEnd],
     );
 
     const handleLoadStart = useCallback(() => {
       setIsLoading(true);
     }, []);
 
-    const handleLoad = useCallback((_data: OnLoadData) => {
-      // Video loaded, ready to play
-      setIsLoading(false);
-    }, []);
+    const handleLoad = useCallback(
+      (data: OnLoadData) => {
+        setIsLoading(false);
+        console.log('Video loaded, duration ==>', data.duration);
+
+        // Set actual video duration (this should only happen once per video load)
+        setVideoDuration(data.duration);
+        // Initialize trimEnd to full duration
+        setTrimEnd(data.duration);
+        setTrimStart(0);
+
+        // In recording mode, seek to start (trimStart is 0 initially)
+        if (isRecording && videoRef.current) {
+          videoRef.current.seek(0);
+        }
+      },
+      [isRecording],
+    );
 
     const handleEnd = useCallback(() => {
+      // In recording mode, loop back to trimStart instead of ending
+      if (isRecording && videoRef.current) {
+        videoRef.current.seek(trimStart);
+        return;
+      }
+
       progressAnim.setValue(0);
-      // If we have more stories, move to next, otherwise close
       if (currentStoryIndex < stories.length - 1) {
         setCurrentStoryIndex(currentStoryIndex + 1);
       } else {
-        onClose();
+        if (isRecursive) {
+          // Loop the video
+          if (videoRef.current) {
+            videoRef.current.seek(0);
+          }
+        } else onClose();
       }
-    }, [onClose, progressAnim, currentStoryIndex, stories.length]);
+    }, [
+      onClose,
+      progressAnim,
+      currentStoryIndex,
+      stories.length,
+      isRecording,
+      trimStart,
+    ]);
 
     const handleClose = useCallback(() => {
       progressAnim.setValue(0);
@@ -217,20 +287,26 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
     }, [onClose, progressAnim]);
 
     const handlePressIn = useCallback(() => {
-      setIsPaused(true);
+      // In recording mode, pause on press (toggle happens in handleScreenPress)
+      // For non-recording mode, pause on press in
+      if (!isRecording) {
+        setIsPaused(true);
+      }
       // Pause text animation if on text story
       if (currentStoryIndex === 0 && hasTextStory) {
         if (textTimerRef.current) {
           clearTimeout(textTimerRef.current);
         }
       }
-    }, [currentStoryIndex, hasTextStory]);
+    }, [currentStoryIndex, hasTextStory, isRecording]);
 
     const handlePressOut = useCallback(() => {
-      setIsPaused(false);
+      // In recording mode, don't resume on release
+      if (!isRecording) {
+        setIsPaused(false);
+      }
       // Resume text animation if on text story
       if (currentStoryIndex === 0 && hasTextStory) {
-        // Get current progress value
         let currentProgress = 0;
         textProgressAnim.addListener(({ value }) => {
           currentProgress = value;
@@ -252,19 +328,17 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
           useNativeDriver: false,
         }).start();
       }
-    }, [currentStoryIndex, hasTextStory, textProgressAnim]);
+    }, [currentStoryIndex, hasTextStory, textProgressAnim, isRecording]);
 
     const handlePreviousStory = useCallback(() => {
       setCurrentStoryIndex(prev => {
         if (prev > 0) {
-          // Reset current story progress
           if (prev === (hasTextStory ? 1 : 0)) {
             progressAnim.setValue(0);
           } else if (prev === 0 && hasTextStory) {
             textProgressAnim.setValue(0);
           }
 
-          // Clear any timers
           if (textTimerRef.current) {
             clearTimeout(textTimerRef.current);
             textTimerRef.current = null;
@@ -272,7 +346,6 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
 
           return prev - 1;
         } else {
-          // Already at first story, close viewer
           onClose();
           return prev;
         }
@@ -283,14 +356,12 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
       const totalStories = hasTextStory ? 2 : 1;
       setCurrentStoryIndex(prev => {
         if (prev < totalStories - 1) {
-          // Reset current story progress
           if (prev === (hasTextStory ? 1 : 0)) {
             progressAnim.setValue(0);
           } else if (prev === 0 && hasTextStory) {
             textProgressAnim.setValue(0);
           }
 
-          // Clear any timers
           if (textTimerRef.current) {
             clearTimeout(textTimerRef.current);
             textTimerRef.current = null;
@@ -298,7 +369,6 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
 
           return prev + 1;
         } else {
-          // Already at last story, close viewer
           onClose();
           return prev;
         }
@@ -307,23 +377,25 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
 
     const handleScreenPress = useCallback(
       (event: GestureResponderEvent) => {
-        // Prevent event bubbling to avoid conflicts with header buttons
+        console.log('screen pressed');
         event.stopPropagation?.();
+        // In recording mode, don't navigate - just pause/play
+        if (isRecording) {
+          setIsPaused(prev => !prev);
+          return;
+        }
 
         const { locationX } = event.nativeEvent;
         const screenWidth = SCREEN_WIDTH;
         const leftHalf = screenWidth / 2;
 
-        // Determine which side was tapped
         if (locationX < leftHalf) {
-          // Left side - go to previous story
           handlePreviousStory();
         } else {
-          // Right side - go to next story
           handleNextStory();
         }
       },
-      [handlePreviousStory, handleNextStory],
+      [handlePreviousStory, handleNextStory, isRecording],
     );
 
     const currentStory = stories[currentStoryIndex];
@@ -332,7 +404,6 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
 
     return (
       <>
-        {/* Hidden preload video - starts loading before player is visible */}
         {preloadUrl && !visible && (
           <Video
             ref={preloadVideoRef}
@@ -340,15 +411,14 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
             style={styles.hiddenVideo}
             paused={true}
             muted={true}
+            repeat={isRecursive}
           />
         )}
 
-        {/* Main visible player */}
         {visible && (
           <View style={styles.container}>
             <StatusBar hidden />
 
-            {/* Text Story Screen */}
             {isTextStory && filterImageUrl && messageText && (
               <TouchableOpacity
                 activeOpacity={1}
@@ -368,7 +438,6 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
               </TouchableOpacity>
             )}
 
-            {/* Video Player */}
             {isVideoStory && (
               <TouchableOpacity
                 activeOpacity={1}
@@ -401,62 +470,77 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
             )}
 
             {/* Overlay Content */}
-            <SafeAreaView style={styles.overlay}>
-              {/* Progress Bars for Multiple Stories */}
-              <View style={styles.progressBarContainer}>
-                {stories.map((story, index) => (
-                  <View
-                    key={index}
-                    style={[
-                      styles.progressBarBackground,
-                      {
-                        flex: 1,
-                        marginRight: index < stories.length - 1 ? 4 : 0,
-                      },
-                    ]}
-                  >
-                    {story === 'text' && index === currentStoryIndex ? (
-                      <Animated.View
-                        style={[
-                          styles.progressBarFill,
-                          {
-                            width: textProgressAnim.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: ['0%', '100%'],
-                            }),
-                          },
-                        ]}
-                      />
-                    ) : story === 'video' && index === currentStoryIndex ? (
-                      <Animated.View
-                        style={[
-                          styles.progressBarFill,
-                          {
-                            width: progressAnim.interpolate({
-                              inputRange: [0, 1],
-                              outputRange: ['0%', '100%'],
-                            }),
-                          },
-                        ]}
-                      />
-                    ) : index < currentStoryIndex ? (
-                      <View
-                        style={[styles.progressBarFill, { width: '100%' }]}
-                      />
-                    ) : null}
-                  </View>
-                ))}
-              </View>
-
-              {/* Header with Profile and Close */}
-              <View style={styles.header} pointerEvents="box-none">
-                <View style={styles.profileContainer}>
-                  <Image source={profileImage} style={styles.profileImage} />
-                  <View style={styles.userInfoContainer}>
-                    <Text style={styles.userName}>{userName}</Text>
-                    {timeAgo && <Text style={styles.timeAgo}>{timeAgo}</Text>}
-                  </View>
+            <SafeAreaView style={styles.overlay} pointerEvents="box-none">
+              {/* Progress Bars */}
+              {!isRecording && (
+                <View style={styles.progressBarContainer}>
+                  {stories.map((story, index) => (
+                    <View
+                      key={index}
+                      style={[
+                        styles.progressBarBackground,
+                        {
+                          flex: 1,
+                          marginRight: index < stories.length - 1 ? 4 : 0,
+                        },
+                      ]}
+                    >
+                      {story === 'text' && index === currentStoryIndex ? (
+                        <Animated.View
+                          style={[
+                            styles.progressBarFill,
+                            {
+                              width: textProgressAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: ['0%', '100%'],
+                              }),
+                            },
+                          ]}
+                        />
+                      ) : story === 'video' && index === currentStoryIndex ? (
+                        <Animated.View
+                          style={[
+                            styles.progressBarFill,
+                            {
+                              width: progressAnim.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: ['0%', '100%'],
+                              }),
+                            },
+                          ]}
+                        />
+                      ) : index < currentStoryIndex ? (
+                        <View
+                          style={[styles.progressBarFill, { width: '100%' }]}
+                        />
+                      ) : null}
+                    </View>
+                  ))}
                 </View>
+              )}
+
+              {/* Header */}
+              <View style={styles.header} pointerEvents="box-none">
+                {isRecording ? (
+                  <View style={styles.profileContainer}>
+                    <View style={styles.userInfoContainer}>
+                      <Text style={styles.userName}>{userName}</Text>
+                      {
+                        <Text style={styles.timeAgo} onPress={onRemove}>
+                          Remove
+                        </Text>
+                      }
+                    </View>
+                  </View>
+                ) : (
+                  <View style={styles.profileContainer}>
+                    <Image source={profileImage} style={styles.profileImage} />
+                    <View style={styles.userInfoContainer}>
+                      <Text style={styles.userName}>{userName}</Text>
+                      {timeAgo && <Text style={styles.timeAgo}>{timeAgo}</Text>}
+                    </View>
+                  </View>
+                )}
                 <TouchableOpacity
                   onPress={handleClose}
                   style={styles.closeButton}
@@ -472,7 +556,16 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
               </View>
             </SafeAreaView>
 
-            {/* Loading Indicator - only show for video */}
+            {isRecording && videoDuration > 0 && (
+              <VideoTrimmer
+                videoDuration={videoDuration}
+                onTrimChange={handleTrimChange}
+                isRecording={isRecording}
+                currentProgress={progressAnim}
+              />
+            )}
+
+            {/* Loading Indicator */}
             {isLoading && isVideoStory && (
               <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#FFFFFF" />

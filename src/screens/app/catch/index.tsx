@@ -64,7 +64,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           totalCount: data.Data?.TotalCount || 0,
         };
       },
-      extraParams: { campaingType: 1 },
     },
   );
   const getStoreProducts = useListingApi<StoreProduct>(
