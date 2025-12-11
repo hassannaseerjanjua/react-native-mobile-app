@@ -59,7 +59,8 @@ const apiEndpoints = {
 
   GET_CATCH_ITEMS: `/${version}/User/GetCampaignsForUsers`,
 
-  ADD_TO_CART: `/${version}/User/AddToGiftCart`,
+  ADD_TO_CART: `/${version}/User/AddToGiftCart`, // send a gift
+
   GET_CART_ITEMS: `/${version}/User/GetGiftCart`,
   UPDATE_CART_ITEM_QUANTITY: `/${version}/User/UpdateCart`,
   INITIATE_CHECKOUT: `/${version}/User/InitOrder`,

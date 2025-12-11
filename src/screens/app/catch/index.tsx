@@ -201,6 +201,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           itemId: product.ItemId,
           storeId: product.StoreId,
           friendUserId,
+          type: 'GiftOneGetOne',
         });
       } else {
         (navigation as any).navigate('ProductDetails', {
