@@ -2188,12 +2188,17 @@
     prompts "^2.4.2"
     semver "^7.5.2"
 
-"@react-native-firebase/app@^23.4.0":
+"@react-native-firebase/app@^23.7.0":
   version "23.7.0"
   resolved "https://registry.yarnpkg.com/@react-native-firebase/app/-/app-23.7.0.tgz#48faec190c8e70d684953a5bd28286b6e8e4729d"
   integrity sha512-sYVDkDxlOyQaDO/A0yVqbTha32dVapHlzS054RPY+RM5m0vARMsevJ9d543kH+Cdbp1RKMHIgDjhlB+APaNdhw==
   dependencies:
     firebase "12.6.0"
+
+"@react-native-firebase/messaging@^23.7.0":
+  version "23.7.0"
+  resolved "https://registry.yarnpkg.com/@react-native-firebase/messaging/-/messaging-23.7.0.tgz#fd5eafbe728cf81015acf1ac4b676e2ab411884a"
+  integrity sha512-MFrV2WMnKzsmfkFNY8XLqBlV0FS1VCJC1HAMbXEBjJblVlVLOM+kap08SyHh1qqoXdfaf0mtzGQtpya/kHaAqg==
 
 "@react-native-masked-view/masked-view@^0.3.2":
   version "0.3.2"
