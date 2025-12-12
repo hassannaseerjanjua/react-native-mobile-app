@@ -59,7 +59,8 @@ const apiEndpoints = {
 
   GET_CATCH_ITEMS: `/${version}/User/GetCampaignsForUsers`,
 
-  ADD_TO_CART: `/${version}/User/AddToGiftCart`,
+  ADD_TO_CART: `/${version}/User/AddToGiftCart`, // send a gift
+
   GET_CART_ITEMS: `/${version}/User/GetGiftCart`,
   UPDATE_CART_ITEM_QUANTITY: `/${version}/User/UpdateCart`,
   INITIATE_CHECKOUT: `/${version}/User/InitOrder`,
@@ -68,7 +69,7 @@ const apiEndpoints = {
   CLEAR_CART: `/${version}/User/ClearCart`,
 
   // catch
-  ADD_CAMPAIGN_TO_CART: `/${version}/User/AddToGiftCart`,
+  ADD_CAMPAIGN_TO_CART: `/${version}/User/AddCampaignToCart`,
 
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,
   CONTACT_US_SUBMIT: `/${version}/Home/ContactUsRequest`,

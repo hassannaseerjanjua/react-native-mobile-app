@@ -13,6 +13,8 @@ import { useLocaleStore } from './src/store/reducer/locale';
 import { I18nManager } from 'react-native';
 import { linking } from './src/navigators/deep-linking';
 import Toast from 'react-native-toast-message';
+import useNotification from './src/hooks/useNotification';
+import { getContacts } from './src/utils/contacts';
 
 const App = () => {
   return (
@@ -43,6 +45,8 @@ interface DataWrapperProps {
 const DataWrapper = ({ children }: { children: React.ReactNode }) => {
   const { loading, error, doKeysExist } = useFetchLocale();
   const { strings, isRtl } = useLocaleStore();
+
+  useNotification();
 
   if (isRtl !== I18nManager.isRTL) {
     I18nManager.forceRTL(isRtl);

@@ -68,6 +68,56 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         fontSize: sizes.FONTSIZE,
       },
+      modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: sizes.PADDING,
+      },
+      modalContent: {
+        width: '90%',
+        maxWidth: 400,
+        padding: sizes.PADDING * 1.5,
+        alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+          width: 0,
+          height: 4,
+        },
+        shadowOpacity: 0.3,
+        shadowRadius: 10,
+        elevation: 10,
+      },
+      closeButton: {
+        position: 'absolute',
+        top: sizes.PADDING,
+        right: sizes.PADDING,
+        zIndex: 1,
+        padding: 4,
+      },
+      qrContent: {
+        width: '100%',
+        alignItems: 'center',
+      },
+      qrTitle: {
+        fontSize: sizes.FONTSIZE_HEADING,
+        fontWeight: '600',
+        marginBottom: sizes.PADDING * 0.5,
+        color: colors.PRIMARY_TEXT,
+      },
+      qrSubtitle: {
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: colors.SECONDARY_TEXT,
+        textAlign: 'center',
+        marginBottom: sizes.PADDING * 1.5,
+      },
+      qrCodeContainer: {
+        backgroundColor: colors.WHITE,
+        padding: sizes.PADDING * 1.5,
+        borderRadius: 20,
+        ...theme.globalStyles.SHADOW_STYLE_LOW,
+        shadowColor: '#00000050',
+      },
     });
   }, [theme]);
 

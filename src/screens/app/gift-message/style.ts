@@ -106,6 +106,38 @@ const useStyles = () => {
           right: 0,
           paddingHorizontal: sizes.PADDING,
         },
+        timer: {
+          position: 'absolute',
+          top: sizes.PADDING,
+          left: sizes.PADDING,
+          flex: 1,
+          justifyContent: 'space-between',
+          flexDirection: 'row',
+          alignItems: 'center',
+          width: sizes.WIDTH * 0.9,
+        },
+        timerText: {
+          ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+          fontSize: sizes.FONTSIZE_HIGH,
+          color: theme.colors.WHITE,
+          borderWidth: 1,
+          borderColor: theme.colors.WHITE,
+          borderRadius: 50,
+          paddingHorizontal: sizes.PADDING,
+          paddingVertical: sizes.HEIGHT * 0.005,
+        },
+        crossButton: {
+          marginLeft: sizes.PADDING / 2,
+        },
+        crossBackground: {
+          backgroundColor: 'rgba(0,0,0,0.3)',
+          borderWidth: 1,
+          borderColor: theme.colors.WHITE,
+          borderRadius: 50, // circle
+          padding: sizes.PADDING / 2,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
       }),
     [sizes, theme],
   );

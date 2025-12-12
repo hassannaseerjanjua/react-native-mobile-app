@@ -34,6 +34,7 @@
 		5709B34CF0A7D63546082F79 /* Pods-GifteeRN.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GifteeRN.release.xcconfig"; path = "Target Support Files/Pods-GifteeRN/Pods-GifteeRN.release.xcconfig"; sourceTree = "<group>"; };
 		6192BC80891F4B14992F03A2 /* Quicksand-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Quicksand-SemiBold.ttf"; path = "../src/assets/fonts/Quicksand-SemiBold.ttf"; sourceTree = "<group>"; };
 		6E51A15C2E92633E00CBEB42 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		6EA125252EEC27F600A8931B /* GifteeRN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = GifteeRN.entitlements; path = GifteeRN/GifteeRN.entitlements; sourceTree = "<group>"; };
 		6EC077F48DC1200F5B23A4C5 /* Pods_GifteeRN.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GifteeRN.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = GifteeRN/AppDelegate.swift; sourceTree = "<group>"; };
 		79564C3B260A4D0681A56C13 /* index.ts */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = index.ts; path = ../src/assets/fonts/index.ts; sourceTree = "<group>"; };
@@ -73,6 +74,7 @@
 		13B07FAE1A68108700A75B9A /* GifteeRN */ = {
 			isa = PBXGroup;
 			children = (
+				6EA125252EEC27F600A8931B /* GifteeRN.entitlements */,
 				6E51A15C2E92633E00CBEB42 /* GoogleService-Info.plist */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
@@ -317,7 +319,8 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CURRENT_PROJECT_VERSION = 38;
+				CODE_SIGN_ENTITLEMENTS = GifteeRN/GifteeRN.entitlements;
+				CURRENT_PROJECT_VERSION = 45;
 				DEVELOPMENT_TEAM = 4P584ZXF78;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = GifteeRN/Info.plist;
@@ -347,9 +350,10 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_ENTITLEMENTS = GifteeRN/GifteeRN.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 38;
+				CURRENT_PROJECT_VERSION = 45;
 				DEVELOPMENT_TEAM = 4P584ZXF78;
 				INFOPLIST_FILE = GifteeRN/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Giftee;

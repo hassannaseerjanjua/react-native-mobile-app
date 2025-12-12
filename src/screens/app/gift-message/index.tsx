@@ -10,6 +10,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   ScrollView,
+  Alert,
 } from 'react-native';
 import React, { useState, useEffect, useRef } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -21,6 +22,7 @@ import {
   SvgGalleryIcon,
   SvgGalleryUploadIcon,
   SvgAddGiftMessageIcon,
+  SvgProfileCrossIcon,
 } from '../../../assets/icons';
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
@@ -43,8 +45,12 @@ import {
   cacheVideoPath,
   clearPendingVideoPath,
 } from '../../../utils/videoCache';
+import ConfirmationModal from '../../../components/global/ConfirmationModal';
+import { useVisionCamera } from '../../../hooks/useCamera';
+import { Camera } from 'react-native-vision-camera';
+import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
 
-const MAX_VIDEO_DURATION = 15; // Maximum video duration in seconds
+const MAX_VIDEO_DURATION = 15;
 
 const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   route,
@@ -72,13 +78,63 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     Message: message,
     VideoFile: undefined,
   });
-
+  const [videoViewerData, setVideoViewerData] = useState<{
+    visible: boolean;
+    videoUrl: string;
+    profileImage: any;
+    userName: string;
+    timeAgo: string;
+    filterImageUrl?: string | null;
+    messageText?: string | null;
+  }>({
+    visible: false,
+    videoUrl: '',
+    profileImage: null,
+    userName: '',
+    timeAgo: '',
+    filterImageUrl: null,
+    messageText: null,
+  });
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  // Safety: Auto-reset compression state if it gets stuck
+  useEffect(() => {
+    if (isCompressing) {
+      console.log('[GiftMessage] Compression started, setting 60s timeout...');
+      const timeout = setTimeout(() => {
+        console.warn('[GiftMessage] Compression timeout - resetting state');
+        setIsCompressing(false);
+        setCompressionProgress(0);
+      }, 60000); // 60 seconds timeout
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isCompressing]);
+  const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
+  const [isVideoCancelled, setIsVideoCancelled] = useState(false);
+  const [showCamera, setShowCamera] = useState(false);
+  const [popupVisible, setPopupVisible] = useState(false);
+  const videoViewerRef = useRef<{ preload: (url: string) => void } | null>(
+    null,
+  );
+
+  const {
+    recordVideo,
+
+    cameraRef,
+    device,
+    timer,
+    isCameraActive,
+    cancelRecording,
+  } = useVisionCamera();
   const scrollViewRef = useRef<ScrollView>(null);
   const textInputRef = useRef<TextInput>(null);
+  const [startRecordingAfterReady, setStartRecordingAfterReady] = useState<
+    null | (() => void)
+  >(null);
 
   useEffect(() => {
     setSendMessagePayload(prev => ({
@@ -86,6 +142,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       Message: message,
     }));
   }, [message]);
+  console.log('sendMessagePayload', sendMessagePayload);
 
   useEffect(() => {
     const keyboardDidShowListener = Keyboard.addListener(
@@ -110,7 +167,15 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       keyboardDidHideListener.remove();
     };
   }, []);
+  function formatTime(seconds: number): string {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
 
+    const paddedMins = String(mins).padStart(2, '0');
+    const paddedSecs = String(secs).padStart(2, '0');
+
+    return `${paddedMins}:${paddedSecs}`;
+  }
   const handleButtonPress = () => {
     if (isCompressing) {
       notify.error('Please wait, video is being processed...');
@@ -248,63 +313,85 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   };
 
   const handleVideoSelect = () => {
+    console.log(
+      '[GiftMessage] handleVideoSelect called, isCompressing:',
+      isCompressing,
+    );
+    setPopupVisible(false);
     if (isCompressing) {
+      console.warn('[GiftMessage] Blocked by isCompressing=true');
       notify.error('Please wait, video is being processed...');
       return;
     }
 
-    launchImageLibrary(
-      {
-        mediaType: 'video',
-        quality: 1,
-        selectionLimit: 1,
-        videoQuality: 'high',
-      },
-      async response => {
-        if (response.didCancel) {
-          console.log('[GiftMessage] User cancelled video selection');
-          return;
-        }
-
-        if (response.errorMessage) {
-          console.error(
-            '[GiftMessage] Image picker error:',
-            response.errorMessage,
-          );
-          notify.error(response.errorMessage);
-          return;
-        }
-
-        if (response.assets && response.assets[0]) {
-          const asset = response.assets[0];
-          const duration = asset.duration || 0;
-
-          console.log('[GiftMessage] Video selected:', {
-            uri: asset.uri,
-            duration: duration,
-            fileSize: asset.fileSize,
-            type: asset.type,
-            fileName: asset.fileName,
+    console.log('[GiftMessage] Launching image library...');
+    try {
+      const result = launchImageLibrary(
+        {
+          mediaType: 'video',
+          quality: 1,
+          selectionLimit: 1,
+          videoQuality: 'high',
+        },
+        async response => {
+          console.log('[GiftMessage] Image library response received:', {
+            didCancel: response.didCancel,
+            hasError: !!response.errorMessage,
+            hasAssets: !!response.assets,
           });
 
-          // Validate duration (backup check in case durationLimit doesn't work)
-          if (duration > MAX_VIDEO_DURATION) {
-            notify.error(
-              `Video must be ${MAX_VIDEO_DURATION} seconds or less. Selected video is ${Math.round(
-                duration,
-              )} seconds.`,
-            );
+          if (response.didCancel) {
+            console.log('[GiftMessage] User cancelled video selection');
             return;
           }
 
-          const videoUri = asset.uri || '';
-          const fileName = asset.fileName || `video_${Date.now()}.mp4`;
+          if (response.errorMessage) {
+            console.error(
+              '[GiftMessage] Image picker error:',
+              response.errorMessage,
+            );
+            notify.error(response.errorMessage);
+            return;
+          }
 
-          // Compress the video before setting it
-          await compressVideo(videoUri, fileName);
-        }
-      },
-    );
+          if (response.assets && response.assets[0]) {
+            const asset = response.assets[0];
+            const duration = asset.duration || 0;
+
+            console.log('[GiftMessage] Video selected:', {
+              uri: asset.uri,
+              duration: duration,
+              fileSize: asset.fileSize,
+              type: asset.type,
+              fileName: asset.fileName,
+            });
+
+            // Validate duration (backup check in case durationLimit doesn't work)
+            if (duration > MAX_VIDEO_DURATION) {
+              notify.error(
+                `Video must be ${MAX_VIDEO_DURATION} seconds or less. Selected video is ${Math.round(
+                  duration,
+                )} seconds.`,
+              );
+              return;
+            }
+
+            const videoUri = asset.uri || '';
+            const fileName = asset.fileName || `video_${Date.now()}.mp4`;
+
+            // Compress the video before setting it
+            await compressVideo(videoUri, fileName);
+          }
+        },
+      );
+      console.log('[GiftMessage] launchImageLibrary called successfully');
+    } catch (error) {
+      console.error(
+        '[GiftMessage] Exception calling launchImageLibrary:',
+        error,
+      );
+      notify.error('Failed to open gallery. Please try again.');
+    }
   };
 
   const hasContent =
@@ -318,6 +405,45 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   const selectedFilter = filters.find(
     filter => filter.FilterId === sendMessagePayload.ImageFilterId,
   );
+  if (device && isCameraActive && showCamera)
+    return (
+      <View style={{ flex: 1 }}>
+        <Camera
+          ref={cameraRef}
+          style={{ flex: 1 }}
+          isActive={isCameraActive}
+          device={device}
+          video={true}
+          audio={true}
+          onInitialized={() => {
+            console.log('Camera ready, start recording now');
+            if (startRecordingAfterReady) {
+              startRecordingAfterReady();
+              setStartRecordingAfterReady(null);
+            }
+          }}
+          onError={error => {
+            console.error('❌ Camera error:', error);
+            Alert.alert('Camera Error', error.message);
+            setShowCamera(false);
+          }}
+        />
+        <View style={styles.timer}>
+          <Text style={styles.timerText}>{formatTime(timer)}</Text>
+          <TouchableOpacity
+            onPress={() => {
+              cancelRecording();
+              setIsVideoCancelled(true);
+            }}
+            style={styles.crossButton}
+          >
+            <View style={styles.crossBackground}>
+              <Text>Stop</Text>
+            </View>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
 
   return (
     <ParentView style={styles.container}>
@@ -325,10 +451,71 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
       />
+      <VideoStoryViewer
+        ref={videoViewerRef}
+        visible={selectedVideo !== null}
+        videoUrl={selectedVideo ?? ''}
+        profileImage={videoViewerData.profileImage}
+        userName={videoViewerData.userName}
+        isRecursive
+        isRecording
+        onRemove={() => {
+          setSendMessagePayload({
+            ...sendMessagePayload,
+            VideoFile: undefined,
+          });
+          setSelectedVideo(null);
+        }}
+        timeAgo={videoViewerData.timeAgo}
+        filterImageUrl={videoViewerData.filterImageUrl}
+        messageText={videoViewerData.messageText}
+        onClose={() => setSelectedVideo(null)}
+      />
+      <ConfirmationModal
+        visible={popupVisible}
+        title={'select'}
+        message={'Select how you want the video'}
+        confirmText={'from Gallery'}
+        cancelText={'from Camera'}
+        onConfirm={handleVideoSelect}
+        onCancel={() => setPopupVisible(false)}
+        onbtn2Press={() => {
+          setShowCamera(true);
+
+          setStartRecordingAfterReady(() => () => {
+            console.log(
+              'Camera ref exists?',
+              !!cameraRef.current,
+              'Camera ready?',
+              isCameraActive,
+              'Device exists?',
+              !!device,
+            );
+            recordVideo(
+              {
+                onRecordingFinished: video => {
+                  if (isVideoCancelled) {
+                    setIsVideoCancelled(false);
+                    return;
+                  }
+                  console.log('video finised ', video);
+                  setPopupVisible(false);
+                  setShowCamera(false);
+                  const videoUri = 'file://' + video.path;
+                  compressVideo(videoUri, `video_${Date.now()}.mp4`);
+                },
+                onRecordingError: err => console.log('Error:', err),
+              },
+              MAX_VIDEO_DURATION,
+            );
+          });
+        }}
+        loading={false}
+      />
+
       <HomeHeader
         title={getString('GIFT_MESSAGE_TITLE')}
         showBackButton={true}
-        rightSideTitle="Next"
         onBackPress={() => {
           Keyboard.dismiss();
           navigation.goBack();
@@ -406,7 +593,17 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 </View>
               </View>
               <TouchableOpacity
-                onPress={handleVideoSelect}
+                onPress={() => {
+                  console.log(
+                    '[GiftMessage] Camera icon pressed, isCompressing:',
+                    isCompressing,
+                  );
+                  if (sendMessagePayload.VideoFile) {
+                    setSelectedVideo(sendMessagePayload.VideoFile.uri);
+                  } else {
+                    setPopupVisible(true);
+                  }
+                }}
                 disabled={isCompressing}
                 style={{ opacity: isCompressing ? 0.5 : 1 }}
               >
@@ -507,7 +704,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         </ScrollView>
         <View style={styles.footer}>
           <CustomButton
-            title={'Skip'}
+            title={hasContent ? 'Next' : 'Skip'}
             onPress={handleButtonPress}
             disabled={isCompressing}
           />

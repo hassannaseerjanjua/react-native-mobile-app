@@ -118,43 +118,49 @@ const InboxOutbox: React.FC = () => {
   );
 
   const handleVideoPress = (order: InboxOrder) => {
-    if (order.orderImages && order.orderImages.length > 0) {
-      const videoUrl = order.orderImages[0].ImageUrl;
-      const profileImage = getProfileImage(order);
-      const userName = getUserName(order);
-      const timeAgo = formatRelativeTime(order.OrderTime);
+    const profileImage = getProfileImage(order);
+    const userName = getUserName(order);
+    const timeAgo = formatRelativeTime(order.OrderTime);
 
-      // Get filter image URL if OrderFilterId exists
-      const filterImageUrl =
-        order.OrderFilterId && filterMap.has(order.OrderFilterId)
-          ? filterMap.get(order.OrderFilterId) || null
-          : null;
+    // Get filter image URL if OrderFilterId exists
+    const filterImageUrl =
+      order.OrderFilterId && filterMap.has(order.OrderFilterId)
+        ? filterMap.get(order.OrderFilterId) || null
+        : null;
 
-      // Get message text if OrderMessage exists
-      const messageText = order.OrderMessage || null;
+    // Get message text if OrderMessage exists
+    const messageText = order.OrderMessage || null;
 
-      // Start preloading immediately
+    // Check if we have video or just text
+    const hasVideo = order.orderImages && order.orderImages.length > 0;
+    const videoUrl = hasVideo ? order.orderImages[0].ImageUrl : '';
+
+    // Start preloading immediately if we have a video
+    if (hasVideo && videoUrl) {
       videoViewerRef.current?.preload(videoUrl);
+    }
 
-      // Set data but keep invisible initially
-      setVideoViewerData({
-        visible: false,
-        videoUrl,
-        profileImage,
-        userName,
-        timeAgo,
-        filterImageUrl,
-        messageText,
-      });
+    // Set data but keep invisible initially
+    setVideoViewerData({
+      visible: false,
+      videoUrl,
+      profileImage,
+      userName,
+      timeAgo,
+      filterImageUrl,
+      messageText,
+    });
 
-      // Small delay to allow video buffering before showing player
-      setTimeout(() => {
+    // Small delay to allow video buffering before showing player (or show immediately for text-only)
+    setTimeout(
+      () => {
         setVideoViewerData(prev => ({
           ...prev,
           visible: true,
         }));
-      }, 300);
-    }
+      },
+      hasVideo ? 300 : 0,
+    );
   };
 
   const handleCloseVideoViewer = () => {
@@ -352,22 +358,23 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     />
                   </View>
                 </View>
-                {order.orderImages &&
+                {((order.orderImages &&
                   Array.isArray(order.orderImages) &&
-                  order.orderImages.length > 0 && (
-                    <TouchableOpacity
-                      onPress={e => {
-                        e.stopPropagation?.();
-                        onVideoPress?.();
-                      }}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    >
-                      <SmsTrackingIcon
-                        height={scaleWithMax(20, 20)}
-                        width={scaleWithMax(20, 20)}
-                      />
-                    </TouchableOpacity>
-                  )}
+                  order.orderImages.length > 0) ||
+                  order.OrderMessage) && (
+                  <TouchableOpacity
+                    onPress={e => {
+                      e.stopPropagation?.();
+                      onVideoPress?.();
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <SmsTrackingIcon
+                      height={scaleWithMax(20, 20)}
+                      width={scaleWithMax(20, 20)}
+                    />
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
             <View

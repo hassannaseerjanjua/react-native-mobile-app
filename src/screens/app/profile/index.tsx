@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Platform,
   Share,
+  Modal,
+  StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -38,15 +40,19 @@ import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import { UpdateProfileApiResponse } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import QRCode from 'react-native-qrcode-svg';
+import { scaleWithMax } from '../../../utils';
+import { BlurView } from '@react-native-community/blur';
 
 const ProfileScreen: React.FC = () => {
-  const { styles, theme } = useStyles();
+  const { styles: screenStyles, theme } = useStyles();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { user, token } = useAuthStore();
   const { getString } = useLocaleStore();
   const dummyImage = require('../../../assets/images/user.png');
   const [isUploading, setIsUploading] = useState(false);
+  const [showQrModal, setShowQrModal] = useState(false);
 
   console.log('Userdata', user);
 
@@ -56,12 +62,10 @@ const ProfileScreen: React.FC = () => {
 
   const handleShareGiftLink = async () => {
     try {
-      const giftLink = `https://giftee.app/share/${
-        user?.UserName || 'user123'
-      }`;
-      const inviteLink = `giftee.com/inviteby/abc123?${
-        user?.UserName || 'user123'
-      }`;
+      const giftLink = `https://giftee.app/share/${user?.UserName || 'user123'
+        }`;
+      const inviteLink = `giftee.com/inviteby/abc123?${user?.UserName || 'user123'
+        }`;
       const shareOptions = Platform.select({
         ios: {
           message: `${getString('P_GIFT_ME_ON_GIFTEE')}\n\n${inviteLink}`,
@@ -85,7 +89,7 @@ const ProfileScreen: React.FC = () => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleImageSelect = () => {
@@ -139,7 +143,7 @@ const ProfileScreen: React.FC = () => {
           );
         }
       })
-      .catch(error => {})
+      .catch(error => { })
       .finally(() => {
         setIsUploading(false);
       });
@@ -259,7 +263,7 @@ const ProfileScreen: React.FC = () => {
   ];
 
   return (
-    <ParentView style={styles.container}>
+    <ParentView style={screenStyles.container}>
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -275,46 +279,111 @@ const ProfileScreen: React.FC = () => {
       />
 
       <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.scrollContent}
+        style={screenStyles.scrollView}
+        contentContainerStyle={screenStyles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        <View style={styles.profileSection}>
+        <View style={screenStyles.profileSection}>
           <TouchableOpacity
             onPress={handleImageSelect}
             disabled={isUploading}
-            style={styles.profileImageContainer}
+            style={screenStyles.profileImageContainer}
           >
             <Image
               source={user?.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage}
               style={[
-                styles.profileImage,
-                isUploading && styles.profileImageUploading,
+                screenStyles.profileImage,
+                isUploading && screenStyles.profileImageUploading,
               ]}
             />
           </TouchableOpacity>
-          <View style={styles.profileInfo}>
-            <Text style={styles.profileName}>{user?.FullNameEn}</Text>
-            <Text style={styles.profileUsername}>{user?.UserName}</Text>
+          <View style={screenStyles.profileInfo}>
+            <Text style={screenStyles.profileName}>{user?.FullNameEn}</Text>
+            <Text style={screenStyles.profileUsername}>{user?.UserName}</Text>
           </View>
-          <SvgProfileQrIcon />
+          <TouchableOpacity onPress={() => setShowQrModal(true)}>
+            <SvgProfileQrIcon />
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.menuContainer}>
+        <View style={screenStyles.menuContainer}>
           {profileMenuItems.map((item, index) => (
-            <View key={item.id} style={styles.menuItemWrapper}>
+            <View key={item.id} style={screenStyles.menuItemWrapper}>
               <TabItem
                 title={item.title}
                 onPress={item.onPress}
                 hideRightIcon={true}
                 icon={item.icon}
-                TabItemStyles={styles.menuItem}
-                TabTextStyles={styles.menuItemText}
+                TabItemStyles={screenStyles.menuItem}
+                TabTextStyles={screenStyles.menuItemText}
               />
             </View>
           ))}
         </View>
       </ScrollView>
+
+      <Modal
+        visible={showQrModal}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setShowQrModal(false)}
+      >
+        <View style={screenStyles.modalContainer}>
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="light"
+            blurAmount={2}
+            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.5)"
+          />
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            activeOpacity={1}
+            onPress={() => setShowQrModal(false)}
+          />
+          <View
+            style={[
+              screenStyles.modalContent,
+              {
+                backgroundColor: theme.colors.BACKGROUND,
+                borderRadius: theme.sizes.BORDER_RADIUS_HIGH,
+              },
+            ]}
+          >
+            <View style={screenStyles.qrContent}>
+              <Text style={screenStyles.qrTitle}>Let's Swap Gifts! 🎁</Text>
+              <Text style={screenStyles.qrSubtitle}>Scan to add me</Text>
+
+              <View style={screenStyles.qrCodeContainer}>
+                {user?.UserId ? (
+                  <QRCode
+                    value={`giftee://add-friend/${user.UserId}`}
+                    size={scaleWithMax(220, 250)}
+                    color={theme.colors.PRIMARY}
+                    backgroundColor={theme.colors.WHITE}
+                    quietZone={10}
+                    ecl="M"
+                  />
+                ) : (
+                  <View
+                    style={{
+                      width: scaleWithMax(220, 250),
+                      height: scaleWithMax(220, 250),
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      backgroundColor: '#f0f0f0',
+                    }}
+                  >
+                    <Text style={{ color: theme.colors.SECONDARY_TEXT }}>
+                      No user ID available
+                    </Text>
+                  </View>
+                )}
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ParentView>
   );
 };

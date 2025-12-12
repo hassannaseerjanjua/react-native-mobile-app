@@ -1,5 +1,5 @@
-import React, { useRef } from 'react';
-import { View, StatusBar, useWindowDimensions } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, StatusBar, useWindowDimensions, Linking } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
@@ -20,6 +20,11 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import useGetApi from '../../../hooks/useGetApi';
 import { isIOS, isIOSThen, scaleWithMax } from '../../../utils';
+import api from '../../../utils/api';
+import notify from '../../../utils/notify';
+
+// Global ref to track processed URLs across component lifecycle
+const processedUrls = new Set<string>();
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -27,6 +32,8 @@ const HomeScreen: React.FC = () => {
   const { user } = useAuthStore();
   const navigation = useNavigation();
   const hasLoadedOnceRef = useRef(false);
+  const isProcessingRef = useRef(false);
+  const initialUrlProcessedRef = useRef(false);
 
   const {
     data: sliderResponse,
@@ -35,6 +42,97 @@ const HomeScreen: React.FC = () => {
   } = useGetApi<Slider[]>(apiEndpoints.GET_HOME_SLIDER, {
     transformData: (data: SliderApiResponse) => data?.Data || [],
   });
+
+  // Validate and extract userId from URL
+  const parseAddFriendUrl = (url: string): string | null => {
+    if (!url || !url.includes('add-friend/')) return null;
+
+    try {
+      const parts = url.split('add-friend/');
+      if (parts.length < 2) return null;
+
+      const userId = parts[1]?.split('?')[0]?.split('/')[0]?.trim();
+
+      // Validate userId is a valid number
+      if (!userId || isNaN(Number(userId)) || Number(userId) <= 0) {
+        return null;
+      }
+
+      return userId;
+    } catch {
+      return null;
+    }
+  };
+
+  const handleAddFriend = React.useCallback(
+    async (url: string) => {
+      // Prevent concurrent processing
+      if (isProcessingRef.current) return;
+
+      // Check if already processed
+      if (processedUrls.has(url)) return;
+
+      const userId = parseAddFriendUrl(url);
+
+      // Invalid or malformed QR
+      if (!userId) {
+        if (url.includes('add-friend')) {
+          notify.error('Invalid QR code', 'top');
+        }
+        processedUrls.add(url); // Mark as processed to prevent retries
+        return;
+      }
+
+      // No logged in user
+      if (!user?.UserId) {
+        return;
+      }
+
+      // Mark as processing and processed
+      isProcessingRef.current = true;
+      processedUrls.add(url);
+
+      try {
+        const response = await api.post(apiEndpoints.ADD_FRIEND(user.UserId), {
+          friendUserId: Number(userId),
+        });
+
+        if (response.success) {
+          notify.success('Friend added successfully', 'top');
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'), 'top');
+        }
+      } catch (err: any) {
+        notify.error(err?.error || getString('AU_ERROR_OCCURRED'), 'top');
+      } finally {
+        isProcessingRef.current = false;
+      }
+    },
+    [user?.UserId, getString],
+  );
+
+  useEffect(() => {
+    // Handle initial URL when app opens from closed state (runs once)
+    if (!initialUrlProcessedRef.current) {
+      initialUrlProcessedRef.current = true;
+      Linking.getInitialURL().then(url => {
+        if (url && url.includes('add-friend/')) {
+          handleAddFriend(url);
+        }
+      });
+    }
+
+    // Handle URL events (foreground + background to foreground)
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      if (url && url.includes('add-friend/')) {
+        handleAddFriend(url);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [handleAddFriend]);
 
   if (sliderResponse && !hasLoadedOnceRef.current) {
     hasLoadedOnceRef.current = true;

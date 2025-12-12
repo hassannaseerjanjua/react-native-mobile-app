@@ -2,233 +2,229 @@ import messaging, {
   FirebaseMessagingTypes,
 } from '@react-native-firebase/messaging';
 import { Platform, PermissionsAndroid } from 'react-native';
+import notifee, { AndroidImportance } from '@notifee/react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 /**
- * Firebase Cloud Messaging Notification Service
- * Handles FCM token retrieval, permissions, and notification listeners
+ * NOTE: Background handler is now in index.js
+ * It MUST be at top level for killed app notifications
  */
 
-// Request notification permissions (required for iOS and Android 13+)
-export const requestNotificationPermission = async (): Promise<boolean> => {
+export const displayNotification = async (
+  message: FirebaseMessagingTypes.RemoteMessage,
+): Promise<void> => {
+  try {
+    const channelId = await notifee.createChannel({
+      id: 'default',
+      name: 'Default Notifications',
+      importance: AndroidImportance.HIGH,
+      sound: 'default',
+    });
+
+    await notifee.displayNotification({
+      title: message.notification?.title || 'New Notification',
+      body: message.notification?.body || '',
+      android: {
+        channelId,
+        importance: AndroidImportance.HIGH,
+        pressAction: {
+          id: 'default',
+        },
+        smallIcon: 'ic_launcher',
+        sound: 'default',
+      },
+      ios: {
+        sound: 'default',
+        foregroundPresentationOptions: {
+          badge: true,
+          sound: true,
+          banner: true,
+          list: true,
+        },
+      },
+      data: message.data,
+    });
+  } catch (error) {
+    console.error('Display notification error:', error);
+  }
+};
+
+export const checkNotificationPermission = async (): Promise<boolean> => {
   try {
     if (Platform.OS === 'android') {
-      // Android 13+ requires POST_NOTIFICATIONS permission
       if (Platform.Version >= 33) {
-        const granted = await PermissionsAndroid.request(
+        const granted = await PermissionsAndroid.check(
           PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
         );
-        if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-          console.log('✅ Android notification permission granted');
-          return true;
-        } else {
-          console.log('❌ Android notification permission denied');
-          return false;
-        }
+        return granted;
       }
-      return true; // Android < 13 doesn't need explicit permission
+      return true;
     }
 
-    // iOS permission request
-    const authStatus = await messaging().requestPermission();
-    const enabled =
+    const authStatus = await messaging().hasPermission();
+    return (
       authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
-      authStatus === messaging.AuthorizationStatus.PROVISIONAL;
-
-    if (enabled) {
-      console.log('✅ iOS notification permission granted:', authStatus);
-    } else {
-      console.log('❌ iOS notification permission denied');
-    }
-
-    return enabled;
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL
+    );
   } catch (error) {
-    console.error('❌ Error requesting notification permission:', error);
+    console.error('Check permission error:', error);
     return false;
   }
 };
 
-// Get and log FCM token
+export const requestNotificationPermission = async (): Promise<boolean> => {
+  try {
+    const hasPermission = await checkNotificationPermission();
+    if (hasPermission) return true;
+
+    if (Platform.OS === 'android') {
+      if (Platform.Version >= 33) {
+        const granted = await PermissionsAndroid.request(
+          PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+        );
+        return granted === PermissionsAndroid.RESULTS.GRANTED;
+      }
+      return true;
+    }
+
+    const authStatus = await messaging().requestPermission({
+      alert: true,
+      badge: true,
+      sound: true,
+    });
+    return (
+      authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
+      authStatus === messaging.AuthorizationStatus.PROVISIONAL
+    );
+  } catch (error) {
+    console.error('Notification permission error:', error);
+    return false;
+  }
+};
+
 export const getFCMToken = async (): Promise<string | null> => {
   try {
-    // Request permission first (this also checks current status)
     const granted = await requestNotificationPermission();
-    if (!granted) {
-      console.log('❌ Cannot get FCM token without permission');
-      return null;
+    if (!granted) return null;
+
+    // const savedToken = await getSavedFCMToken();
+    // if (savedToken) return savedToken;
+
+    // iOS requires device registration before getting token
+    if (Platform.OS === 'ios') {
+      const isRegistered = messaging().isDeviceRegisteredForRemoteMessages;
+      if (!isRegistered) {
+        await messaging().registerDeviceForRemoteMessages();
+      }
+
+      // Wait for APNS token (required on real iOS devices)
+      // Note: APNS tokens are not available on iOS Simulator
+      const maxRetries = 10;
+      let retries = 0;
+
+      while (retries < maxRetries) {
+        const apnsToken = await messaging().getAPNSToken();
+        if (apnsToken) {
+          console.log('APNS token received');
+          break;
+        }
+
+        // Wait 500ms before checking again
+        await new Promise(resolve => setTimeout(resolve, 500));
+        retries++;
+      }
+
+      // Check if we're on simulator
+      const apnsToken = await messaging().getAPNSToken();
+      if (!apnsToken) {
+        console.warn('⚠️ No APNS token available. FCM notifications will NOT work on iOS Simulator. Please test on a real iOS device.');
+      }
     }
 
-    // Get the FCM token
     const fcmToken = await messaging().getToken();
-
     if (fcmToken) {
-      console.log('🔑 FCM Token:', fcmToken);
-      // TODO: Send this token to your backend server
-      return fcmToken;
-    } else {
-      console.log('❌ Failed to get FCM token');
-      return null;
+      await saveFCMToken(fcmToken);
+      console.log('FCM Token received:', fcmToken);
     }
+    return fcmToken || null;
   } catch (error) {
-    console.error('❌ Error getting FCM token:', error);
+    console.error('FCM token error:', error);
     return null;
   }
 };
 
-// Delete FCM token (useful for logout)
 export const deleteFCMToken = async (): Promise<void> => {
   try {
     await messaging().deleteToken();
-    console.log('🗑️ FCM token deleted');
+    await AsyncStorage.removeItem('fcm_token');
   } catch (error) {
-    console.error('❌ Error deleting FCM token:', error);
+    console.error('FCM token deletion error:', error);
   }
 };
 
-// Handle token refresh
 export const onTokenRefresh = (
   callback: (token: string) => void,
 ): (() => void) => {
-  return messaging().onTokenRefresh(token => {
-    console.log('🔄 FCM Token refreshed:', token);
-    callback(token);
-  });
+  return messaging().onTokenRefresh(callback);
 };
 
-// Handle foreground notifications
 export const onForegroundNotification = (
   callback: (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => void,
 ): (() => void) => {
   return messaging().onMessage(async remoteMessage => {
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('📬 onMessage() - FOREGROUND NOTIFICATION');
-    console.log('═══════════════════════════════════════════════════════');
-    console.log(
-      '📋 Full Message Object:',
-      JSON.stringify(remoteMessage, null, 2),
-    );
-    console.log('📌 Notification Title:', remoteMessage.notification?.title);
-    console.log('📌 Notification Body:', remoteMessage.notification?.body);
-    console.log(
-      '📌 Notification Data:',
-      JSON.stringify(remoteMessage.data, null, 2),
-    );
-    console.log('📌 Message ID:', remoteMessage.messageId);
-    console.log('📌 Sent Time:', remoteMessage.sentTime);
-    console.log('📌 From:', remoteMessage.from);
-    console.log('📌 TTL:', remoteMessage.ttl);
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('🔄 Calling callback function...');
+    console.log('Foreground notification:', remoteMessage.notification?.title);
     callback(remoteMessage);
-    console.log('✅ Callback executed');
-    console.log('═══════════════════════════════════════════════════════');
   });
 };
 
-// Handle notification opened (when user taps on notification)
 export const onNotificationOpenedApp = (
   callback: (remoteMessage: FirebaseMessagingTypes.RemoteMessage) => void,
 ): (() => void) => {
   return messaging().onNotificationOpenedApp(remoteMessage => {
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('👆 onNotificationOpenedApp() - NOTIFICATION TAP');
-    console.log('═══════════════════════════════════════════════════════');
-    console.log(
-      '📋 Full Message Object:',
-      JSON.stringify(remoteMessage, null, 2),
-    );
-    console.log('📌 Notification Title:', remoteMessage.notification?.title);
-    console.log('📌 Notification Body:', remoteMessage.notification?.body);
-    console.log(
-      '📌 Notification Data:',
-      JSON.stringify(remoteMessage.data, null, 2),
-    );
-    console.log('📌 Message ID:', remoteMessage.messageId);
-    console.log('═══════════════════════════════════════════════════════');
-    console.log('🔄 Calling callback function...');
+    console.log('Notification opened:', remoteMessage.notification?.title);
     callback(remoteMessage);
-    console.log('✅ Callback executed');
-    console.log('═══════════════════════════════════════════════════════');
   });
 };
 
-// Check if app was opened from a notification (when app was quit)
 export const getInitialNotification =
   async (): Promise<FirebaseMessagingTypes.RemoteMessage | null> => {
-    console.log('🔍 Checking for initial notification...');
     const remoteMessage = await messaging().getInitialNotification();
-
     if (remoteMessage) {
-      console.log('═══════════════════════════════════════════════════════');
-      console.log('🚀 getInitialNotification() - APP OPENED FROM QUIT STATE');
-      console.log('═══════════════════════════════════════════════════════');
-      console.log(
-        '📋 Full Message Object:',
-        JSON.stringify(remoteMessage, null, 2),
-      );
-      console.log('📌 Notification Title:', remoteMessage.notification?.title);
-      console.log('📌 Notification Body:', remoteMessage.notification?.body);
-      console.log(
-        '📌 Notification Data:',
-        JSON.stringify(remoteMessage.data, null, 2),
-      );
-      console.log('📌 Message ID:', remoteMessage.messageId);
-      console.log('═══════════════════════════════════════════════════════');
-    } else {
-      console.log('ℹ️ No initial notification found');
+      console.log('Initial notification:', remoteMessage.notification?.title);
     }
-
     return remoteMessage;
   };
 
-// Subscribe to a topic
 export const subscribeToTopic = async (topic: string): Promise<void> => {
   try {
     await messaging().subscribeToTopic(topic);
-    console.log(`📌 Subscribed to topic: ${topic}`);
   } catch (error) {
-    console.error(`❌ Error subscribing to topic ${topic}:`, error);
+    console.error(`Topic subscription error (${topic}):`, error);
   }
 };
 
-// Unsubscribe from a topic
 export const unsubscribeFromTopic = async (topic: string): Promise<void> => {
   try {
     await messaging().unsubscribeFromTopic(topic);
-    console.log(`📌 Unsubscribed from topic: ${topic}`);
   } catch (error) {
-    console.error(`❌ Error unsubscribing from topic ${topic}:`, error);
+    console.error(`Topic unsubscribe error (${topic}):`, error);
   }
 };
 
-// Initialize all notification handlers
 export const initializeNotifications = async (
   onForegroundMessage?: (message: FirebaseMessagingTypes.RemoteMessage) => void,
   onNotificationTap?: (message: FirebaseMessagingTypes.RemoteMessage) => void,
+  onTokenUpdate?: (token: string) => void,
 ): Promise<{
   token: string | null;
   initialNotification: FirebaseMessagingTypes.RemoteMessage | null;
   unsubscribe: () => void;
 }> => {
-  console.log('═══════════════════════════════════════════════════════');
-  console.log('🔔 INITIALIZING FIREBASE MESSAGING');
-  console.log('═══════════════════════════════════════════════════════');
-  console.log('📋 Callbacks provided:');
-  console.log(
-    '  - onForegroundMessage:',
-    typeof onForegroundMessage === 'function' ? '✅ Provided' : '❌ Missing',
-  );
-  console.log(
-    '  - onNotificationTap:',
-    typeof onNotificationTap === 'function' ? '✅ Provided' : '❌ Missing',
-  );
-  console.log('═══════════════════════════════════════════════════════');
-
-  // Request permission and get token
-  console.log(
-    '🔐 Requesting notification permissions and getting FCM token...',
-  );
+  // Get FCM token
   const token = await getFCMToken();
-  console.log('🔑 FCM Token result:', token ? '✅ Received' : '❌ Failed');
+  if (token && onTokenUpdate) {
+    onTokenUpdate(token);
+  }
 
   // Check for initial notification (app opened from quit state)
   const initialNotification = await getInitialNotification();
@@ -236,50 +232,28 @@ export const initializeNotifications = async (
     onNotificationTap(initialNotification);
   }
 
-  // Set up listeners
-  console.log('📡 Setting up notification listeners...');
-
+  // Setup token refresh listener
   const unsubscribeTokenRefresh = onTokenRefresh(newToken => {
-    console.log('🔄 FCM Token refreshed:', newToken);
-    // TODO: Send new token to your backend
-    console.log('Token refreshed, update backend with:', newToken);
+    console.log('FCM Token refreshed:', newToken);
+    onTokenUpdate?.(newToken);
   });
-  console.log('✅ Token refresh listener registered');
 
+  // Setup foreground notification listener
   const unsubscribeForeground = onForegroundNotification(message => {
-    console.log('📬 Foreground notification listener triggered');
-    if (onForegroundMessage) {
-      console.log('🔄 Calling onForegroundMessage callback...');
-      onForegroundMessage(message);
-    } else {
-      console.log('⚠️ onForegroundMessage callback not provided!');
-    }
+    onForegroundMessage?.(message);
   });
-  console.log('✅ Foreground notification listener registered');
 
+  // Setup notification opened listener (background/quit state)
   const unsubscribeNotificationOpened = onNotificationOpenedApp(message => {
-    console.log('👆 Notification opened listener triggered');
-    if (onNotificationTap) {
-      console.log('🔄 Calling onNotificationTap callback...');
-      onNotificationTap(message);
-    } else {
-      console.log('⚠️ onNotificationTap callback not provided!');
-    }
+    onNotificationTap?.(message);
   });
-  console.log('✅ Notification opened listener registered');
 
-  // Return cleanup function
+  // Cleanup function
   const unsubscribe = () => {
-    console.log('🧹 Cleaning up notification listeners...');
     unsubscribeTokenRefresh();
     unsubscribeForeground();
     unsubscribeNotificationOpened();
-    console.log('✅ Notification listeners cleaned up');
   };
-
-  console.log('═══════════════════════════════════════════════════════');
-  console.log('✅ Firebase Messaging initialization complete');
-  console.log('═══════════════════════════════════════════════════════');
 
   return {
     token,
@@ -288,7 +262,26 @@ export const initializeNotifications = async (
   };
 };
 
+const saveFCMToken = async (token: string): Promise<void> => {
+  try {
+    await AsyncStorage.setItem('fcm_token', token);
+  } catch (error) {
+    console.error('FCM token save error:', error);
+  }
+};
+
+const getSavedFCMToken = async (): Promise<string | null> => {
+  try {
+    const token = await AsyncStorage.getItem('fcm_token');
+    return token || null;
+  } catch (error) {
+    console.error('FCM token get error:', error);
+    return null;
+  }
+};
+
 export default {
+  checkNotificationPermission,
   requestNotificationPermission,
   getFCMToken,
   deleteFCMToken,
@@ -299,4 +292,7 @@ export default {
   subscribeToTopic,
   unsubscribeFromTopic,
   initializeNotifications,
+  displayNotification,
+  saveFCMToken,
+  getSavedFCMToken,
 };

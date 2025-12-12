@@ -118,16 +118,31 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
   const handleAddToCart = async () => {
     if (submitting) return;
+    const isGift = route.params.type === 'GiftOneGetOne';
     try {
       setSubmitting(true);
-      const payload = {
-        FriendId: friendUserId ?? null,
-        ItemId: item?.ItemId,
-        ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
-        Quantity: quantity,
-        StoreId: storeId ?? null,
-      };
-      const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
+      let payload = {};
+      if (isGift) {
+        payload = {
+          StoreId: route.params.storeId ?? item?.StoreId ?? null,
+          ItemId: item?.ItemId,
+          CampaignId: route.params.campaignId,
+          ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
+          ReceiverUserId: friendUserId ?? null,
+        };
+      } else {
+        payload = {
+          FriendId: friendUserId ?? null,
+          ItemId: item?.ItemId,
+          ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
+          Quantity: quantity,
+          StoreId: storeId ?? null,
+        };
+      }
+      const response = await api.post(
+        isGift ? apiEndpoints.ADD_CAMPAIGN_TO_CART : apiEndpoints.ADD_TO_CART,
+        payload,
+      );
       if (response.success) {
         navigation.goBack();
       } else {
