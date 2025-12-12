@@ -48,16 +48,6 @@ const DataWrapper = ({ children }: { children: React.ReactNode }) => {
 
   useNotification();
 
-  useEffect(() => {
-    getContacts()
-      .then(contacts => {
-        console.log(contacts);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }, []);
-
   if (isRtl !== I18nManager.isRTL) {
     I18nManager.forceRTL(isRtl);
   }

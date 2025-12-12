@@ -50,9 +50,9 @@ export const checkContactsPermission = async (): Promise<boolean> => {
       );
       return granted;
     } else {
-      // iOS
-      const permission = await Contacts.checkPermission();
-      return permission === 'authorized';
+      // iOS - Skip check, go directly to request
+      // checkPermission() can freeze on some iOS versions
+      return false;
     }
   } catch (error) {
     console.error('Check contact permission error:', error);
@@ -90,15 +90,22 @@ const formatContact = (contact: Contact): ContactInfo => {
  */
 export const getContacts = async (): Promise<ContactInfo[]> => {
   try {
-    // Check permission first
-    const hasPermission = await checkContactsPermission();
-
-    if (!hasPermission) {
-      // Request permission if not granted
-      const granted = await requestContactsPermission();
-      if (!granted) {
+    // iOS: Request permission directly (avoids freeze with checkPermission)
+    // Android: Check then request if needed
+    if (Platform.OS === 'ios') {
+      const permission = await Contacts.requestPermission();
+      if (permission !== 'authorized') {
         console.log('Contacts permission denied');
         return [];
+      }
+    } else {
+      const hasPermission = await checkContactsPermission();
+      if (!hasPermission) {
+        const granted = await requestContactsPermission();
+        if (!granted) {
+          console.log('Contacts permission denied');
+          return [];
+        }
       }
     }
 
@@ -133,11 +140,19 @@ export const searchContacts = async (query: string): Promise<ContactInfo[]> => {
       return [];
     }
 
-    const hasPermission = await checkContactsPermission();
-    if (!hasPermission) {
-      const granted = await requestContactsPermission();
-      if (!granted) {
+    // iOS: Request permission directly (avoids freeze)
+    if (Platform.OS === 'ios') {
+      const permission = await Contacts.requestPermission();
+      if (permission !== 'authorized') {
         return [];
+      }
+    } else {
+      const hasPermission = await checkContactsPermission();
+      if (!hasPermission) {
+        const granted = await requestContactsPermission();
+        if (!granted) {
+          return [];
+        }
       }
     }
 
@@ -158,11 +173,19 @@ export const getContactById = async (
   contactId: string,
 ): Promise<ContactInfo | null> => {
   try {
-    const hasPermission = await checkContactsPermission();
-    if (!hasPermission) {
-      const granted = await requestContactsPermission();
-      if (!granted) {
+    // iOS: Request permission directly (avoids freeze)
+    if (Platform.OS === 'ios') {
+      const permission = await Contacts.requestPermission();
+      if (permission !== 'authorized') {
         return null;
+      }
+    } else {
+      const hasPermission = await checkContactsPermission();
+      if (!hasPermission) {
+        const granted = await requestContactsPermission();
+        if (!granted) {
+          return null;
+        }
       }
     }
 
