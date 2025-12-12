@@ -115,14 +115,8 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         padding: sizes.PADDING * 1.5,
         borderRadius: 20,
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 2,
-        },
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 5,
+        ...theme.globalStyles.SHADOW_STYLE_LOW,
+        shadowColor: '#00000050',
       },
     });
   }, [theme]);

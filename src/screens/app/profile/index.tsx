@@ -352,13 +352,6 @@ const ProfileScreen: React.FC = () => {
               },
             ]}
           >
-            {/* <TouchableOpacity
-              style={screenStyles.closeButton}
-              onPress={() => setShowQrModal(false)}
-            >
-              <SvgProfileCrossIcon />
-            </TouchableOpacity> */}
-
             <View style={screenStyles.qrContent}>
               <Text style={screenStyles.qrTitle}>Let's Swap Gifts! 🎁</Text>
               <Text style={screenStyles.qrSubtitle}>Scan to add me</Text>
@@ -366,7 +359,7 @@ const ProfileScreen: React.FC = () => {
               <View style={screenStyles.qrCodeContainer}>
                 {user?.UserId ? (
                   <QRCode
-                    value={String(user.UserId)}
+                    value={`giftee://add-friend/${user.UserId}`}
                     size={scaleWithMax(220, 250)}
                     color={theme.colors.PRIMARY}
                     backgroundColor={theme.colors.WHITE}
@@ -389,32 +382,6 @@ const ProfileScreen: React.FC = () => {
                   </View>
                 )}
               </View>
-
-              {/* <View
-                style={{
-                  marginTop: theme.sizes.PADDING * 1.5,
-                  alignItems: 'center',
-                }}
-              >
-                <Text
-                  style={{
-                    fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                    color: theme.colors.SECONDARY_TEXT,
-                  }}
-                >
-                  User ID
-                </Text>
-                <Text
-                  style={{
-                    fontSize: theme.sizes.FONTSIZE_HEADING,
-                    fontWeight: '600',
-                    color: theme.colors.PRIMARY_TEXT,
-                    marginTop: 4,
-                  }}
-                >
-                  {user?.UserId || '---'}
-                </Text>
-              </View> */}
             </View>
           </View>
         </View>

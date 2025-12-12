@@ -1,6 +1,12 @@
-import React, { useRef } from 'react';
-import { View, StatusBar, useWindowDimensions } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import React, { useRef, useEffect, useState } from 'react';
+import {
+  View,
+  StatusBar,
+  useWindowDimensions,
+  Linking,
+  AppState,
+} from 'react-native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
 import ImageSlider from '../../../components/global/ImageSlider';
@@ -20,6 +26,8 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import useGetApi from '../../../hooks/useGetApi';
 import { isIOS, isIOSThen, scaleWithMax } from '../../../utils';
+import api from '../../../utils/api';
+import notify from '../../../utils/notify';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -27,6 +35,8 @@ const HomeScreen: React.FC = () => {
   const { user } = useAuthStore();
   const navigation = useNavigation();
   const hasLoadedOnceRef = useRef(false);
+  const processedDeepLinkRef = useRef<Set<string>>(new Set());
+  const [pendingUrl, setPendingUrl] = useState<string | null>(null);
 
   const {
     data: sliderResponse,
@@ -35,6 +45,70 @@ const HomeScreen: React.FC = () => {
   } = useGetApi<Slider[]>(apiEndpoints.GET_HOME_SLIDER, {
     transformData: (data: SliderApiResponse) => data?.Data || [],
   });
+
+  const handleDeepLink = React.useCallback(
+    async (url: string) => {
+      if (!url || !url.includes('add-friend/')) return;
+
+      const userId = url.split('add-friend/')[1]?.split('?')[0]?.split('/')[0];
+
+      const uniqueKey = `${url}-${userId}`;
+
+      if (
+        userId &&
+        !processedDeepLinkRef.current.has(uniqueKey) &&
+        user?.UserId
+      ) {
+        processedDeepLinkRef.current.add(uniqueKey);
+
+        try {
+          await api.post(apiEndpoints.ADD_FRIEND(user.UserId), {
+            friendUserId: Number(userId),
+          });
+          notify.success('Friend added successfully', 'top');
+        } catch (err: any) {
+          notify.error(err?.error || getString('AU_ERROR_OCCURRED'), 'top');
+        }
+
+        // Don't clear - keep it processed for the entire app session
+      }
+    },
+    [user?.UserId, getString],
+  );
+
+  // Handle deep links when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      if (pendingUrl) {
+        const urlToProcess = pendingUrl;
+        setPendingUrl(null); // Clear immediately before processing
+        handleDeepLink(urlToProcess);
+      }
+    }, [pendingUrl, handleDeepLink]),
+  );
+
+  useEffect(() => {
+    let hasProcessedInitialUrl = false;
+
+    // Handle initial URL when app opens from closed state
+    Linking.getInitialURL().then(url => {
+      if (url && !hasProcessedInitialUrl) {
+        hasProcessedInitialUrl = true;
+        handleDeepLink(url);
+      }
+    });
+
+    // Handle URL when app is already open or comes from background
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      if (url) {
+        setPendingUrl(url);
+      }
+    });
+
+    return () => {
+      subscription.remove();
+    };
+  }, [handleDeepLink]);
 
   if (sliderResponse && !hasLoadedOnceRef.current) {
     hasLoadedOnceRef.current = true;
