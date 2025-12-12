@@ -116,9 +116,18 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
       checkCache();
     }, [videoUrl]);
 
-    // Determine if we have text story (filter + message)
-    const hasTextStory = filterImageUrl && messageText;
-    const stories = hasTextStory ? ['text', 'video'] : ['video'];
+    // Determine if we have text story (message with or without filter)
+    const hasTextStory = !!messageText;
+    const hasVideo = !!videoUrl && videoUrl.trim() !== '';
+    // If we have text and video, show text first then video. If only text, show only text.
+    const stories =
+      hasTextStory && hasVideo
+        ? ['text', 'video']
+        : hasTextStory
+        ? ['text']
+        : hasVideo
+        ? ['video']
+        : [];
 
     // Expose preload method to parent
     useImperativeHandle(ref, () => ({
@@ -141,14 +150,17 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
 
       textTimerRef.current = setTimeout(() => {
         setCurrentStoryIndex(prev => {
-          const totalStories = hasTextStory ? 2 : 1;
+          const totalStories = hasTextStory && hasVideo ? 2 : 1;
           if (prev === 0 && totalStories > 1) {
             return 1;
+          } else {
+            // If this is the last story (text-only), close the viewer
+            onClose();
           }
           return prev;
         });
       }, 3000);
-    }, [textProgressAnim, hasTextStory]);
+    }, [textProgressAnim, hasTextStory, hasVideo, onClose]);
 
     // Reset progress when visibility changes
     useEffect(() => {
@@ -254,6 +266,10 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
       [isRecording],
     );
 
+    const handleReadyForDisplay = useCallback(() => {
+      setIsLoading(false);
+    }, []);
+
     const handleEnd = useCallback(() => {
       // In recording mode, loop back to trimStart instead of ending
       if (isRecording && videoRef.current) {
@@ -316,8 +332,11 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
         const remainingTime = (1 - currentProgress) * 3000;
         textTimerRef.current = setTimeout(() => {
           setCurrentStoryIndex(prev => {
-            if (prev === 0 && hasTextStory) {
+            const totalStories = hasTextStory && hasVideo ? 2 : 1;
+            if (prev === 0 && totalStories > 1) {
               return 1;
+            } else {
+              onClose();
             }
             return prev;
           });
@@ -328,7 +347,14 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
           useNativeDriver: false,
         }).start();
       }
-    }, [currentStoryIndex, hasTextStory, textProgressAnim, isRecording]);
+    }, [
+      currentStoryIndex,
+      hasTextStory,
+      hasVideo,
+      textProgressAnim,
+      isRecording,
+      onClose,
+    ]);
 
     const handlePreviousStory = useCallback(() => {
       setCurrentStoryIndex(prev => {
@@ -353,7 +379,7 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
     }, [hasTextStory, progressAnim, textProgressAnim, onClose]);
 
     const handleNextStory = useCallback(() => {
-      const totalStories = hasTextStory ? 2 : 1;
+      const totalStories = hasTextStory && hasVideo ? 2 : 1;
       setCurrentStoryIndex(prev => {
         if (prev < totalStories - 1) {
           if (prev === (hasTextStory ? 1 : 0)) {
@@ -373,7 +399,7 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
           return prev;
         }
       });
-    }, [hasTextStory, progressAnim, textProgressAnim, onClose]);
+    }, [hasTextStory, hasVideo, progressAnim, textProgressAnim, onClose]);
 
     const handleScreenPress = useCallback(
       (event: GestureResponderEvent) => {
@@ -419,7 +445,7 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
           <View style={styles.container}>
             <StatusBar hidden />
 
-            {isTextStory && filterImageUrl && messageText && (
+            {isTextStory && messageText && (
               <TouchableOpacity
                 activeOpacity={1}
                 style={styles.textStoryContainer}
@@ -427,13 +453,25 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
                 onPressIn={handlePressIn}
                 onPressOut={handlePressOut}
               >
-                <Image
-                  source={{ uri: filterImageUrl }}
-                  style={styles.filterBackground}
-                  resizeMode="contain"
-                />
+                {filterImageUrl ? (
+                  <Image
+                    source={{ uri: filterImageUrl }}
+                    style={styles.filterBackground}
+                    resizeMode="contain"
+                  />
+                ) : (
+                  <View style={styles.whiteBackground} />
+                )}
                 <View style={styles.textOverlay}>
-                  <Text style={styles.messageText}>{messageText}</Text>
+                  <Text
+                    style={
+                      filterImageUrl
+                        ? styles.messageText
+                        : styles.messageTextBlack
+                    }
+                  >
+                    {messageText}
+                  </Text>
                 </View>
               </TouchableOpacity>
             )}
@@ -455,6 +493,7 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
                   onProgress={handleProgress}
                   onLoadStart={handleLoadStart}
                   onLoad={handleLoad}
+                  onReadyForDisplay={handleReadyForDisplay}
                   onEnd={handleEnd}
                   repeat={false}
                   playInBackground={false}
@@ -615,6 +654,19 @@ const styles = StyleSheet.create({
     textShadowColor: 'rgba(0, 0, 0, 0.5)',
     textShadowOffset: { width: 0, height: 2 },
     textShadowRadius: 4,
+  },
+  messageTextBlack: {
+    fontSize: scaleWithMax(24, 28),
+    fontWeight: '600',
+    color: '#000000',
+    textAlign: 'center',
+  },
+  whiteBackground: {
+    width: SCREEN_WIDTH,
+    height: SCREEN_HEIGHT * 0.6,
+    position: 'absolute',
+    alignSelf: 'center',
+    backgroundColor: '#FFFFFF',
   },
   videoContainer: {
     flex: 1,

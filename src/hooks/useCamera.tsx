@@ -22,53 +22,89 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
 
   // Request Permissions
   const requestPermission = useCallback(async () => {
+    // Check current permission status
     const cameraStatus = await Camera.getCameraPermissionStatus();
     const micStatus = await Camera.getMicrophonePermissionStatus();
-    const status = await Camera.requestCameraPermission();
-    if (status === 'granted') {
-      setIsCameraActive(true);
-    }
+
+    // Request camera permission if not granted
+    let finalCameraStatus = cameraStatus;
     if (cameraStatus !== 'granted') {
-      Alert.alert(
-        'Camera Permission',
-        'Camera permission is required to record videos',
-        [
-          { text: 'Cancel', style: 'cancel' },
-          {
-            text: 'Grant Permission',
-            onPress: async () => {
-              const newStatus = await Camera.requestCameraPermission();
-              if (newStatus === 'granted') {
-                setIsCameraActive(true);
-              }
+      finalCameraStatus = await Camera.requestCameraPermission();
+      if (finalCameraStatus !== 'granted') {
+        Alert.alert(
+          'Camera Permission',
+          'Camera permission is required to record videos',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Grant Permission',
+              onPress: async () => {
+                const newStatus = await Camera.requestCameraPermission();
+                if (newStatus === 'granted') {
+                  setIsCameraActive(true);
+                  setPermission(newStatus);
+                  setIsAuthorized(true);
+                }
+              },
             },
-          },
-        ],
-      );
-      return;
+          ],
+        );
+        setPermission(finalCameraStatus);
+        setIsAuthorized(false);
+        return;
+      }
     }
 
+    // Request microphone permission if not granted
+    let finalMicStatus = micStatus;
     if (micStatus !== 'granted') {
-      const newStatus = await Camera.requestMicrophonePermission();
-      if (newStatus !== 'granted') {
-        Alert.alert('Microphone permission is required for video recording');
+      finalMicStatus = await Camera.requestMicrophonePermission();
+      if (finalMicStatus !== 'granted') {
+        Alert.alert(
+          'Microphone Permission',
+          'Microphone permission is required for video recording with audio',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            {
+              text: 'Grant Permission',
+              onPress: async () => {
+                const newMicStatus = await Camera.requestMicrophonePermission();
+                if (newMicStatus === 'granted') {
+                  setIsCameraActive(true);
+                  setPermission(finalCameraStatus);
+                  setIsAuthorized(true);
+                } else {
+                  Alert.alert(
+                    'Permission Required',
+                    'Microphone permission is required for video recording',
+                  );
+                }
+              },
+            },
+          ],
+        );
+        setPermission(finalCameraStatus);
+        setIsAuthorized(false);
         return;
       }
     }
 
     if (!device) {
       Alert.alert('Error', 'No camera device found');
+      setPermission(finalCameraStatus);
+      setIsAuthorized(false);
       return;
     }
 
-    setPermission(status);
-    setIsAuthorized(status === 'granted');
-  }, []);
+    // Both permissions granted
+    if (finalCameraStatus === 'granted' && finalMicStatus === 'granted') {
+      setIsCameraActive(true);
+      setPermission(finalCameraStatus);
+      setIsAuthorized(true);
+    }
+  }, [device]);
 
-  // On mount → request permission
-  useEffect(() => {
-    requestPermission();
-  }, [requestPermission]);
+  // Don't auto-request permissions on mount - let the component request when needed
 
   // Toggle camera
   const pauseCamera = () => {
