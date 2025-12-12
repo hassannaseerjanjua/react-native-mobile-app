@@ -1,12 +1,6 @@
-import React, { useRef, useEffect, useState } from 'react';
-import {
-  View,
-  StatusBar,
-  useWindowDimensions,
-  Linking,
-  AppState,
-} from 'react-native';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import React, { useRef, useEffect } from 'react';
+import { View, StatusBar, useWindowDimensions, Linking } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
 import ImageSlider from '../../../components/global/ImageSlider';
@@ -29,14 +23,17 @@ import { isIOS, isIOSThen, scaleWithMax } from '../../../utils';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 
+// Global ref to track processed URLs across component lifecycle
+const processedUrls = new Set<string>();
+
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const { user } = useAuthStore();
   const navigation = useNavigation();
   const hasLoadedOnceRef = useRef(false);
-  const processedDeepLinkRef = useRef<Set<string>>(new Set());
-  const [pendingUrl, setPendingUrl] = useState<string | null>(null);
+  const isProcessingRef = useRef(false);
+  const initialUrlProcessedRef = useRef(false);
 
   const {
     data: sliderResponse,
@@ -46,69 +43,96 @@ const HomeScreen: React.FC = () => {
     transformData: (data: SliderApiResponse) => data?.Data || [],
   });
 
-  const handleDeepLink = React.useCallback(
+  // Validate and extract userId from URL
+  const parseAddFriendUrl = (url: string): string | null => {
+    if (!url || !url.includes('add-friend/')) return null;
+
+    try {
+      const parts = url.split('add-friend/');
+      if (parts.length < 2) return null;
+
+      const userId = parts[1]?.split('?')[0]?.split('/')[0]?.trim();
+
+      // Validate userId is a valid number
+      if (!userId || isNaN(Number(userId)) || Number(userId) <= 0) {
+        return null;
+      }
+
+      return userId;
+    } catch {
+      return null;
+    }
+  };
+
+  const handleAddFriend = React.useCallback(
     async (url: string) => {
-      if (!url || !url.includes('add-friend/')) return;
+      // Prevent concurrent processing
+      if (isProcessingRef.current) return;
 
-      const userId = url.split('add-friend/')[1]?.split('?')[0]?.split('/')[0];
+      // Check if already processed
+      if (processedUrls.has(url)) return;
 
-      const uniqueKey = `${url}-${userId}`;
+      const userId = parseAddFriendUrl(url);
 
-      if (
-        userId &&
-        !processedDeepLinkRef.current.has(uniqueKey) &&
-        user?.UserId
-      ) {
-        processedDeepLinkRef.current.add(uniqueKey);
-
-        try {
-          await api.post(apiEndpoints.ADD_FRIEND(user.UserId), {
-            friendUserId: Number(userId),
-          });
-          notify.success('Friend added successfully', 'top');
-        } catch (err: any) {
-          notify.error(err?.error || getString('AU_ERROR_OCCURRED'), 'top');
+      // Invalid or malformed QR
+      if (!userId) {
+        if (url.includes('add-friend')) {
+          notify.error('Invalid QR code', 'top');
         }
+        processedUrls.add(url); // Mark as processed to prevent retries
+        return;
+      }
 
-        // Don't clear - keep it processed for the entire app session
+      // No logged in user
+      if (!user?.UserId) {
+        return;
+      }
+
+      // Mark as processing and processed
+      isProcessingRef.current = true;
+      processedUrls.add(url);
+
+      try {
+        const response = await api.post(apiEndpoints.ADD_FRIEND(user.UserId), {
+          friendUserId: Number(userId),
+        });
+
+        if (response.success) {
+          notify.success('Friend added successfully', 'top');
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'), 'top');
+        }
+      } catch (err: any) {
+        notify.error(err?.error || getString('AU_ERROR_OCCURRED'), 'top');
+      } finally {
+        isProcessingRef.current = false;
       }
     },
     [user?.UserId, getString],
   );
 
-  // Handle deep links when screen comes into focus
-  useFocusEffect(
-    React.useCallback(() => {
-      if (pendingUrl) {
-        const urlToProcess = pendingUrl;
-        setPendingUrl(null); // Clear immediately before processing
-        handleDeepLink(urlToProcess);
-      }
-    }, [pendingUrl, handleDeepLink]),
-  );
-
   useEffect(() => {
-    let hasProcessedInitialUrl = false;
+    // Handle initial URL when app opens from closed state (runs once)
+    if (!initialUrlProcessedRef.current) {
+      initialUrlProcessedRef.current = true;
+      Linking.getInitialURL().then(url => {
+        if (url && url.includes('add-friend/')) {
+          handleAddFriend(url);
+        }
+      });
+    }
 
-    // Handle initial URL when app opens from closed state
-    Linking.getInitialURL().then(url => {
-      if (url && !hasProcessedInitialUrl) {
-        hasProcessedInitialUrl = true;
-        handleDeepLink(url);
-      }
-    });
-
-    // Handle URL when app is already open or comes from background
+    // Handle URL events (foreground + background to foreground)
     const subscription = Linking.addEventListener('url', ({ url }) => {
-      if (url) {
-        setPendingUrl(url);
+      if (url && url.includes('add-friend/')) {
+        handleAddFriend(url);
       }
     });
 
     return () => {
       subscription.remove();
     };
-  }, [handleDeepLink]);
+  }, [handleAddFriend]);
 
   if (sliderResponse && !hasLoadedOnceRef.current) {
     hasLoadedOnceRef.current = true;

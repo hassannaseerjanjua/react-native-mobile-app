@@ -60,7 +60,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   });
 
   const getStoreProducts = useGetApi<StoreProduct[]>(
-    apiEndpoints.GET_STORE_DETAIL + `?StoreId=${storeId}`,
+    apiEndpoints.GET_STORE_DETAIL + `?StoreId=${storeId}&status=1`,
     {
       transformData: (data: any) => data.Data.Items || [],
     },
