@@ -196,18 +196,21 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       });
     } else if (screenType === 'GiftOneGetOne') {
       if ('ItemId' in item && 'Thumbnail' in item) {
-        const product = item as StoreProduct;
+        const product = item as CatchItem;
         (navigation as any).navigate('ProductDetails', {
           itemId: product.ItemId,
           storeId: product.StoreId,
           friendUserId,
           type: 'GiftOneGetOne',
+          campaignId: product.CampaignId,
         });
       } else {
         (navigation as any).navigate('ProductDetails', {
           itemId: (item as any)?.ItemId ?? 0,
           storeId: (item as any)?.StoreId ?? null,
           friendUserId,
+          type: 'GiftOneGetOne',
+          campaignId: (item as any)?.CampaignId,
         });
       }
     }
@@ -284,8 +287,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           screenType === 'favorite'
             ? getString('FAV_FAVORITES')
             : screenType === 'GiftOneGetOne'
-            ? getString('HOME_GIFT_ONE_GET_ONE')
-            : getString('HOME_CATCH')
+              ? getString('HOME_GIFT_ONE_GET_ONE')
+              : getString('HOME_CATCH')
         }
         showBackButton
         onBackPress={() => navigation.goBack()}
@@ -301,17 +304,17 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               setSelectedFilter(id);
               screenType === 'GiftOneGetOne'
                 ? getStoreProducts.setExtraParams({
-                    categoryId: id === 'all' ? null : Number(id),
-                  })
+                  categoryId: id === 'all' ? null : Number(id),
+                })
                 : getCatchItems.setExtraParams({
-                    categoryId: id === 'all' ? null : Number(id),
-                  });
+                  categoryId: id === 'all' ? null : Number(id),
+                });
             }}
           />
         </View>
         {(screenType === 'favorite' && getFavoriteItems.loading) ||
-        (screenType === 'GiftOneGetOne' && getStoreProducts.loading) ||
-        (screenType === 'catch' && getCatchItems.loading) ? (
+          (screenType === 'GiftOneGetOne' && getStoreProducts.loading) ||
+          (screenType === 'catch' && getCatchItems.loading) ? (
           <SkeletonLoader screenType="productListing" />
         ) : (
           <FlatList
@@ -321,7 +324,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               screenType === 'favorite' || screenType === 'GiftOneGetOne'
                 ? item.ItemId.toString()
                 : item.id ||
-                  `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`
+                `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`
             }
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={[

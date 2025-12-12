@@ -124,9 +124,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       let payload = {};
       if (isGift) {
         payload = {
-          StoreId: item?.StoreId ?? null,
+          StoreId: route.params.storeId ?? item?.StoreId ?? null,
           ItemId: item?.ItemId,
-          CampaignId: item.CampaignId,
+          CampaignId: route.params.campaignId,
           ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
           ReceiverUserId: friendUserId ?? null,
         };

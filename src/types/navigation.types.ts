@@ -28,6 +28,7 @@ export type AppStackParamList = {
     friendUserId?: number | null;
     storeId?: number | null;
     type?: 'GiftOneGetOne';
+    campaignId?: number;
   };
   Search: {
     title?: string;

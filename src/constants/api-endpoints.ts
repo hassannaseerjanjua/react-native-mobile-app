@@ -69,7 +69,7 @@ const apiEndpoints = {
   CLEAR_CART: `/${version}/User/ClearCart`,
 
   // catch
-  ADD_CAMPAIGN_TO_CART: `/${version}/User/AddToGiftCart`,
+  ADD_CAMPAIGN_TO_CART: `/${version}/User/AddCampaignToCart`,
 
   GET_WALLET_BALANCE: `/${version}/Home/GetWallet`,
   CONTACT_US_SUBMIT: `/${version}/Home/ContactUsRequest`,
