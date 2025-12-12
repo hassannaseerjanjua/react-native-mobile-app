@@ -11,6 +11,11 @@
 
 <key>NSContactsUsageDescription</key>
 <string>$(PRODUCT_NAME) needs access to your Contacts to help you send gifts to friends.</string>
+<!-- Photo Library permission for selecting videos/images -->
+<key>NSPhotoLibraryUsageDescription</key>
+<string>$(PRODUCT_NAME) needs access to your Photo Library to select videos.</string>
+<key>NSPhotoLibraryAddUsageDescription</key>
+<string>$(PRODUCT_NAME) needs access to save photos and videos.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>

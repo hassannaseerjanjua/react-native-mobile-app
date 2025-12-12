@@ -98,6 +98,20 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
+
+  // Safety: Auto-reset compression state if it gets stuck
+  useEffect(() => {
+    if (isCompressing) {
+      console.log('[GiftMessage] Compression started, setting 60s timeout...');
+      const timeout = setTimeout(() => {
+        console.warn('[GiftMessage] Compression timeout - resetting state');
+        setIsCompressing(false);
+        setCompressionProgress(0);
+      }, 60000); // 60 seconds timeout
+
+      return () => clearTimeout(timeout);
+    }
+  }, [isCompressing]);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
   const [isScrolling, setIsScrolling] = useState(false);
   const [isVideoCancelled, setIsVideoCancelled] = useState(false);
@@ -299,64 +313,85 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   };
 
   const handleVideoSelect = () => {
+    console.log(
+      '[GiftMessage] handleVideoSelect called, isCompressing:',
+      isCompressing,
+    );
     setPopupVisible(false);
     if (isCompressing) {
+      console.warn('[GiftMessage] Blocked by isCompressing=true');
       notify.error('Please wait, video is being processed...');
       return;
     }
 
-    launchImageLibrary(
-      {
-        mediaType: 'video',
-        quality: 1,
-        selectionLimit: 1,
-        videoQuality: 'high',
-      },
-      async response => {
-        if (response.didCancel) {
-          console.log('[GiftMessage] User cancelled video selection');
-          return;
-        }
-
-        if (response.errorMessage) {
-          console.error(
-            '[GiftMessage] Image picker error:',
-            response.errorMessage,
-          );
-          notify.error(response.errorMessage);
-          return;
-        }
-
-        if (response.assets && response.assets[0]) {
-          const asset = response.assets[0];
-          const duration = asset.duration || 0;
-
-          console.log('[GiftMessage] Video selected:', {
-            uri: asset.uri,
-            duration: duration,
-            fileSize: asset.fileSize,
-            type: asset.type,
-            fileName: asset.fileName,
+    console.log('[GiftMessage] Launching image library...');
+    try {
+      const result = launchImageLibrary(
+        {
+          mediaType: 'video',
+          quality: 1,
+          selectionLimit: 1,
+          videoQuality: 'high',
+        },
+        async response => {
+          console.log('[GiftMessage] Image library response received:', {
+            didCancel: response.didCancel,
+            hasError: !!response.errorMessage,
+            hasAssets: !!response.assets,
           });
 
-          // Validate duration (backup check in case durationLimit doesn't work)
-          if (duration > MAX_VIDEO_DURATION) {
-            notify.error(
-              `Video must be ${MAX_VIDEO_DURATION} seconds or less. Selected video is ${Math.round(
-                duration,
-              )} seconds.`,
-            );
+          if (response.didCancel) {
+            console.log('[GiftMessage] User cancelled video selection');
             return;
           }
 
-          const videoUri = asset.uri || '';
-          const fileName = asset.fileName || `video_${Date.now()}.mp4`;
+          if (response.errorMessage) {
+            console.error(
+              '[GiftMessage] Image picker error:',
+              response.errorMessage,
+            );
+            notify.error(response.errorMessage);
+            return;
+          }
 
-          // Compress the video before setting it
-          await compressVideo(videoUri, fileName);
-        }
-      },
-    );
+          if (response.assets && response.assets[0]) {
+            const asset = response.assets[0];
+            const duration = asset.duration || 0;
+
+            console.log('[GiftMessage] Video selected:', {
+              uri: asset.uri,
+              duration: duration,
+              fileSize: asset.fileSize,
+              type: asset.type,
+              fileName: asset.fileName,
+            });
+
+            // Validate duration (backup check in case durationLimit doesn't work)
+            if (duration > MAX_VIDEO_DURATION) {
+              notify.error(
+                `Video must be ${MAX_VIDEO_DURATION} seconds or less. Selected video is ${Math.round(
+                  duration,
+                )} seconds.`,
+              );
+              return;
+            }
+
+            const videoUri = asset.uri || '';
+            const fileName = asset.fileName || `video_${Date.now()}.mp4`;
+
+            // Compress the video before setting it
+            await compressVideo(videoUri, fileName);
+          }
+        },
+      );
+      console.log('[GiftMessage] launchImageLibrary called successfully');
+    } catch (error) {
+      console.error(
+        '[GiftMessage] Exception calling launchImageLibrary:',
+        error,
+      );
+      notify.error('Failed to open gallery. Please try again.');
+    }
   };
 
   const hasContent =
@@ -402,7 +437,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             }}
             style={styles.crossButton}
           >
-            <View style={styles.crossBackground}>Stop</View>
+            <View style={styles.crossBackground}>
+              <Text>Stop</Text>
+            </View>
           </TouchableOpacity>
         </View>
       </View>
@@ -556,13 +593,17 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 </View>
               </View>
               <TouchableOpacity
-                onPress={
-                  () =>
-                    sendMessagePayload.VideoFile
-                      ? setSelectedVideo(sendMessagePayload.VideoFile.uri)
-                      : setPopupVisible(true)
-                  // handleVideoSelect
-                }
+                onPress={() => {
+                  console.log(
+                    '[GiftMessage] Camera icon pressed, isCompressing:',
+                    isCompressing,
+                  );
+                  if (sendMessagePayload.VideoFile) {
+                    setSelectedVideo(sendMessagePayload.VideoFile.uri);
+                  } else {
+                    setPopupVisible(true);
+                  }
+                }}
                 disabled={isCompressing}
                 style={{ opacity: isCompressing ? 0.5 : 1 }}
               >
