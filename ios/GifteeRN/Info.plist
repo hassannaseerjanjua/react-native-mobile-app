@@ -8,6 +8,9 @@
 <!-- optionally, if you want to record audio: -->
 <key>NSMicrophoneUsageDescription</key>
 <string>$(PRODUCT_NAME) needs access to your Microphone.</string>
+
+<key>NSContactsUsageDescription</key>
+<string>$(PRODUCT_NAME) needs access to your Contacts to help you send gifts to friends.</string>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
