@@ -67,12 +67,12 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
           />
         )}
       </TouchableOpacity>
-      <TouchableOpacity style={styles.logoContainer}>
+      <View style={styles.logoContainer}>
         <SvgLogoBlue
           width={theme.sizes.APP_LOGO}
           opacity={shimmerLoading ? 0.1 : 1}
         />
-      </TouchableOpacity>
+      </View>
       {shimmerLoading ? (
         <SkeletonLoader screenType="landing" />
       ) : (
