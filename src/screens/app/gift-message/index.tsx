@@ -559,7 +559,21 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   );
 
   if (selectedVideo) {
-    return <ViewTrimmer videoUrl={selectedVideo} />;
+    return (
+      <ViewTrimmer
+        videoUrl={selectedVideo}
+        onSaveVideo={trimmedPath => {
+          // TODO: hook into message flow with the trimmed video path
+          console.log('Trimmed video saved at:', trimmedPath);
+          setSelectedVideo(null);
+          setShowCamera(false);
+        }}
+        onCancel={() => {
+          setSelectedVideo(null);
+          setShowCamera(false);
+        }}
+      />
+    );
   }
 
   return (

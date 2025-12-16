@@ -11,9 +11,14 @@ import useTrimmer from './Timmer';
 interface ViewTrimmerProps {
   videoUrl: string;
   onSaveVideo: (trimmedVideo: string) => void;
+  onCancel?: () => void;
 }
 
-const ViewTrimmer = ({ videoUrl, onSaveVideo }: ViewTrimmerProps) => {
+const ViewTrimmer = ({
+  videoUrl,
+  onSaveVideo,
+  onCancel = () => {},
+}: ViewTrimmerProps) => {
   const theme = useTheme();
   const videoRef = useRef<VideoRef | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -31,18 +36,21 @@ const ViewTrimmer = ({ videoUrl, onSaveVideo }: ViewTrimmerProps) => {
   });
 
   const saveVideo = async () => {
+    if (!duration) {
+      return;
+    }
     const trimmedVideo = await trim(videoUrl, {
-      startTime: startTime,
-      endTime: endTime || duration || 0,
+      startTime,
+      endTime: endTime || duration,
     });
     onSaveVideo(trimmedVideo.outputPath);
   };
 
   return (
-    <ParentView style={{}}>
+    <ParentView style={{ flex: 1 }} edges={['top', 'left', 'right', 'bottom']}>
       <View
         style={{
-          height: theme.sizes.HEIGHT * 0.8,
+          flex: 1,
           position: 'relative',
           justifyContent: 'center',
           alignItems: 'center',
@@ -66,22 +74,10 @@ const ViewTrimmer = ({ videoUrl, onSaveVideo }: ViewTrimmerProps) => {
           }}
           paused={!isPlaying}
         />
-        <TouchableOpacity
-          onPress={() => setIsPlaying(!isPlaying)}
-          style={{
-            backgroundColor: 'red',
-            position: 'absolute',
-            height: 50,
-            width: 50,
-            zIndex: 1000,
-          }}
-        >
-          <Text>{isPlaying ? 'Pause' : 'Play'}</Text>
-        </TouchableOpacity>
       </View>
       <View
         style={{
-          height: theme.sizes.HEIGHT * 0.1,
+          height: 80,
           width: '100%',
         }}
       >
@@ -90,6 +86,49 @@ const ViewTrimmer = ({ videoUrl, onSaveVideo }: ViewTrimmerProps) => {
             <TrimmerUIComponent />
           </GestureHandlerRootView>
         )}
+      </View>
+      <View
+        style={{
+          width: '100%',
+          flexDirection: 'row',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginTop: 8,
+          marginBottom: 16,
+          paddingHorizontal: 16,
+        }}
+      >
+        <TouchableOpacity
+          onPress={onCancel}
+          style={{
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+          }}
+        >
+          <Text style={{ color: theme.colors.SECONDARY_TEXT }}>Cancel</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={() => setIsPlaying(prev => !prev)}
+          style={{
+            paddingVertical: 10,
+            paddingHorizontal: 24,
+            borderRadius: 999,
+            backgroundColor: theme.colors.PRIMARY,
+          }}
+        >
+          <Text style={{ color: '#fff' }}>{isPlaying ? 'Pause' : 'Play'}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          onPress={saveVideo}
+          style={{
+            paddingVertical: 10,
+            paddingHorizontal: 16,
+          }}
+        >
+          <Text style={{ color: theme.colors.PRIMARY }}>Save</Text>
+        </TouchableOpacity>
       </View>
     </ParentView>
   );
