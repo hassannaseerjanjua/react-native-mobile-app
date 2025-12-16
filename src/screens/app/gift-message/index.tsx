@@ -54,6 +54,7 @@ import {
   saveGiftMessageData,
   loadGiftMessageData,
 } from '../../../utils/giftMessageStorage';
+import ViewTrimmer from '../../../components/app/ViewTrimmer';
 
 const MAX_VIDEO_DURATION = 15;
 
@@ -556,6 +557,11 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       />
     </View>
   );
+
+  if (selectedVideo) {
+    return <ViewTrimmer videoUrl={selectedVideo} />;
+  }
+
   return (
     <ParentView style={styles.container}>
       {device && showCamera ? (
