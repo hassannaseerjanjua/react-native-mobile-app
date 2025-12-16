@@ -491,7 +491,17 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 ]}
               >
                 <GiftIcon />
-                <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+                <TouchableOpacity
+                  onPress={() => {
+                    (navigation as any).navigate('GiftMessage', {
+                      friendUserId: cartData.FriendId,
+                      storeBranchId: cartData.StoreBranchId,
+                      orderId: cartData.OrderId,
+                    });
+                  }}
+                >
+                  <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+                </TouchableOpacity>
               </View>
             </View>
           </View>

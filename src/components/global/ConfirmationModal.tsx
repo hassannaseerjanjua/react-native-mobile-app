@@ -3,6 +3,7 @@ import {
   View,
   Modal,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
@@ -42,32 +43,39 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
       animationType="fade"
       onRequestClose={onCancel}
     >
-      <View style={styles.overlay}>
-        <View style={styles.container}>
-          <Text style={styles.title}>{title}</Text>
-          <Text style={styles.message}>{message}</Text>
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={[styles.button, styles.cancelButton]}
-              onPress={onbtn2Press || onCancel}
-              disabled={loading}
-            >
-              <Text style={styles.cancelText}>{cancelText}</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.button, styles.confirmButton]}
-              onPress={onConfirm}
-              disabled={loading}
-            >
-              {loading ? (
-                <ActivityIndicator color={theme.colors.WHITE} size="small" />
-              ) : (
-                <Text style={styles.confirmText}>{confirmText}</Text>
-              )}
-            </TouchableOpacity>
-          </View>
+      <TouchableWithoutFeedback onPress={onCancel}>
+        <View style={styles.overlay}>
+          <TouchableWithoutFeedback onPress={() => {}}>
+            <View style={styles.container}>
+              <Text style={styles.title}>{title}</Text>
+              <Text style={styles.message}>{message}</Text>
+              <View style={styles.buttonContainer}>
+                <TouchableOpacity
+                  style={[styles.button, styles.cancelButton]}
+                  onPress={onbtn2Press || onCancel}
+                  disabled={loading}
+                >
+                  <Text style={styles.cancelText}>{cancelText}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[styles.button, styles.confirmButton]}
+                  onPress={onConfirm}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <ActivityIndicator
+                      color={theme.colors.WHITE}
+                      size="small"
+                    />
+                  ) : (
+                    <Text style={styles.confirmText}>{confirmText}</Text>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
         </View>
-      </View>
+      </TouchableWithoutFeedback>
     </Modal>
   );
 };

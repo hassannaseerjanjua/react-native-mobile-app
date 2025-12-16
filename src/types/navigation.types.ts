@@ -42,7 +42,9 @@ export type AppStackParamList = {
   SendAGift: {
     routeTo: 'GiftOneGetOne' | 'SelectStore';
   };
-  SendToGroup: undefined;
+  SendToGroup: {
+    routeTo?: 'GiftOneGetOne' | 'SelectStore';
+  };
   Wallet: undefined;
   InboxOutbox: {
     title?: string;
@@ -51,28 +53,9 @@ export type AppStackParamList = {
   FAQ: undefined;
   Settings: undefined;
   GiftMessage: {
-    product: {
-      id?: string | number;
-      title: string;
-      subtitle: string;
-      image: any;
-      price: number;
-      discountedPrice?: number;
-      storeId?: number;
-      storeBranchId?: number;
-      itemId?: number;
-      categoryId?: number;
-      categoryName?: string;
-    };
     storeBranchId?: number | null;
     friendUserId?: number | null;
-    addToCartPayload?: {
-      FriendId?: number | null;
-      StoreBranchId?: number | null;
-      ItemId: number;
-      ItemVariantId?: number;
-      Quantity: number;
-    };
+    orderId?: number;
   };
   ContactUs: undefined;
   Favorites: {

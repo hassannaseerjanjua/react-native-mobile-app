@@ -287,8 +287,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           screenType === 'favorite'
             ? getString('FAV_FAVORITES')
             : screenType === 'GiftOneGetOne'
-              ? getString('HOME_GIFT_ONE_GET_ONE')
-              : getString('HOME_CATCH')
+            ? getString('HOME_GIFT_ONE_GET_ONE')
+            : getString('HOME_CATCH')
         }
         showBackButton
         onBackPress={() => navigation.goBack()}
@@ -304,17 +304,17 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               setSelectedFilter(id);
               screenType === 'GiftOneGetOne'
                 ? getStoreProducts.setExtraParams({
-                  categoryId: id === 'all' ? null : Number(id),
-                })
+                    categoryId: id === 'all' ? null : Number(id),
+                  })
                 : getCatchItems.setExtraParams({
-                  categoryId: id === 'all' ? null : Number(id),
-                });
+                    categoryId: id === 'all' ? null : Number(id),
+                  });
             }}
           />
         </View>
         {(screenType === 'favorite' && getFavoriteItems.loading) ||
-          (screenType === 'GiftOneGetOne' && getStoreProducts.loading) ||
-          (screenType === 'catch' && getCatchItems.loading) ? (
+        (screenType === 'GiftOneGetOne' && getStoreProducts.loading) ||
+        (screenType === 'catch' && getCatchItems.loading) ? (
           <SkeletonLoader screenType="productListing" />
         ) : (
           <FlatList
@@ -324,7 +324,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               screenType === 'favorite' || screenType === 'GiftOneGetOne'
                 ? item.ItemId.toString()
                 : item.id ||
-                `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`
+                  `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`
             }
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={[
@@ -400,27 +400,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               if (!cartApi.data) return;
 
               const cartData = cartApi.data;
-              const firstItem = cartData.Items[0];
-              const product = {
-                id: firstItem?.ItemId || 0,
-                title:
-                  cartData.Items.length > 1
-                    ? `${cartData.Items.length} Items`
-                    : firstItem?.ItemName || 'Cart Item',
-                subtitle:
-                  cartData.Items.length > 1
-                    ? 'Multiple items in cart'
-                    : firstItem?.ItemName || '',
-                image: firstItem?.ThumbnailUrl
-                  ? { uri: firstItem.ThumbnailUrl }
-                  : require('../../../assets/images/img-placeholder.png'),
-                price: cartData.TotalAmount,
-                storeId: cartData.StoreId,
-                storeBranchId: cartData.StoreBranchId,
-              };
 
               (navigation as any).navigate('GiftMessage', {
-                product,
                 friendUserId,
                 storeBranchId: cartData.StoreBranchId,
               });

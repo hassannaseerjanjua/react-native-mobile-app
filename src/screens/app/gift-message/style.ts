@@ -26,15 +26,12 @@ const useStyles = () => {
         messageContainer: {
           height: sizes.HEIGHT * 0.512,
           paddingHorizontal: sizes.PADDING,
+          ...theme.globalStyles.SHADOW_STYLE,
         },
         inputWrapper: {
           flex: 1,
           height: '100%',
-          shadowColor: '#000',
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0.05,
-          shadowRadius: 15,
-          elevation: 8,
+
           borderRadius: 10,
           backgroundColor: '#fff',
           overflow: 'hidden',

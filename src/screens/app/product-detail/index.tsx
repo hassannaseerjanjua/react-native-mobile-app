@@ -253,7 +253,13 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               </Text>
               <Text style={styles.Description}>{item?.DescEn ?? ''}</Text>
             </View>
-            <Text style={styles.Heading}>{getString('PRODUCT_VARIANTS')}</Text>
+            {item?.Variants?.length > 0 && (
+              <View>
+                <Text style={styles.Heading}>
+                  {getString('PRODUCT_VARIANTS')}
+                </Text>
+              </View>
+            )}
           </View>
           <View style={styles.tabsContainer}>
             <GroupTabs

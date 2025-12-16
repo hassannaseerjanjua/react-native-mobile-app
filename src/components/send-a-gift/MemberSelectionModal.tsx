@@ -56,6 +56,7 @@ interface MemberSelectionModalProps {
   viewOnly?: boolean;
   existingGroupName?: string;
   existingGroupImage?: string | null;
+  routeTo?: 'GiftOneGetOne' | 'SelectStore';
 }
 
 const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
@@ -69,6 +70,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   viewOnly = false,
   existingGroupName = '',
   existingGroupImage,
+  routeTo,
 }) => {
   const { styles } = useStyles();
   const { getString, isRtl } = useLocaleStore();
@@ -366,9 +368,20 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                           viewOnly
                             ? () => {
                                 closeModal();
-                                (navigation as any).navigate('SelectStore', {
-                                  friendUserId: item.UserId,
-                                });
+                                routeTo === 'SelectStore'
+                                  ? (navigation as any).navigate(
+                                      'SelectStore',
+                                      {
+                                        friendUserId: item.UserId,
+                                      },
+                                    )
+                                  : (navigation as any).navigate(
+                                      'CatchScreen',
+                                      {
+                                        type: 'GiftOneGetOne',
+                                        friendUserId: item.UserId,
+                                      },
+                                    );
                               }
                             : undefined
                         }

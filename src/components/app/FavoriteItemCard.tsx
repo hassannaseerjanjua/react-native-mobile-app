@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
-import { scaleWithMax, rtlTransform } from '../../utils';
+import { scaleWithMax, rtlTransform, isAndroid } from '../../utils';
 import { Text } from '../../utils/elements';
 import {
   SvgNextIcon,
@@ -50,9 +50,9 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
     : placeholderImage;
 
   return (
-    <View style={styles.shadowContainer}>
+    <View style={[styles.shadowContainer, style]}>
       <TouchableOpacity
-        style={[styles.container, style]}
+        style={styles.container}
         onPress={() => onPress(item)}
         activeOpacity={0.8}
       >
@@ -110,7 +110,10 @@ const useStyles = () => {
 
   const styles = StyleSheet.create({
     shadowContainer: {
+      borderRadius: theme.sizes.BORDER_RADIUS_MID,
       ...theme.globalStyles.SHADOW_STYLE_STORE_CARD,
+      // Android requires a background color for elevation to work
+      backgroundColor: isAndroid ? theme.colors.WHITE : undefined,
     },
     container: {
       borderRadius: theme.sizes.BORDER_RADIUS_MID,

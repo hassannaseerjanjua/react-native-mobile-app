@@ -77,7 +77,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     {
       id: 'group',
       title: getString('SG_GROUP'),
-      onPress: () => navigation.navigate('SendToGroup' as any),
+      onPress: () =>
+        navigation.navigate('SendToGroup' as any, {
+          routeTo: route.params.routeTo,
+        }),
     },
     {
       id: 'others',

@@ -1,5 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { View, StatusBar, ScrollView } from 'react-native';
+import {
+  View,
+  StatusBar,
+  ScrollView,
+  TouchableOpacity,
+  Linking,
+  Alert,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Formik } from 'formik';
 import useStyles from './style';
@@ -47,6 +54,28 @@ const ContactUsScreen: React.FC = () => {
         notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
       })
       .finally(() => setLoading(false));
+  };
+
+  const handleWhatsAppPress = async () => {
+    const phoneNumber = '03333138657';
+    const whatsappUrl = `https://wa.me/${phoneNumber}`;
+
+    try {
+      const canOpen = await Linking.canOpenURL(whatsappUrl);
+      if (canOpen) {
+        await Linking.openURL(whatsappUrl);
+      } else {
+        Alert.alert(
+          getString('CU_CONTACT_US') || 'Contact Us',
+          'WhatsApp is not installed on your device.',
+        );
+      }
+    } catch (error) {
+      Alert.alert(
+        getString('AU_ERROR_OCCURRED') || 'Error',
+        'Unable to open WhatsApp. Please try again.',
+      );
+    }
   };
 
   return (
@@ -126,12 +155,16 @@ const ContactUsScreen: React.FC = () => {
             </View>
           )}
         </Formik>
-        <View style={styles.whatsappContainer}>
+        <TouchableOpacity
+          style={styles.whatsappContainer}
+          onPress={handleWhatsAppPress}
+          activeOpacity={0.7}
+        >
           <SvgWhatsappIcon
             width={scaleWithMax(56, 64)}
             height={scaleWithMax(56, 64)}
           />
-        </View>
+        </TouchableOpacity>
       </ScrollView>
     </ParentView>
   );

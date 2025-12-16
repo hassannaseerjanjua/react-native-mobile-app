@@ -278,27 +278,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
               if (!cartApi.data) return;
 
               const cartData = cartApi.data;
-              const firstItem = cartData.Items[0];
-              const product = {
-                id: firstItem?.ItemId || 0,
-                title:
-                  cartData.Items.length > 1
-                    ? `${cartData.Items.length} Items`
-                    : firstItem?.ItemName || 'Cart Item',
-                subtitle:
-                  cartData.Items.length > 1
-                    ? 'Multiple items in cart'
-                    : firstItem?.ItemName || '',
-                image: firstItem?.ThumbnailUrl
-                  ? { uri: firstItem.ThumbnailUrl }
-                  : require('../../../assets/images/img-placeholder.png'),
-                price: cartData.TotalAmount,
-                storeId: cartData.StoreId,
-                storeBranchId: cartData.StoreBranchId,
-              };
 
               (navigation as any).navigate('GiftMessage', {
-                product,
                 friendUserId,
                 storeBranchId: cartData.StoreBranchId,
               });
