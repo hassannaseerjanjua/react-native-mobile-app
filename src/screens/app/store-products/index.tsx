@@ -69,7 +69,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const cartApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => (data?.Data || data) as CartResponse,
   });
-
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       cartApi.refetch();
@@ -106,6 +105,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         itemId: product.ItemId,
         storeId: product.StoreId ?? storeId,
         friendUserId,
+        sendType: route.params.sendType,
       });
     } else {
       (navigation as any).navigate('ProductDetails', {

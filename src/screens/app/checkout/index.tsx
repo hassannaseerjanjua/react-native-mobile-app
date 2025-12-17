@@ -1,4 +1,11 @@
-import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  Platform,
+  ScrollView,
+  Share,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -307,7 +314,33 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       </View>
     );
   };
+  const handleShareGiftLink = async (giftLink: string) => {
+    try {
+      const shareOptions = Platform.select({
+        ios: {
+          message: `${getString('P_GIFT_ME_ON_GIFTEE')}\n\n${giftLink}`,
+          url: giftLink,
+        },
+        android: {
+          message: `${getString(
+            'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
+          )}\n\n${giftLink}`,
+          title: getString('P_GIFT_ME_ON_GIFTEE'),
+        },
+      }) || {
+        message: `${getString(
+          'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
+        )}\n\n${giftLink}`,
+        title: getString('P_GIFT_ME_ON_GIFTEE'),
+      };
 
+      const result = await Share.share(shareOptions);
+
+      if (result.action === Share.sharedAction) {
+      } else if (result.action === Share.dismissedAction) {
+      }
+    } catch (error) {}
+  };
   const handleProceedToCheckout = async () => {
     if (!cartData || submitting || waitingForVideoUpload) return;
 
@@ -342,15 +375,25 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       const payload = {
         orderid: cartData.OrderId,
         orderPaymentType: 1,
+        IsRedeem: false,
       };
 
-      const response = await api.post<any>(
-        apiEndpoints.INITIATE_CHECKOUT,
-        payload,
-      );
+      const response = await api.post<{
+        Data: {
+          GiftLink: string;
+          Message: string;
+          OrderId: number;
+          QrCode: string | null;
+          Success: boolean;
+          UniqueCode: string | null;
+        };
+      }>(apiEndpoints.INITIATE_CHECKOUT, payload);
 
       if (response.success) {
         setCheckoutCompleted(true);
+        if (response.data?.Data?.GiftLink) {
+          handleShareGiftLink(response.data?.Data?.GiftLink);
+        }
       } else {
         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
       }

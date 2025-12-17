@@ -1,4 +1,13 @@
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  View,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+} from 'react-native';
+import { Text } from '../../../utils/elements';
 import React, { useState, useRef, useMemo } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -12,7 +21,7 @@ import {
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
-import { InboxOrder, GiftFilter } from '../../../types/index';
+import { InboxOrder, GiftFilter, InboxOrderItem } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import {
   useInboxOutboxActions,
@@ -21,7 +30,6 @@ import {
   getUserName,
   getStoreName,
   getMainImage,
-  getItemCount,
   getItemName,
 } from './actions';
 import { scaleWithMax } from '../../../utils';
@@ -29,6 +37,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import useGetApi from '../../../hooks/useGetApi';
 import apiEndpoints from '../../../constants/api-endpoints';
+
 const InboxOutbox: React.FC = () => {
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
   const [videoViewerData, setVideoViewerData] = useState<{
@@ -63,7 +72,7 @@ const InboxOutbox: React.FC = () => {
   const { orders, isLoading, isRtl } = useInboxOutboxActions(isInbox);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<InboxOrder | null>(null);
-
+  const [selectedItem, setSelectedItem] = useState<InboxOrderItem | null>(null);
   // Fetch all filters to get filter image URLs
   const filtersApi = useGetApi<GiftFilter[]>(apiEndpoints.GET_ALL_FILTERS, {
     transformData: (data: any) => data.Data?.Items || data.Data || [],
@@ -80,10 +89,13 @@ const InboxOutbox: React.FC = () => {
     return map;
   }, [filtersApi.data]);
 
-  const handleItemPress = (orderId: number) => {
-    const order = orders.find(o => o.OrderId === orderId);
+  const handleItemPress = (orderId: number, itemId: InboxOrderItem) => {
     setOrderId(orderId);
-    setSelectedOrder(order || null);
+    const selectedOrder = orders.find(o => o.OrderId === orderId) as any;
+
+    setSelectedItem(itemId);
+    setSelectedOrder(selectedOrder);
+
     setOpenBottomSheet(true);
   };
 
@@ -92,17 +104,15 @@ const InboxOutbox: React.FC = () => {
   };
 
   const handlePickUpPress = () => {
-    if (!selectedOrder) return;
-
-    const productImage = getMainImage(selectedOrder);
+    if (!selectedItem || !selectedOrder) return;
+    const productImage = getMainImage(selectedItem);
     const storeName = getStoreName(selectedOrder, isRtl);
-    const quantity = getItemCount(selectedOrder);
 
     (navigation as any).navigate('ScanQr', {
       OrderId: orderId,
       productImage,
       storeName,
-      quantity,
+      quantity: selectedItem.Quantity,
       productName: selectedOrder?.Items?.[0]?.ItemName,
     });
     setOpenBottomSheet(false);
@@ -122,25 +132,20 @@ const InboxOutbox: React.FC = () => {
     const userName = getUserName(order);
     const timeAgo = formatRelativeTime(order.OrderTime);
 
-    // Get filter image URL if OrderFilterId exists
     const filterImageUrl =
       order.OrderFilterId && filterMap.has(order.OrderFilterId)
         ? filterMap.get(order.OrderFilterId) || null
         : null;
 
-    // Get message text if OrderMessage exists
     const messageText = order.OrderMessage || null;
 
-    // Check if we have video or just text
     const hasVideo = order.orderImages && order.orderImages.length > 0;
     const videoUrl = hasVideo ? order.orderImages[0].ImageUrl : '';
 
-    // Start preloading immediately if we have a video
     if (hasVideo && videoUrl) {
       videoViewerRef.current?.preload(videoUrl);
     }
 
-    // Set data but keep invisible initially
     setVideoViewerData({
       visible: false,
       videoUrl,
@@ -151,7 +156,6 @@ const InboxOutbox: React.FC = () => {
       messageText,
     });
 
-    // Small delay to allow video buffering before showing player (or show immediately for text-only)
     setTimeout(
       () => {
         setVideoViewerData(prev => ({
@@ -219,7 +223,9 @@ const InboxOutbox: React.FC = () => {
               order={item}
               isRtl={isRtl}
               onClick={
-                isInbox ? () => handleItemPress(item.OrderId) : undefined
+                isInbox
+                  ? orderItem => handleItemPress(item.OrderId, orderItem)
+                  : undefined
               }
               onVideoPress={() => handleVideoPress(item)}
             />
@@ -278,7 +284,7 @@ interface InboxItemProps {
   isLast: boolean;
   isRtl: boolean;
   isInbox: boolean;
-  onClick?: () => void;
+  onClick?: (item: InboxOrderItem) => void;
   onVideoPress?: () => void;
 }
 
@@ -291,17 +297,31 @@ const InboxItem: React.FC<InboxItemProps> = ({
   onVideoPress,
 }) => {
   const { styles, theme } = useStyles();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
 
   const profileImage = getProfileImage(order);
   const userName = getUserName(order);
   const storeName = getStoreName(order, isRtl);
-  const mainImage = getMainImage(order);
-  const itemCount = getItemCount(order);
-  const itemName = getItemName(order);
   const timeAgo = formatRelativeTime(order.OrderTime);
 
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const itemWidth = theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8;
+    const index = Math.round(scrollPosition / itemWidth);
+    setCurrentIndex(index);
+  };
+
+  const scrollToIndex = (index: number) => {
+    const itemWidth = theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8;
+    scrollViewRef.current?.scrollTo({
+      x: index * itemWidth,
+      animated: true,
+    });
+  };
+
   return (
-    <TouchableOpacity onPress={onClick} activeOpacity={isInbox ? 0.8 : 1}>
+    <View>
       <View
         style={{
           ...styles.inboxTop,
@@ -377,27 +397,96 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 )}
               </View>
             </View>
+
+            {/* Slider with ScrollView */}
             <View
               style={{
                 paddingVertical: theme.sizes.PADDING * 0.6,
               }}
             >
-              <View style={styles.imageContainer}>
-                <Image source={mainImage} style={styles.inboxImage} />
-                <View style={styles.inboxImageBottom}>
-                  <Text style={styles.itemNameText}>{itemName}</Text>
-                  {itemCount > 0 && (
-                    <View style={styles.numCircle}>
-                      <Text style={styles.numText}>{itemCount}</Text>
-                    </View>
-                  )}
+              <ScrollView
+                ref={scrollViewRef}
+                horizontal
+                pagingEnabled
+                overScrollMode="never"
+                showsHorizontalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                decelerationRate="fast"
+                snapToInterval={
+                  theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8
+                }
+                snapToAlignment="start"
+                contentContainerStyle={{
+                  paddingVertical: theme.sizes.PADDING * 0.4,
+                  gap: theme.sizes.PADDING * 0.8,
+                }}
+                style={{
+                  overflow: 'visible',
+                }}
+              >
+                {order.Items?.map((item, index) => {
+                  const itemImage = getMainImage(item);
+
+                  return (
+                    <TouchableOpacity
+                      key={`item-${order.OrderId}-${index}`}
+                      onPress={() => onClick && onClick(item)}
+                      activeOpacity={isInbox ? 0.8 : 1}
+                      style={styles.imageContainer}
+                    >
+                      {item.Status === 10 && (
+                        <View style={styles.redeemedBox}>
+                          <Text style={{ color: theme.colors.WHITE }}>
+                            Redeemed
+                          </Text>
+                        </View>
+                      )}
+                      <Image source={itemImage} style={styles.inboxImage} />
+                      <View style={styles.inboxImageBottom}>
+                        <Text
+                          style={styles.itemNameText}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {item.ItemName}
+                        </Text>
+                        {item.Quantity > 0 && (
+                          <View style={styles.numCircle}>
+                            <Text style={styles.numText}>{item.Quantity}</Text>
+                          </View>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              {/* Pagination Dots */}
+              {order.Items && order.Items.length > 1 && (
+                <View style={styles.paginationContainer}>
+                  {order.Items.map((_, index) => (
+                    <TouchableOpacity
+                      key={`dot-${order.OrderId}-${index}`}
+                      onPress={() => scrollToIndex(index)}
+                      activeOpacity={0.8}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <View
+                        style={[
+                          styles.paginationDot,
+                          index === currentIndex && styles.paginationDotActive,
+                        ]}
+                      />
+                    </TouchableOpacity>
+                  ))}
                 </View>
-              </View>
+              )}
             </View>
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 

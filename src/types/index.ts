@@ -60,6 +60,7 @@ export interface ActiveUser {
   Email?: string;
   PhoneNo?: string;
   ProfileUrl: string | null;
+  CityId?: number;
   RelationStatus: number;
 }
 
@@ -167,6 +168,7 @@ export interface FaveItems {
   ItemNameAr: string;
   ItemImage: string;
   StoreId: number;
+  FinalPrice: number;
   StoreBranchId: number;
   CategoryId: number;
   CategoryNameEn: string;
@@ -199,11 +201,17 @@ export interface Occasion {
 }
 
 export interface OrderItemVariant {
-  NameEn: string;
-  NameAr: string;
+  CountInCart: number;
+  FeelingFee: number;
+  FinalPrice: number;
+  IsAddedToCart: boolean;
+  IsDefault: boolean;
+  ItemId: number | null;
   ItemVariantId: number;
-  Status: number;
+  NameAr: string;
+  NameEn: string;
   Price: number;
+  Status: number;
 }
 
 export interface OrderItem {
@@ -435,6 +443,7 @@ export interface StoreProduct {
   NameAr: string;
   DescEn: string;
   DescAr: string;
+  Variants: OrderItemVariant[];
   Status: number;
   Price: number;
   Thumbnail: string | null;
@@ -443,6 +452,7 @@ export interface StoreProduct {
   StoreId: number;
   StoreBranchId: number;
   CategoryId: number;
+  FinalPrice: number;
   Categories: any | null;
 }
 

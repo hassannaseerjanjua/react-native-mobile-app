@@ -104,6 +104,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         PhoneNo: user.PhoneNo,
         ProfileUrl: user.ProfileUrl,
         RelationStatus: 1,
+        CityId: user.CityId,
       };
 
       return [currentUser, ...baseData];
@@ -116,40 +117,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const isLoading = activeUsersApi.loading;
   const searchQuery = activeUsersApi.search;
   const setSearchQuery = activeUsersApi.setSearch;
-
-  const handleShareGiftLink = async () => {
-    try {
-      const giftLink = `https://giftee.app/share/${
-        user?.UserName || 'user123'
-      }`;
-      const inviteLink = `giftee.com/inviteby/abc123?${
-        user?.UserName || 'user123'
-      }`;
-      const shareOptions = Platform.select({
-        ios: {
-          message: `${getString('P_GIFT_ME_ON_GIFTEE')}\n\n${inviteLink}`,
-          url: giftLink,
-        },
-        android: {
-          message: `${getString(
-            'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
-          )}\n\n${inviteLink}`,
-          title: getString('P_GIFT_ME_ON_GIFTEE'),
-        },
-      }) || {
-        message: `${getString(
-          'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
-        )}\n\n${inviteLink}`,
-        title: getString('P_GIFT_ME_ON_GIFTEE'),
-      };
-
-      const result = await Share.share(shareOptions);
-
-      if (result.action === Share.sharedAction) {
-      } else if (result.action === Share.dismissedAction) {
-      }
-    } catch (error) {}
-  };
 
   return (
     <ParentView style={styles.container}>
@@ -188,18 +155,25 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             }}
           />
         </View>
-        <View
-          style={[
-            styles.tabContainer,
-            { paddingHorizontal: theme.sizes.PADDING },
-          ]}
-        >
-          <TabItem
-            title={getString('SG_SEND_THROUGH_LINK')}
-            onPress={handleShareGiftLink}
-            isLink={true}
-          />
-        </View>
+        {route.params.routeTo === 'SelectStore' && (
+          <View
+            style={[
+              styles.tabContainer,
+              { paddingHorizontal: theme.sizes.PADDING },
+            ]}
+          >
+            <TabItem
+              title={getString('SG_SEND_THROUGH_LINK')}
+              // onPress={handleShareGiftLink}
+              onPress={() => {
+                navigation.navigate('SelectCity', {
+                  sendType: 2,
+                });
+              }}
+              isLink={true}
+            />
+          </View>
+        )}
         <View style={styles.scrollableContentContainer}>
           <Text style={styles.sectionTitle}>{getString('SG_FRIENDS')}</Text>
           {isLoading ? (
@@ -222,6 +196,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                       route.params.routeTo === 'SelectStore'
                         ? navigation.navigate('SelectStore', {
                             friendUserId: item.UserId,
+                            CityId: item.CityId,
+                            sendType: 1,
                           })
                         : navigation.navigate('CatchScreen', {
                             type: 'GiftOneGetOne',

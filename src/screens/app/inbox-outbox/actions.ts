@@ -3,7 +3,11 @@ import { useNavigation } from '@react-navigation/native';
 import { ImageSourcePropType } from 'react-native';
 import useGetApi from '../../../hooks/useGetApi';
 import apiEndpoints from '../../../constants/api-endpoints';
-import { InboxOrder, InboxApiResponseData } from '../../../types/index';
+import {
+  InboxOrder,
+  InboxApiResponseData,
+  InboxOrderItem,
+} from '../../../types/index';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
 const defaultProfileImage = require('../../../assets/images/user.png');
@@ -68,32 +72,19 @@ export const getStoreName = (order: InboxOrder, isRtl: boolean): string => {
   return order.stores?.NameAr || '';
 };
 
-export const getMainImage = (order: InboxOrder): ImageSourcePropType => {
-  if (order.Items && order.Items.length > 0) {
-    const firstItem = order.Items[0];
-    if (firstItem.ThumbnailUrl && firstItem.ThumbnailUrl.trim()) {
-      return { uri: firstItem.ThumbnailUrl };
-    }
-    if (firstItem.Images && firstItem.Images.length > 0) {
-      const imageUrl =
-        firstItem.Images[0].ImageUrls || firstItem.Images[0].ImageUrl;
-      if (imageUrl && imageUrl.trim()) {
-        return { uri: imageUrl };
-      }
+export const getMainImage = (order: InboxOrderItem): ImageSourcePropType => {
+  const firstItem = order;
+  if (firstItem.ThumbnailUrl && firstItem.ThumbnailUrl.trim()) {
+    return { uri: firstItem.ThumbnailUrl };
+  }
+  if (firstItem.Images && firstItem.Images.length > 0) {
+    const imageUrl =
+      firstItem.Images[0].ImageUrls || firstItem.Images[0].ImageUrl;
+    if (imageUrl && imageUrl.trim()) {
+      return { uri: imageUrl };
     }
   }
-
   return defaultItemImage;
-};
-
-export const getItemCount = (order: InboxOrder): number => {
-  if (order.orderImages && order.orderImages.length > 0) {
-    return order.orderImages.length;
-  }
-  if (order.Items && order.Items.length > 0) {
-    return order.Items.length;
-  }
-  return 0;
 };
 
 export const getItemName = (order: InboxOrder): string => {

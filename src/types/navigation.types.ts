@@ -27,8 +27,9 @@ export type AppStackParamList = {
     itemId: number;
     friendUserId?: number | null;
     storeId?: number | null;
-    type?: 'GiftOneGetOne';
+    type?: 'GiftOneGetOne' | 'catch';
     campaignId?: number;
+    sendType?: number | null;
   };
   Search: {
     title?: string;
@@ -72,12 +73,15 @@ export type AppStackParamList = {
       imageLogo?: string | null;
       imageCover?: string | null;
     };
+    sendType?: number | null;
     friendUserId?: number | null;
     storeId?: number | null;
   };
   SelectStore: {
     friendUserId?: number | null;
     storeId?: number | null;
+    CityId?: number | null;
+    sendType?: number | null;
   };
   CatchScreen: {
     storeID?: number;
@@ -94,6 +98,9 @@ export type AppStackParamList = {
     productName?: string;
   };
   Occasions: undefined;
+  SelectCity: {
+    sendType: number;
+  };
   CheckOut:
     | {
         product?: {

@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Image,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import { Text } from '../../utils/elements';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
@@ -24,27 +30,30 @@ interface FavoriteProductCardProps {
     subTitle2: string;
   };
   onPress: (item: any) => void;
+  loading?: boolean;
 }
 
 const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
   item,
   onPress,
+  loading,
 }) => {
   const { theme } = useStyles();
   const { styles } = useStyles();
 
   return (
-    <TouchableOpacity style={styles.container}>
+    <TouchableOpacity onPress={() => onPress(item)} style={styles.container}>
       <View style={styles.imageContainer}>
         <Image source={item.coverImage} style={styles.image} />
-        <TouchableOpacity
-          onPress={() => onPress(item)}
-          style={styles.AddContainer}
-        >
-          <SvgCatchAddIcon
-            width={scaleWithMax(17, 18)}
-            height={scaleWithMax(17, 18)}
-          />
+        <TouchableOpacity style={styles.AddContainer}>
+          {loading ? (
+            <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
+          ) : (
+            <SvgCatchAddIcon
+              width={scaleWithMax(17, 18)}
+              height={scaleWithMax(17, 18)}
+            />
+          )}
         </TouchableOpacity>
       </View>
 

@@ -30,7 +30,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const friendUserId = route?.params?.friendUserId ?? null;
   const { styles, theme } = useStyles();
   const { getString, langCode } = useLocaleStore();
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
   const navigation =
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
@@ -70,11 +70,11 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,
       },
+      sendType: route.params.sendType,
       storeId: store.StoreId ?? null,
       friendUserId: friendUserId ?? undefined,
     });
   };
-
   const storeListApi = useListingApi<Store>(
     apiEndpoints.GET_STORE_LIST,
     token,
@@ -87,6 +87,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       extraParams: {
         businessTypeId:
           selectedFilter === 'all' ? undefined : Number(selectedFilter),
+        cityid: route.params.CityId,
       },
     },
   );
@@ -198,7 +199,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                   >
                     {searchQuery
                       ? getString('SEARCH_NO_RESULTS_FOUND')
-                      : getString('SEARCH_NO_USERS_FOUND')}
+                      : 'No Stores Found'}
                   </Text>
                 </View>
               ) : (

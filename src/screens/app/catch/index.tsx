@@ -26,13 +26,16 @@ import { useListingApi } from '../../../hooks/useListingApi';
 import { SvgRiyalIconWhite } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import GiftOneGetOneProductCard from '../../../components/app/GiftOneGetOneProductCard';
+import ConfirmationModal from '../../../components/global/ConfirmationModal';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
   route,
 }) => {
   const { styles, theme } = useStyles();
+  const [openModal, setOpenModal] = useState(false);
   const { getString, isRtl, langCode } = useLocaleStore();
+  const [loading, setLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
   const storeID = route.params?.storeID;
@@ -183,6 +186,47 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     getStoreProducts.data,
   ]);
 
+  const _handleCatchPress = async (item: CatchItem) => {
+    if (loading) return;
+    setLoading(true);
+    const res = await api.post<{
+      Data: {
+        Message: string;
+        OrderId: number;
+        OrderItemId: number;
+        Success: boolean;
+      };
+    }>(apiEndpoints.ADD_TO_CART, {
+      FriendId: friendUserId,
+      ItemId: item.ItemId,
+      ItemVariantId: item.ItemVariantId,
+      StoreId: item.StoreId,
+      SendType: 1,
+      CampaignId: item.CampaignId,
+      IsGift: false,
+    });
+    if (res.success) {
+      const payload = {
+        orderid: res.data?.Data.OrderId,
+        orderPaymentType: 1,
+        IsRedeem: false,
+      };
+      const response = await api.post<any>(
+        apiEndpoints.INITIATE_CHECKOUT,
+        payload,
+      );
+      if (response.success) {
+        setOpenModal(true);
+        setLoading(false);
+      } else {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        setLoading(false);
+      }
+    } else {
+      notify.error(res.error || getString('AU_ERROR_OCCURRED'));
+      setLoading(false);
+    }
+  };
   const handleProductPress = (item: any) => {
     if (screenType === 'favorite') {
       const favItem = item as FaveItems;
@@ -191,9 +235,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         friendUserId: friendUserId ?? undefined,
       });
     } else if (screenType === 'catch' && item.catchItem) {
-      navigation.navigate('ProductDetails', {
-        itemId: item.catchItem.ItemId,
-      });
+      _handleCatchPress(item.catchItem);
     } else if (screenType === 'GiftOneGetOne') {
       if ('ItemId' in item && 'Thumbnail' in item) {
         const product = item as CatchItem;
@@ -278,6 +320,24 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   };
   return (
     <ParentView>
+      <ConfirmationModal
+        key={openModal ? 'open' : 'closed'}
+        visible={openModal}
+        title={'Catch Created Successfully'}
+        message={'Would you like to Browse for more or check your catch now?'}
+        confirmText={'Inbox'}
+        cancelText={'Browse'}
+        onConfirm={() =>
+          navigation.navigate('InboxOutbox', {
+            title: getString('HOME_INBOX'),
+            isInbox: true,
+          })
+        }
+        onCancel={() => navigation.goBack()}
+        onbtn2Press={async () => {}}
+        loading={false}
+      />
+
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -386,7 +446,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   }}
                 />
               ) : (
-                <CatchProductCard item={item} onPress={handleProductPress} />
+                <CatchProductCard
+                  loading={loading}
+                  item={item}
+                  onPress={handleProductPress}
+                />
               )
             }
           />

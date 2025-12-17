@@ -46,7 +46,8 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
     : isFaveItems
     ? (item as FaveItems).CategoryNameEn
     : '';
-  const price = item.Price || 0;
+  const price =
+    (item as StoreProduct).Variants.find(v => v.IsDefault)?.FinalPrice || 0;
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
