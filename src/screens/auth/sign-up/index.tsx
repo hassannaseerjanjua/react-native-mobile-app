@@ -402,7 +402,7 @@ const StepContent: React.FC<StepContentProps> = ({
                 onChangeText: value => {
                   updateFormData('phoneNumber', value, formik);
                 },
-                keyboardType: 'phone-pad',
+                keyboardType: 'number-pad',
               }}
             />
           </View>

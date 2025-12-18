@@ -8,6 +8,9 @@ import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import DropdownField, {
+  DropdownOption,
+} from '../../../components/global/DropdownField.tsx';
 import {
   AppStackScreen,
   AppStackParamList,
@@ -19,6 +22,7 @@ import {
   Store,
   BusinessType,
   StoreListApiResponse,
+  City,
 } from '../../../types/index.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import { useListingApi } from '../../../hooks/useListingApi.ts';
@@ -35,6 +39,10 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const initialCityId = route?.params?.CityId ?? null;
+  const [selectedCityId, setSelectedCityId] = useState<number | null>(
+    initialCityId,
+  );
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
@@ -45,6 +53,10 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       transformData: (data: any) => data.Data.Items || [],
     },
   );
+
+  const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
+    transformData: (data: any) => data?.Data?.cities ?? [],
+  });
 
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
@@ -57,6 +69,23 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     }));
     return [allOption, ...businessTypeOptions];
   }, [businessTypeApi.data, getString, langCode]);
+
+  const cityOptions: DropdownOption[] = useMemo(
+    () =>
+      (citiesApi.data || []).map(city => ({
+        label:
+          langCode === 'ar'
+            ? city.CityNameAr || city.CityName
+            : city.CityNameEn || city.CityName,
+        value: city.CityID,
+      })),
+    [citiesApi.data, langCode],
+  );
+
+  const selectedCityOption: DropdownOption | null = useMemo(
+    () => cityOptions.find(option => option.value === selectedCityId) || null,
+    [cityOptions, selectedCityId],
+  );
 
   const handleStoreSelect = (item: Store | any) => {
     const store = item as Store;
@@ -87,7 +116,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       extraParams: {
         businessTypeId:
           selectedFilter === 'all' ? undefined : Number(selectedFilter),
-        cityid: route.params.CityId,
+        cityid: selectedCityId,
       },
     },
   );
@@ -103,11 +132,13 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   }, [storeListApi.data]);
 
   useEffect(() => {
-    storeListApi.setExtraParams({
+    storeListApi.setExtraParams(prev => ({
+      ...prev,
       businessTypeId:
         selectedFilter === 'all' ? undefined : Number(selectedFilter),
-    });
-  }, [selectedFilter]);
+      cityid: selectedCityId,
+    }));
+  }, [selectedFilter, selectedCityId]);
 
   const searchQuery = storeListApi.search;
   const setSearchQuery = storeListApi.setSearch;
@@ -163,6 +194,30 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
           searchPlaceholder={getString('HOME_SEARCH')}
+          rightSideView={
+            route.params.sendType === 2 && (
+              <View
+                style={{
+                  width: theme.sizes.WIDTH * 0.4,
+                }}
+              >
+                <DropdownField
+                  options={cityOptions}
+                  selectedValue={selectedCityId ?? undefined}
+                  selectedOption={selectedCityOption}
+                  onSelect={option => setSelectedCityId(option.value)}
+                  isLoading={citiesApi.loading}
+                  label="Select City"
+                  style={{
+                    height: theme.sizes.HEIGHT * 0.045,
+                    borderRadius: theme.sizes.BORDER_RADIUS,
+                    paddingHorizontal: theme.sizes.PADDING * 0.4,
+                    backgroundColor: theme.colors.WHITE,
+                  }}
+                />
+              </View>
+            )
+          }
         />
         <View style={styles.tabsContainer}>
           <GroupTabs

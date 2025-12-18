@@ -23,10 +23,10 @@ import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 import { Text } from '../../../utils/elements';
 import { useListingApi } from '../../../hooks/useListingApi';
-import { SvgRiyalIconWhite } from '../../../assets/icons';
+import { GiftPlacedSvg, SvgRiyalIconWhite } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import GiftOneGetOneProductCard from '../../../components/app/GiftOneGetOneProductCard';
-import ConfirmationModal from '../../../components/global/ConfirmationModal';
+import SuccessMessage from '../../../components/global/SuccessComponent';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -318,26 +318,31 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       setSubmitting(false);
     }
   };
-  return (
-    <ParentView>
-      <ConfirmationModal
-        key={openModal ? 'open' : 'closed'}
-        visible={openModal}
-        title={'Catch Created Successfully'}
-        message={'Would you like to Browse for more or check your catch now?'}
-        confirmText={'Inbox'}
-        cancelText={'Browse'}
-        onConfirm={() =>
+  if (openModal) {
+    return (
+      <SuccessMessage
+        SuccessLogo={<GiftPlacedSvg />}
+        SuccessMessage="Catch Created Successfully"
+        SuccessSubMessage="Would you like to browse for more or check your catch now?"
+        primaryButtonTitle="Inbox"
+        onPrimaryPress={() => {
+          setOpenModal(false);
           navigation.navigate('InboxOutbox', {
             title: getString('HOME_INBOX'),
             isInbox: true,
-          })
-        }
-        onCancel={() => navigation.goBack()}
-        onbtn2Press={async () => {}}
-        loading={false}
+          });
+        }}
+        secondaryButtonTitle="Browse"
+        onSecondaryPress={() => {
+          setOpenModal(false);
+          navigation.goBack();
+        }}
       />
+    );
+  }
 
+  return (
+    <ParentView>
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"

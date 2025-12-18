@@ -46,17 +46,27 @@ export const formatRelativeTime = (dateString: string): string => {
   return 'Just now';
 };
 
-export const getProfileImage = (order: InboxOrder): ImageSourcePropType => {
-  return order.FriendImageUrl
-    ? { uri: order.FriendImageUrl }
-    : defaultProfileImage;
+export const getProfileImage = (
+  order: InboxOrder,
+  isInbox: boolean,
+): ImageSourcePropType => {
+  if (isInbox) {
+    return order.users?.ProfileUrl
+      ? { uri: order.users.ProfileUrl }
+      : defaultProfileImage;
+  } else {
+    return order.FriendImageUrl
+      ? { uri: order.FriendImageUrl }
+      : defaultProfileImage;
+  }
 };
 
-export const getUserName = (order: InboxOrder): string => {
-  if (order.FriendName) {
-    return order.FriendName;
+export const getUserName = (order: InboxOrder, isInbox: boolean): string => {
+  if (isInbox) {
+    return order.users?.FullName || '';
+  } else {
+    return order.FriendName || order.users?.FullName || '';
   }
-  return order.users?.FullName || '';
 };
 
 export const getStoreName = (order: InboxOrder, isRtl: boolean): string => {

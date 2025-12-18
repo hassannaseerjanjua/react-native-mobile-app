@@ -128,8 +128,8 @@ const InboxOutbox: React.FC = () => {
   );
 
   const handleVideoPress = (order: InboxOrder) => {
-    const profileImage = getProfileImage(order);
-    const userName = getUserName(order);
+    const profileImage = getProfileImage(order, isInbox);
+    const userName = getUserName(order, isInbox);
     const timeAgo = formatRelativeTime(order.OrderTime);
 
     const filterImageUrl =
@@ -300,8 +300,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
 
-  const profileImage = getProfileImage(order);
-  const userName = getUserName(order);
+  const profileImage = getProfileImage(order, isInbox);
+  const userName = getUserName(order, isInbox);
   const storeName = getStoreName(order, isRtl);
   const timeAgo = formatRelativeTime(order.OrderTime);
 

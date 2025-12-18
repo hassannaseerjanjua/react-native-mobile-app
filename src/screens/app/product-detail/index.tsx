@@ -1,10 +1,4 @@
-import {
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import useStyles from './style';
 import {
@@ -28,6 +22,7 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi';
 import { StoreProduct } from '../../../types';
+import { Text } from '../../../utils/elements';
 
 const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   route,

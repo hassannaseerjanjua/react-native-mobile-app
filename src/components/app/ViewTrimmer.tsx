@@ -1,4 +1,4 @@
-import { Text, TouchableOpacity, View } from 'react-native';
+import { Platform, Text, TouchableOpacity, View } from 'react-native';
 import React, { useRef, useState } from 'react';
 import { trim } from 'react-native-video-trim';
 import Video, { VideoRef } from 'react-native-video';
@@ -32,18 +32,47 @@ const ViewTrimmer = ({
       setStartTime(start);
       videoRef.current?.seek(start);
       setEndTime(end);
+
+      console.log('start', start);
+      console.log('end', end);
+      console.log('duration', duration);
     },
   });
 
   const saveVideo = async () => {
+    console.log('saveVideo called with state:', {
+      startTime,
+      endTime,
+      duration,
+    });
+
+    const inputPath =
+      Platform.OS === 'ios' && !videoUrl.startsWith('file://')
+        ? `file://${videoUrl}`
+        : videoUrl;
+
     if (!duration) {
+      console.log('duration is null');
       return;
     }
-    const trimmedVideo = await trim(videoUrl, {
-      startTime,
-      endTime: endTime || duration,
-    });
-    onSaveVideo(trimmedVideo.outputPath);
+
+    // Convert seconds to milliseconds (react-native-video-trim expects ms)
+    const trimStartMs = startTime * 1000;
+    const trimEndMs = (endTime ?? duration) * 800;
+
+    console.log('Trimming with (ms):', { trimStartMs, trimEndMs, inputPath });
+
+    try {
+      const trimmedVideo = await trim(inputPath, {
+        startTime: trimStartMs,
+        endTime: trimEndMs,
+      });
+
+      console.log('Trim result:', trimmedVideo);
+      onSaveVideo(trimmedVideo.outputPath);
+    } catch (error) {
+      console.log('Trim error:', error);
+    }
   };
 
   return (

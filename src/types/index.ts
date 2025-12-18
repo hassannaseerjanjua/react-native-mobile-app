@@ -320,6 +320,7 @@ export interface InboxOrderUser {
   DOB: string | null;
   PhoneNo: string;
   CityId: number | null;
+  ProfileUrl: string | null;
 }
 
 export interface InboxOrderStore {

@@ -1,48 +1,64 @@
-import {
-  Image,
-  StyleProp,
-  StyleSheet,
-  Text,
-  TextStyle,
-  View,
-} from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import React, { useMemo } from 'react';
-import { SvgRiyalIcon } from '../../assets/icons';
 import { useSizes } from '../../styles/sizes';
 import useTheme from '../../styles/theme';
-import { scaleWithMax } from '../../utils';
 import CustomFooter from './CustomFooter';
 import CustomButton from './Custombutton';
-import { useNavigation } from '@react-navigation/native';
 
-const SuccessMessage = ({
+type SuccessMessageProps = {
+  SuccessLogo: React.ReactNode;
+  SuccessMessage: string;
+  SuccessSubMessage?: string;
+  /** Primary action button label */
+  primaryButtonTitle?: string;
+  /** Primary action button handler */
+  onPrimaryPress?: () => void;
+  /** Secondary action button label */
+  secondaryButtonTitle?: string;
+  /** Secondary action button handler */
+  onSecondaryPress?: () => void;
+};
+
+const SuccessMessage: React.FC<SuccessMessageProps> = ({
   SuccessLogo,
   SuccessMessage,
   SuccessSubMessage,
-  onPress,
-  BtnTitle,
-}: {
-  SuccessLogo: any;
-  SuccessMessage: string;
-  SuccessSubMessage?: string;
-  onPress?: () => void;
-  BtnTitle?: string;
+  primaryButtonTitle,
+  onPrimaryPress,
+  secondaryButtonTitle,
+  onSecondaryPress,
 }) => {
-  const { styles, theme } = useStyles();
+  const { styles } = useStyles();
+
+  const showFooter = primaryButtonTitle || secondaryButtonTitle;
 
   return (
     <View style={styles.checkoutCompletedContainer}>
       {SuccessLogo}
-      <Text
-        style={{ ...styles.TextLarge, marginTop: theme.sizes.HEIGHT * 0.02 }}
-      >
-        {SuccessMessage}
-      </Text>
-      <Text style={styles.TextMed}>{SuccessSubMessage}</Text>
-      {BtnTitle && (
+      <Text style={styles.TextLarge}>{SuccessMessage}</Text>
+      {!!SuccessSubMessage && (
+        <Text style={styles.TextMed}>{SuccessSubMessage}</Text>
+      )}
+      {showFooter && (
         <CustomFooter>
-          <View style={{ position: 'relative' }}>
-            <CustomButton title="Home" onPress={onPress} />
+          <View style={styles.buttonsRow}>
+            {!!secondaryButtonTitle && (
+              <View style={styles.buttonWrapper}>
+                <CustomButton
+                  type="secondary"
+                  title={secondaryButtonTitle}
+                  onPress={onSecondaryPress}
+                />
+              </View>
+            )}
+            {!!primaryButtonTitle && (
+              <View style={styles.buttonWrapper}>
+                <CustomButton
+                  title={primaryButtonTitle}
+                  onPress={onPrimaryPress}
+                />
+              </View>
+            )}
           </View>
         </CustomFooter>
       )}
@@ -69,14 +85,24 @@ const useStyles = () => {
           ...theme.globalStyles.TEXT_STYLE_MEDIUM,
           fontSize: theme.sizes.FONT_SIZE_EXTRA_HIGH,
           color: theme.colors.BLACK,
+          marginTop: theme.sizes.HEIGHT * 0.02,
+          textAlign: 'center',
         },
         TextMed: {
           ...theme.globalStyles.TEXT_STYLE,
           fontSize: theme.sizes.FONTSIZE_BUTTON,
           color: theme.colors.BLACK,
+          textAlign: 'center',
+        },
+        buttonsRow: {
+          flexDirection: 'column',
+          rowGap: sizes.HEIGHT * 0.012,
+        },
+        buttonWrapper: {
+          width: '100%',
         },
       }),
-    [sizes],
+    [sizes, theme],
   );
 
   return {

@@ -62,10 +62,12 @@ const ProfileScreen: React.FC = () => {
 
   const handleShareGiftLink = async () => {
     try {
-      const giftLink = `https://giftee.app/share/${user?.UserName || 'user123'
-        }`;
-      const inviteLink = `giftee.com/inviteby/abc123?${user?.UserName || 'user123'
-        }`;
+      const giftLink = `https://giftee.app/share/${
+        user?.UserName || 'user123'
+      }`;
+      const inviteLink = `giftee.com/inviteby/abc123?${
+        user?.UserName || 'user123'
+      }`;
       const shareOptions = Platform.select({
         ios: {
           message: `${getString('P_GIFT_ME_ON_GIFTEE')}\n\n${inviteLink}`,
@@ -89,7 +91,7 @@ const ProfileScreen: React.FC = () => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const handleImageSelect = () => {
@@ -143,7 +145,7 @@ const ProfileScreen: React.FC = () => {
           );
         }
       })
-      .catch(error => { })
+      .catch(error => {})
       .finally(() => {
         setIsUploading(false);
       });

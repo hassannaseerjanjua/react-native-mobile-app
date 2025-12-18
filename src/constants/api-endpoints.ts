@@ -51,7 +51,7 @@ const apiEndpoints = {
   GET_STORE_ITEM_BY_ID: (itemId?: any) =>
     `/${version}/Panel/GetItemById?itemId=${itemId}`,
   GET_BUSINESS_TYPE: `/${version}/Panel/GetBusinessTypesForPanel`,
-  GET_CATEGORIES: `/${version}/Panel/GetCategoriesForPanel`,
+  GET_CATEGORIES: `/${version}/Panel/GetCategoriesForPanel?isApp=true`,
   SEND_GIFT_FILTER: `/${version}/User/AddGiftMessageToOrder`,
   GET_ALL_FILTERS: `/${version}/Panel/GetAllFilters`,
   GENERATE_QR_CODE: (orderId: any) =>

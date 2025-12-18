@@ -272,7 +272,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                 textAlign="center"
                 selectTextOnFocus
                 autoFocus={index === 0}
-                returnKeyType="next"
               />
             ))}
           </View>
