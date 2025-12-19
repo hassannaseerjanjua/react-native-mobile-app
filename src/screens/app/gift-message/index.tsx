@@ -246,6 +246,14 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     return `${paddedMins}:${paddedSecs}`;
   }
   const handleButtonPress = async () => {
+    if (!hasContent && !sendMessagePayload.VideoFile) {
+      (navigation as any).navigate('CheckOut', {
+        friendUserId,
+        storeBranchId,
+        isVideoUploading: !!sendMessagePayload.VideoFile,
+      });
+      return;
+    }
     if (isCompressing) {
       notify.error('Please wait, video is being processed...');
       return;
@@ -913,7 +921,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                             onPress={async () => {
                               const newFilterId =
                                 sendMessagePayload.ImageFilterId ===
-                                filter.FilterId
+                                  filter.FilterId
                                   ? null
                                   : filter.FilterId;
                               setSendMessagePayload(prev => ({
@@ -936,7 +944,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                                 {
                                   borderWidth:
                                     filter.FilterId ===
-                                    sendMessagePayload.ImageFilterId
+                                      sendMessagePayload.ImageFilterId
                                       ? 2
                                       : 0,
                                   borderColor: theme.colors.PRIMARY,

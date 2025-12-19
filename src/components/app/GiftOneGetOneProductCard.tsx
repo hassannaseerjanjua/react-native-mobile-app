@@ -7,6 +7,7 @@ import {
   SvgItemFavouriteIcon,
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
+  SvgRiyalIconPrimary,
 } from '../../assets/icons';
 import { CatchItem } from '../../types'; // Update this import path as needed
 
@@ -68,9 +69,29 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
       </View>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.title} numberOfLines={1}>
-          {itemName}
-        </Text>
+        <View
+          style={{
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
+          <Text style={styles.title} numberOfLines={1}>
+            {itemName}
+          </Text>
+          {hasDiscount && (
+            <View style={styles.priceContainer}>
+              <SvgRiyalIconPrimary
+                width={scaleWithMax(11, 12)}
+                height={scaleWithMax(11, 12)}
+                style={{
+                  marginTop: theme.sizes.HEIGHT * 0.003,
+                }}
+              />
+              <Text style={styles.price}>{discountedPrice}</Text>
+            </View>
+          )}
+        </View>
         <View
           style={{
             justifyContent: 'space-between',
@@ -81,28 +102,18 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
           <Text style={styles.subtitle} numberOfLines={1}>
             {categoryName}
           </Text>
-          {hasDiscount && (
-            <View style={styles.priceContainer}>
-              <SvgRiyalIcon
-                width={scaleWithMax(9, 11)}
-                height={scaleWithMax(9, 11)}
-              />
-              <Text style={styles.originalPrice}>{price}</Text>
-            </View>
-          )}
-        </View>
-        <View style={styles.priceContainer}>
-          <SvgRiyalIcon
-            width={scaleWithMax(11, 13)}
-            height={scaleWithMax(11, 13)}
-            style={{
-              marginTop: 3.5,
-            }}
-          />
-          <Text style={styles.price}>
-            {hasDiscount ? discountedPrice : price}
-          </Text>
-        </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
+            <SvgRiyalIcon
+              opacity={0.5}
+              width={scaleWithMax(10, 12)}
+              height={scaleWithMax(10, 12)}
+
+            />
+            <Text style={hasDiscount ? styles.originalPrice : styles.price}>
+              {price}
+            </Text>
+          </View></View>
+
       </View>
     </TouchableOpacity>
   );
@@ -164,7 +175,7 @@ const useStyles = () => {
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
-        color: theme.colors.PRIMARY_TEXT,
+        color: theme.colors.PRIMARY,
         fontSize: sizes.FONTSIZE_BUTTON,
       },
       originalPrice: {
