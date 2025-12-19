@@ -113,7 +113,7 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         alignItems: 'center',
         backgroundColor: colors.WHITE,
-        ...globalStyles.SHADOW_STYLE,
+        ...globalStyles.SHADOW_STYLE_INPUT,
       },
       textareaContainer: {
         width: '100%',
@@ -124,7 +124,7 @@ const useStyles = () => {
         paddingVertical: sizes.PADDING,
         alignItems: 'flex-start',
         backgroundColor: colors.WHITE,
-        ...globalStyles.SHADOW_STYLE,
+        ...globalStyles.SHADOW_STYLE_INPUT,
       },
       input: {
         ...globalStyles.TEXT_STYLE,

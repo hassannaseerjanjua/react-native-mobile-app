@@ -72,9 +72,11 @@ const useStyles = () => {
       },
       scrollContainer: {
         flex: 1,
+        overflow: 'visible',
       },
       contentContainer: {
         flexGrow: 1,
+        // overflow: 'visible',
       },
       logoContainer: {
         alignItems: 'center',
