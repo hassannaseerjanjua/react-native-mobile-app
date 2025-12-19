@@ -159,7 +159,32 @@ const useStyles = () => {
         opacity: 1,
         width: scaleWithMax(8, 8),
         borderRadius: scaleWithMax(4, 4),
+      },   quantityControls: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: sizes.WIDTH * 0.01,
       },
+      quantityValue: {
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: theme.colors.BLACK,
+        minWidth: scaleWithMax(20, 22),
+        textAlign: 'center',
+      },
+      redeemImage:{
+        width: sizes.WIDTH * 0.15,
+        height: sizes.HEIGHT * 0.06,
+        resizeMode: 'cover',
+        borderRadius:6,
+        alignSelf: 'flex-start',
+      },
+      redeemText:{
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: sizes.FONTSIZE_SMALL_HEADING,
+        color: theme.colors.BLACK,
+        flex: 1,
+        marginRight: sizes.PADDING * 0.5,
+      }
     }),
     theme,
   };

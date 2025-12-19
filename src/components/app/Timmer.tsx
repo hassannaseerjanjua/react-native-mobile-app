@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -17,20 +17,24 @@ const EDGE_SAFE_PADDING = 32; // avoids back gesture
 const TRACK_PADDING = 20;
 const TRACK_WIDTH = SCREEN_WIDTH - (TRACK_PADDING + EDGE_SAFE_PADDING) * 2;
 
-const KNOB_SIZE = 20;
+const KNOB_SIZE = 16;
 const TOUCH_SLOP = 2;
 
-const TRACK_HEIGHT = scaleWithMax(50, 50);
+const TRACK_HEIGHT = scaleWithMax(4, 6);
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 
 interface TrimmerProps {
   totalDuration: number;
+  trimStart: number;
+  trimEnd: number;
   onTrimChange: (start: number, end: number) => void;
 }
 
 export default function useTrimmer({
   totalDuration,
+  trimStart,
+  trimEnd,
   onTrimChange,
 }: TrimmerProps) {
   const { styles, theme } = useStyles();
@@ -41,7 +45,10 @@ export default function useTrimmer({
 
   const activeKnob = useSharedValue<'left' | 'right' | null>(null);
   const lastTranslation = useSharedValue(0);
-
+  // useEffect(() => {
+  //   leftX.value = (trimStart / totalDuration) * TRACK_WIDTH;
+  //   rightX.value = (trimEnd / totalDuration) * TRACK_WIDTH;
+  // }, [trimStart, trimEnd, totalDuration]); // added to save the trimming state but wasnt able to test
   // ------------------ GESTURE ------------------
   const pan = Gesture.Pan()
     .activeOffsetX([-5, 5]) // ignore tiny accidental drags
@@ -116,9 +123,10 @@ export default function useTrimmer({
                     x2={TRACK_WIDTH}
                     y2={TRACK_HEIGHT / 2}
                     stroke="#000"
+                    strokeLinecap="round"
                     strokeWidth={TRACK_HEIGHT}
-                    // opacity={0.5}
-                    //   strokeLinecap="round"
+                  // opacity={0.5}
+                  //   strokeLinecap="round"
                   />
                   {/* Active range */}
                   <AnimatedLine
@@ -127,7 +135,8 @@ export default function useTrimmer({
                     y2={TRACK_HEIGHT / 2}
                     stroke={theme.colors.PRIMARY}
                     strokeWidth={TRACK_HEIGHT}
-                    // opacity={0.5}
+                    strokeLinecap="round"
+                  // opacity={0.5}
                   />
                 </Svg>
               </View>
@@ -156,23 +165,27 @@ const useStyles = () => {
       },
       track: {
         width: TRACK_WIDTH,
+
         justifyContent: 'center',
         height: '100%',
       },
       knob: {
         position: 'absolute',
-        width: 10,
-        height: TRACK_HEIGHT * 1.1,
+        width: KNOB_SIZE,
+        height: KNOB_SIZE,
         borderRadius: KNOB_SIZE / 2,
         backgroundColor: '#fff',
         borderWidth: 2,
         borderColor: theme.colors.PRIMARY,
+        justifyContent: 'center',
+        alignItems: 'center',
       },
       knobCurrent: {
         position: 'absolute',
-        width: 6,
-        height: TRACK_HEIGHT * 1.1,
-        backgroundColor: '#fff',
+        width: TRACK_HEIGHT,
+        height: TRACK_HEIGHT,
+        borderRadius: TRACK_HEIGHT / 2,
+        backgroundColor: theme.colors.WHITE,
       },
     });
   }, [theme]);
