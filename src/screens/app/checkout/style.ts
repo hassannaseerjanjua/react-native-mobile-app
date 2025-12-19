@@ -54,6 +54,11 @@ const useStyles = () => {
         height: scaleWithMax(30, 35),
         borderRadius: 999,
       },
+      LinkImage: {
+        width: scaleWithMax(15, 18),
+        marginVertical: scaleWithMax(8, 10),
+        height: scaleWithMax(15, 18),
+      },
       TextSmall: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE_SMALL,

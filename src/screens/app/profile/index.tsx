@@ -363,8 +363,7 @@ const ProfileScreen: React.FC = () => {
                     size={scaleWithMax(220, 250)}
                     color={theme.colors.PRIMARY}
                     backgroundColor={theme.colors.WHITE}
-                    quietZone={10}
-                    ecl="M"
+                    ecl="H"
                   />
                 ) : (
                   <View

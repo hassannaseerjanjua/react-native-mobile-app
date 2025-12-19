@@ -18,6 +18,7 @@ import {
   PlusIcon,
   SvgEhsanIcon,
   SvgGifteeWalletIcon,
+  SvgGiftSentIcon,
   SvgRiyalIcon,
   SvgRiyalIconWhite,
   SvgSelectedCheck,
@@ -77,7 +78,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [cartData, setCartData] = useState<CartResponse | null>(
     cartItemsApi.data,
   );
-  console.log('cartData', cartData);
   const loading = cartItemsApi.loading;
 
   // useEffect(() => {
@@ -406,12 +406,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
   };
 
-  const GiftSend = require('../../../assets/images/gift-send.png');
-
   if (checkoutCompleted) {
     return (
       <View style={styles.checkoutCompletedContainer}>
-        <Image source={GiftSend} />
+        {/* <Image source={GiftSend} /> */}
+        <SvgGiftSentIcon />
         <Text style={styles.TextLarge}>{getString('CHECKOUT_GIFT_SENT')}</Text>
         <CustomFooter>
           <View style={{ position: 'relative' }}>
@@ -456,7 +455,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const giftImage = firstItem.Images?.[0]?.ImageUrls || firstItem.ThumbnailUrl;
   const giftImageSource = cartData.FriendImageUrl
     ? { uri: cartData.FriendImageUrl }
-    : require('../../../assets/images/img-placeholder.png');
+    : require('../../../assets/images/gift-link.png');
 
   return (
     <ParentView>
@@ -500,55 +499,59 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           ))}
         </View>
 
-        {cartData.FriendId && (
-          <View style={styles.section}>
-            <Text style={styles.heading}>
-              {getString('CHECKOUT_SEND_A_GIFT')}
-            </Text>
-            <View style={styles.GiftContainer}>
-              <View
-                style={{
-                  ...styles.row,
-                  flex: 1,
-                  gap: theme.sizes.WIDTH * 0.025,
-                  flexDirection: rtlFlexDirection(isRtl),
-                }}
-              >
-                <Image
-                  source={giftImageSource}
-                  style={styles.GiftContainerImage}
-                />
-                <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
-                  <Text style={styles.TextMedium}>
-                    {cartData.FriendName || 'Friend'}
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={[
-                  styles.row,
-                  {
-                    gap: theme.sizes.WIDTH * 0.025,
-                    flexDirection: rtlFlexDirection(isRtl),
-                  },
-                ]}
-              >
-                <GiftIcon />
-                <TouchableOpacity
-                  onPress={() => {
-                    (navigation as any).navigate('GiftMessage', {
-                      friendUserId: cartData.FriendId,
-                      storeBranchId: cartData.StoreBranchId,
-                      orderId: cartData.OrderId,
-                    });
-                  }}
-                >
-                  <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
-                </TouchableOpacity>
+        {/* {cartData.FriendId && ( */}
+        <View style={styles.section}>
+          <Text style={styles.heading}>
+            {getString('CHECKOUT_SEND_A_GIFT')}
+          </Text>
+          <View style={styles.GiftContainer}>
+            <View
+              style={{
+                ...styles.row,
+                flex: 1,
+                gap: theme.sizes.WIDTH * 0.025,
+                flexDirection: rtlFlexDirection(isRtl),
+              }}
+            >
+              <Image
+                source={giftImageSource}
+                style={
+                  cartData.FriendImageUrl
+                    ? styles.GiftContainerImage
+                    : styles.LinkImage
+                }
+              />
+              <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
+                <Text style={styles.TextMedium}>
+                  {cartData.FriendName || 'Sending through link'}
+                </Text>
               </View>
             </View>
+            <View
+              style={[
+                styles.row,
+                {
+                  gap: theme.sizes.WIDTH * 0.025,
+                  flexDirection: rtlFlexDirection(isRtl),
+                },
+              ]}
+            >
+              <GiftIcon />
+              <TouchableOpacity
+                onPress={() => {
+                  (navigation as any).navigate('GiftMessage', {
+                    friendUserId: cartData.FriendId,
+                    storeBranchId: cartData.StoreBranchId,
+                    orderId: cartData.OrderId,
+                  });
+                }}
+              >
+                <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+              </TouchableOpacity>
+            </View>
           </View>
-        )}
+        </View>
+        {/* )} */}
 
         <View style={styles.section}>
           <View

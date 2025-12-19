@@ -195,28 +195,27 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
           onSearchChange={setSearchQuery}
           searchPlaceholder={getString('HOME_SEARCH')}
           rightSideView={
-            route.params.sendType === 2 && (
-              <View
+            // route.params.sendType === 2 &&
+            <View
+              style={{
+                width: theme.sizes.WIDTH * 0.4,
+              }}
+            >
+              <DropdownField
+                options={cityOptions}
+                selectedValue={selectedCityId ?? undefined}
+                selectedOption={selectedCityOption}
+                onSelect={option => setSelectedCityId(option.value)}
+                isLoading={citiesApi.loading}
+                label="Select City"
                 style={{
-                  width: theme.sizes.WIDTH * 0.4,
+                  height: theme.sizes.HEIGHT * 0.045,
+                  borderRadius: theme.sizes.BORDER_RADIUS,
+                  paddingHorizontal: theme.sizes.PADDING * 0.4,
+                  backgroundColor: theme.colors.WHITE,
                 }}
-              >
-                <DropdownField
-                  options={cityOptions}
-                  selectedValue={selectedCityId ?? undefined}
-                  selectedOption={selectedCityOption}
-                  onSelect={option => setSelectedCityId(option.value)}
-                  isLoading={citiesApi.loading}
-                  label="Select City"
-                  style={{
-                    height: theme.sizes.HEIGHT * 0.045,
-                    borderRadius: theme.sizes.BORDER_RADIUS,
-                    paddingHorizontal: theme.sizes.PADDING * 0.4,
-                    backgroundColor: theme.colors.WHITE,
-                  }}
-                />
-              </View>
-            )
+              />
+            </View>
           }
         />
         <View style={styles.tabsContainer}>

@@ -412,6 +412,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 showsHorizontalScrollIndicator={false}
                 onScroll={handleScroll}
                 scrollEventThrottle={16}
+                scrollEnabled={order.Items && order.Items.length > 1}
                 decelerationRate="fast"
                 snapToInterval={
                   theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8

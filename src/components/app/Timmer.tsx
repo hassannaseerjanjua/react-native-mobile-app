@@ -1,4 +1,4 @@
-import React, { useMemo, useEffect, useRef } from 'react';
+import React, { useMemo } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import Svg, { Line } from 'react-native-svg';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
@@ -27,38 +27,17 @@ const AnimatedLine = Animated.createAnimatedComponent(Line);
 interface TrimmerProps {
   totalDuration: number;
   onTrimChange: (start: number, end: number) => void;
-  initialStartTime?: number;
-  initialEndTime?: number | null;
 }
 
 export default function useTrimmer({
   totalDuration,
   onTrimChange,
-  initialStartTime = 0,
-  initialEndTime = null,
 }: TrimmerProps) {
   const { styles, theme } = useStyles();
-  const hasInitialized = useRef(false);
 
   const leftX = useSharedValue(0);
   const middleX = useSharedValue(0);
   const rightX = useSharedValue(TRACK_WIDTH);
-
-  // Initialize knob positions when totalDuration becomes available
-  useEffect(() => {
-    if (totalDuration > 0 && !hasInitialized.current) {
-      hasInitialized.current = true;
-      // Calculate initial positions based on saved start/end times
-      const initialLeft = (initialStartTime / totalDuration) * TRACK_WIDTH;
-      const initialRight =
-        initialEndTime !== null
-          ? (initialEndTime / totalDuration) * TRACK_WIDTH
-          : TRACK_WIDTH;
-
-      leftX.value = Math.max(0, Math.min(initialLeft, TRACK_WIDTH - KNOB_SIZE));
-      rightX.value = Math.max(KNOB_SIZE, Math.min(initialRight, TRACK_WIDTH));
-    }
-  }, [totalDuration, initialStartTime, initialEndTime]);
 
   const activeKnob = useSharedValue<'left' | 'right' | null>(null);
   const lastTranslation = useSharedValue(0);

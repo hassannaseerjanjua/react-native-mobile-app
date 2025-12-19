@@ -21,6 +21,7 @@ import DatePicker from 'react-native-date-picker';
 import { Occasion } from '../../../types/index.ts';
 import SkeletonLoader from '../../../components/SkeletonLoader/index.tsx';
 import { useOccasions, OccasionFormValues } from './actions';
+import { Text } from '../../../utils/elements.tsx';
 
 const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -236,23 +237,15 @@ const OccasionsScreen: React.FC = () => {
                       {selectedOccasion.occasionType !== 'view' ? (
                         <TouchableOpacity
                           onPress={() => handleImageSelect(formik)}
+                          activeOpacity={0.8}
                         >
-                          <InputField
-                            isOccasion={true}
-                            error={
-                              formik.touched.image && formik.errors.image
-                                ? formik.errors.image
-                                : undefined
-                            }
-                            icon={<SvgGalleryIcon />}
-                            fieldProps={{
-                              placeholder: getString('OCC_IMAGE'),
-                              value: getImageDisplayValue(formik.values.image),
-                              onChangeText: () => {},
-                              editable: false,
-                              pointerEvents: 'none',
-                            }}
-                          />
+                          <View style={styles.uploadImageContainer}>
+                            <SvgGalleryIcon />
+                            <Text style={styles.uploadButtonText}>
+                              {getImageDisplayValue(formik.values.image) ||
+                                getString('OCC_IMAGE')}
+                            </Text>
+                          </View>
                         </TouchableOpacity>
                       ) : (
                         <InputField

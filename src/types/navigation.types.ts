@@ -57,6 +57,7 @@ export type AppStackParamList = {
     storeBranchId?: number | null;
     friendUserId?: number | null;
     orderId?: number;
+    sendType?: number | null;
   };
   ContactUs: undefined;
   Favorites: {

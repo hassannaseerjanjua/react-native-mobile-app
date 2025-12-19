@@ -31,6 +31,7 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import { Text } from '../../../utils/elements';
 import { scaleWithMax } from '../../../utils';
 import CustomButton from '../../../components/global/Custombutton';
+import { useFocusEffect } from '@react-navigation/native';
 
 interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 
@@ -51,7 +52,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         totalCount: data.Data?.TotalCount || 0,
       }),
       extraParams: {
-        userId: user?.UserId,
+        // userId: user?.UserId,
         friends: activeTab === 'friends',
       },
     },
@@ -60,11 +61,15 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   useEffect(() => {
     if (activeTab !== 'group') {
       activeUsersApi.setExtraParams({
-        userId: user?.UserId,
+        // userId: user?.UserId,
         friends: activeTab === 'friends',
       });
     }
   }, [activeTab, user?.UserId]);
+
+  // useFocusEffect(() => {
+  //   setActiveTab('friends');
+  // });
 
   const tabs = [
     {

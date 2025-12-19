@@ -169,9 +169,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               Message: savedData.Message || '',
               VideoFile: savedData.VideoFile,
             });
-            if (savedData.VideoFile?.uri) {
-              setSelectedVideo(savedData.VideoFile.uri);
-            }
+            // if (savedData.VideoFile?.uri) {
+            //   setSelectedVideo(savedData.VideoFile.uri);
+            // } commented becuase the video was auto opening
           }
         } catch (error) {
           console.error('[GiftMessage] Error loading saved data:', error);
@@ -563,8 +563,21 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       <ViewTrimmer
         videoUrl={selectedVideo}
         onSaveVideo={trimmedPath => {
-          // TODO: hook into message flow with the trimmed video path
-          console.log('Trimmed video saved at:', trimmedPath);
+          const videoFile = {
+            uri: trimmedPath, // use the trimmed file
+            type: 'video/mp4',
+            name:
+              sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`,
+          };
+
+          setSendMessagePayload(prev => {
+            const updated = { ...prev, VideoFile: videoFile };
+            if (orderId) {
+              saveGiftMessageData(orderId, updated);
+            }
+            return updated;
+          });
+
           setSelectedVideo(null);
           setShowCamera(false);
         }}
