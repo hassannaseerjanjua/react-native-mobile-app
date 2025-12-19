@@ -218,7 +218,6 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               alignItems="center"
               justifyContent="space-between"
               paddingHorizontal={screenWidth * 0.055}
-              backgroundColor="#fff"
               borderRadius={screenWidth * 0.03}
               marginTop={screenHeight * 0.015}
             >

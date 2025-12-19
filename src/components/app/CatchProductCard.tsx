@@ -13,6 +13,7 @@ import {
   GiftIcon,
   SvgAddOccasion,
   SvgCatchAddIcon,
+  SvgGiftClaimIcon,
   SvgRiyalIcon,
 } from '../../assets/icons';
 
@@ -58,13 +59,7 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
       </View>
 
       <View style={styles.contentContainer}>
-        <Text
-          style={{
-            ...styles.title,
-            paddingTop: theme.sizes.PADDING * 0.4,
-          }}
-          numberOfLines={1}
-        >
+        <Text style={styles.title} numberOfLines={1}>
           {item.title}
         </Text>
         <View
@@ -79,18 +74,6 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
               {item.subtitle}
             </Text>
           )}
-          {!item.isGift &&
-            item.discountedPrice &&
-            item.discountedPrice > 0 &&
-            item.discountedPrice < item.price && (
-              <View style={styles.priceContainer}>
-                <SvgRiyalIcon
-                  width={scaleWithMax(9, 11)}
-                  height={scaleWithMax(9, 11)}
-                />
-                <Text style={styles.originalPrice}>{item.price}</Text>
-              </View>
-            )}
         </View>
 
         <View
@@ -104,21 +87,9 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
             <Text style={styles.subTitle2}>{item.subTitle2}</Text>
           )}
 
-          {!item.isGift ? (
-            <View style={styles.priceContainer}>
-              <SvgRiyalIcon
-                width={scaleWithMax(11, 13)}
-                height={scaleWithMax(11, 13)}
-              />
-              <Text style={styles.discountedPrice}>
-                {item.discountedPrice && item.discountedPrice > 0
-                  ? item.discountedPrice
-                  : item.price}
-              </Text>
-            </View>
-          ) : (
-            item.isGift && <GiftIcon />
-          )}
+          <View style={styles.priceContainer}>
+            <SvgGiftClaimIcon />
+          </View>
         </View>
       </View>
     </TouchableOpacity>
@@ -136,7 +107,7 @@ const useStyles = () => {
         borderRadius: 12,
         marginBottom: sizes.HEIGHT * 0.018,
         flex: 1,
-        maxWidth: sizes.WIDTH * 0.45,
+        maxWidth: '48%',
       },
       imageContainer: {
         position: 'relative',
@@ -177,12 +148,12 @@ const useStyles = () => {
         paddingTop: sizes.HEIGHT * 0.006,
       },
       title: {
-        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: '#1A1A1A',
-        fontSize: sizes.FONTSIZE_MEDIUM,
+        fontSize: scaleWithMax(12, 13),
       },
       subtitle: {
-        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: '#A0A0A0',
         fontSize: sizes.FONTSIZE_MEDIUM,
       },

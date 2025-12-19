@@ -41,7 +41,7 @@ const InputField = ({
         style={[
           isMultiline ? styles.textareaContainer : styles.container,
           {
-            borderWidth: error ? 1 : 0.5,
+            borderWidth: error ? 1 : 0,
             borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
           },
           style,
@@ -112,7 +112,8 @@ const useStyles = () => {
         flexDirection: 'row',
         paddingHorizontal: sizes.PADDING,
         alignItems: 'center',
-        backgroundColor: colors.LIGHT_GRAY,
+        backgroundColor: colors.WHITE,
+        ...globalStyles.SHADOW_STYLE,
       },
       textareaContainer: {
         width: '100%',
@@ -122,7 +123,8 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.PADDING,
         alignItems: 'flex-start',
-        backgroundColor: colors.LIGHT_GRAY,
+        backgroundColor: colors.WHITE,
+        ...globalStyles.SHADOW_STYLE,
       },
       input: {
         ...globalStyles.TEXT_STYLE,
@@ -160,7 +162,6 @@ const useStyles = () => {
         borderRadius: 6,
         borderWidth: 0.5,
         borderColor: theme.colors.RED,
-
       },
       prefixText: {
         ...globalStyles.TEXT_STYLE,

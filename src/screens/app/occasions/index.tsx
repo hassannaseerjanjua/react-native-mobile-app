@@ -248,21 +248,13 @@ const OccasionsScreen: React.FC = () => {
                           </View>
                         </TouchableOpacity>
                       ) : (
-                        <InputField
-                          error={
-                            formik.touched.image && formik.errors.image
-                              ? formik.errors.image
-                              : undefined
-                          }
-                          icon={<SvgGalleryIcon />}
-                          fieldProps={{
-                            placeholder: getString('OCC_IMAGE'),
-                            value: getImageDisplayValue(formik.values.image),
-                            onChangeText: () => {},
-                            editable: false,
-                            pointerEvents: 'none',
-                          }}
-                        />
+                        <View style={styles.uploadImageContainer}>
+                          <SvgGalleryIcon />
+                          <Text style={styles.uploadButtonText}>
+                            {getImageDisplayValue(formik.values.image) ||
+                              getString('OCC_IMAGE')}
+                          </Text>
+                        </View>
                       )}
                     </View>
                     {selectedOccasion.occasionType !== 'view' && (

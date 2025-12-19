@@ -23,13 +23,13 @@ const useStyles = () => {
       },
       inboxProfile: {
         borderRadius: 99,
-        width: scaleWithMax(45, 50),
-        height: scaleWithMax(45, 50),
+        width: scaleWithMax(50, 55),
+        height: scaleWithMax(50, 55),
         resizeMode: 'stretch',
       },
       imageContainer: {
         borderRadius: 12,
-        backgroundColor: theme.colors.WHITE,
+        // backgroundColor: theme.colors.RED,
         position: 'relative',
         marginBottom: sizes.HEIGHT * 0.008,
         marginRight: sizes.WIDTH * 0.01,
@@ -42,11 +42,11 @@ const useStyles = () => {
         backgroundColor: theme.colors.PRIMARY,
         position: 'absolute',
         zIndex: 2,
-        borderRadius: 12,
+        borderRadius: 6,
         top: sizes.HEIGHT * 0.02,
         left: sizes.WIDTH * 0.04,
-        paddingHorizontal: sizes.PADDING * 0.78,
-        paddingVertical: sizes.PADDING * 0.5,
+        paddingHorizontal: sizes.PADDING * 0.5,
+        paddingVertical: sizes.PADDING * 0.3,
 
         ...theme.globalStyles.SHADOW_STYLE,
       },
@@ -102,7 +102,7 @@ const useStyles = () => {
       },
       userNameText: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-        fontSize: sizes.FONTSIZE_BUTTON,
+        fontSize: sizes.FONTSIZE,
         color: theme.colors.BLACK,
       },
       timeText: {
@@ -112,9 +112,8 @@ const useStyles = () => {
       },
       storeNameText: {
         ...theme.globalStyles.TEXT_STYLE,
-        fontSize: sizes.FONTSIZE,
+        fontSize: sizes.FONTSIZE_MEDIUM,
         color: theme.colors.SECONDARY_TEXT,
-        includeFontPadding: false,
       },
       storeNameRow: {
         flexDirection: 'row',

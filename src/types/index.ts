@@ -341,6 +341,7 @@ export interface InboxOrder {
   StoreId: number;
   StoreBranchId: number;
   Status: number;
+  SendType: number;
   OrderAmount: number;
   TotalDiscount: number;
   TotalVat: number;

@@ -17,6 +17,7 @@ import {
   GiftIcon,
   RoundedBackIcon,
   SmsTrackingIcon,
+  SvgOutboxShareIcon,
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
@@ -37,6 +38,7 @@ import { useNavigation, useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import useGetApi from '../../../hooks/useGetApi';
 import apiEndpoints from '../../../constants/api-endpoints';
+import useDebounceClick from '../../../hooks/useDebounceClick';
 
 const InboxOutbox: React.FC = () => {
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
@@ -88,6 +90,8 @@ const InboxOutbox: React.FC = () => {
     }
     return map;
   }, [filtersApi.data]);
+
+  const { createDebouceClick } = useDebounceClick();
 
   const handleItemPress = (orderId: number, itemId: InboxOrderItem) => {
     setOrderId(orderId);
@@ -224,7 +228,11 @@ const InboxOutbox: React.FC = () => {
               isRtl={isRtl}
               onClick={
                 isInbox
-                  ? orderItem => handleItemPress(item.OrderId, orderItem)
+                  ? orderItem => {
+                      createDebouceClick('item-press', () =>
+                        handleItemPress(item.OrderId, orderItem),
+                      );
+                    }
                   : undefined
               }
               onVideoPress={() => handleVideoPress(item)}
@@ -305,6 +313,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const storeName = getStoreName(order, isRtl);
   const timeAgo = formatRelativeTime(order.OrderTime);
 
+  const { createDebouceClick } = useDebounceClick();
+
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
     const itemWidth = theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8;
@@ -342,8 +352,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                paddingVertical: theme.sizes.PADDING * 0.26,
-                rowGap: theme.sizes.PADDING * 0.26,
+                paddingVertical: theme.sizes.PADDING * 0.2,
+                rowGap: theme.sizes.PADDING * 0.24,
               }}
             >
               <View
@@ -378,30 +388,40 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     />
                   </View>
                 </View>
-                {((order.orderImages &&
-                  Array.isArray(order.orderImages) &&
-                  order.orderImages.length > 0) ||
-                  order.OrderMessage) && (
-                  <TouchableOpacity
-                    onPress={e => {
-                      e.stopPropagation?.();
-                      onVideoPress?.();
-                    }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <SmsTrackingIcon
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                >
+                  {((order.orderImages &&
+                    Array.isArray(order.orderImages) &&
+                    order.orderImages.length > 0) ||
+                    order.OrderMessage) && (
+                    <TouchableOpacity
+                      onPress={e => {
+                        e.stopPropagation?.();
+                        onVideoPress?.();
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <SmsTrackingIcon
+                        height={scaleWithMax(20, 20)}
+                        width={scaleWithMax(20, 20)}
+                      />
+                    </TouchableOpacity>
+                  )}
+                  {order.SendType === 2 && (
+                    <SvgOutboxShareIcon
                       height={scaleWithMax(20, 20)}
                       width={scaleWithMax(20, 20)}
                     />
-                  </TouchableOpacity>
-                )}
+                  )}
+                </View>
               </View>
             </View>
 
             {/* Slider with ScrollView */}
             <View
               style={{
-                paddingVertical: theme.sizes.PADDING * 0.6,
+                paddingVertical: theme.sizes.PADDING * 0.45,
               }}
             >
               <ScrollView
@@ -438,7 +458,12 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     >
                       {item.Status === 10 && (
                         <View style={styles.redeemedBox}>
-                          <Text style={{ color: theme.colors.WHITE }}>
+                          <Text
+                            style={{
+                              color: theme.colors.WHITE,
+                              fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                            }}
+                          >
                             Redeemed
                           </Text>
                         </View>
@@ -469,7 +494,11 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   {order.Items.map((_, index) => (
                     <TouchableOpacity
                       key={`dot-${order.OrderId}-${index}`}
-                      onPress={() => scrollToIndex(index)}
+                      onPress={() => {
+                        createDebouceClick('scroll-to-index', () =>
+                          scrollToIndex(index),
+                        );
+                      }}
                       activeOpacity={0.8}
                       hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
                     >

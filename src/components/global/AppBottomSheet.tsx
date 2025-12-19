@@ -7,7 +7,13 @@ import {
   TouchableWithoutFeedback,
   Dimensions,
 } from 'react-native';
-import React, { useRef, useCallback, useMemo } from 'react';
+import React, {
+  useRef,
+  useCallback,
+  useMemo,
+  useEffect,
+  useState,
+} from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, {
   BottomSheetView,
@@ -47,7 +53,7 @@ const AppBottomSheet = ({
   const theme = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
 
-  const calculatedSnapPoints = useMemo(() => {
+  const calculatedSnapPoints = () => {
     if (snapPoints) return snapPoints;
     if (height) {
       const { height: screenHeight } = Dimensions.get('window');
@@ -61,42 +67,14 @@ const AppBottomSheet = ({
       }
     }
     return fullHeight ? ['100%'] : ['50%'];
-  }, [height, snapPoints, fullHeight]);
+  };
 
-  const renderBackdrop = useCallback(
-    (props: any) => (
-      <BottomSheetBackdrop
-        {...props}
-        appearsOnIndex={0}
-        disappearsOnIndex={-1}
-        opacity={0.5}
-        pressBehavior={pressBehavior}
-      >
-        <BlurView
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            bottom: 0,
-            right: 0,
-          }}
-          blurType={blurType}
-          blurAmount={blurAmount}
-          reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.3)"
-        />
-      </BottomSheetBackdrop>
-    ),
-    [blurType, blurAmount],
-  );
-
-  const handleSheetChanges = useCallback(
-    (index: number) => {
-      if (index === -1) {
-        onClose();
-      }
-    },
-    [onClose],
-  );
+  const handleSheetChanges = (index: number) => {
+    if (index === -1) {
+      onClose();
+    }
+  };
+  console.log('isOpen', isOpen);
 
   return (
     <Modal
@@ -110,8 +88,34 @@ const AppBottomSheet = ({
         <BottomSheet
           ref={bottomSheetRef}
           index={isOpen ? 0 : -1}
-          snapPoints={calculatedSnapPoints}
-          backdropComponent={e => hasBackDrop && renderBackdrop(e)}
+          snapPoints={calculatedSnapPoints()}
+          backdropComponent={
+            hasBackDrop
+              ? props => (
+                  <BottomSheetBackdrop
+                    {...props}
+                    appearsOnIndex={0}
+                    disappearsOnIndex={-1}
+                    opacity={0.5}
+                    pressBehavior={pressBehavior}
+                    onPress={onClose}
+                  >
+                    <BlurView
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        bottom: 0,
+                        right: 0,
+                      }}
+                      blurType={blurType}
+                      blurAmount={blurAmount}
+                      reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.3)"
+                    />
+                  </BottomSheetBackdrop>
+                )
+              : undefined
+          }
           enablePanDownToClose={enablePanDownToClose}
           handleStyle={{
             borderTopLeftRadius: scaleWithMax(24, 30),
