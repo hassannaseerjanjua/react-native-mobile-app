@@ -356,8 +356,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       const compressedUri = await Video.compress(
         videoUri,
         {
-          compressionMethod: 'auto',
-          maxSize: 1920,
+          compressionMethod: 'manual',
+          maxSize: 720, // Reduced from 1920 for smaller file size
+          bitrate: 1000000, // 1 Mbps for better compression
           minimumFileSizeForCompress: 0,
         },
         progress => {
