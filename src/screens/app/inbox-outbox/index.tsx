@@ -14,7 +14,9 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
 import useStyles from './style';
 import {
+  DecrementIcon,
   GiftIcon,
+  IncrementIcon,
   RoundedBackIcon,
   SmsTrackingIcon,
   SvgOutboxShareIcon,
@@ -35,7 +37,7 @@ import {
   getMainImage,
   getItemName,
 } from './actions';
-import { scaleWithMax } from '../../../utils';
+import { rtlFlexDirection, scaleWithMax } from '../../../utils';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import useGetApi from '../../../hooks/useGetApi';
@@ -46,6 +48,9 @@ import notify from '../../../utils/notify';
 
 const InboxOutbox: React.FC = () => {
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [openBottomSheet2, setOpenBottomSheet2] = useState(false);
   const [videoViewerData, setVideoViewerData] = useState<{
     visible: boolean;
     videoUrl: string;
@@ -75,7 +80,7 @@ const InboxOutbox: React.FC = () => {
   const isInbox = params?.isInbox ?? true;
   const title = params?.title ?? (isInbox ? 'Inbox' : 'Outbox');
   const { styles, theme } = useStyles();
-  const { orders, isLoading, isRtl } = useInboxOutboxActions(isInbox);
+  const { orders, isLoading, isRtl, refetch } = useInboxOutboxActions(isInbox);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<InboxOrder | null>(null);
   const [selectedItem, setSelectedItem] = useState<InboxOrderItem | null>(null);
@@ -241,7 +246,50 @@ const InboxOutbox: React.FC = () => {
       visible: false,
     }));
   };
+  const _handleRedeemOrder = async () => {
+    if (!selectedItem) return;
+    if (loading) return;
+    setLoading(true);
+    const payload = {
+      orderid: selectedOrder?.OrderId,
+      orderPaymentType: 1,
+      IsRedeem: true,
+      RedeemQuantity: quantity,
+      Items: [
+        {
+          OrderItemId: selectedItem?.OrderItemId,
+          Quantity: quantity,
+        },
+      ],
+    };
+    try {
+      const response = await api.post<{
+        Data: {
+          GiftLink: string;
+          Message: string;
+          OrderId: number;
+          QrCode: string | null;
+          Success: boolean;
+          UniqueCode: string | null;
+        };
+      }>(apiEndpoints.INITIATE_CHECKOUT, payload);
 
+      if (response.success) {
+        setOpenBottomSheet2(false);
+        refetch();
+        notify.success(
+          response.data?.Data?.Message || 'Gift redeemed sucessfully',
+        );
+      } else {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+      }
+    } catch (error: any) {
+      console.error('Error initiating checkout:', error);
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <ParentView>
       {isInbox && (
@@ -382,6 +430,66 @@ const InboxOutbox: React.FC = () => {
             type="secondary"
             onPress={handleDeliveryPress}
             buttonStyle={{ backgroundColor: theme.colors.WHITE }}
+          />
+        </View>
+      </AppBottomSheet>
+      <AppBottomSheet
+        blurAmount={100}
+        isOpen={openBottomSheet2}
+        height={theme.sizes.HEIGHT * 0.18}
+        onClose={() => setOpenBottomSheet2(false)}
+      >
+        <View style={styles.bottomSheet}>
+          <View
+            style={{
+              ...styles.row,
+              flexDirection: rtlFlexDirection(isRtl),
+              gap: theme.sizes.PADDING,
+            }}
+          >
+            <Image
+              source={{
+                uri:
+                  selectedItem?.ThumbnailUrl ||
+                  selectedItem?.Images?.[0].ImageUrls?.[0],
+              }}
+              style={styles.redeemImage}
+            />
+            <Text style={styles.redeemText}>{selectedItem?.ItemName}</Text>
+            <View
+              style={[
+                styles.quantityControls,
+                { flexDirection: rtlFlexDirection(isRtl) },
+              ]}
+            >
+              <TouchableOpacity
+                onPress={() => setQuantity(quantity - 1)}
+                disabled={quantity <= 1}
+                style={{
+                  opacity: quantity <= 1 ? 0.5 : 1,
+                }}
+              >
+                <DecrementIcon />
+              </TouchableOpacity>
+              <Text style={styles.quantityValue}>
+                {`${quantity < 10 ? '0' : ''}${quantity}`}
+              </Text>
+              <TouchableOpacity
+                onPress={() => setQuantity(quantity + 1)}
+                disabled={quantity === selectedItem?.Quantity}
+                style={{
+                  opacity: quantity === selectedItem?.Quantity ? 0.5 : 1,
+                }}
+              >
+                <IncrementIcon />
+              </TouchableOpacity>
+            </View>
+          </View>
+          <CustomButton
+            loading={loading}
+            onPress={_handleRedeemOrder}
+            buttonStyle={{ marginTop: 'auto' }}
+            title="Redeem"
           />
         </View>
       </AppBottomSheet>

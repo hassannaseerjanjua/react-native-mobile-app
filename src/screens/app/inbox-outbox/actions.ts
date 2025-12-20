@@ -116,7 +116,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
       withAuth: true,
     },
   );
-
+const refetch=()=>getInboxOutboxDetails.refetch()
   const orders = getInboxOutboxDetails.data?.Items || [];
   const isLoading = getInboxOutboxDetails.loading;
 
@@ -124,5 +124,6 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
     orders,
     isLoading,
     isRtl,
+    refetch
   };
 };

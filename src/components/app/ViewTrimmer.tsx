@@ -17,7 +17,7 @@ interface ViewTrimmerProps {
 const ViewTrimmer = ({
   videoUrl,
   onSaveVideo,
-  onCancel = () => {},
+  onCancel = () => { },
 }: ViewTrimmerProps) => {
   const theme = useTheme();
   const videoRef = useRef<VideoRef | null>(null);
@@ -28,6 +28,8 @@ const ViewTrimmer = ({
 
   const { TrimmerUIComponent, onCurrentPositionChange } = useTrimmer({
     totalDuration: duration || 0,
+    trimStart: startTime,
+    trimEnd: endTime || duration || 0,
     onTrimChange: (start, end) => {
       setStartTime(start);
       videoRef.current?.seek(start);
@@ -88,7 +90,7 @@ const ViewTrimmer = ({
         <Video
           ref={videoRef}
           source={{ uri: videoUrl }}
-          style={{ height: '100%', width: '100%', backgroundColor: 'blue' }}
+          style={{ height: '100%', width: theme.sizes.WIDTH }}
           onLoad={e => {
             if (duration === null) {
               setDuration(e.duration);
