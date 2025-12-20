@@ -1,6 +1,7 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios';
 import apiEndpoints from '../constants/api-endpoints';
 import { store } from '../store/store';
+import { logout } from '../store/reducer/auth';
 
 const axiosInter = axios.create({
   baseURL: apiEndpoints.BASE_URL,
@@ -76,6 +77,10 @@ const caller = async <T>(
       err?.message ||
       'Something went wrong';
 
+    if (err?.response?.status === 401) {
+      errorMessage = 'Session expired. Please login again.';
+      store.dispatch(logout());
+    }
     if (err?.response?.status === 413) {
       errorMessage = 'File size is too large. Please use a smaller image.';
     }

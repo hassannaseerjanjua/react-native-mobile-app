@@ -136,6 +136,11 @@ const SettingsScreen: React.FC = () => {
               token: token,
             }),
           );
+
+          notify.success('Profile updated successfully');
+          setTimeout(() => {
+            navigation.goBack();
+          }, 500);
         } else if (response.failed) {
           notify.error(response.error || getString('AU_ERROR_OCCURRED'));
         }
