@@ -93,6 +93,7 @@ export type AppStackParamList = {
   };
   ScanQr: {
     OrderId?: number | null;
+    UniqueCode?: string | null;
     productImage?: any;
     storeName?: string;
     quantity?: number;

@@ -8,13 +8,16 @@ import { StackActions, useNavigation } from '@react-navigation/native';
 import { scaleWithMax } from '../../../utils';
 import { Text } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
-import api from '../../../utils/api';
-import apiEndpoints from '../../../constants/api-endpoints';
-import { QrCodeApiResponse, QrCodeData } from '../../../types';
 import QRCode from 'react-native-qrcode-svg';
+
+interface QrCodeData {
+  OrderId: number;
+  UniqueCode: string;
+}
 
 const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
   const orderId = route?.params?.OrderId ?? null;
+  const uniqueCode = route?.params?.UniqueCode ?? null;
   const productImage = route?.params?.productImage;
   const storeName = route?.params?.storeName;
   const quantity = route?.params?.quantity ?? 1;
@@ -23,49 +26,15 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
   const navigation = useNavigation();
   const defaultImage = require('../../../assets/images/qr-product-dummy.png');
   const [qrCodeData, setQrCodeData] = useState<QrCodeData | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const getQrCode = async () => {
-    if (!orderId) {
-      setError('Order ID is required');
-      setLoading(false);
-      return;
-    }
-
-    try {
-      setLoading(true);
-      setError(null);
-      const response = await api.post<any>(
-        apiEndpoints.GENERATE_QR_CODE(orderId),
-        {
-          orderId: orderId,
-        },
-      );
-
-      console.log('QR Code API Response:', JSON.stringify(response, null, 2));
-
-      if (response.success && response.data) {
-        const qrData = response.data?.Data;
-        if (qrData && qrData.QrCodeBase64) {
-          setQrCodeData(qrData);
-        } else {
-          setError('QR code data not found in response');
-        }
-      } else {
-        setError(response.error || 'Failed to generate QR code');
-      }
-    } catch (err: any) {
-      console.error('Error fetching QR code:', err);
-      setError(err?.message || 'An error occurred');
-    } finally {
-      setLoading(false);
-    }
-  };
 
   useEffect(() => {
-    getQrCode();
-  }, [orderId]);
+    if (orderId && uniqueCode) {
+      setQrCodeData({
+        OrderId: orderId,
+        UniqueCode: uniqueCode,
+      });
+    }
+  }, [orderId, uniqueCode]);
 
   return (
     <ParentView>
@@ -74,8 +43,8 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
         showBackButton={false}
         rightSideIcon={<SvgProfileCrossIcon />}
         rightSideTitle={true as any}
-        onBackPress={() => navigation.dispatch(StackActions.popToTop())}
-        rightSideTitlePress={() => navigation.dispatch(StackActions.popToTop())}
+        onBackPress={() => navigation.goBack()}
+        rightSideTitlePress={() => navigation.goBack()}
       />
       <View
         style={{
@@ -94,41 +63,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
         </Text>
 
         <View style={styles.QrContainer}>
-          {loading ? (
-            <View
-              style={{
-                height: scaleWithMax(270, 275),
-                width: scaleWithMax(270, 275),
-                backgroundColor: '#f0f0f0',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Text style={{ color: theme.colors.SECONDARY_TEXT }}>
-                Loading...
-              </Text>
-            </View>
-          ) : error ? (
-            <View
-              style={{
-                height: scaleWithMax(270, 275),
-                width: scaleWithMax(270, 275),
-                backgroundColor: '#f0f0f0',
-                justifyContent: 'center',
-                alignItems: 'center',
-                padding: theme.sizes.PADDING,
-              }}
-            >
-              <Text
-                style={{
-                  color: '#ff0000',
-                  textAlign: 'center',
-                }}
-              >
-                {error}
-              </Text>
-            </View>
-          ) : qrCodeData?.OrderId && qrCodeData?.UniqueCode ? (
+          {qrCodeData?.OrderId && qrCodeData?.UniqueCode ? (
             <QRCode
               value={`${qrCodeData.OrderId}:${qrCodeData.UniqueCode}`}
               size={scaleWithMax(270, 275)}

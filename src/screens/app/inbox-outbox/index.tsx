@@ -18,6 +18,8 @@ import {
   RoundedBackIcon,
   SmsTrackingIcon,
   SvgOutboxShareIcon,
+  PlusIcon,
+  MinusIcon,
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
@@ -39,6 +41,8 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import useGetApi from '../../../hooks/useGetApi';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useDebounceClick from '../../../hooks/useDebounceClick';
+import api from '../../../utils/api';
+import notify from '../../../utils/notify';
 
 const InboxOutbox: React.FC = () => {
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
@@ -75,6 +79,7 @@ const InboxOutbox: React.FC = () => {
   const [orderId, setOrderId] = useState<number | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<InboxOrder | null>(null);
   const [selectedItem, setSelectedItem] = useState<InboxOrderItem | null>(null);
+  const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
   // Fetch all filters to get filter image URLs
   const filtersApi = useGetApi<GiftFilter[]>(apiEndpoints.GET_ALL_FILTERS, {
     transformData: (data: any) => data.Data?.Items || data.Data || [],
@@ -99,6 +104,7 @@ const InboxOutbox: React.FC = () => {
 
     setSelectedItem(itemId);
     setSelectedOrder(selectedOrder);
+    setSelectedQuantity(itemId.Quantity); // Initialize with item's quantity
 
     setOpenBottomSheet(true);
   };
@@ -107,19 +113,77 @@ const InboxOutbox: React.FC = () => {
     setOpenBottomSheet(false);
   };
 
-  const handlePickUpPress = () => {
-    if (!selectedItem || !selectedOrder) return;
-    const productImage = getMainImage(selectedItem);
-    const storeName = getStoreName(selectedOrder, isRtl);
+  const handleQuantityChange = (type: 'increment' | 'decrement') => {
+    if (!selectedItem) return;
 
-    (navigation as any).navigate('ScanQr', {
-      OrderId: orderId,
-      productImage,
-      storeName,
-      quantity: selectedItem.Quantity,
-      productName: selectedOrder?.Items?.[0]?.ItemName,
-    });
-    setOpenBottomSheet(false);
+    if (type === 'increment') {
+      if (selectedQuantity < selectedItem.Quantity) {
+        setSelectedQuantity(prevQuantity => prevQuantity + 1);
+      }
+    } else {
+      if (selectedQuantity > 1) {
+        setSelectedQuantity(prevQuantity => prevQuantity - 1);
+      }
+    }
+  };
+
+  const handlePickUpPress = async () => {
+    if (!selectedItem || !selectedOrder || !orderId) return;
+
+    try {
+      const payload = {
+        orderid: orderId,
+        orderPaymentType: 1, // Hardcoded
+        IsRedeem: true,
+        RedeemQuantity: selectedQuantity,
+        Items: [
+          {
+            OrderItemId: selectedItem.OrderItemId,
+            Quantity: selectedQuantity,
+          },
+        ],
+      };
+
+      const response = await api.post<any>(apiEndpoints.INIT_ORDER_v2, payload);
+      const responseData = (response.data as any) || {};
+
+      if (response.success && responseData.Data) {
+        const data = responseData.Data;
+        const responseOrderId = data.OrderId;
+        const uniqueCode = data.UniqueCode;
+
+        if (responseOrderId && uniqueCode) {
+          const productImage = getMainImage(selectedItem);
+          const storeName = getStoreName(selectedOrder, isRtl);
+
+          (navigation as any).navigate('ScanQr', {
+            OrderId: responseOrderId,
+            UniqueCode: uniqueCode,
+            productImage,
+            storeName,
+            quantity: selectedQuantity,
+            productName: selectedOrder?.Items?.[0]?.ItemName,
+          });
+          setOpenBottomSheet(false);
+        } else {
+          notify.error(
+            data.Message ||
+              responseData.ResponseMessage ||
+              'Failed to generate QR code',
+          );
+        }
+      } else {
+        const errorMessage =
+          responseData.Data?.Message ||
+          responseData.ResponseMessage ||
+          response.error ||
+          'Failed to redeem item';
+        notify.error(errorMessage);
+      }
+    } catch (error: any) {
+      console.error('Error redeeming item:', error);
+      notify.error(error?.message || 'An error occurred while redeeming item');
+    }
   };
 
   const handleDeliveryPress = () => {
@@ -219,7 +283,7 @@ const InboxOutbox: React.FC = () => {
       ) : (
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={orders}
+          data={orders.filter(order => order.Items && order.Items.length > 0)}
           renderItem={({ item, index }) => (
             <InboxItem
               isLast={index === orders.length - 1}
@@ -258,11 +322,60 @@ const InboxOutbox: React.FC = () => {
       <AppBottomSheet
         blurAmount={100}
         isOpen={openBottomSheet}
-        height={theme.sizes.HEIGHT * 0.3}
-        snapPoints={['20%']}
+        height={
+          selectedItem?.Quantity && selectedItem?.Quantity > 1
+            ? theme.sizes.HEIGHT * 0.45
+            : theme.sizes.HEIGHT * 0.3
+        }
+        snapPoints={
+          selectedItem?.Quantity && selectedItem?.Quantity > 1
+            ? ['28%']
+            : ['20%']
+        }
         onClose={handleCloseBottomSheet}
       >
         <View style={styles.bottomSheet}>
+          {selectedItem && selectedItem.Quantity > 1 && (
+            <View style={styles.quantityContainer}>
+              <Text style={styles.quantityLabel}>Quantity:</Text>
+              <View style={styles.quantitySelector}>
+                <TouchableOpacity
+                  onPress={() => handleQuantityChange('decrement')}
+                  disabled={selectedQuantity <= 1}
+                  style={[
+                    styles.quantityButton,
+                    selectedQuantity <= 1 && styles.quantityButtonDisabled,
+                  ]}
+                >
+                  <MinusIcon
+                    width={scaleWithMax(20, 22)}
+                    height={scaleWithMax(20, 22)}
+                    fill={selectedQuantity <= 1 ? '#ccc' : theme.colors.PRIMARY}
+                  />
+                </TouchableOpacity>
+                <Text style={styles.quantityText}>{selectedQuantity}</Text>
+                <TouchableOpacity
+                  onPress={() => handleQuantityChange('increment')}
+                  disabled={selectedQuantity >= selectedItem.Quantity}
+                  style={[
+                    styles.quantityButton,
+                    selectedQuantity >= selectedItem.Quantity &&
+                      styles.quantityButtonDisabled,
+                  ]}
+                >
+                  <PlusIcon
+                    width={scaleWithMax(20, 22)}
+                    height={scaleWithMax(20, 22)}
+                    fill={
+                      selectedQuantity >= selectedItem.Quantity
+                        ? '#ccc'
+                        : theme.colors.PRIMARY
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
           <CustomButton title="Pick Up" onPress={handlePickUpPress} />
           <CustomButton
             title="Delivery"

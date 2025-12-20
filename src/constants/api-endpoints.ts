@@ -68,6 +68,8 @@ const apiEndpoints = {
   GET_CART_COUNT: `/${version}/Home/GetCartItemCount`,
   CLEAR_CART: `/${version}/User/ClearCart`,
 
+  INIT_ORDER_v2: `/${version}/User/InitOrderV2`,
+
   // catch
   ADD_CAMPAIGN_TO_CART: `/${version}/User/AddCampaignToCart`,
 

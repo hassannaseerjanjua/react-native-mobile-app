@@ -160,6 +160,41 @@ const useStyles = () => {
         width: scaleWithMax(8, 8),
         borderRadius: scaleWithMax(4, 4),
       },
+      quantityContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        marginBottom: sizes.PADDING * 0.5,
+        paddingVertical: sizes.PADDING * 0.5,
+      },
+      quantityLabel: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        fontSize: sizes.FONTSIZE,
+        color: theme.colors.BLACK,
+      },
+      quantitySelector: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: sizes.PADDING * 0.8,
+        borderWidth: 1.3,
+        borderColor: theme.colors.PRIMARY,
+        borderRadius: 10,
+        paddingHorizontal: sizes.PADDING * 0.6,
+        paddingVertical: sizes.PADDING * 0.4,
+      },
+      quantityButton: {
+        padding: sizes.PADDING * 0.2,
+      },
+      quantityButtonDisabled: {
+        opacity: 0.5,
+      },
+      quantityText: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        fontSize: sizes.FONTSIZE_MED_HIGH,
+        color: theme.colors.PRIMARY,
+        minWidth: scaleWithMax(30, 35),
+        textAlign: 'center',
+      },
     }),
     theme,
   };
