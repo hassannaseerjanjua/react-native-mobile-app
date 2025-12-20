@@ -7,6 +7,7 @@ import useTheme from '../../styles/theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import useTrimmer from './Timmer';
+import { withFilePrefix } from '../../utils';
 
 interface ViewTrimmerProps {
   videoUrl: string;
@@ -17,7 +18,7 @@ interface ViewTrimmerProps {
 const ViewTrimmer = ({
   videoUrl,
   onSaveVideo,
-  onCancel = () => { },
+  onCancel = () => {},
 }: ViewTrimmerProps) => {
   const theme = useTheme();
   const videoRef = useRef<VideoRef | null>(null);
@@ -48,17 +49,13 @@ const ViewTrimmer = ({
       duration,
     });
 
-    const inputPath =
-      Platform.OS === 'ios' && !videoUrl.startsWith('file://')
-        ? `file://${videoUrl}`
-        : videoUrl;
+    const inputPath = withFilePrefix(videoUrl);
 
     if (!duration) {
       console.log('duration is null');
       return;
     }
 
-    // Convert seconds to milliseconds (react-native-video-trim expects ms)
     const trimStartMs = startTime * 1000;
     const trimEndMs = (endTime ?? duration) * 800;
 
@@ -71,7 +68,7 @@ const ViewTrimmer = ({
       });
 
       console.log('Trim result:', trimmedVideo);
-      onSaveVideo(trimmedVideo.outputPath);
+      onSaveVideo(withFilePrefix(trimmedVideo.outputPath));
     } catch (error) {
       console.log('Trim error:', error);
     }

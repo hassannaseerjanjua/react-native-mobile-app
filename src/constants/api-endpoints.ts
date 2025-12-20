@@ -69,6 +69,8 @@ const apiEndpoints = {
   CLEAR_CART: `/${version}/User/ClearCart`,
 
   INIT_ORDER_v2: `/${version}/User/InitOrderV2`,
+  GET_GIFT_DETAILS: (giftToken: string) =>
+    `/${version}/User/gift-info?gifttoken=${giftToken}`,
 
   // catch
   ADD_CAMPAIGN_TO_CART: `/${version}/User/AddCampaignToCart`,

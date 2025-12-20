@@ -18,7 +18,7 @@ export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
       BottomTabs: {
         path: 'home',
         screens: {
-          Home: '',  // giftee://home goes directly to Home tab
+          Home: '', // giftee://home goes directly to Home tab
           Favorites: 'favorites',
           Occasions: 'occasions',
           Notifications: 'notifications',

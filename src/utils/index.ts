@@ -37,3 +37,10 @@ export const dynamicArrayItem = (item: any, condition: boolean) => {
 };
 
 export * from './rtl';
+
+export const withFilePrefix = (uri: string) => {
+  if (uri.startsWith('file://')) {
+    return uri;
+  }
+  return `file://${uri}`;
+};

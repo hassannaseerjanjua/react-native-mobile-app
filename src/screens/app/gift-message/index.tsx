@@ -12,6 +12,7 @@ import {
   ScrollView,
   Alert,
   InteractionManager,
+  Animated,
 } from 'react-native';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -30,7 +31,12 @@ import ParentView from '../../../components/app/ParentView';
 import { Text } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { useLocaleStore } from '../../../store/reducer/locale';
-import { rtlPosition, scaleWithMax, rtlMargin } from '../../../utils';
+import {
+  rtlPosition,
+  scaleWithMax,
+  rtlMargin,
+  withFilePrefix,
+} from '../../../utils';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
 import { GiftFilter, CartResponse } from '../../../types/index';
@@ -50,11 +56,14 @@ import ConfirmationModal from '../../../components/global/ConfirmationModal';
 import { useVisionCamera } from '../../../hooks/useCamera';
 import { Camera } from 'react-native-vision-camera';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
+import Svg, { Circle } from 'react-native-svg';
 import {
   saveGiftMessageData,
   loadGiftMessageData,
 } from '../../../utils/giftMessageStorage';
 import ViewTrimmer from '../../../components/app/ViewTrimmer';
+
+const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const MAX_VIDEO_DURATION = 15;
 
@@ -136,9 +145,13 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   const [showCamera, setShowCamera] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [isRecordingPaused, setIsRecordingPaused] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
   const videoViewerRef = useRef<{ preload: (url: string) => void } | null>(
     null,
   );
+
+  // Animation for recording progress
+  const recordingProgress = useRef(new Animated.Value(0)).current;
 
   const {
     recordVideo,
@@ -154,6 +167,14 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   const [startRecordingAfterReady, setStartRecordingAfterReady] = useState<
     null | (() => void)
   >(null);
+
+  // Cleanup: Ensure timer is stopped when camera is closed
+  useEffect(() => {
+    if (!showCamera && isRecording) {
+      setIsRecording(false);
+      recordingProgress.setValue(0);
+    }
+  }, [showCamera, isRecording]);
 
   // Load saved data when orderId is available
   useEffect(() => {
@@ -379,7 +400,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           : compressedUri;
 
       const videoFile = {
-        uri: processedUri,
+        uri: withFilePrefix(processedUri),
         type: 'video/mp4',
         name: fileName || `video_${Date.now()}.mp4`,
       };
@@ -471,12 +492,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   };
 
   const handleOpenPopup = useCallback(() => {
-    if (sendMessagePayload.VideoFile) {
-      setSelectedVideo(sendMessagePayload.VideoFile.uri);
-    } else {
-      setPopupVisible(true);
-    }
-  }, [sendMessagePayload.VideoFile]);
+    // Always show popup - content changes based on whether video exists
+    setPopupVisible(true);
+  }, []);
 
   const hasContent =
     sendMessagePayload.ImageFilterId !== null ||
@@ -572,7 +590,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         videoUrl={selectedVideo}
         onSaveVideo={trimmedPath => {
           const videoFile = {
-            uri: trimmedPath, // use the trimmed file
+            uri: withFilePrefix(trimmedPath),
             type: 'video/mp4',
             name:
               sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`,
@@ -627,14 +645,16 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   setShowCamera(false);
                 }}
               />
+              {/* Done button - removed timer display */}
               <View style={styles.timer}>
-                <Text style={styles.timerText}>{formatTime(timer)}</Text>
                 <TouchableOpacity
                   onPress={() => {
                     console.log('🛑 Stop button pressed');
                     cancelRecording();
                     setIsVideoCancelled(true);
                     setShowCamera(false);
+                    setIsRecording(false);
+                    recordingProgress.setValue(0);
                   }}
                   style={styles.crossButton}
                 >
@@ -646,39 +666,123 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 </TouchableOpacity>
               </View>
 
-              {/* Recording Play/Pause Control Button */}
-              {/* <View style={{
-                position: 'absolute',
-                bottom: 100,
-                alignSelf: 'center',
-                zIndex: 1000,
-              }}>
+              {/* Recording Button with Progress Border */}
+              <View style={styles.recordButtonContainer}>
                 <TouchableOpacity
-                  onPress={() => setIsRecordingPaused(prev => !prev)}
-                  activeOpacity={0.8}
-                  style={{
-                    width: 60,
-                    height: 60,
-                    borderRadius: 30,
-                    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    shadowColor: '#000',
-                    shadowOffset: { width: 0, height: 2 },
-                    shadowOpacity: 0.25,
-                    shadowRadius: 4,
-                    elevation: 5,
-                    borderWidth: 2,
-                    borderColor: 'rgba(255, 255, 255, 0.3)',
+                  onPress={() => {
+                    if (!isRecording) {
+                      // Start recording
+                      setIsRecording(true);
+
+                      // Animate progress border over 15 seconds
+                      Animated.timing(recordingProgress, {
+                        toValue: 1,
+                        duration: MAX_VIDEO_DURATION * 1000,
+                        useNativeDriver: false,
+                      }).start();
+
+                      // Start actual video recording
+                      recordVideo(
+                        {
+                          onRecordingFinished: video => {
+                            console.log('Recording finished:', video);
+                            setIsRecording(false);
+                            recordingProgress.setValue(0);
+
+                            // Handle the recorded video
+                            if (isVideoCancelled) {
+                              setIsVideoCancelled(false);
+                              setShowCamera(false);
+                              return;
+                            }
+
+                            console.log('Video recorded:', video);
+                            setShowCamera(false);
+
+                            if (!video?.path) {
+                              notify.error(getString('AU_ERROR_OCCURRED'));
+                              return;
+                            }
+
+                            const videoUri = 'file://' + video.path;
+                            compressVideo(videoUri, `video_${Date.now()}.mp4`);
+                          },
+                          onRecordingError: error => {
+                            console.error('Recording error:', error);
+                            setIsRecording(false);
+                            recordingProgress.setValue(0);
+                            notify.error('Recording failed');
+                          },
+                        },
+                        MAX_VIDEO_DURATION,
+                      );
+                    } else {
+                      // Stop recording manually
+                      cancelRecording();
+                      setIsRecording(false);
+                      recordingProgress.setValue(0);
+                    }
                   }}
+                  activeOpacity={0.8}
+                  style={styles.recordButton}
                 >
-                  {isRecordingPaused ? (
-                    <PlayIcon size={30} color="#FFFFFF" />
-                  ) : (
-                    <PauseIcon size={30} color="#FFFFFF" />
+                  {/* Animated Progress Border - Circular fill using SVG */}
+                  {isRecording && (
+                    <Animated.View
+                      style={{
+                        position: 'absolute',
+                        width: scaleWithMax(70, 80),
+                        height: scaleWithMax(70, 80),
+                      }}
+                    >
+                      <Svg
+                        width={scaleWithMax(70, 80)}
+                        height={scaleWithMax(70, 80)}
+                        style={{ transform: [{ rotate: '-90deg' }] }}
+                      >
+                        {/* Background circle */}
+                        <Circle
+                          cx={scaleWithMax(35, 40)}
+                          cy={scaleWithMax(35, 40)}
+                          r={scaleWithMax(33, 38)}
+                          stroke="rgba(255, 255, 255, 0.3)"
+                          strokeWidth="4"
+                          fill="transparent"
+                        />
+                        {/* Progress circle */}
+                        <AnimatedCircle
+                          cx={scaleWithMax(35, 40)}
+                          cy={scaleWithMax(35, 40)}
+                          r={scaleWithMax(33, 38)}
+                          stroke="#FF0000"
+                          strokeWidth="4"
+                          fill="transparent"
+                          strokeDasharray={`${
+                            2 * Math.PI * scaleWithMax(33, 38)
+                          }`}
+                          strokeDashoffset={recordingProgress.interpolate({
+                            inputRange: [0, 1],
+                            outputRange: [
+                              2 * Math.PI * scaleWithMax(33, 38),
+                              0,
+                            ],
+                          })}
+                          strokeLinecap="round"
+                        />
+                      </Svg>
+                    </Animated.View>
                   )}
+
+                  {/* Inner Button */}
+                  <View
+                    style={
+                      isRecording
+                        ? styles.recordButtonInnerRecording
+                        : styles.recordButtonInner
+                    }
+                  />
                 </TouchableOpacity>
-              </View> */}
+              </View>
             </>
           ) : (
             <View
@@ -723,15 +827,40 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           <ConfirmationModal
             key={popupVisible ? 'open' : 'closed'}
             visible={popupVisible}
-            title={'select'}
-            message={'Select how you want the video'}
-            confirmText={'from Gallery'}
-            cancelText={'from Camera'}
-            onConfirm={handleVideoSelect}
+            title={sendMessagePayload.VideoFile ? 'Video Options' : 'Select'}
+            message={
+              sendMessagePayload.VideoFile
+                ? 'Choose what to do with your video'
+                : 'Select how you want the video'
+            }
+            confirmText={
+              sendMessagePayload.VideoFile ? 'Trim Video' : 'from Gallery'
+            }
+            cancelText={
+              sendMessagePayload.VideoFile ? 'Retake Video' : 'from Camera'
+            }
+            onConfirm={() => {
+              setPopupVisible(false);
+              if (sendMessagePayload.VideoFile) {
+                // Trim video - open ViewTrimmer
+                setSelectedVideo(sendMessagePayload.VideoFile.uri);
+              } else {
+                // Select from gallery
+                handleVideoSelect();
+              }
+            }}
             onCancel={() => setPopupVisible(false)}
             onbtn2Press={async () => {
               // Close the popup first
               setPopupVisible(false);
+
+              if (sendMessagePayload.VideoFile) {
+                // Retake video - clear existing and open camera
+                setSendMessagePayload({
+                  ...sendMessagePayload,
+                  VideoFile: undefined,
+                });
+              }
 
               // Request camera permissions first
               await requestPermission();
@@ -886,12 +1015,29 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                         </Text>
                       </View>
                     ) : (
-                      <SvgAddGiftMessageIcon
-                        style={[
-                          styles.cameraIcon,
-                          rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
-                        ]}
-                      />
+                      <View
+                        style={{
+                          position: 'relative',
+                          backgroundColor: 'blue',
+                        }}
+                      >
+                        <SvgAddGiftMessageIcon
+                          style={[
+                            styles.cameraIcon,
+                            rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
+                          ]}
+                        />
+                        {/* Badge when video is added */}
+                        {sendMessagePayload.VideoFile && (
+                          <View
+                            style={{
+                              ...styles.videoBadge,
+                            }}
+                          >
+                            <Text style={styles.videoBadgeText}>1</Text>
+                          </View>
+                        )}
+                      </View>
                     )}
                   </TouchableOpacity>
                 </View>
@@ -921,7 +1067,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                             onPress={async () => {
                               const newFilterId =
                                 sendMessagePayload.ImageFilterId ===
-                                  filter.FilterId
+                                filter.FilterId
                                   ? null
                                   : filter.FilterId;
                               setSendMessagePayload(prev => ({
@@ -944,7 +1090,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                                 {
                                   borderWidth:
                                     filter.FilterId ===
-                                      sendMessagePayload.ImageFilterId
+                                    sendMessagePayload.ImageFilterId
                                       ? 2
                                       : 0,
                                   borderColor: theme.colors.PRIMARY,

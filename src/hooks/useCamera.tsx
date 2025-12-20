@@ -135,10 +135,7 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
     try {
       console.log('⏹ Cancelling recording...');
 
-      if (cameraRef.current) {
-        await cameraRef.current.stopRecording();
-      }
-
+      // Clear the timer interval first to stop console logging
       if (timerRef.current) {
         clearInterval(timerRef.current);
         timerRef.current = null;
@@ -146,11 +143,21 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
 
       setRecordingDuration(0);
       setTimer(0);
+
+      if (cameraRef.current) {
+        await cameraRef.current.stopRecording();
+      }
+
       setIsCameraActive(false);
 
       console.log('Recording cancelled');
     } catch (err) {
       console.warn('Error cancelling recording:', err);
+      // Ensure timer is cleared even on error
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
     }
   };
   // Record video
@@ -176,11 +183,11 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
       setRecordingDuration(0);
       console.log('🎬 Starting recording...');
       setTimer(durationLimitSeconds || 0);
-      // Start timer
+      // Start timer only when recording is actually started
       timerRef.current = setInterval(() => {
         setRecordingDuration(prev => {
           const next = prev + 1;
-          console.log('timer', next);
+          // Removed console.log to reduce noise
           setTimer(prev => prev - 1);
           if (durationLimitSeconds && next >= durationLimitSeconds) {
             stopRecording();
