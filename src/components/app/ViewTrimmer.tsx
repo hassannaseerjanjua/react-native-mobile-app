@@ -1,5 +1,5 @@
 import { Platform, Text, TouchableOpacity, View } from 'react-native';
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { trim } from 'react-native-video-trim';
 import Video, { VideoRef } from 'react-native-video';
 import ParentView from './ParentView';
@@ -8,6 +8,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import useTrimmer from './Timmer';
 import { withFilePrefix } from '../../utils';
+
+const MAX_VIDEO_DURATION = 15; // Maximum trim duration in seconds
 
 interface ViewTrimmerProps {
   videoUrl: string;
@@ -32,15 +34,28 @@ const ViewTrimmer = ({
     trimStart: startTime,
     trimEnd: endTime || duration || 0,
     onTrimChange: (start, end) => {
+      // Enforce 15-second maximum trim duration
+      const maxEnd = start + MAX_VIDEO_DURATION;
+      const actualEnd = Math.min(end, maxEnd, duration || Infinity);
+
       setStartTime(start);
       videoRef.current?.seek(start);
-      setEndTime(end);
+      setEndTime(actualEnd);
 
       console.log('start', start);
-      console.log('end', end);
+      console.log('end', actualEnd);
       console.log('duration', duration);
+      console.log('max allowed', MAX_VIDEO_DURATION);
     },
   });
+
+  // Initialize endTime to max 15 seconds when duration is loaded
+  useEffect(() => {
+    if (duration !== null) {
+      const initialEnd = Math.min(duration, startTime + MAX_VIDEO_DURATION);
+      setEndTime(initialEnd);
+    }
+  }, [duration]);
 
   const saveVideo = async () => {
     console.log('saveVideo called with state:', {
@@ -56,10 +71,16 @@ const ViewTrimmer = ({
       return;
     }
 
+    // Ensure trimmed duration doesn't exceed 15 seconds
+    const finalEndTime = endTime ?? duration;
+    const maxAllowedEnd = startTime + MAX_VIDEO_DURATION;
+    const actualEndTime = Math.min(finalEndTime, maxAllowedEnd, duration);
+
     const trimStartMs = startTime * 1000;
-    const trimEndMs = (endTime ?? duration) * 800;
+    const trimEndMs = actualEndTime * 1000;
 
     console.log('Trimming with (ms):', { trimStartMs, trimEndMs, inputPath });
+    console.log('Trim duration:', actualEndTime - startTime, 'seconds');
 
     try {
       const trimmedVideo = await trim(inputPath, {
@@ -90,8 +111,14 @@ const ViewTrimmer = ({
           style={{ height: '100%', width: theme.sizes.WIDTH }}
           onLoad={e => {
             if (duration === null) {
-              setDuration(e.duration);
-              setEndTime(e.duration);
+              const videoDuration = e.duration;
+              setDuration(videoDuration);
+              // Set initial endTime to max 15 seconds from start
+              const initialEnd = Math.min(
+                videoDuration,
+                startTime + MAX_VIDEO_DURATION,
+              );
+              setEndTime(initialEnd);
             }
           }}
           onProgress={data => {

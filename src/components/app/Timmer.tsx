@@ -24,6 +24,8 @@ const TRACK_HEIGHT = scaleWithMax(4, 6);
 
 const AnimatedLine = Animated.createAnimatedComponent(Line);
 
+const MAX_TRIM_DURATION = 15; // Maximum trim duration in seconds
+
 interface TrimmerProps {
   totalDuration: number;
   trimStart: number;
@@ -45,10 +47,16 @@ export default function useTrimmer({
 
   const activeKnob = useSharedValue<'left' | 'right' | null>(null);
   const lastTranslation = useSharedValue(0);
-  // useEffect(() => {
-  //   leftX.value = (trimStart / totalDuration) * TRACK_WIDTH;
-  //   rightX.value = (trimEnd / totalDuration) * TRACK_WIDTH;
-  // }, [trimStart, trimEnd, totalDuration]); // added to save the trimming state but wasnt able to test
+  
+  // Initialize knob positions based on trim values
+  useEffect(() => {
+    if (totalDuration > 0) {
+      leftX.value = (trimStart / totalDuration) * TRACK_WIDTH;
+      // Ensure right knob respects 15-second max
+      const maxEnd = Math.min(trimEnd, trimStart + MAX_TRIM_DURATION);
+      rightX.value = (maxEnd / totalDuration) * TRACK_WIDTH;
+    }
+  }, [trimStart, trimEnd, totalDuration]);
   // ------------------ GESTURE ------------------
   const pan = Gesture.Pan()
     .activeOffsetX([-5, 5]) // ignore tiny accidental drags
@@ -69,6 +77,11 @@ export default function useTrimmer({
         let x = leftX.value + delta;
         if (x < 0) x = 0;
         if (x > rightX.value - KNOB_SIZE) x = rightX.value - KNOB_SIZE;
+        
+        // Enforce 15-second maximum trim duration
+        const minLeftX = rightX.value - (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH;
+        if (x < minLeftX) x = minLeftX;
+        
         leftX.value = x;
       }
 
@@ -76,6 +89,11 @@ export default function useTrimmer({
         let x = rightX.value + delta;
         if (x < leftX.value + KNOB_SIZE) x = leftX.value + KNOB_SIZE;
         if (x > TRACK_WIDTH) x = TRACK_WIDTH;
+        
+        // Enforce 15-second maximum trim duration
+        const maxRightX = leftX.value + (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH;
+        if (x > maxRightX) x = maxRightX;
+        
         rightX.value = x;
       }
     })

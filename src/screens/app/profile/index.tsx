@@ -114,16 +114,15 @@ const ProfileScreen: React.FC = () => {
     setIsUploading(true);
 
     const formData = new FormData();
-    // formData.append('File', {
-    //   uri:
-    //     Platform.OS === 'ios'
-    //       ? asset.uri?.replace('file://', '') || ''
-    //       : asset.uri || '',
-    //   type: asset.type || 'image/jpeg',
-    //   name: asset.fileName || `profile_image_${Date.now()}.jpg`,
-    // });
+    formData.append('File', {
+      uri:
+        Platform.OS === 'ios'
+          ? asset.uri?.replace('file://', '') || ''
+          : asset.uri || '',
+      type: asset.type || 'image/jpeg',
+      name: asset.fileName || `profile_image_${Date.now()}.jpg`,
+    });
 
-    formData.append('File', null);
     api
       .put<UpdateProfileApiResponse>(
         apiEndpoints.UPDATE_PROFILE_IMAGE,

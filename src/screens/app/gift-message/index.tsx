@@ -340,8 +340,15 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     });
   };
 
-  const compressVideo = async (videoUri: string, fileName: string) => {
-    console.log('[GiftMessage] Starting video compression:', { videoUri });
+  const compressVideo = async (
+    videoUri: string,
+    fileName: string,
+    autoOpenTrim: boolean = false,
+  ) => {
+    console.log('[GiftMessage] Starting video compression:', {
+      videoUri,
+      autoOpenTrim,
+    });
     setIsCompressing(true);
     setCompressionProgress(0);
 
@@ -385,6 +392,12 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         }
         return updated;
       });
+
+      // Auto-open trim screen if video is longer than 15 seconds
+      if (autoOpenTrim) {
+        console.log('[GiftMessage] Auto-opening trim screen for long video');
+        setSelectedVideo(withFilePrefix(processedUri));
+      }
     } catch (error: any) {
       console.error('[GiftMessage] Video compression failed:', error);
       notify.error('Failed to process video. Please try again.');
@@ -440,21 +453,19 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               fileName: asset.fileName,
             });
 
-            // Validate duration (backup check in case durationLimit doesn't work)
-            if (duration > MAX_VIDEO_DURATION) {
-              notify.error(
-                `Video must be ${MAX_VIDEO_DURATION} seconds or less. Selected video is ${Math.round(
-                  duration,
-                )} seconds.`,
-              );
-              return;
-            }
-
             const videoUri = asset.uri || '';
             const fileName = asset.fileName || `video_${Date.now()}.mp4`;
 
+            // Check if video is longer than 15 seconds
+            const shouldAutoTrim = duration > MAX_VIDEO_DURATION;
+            if (shouldAutoTrim) {
+              console.log(
+                `[GiftMessage] Video is ${duration}s, will auto-open trim screen`,
+              );
+            }
+
             // Compress the video before setting it
-            await compressVideo(videoUri, fileName);
+            await compressVideo(videoUri, fileName, shouldAutoTrim);
           }
         },
       );
