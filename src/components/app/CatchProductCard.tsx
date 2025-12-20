@@ -29,14 +29,17 @@ interface FavoriteProductCardProps {
     discountedPrice: number;
     isGift: boolean;
     subTitle2: string;
+    catchItem?: any;
   };
   onPress: (item: any) => void;
+  onCatchPress?: (item: any) => void;
   loading?: boolean;
 }
 
 const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
   item,
   onPress,
+  onCatchPress,
   loading,
 }) => {
   const { theme } = useStyles();
@@ -46,7 +49,16 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
     <TouchableOpacity onPress={() => onPress(item)} style={styles.container}>
       <View style={styles.imageContainer}>
         <Image source={item.coverImage} style={styles.image} />
-        <TouchableOpacity style={styles.AddContainer}>
+        <TouchableOpacity
+          style={styles.AddContainer}
+          onPress={e => {
+            e.stopPropagation();
+            if (onCatchPress) {
+              onCatchPress(item);
+            }
+          }}
+          disabled={loading}
+        >
           {loading ? (
             <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
           ) : (

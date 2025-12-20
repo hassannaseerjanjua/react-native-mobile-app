@@ -1545,7 +1545,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               {[...Array(3)].map((_, index) => (
                 <SkeletonPlaceholder.Item
                   key={index}
-                  width={screenWidth * 0.6}
+                  width={screenWidth * 0.5}
                   height={screenHeight * 0.21}
                   borderRadius={12}
                   marginRight={index < 2 ? scaleWithMax(15, 18) : 0}

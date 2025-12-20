@@ -278,13 +278,12 @@ const OccasionsScreen: React.FC = () => {
                           : date
                       }
                       mode="date"
-                      maximumDate={new Date()}
+                      minimumDate={new Date()}
                       onConfirm={selectedDate =>
                         handleDatePickerConfirm(selectedDate, formik)
                       }
                       onCancel={() => setShowDatePicker(false)}
                       theme="light"
-                      style={{ backgroundColor: theme.colors.BACKGROUND }}
                     />
                   </>
                 )}

@@ -42,6 +42,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
+  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const friendUserId = route.params?.friendUserId ?? null;
   const [submitting, setSubmitting] = useState(false);
   const categoriesApi = useGetApi<Category[]>(apiEndpoints.GET_CATEGORIES, {
@@ -187,44 +188,48 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   ]);
 
   const _handleCatchPress = async (item: CatchItem) => {
-    if (loading) return;
-    setLoading(true);
-    const res = await api.post<{
-      Data: {
-        Message: string;
-        OrderId: number;
-        OrderItemId: number;
-        Success: boolean;
-      };
-    }>(apiEndpoints.ADD_TO_CART, {
-      FriendId: friendUserId,
-      ItemId: item.ItemId,
-      ItemVariantId: item.ItemVariantId,
-      StoreId: item.StoreId,
-      SendType: 1,
-      CampaignId: item.CampaignId,
-      IsGift: false,
-    });
-    if (res.success) {
-      const payload = {
-        orderid: res.data?.Data.OrderId,
-        orderPaymentType: 1,
-        IsRedeem: false,
-      };
-      const response = await api.post<any>(
-        apiEndpoints.INITIATE_CHECKOUT,
-        payload,
-      );
-      if (response.success) {
-        setOpenModal(true);
-        setLoading(false);
+    const itemKey = `${item.CampaignId}-${item.ItemId}`;
+    if (loadingItems[itemKey]) return;
+
+    setLoadingItems(prev => ({ ...prev, [itemKey]: true }));
+
+    try {
+      const res = await api.post<{
+        Data: {
+          Message: string;
+          OrderId: number;
+          OrderItemId: number;
+          Success: boolean;
+        };
+      }>(apiEndpoints.ADD_TO_CART, {
+        FriendId: friendUserId,
+        ItemId: item.ItemId,
+        ItemVariantId: item.ItemVariantId,
+        StoreId: item.StoreId,
+        SendType: 1,
+        CampaignId: item.CampaignId,
+        IsGift: false,
+      });
+      if (res.success) {
+        const payload = {
+          orderid: res.data?.Data.OrderId,
+          orderPaymentType: 1,
+          IsRedeem: false,
+        };
+        const response = await api.post<any>(
+          apiEndpoints.INITIATE_CHECKOUT,
+          payload,
+        );
+        if (response.success) {
+          setOpenModal(true);
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
       } else {
-        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
-        setLoading(false);
+        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
-    } else {
-      notify.error(res.error || getString('AU_ERROR_OCCURRED'));
-      setLoading(false);
+    } finally {
+      setLoadingItems(prev => ({ ...prev, [itemKey]: false }));
     }
   };
   const handleProductPress = (item: any) => {
@@ -235,7 +240,10 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         friendUserId: friendUserId ?? undefined,
       });
     } else if (screenType === 'catch' && item.catchItem) {
-      _handleCatchPress(item.catchItem);
+      navigation.navigate('ProductDetails', {
+        itemId: item.catchItem.ItemId,
+        friendUserId: friendUserId ?? undefined,
+      });
     } else if (screenType === 'GiftOneGetOne') {
       if ('ItemId' in item && 'Thumbnail' in item) {
         const product = item as CatchItem;
@@ -335,7 +343,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         secondaryButtonTitle="Browse"
         onSecondaryPress={() => {
           setOpenModal(false);
-          navigation.goBack();
         }}
       />
     );
@@ -452,9 +459,14 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                 />
               ) : (
                 <CatchProductCard
-                  loading={loading}
+                  loading={loadingItems[item.id] || false}
                   item={item}
                   onPress={handleProductPress}
+                  onCatchPress={item => {
+                    if (item.catchItem) {
+                      _handleCatchPress(item.catchItem);
+                    }
+                  }}
                 />
               )
             }

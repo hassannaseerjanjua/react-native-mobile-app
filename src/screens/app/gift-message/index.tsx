@@ -2,17 +2,14 @@ import {
   Image,
   FlatList,
   StatusBar,
-  TextInput,
   View,
   TouchableOpacity,
   Platform,
   ActivityIndicator,
-  Keyboard,
-  TouchableWithoutFeedback,
-  ScrollView,
   Alert,
   InteractionManager,
   Animated,
+  InputAccessoryView,
 } from 'react-native';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -28,6 +25,7 @@ import {
 } from '../../../assets/icons';
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
+import InputField from '../../../components/global/InputField';
 import { Text } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -138,9 +136,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   });
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
-  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
-  const [isScrolling, setIsScrolling] = useState(false);
   const [isVideoCancelled, setIsVideoCancelled] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
@@ -162,11 +158,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     cancelRecording,
     requestPermission,
   } = useVisionCamera();
-  const scrollViewRef = useRef<ScrollView>(null);
-  const textInputRef = useRef<TextInput>(null);
-  const [startRecordingAfterReady, setStartRecordingAfterReady] = useState<
-    null | (() => void)
-  >(null);
+  const [recordingTime, setRecordingTime] = useState(0);
+  const recordingTimerRef = useRef<any>(null);
+  const inputAccessoryViewID = 'giftMessageDoneButton';
 
   // Cleanup: Ensure timer is stopped when camera is closed
   useEffect(() => {
@@ -233,30 +227,6 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     }));
   }, [message]);
   console.log('sendMessagePayload', sendMessagePayload);
-
-  useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillShow' : 'keyboardDidShow',
-      () => {
-        setIsKeyboardVisible(true);
-      },
-    );
-    const keyboardDidHideListener = Keyboard.addListener(
-      Platform.OS === 'ios' ? 'keyboardWillHide' : 'keyboardDidHide',
-      () => {
-        setIsKeyboardVisible(false);
-        // Scroll to top when keyboard closes
-        setTimeout(() => {
-          scrollViewRef.current?.scrollTo({ y: 0, animated: true });
-        }, 100);
-      },
-    );
-
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
   function formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -630,14 +600,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 audio={true}
                 onInitialized={() => {
                   console.log('✅ Camera initialized and ready');
-                  if (startRecordingAfterReady) {
-                    console.log('🎥 Starting recording...');
-                    // Small delay to ensure camera is fully ready
-                    setTimeout(() => {
-                      startRecordingAfterReady();
-                      setStartRecordingAfterReady(null);
-                    }, 300);
-                  }
+                  // Don't auto-start recording - wait for button press
                 }}
                 onError={error => {
                   console.error('❌ Camera error:', error);
@@ -645,16 +608,31 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   setShowCamera(false);
                 }}
               />
-              {/* Done button - removed timer display */}
+              {/* Timer Display - Top Left */}
               <View style={styles.timer}>
+                {isRecording && (
+                  <View style={styles.timerDisplay}>
+                    <Text style={styles.timerText}>
+                      {Math.floor(recordingTime / 60)}:
+                      {(recordingTime % 60).toString().padStart(2, '0')} /{' '}
+                      {MAX_VIDEO_DURATION}s
+                    </Text>
+                  </View>
+                )}
+
                 <TouchableOpacity
                   onPress={() => {
-                    console.log('🛑 Stop button pressed');
+                    console.log('🛑 Done button pressed');
+                    if (recordingTimerRef.current) {
+                      clearInterval(recordingTimerRef.current);
+                      recordingTimerRef.current = null;
+                    }
                     cancelRecording();
                     setIsVideoCancelled(true);
                     setShowCamera(false);
                     setIsRecording(false);
                     recordingProgress.setValue(0);
+                    setRecordingTime(0);
                   }}
                   style={styles.crossButton}
                 >
@@ -671,8 +649,26 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 <TouchableOpacity
                   onPress={() => {
                     if (!isRecording) {
-                      // Start recording
+                      console.log(
+                        '🎥 Record button pressed - starting recording',
+                      );
                       setIsRecording(true);
+                      setRecordingTime(0);
+
+                      // Start timer for display
+                      if (recordingTimerRef.current) {
+                        clearInterval(recordingTimerRef.current);
+                      }
+                      recordingTimerRef.current = setInterval(() => {
+                        setRecordingTime(prev => {
+                          const next = prev + 1;
+                          if (next >= MAX_VIDEO_DURATION) {
+                            clearInterval(recordingTimerRef.current);
+                            recordingTimerRef.current = null;
+                          }
+                          return next;
+                        });
+                      }, 1000);
 
                       // Animate progress border over 15 seconds
                       Animated.timing(recordingProgress, {
@@ -688,6 +684,11 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                             console.log('Recording finished:', video);
                             setIsRecording(false);
                             recordingProgress.setValue(0);
+                            setRecordingTime(0);
+                            if (recordingTimerRef.current) {
+                              clearInterval(recordingTimerRef.current);
+                              recordingTimerRef.current = null;
+                            }
 
                             // Handle the recorded video
                             if (isVideoCancelled) {
@@ -711,6 +712,11 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                             console.error('Recording error:', error);
                             setIsRecording(false);
                             recordingProgress.setValue(0);
+                            setRecordingTime(0);
+                            if (recordingTimerRef.current) {
+                              clearInterval(recordingTimerRef.current);
+                              recordingTimerRef.current = null;
+                            }
                             notify.error('Recording failed');
                           },
                         },
@@ -718,9 +724,16 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                       );
                     } else {
                       // Stop recording manually
+                      console.log('⏹ Stop button pressed');
+                      if (recordingTimerRef.current) {
+                        clearInterval(recordingTimerRef.current);
+                        recordingTimerRef.current = null;
+                      }
                       cancelRecording();
                       setIsRecording(false);
                       recordingProgress.setValue(0);
+                      setRecordingTime(0);
+                      setShowCamera(false);
                     }
                   }}
                   activeOpacity={0.8}
@@ -865,42 +878,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               // Request camera permissions first
               await requestPermission();
 
-              // Then show camera
+              // Then show camera - recording will start when user presses the button
               setShowCamera(true);
-
-              // Set up the recording callback
-              setStartRecordingAfterReady(() => () => {
-                console.log(
-                  'Starting recording - Camera ref exists?',
-                  !!cameraRef.current,
-                  'Camera ready?',
-                  isCameraActive,
-                  'Device exists?',
-                  !!device,
-                );
-
-                recordVideo(
-                  {
-                    onRecordingFinished: video => {
-                      if (isVideoCancelled) {
-                        setIsVideoCancelled(false);
-                        setShowCamera(false);
-                        return;
-                      }
-                      console.log('video finished ', video);
-                      setShowCamera(false);
-                      const videoUri = 'file://' + video.path;
-                      compressVideo(videoUri, `video_${Date.now()}.mp4`);
-                    },
-                    onRecordingError: err => {
-                      console.log('Recording Error:', err);
-                      setShowCamera(false);
-                      notify.error('Failed to record video');
-                    },
-                  },
-                  MAX_VIDEO_DURATION,
-                );
-              });
             }}
             loading={false}
           />
@@ -909,210 +888,172 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             title={getString('GIFT_MESSAGE_TITLE')}
             showBackButton={true}
             onBackPress={() => {
-              Keyboard.dismiss();
               navigation.goBack();
             }}
           />
           <View style={styles.content}>
-            <ScrollView
-              ref={scrollViewRef}
-              style={{ flex: 1 }}
-              keyboardShouldPersistTaps="handled"
-              onTouchStart={() => {
-                if (isKeyboardVisible) {
-                  textInputRef.current?.blur();
-                  Keyboard.dismiss();
-                  setIsScrolling(true);
-                }
-              }}
-              onScrollBeginDrag={() => {
-                textInputRef.current?.blur();
-                Keyboard.dismiss();
-                setIsScrolling(true);
-              }}
-              onScroll={() => {
-                // Keep input blurred during scroll to prevent keyboard from reopening
-                if (isKeyboardVisible) {
-                  textInputRef.current?.blur();
-                }
-              }}
-              onScrollEndDrag={() => {
-                setTimeout(() => {
-                  setIsScrolling(false);
-                }, 300);
-              }}
-              onMomentumScrollEnd={() => {
-                setTimeout(() => {
-                  setIsScrolling(false);
-                }, 300);
-              }}
-              showsVerticalScrollIndicator={false}
-              scrollEnabled={isKeyboardVisible}
-            >
-              <View style={styles.body}>
-                <View style={styles.messageContainer}>
-                  <View style={styles.inputWrapper}>
-                    {/* Filter background with low opacity */}
-                    {selectedFilter && (
-                      <Image
-                        source={{ uri: selectedFilter.ImageUrl }}
-                        style={styles.filterBackground}
-                        resizeMode="cover"
-                      />
-                    )}
-                    <View style={styles.textInputWrapper}>
-                      <TextInput
-                        ref={textInputRef}
-                        multiline
-                        style={[
+            <View style={styles.body}>
+              <View style={styles.messageContainer}>
+                <View style={styles.inputWrapper}>
+                  {/* Filter background with low opacity */}
+                  {selectedFilter && (
+                    <Image
+                      source={{ uri: selectedFilter.ImageUrl }}
+                      style={styles.filterBackground}
+                      resizeMode="cover"
+                    />
+                  )}
+                  <View style={styles.textInputWrapper}>
+                    <InputField
+                      fieldProps={{
+                        multiline: true,
+                        maxLength: 100,
+                        value: message,
+                        onChangeText: setMessage,
+                        placeholder: getString('GIFT_MESSAGE_PLACEHOLDER'),
+                        inputAccessoryViewID:
+                          Platform.OS === 'ios'
+                            ? inputAccessoryViewID
+                            : undefined,
+                        style: [
                           styles.textInput,
                           selectedFilter?.TextColor && {
                             color: selectedFilter.TextColor,
                           },
-                        ]}
-                        maxLength={100}
-                        value={message}
-                        onChangeText={setMessage}
-                        placeholderTextColor={theme.colors.SECONDARY_TEXT}
-                        placeholder={getString('GIFT_MESSAGE_PLACEHOLDER')}
-                        editable={!isScrolling}
-                        onFocus={() => {
-                          if (isScrolling) {
-                            textInputRef.current?.blur();
-                          }
-                        }}
-                      />
-                    </View>
+                        ],
+                      }}
+                      style={styles.inputFieldContainer}
+                    />
                   </View>
-                  <TouchableOpacity
-                    onPress={handleOpenPopup}
-                    disabled={isCompressing}
-                    style={{ opacity: isCompressing ? 0.5 : 1 }}
-                  >
-                    {isCompressing ? (
-                      <View
+                </View>
+                <TouchableOpacity
+                  onPress={handleOpenPopup}
+                  disabled={isCompressing}
+                  style={{ opacity: isCompressing ? 0.5 : 1 }}
+                >
+                  {isCompressing ? (
+                    <View
+                      style={[
+                        styles.cameraIcon,
+                        rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
+                        {
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        },
+                      ]}
+                    >
+                      <ActivityIndicator
+                        size="small"
+                        color={theme.colors.PRIMARY}
+                      />
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          color: theme.colors.PRIMARY,
+                          marginTop: 2,
+                        }}
+                      >
+                        {Math.round(compressionProgress * 100)}%
+                      </Text>
+                    </View>
+                  ) : (
+                    <View
+                      style={{
+                        position: 'relative',
+                        backgroundColor: 'blue',
+                      }}
+                    >
+                      <SvgAddGiftMessageIcon
                         style={[
                           styles.cameraIcon,
                           rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
-                          {
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                          },
                         ]}
-                      >
-                        <ActivityIndicator
-                          size="small"
-                          color={theme.colors.PRIMARY}
-                        />
-                        <Text
+                      />
+                      {/* Badge when video is added */}
+                      {sendMessagePayload.VideoFile && (
+                        <View
                           style={{
-                            fontSize: 10,
-                            color: theme.colors.PRIMARY,
-                            marginTop: 2,
+                            ...styles.videoBadge,
                           }}
                         >
-                          {Math.round(compressionProgress * 100)}%
-                        </Text>
-                      </View>
-                    ) : (
-                      <View
-                        style={{
-                          position: 'relative',
-                          backgroundColor: 'blue',
-                        }}
-                      >
-                        <SvgAddGiftMessageIcon
-                          style={[
-                            styles.cameraIcon,
-                            rtlPosition(isRtl, undefined, scaleWithMax(20, 25)),
-                          ]}
-                        />
-                        {/* Badge when video is added */}
-                        {sendMessagePayload.VideoFile && (
-                          <View
-                            style={{
-                              ...styles.videoBadge,
-                            }}
-                          >
-                            <Text style={styles.videoBadgeText}>1</Text>
-                          </View>
-                        )}
-                      </View>
-                    )}
-                  </TouchableOpacity>
-                </View>
-
-                <View style={styles.filtersWrapper}>
-                  <Text style={styles.sectionTitle}>
-                    {getString('GIFT_MESSAGE_FILTER')}
-                  </Text>
-                  {getAllFiltersApi.loading ? (
-                    <SkeletonLoader screenType="giftFilters" />
-                  ) : (
-                    <FlatList
-                      data={filters}
-                      horizontal
-                      showsHorizontalScrollIndicator={false}
-                      keyExtractor={item => item.FilterId.toString()}
-                      renderItem={({ item: filter, index }) => (
-                        <View
-                          style={[
-                            styles.imageContainer,
-                            index === 0
-                              ? { marginLeft: theme.sizes.PADDING }
-                              : {},
-                          ]}
-                        >
-                          <TouchableOpacity
-                            onPress={async () => {
-                              const newFilterId =
-                                sendMessagePayload.ImageFilterId ===
-                                filter.FilterId
-                                  ? null
-                                  : filter.FilterId;
-                              setSendMessagePayload(prev => ({
-                                ...prev,
-                                ImageFilterId: newFilterId,
-                              }));
-                              // Save data when filter changes
-                              if (orderId) {
-                                await saveGiftMessageData(orderId, {
-                                  ImageFilterId: newFilterId,
-                                  Message: sendMessagePayload.Message,
-                                  VideoFile: sendMessagePayload.VideoFile,
-                                });
-                              }
-                            }}
-                          >
-                            <Image
-                              style={[
-                                styles.filterImage,
-                                {
-                                  borderWidth:
-                                    filter.FilterId ===
-                                    sendMessagePayload.ImageFilterId
-                                      ? 2
-                                      : 0,
-                                  borderColor: theme.colors.PRIMARY,
-                                },
-                              ]}
-                              source={{ uri: filter.ImageUrl }}
-                              resizeMode="cover"
-                            />
-                          </TouchableOpacity>
+                          <Text style={styles.videoBadgeText}>1</Text>
                         </View>
                       )}
-                      ListEmptyComponent={
-                        <View style={styles.imageContainer}>
-                          <Text>No filters available</Text>
-                        </View>
-                      }
-                      contentContainerStyle={styles.filtersScrollContent}
-                    />
+                    </View>
                   )}
-                </View>
+                </TouchableOpacity>
               </View>
-            </ScrollView>
+
+              <View style={styles.filtersWrapper}>
+                <Text style={styles.sectionTitle}>
+                  {getString('GIFT_MESSAGE_FILTER')}
+                </Text>
+                {getAllFiltersApi.loading ? (
+                  <SkeletonLoader screenType="giftFilters" />
+                ) : (
+                  <FlatList
+                    data={filters}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
+                    keyExtractor={item => item.FilterId.toString()}
+                    renderItem={({ item: filter, index }) => (
+                      <View
+                        style={[
+                          styles.imageContainer,
+                          index === 0
+                            ? { marginLeft: theme.sizes.PADDING }
+                            : {},
+                        ]}
+                      >
+                        <TouchableOpacity
+                          onPress={async () => {
+                            const newFilterId =
+                              sendMessagePayload.ImageFilterId ===
+                              filter.FilterId
+                                ? null
+                                : filter.FilterId;
+                            setSendMessagePayload(prev => ({
+                              ...prev,
+                              ImageFilterId: newFilterId,
+                            }));
+                            // Save data when filter changes
+                            if (orderId) {
+                              await saveGiftMessageData(orderId, {
+                                ImageFilterId: newFilterId,
+                                Message: sendMessagePayload.Message,
+                                VideoFile: sendMessagePayload.VideoFile,
+                              });
+                            }
+                          }}
+                        >
+                          <Image
+                            style={[
+                              styles.filterImage,
+                              {
+                                borderWidth:
+                                  filter.FilterId ===
+                                  sendMessagePayload.ImageFilterId
+                                    ? 2
+                                    : 0,
+                                borderColor: theme.colors.PRIMARY,
+                              },
+                            ]}
+                            source={{ uri: filter.ImageUrl }}
+                            resizeMode="cover"
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+                    ListEmptyComponent={
+                      <View style={styles.imageContainer}>
+                        <Text>No filters available</Text>
+                      </View>
+                    }
+                    contentContainerStyle={styles.filtersScrollContent}
+                  />
+                )}
+              </View>
+            </View>
             <View style={styles.footer}>
               <CustomButton
                 title={hasContent ? 'Next' : 'Skip'}
@@ -1121,6 +1062,24 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               />
             </View>
           </View>
+
+          {/* iOS Input Accessory - Done Button */}
+          {Platform.OS === 'ios' && (
+            <InputAccessoryView nativeID={inputAccessoryViewID}>
+              <View style={styles.inputAccessory}>
+                <TouchableOpacity
+                  onPress={() => {
+                    // Dismiss keyboard - blur is not directly available, use Keyboard.dismiss
+                    const { Keyboard } = require('react-native');
+                    Keyboard.dismiss();
+                  }}
+                  style={styles.doneButton}
+                >
+                  <Text style={styles.doneButtonText}>Done</Text>
+                </TouchableOpacity>
+              </View>
+            </InputAccessoryView>
+          )}
         </View>
       )}
     </ParentView>

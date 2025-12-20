@@ -229,15 +229,12 @@ const InboxOutbox: React.FC = () => {
       messageText,
     });
 
-    setTimeout(
-      () => {
-        setVideoViewerData(prev => ({
-          ...prev,
-          visible: true,
-        }));
-      },
-      hasVideo ? 300 : 0,
-    );
+    setTimeout(() => {
+      setVideoViewerData(prev => ({
+        ...prev,
+        visible: true,
+      }));
+    }, 300);
   };
 
   const handleCloseVideoViewer = () => {

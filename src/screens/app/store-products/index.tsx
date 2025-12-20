@@ -192,9 +192,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           >
             <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
           </TouchableOpacity>
-          <View style={styles.backContainer}>
-            <ShareIcon />
-          </View>
+          {/* <View style={styles.backContainer}><ShareIcon /></View> */}
         </View>
         <Image source={storeOverlayImage} style={styles.bottomImage} />
       </View>

@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
 import { scaleWithMax } from '../../../utils';
+import fonts from '../../../assets/fonts';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -61,8 +62,10 @@ const useStyles = () => {
           color: '#000',
           textAlign: 'center',
           paddingHorizontal: scaleWithMax(15, 18),
-          paddingVertical: scaleWithMax(15, 18),
+          paddingVertical: scaleWithMax(42, 45),
           backgroundColor: 'transparent',
+          fontSize: sizes.FONTSIZE_HIGH,
+          fontFamily: fonts.Quicksand.semibold,
         },
         cameraIcon: {
           position: 'absolute',
@@ -77,13 +80,17 @@ const useStyles = () => {
         },
         filtersWrapper: {
           height: sizes.HEIGHT * 0.4,
+          backgroundColor: 'transparent',
         },
-        filtersScrollContent: {},
+        filtersScrollContent: {
+          paddingRight: sizes.PADDING,
+          paddingVertical: sizes.HEIGHT * 0.01,
+        },
         imageContainer: {
-          width: sizes.WIDTH * 0.67,
+          width: sizes.WIDTH * 0.5,
           height: sizes.HEIGHT * 0.21,
           borderRadius: 12,
-          paddingRight: sizes.PADDING,
+          marginRight: scaleWithMax(12, 14),
           backgroundColor: '#fff',
           ...theme.globalStyles.SHADOW_STYLE,
           overflow: 'hidden',
@@ -106,19 +113,22 @@ const useStyles = () => {
         timer: {
           position: 'absolute',
           top: sizes.PADDING,
+          left: sizes.PADDING,
           right: sizes.PADDING,
           flexDirection: 'row',
-          alignItems: 'center',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
+        },
+        timerDisplay: {
+          backgroundColor: 'rgba(0, 0, 0, 0.6)',
+          paddingHorizontal: scaleWithMax(12, 14),
+          paddingVertical: scaleWithMax(6, 8),
+          borderRadius: scaleWithMax(8, 10),
         },
         timerText: {
-          ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-          fontSize: sizes.FONTSIZE_HIGH,
-          color: theme.colors.WHITE,
-          borderWidth: 1,
-          borderColor: theme.colors.WHITE,
-          borderRadius: 50,
-          paddingHorizontal: sizes.PADDING,
-          paddingVertical: sizes.HEIGHT * 0.005,
+          color: '#FFFFFF',
+          fontSize: scaleWithMax(14, 16),
+          fontWeight: '600',
         },
         crossButton: {
           // Removed marginLeft since timer text is gone
@@ -194,6 +204,29 @@ const useStyles = () => {
           ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
           fontSize: scaleWithMax(14, 15),
           color: theme.colors.WHITE,
+        },
+        inputFieldContainer: {
+          backgroundColor: 'transparent',
+          shadowOpacity: 0,
+          elevation: 0,
+        },
+        inputAccessory: {
+          backgroundColor: '#E5E5EA', // iOS default gray background
+          height: 44, // iOS default height
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          alignItems: 'center',
+          paddingRight: scaleWithMax(16, 20),
+          borderTopWidth: 0.5,
+          borderTopColor: '#C7C7CC', // iOS default border color
+        },
+        doneButton: {
+          // No padding needed - iOS default button has built-in spacing
+        },
+        doneButtonText: {
+          fontSize: 17, // iOS default font size
+          color: '#007AFF', // iOS default blue color
+          fontWeight: '400', // iOS default weight (not bold)
         },
       }),
     [sizes, theme],

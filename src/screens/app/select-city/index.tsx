@@ -64,7 +64,7 @@ const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
           }}
           renderItem={({ item }) => (
             <TabItem
-              TabItemStyles={theme.globalStyles.SHADOW_STYLE_MEDIUM}
+              TabItemStyles={theme.globalStyles.SHADOW_STYLE}
               title={item.CityName}
               onPress={() => onSelectCity(item)}
             />

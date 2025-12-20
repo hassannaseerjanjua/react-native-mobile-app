@@ -46,11 +46,13 @@ import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi';
 import InputField from '../../../components/global/InputField';
 import { getVideoUploadPromise } from '../../../utils/videoUploadState';
+import { useAuthStore } from '../../../store/reducer/auth';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
-  const { getString, isRtl } = useLocaleStore();
+  const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation();
+  const { user } = useAuthStore();
 
   const { isVideoUploading } = (route.params as any) || {};
 
@@ -316,21 +318,24 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   };
   const handleShareGiftLink = async (giftLink: string) => {
     try {
+      const senderName =
+        (langCode === 'ar' ? user?.FullNameAr : user?.FullNameEn) ||
+        user?.FullNameEn ||
+        user?.FullNameAr ||
+        'Someone';
+      const shareMessage = `${senderName} sent you a gift. Click on the link below to redeem the gift.\n\n${giftLink}`;
+
       const shareOptions = Platform.select({
         ios: {
-          message: `${getString('P_GIFT_ME_ON_GIFTEE')}\n\n${giftLink}`,
+          message: shareMessage,
           url: giftLink,
         },
         android: {
-          message: `${getString(
-            'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
-          )}\n\n${giftLink}`,
+          message: shareMessage,
           title: getString('P_GIFT_ME_ON_GIFTEE'),
         },
       }) || {
-        message: `${getString(
-          'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
-        )}\n\n${giftLink}`,
+        message: shareMessage,
         title: getString('P_GIFT_ME_ON_GIFTEE'),
       };
 
