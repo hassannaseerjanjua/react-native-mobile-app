@@ -19,11 +19,9 @@ const getStatusText = (
 ): string => {
   const statusMap: { [key: number]: string } = {
     1: getString('O_PENDING'),
-    2: 'Processing',
-    3: 'Shipped',
-    4: 'Delivered',
-    5: 'Cancelled',
-    6: 'Completed',
+    2: 'Approved',
+    3: 'Declined',
+    4: 'Redeemed',
   };
   return statusMap[status] ?? getString('O_PENDING');
 };

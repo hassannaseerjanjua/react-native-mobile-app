@@ -23,22 +23,26 @@ import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 import { Text } from '../../../utils/elements';
 import { useListingApi } from '../../../hooks/useListingApi';
-import { SvgRiyalIconWhite } from '../../../assets/icons';
+import { GiftPlacedSvg, SvgRiyalIconWhite } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import GiftOneGetOneProductCard from '../../../components/app/GiftOneGetOneProductCard';
+import SuccessMessage from '../../../components/global/SuccessComponent';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
   route,
 }) => {
   const { styles, theme } = useStyles();
+  const [openModal, setOpenModal] = useState(false);
   const { getString, isRtl, langCode } = useLocaleStore();
+  const [loading, setLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
   const storeID = route.params?.storeID;
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
+  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const friendUserId = route.params?.friendUserId ?? null;
   const [submitting, setSubmitting] = useState(false);
   const categoriesApi = useGetApi<Category[]>(apiEndpoints.GET_CATEGORIES, {
@@ -183,6 +187,51 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     getStoreProducts.data,
   ]);
 
+  const _handleCatchPress = async (item: CatchItem) => {
+    const itemKey = `${item.CampaignId}-${item.ItemId}`;
+    if (loadingItems[itemKey]) return;
+
+    setLoadingItems(prev => ({ ...prev, [itemKey]: true }));
+
+    try {
+      const res = await api.post<{
+        Data: {
+          Message: string;
+          OrderId: number;
+          OrderItemId: number;
+          Success: boolean;
+        };
+      }>(apiEndpoints.ADD_TO_CART, {
+        FriendId: friendUserId,
+        ItemId: item.ItemId,
+        ItemVariantId: item.ItemVariantId,
+        StoreId: item.StoreId,
+        SendType: 1,
+        CampaignId: item.CampaignId,
+        IsGift: false,
+      });
+      if (res.success) {
+        const payload = {
+          orderid: res.data?.Data.OrderId,
+          orderPaymentType: 1,
+          IsRedeem: false,
+        };
+        const response = await api.post<any>(
+          apiEndpoints.INITIATE_CHECKOUT,
+          payload,
+        );
+        if (response.success) {
+          setOpenModal(true);
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
+      } else {
+        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
+      }
+    } finally {
+      setLoadingItems(prev => ({ ...prev, [itemKey]: false }));
+    }
+  };
   const handleProductPress = (item: any) => {
     if (screenType === 'favorite') {
       const favItem = item as FaveItems;
@@ -193,6 +242,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     } else if (screenType === 'catch' && item.catchItem) {
       navigation.navigate('ProductDetails', {
         itemId: item.catchItem.ItemId,
+        friendUserId: friendUserId ?? undefined,
       });
     } else if (screenType === 'GiftOneGetOne') {
       if ('ItemId' in item && 'Thumbnail' in item) {
@@ -276,6 +326,28 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       setSubmitting(false);
     }
   };
+  if (openModal) {
+    return (
+      <SuccessMessage
+        SuccessLogo={<GiftPlacedSvg />}
+        SuccessMessage="Catch Created Successfully"
+        SuccessSubMessage="Would you like to browse for more or check your catch now?"
+        primaryButtonTitle="Inbox"
+        onPrimaryPress={() => {
+          setOpenModal(false);
+          navigation.navigate('InboxOutbox', {
+            title: getString('HOME_INBOX'),
+            isInbox: true,
+          });
+        }}
+        secondaryButtonTitle="Browse"
+        onSecondaryPress={() => {
+          setOpenModal(false);
+        }}
+      />
+    );
+  }
+
   return (
     <ParentView>
       <StatusBar
@@ -287,8 +359,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           screenType === 'favorite'
             ? getString('FAV_FAVORITES')
             : screenType === 'GiftOneGetOne'
-              ? getString('HOME_GIFT_ONE_GET_ONE')
-              : getString('HOME_CATCH')
+            ? getString('HOME_GIFT_ONE_GET_ONE')
+            : getString('HOME_CATCH')
         }
         showBackButton
         onBackPress={() => navigation.goBack()}
@@ -304,17 +376,17 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               setSelectedFilter(id);
               screenType === 'GiftOneGetOne'
                 ? getStoreProducts.setExtraParams({
-                  categoryId: id === 'all' ? null : Number(id),
-                })
+                    categoryId: id === 'all' ? null : Number(id),
+                  })
                 : getCatchItems.setExtraParams({
-                  categoryId: id === 'all' ? null : Number(id),
-                });
+                    categoryId: id === 'all' ? null : Number(id),
+                  });
             }}
           />
         </View>
         {(screenType === 'favorite' && getFavoriteItems.loading) ||
-          (screenType === 'GiftOneGetOne' && getStoreProducts.loading) ||
-          (screenType === 'catch' && getCatchItems.loading) ? (
+        (screenType === 'GiftOneGetOne' && getStoreProducts.loading) ||
+        (screenType === 'catch' && getCatchItems.loading) ? (
           <SkeletonLoader screenType="productListing" />
         ) : (
           <FlatList
@@ -324,7 +396,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               screenType === 'favorite' || screenType === 'GiftOneGetOne'
                 ? item.ItemId.toString()
                 : item.id ||
-                `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`
+                  `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`
             }
             columnWrapperStyle={styles.columnWrapper}
             contentContainerStyle={[
@@ -386,7 +458,16 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   }}
                 />
               ) : (
-                <CatchProductCard item={item} onPress={handleProductPress} />
+                <CatchProductCard
+                  loading={loadingItems[item.id] || false}
+                  item={item}
+                  onPress={handleProductPress}
+                  onCatchPress={item => {
+                    if (item.catchItem) {
+                      _handleCatchPress(item.catchItem);
+                    }
+                  }}
+                />
               )
             }
           />
@@ -400,27 +481,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               if (!cartApi.data) return;
 
               const cartData = cartApi.data;
-              const firstItem = cartData.Items[0];
-              const product = {
-                id: firstItem?.ItemId || 0,
-                title:
-                  cartData.Items.length > 1
-                    ? `${cartData.Items.length} Items`
-                    : firstItem?.ItemName || 'Cart Item',
-                subtitle:
-                  cartData.Items.length > 1
-                    ? 'Multiple items in cart'
-                    : firstItem?.ItemName || '',
-                image: firstItem?.ThumbnailUrl
-                  ? { uri: firstItem.ThumbnailUrl }
-                  : require('../../../assets/images/img-placeholder.png'),
-                price: cartData.TotalAmount,
-                storeId: cartData.StoreId,
-                storeBranchId: cartData.StoreBranchId,
-              };
 
               (navigation as any).navigate('GiftMessage', {
-                product,
                 friendUserId,
                 storeBranchId: cartData.StoreBranchId,
               });

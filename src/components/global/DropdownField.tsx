@@ -224,7 +224,8 @@ const useStyles = () => {
         flexDirection: 'row',
         paddingHorizontal: sizes.PADDING,
         alignItems: 'center',
-        backgroundColor: colors.LIGHT_GRAY,
+        backgroundColor: colors.WHITE,
+        ...globalStyles.SHADOW_STYLE,
       },
       textContainer: {
         flex: 1,

@@ -69,7 +69,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const cartApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => (data?.Data || data) as CartResponse,
   });
-
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       cartApi.refetch();
@@ -106,6 +105,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         itemId: product.ItemId,
         storeId: product.StoreId ?? storeId,
         friendUserId,
+        sendType: route.params.sendType,
       });
     } else {
       (navigation as any).navigate('ProductDetails', {
@@ -192,9 +192,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           >
             <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
           </TouchableOpacity>
-          <View style={styles.backContainer}>
-            <ShareIcon />
-          </View>
+          {/* <View style={styles.backContainer}><ShareIcon /></View> */}
         </View>
         <Image source={storeOverlayImage} style={styles.bottomImage} />
       </View>
@@ -278,27 +276,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
               if (!cartApi.data) return;
 
               const cartData = cartApi.data;
-              const firstItem = cartData.Items[0];
-              const product = {
-                id: firstItem?.ItemId || 0,
-                title:
-                  cartData.Items.length > 1
-                    ? `${cartData.Items.length} Items`
-                    : firstItem?.ItemName || 'Cart Item',
-                subtitle:
-                  cartData.Items.length > 1
-                    ? 'Multiple items in cart'
-                    : firstItem?.ItemName || '',
-                image: firstItem?.ThumbnailUrl
-                  ? { uri: firstItem.ThumbnailUrl }
-                  : require('../../../assets/images/img-placeholder.png'),
-                price: cartData.TotalAmount,
-                storeId: cartData.StoreId,
-                storeBranchId: cartData.StoreBranchId,
-              };
 
               (navigation as any).navigate('GiftMessage', {
-                product,
                 friendUserId,
                 storeBranchId: cartData.StoreBranchId,
               });

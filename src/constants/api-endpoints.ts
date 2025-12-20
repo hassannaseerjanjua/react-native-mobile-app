@@ -51,7 +51,7 @@ const apiEndpoints = {
   GET_STORE_ITEM_BY_ID: (itemId?: any) =>
     `/${version}/Panel/GetItemById?itemId=${itemId}`,
   GET_BUSINESS_TYPE: `/${version}/Panel/GetBusinessTypesForPanel`,
-  GET_CATEGORIES: `/${version}/Panel/GetCategoriesForPanel`,
+  GET_CATEGORIES: `/${version}/Panel/GetCategoriesForPanel?isApp=true`,
   SEND_GIFT_FILTER: `/${version}/User/AddGiftMessageToOrder`,
   GET_ALL_FILTERS: `/${version}/Panel/GetAllFilters`,
   GENERATE_QR_CODE: (orderId: any) =>
@@ -63,10 +63,14 @@ const apiEndpoints = {
 
   GET_CART_ITEMS: `/${version}/User/GetGiftCart`,
   UPDATE_CART_ITEM_QUANTITY: `/${version}/User/UpdateCart`,
-  INITIATE_CHECKOUT: `/${version}/User/InitOrder`,
+  INITIATE_CHECKOUT: `/${version}/User/InitOrderV2`,
   REMOVE_CART_BY_ID: `/${version}/User/RemoveItemFromCart`,
   GET_CART_COUNT: `/${version}/Home/GetCartItemCount`,
   CLEAR_CART: `/${version}/User/ClearCart`,
+
+  INIT_ORDER_v2: `/${version}/User/InitOrderV2`,
+  GET_GIFT_DETAILS: (giftToken: string) =>
+    `/${version}/User/gift-info?gifttoken=${giftToken}`,
 
   // catch
   ADD_CAMPAIGN_TO_CART: `/${version}/User/AddCampaignToCart`,

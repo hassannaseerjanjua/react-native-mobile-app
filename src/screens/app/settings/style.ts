@@ -69,13 +69,14 @@ const useStyles = () => {
         color: colors.BLACK,
       },
       genderContainer: {
-        backgroundColor: colors.LIGHT_GRAY,
+        backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS,
         paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.PADDING * 0.8,
         marginBottom: 20,
-        minHeight: scaleWithMax(45, 50),
+        height: scaleWithMax(45, 50),
         justifyContent: 'center',
+        ...theme.globalStyles.SHADOW_STYLE,
       },
       genderTitle: {
         fontFamily: fonts.Quicksand.medium,

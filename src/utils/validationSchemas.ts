@@ -8,7 +8,8 @@ export const phoneValidation = (getString: GetString) =>
     .required(getString('AU_SI_PN_REQUIRED'))
     .matches(/^5/, getString('AU_SI_PN_MUST_START'))
     .matches(/^[0-9]+$/, getString('AU_SI_PN_MUST_CONTAIN'))
-    .length(9, getString('AU_SI_PN_MUST_DIGIT'));
+    .length(9, getString('AU_SI_PN_MUST_DIGIT'))
+    .max(9, getString('AU_SI_PN_MUST_DIGIT'));
 
 export const emailValidation = (getString: GetString) =>
   Yup.string()

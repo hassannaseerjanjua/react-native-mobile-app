@@ -5,6 +5,7 @@ PODS:
   - DoubleConversion (1.1.6)
   - fast_float (8.0.0)
   - FBLazyVector (0.81.4)
+  - ffmpeg-mobile-min (6.0.2)
   - Firebase/CoreOnly (12.6.0):
     - FirebaseCore (~> 12.6.0)
   - Firebase/Messaging (12.6.0):
@@ -2850,7 +2851,7 @@ PODS:
     - RNWorklets
     - SocketRocket
     - Yoga
-  - RNScreens (4.18.0):
+  - RNScreens (4.19.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -2877,10 +2878,10 @@ PODS:
     - ReactCodegen
     - ReactCommon/turbomodule/bridging
     - ReactCommon/turbomodule/core
-    - RNScreens/common (= 4.18.0)
+    - RNScreens/common (= 4.19.0)
     - SocketRocket
     - Yoga
-  - RNScreens/common (4.18.0):
+  - RNScreens/common (4.19.0):
     - boost
     - DoubleConversion
     - fast_float
@@ -3056,6 +3057,35 @@ PODS:
     - SocketRocket
     - Yoga
   - SocketRocket (0.7.1)
+  - VideoTrim (6.0.11):
+    - boost
+    - DoubleConversion
+    - fast_float
+    - ffmpeg-mobile-min (~> 6.0)
+    - fmt
+    - glog
+    - hermes-engine
+    - RCT-Folly
+    - RCT-Folly/Fabric
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - SocketRocket
+    - Yoga
   - VisionCamera (4.7.3):
     - VisionCamera/Core (= 4.7.3)
     - VisionCamera/React (= 4.7.3)
@@ -3158,11 +3188,13 @@ DEPENDENCIES:
   - RNSVG (from `../node_modules/react-native-svg`)
   - RNWorklets (from `../node_modules/react-native-worklets`)
   - SocketRocket (~> 0.7.1)
+  - VideoTrim (from `../node_modules/react-native-video-trim`)
   - VisionCamera (from `../node_modules/react-native-vision-camera`)
   - Yoga (from `../node_modules/react-native/ReactCommon/yoga`)
 
 SPEC REPOS:
   trunk:
+    - ffmpeg-mobile-min
     - Firebase
     - FirebaseCore
     - FirebaseCoreExtension
@@ -3359,6 +3391,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-svg"
   RNWorklets:
     :path: "../node_modules/react-native-worklets"
+  VideoTrim:
+    :path: "../node_modules/react-native-video-trim"
   VisionCamera:
     :path: "../node_modules/react-native-vision-camera"
   Yoga:
@@ -3370,6 +3404,7 @@ SPEC CHECKSUMS:
   DoubleConversion: cb417026b2400c8f53ae97020b2be961b59470cb
   fast_float: b32c788ed9c6a8c584d114d0047beda9664e7cc6
   FBLazyVector: 941bef1c8eeabd9fe1f501e30a5220beee913886
+  ffmpeg-mobile-min: a9b10d7a1b1d57245d1003ae4bd6093fe19bd877
   Firebase: a451a7b61536298fd5cbfe3a746fd40443a50679
   FirebaseCore: 0e38ad5d62d980a47a64b8e9301ffa311457be04
   FirebaseCoreExtension: 032fd6f8509e591fda8cb76f6651f20d926b121f
@@ -3463,10 +3498,11 @@ SPEC CHECKSUMS:
   RNGestureHandler: 9462ba64b3fdb2cb04cbc1b572d020c8d0a096e8
   RNNotifee: 5e3b271e8ea7456a36eec994085543c9adca9168
   RNReanimated: 9342633c89caa4899897e4aaaa85912b824dc6e7
-  RNScreens: 98771ad898d1c0528fc8139606bbacf5a2e9d237
+  RNScreens: d6413aeb1878cdafd3c721e2c5218faf5d5d3b13
   RNSVG: 63f96b45c10e8b6b4e1c4df831223f0e6af39e5e
   RNWorklets: 416ef974c176d76634e34c0aeda83f6b67084a88
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
+  VideoTrim: a3d2437847d4edb4a1cc44177cd47fdb7e7ee9a1
   VisionCamera: 7187b3dac1ff3071234ead959ce311875748e14f
   Yoga: 9b30b783a17681321b52ac507a37219d7d795ace
 

@@ -112,8 +112,8 @@ const LocationSelection: React.FC = () => {
       SuccessLogo={<GiftPlacedSvg />}
       SuccessSubMessage="Store will contact you shortly"
       SuccessMessage="Your order has been placed"
-      BtnTitle="Home"
-      onPress={() => navigation.dispatch(StackActions.popToTop())}
+      primaryButtonTitle="Home"
+      onPrimaryPress={() => navigation.dispatch(StackActions.popToTop())}
     />
   );
 };

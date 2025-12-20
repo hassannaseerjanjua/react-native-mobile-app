@@ -1,18 +1,32 @@
-import { FlatList, Image, Text, TouchableOpacity, View } from 'react-native';
+import {
+  FlatList,
+  Image,
+  ScrollView,
+  TouchableOpacity,
+  View,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
+} from 'react-native';
+import { Text } from '../../../utils/elements';
 import React, { useState, useRef, useMemo } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
 import useStyles from './style';
 import {
+  DecrementIcon,
   GiftIcon,
+  IncrementIcon,
   RoundedBackIcon,
   SmsTrackingIcon,
+  SvgOutboxShareIcon,
+  PlusIcon,
+  MinusIcon,
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
-import { InboxOrder, GiftFilter } from '../../../types/index';
+import { InboxOrder, GiftFilter, InboxOrderItem } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import {
   useInboxOutboxActions,
@@ -21,16 +35,22 @@ import {
   getUserName,
   getStoreName,
   getMainImage,
-  getItemCount,
   getItemName,
 } from './actions';
-import { scaleWithMax } from '../../../utils';
+import { rtlFlexDirection, scaleWithMax } from '../../../utils';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import useGetApi from '../../../hooks/useGetApi';
 import apiEndpoints from '../../../constants/api-endpoints';
+import useDebounceClick from '../../../hooks/useDebounceClick';
+import api from '../../../utils/api';
+import notify from '../../../utils/notify';
+
 const InboxOutbox: React.FC = () => {
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
+  const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [openBottomSheet2, setOpenBottomSheet2] = useState(false);
   const [videoViewerData, setVideoViewerData] = useState<{
     visible: boolean;
     videoUrl: string;
@@ -60,10 +80,11 @@ const InboxOutbox: React.FC = () => {
   const isInbox = params?.isInbox ?? true;
   const title = params?.title ?? (isInbox ? 'Inbox' : 'Outbox');
   const { styles, theme } = useStyles();
-  const { orders, isLoading, isRtl } = useInboxOutboxActions(isInbox);
+  const { orders, isLoading, isRtl, refetch } = useInboxOutboxActions(isInbox);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<InboxOrder | null>(null);
-
+  const [selectedItem, setSelectedItem] = useState<InboxOrderItem | null>(null);
+  const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
   // Fetch all filters to get filter image URLs
   const filtersApi = useGetApi<GiftFilter[]>(apiEndpoints.GET_ALL_FILTERS, {
     transformData: (data: any) => data.Data?.Items || data.Data || [],
@@ -80,10 +101,16 @@ const InboxOutbox: React.FC = () => {
     return map;
   }, [filtersApi.data]);
 
-  const handleItemPress = (orderId: number) => {
-    const order = orders.find(o => o.OrderId === orderId);
+  const { createDebouceClick } = useDebounceClick();
+
+  const handleItemPress = (orderId: number, itemId: InboxOrderItem) => {
     setOrderId(orderId);
-    setSelectedOrder(order || null);
+    const selectedOrder = orders.find(o => o.OrderId === orderId) as any;
+
+    setSelectedItem(itemId);
+    setSelectedOrder(selectedOrder);
+    setSelectedQuantity(itemId.Quantity); // Initialize with item's quantity
+
     setOpenBottomSheet(true);
   };
 
@@ -91,21 +118,77 @@ const InboxOutbox: React.FC = () => {
     setOpenBottomSheet(false);
   };
 
-  const handlePickUpPress = () => {
-    if (!selectedOrder) return;
+  const handleQuantityChange = (type: 'increment' | 'decrement') => {
+    if (!selectedItem) return;
 
-    const productImage = getMainImage(selectedOrder);
-    const storeName = getStoreName(selectedOrder, isRtl);
-    const quantity = getItemCount(selectedOrder);
+    if (type === 'increment') {
+      if (selectedQuantity < selectedItem.Quantity) {
+        setSelectedQuantity(prevQuantity => prevQuantity + 1);
+      }
+    } else {
+      if (selectedQuantity > 1) {
+        setSelectedQuantity(prevQuantity => prevQuantity - 1);
+      }
+    }
+  };
 
-    (navigation as any).navigate('ScanQr', {
-      OrderId: orderId,
-      productImage,
-      storeName,
-      quantity,
-      productName: selectedOrder?.Items?.[0]?.ItemName,
-    });
-    setOpenBottomSheet(false);
+  const handlePickUpPress = async () => {
+    if (!selectedItem || !selectedOrder || !orderId) return;
+
+    try {
+      const payload = {
+        orderid: orderId,
+        orderPaymentType: 1, // Hardcoded
+        IsRedeem: true,
+        RedeemQuantity: selectedQuantity,
+        Items: [
+          {
+            OrderItemId: selectedItem.OrderItemId,
+            Quantity: selectedQuantity,
+          },
+        ],
+      };
+
+      const response = await api.post<any>(apiEndpoints.INIT_ORDER_v2, payload);
+      const responseData = (response.data as any) || {};
+
+      if (response.success && responseData.Data) {
+        const data = responseData.Data;
+        const responseOrderId = data.OrderId;
+        const uniqueCode = data.UniqueCode;
+
+        if (responseOrderId && uniqueCode) {
+          const productImage = getMainImage(selectedItem);
+          const storeName = getStoreName(selectedOrder, isRtl);
+
+          (navigation as any).navigate('ScanQr', {
+            OrderId: responseOrderId,
+            UniqueCode: uniqueCode,
+            productImage,
+            storeName,
+            quantity: selectedQuantity,
+            productName: selectedOrder?.Items?.[0]?.ItemName,
+          });
+          setOpenBottomSheet(false);
+        } else {
+          notify.error(
+            data.Message ||
+              responseData.ResponseMessage ||
+              'Failed to generate QR code',
+          );
+        }
+      } else {
+        const errorMessage =
+          responseData.Data?.Message ||
+          responseData.ResponseMessage ||
+          response.error ||
+          'Failed to redeem item';
+        notify.error(errorMessage);
+      }
+    } catch (error: any) {
+      console.error('Error redeeming item:', error);
+      notify.error(error?.message || 'An error occurred while redeeming item');
+    }
   };
 
   const handleDeliveryPress = () => {
@@ -118,29 +201,24 @@ const InboxOutbox: React.FC = () => {
   );
 
   const handleVideoPress = (order: InboxOrder) => {
-    const profileImage = getProfileImage(order);
-    const userName = getUserName(order);
+    const profileImage = getProfileImage(order, isInbox);
+    const userName = getUserName(order, isInbox);
     const timeAgo = formatRelativeTime(order.OrderTime);
 
-    // Get filter image URL if OrderFilterId exists
     const filterImageUrl =
       order.OrderFilterId && filterMap.has(order.OrderFilterId)
         ? filterMap.get(order.OrderFilterId) || null
         : null;
 
-    // Get message text if OrderMessage exists
     const messageText = order.OrderMessage || null;
 
-    // Check if we have video or just text
     const hasVideo = order.orderImages && order.orderImages.length > 0;
     const videoUrl = hasVideo ? order.orderImages[0].ImageUrl : '';
 
-    // Start preloading immediately if we have a video
     if (hasVideo && videoUrl) {
       videoViewerRef.current?.preload(videoUrl);
     }
 
-    // Set data but keep invisible initially
     setVideoViewerData({
       visible: false,
       videoUrl,
@@ -151,16 +229,12 @@ const InboxOutbox: React.FC = () => {
       messageText,
     });
 
-    // Small delay to allow video buffering before showing player (or show immediately for text-only)
-    setTimeout(
-      () => {
-        setVideoViewerData(prev => ({
-          ...prev,
-          visible: true,
-        }));
-      },
-      hasVideo ? 300 : 0,
-    );
+    setTimeout(() => {
+      setVideoViewerData(prev => ({
+        ...prev,
+        visible: true,
+      }));
+    }, 300);
   };
 
   const handleCloseVideoViewer = () => {
@@ -169,7 +243,50 @@ const InboxOutbox: React.FC = () => {
       visible: false,
     }));
   };
+  const _handleRedeemOrder = async () => {
+    if (!selectedItem) return;
+    if (loading) return;
+    setLoading(true);
+    const payload = {
+      orderid: selectedOrder?.OrderId,
+      orderPaymentType: 1,
+      IsRedeem: true,
+      RedeemQuantity: quantity,
+      Items: [
+        {
+          OrderItemId: selectedItem?.OrderItemId,
+          Quantity: quantity,
+        },
+      ],
+    };
+    try {
+      const response = await api.post<{
+        Data: {
+          GiftLink: string;
+          Message: string;
+          OrderId: number;
+          QrCode: string | null;
+          Success: boolean;
+          UniqueCode: string | null;
+        };
+      }>(apiEndpoints.INITIATE_CHECKOUT, payload);
 
+      if (response.success) {
+        setOpenBottomSheet2(false);
+        refetch();
+        notify.success(
+          response.data?.Data?.Message || 'Gift redeemed sucessfully',
+        );
+      } else {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+      }
+    } catch (error: any) {
+      console.error('Error initiating checkout:', error);
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+    } finally {
+      setLoading(false);
+    }
+  };
   return (
     <ParentView>
       {isInbox && (
@@ -211,7 +328,7 @@ const InboxOutbox: React.FC = () => {
       ) : (
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={orders}
+          data={orders.filter(order => order.Items && order.Items.length > 0)}
           renderItem={({ item, index }) => (
             <InboxItem
               isLast={index === orders.length - 1}
@@ -219,7 +336,13 @@ const InboxOutbox: React.FC = () => {
               order={item}
               isRtl={isRtl}
               onClick={
-                isInbox ? () => handleItemPress(item.OrderId) : undefined
+                isInbox
+                  ? orderItem => {
+                      createDebouceClick('item-press', () =>
+                        handleItemPress(item.OrderId, orderItem),
+                      );
+                    }
+                  : undefined
               }
               onVideoPress={() => handleVideoPress(item)}
             />
@@ -244,11 +367,60 @@ const InboxOutbox: React.FC = () => {
       <AppBottomSheet
         blurAmount={100}
         isOpen={openBottomSheet}
-        height={theme.sizes.HEIGHT * 0.3}
-        snapPoints={['20%']}
+        height={
+          selectedItem?.Quantity && selectedItem?.Quantity > 1
+            ? theme.sizes.HEIGHT * 0.45
+            : theme.sizes.HEIGHT * 0.3
+        }
+        snapPoints={
+          selectedItem?.Quantity && selectedItem?.Quantity > 1
+            ? ['28%']
+            : ['20%']
+        }
         onClose={handleCloseBottomSheet}
       >
         <View style={styles.bottomSheet}>
+          {selectedItem && selectedItem.Quantity > 1 && (
+            <View style={styles.quantityContainer}>
+              <Text style={styles.quantityLabel}>Quantity:</Text>
+              <View style={styles.quantitySelector}>
+                <TouchableOpacity
+                  onPress={() => handleQuantityChange('decrement')}
+                  disabled={selectedQuantity <= 1}
+                  style={[
+                    styles.quantityButton,
+                    selectedQuantity <= 1 && styles.quantityButtonDisabled,
+                  ]}
+                >
+                  <MinusIcon
+                    width={scaleWithMax(20, 22)}
+                    height={scaleWithMax(20, 22)}
+                    fill={selectedQuantity <= 1 ? '#ccc' : theme.colors.PRIMARY}
+                  />
+                </TouchableOpacity>
+                <Text style={styles.quantityText}>{selectedQuantity}</Text>
+                <TouchableOpacity
+                  onPress={() => handleQuantityChange('increment')}
+                  disabled={selectedQuantity >= selectedItem.Quantity}
+                  style={[
+                    styles.quantityButton,
+                    selectedQuantity >= selectedItem.Quantity &&
+                      styles.quantityButtonDisabled,
+                  ]}
+                >
+                  <PlusIcon
+                    width={scaleWithMax(20, 22)}
+                    height={scaleWithMax(20, 22)}
+                    fill={
+                      selectedQuantity >= selectedItem.Quantity
+                        ? '#ccc'
+                        : theme.colors.PRIMARY
+                    }
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
           <CustomButton title="Pick Up" onPress={handlePickUpPress} />
           <CustomButton
             title="Delivery"
@@ -258,6 +430,7 @@ const InboxOutbox: React.FC = () => {
           />
         </View>
       </AppBottomSheet>
+
       <VideoStoryViewer
         ref={videoViewerRef}
         visible={videoViewerData.visible}
@@ -278,7 +451,7 @@ interface InboxItemProps {
   isLast: boolean;
   isRtl: boolean;
   isInbox: boolean;
-  onClick?: () => void;
+  onClick?: (item: InboxOrderItem) => void;
   onVideoPress?: () => void;
 }
 
@@ -291,17 +464,33 @@ const InboxItem: React.FC<InboxItemProps> = ({
   onVideoPress,
 }) => {
   const { styles, theme } = useStyles();
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const scrollViewRef = useRef<ScrollView>(null);
 
-  const profileImage = getProfileImage(order);
-  const userName = getUserName(order);
+  const profileImage = getProfileImage(order, isInbox);
+  const userName = getUserName(order, isInbox);
   const storeName = getStoreName(order, isRtl);
-  const mainImage = getMainImage(order);
-  const itemCount = getItemCount(order);
-  const itemName = getItemName(order);
   const timeAgo = formatRelativeTime(order.OrderTime);
 
+  const { createDebouceClick } = useDebounceClick();
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const itemWidth = theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8;
+    const index = Math.round(scrollPosition / itemWidth);
+    setCurrentIndex(index);
+  };
+
+  const scrollToIndex = (index: number) => {
+    const itemWidth = theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8;
+    scrollViewRef.current?.scrollTo({
+      x: index * itemWidth,
+      animated: true,
+    });
+  };
+
   return (
-    <TouchableOpacity onPress={onClick} activeOpacity={isInbox ? 0.8 : 1}>
+    <View>
       <View
         style={{
           ...styles.inboxTop,
@@ -322,8 +511,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'space-between',
-                paddingVertical: theme.sizes.PADDING * 0.26,
-                rowGap: theme.sizes.PADDING * 0.26,
+                paddingVertical: theme.sizes.PADDING * 0.2,
+                rowGap: theme.sizes.PADDING * 0.24,
               }}
             >
               <View
@@ -358,46 +547,135 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     />
                   </View>
                 </View>
-                {((order.orderImages &&
-                  Array.isArray(order.orderImages) &&
-                  order.orderImages.length > 0) ||
-                  order.OrderMessage) && (
-                  <TouchableOpacity
-                    onPress={e => {
-                      e.stopPropagation?.();
-                      onVideoPress?.();
-                    }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <SmsTrackingIcon
+                <View
+                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                >
+                  {((order.orderImages &&
+                    Array.isArray(order.orderImages) &&
+                    order.orderImages.length > 0) ||
+                    order.OrderMessage) && (
+                    <TouchableOpacity
+                      onPress={e => {
+                        e.stopPropagation?.();
+                        onVideoPress?.();
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <SmsTrackingIcon
+                        height={scaleWithMax(20, 20)}
+                        width={scaleWithMax(20, 20)}
+                      />
+                    </TouchableOpacity>
+                  )}
+                  {order.SendType === 2 && (
+                    <SvgOutboxShareIcon
                       height={scaleWithMax(20, 20)}
                       width={scaleWithMax(20, 20)}
                     />
-                  </TouchableOpacity>
-                )}
-              </View>
-            </View>
-            <View
-              style={{
-                paddingVertical: theme.sizes.PADDING * 0.6,
-              }}
-            >
-              <View style={styles.imageContainer}>
-                <Image source={mainImage} style={styles.inboxImage} />
-                <View style={styles.inboxImageBottom}>
-                  <Text style={styles.itemNameText}>{itemName}</Text>
-                  {itemCount > 0 && (
-                    <View style={styles.numCircle}>
-                      <Text style={styles.numText}>{itemCount}</Text>
-                    </View>
                   )}
                 </View>
               </View>
             </View>
+
+            {/* Slider with ScrollView */}
+            <View
+              style={{
+                paddingVertical: theme.sizes.PADDING * 0.45,
+              }}
+            >
+              <ScrollView
+                ref={scrollViewRef}
+                horizontal
+                pagingEnabled
+                overScrollMode="never"
+                showsHorizontalScrollIndicator={false}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                scrollEnabled={order.Items && order.Items.length > 1}
+                decelerationRate="fast"
+                snapToInterval={
+                  theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8
+                }
+                snapToAlignment="start"
+                contentContainerStyle={{
+                  paddingVertical: theme.sizes.PADDING * 0.4,
+                  gap: theme.sizes.PADDING * 0.8,
+                }}
+                style={{
+                  overflow: 'visible',
+                }}
+              >
+                {order.Items?.map((item, index) => {
+                  const itemImage = getMainImage(item);
+
+                  return (
+                    <TouchableOpacity
+                      key={`item-${order.OrderId}-${index}`}
+                      onPress={() => onClick && onClick(item)}
+                      activeOpacity={isInbox ? 0.8 : 1}
+                      style={styles.imageContainer}
+                    >
+                      {item.Status === 10 && (
+                        <View style={styles.redeemedBox}>
+                          <Text
+                            style={{
+                              color: theme.colors.WHITE,
+                              fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                            }}
+                          >
+                            Redeemed
+                          </Text>
+                        </View>
+                      )}
+                      <Image source={itemImage} style={styles.inboxImage} />
+                      <View style={styles.inboxImageBottom}>
+                        <Text
+                          style={styles.itemNameText}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {item.ItemName}
+                        </Text>
+                        {item.Quantity > 0 && (
+                          <View style={styles.numCircle}>
+                            <Text style={styles.numText}>{item.Quantity}</Text>
+                          </View>
+                        )}
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+
+              {/* Pagination Dots */}
+              {order.Items && order.Items.length > 1 && (
+                <View style={styles.paginationContainer}>
+                  {order.Items.map((_, index) => (
+                    <TouchableOpacity
+                      key={`dot-${order.OrderId}-${index}`}
+                      onPress={() => {
+                        createDebouceClick('scroll-to-index', () =>
+                          scrollToIndex(index),
+                        );
+                      }}
+                      activeOpacity={0.8}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <View
+                        style={[
+                          styles.paginationDot,
+                          index === currentIndex && styles.paginationDotActive,
+                        ]}
+                      />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
           </View>
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 

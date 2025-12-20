@@ -33,6 +33,25 @@ const useStyles = () => {
       button: {
         marginTop: sizes.HEIGHT * 0.02,
       },
+      uploadImageContainer: {
+        borderWidth: 2,
+        borderColor: theme.colors.PRIMARY,
+        borderRadius: sizes.BORDER_RADIUS,
+        padding: sizes.PADDING * 1.4,
+        gap: sizes.HEIGHT * 0.01,
+        alignItems: 'center',
+        justifyContent: 'center',
+        // Use dashed to get longer segments: --------
+        borderStyle: 'dashed',
+      },
+      uploadButtonText: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        fontSize: sizes.FONTSIZE_SMALL,
+        borderRadius: sizes.BORDER_RADIUS,
+        color: theme.colors.PRIMARY,
+        padding: sizes.PADDING * 0.4,
+        backgroundColor: theme.colors.SECONDARY,
+      },
     }),
     theme,
   };

@@ -312,12 +312,21 @@ export const useOccasions = () => {
 
   const handleDatePickerConfirm = (selectedDate: Date, formik: any) => {
     const today = new Date();
-    if (selectedDate <= today) {
+    // Set today's time to 00:00:00 for accurate comparison
+    today.setHours(0, 0, 0, 0);
+    const selected = new Date(selectedDate);
+    selected.setHours(0, 0, 0, 0);
+    
+    // Only accept future dates (dates after today)
+    if (selected > today) {
       setShowDatePicker(false);
       setDate(selectedDate);
       const dateString = selectedDate.toISOString().split('T')[0];
       formik.setFieldValue('occasionDate', dateString, false);
       formik.setFieldTouched('occasionDate', true, false);
+    } else {
+      // Show error if user somehow selects today or past date
+      notify.error('Please select a future date');
     }
   };
 

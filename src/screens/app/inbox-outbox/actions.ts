@@ -3,7 +3,11 @@ import { useNavigation } from '@react-navigation/native';
 import { ImageSourcePropType } from 'react-native';
 import useGetApi from '../../../hooks/useGetApi';
 import apiEndpoints from '../../../constants/api-endpoints';
-import { InboxOrder, InboxApiResponseData } from '../../../types/index';
+import {
+  InboxOrder,
+  InboxApiResponseData,
+  InboxOrderItem,
+} from '../../../types/index';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
 const defaultProfileImage = require('../../../assets/images/user.png');
@@ -42,17 +46,27 @@ export const formatRelativeTime = (dateString: string): string => {
   return 'Just now';
 };
 
-export const getProfileImage = (order: InboxOrder): ImageSourcePropType => {
-  return order.FriendImageUrl
-    ? { uri: order.FriendImageUrl }
-    : defaultProfileImage;
+export const getProfileImage = (
+  order: InboxOrder,
+  isInbox: boolean,
+): ImageSourcePropType => {
+  if (isInbox) {
+    return order.users?.ProfileUrl
+      ? { uri: order.users.ProfileUrl }
+      : defaultProfileImage;
+  } else {
+    return order.FriendImageUrl
+      ? { uri: order.FriendImageUrl }
+      : defaultProfileImage;
+  }
 };
 
-export const getUserName = (order: InboxOrder): string => {
-  if (order.FriendName) {
-    return order.FriendName;
+export const getUserName = (order: InboxOrder, isInbox: boolean): string => {
+  if (isInbox) {
+    return order.users?.FullName || '';
+  } else {
+    return order.FriendName || order.users?.FullName || '';
   }
-  return order.users?.FullName || '';
 };
 
 export const getStoreName = (order: InboxOrder, isRtl: boolean): string => {
@@ -68,32 +82,19 @@ export const getStoreName = (order: InboxOrder, isRtl: boolean): string => {
   return order.stores?.NameAr || '';
 };
 
-export const getMainImage = (order: InboxOrder): ImageSourcePropType => {
-  if (order.Items && order.Items.length > 0) {
-    const firstItem = order.Items[0];
-    if (firstItem.ThumbnailUrl && firstItem.ThumbnailUrl.trim()) {
-      return { uri: firstItem.ThumbnailUrl };
-    }
-    if (firstItem.Images && firstItem.Images.length > 0) {
-      const imageUrl =
-        firstItem.Images[0].ImageUrls || firstItem.Images[0].ImageUrl;
-      if (imageUrl && imageUrl.trim()) {
-        return { uri: imageUrl };
-      }
+export const getMainImage = (order: InboxOrderItem): ImageSourcePropType => {
+  const firstItem = order;
+  if (firstItem.ThumbnailUrl && firstItem.ThumbnailUrl.trim()) {
+    return { uri: firstItem.ThumbnailUrl };
+  }
+  if (firstItem.Images && firstItem.Images.length > 0) {
+    const imageUrl =
+      firstItem.Images[0].ImageUrls || firstItem.Images[0].ImageUrl;
+    if (imageUrl && imageUrl.trim()) {
+      return { uri: imageUrl };
     }
   }
-
   return defaultItemImage;
-};
-
-export const getItemCount = (order: InboxOrder): number => {
-  if (order.orderImages && order.orderImages.length > 0) {
-    return order.orderImages.length;
-  }
-  if (order.Items && order.Items.length > 0) {
-    return order.Items.length;
-  }
-  return 0;
 };
 
 export const getItemName = (order: InboxOrder): string => {
@@ -115,7 +116,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
       withAuth: true,
     },
   );
-
+const refetch=()=>getInboxOutboxDetails.refetch()
   const orders = getInboxOutboxDetails.data?.Items || [];
   const isLoading = getInboxOutboxDetails.loading;
 
@@ -123,5 +124,6 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
     orders,
     isLoading,
     isRtl,
+    refetch
   };
 };

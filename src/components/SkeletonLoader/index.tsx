@@ -28,7 +28,9 @@ type SkeletonLoaderProps = {
     | 'occasionView'
     | 'occasionList'
     | 'inbox'
-    | 'giftFilters';
+    | 'giftFilters'
+    | 'tabItem'
+    | 'tabItemCity';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -216,7 +218,6 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               alignItems="center"
               justifyContent="space-between"
               paddingHorizontal={screenWidth * 0.055}
-              backgroundColor="#fff"
               borderRadius={screenWidth * 0.03}
               marginTop={screenHeight * 0.015}
             >
@@ -1493,6 +1494,47 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
             </SkeletonPlaceholder.Item>
           </SkeletonPlaceholder>
         );
+      case 'tabItemCity':
+        return (
+          <SkeletonPlaceholder>
+            {[...Array(10)].map((_, index) => (
+              <SkeletonPlaceholder.Item
+                key={index}
+                width="100%"
+                flexDirection="row"
+                alignItems="center"
+                justifyContent="space-between"
+                paddingHorizontal={theme.sizes.PADDING}
+                paddingVertical={theme.sizes.HEIGHT * 0.017}
+                borderRadius={theme.sizes.BORDER_RADIUS}
+              >
+                {/* Left section */}
+                <SkeletonPlaceholder.Item
+                  flexDirection="row"
+                  alignItems="center"
+                  paddingRight={theme.sizes.PADDING}
+                >
+                  {/* Title */}
+                  <SkeletonPlaceholder.Item
+                    marginLeft={scaleWithMax(10, 12)}
+                    width={theme.sizes.WIDTH * 0.8}
+                    height={theme.sizes.HEIGHT * 0.04}
+                    borderRadius={6}
+                  />
+                </SkeletonPlaceholder.Item>
+
+                {/* Right arrow */}
+                <SkeletonPlaceholder.Item
+                  width={12}
+                  height={12}
+                  marginRight={theme.sizes.WIDTH * 0.7}
+                  borderRadius={6}
+                />
+              </SkeletonPlaceholder.Item>
+            ))}
+          </SkeletonPlaceholder>
+        );
+
       case 'giftFilters':
         return (
           <SkeletonPlaceholder>
@@ -1503,7 +1545,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
               {[...Array(3)].map((_, index) => (
                 <SkeletonPlaceholder.Item
                   key={index}
-                  width={screenWidth * 0.6}
+                  width={screenWidth * 0.5}
                   height={screenHeight * 0.21}
                   borderRadius={12}
                   marginRight={index < 2 ? scaleWithMax(15, 18) : 0}

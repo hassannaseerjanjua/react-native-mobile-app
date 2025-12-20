@@ -1,4 +1,11 @@
-import { Image, ScrollView, TouchableOpacity, View } from 'react-native';
+import {
+  Image,
+  Platform,
+  ScrollView,
+  Share,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import React, { useState, useEffect } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -11,6 +18,7 @@ import {
   PlusIcon,
   SvgEhsanIcon,
   SvgGifteeWalletIcon,
+  SvgGiftSentIcon,
   SvgRiyalIcon,
   SvgRiyalIconWhite,
   SvgSelectedCheck,
@@ -38,11 +46,13 @@ import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi';
 import InputField from '../../../components/global/InputField';
 import { getVideoUploadPromise } from '../../../utils/videoUploadState';
+import { useAuthStore } from '../../../store/reducer/auth';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
-  const { getString, isRtl } = useLocaleStore();
+  const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation();
+  const { user } = useAuthStore();
 
   const { isVideoUploading } = (route.params as any) || {};
 
@@ -70,7 +80,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [cartData, setCartData] = useState<CartResponse | null>(
     cartItemsApi.data,
   );
-  console.log('cartData', cartData);
   const loading = cartItemsApi.loading;
 
   // useEffect(() => {
@@ -307,7 +316,36 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       </View>
     );
   };
+  const handleShareGiftLink = async (giftLink: string) => {
+    try {
+      const senderName =
+        (langCode === 'ar' ? user?.FullNameAr : user?.FullNameEn) ||
+        user?.FullNameEn ||
+        user?.FullNameAr ||
+        'Someone';
+      const shareMessage = `${senderName} sent you a gift. Click on the link below to redeem the gift.\n\n${giftLink}`;
 
+      const shareOptions = Platform.select({
+        ios: {
+          message: shareMessage,
+          url: giftLink,
+        },
+        android: {
+          message: shareMessage,
+          title: getString('P_GIFT_ME_ON_GIFTEE'),
+        },
+      }) || {
+        message: shareMessage,
+        title: getString('P_GIFT_ME_ON_GIFTEE'),
+      };
+
+      const result = await Share.share(shareOptions);
+
+      if (result.action === Share.sharedAction) {
+      } else if (result.action === Share.dismissedAction) {
+      }
+    } catch (error) {}
+  };
   const handleProceedToCheckout = async () => {
     if (!cartData || submitting || waitingForVideoUpload) return;
 
@@ -342,15 +380,25 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       const payload = {
         orderid: cartData.OrderId,
         orderPaymentType: 1,
+        IsRedeem: false,
       };
 
-      const response = await api.post<any>(
-        apiEndpoints.INITIATE_CHECKOUT,
-        payload,
-      );
+      const response = await api.post<{
+        Data: {
+          GiftLink: string;
+          Message: string;
+          OrderId: number;
+          QrCode: string | null;
+          Success: boolean;
+          UniqueCode: string | null;
+        };
+      }>(apiEndpoints.INITIATE_CHECKOUT, payload);
 
       if (response.success) {
         setCheckoutCompleted(true);
+        if (response.data?.Data?.GiftLink) {
+          handleShareGiftLink(response.data?.Data?.GiftLink);
+        }
       } else {
         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
       }
@@ -363,12 +411,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
   };
 
-  const GiftSend = require('../../../assets/images/gift-send.png');
-
   if (checkoutCompleted) {
     return (
       <View style={styles.checkoutCompletedContainer}>
-        <Image source={GiftSend} />
+        {/* <Image source={GiftSend} /> */}
+        <SvgGiftSentIcon />
         <Text style={styles.TextLarge}>{getString('CHECKOUT_GIFT_SENT')}</Text>
         <CustomFooter>
           <View style={{ position: 'relative' }}>
@@ -413,7 +460,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const giftImage = firstItem.Images?.[0]?.ImageUrls || firstItem.ThumbnailUrl;
   const giftImageSource = cartData.FriendImageUrl
     ? { uri: cartData.FriendImageUrl }
-    : require('../../../assets/images/img-placeholder.png');
+    : require('../../../assets/images/gift-link.png');
 
   return (
     <ParentView>
@@ -457,45 +504,59 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           ))}
         </View>
 
-        {cartData.FriendId && (
-          <View style={styles.section}>
-            <Text style={styles.heading}>
-              {getString('CHECKOUT_SEND_A_GIFT')}
-            </Text>
-            <View style={styles.GiftContainer}>
-              <View
-                style={{
-                  ...styles.row,
-                  flex: 1,
-                  gap: theme.sizes.WIDTH * 0.025,
-                  flexDirection: rtlFlexDirection(isRtl),
-                }}
-              >
-                <Image
-                  source={giftImageSource}
-                  style={styles.GiftContainerImage}
-                />
-                <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
-                  <Text style={styles.TextMedium}>
-                    {cartData.FriendName || 'Friend'}
-                  </Text>
-                </View>
-              </View>
-              <View
-                style={[
-                  styles.row,
-                  {
-                    gap: theme.sizes.WIDTH * 0.025,
-                    flexDirection: rtlFlexDirection(isRtl),
-                  },
-                ]}
-              >
-                <GiftIcon />
-                <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+        {/* {cartData.FriendId && ( */}
+        <View style={styles.section}>
+          <Text style={styles.heading}>
+            {getString('CHECKOUT_SEND_A_GIFT')}
+          </Text>
+          <View style={styles.GiftContainer}>
+            <View
+              style={{
+                ...styles.row,
+                flex: 1,
+                gap: theme.sizes.WIDTH * 0.025,
+                flexDirection: rtlFlexDirection(isRtl),
+              }}
+            >
+              <Image
+                source={giftImageSource}
+                style={
+                  cartData.FriendImageUrl
+                    ? styles.GiftContainerImage
+                    : styles.LinkImage
+                }
+              />
+              <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
+                <Text style={styles.TextMedium}>
+                  {cartData.FriendName || 'Sending through link'}
+                </Text>
               </View>
             </View>
+            <View
+              style={[
+                styles.row,
+                {
+                  gap: theme.sizes.WIDTH * 0.025,
+                  flexDirection: rtlFlexDirection(isRtl),
+                },
+              ]}
+            >
+              <GiftIcon />
+              <TouchableOpacity
+                onPress={() => {
+                  (navigation as any).navigate('GiftMessage', {
+                    friendUserId: cartData.FriendId,
+                    storeBranchId: cartData.StoreBranchId,
+                    orderId: cartData.OrderId,
+                  });
+                }}
+              >
+                <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+              </TouchableOpacity>
+            </View>
           </View>
-        )}
+        </View>
+        {/* )} */}
 
         <View style={styles.section}>
           <View

@@ -272,14 +272,13 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                 textAlign="center"
                 selectTextOnFocus
                 autoFocus={index === 0}
-                returnKeyType="next"
               />
             ))}
           </View>
 
           <View style={styles.subtitleContainer}>
             <Text style={styles.subtitle}>
-              {getString('AU_HAVENT_RECEIVED_CODE')}
+              {getString('AU_HAVENT_RECEIVED_CODE')}{' '}
               {isTimerActive ? (
                 <Text>
                   {getString('AU_WAIT_FOR')} {formatTimer(timer)}

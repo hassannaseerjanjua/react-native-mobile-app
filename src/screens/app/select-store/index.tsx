@@ -8,25 +8,41 @@ import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import DropdownField, {
+  DropdownOption,
+} from '../../../components/global/DropdownField.tsx';
 import {
   AppStackScreen,
   AppStackParamList,
 } from '../../../types/navigation.types.ts';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import { useAuthStore } from '../../../store/reducer/auth';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
-import { Store, BusinessType } from '../../../types/index.ts';
+import {
+  Store,
+  BusinessType,
+  StoreListApiResponse,
+  City,
+} from '../../../types/index.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
+import { useListingApi } from '../../../hooks/useListingApi.ts';
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
+import { Text } from '../../../utils/elements';
 
 const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const friendUserId = route?.params?.friendUserId ?? null;
   const { styles, theme } = useStyles();
   const { getString, langCode } = useLocaleStore();
+  const { token, user } = useAuthStore();
   const navigation =
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const initialCityId = route?.params?.CityId ?? null;
+  const [selectedCityId, setSelectedCityId] = useState<number | null>(
+    initialCityId,
+  );
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
@@ -37,6 +53,10 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       transformData: (data: any) => data.Data.Items || [],
     },
   );
+
+  const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
+    transformData: (data: any) => data?.Data?.cities ?? [],
+  });
 
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
@@ -50,6 +70,23 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     return [allOption, ...businessTypeOptions];
   }, [businessTypeApi.data, getString, langCode]);
 
+  const cityOptions: DropdownOption[] = useMemo(
+    () =>
+      (citiesApi.data || []).map(city => ({
+        label:
+          langCode === 'ar'
+            ? city.CityNameAr || city.CityName
+            : city.CityNameEn || city.CityName,
+        value: city.CityID,
+      })),
+    [citiesApi.data, langCode],
+  );
+
+  const selectedCityOption: DropdownOption | null = useMemo(
+    () => cityOptions.find(option => option.value === selectedCityId) || null,
+    [cityOptions, selectedCityId],
+  );
+
   const handleStoreSelect = (item: Store | any) => {
     const store = item as Store;
 
@@ -62,14 +99,27 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,
       },
+      sendType: route.params.sendType,
       storeId: store.StoreId ?? null,
       friendUserId: friendUserId ?? undefined,
     });
   };
-
-  const storeListApi = useGetApi<Store[]>(apiEndpoints.GET_STORE_LIST, {
-    transformData: (data: any) => data.Data.Items || [],
-  });
+  const storeListApi = useListingApi<Store>(
+    apiEndpoints.GET_STORE_LIST,
+    token,
+    {
+      idExtractor: (item: Store) => item.StoreId,
+      transformData: (data: StoreListApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
+      extraParams: {
+        businessTypeId:
+          selectedFilter === 'all' ? undefined : Number(selectedFilter),
+        cityid: selectedCityId,
+      },
+    },
+  );
 
   useEffect(() => {
     if (storeListApi.data) {
@@ -80,6 +130,18 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       setFavoriteStates(initialState);
     }
   }, [storeListApi.data]);
+
+  useEffect(() => {
+    storeListApi.setExtraParams(prev => ({
+      ...prev,
+      businessTypeId:
+        selectedFilter === 'all' ? undefined : Number(selectedFilter),
+      cityid: selectedCityId,
+    }));
+  }, [selectedFilter, selectedCityId]);
+
+  const searchQuery = storeListApi.search;
+  const setSearchQuery = storeListApi.setSearch;
 
   const handleFavoritePress = async (store: Store) => {
     const storeId = store.StoreId;
@@ -117,15 +179,6 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     }
   };
 
-  const filteredStores = useMemo(() => {
-    if (!storeListApi.data) return [];
-    if (selectedFilter === 'all') return storeListApi.data;
-    const businessTypeId = Number(selectedFilter);
-    return storeListApi.data.filter(
-      store => store.BusinessTypeID === businessTypeId,
-    );
-  }, [storeListApi.data, selectedFilter]);
-
   return (
     <ParentView>
       <View style={styles.container}>
@@ -138,6 +191,35 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
           showBackButton={true}
           onBackPress={() => navigation.goBack()}
           showSearchBar={true}
+          searchValue={searchQuery}
+          onSearchChange={setSearchQuery}
+          searchPlaceholder={getString('HOME_SEARCH')}
+          rightSideView={
+            route.params.sendType !== 2 && (
+              <View
+                style={{
+                  width: theme.sizes.WIDTH * 0.4,
+                }}
+              >
+                <DropdownField
+                  options={cityOptions}
+                  selectedValue={selectedCityId ?? undefined}
+                  selectedOption={selectedCityOption}
+                  onSelect={option => setSelectedCityId(option.value)}
+                  isLoading={citiesApi.loading}
+                  label="Select City"
+                  placeholder=""
+                  style={{
+                    height: theme.sizes.HEIGHT * 0.045,
+                    borderRadius: theme.sizes.BORDER_RADIUS,
+                    paddingHorizontal: theme.sizes.PADDING * 0.4,
+                    backgroundColor: 'transparent',
+                    borderWidth: 0,
+                  }}
+                />
+              </View>
+            )
+          }
         />
         <View style={styles.tabsContainer}>
           <GroupTabs
@@ -158,31 +240,58 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             </View>
           ) : (
             <>
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{
-                  paddingBottom: theme.sizes.HEIGHT * 0.16,
-                  paddingHorizontal: theme.sizes.PADDING,
-                }}
-                data={filteredStores}
-                extraData={favoriteStates}
-                renderItem={({ item }) => (
-                  <View style={styles.favoriteItemContainer} key={item.StoreId}>
-                    <FavoriteItemCard
+              {!storeListApi.data || storeListApi.data.length === 0 ? (
+                <View
+                  style={{
+                    paddingHorizontal: theme.sizes.PADDING,
+                    paddingTop: theme.sizes.HEIGHT * 0.1,
+                    alignItems: 'center',
+                  }}
+                >
+                  <Text
+                    style={{
+                      fontSize: 16,
+                      color: theme.colors.SECONDARY_TEXT || '#666',
+                    }}
+                  >
+                    {searchQuery
+                      ? getString('SEARCH_NO_RESULTS_FOUND')
+                      : 'No Stores Found'}
+                  </Text>
+                </View>
+              ) : (
+                <FlatList
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{
+                    paddingBottom: theme.sizes.HEIGHT * 0.16,
+                    paddingHorizontal: theme.sizes.PADDING,
+                  }}
+                  data={storeListApi.data}
+                  extraData={favoriteStates}
+                  keyExtractor={item => item.StoreId.toString()}
+                  renderItem={({ item }) => (
+                    <View
+                      style={styles.favoriteItemContainer}
                       key={item.StoreId}
-                      item={item}
-                      onPress={handleStoreSelect}
-                      showFavorite={true}
-                      isFavorite={
-                        favoriteStates[item.StoreId] ??
-                        item.isFavourite ??
-                        false
-                      }
-                      onFavoritePress={() => handleFavoritePress(item)}
-                    />
-                  </View>
-                )}
-              />
+                    >
+                      <FavoriteItemCard
+                        key={item.StoreId}
+                        item={item}
+                        onPress={handleStoreSelect}
+                        showFavorite={true}
+                        isFavorite={
+                          favoriteStates[item.StoreId] ??
+                          item.isFavourite ??
+                          false
+                        }
+                        onFavoritePress={() => handleFavoritePress(item)}
+                      />
+                    </View>
+                  )}
+                  onEndReached={storeListApi.loadMore}
+                  onEndReachedThreshold={0.5}
+                />
+              )}
             </>
           )}
         </View>

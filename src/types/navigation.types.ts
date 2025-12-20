@@ -27,8 +27,9 @@ export type AppStackParamList = {
     itemId: number;
     friendUserId?: number | null;
     storeId?: number | null;
-    type?: 'GiftOneGetOne';
+    type?: 'GiftOneGetOne' | 'catch';
     campaignId?: number;
+    sendType?: number | null;
   };
   Search: {
     title?: string;
@@ -42,7 +43,9 @@ export type AppStackParamList = {
   SendAGift: {
     routeTo: 'GiftOneGetOne' | 'SelectStore';
   };
-  SendToGroup: undefined;
+  SendToGroup: {
+    routeTo?: 'GiftOneGetOne' | 'SelectStore';
+  };
   Wallet: undefined;
   InboxOutbox: {
     title?: string;
@@ -51,28 +54,10 @@ export type AppStackParamList = {
   FAQ: undefined;
   Settings: undefined;
   GiftMessage: {
-    product: {
-      id?: string | number;
-      title: string;
-      subtitle: string;
-      image: any;
-      price: number;
-      discountedPrice?: number;
-      storeId?: number;
-      storeBranchId?: number;
-      itemId?: number;
-      categoryId?: number;
-      categoryName?: string;
-    };
     storeBranchId?: number | null;
     friendUserId?: number | null;
-    addToCartPayload?: {
-      FriendId?: number | null;
-      StoreBranchId?: number | null;
-      ItemId: number;
-      ItemVariantId?: number;
-      Quantity: number;
-    };
+    orderId?: number;
+    sendType?: number | null;
   };
   ContactUs: undefined;
   Favorites: {
@@ -89,12 +74,15 @@ export type AppStackParamList = {
       imageLogo?: string | null;
       imageCover?: string | null;
     };
+    sendType?: number | null;
     friendUserId?: number | null;
     storeId?: number | null;
   };
   SelectStore: {
     friendUserId?: number | null;
     storeId?: number | null;
+    CityId?: number | null;
+    sendType?: number | null;
   };
   CatchScreen: {
     storeID?: number;
@@ -105,12 +93,16 @@ export type AppStackParamList = {
   };
   ScanQr: {
     OrderId?: number | null;
+    UniqueCode?: string | null;
     productImage?: any;
     storeName?: string;
     quantity?: number;
     productName?: string;
   };
   Occasions: undefined;
+  SelectCity: {
+    sendType: number;
+  };
   CheckOut:
     | {
         product?: {

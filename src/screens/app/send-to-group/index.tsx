@@ -25,7 +25,10 @@ import notify from '../../../utils/notify';
 
 interface SendToGroupProps extends AppStackScreen<'SendToGroup'> {}
 
-const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
+const SendToGroupScreen: React.FC<SendToGroupProps> = ({
+  navigation,
+  route,
+}) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const [searchQuery, setSearchQuery] = useState('');
@@ -250,6 +253,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({ navigation }) => {
           },
         ]}
         viewOnly={true}
+        routeTo={route.params?.routeTo}
       />
 
       <MemberSelectionModal

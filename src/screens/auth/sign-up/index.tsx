@@ -389,6 +389,7 @@ const StepContent: React.FC<StepContentProps> = ({
           <View style={styles.inputContainer}>
             <InputField
               icon={<SvgPhone width={scaleWithMax(20, 25)} />}
+              isPhone={true}
               error={
                 formik.touched.phoneNumber && formik.errors.phoneNumber
                   ? formik.errors.phoneNumber
@@ -396,18 +397,12 @@ const StepContent: React.FC<StepContentProps> = ({
               }
               fieldProps={{
                 placeholder: getString('AU_PHONE_NUMBER'),
-                maxLength: 14,
-                value: '+966 ' + formData.phoneNumber,
+                maxLength: 9,
+                value: formData.phoneNumber,
                 onChangeText: value => {
-                  if (value?.startsWith('+966 ')) {
-                    updateFormData(
-                      'phoneNumber',
-                      value?.replaceAll('+966 ', ''),
-                      formik,
-                    );
-                  }
+                  updateFormData('phoneNumber', value, formik);
                 },
-                keyboardType: 'phone-pad',
+                keyboardType: 'number-pad',
               }}
             />
           </View>

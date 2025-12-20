@@ -54,18 +54,18 @@ const ProfileScreen: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
 
-  console.log('Userdata', user);
-
   const handleLogout = () => {
     dispatch(logout());
   };
 
   const handleShareGiftLink = async () => {
     try {
-      const giftLink = `https://giftee.app/share/${user?.UserName || 'user123'
-        }`;
-      const inviteLink = `giftee.com/inviteby/abc123?${user?.UserName || 'user123'
-        }`;
+      const giftLink = `https://giftee.app/share/${
+        user?.UserName || 'user123'
+      }`;
+      const inviteLink = `giftee.com/inviteby/abc123?${
+        user?.UserName || 'user123'
+      }`;
       const shareOptions = Platform.select({
         ios: {
           message: `${getString('P_GIFT_ME_ON_GIFTEE')}\n\n${inviteLink}`,
@@ -89,7 +89,7 @@ const ProfileScreen: React.FC = () => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const handleImageSelect = () => {
@@ -143,7 +143,7 @@ const ProfileScreen: React.FC = () => {
           );
         }
       })
-      .catch(error => { })
+      .catch(error => {})
       .finally(() => {
         setIsUploading(false);
       });
@@ -361,8 +361,7 @@ const ProfileScreen: React.FC = () => {
                     size={scaleWithMax(220, 250)}
                     color={theme.colors.PRIMARY}
                     backgroundColor={theme.colors.WHITE}
-                    quietZone={10}
-                    ecl="M"
+                    ecl="H"
                   />
                 ) : (
                   <View

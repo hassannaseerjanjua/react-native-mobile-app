@@ -51,6 +51,8 @@ interface HomeHeaderProps {
   rightSideTitlePress?: () => void;
   rightSideIcon?: any;
   rightSideTitleStyle?: StyleProp<ViewStyle>;
+  /** Custom element to render on the right side (e.g., dropdown) */
+  rightSideView?: React.ReactNode;
   showLogo?: boolean;
   customContainerStyle?: StyleProp<ViewStyle>;
 }
@@ -73,6 +75,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   showLogo,
   customContainerStyle,
   rightSideTitleStyle,
+  rightSideView,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -184,6 +187,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               />
             </Pressable>
           )}
+          {rightSideView && (
+            <View style={styles.rightSideViewContainer}>{rightSideView}</View>
+          )}
           {rightSideTitle && (
             <TouchableOpacity
               onPress={rightSideTitlePress}
@@ -247,6 +253,9 @@ const useStyles = () => {
       rightSection: {
         flexDirection: 'row',
         alignItems: 'center',
+      },
+      rightSideViewContainer: {
+        marginLeft: theme.sizes.PADDING * 0.5,
       },
       searchContainer: {
         width: scaleWithMax(35, 38),

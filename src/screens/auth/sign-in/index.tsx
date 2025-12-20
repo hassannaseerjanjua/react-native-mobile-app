@@ -96,7 +96,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       <AuthLayout
         onBackPress={() => navigation.goBack()}
         title={getString('AU_SIGN_IN_HEADING')}
-        backButton={false}
+        // backButton={false}
         subtitle={getString('AU_WELCOME_BACK')}
       >
         <View style={styles.tabContainer}>
@@ -161,7 +161,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                       placeholder: isPhone
                         ? getString('AU_PHONE_NUMBER')
                         : getString('AU_PL_EMAIL'),
-                      keyboardType: isPhone ? 'phone-pad' : 'email-address',
+                      keyboardType: isPhone ? 'number-pad' : 'email-address',
                       autoCapitalize: 'none',
                       maxLength: isPhone ? 9 : 100,
                       value: isPhone ? values.phone : values.email,
@@ -193,7 +193,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         </Formik>
 
         <Text style={styles.linkContainer}>
-          {getString('AU_DONT_HAVE_AN_ACCOUNT')}
+          {getString('AU_DONT_HAVE_AN_ACCOUNT')}{' '}
           <Text
             style={styles.link}
             onPress={() => navigation.navigate('SignUp')}

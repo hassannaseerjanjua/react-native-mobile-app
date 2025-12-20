@@ -1,10 +1,4 @@
-import {
-  ScrollView,
-  StatusBar,
-  Text,
-  TouchableOpacity,
-  View,
-} from 'react-native';
+import { ScrollView, StatusBar, TouchableOpacity, View } from 'react-native';
 import React, { useEffect, useMemo, useState } from 'react';
 import useStyles from './style';
 import {
@@ -27,6 +21,8 @@ import api from '../../../utils/api';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi';
+import { StoreProduct } from '../../../types';
+import { Text } from '../../../utils/elements';
 
 const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   route,
@@ -43,9 +39,12 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [item, setItem] = useState<any>(null);
 
-  const itemApi = useGetApi<any>(apiEndpoints.GET_STORE_ITEM_BY_ID(itemId), {
-    transformData: (data: any) => data?.Data ?? null,
-  });
+  const itemApi = useGetApi<StoreProduct>(
+    apiEndpoints.GET_STORE_ITEM_BY_ID(itemId),
+    {
+      transformData: (data: any) => data?.Data ?? null,
+    },
+  );
 
   const loading = itemApi.loading;
 
@@ -118,31 +117,23 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
   const handleAddToCart = async () => {
     if (submitting) return;
-    const isGift = route.params.type === 'GiftOneGetOne';
+    const IsGift =
+      route.params.type === 'GiftOneGetOne' || route.params.sendType !== 1;
     try {
       setSubmitting(true);
-      let payload = {};
-      if (isGift) {
-        payload = {
-          StoreId: route.params.storeId ?? item?.StoreId ?? null,
-          ItemId: item?.ItemId,
-          CampaignId: route.params.campaignId,
-          ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
-          ReceiverUserId: friendUserId ?? null,
-        };
-      } else {
-        payload = {
-          FriendId: friendUserId ?? null,
-          ItemId: item?.ItemId,
-          ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
-          Quantity: quantity,
-          StoreId: storeId ?? null,
-        };
-      }
-      const response = await api.post(
-        isGift ? apiEndpoints.ADD_CAMPAIGN_TO_CART : apiEndpoints.ADD_TO_CART,
-        payload,
-      );
+
+      const payload = {
+        FriendId: friendUserId,
+        ItemId: item.ItemId,
+        ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
+        Quantity: quantity,
+        StoreId: storeId ?? null,
+        SendType: route.params.sendType ?? 1,
+        CampaignId: item.CampaignId,
+        IsGift,
+      };
+
+      const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
       if (response.success) {
         navigation.goBack();
       } else {
@@ -154,6 +145,17 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       setSubmitting(false);
     }
   };
+  const itemPrice = useMemo(() => {
+    if (!itemApi.data?.Variants?.length) return itemApi.data?.Price;
+
+    const selectedVariant = selectedFilter
+      ? itemApi.data.Variants.find(
+          v => v.ItemVariantId === Number(selectedFilter),
+        )
+      : itemApi.data.Variants.find(v => v.IsDefault);
+
+    return (selectedVariant?.Price ?? 0) + (selectedVariant?.FeelingFee ?? 0);
+  }, [item, selectedFilter]);
 
   return (
     <ParentView edges={['bottom']}>
@@ -236,8 +238,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                     }}
                   />
                   <Text style={styles.price}>
-                    {item?.Price !== undefined && item?.Price !== null
-                      ? String(item?.Price)
+                    {itemPrice !== undefined && itemPrice !== null
+                      ? String(itemPrice)
                       : ''}
                   </Text>
                 </View>
@@ -253,7 +255,13 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               </Text>
               <Text style={styles.Description}>{item?.DescEn ?? ''}</Text>
             </View>
-            <Text style={styles.Heading}>{getString('PRODUCT_VARIANTS')}</Text>
+            {item?.Variants?.length > 0 && (
+              <View>
+                <Text style={styles.Heading}>
+                  {getString('PRODUCT_VARIANTS')}
+                </Text>
+              </View>
+            )}
           </View>
           <View style={styles.tabsContainer}>
             <GroupTabs
