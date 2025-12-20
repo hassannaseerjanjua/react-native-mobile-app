@@ -433,66 +433,7 @@ const InboxOutbox: React.FC = () => {
           />
         </View>
       </AppBottomSheet>
-      <AppBottomSheet
-        blurAmount={100}
-        isOpen={openBottomSheet2}
-        height={theme.sizes.HEIGHT * 0.18}
-        onClose={() => setOpenBottomSheet2(false)}
-      >
-        <View style={styles.bottomSheet}>
-          <View
-            style={{
-              ...styles.row,
-              flexDirection: rtlFlexDirection(isRtl),
-              gap: theme.sizes.PADDING,
-            }}
-          >
-            <Image
-              source={{
-                uri:
-                  selectedItem?.ThumbnailUrl ||
-                  selectedItem?.Images?.[0].ImageUrls?.[0],
-              }}
-              style={styles.redeemImage}
-            />
-            <Text style={styles.redeemText}>{selectedItem?.ItemName}</Text>
-            <View
-              style={[
-                styles.quantityControls,
-                { flexDirection: rtlFlexDirection(isRtl) },
-              ]}
-            >
-              <TouchableOpacity
-                onPress={() => setQuantity(quantity - 1)}
-                disabled={quantity <= 1}
-                style={{
-                  opacity: quantity <= 1 ? 0.5 : 1,
-                }}
-              >
-                <DecrementIcon />
-              </TouchableOpacity>
-              <Text style={styles.quantityValue}>
-                {`${quantity < 10 ? '0' : ''}${quantity}`}
-              </Text>
-              <TouchableOpacity
-                onPress={() => setQuantity(quantity + 1)}
-                disabled={quantity === selectedItem?.Quantity}
-                style={{
-                  opacity: quantity === selectedItem?.Quantity ? 0.5 : 1,
-                }}
-              >
-                <IncrementIcon />
-              </TouchableOpacity>
-            </View>
-          </View>
-          <CustomButton
-            loading={loading}
-            onPress={_handleRedeemOrder}
-            buttonStyle={{ marginTop: 'auto' }}
-            title="Redeem"
-          />
-        </View>
-      </AppBottomSheet>
+
       <VideoStoryViewer
         ref={videoViewerRef}
         visible={videoViewerData.visible}
