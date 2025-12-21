@@ -46,7 +46,11 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
   const { styles } = useStyles();
 
   return (
-    <TouchableOpacity onPress={() => onPress(item)} style={styles.container}>
+    <TouchableOpacity
+      activeOpacity={1}
+      onPress={() => onPress(item)}
+      style={styles.container}
+    >
       <View style={styles.imageContainer}>
         <Image source={item.coverImage} style={styles.image} />
         <TouchableOpacity
