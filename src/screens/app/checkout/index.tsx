@@ -323,7 +323,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         user?.FullNameEn ||
         user?.FullNameAr ||
         'Someone';
-      const shareMessage = `${senderName} sent you a gift. Click on the link below to redeem the gift.\n\n${giftLink}`;
+      const shareMessage = `💝 You have received a gift from ${senderName}. Click on the link below to redeem the gift.\n\n${giftLink}`;
 
       const shareOptions = Platform.select({
         ios: {
@@ -528,7 +528,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               />
               <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
                 <Text style={styles.TextMedium}>
-                  {cartData.FriendName || 'Sending through link'}
+                  {cartData.CampaginType === 3
+                    ? cartData.users.FullName
+                    : cartData.FriendName || 'Sending through link'}
                 </Text>
               </View>
             </View>

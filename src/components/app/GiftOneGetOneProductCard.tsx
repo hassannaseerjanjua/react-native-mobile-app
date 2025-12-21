@@ -33,7 +33,7 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
   const itemName = item.ItemNameEn;
   const categoryName = item.CategoryNameEn;
   const price = item.ItemPrice || 0;
-  const discountedPrice = item.DiscountedPrice;
+  const discountedPrice = item.FinalPrice;
   const hasDiscount =
     discountedPrice && discountedPrice > 0 && discountedPrice < price;
 
@@ -107,13 +107,12 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
               opacity={0.5}
               width={scaleWithMax(10, 12)}
               height={scaleWithMax(10, 12)}
-
             />
             <Text style={hasDiscount ? styles.originalPrice : styles.price}>
               {price}
             </Text>
-          </View></View>
-
+          </View>
+        </View>
       </View>
     </TouchableOpacity>
   );

@@ -34,8 +34,7 @@ const useStyles = () => {
         justifyContent: 'space-between',
         gap: sizes.PADDING,
       },
-      gridItem: {
-      },
+      gridItem: {},
       topImage: {
         width: sizes.WIDTH,
         height: sizes.HEIGHT * 0.2,
@@ -86,7 +85,7 @@ const useStyles = () => {
         ...theme.globalStyles.SHADOW_STYLE,
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.015,
-        paddingBottom: sizes.HEIGHT * 0.024,
+        paddingBottom: scaleWithMax(25, 30),
       },
       footerButton: {
         flexDirection: 'row',

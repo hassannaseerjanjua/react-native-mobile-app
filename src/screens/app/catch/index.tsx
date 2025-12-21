@@ -330,8 +330,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     return (
       <SuccessMessage
         SuccessLogo={<GiftPlacedSvg />}
-        SuccessMessage="Catch Created Successfully"
-        SuccessSubMessage="Would you like to browse for more or check your catch now?"
+        SuccessMessage="🎉 Nice Catch 🎉"
+        SuccessSubMessage="You have successfully captured it!"
         primaryButtonTitle="Inbox"
         onPrimaryPress={() => {
           setOpenModal(false);
@@ -340,7 +340,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             isInbox: true,
           });
         }}
-        secondaryButtonTitle="Browse"
+        secondaryButtonTitle="Continue"
         onSecondaryPress={() => {
           setOpenModal(false);
         }}

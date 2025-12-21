@@ -311,6 +311,7 @@ export interface InboxOrderItem {
   Status: number;
   Variant: InboxOrderItemVariant | null;
   Images: InboxOrderItemImage[];
+  UsedQuantity: number;
 }
 
 export interface InboxOrderUser {
@@ -507,6 +508,17 @@ export interface CartResponse {
   DeliveryCharges: number;
   TotalAmount: number;
   Items: CartItem[];
+  CampaginType: number;
+  users: {
+    UserId: number;
+    FullName: string;
+    FullNameAr: string | null;
+    GenderID: number | null;
+    DOB: string | null;
+    PhoneNo: string;
+    CityId: number | null;
+    ProfileUrl: string | null;
+  };
 }
 
 export interface StoreProductApiResponse {
@@ -552,6 +564,7 @@ export interface CatchItem {
   CategoryId: number;
   CategoryNameEn: string;
   CategoryNameAr: string;
+  FinalPrice: number;
 }
 
 export interface QrCodeData {

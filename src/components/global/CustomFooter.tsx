@@ -4,18 +4,27 @@ import { useSizes } from '../../styles/sizes';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 
-const CustomFooter = ({ children, style }: { children: React.ReactNode, style?: StyleProp<ViewStyle> }) => {
+const CustomFooter = ({
+  children,
+  style,
+}: {
+  children: React.ReactNode;
+  style?: StyleProp<ViewStyle>;
+}) => {
   const { styles, theme } = useStyles();
   return (
     <View
-      style={[{
-        position: 'absolute',
-        bottom: scaleWithMax(18, 20),
-        left: 0,
-        right: 0,
-        paddingHorizontal: theme.sizes.PADDING,
-        ...theme.globalStyles.SHADOW_STYLE,
-      }, style]}
+      style={[
+        {
+          position: 'absolute',
+          bottom: scaleWithMax(25, 30),
+          left: 0,
+          right: 0,
+          paddingHorizontal: theme.sizes.PADDING,
+          ...theme.globalStyles.SHADOW_STYLE,
+        },
+        style,
+      ]}
     >
       {children}
     </View>

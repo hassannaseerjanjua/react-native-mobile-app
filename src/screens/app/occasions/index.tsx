@@ -184,7 +184,7 @@ const OccasionsScreen: React.FC = () => {
                         }
                         icon={<SvgCrownIcon />}
                         fieldProps={{
-                          placeholder: getString('OCC_EVENT'),
+                          placeholder: 'Event Name',
                           value: formik.values.occasionName,
                           onChangeText: (text: string) => {
                             formik.setFieldValue('occasionName', text, false);
@@ -278,7 +278,6 @@ const OccasionsScreen: React.FC = () => {
                           : date
                       }
                       mode="date"
-                      minimumDate={new Date()}
                       onConfirm={selectedDate =>
                         handleDatePickerConfirm(selectedDate, formik)
                       }

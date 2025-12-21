@@ -105,7 +105,7 @@ const useStyles = () => {
 
         footer: {
           position: 'absolute',
-          bottom: sizes.HEIGHT * 0.025,
+          bottom: scaleWithMax(25, 30),
           left: 0,
           right: 0,
           paddingHorizontal: sizes.PADDING,

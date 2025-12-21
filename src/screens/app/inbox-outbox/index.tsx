@@ -109,7 +109,7 @@ const InboxOutbox: React.FC = () => {
 
     setSelectedItem(itemId);
     setSelectedOrder(selectedOrder);
-    setSelectedQuantity(itemId.Quantity); // Initialize with item's quantity
+    setSelectedQuantity(itemId.Quantity - itemId.UsedQuantity); // Initialize with item's quantity
 
     setOpenBottomSheet(true);
   };
@@ -122,7 +122,10 @@ const InboxOutbox: React.FC = () => {
     if (!selectedItem) return;
 
     if (type === 'increment') {
-      if (selectedQuantity < selectedItem.Quantity) {
+      if (
+        selectedQuantity <
+        selectedItem.Quantity - selectedItem.UsedQuantity
+      ) {
         setSelectedQuantity(prevQuantity => prevQuantity + 1);
       }
     } else {
@@ -243,50 +246,7 @@ const InboxOutbox: React.FC = () => {
       visible: false,
     }));
   };
-  const _handleRedeemOrder = async () => {
-    if (!selectedItem) return;
-    if (loading) return;
-    setLoading(true);
-    const payload = {
-      orderid: selectedOrder?.OrderId,
-      orderPaymentType: 1,
-      IsRedeem: true,
-      RedeemQuantity: quantity,
-      Items: [
-        {
-          OrderItemId: selectedItem?.OrderItemId,
-          Quantity: quantity,
-        },
-      ],
-    };
-    try {
-      const response = await api.post<{
-        Data: {
-          GiftLink: string;
-          Message: string;
-          OrderId: number;
-          QrCode: string | null;
-          Success: boolean;
-          UniqueCode: string | null;
-        };
-      }>(apiEndpoints.INITIATE_CHECKOUT, payload);
 
-      if (response.success) {
-        setOpenBottomSheet2(false);
-        refetch();
-        notify.success(
-          response.data?.Data?.Message || 'Gift redeemed sucessfully',
-        );
-      } else {
-        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
-      }
-    } catch (error: any) {
-      console.error('Error initiating checkout:', error);
-      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-    } finally {
-      setLoading(false);
-    }
-  };
   return (
     <ParentView>
       {isInbox && (
@@ -328,7 +288,7 @@ const InboxOutbox: React.FC = () => {
       ) : (
         <FlatList
           showsVerticalScrollIndicator={false}
-          data={orders.filter(order => order.Items && order.Items.length > 0)}
+          data={orders}
           renderItem={({ item, index }) => (
             <InboxItem
               isLast={index === orders.length - 1}
@@ -504,7 +464,14 @@ const InboxItem: React.FC<InboxItemProps> = ({
             alignItems: 'flex-start',
           }}
         >
-          <Image style={styles.inboxProfile} source={profileImage} />
+          <Image
+            style={styles.inboxProfile}
+            source={
+              order.SendType === 2
+                ? require('../../../assets/images/link.png')
+                : profileImage
+            }
+          />
           <View style={{ flex: 1 }}>
             <View
               style={{
@@ -522,7 +489,9 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   justifyContent: 'space-between',
                 }}
               >
-                <Text style={styles.userNameText}>{userName}</Text>
+                <Text style={styles.userNameText}>
+                  {order.SendType === 2 ? 'Gift Link' : userName}
+                </Text>
                 <Text style={styles.timeText}>{timeAgo}</Text>
               </View>
               <View
@@ -614,6 +583,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                       onPress={() => onClick && onClick(item)}
                       activeOpacity={isInbox ? 0.8 : 1}
                       style={styles.imageContainer}
+                      disabled={item.Status === 10}
                     >
                       {item.Status === 10 && (
                         <View style={styles.redeemedBox}>
@@ -638,7 +608,9 @@ const InboxItem: React.FC<InboxItemProps> = ({
                         </Text>
                         {item.Quantity > 0 && (
                           <View style={styles.numCircle}>
-                            <Text style={styles.numText}>{item.Quantity}</Text>
+                            <Text style={styles.numText}>
+                              {item.Quantity - item.UsedQuantity}
+                            </Text>
                           </View>
                         )}
                       </View>

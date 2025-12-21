@@ -186,7 +186,17 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
               <SkeletonLoader screenType="sendAGift" />
             </View>
           ) : displayData.length > 1 ? (
-            <View style={styles.listCard}>
+            <View
+              style={[
+                styles.listCard,
+                {
+                  marginBottom:
+                    route.params.routeTo === 'SelectStore'
+                      ? theme.sizes.HEIGHT * 0.24
+                      : theme.sizes.HEIGHT * 0.17,
+                },
+              ]}
+            >
               <FlatList
                 data={displayData}
                 keyExtractor={item => item.UserId.toString()}
