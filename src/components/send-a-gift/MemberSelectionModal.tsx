@@ -24,7 +24,7 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import BottomSheetHeader from '../app/BottomSheetHeader';
 import SearchUserItem from '../app/SearchUserItem';
 import { SvgCrossIcon, SvgImageIcon } from '../../assets/icons';
-import { ActiveUser } from '../../types';
+import { ActiveUser, fetchApiResponse } from '../../types';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
 import api from '../../utils/api';
@@ -33,6 +33,8 @@ import { useNavigation } from '@react-navigation/native';
 import { isIOSThen, scaleWithMax, rtlTextAlign } from '../../utils';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
+import notify from '../../utils/notify';
+import { useAuthStore } from '../../store/reducer/auth';
 
 const dummyImage = require('../../assets/images/user.png');
 
@@ -78,6 +80,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   const [modalStep, setModalStep] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
+  const { token } = useAuthStore();
   const [groupName, setGroupName] = useState('');
   const [groupImage, setGroupImage] = useState<{
     uri: string;
@@ -86,10 +89,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   } | null>(
     existingGroupImage
       ? {
-          uri: existingGroupImage,
-          type: 'image/jpeg',
-          name: 'group-image.jpg',
-        }
+        uri: existingGroupImage,
+        type: 'image/jpeg',
+        name: 'group-image.jpg',
+      }
       : null,
   );
 
@@ -119,10 +122,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       setGroupImage(
         prefillGroupName && existingGroupImage
           ? {
-              uri: existingGroupImage,
-              type: 'image/jpeg',
-              name: 'group-image.jpg',
-            }
+            uri: existingGroupImage,
+            type: 'image/jpeg',
+            name: 'group-image.jpg',
+          }
           : null,
       );
       setGroupError('');
@@ -203,7 +206,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     );
   }, [groupError]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (isSendAGift) {
       setGroupError('');
 
@@ -234,17 +237,24 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       Array.from(selectedUsers).forEach(userId => {
         formData.append('MemberUserIds', userId.toString());
       });
-
-      api
-        .post(apiEndpoints.CREATE_GROUP, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        .then(() => {
-          onSave(selectedUsersData, groupName, groupImage);
-          closeModal();
-          navigation.navigate('SendToGroup' as never);
-        })
-        .catch(error => {});
+      console.log('formData', formData);
+      const res = await fetch(apiEndpoints.BASE_URL + apiEndpoints.CREATE_GROUP, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      console.log('formData', res);
+      const response = await res.json() as fetchApiResponse<any>
+      console.log('response', response);
+      if (response.Success) {
+        onSave(selectedUsersData, groupName, groupImage);
+        closeModal();
+        navigation.navigate('SendToGroup' as never);
+      } else {
+        notify.error(response.ResponseMessage || 'Failed to create group');
+      }
     } else {
       onSave(selectedUsersData, groupName, groupImage);
       closeModal();
@@ -367,24 +377,24 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                         onPress={
                           viewOnly
                             ? () => {
-                                closeModal();
-                                console.log('item', item);
-                                routeTo === 'SelectStore'
-                                  ? (navigation as any).navigate(
-                                      'SelectStore',
-                                      {
-                                        friendUserId: item.UserId,
-                                        CityId: item.CityId,
-                                      },
-                                    )
-                                  : (navigation as any).navigate(
-                                      'CatchScreen',
-                                      {
-                                        type: 'GiftOneGetOne',
-                                        friendUserId: item.UserId,
-                                      },
-                                    );
-                              }
+                              closeModal();
+                              console.log('item', item);
+                              routeTo === 'SelectStore'
+                                ? (navigation as any).navigate(
+                                  'SelectStore',
+                                  {
+                                    friendUserId: item.UserId,
+                                    CityId: item.CityId,
+                                  },
+                                )
+                                : (navigation as any).navigate(
+                                  'CatchScreen',
+                                  {
+                                    type: 'GiftOneGetOne',
+                                    friendUserId: item.UserId,
+                                  },
+                                );
+                            }
                             : undefined
                         }
                       />
@@ -554,8 +564,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                     viewOnly
                       ? title
                       : isSendAGift
-                      ? getString('NG_ADD_MEMBERS')
-                      : getString('NG_EDIT_GROUP_MEMBERS')
+                        ? getString('NG_ADD_MEMBERS')
+                        : getString('NG_EDIT_GROUP_MEMBERS')
                   }
                   subTitle={
                     viewOnly

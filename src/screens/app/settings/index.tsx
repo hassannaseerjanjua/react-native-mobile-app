@@ -26,7 +26,7 @@ import { scaleWithMax, toOption } from '../../../utils';
 import { createSettingsSchema } from '../../../utils/validationSchemas';
 import DropdownField from '../../../components/global/DropdownField';
 import useGetApi from '../../../hooks/useGetApi';
-import { City, UpdateProfileApiResponse } from '../../../types';
+import { City, fetchApiResponse, UpdateProfileApiResponse, User } from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
@@ -109,48 +109,92 @@ const SettingsScreen: React.FC = () => {
     GenderId: user?.GenderId || '',
   };
 
-  const handleUpdate = (values: typeof initialValues) => {
+  // const handleUpdate = (values: typeof initialValues) => {
+  //   if (loading) return;
+  //   setLoading(true);
+
+  //   const formData = new FormData();
+
+  //   const fieldsToUpdate = ['Fullname', 'CityId', 'Dob', 'GenderId'];
+  //   fieldsToUpdate.forEach(field => {
+  //     if (values[field as keyof typeof values]) {
+  //       formData.append(field, values[field as keyof typeof values]);
+  //     }
+  //   });
+
+  //   api
+  //     .put<UpdateProfileApiResponse>(apiEndpoints.UPDATE_PROFILE, formData, {
+  //       headers: {
+  //         'Content-Type': 'multipart/form-data',
+  //       },
+  //     })
+  //     .then(response => {
+  //       if (response.success && response.data?.Data && token) {
+  //         dispatch(
+  //           login({
+  //             user: { ...user, ...response.data.Data },
+  //             token: token,
+  //           }),
+  //         );
+
+  //         notify.success('Profile updated successfully');
+  //         setTimeout(() => {
+  //           navigation.goBack();
+  //         }, 500);
+  //       } else if (response.failed) {
+  //         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+  //       }
+  //     })
+  //     .catch(error => {
+  //       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+  //     })
+  //     .finally(() => {
+  //       setLoading(false);
+  //     });
+  // };
+  const handleUpdate = async (values: typeof initialValues) => {
     if (loading) return;
     setLoading(true);
 
-    const formData = new FormData();
+    try {
+      const formData = new FormData();
 
-    const fieldsToUpdate = ['Fullname', 'CityId', 'Dob', 'GenderId'];
-    fieldsToUpdate.forEach(field => {
-      if (values[field as keyof typeof values]) {
-        formData.append(field, values[field as keyof typeof values]);
-      }
-    });
+      const fieldsToUpdate = ['Fullname', 'CityId', 'Dob', 'GenderId'] as const;
 
-    api
-      .put<UpdateProfileApiResponse>(apiEndpoints.UPDATE_PROFILE, formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
-      })
-      .then(response => {
-        if (response.success && response.data?.Data && token) {
-          dispatch(
-            login({
-              user: { ...user, ...response.data.Data },
-              token: token,
-            }),
-          );
-
-          notify.success('Profile updated successfully');
-          setTimeout(() => {
-            navigation.goBack();
-          }, 500);
-        } else if (response.failed) {
-          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+      fieldsToUpdate.forEach(field => {
+        const value = values[field];
+        if (value !== undefined && value !== null && value !== '') {
+          formData.append(field, String(value));
         }
-      })
-      .catch(error => {
-        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-      })
-      .finally(() => {
-        setLoading(false);
       });
+
+      const response = await fetch(apiEndpoints.BASE_URL + apiEndpoints.UPDATE_PROFILE, {
+        method: 'PUT',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const result = await response.json() as fetchApiResponse<User>
+      console.log("api result ==>", result)
+      if (result.Success && result.Data && token) {
+        dispatch(
+          login({
+            user: { ...user, ...result.Data },
+            token,
+          }),
+        );
+        notify.success('Profile updated successfully');
+        setTimeout(() => navigation.goBack(), 500);
+      } else {
+        notify.error(result?.ResponseMessage || getString('AU_ERROR_OCCURRED'));
+      }
+    } catch (error: any) {
+      notify.error(error?.message || getString('AU_ERROR_OCCURRED'));
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -313,7 +357,7 @@ const SettingsScreen: React.FC = () => {
                         isPhone={true}
                         error={
                           formik.touched.phoneNumber &&
-                          formik.errors.phoneNumber
+                            formik.errors.phoneNumber
                             ? formik.errors.phoneNumber
                             : undefined
                         }
