@@ -240,10 +240,10 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         friendUserId: friendUserId ?? undefined,
       });
     } else if (screenType === 'catch' && item.catchItem) {
-      navigation.navigate('ProductDetails', {
-        itemId: item.catchItem.ItemId,
-        friendUserId: friendUserId ?? undefined,
-      });
+      // navigation.navigate('ProductDetails', {
+      //   itemId: item.catchItem.ItemId,
+      //   friendUserId: friendUserId ?? undefined,
+      // });
     } else if (screenType === 'GiftOneGetOne') {
       if ('ItemId' in item && 'Thumbnail' in item) {
         const product = item as CatchItem;
