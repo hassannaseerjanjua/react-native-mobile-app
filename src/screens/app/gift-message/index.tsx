@@ -33,11 +33,15 @@ import {
   rtlPosition,
   scaleWithMax,
   rtlMargin,
-  withFilePrefix,
+  fileUriWrapper,
 } from '../../../utils';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
-import { GiftFilter, CartResponse, fetchApiResponse } from '../../../types/index';
+import {
+  GiftFilter,
+  CartResponse,
+  fetchApiResponse,
+} from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
@@ -278,16 +282,18 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           hasVideo: !!sendMessagePayload.VideoFile,
         });
 
-        const res = await fetch(apiEndpoints.BASE_URL + apiEndpoints.SEND_GIFT_FILTER, {
-          method: 'POST',
-          body: formData,
-          headers: {
-            'Content-Type': 'multipart/form-data',
-            Authorization: `Bearer ${token}`,
+        const res = await fetch(
+          apiEndpoints.BASE_URL + apiEndpoints.SEND_GIFT_FILTER,
+          {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
-        const response = await res.json() as fetchApiResponse<any>
-
+        );
+        const response = (await res.json()) as fetchApiResponse<any>;
 
         if (response.Success) {
           console.log('[GiftMessage] Gift message sent successfully');
@@ -307,7 +313,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             response.ResponseMessage,
           );
           clearPendingVideoPath();
-          notify.error(response.ResponseMessage || 'Failed to send gift message');
+          notify.error(
+            response.ResponseMessage || 'Failed to send gift message',
+          );
           return { success: false, error: response.ResponseMessage };
         }
       } catch (error: any) {
@@ -382,7 +390,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           : compressedUri;
 
       const videoFile = {
-        uri: withFilePrefix(processedUri),
+        uri: fileUriWrapper(processedUri),
         type: 'video/mp4',
         name: fileName || `video_${Date.now()}.mp4`,
       };
@@ -401,7 +409,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       // Auto-open trim screen if video is longer than 15 seconds
       if (autoOpenTrim) {
         console.log('[GiftMessage] Auto-opening trim screen for long video');
-        setSelectedVideo(withFilePrefix(processedUri));
+        setSelectedVideo(fileUriWrapper(processedUri));
       }
     } catch (error: any) {
       console.error('[GiftMessage] Video compression failed:', error);
@@ -576,7 +584,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         videoUrl={selectedVideo}
         onSaveVideo={trimmedPath => {
           const videoFile = {
-            uri: withFilePrefix(trimmedPath),
+            uri: fileUriWrapper(trimmedPath),
             type: 'video/mp4',
             name:
               sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`,
@@ -786,8 +794,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           stroke="#FF0000"
                           strokeWidth="4"
                           fill="transparent"
-                          strokeDasharray={`${2 * Math.PI * scaleWithMax(33, 38)
-                            }`}
+                          strokeDasharray={`${
+                            2 * Math.PI * scaleWithMax(33, 38)
+                          }`}
                           strokeDashoffset={recordingProgress.interpolate({
                             inputRange: [0, 1],
                             outputRange: [
@@ -1024,7 +1033,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           onPress={async () => {
                             const newFilterId =
                               sendMessagePayload.ImageFilterId ===
-                                filter.FilterId
+                              filter.FilterId
                                 ? null
                                 : filter.FilterId;
                             setSendMessagePayload(prev => ({
@@ -1047,7 +1056,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                               {
                                 borderWidth:
                                   filter.FilterId ===
-                                    sendMessagePayload.ImageFilterId
+                                  sendMessagePayload.ImageFilterId
                                     ? 2
                                     : 0,
                                 borderColor: theme.colors.PRIMARY,

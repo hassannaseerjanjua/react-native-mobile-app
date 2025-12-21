@@ -7,7 +7,7 @@ import useTheme from '../../styles/theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import useTrimmer from './Timmer';
-import { withFilePrefix } from '../../utils';
+import { fileUriWrapper } from '../../utils';
 
 const MAX_VIDEO_DURATION = 15; // Maximum trim duration in seconds
 
@@ -64,7 +64,7 @@ const ViewTrimmer = ({
       duration,
     });
 
-    const inputPath = withFilePrefix(videoUrl);
+    const inputPath = fileUriWrapper(videoUrl);
 
     if (!duration) {
       console.log('duration is null');
@@ -89,7 +89,7 @@ const ViewTrimmer = ({
       });
 
       console.log('Trim result:', trimmedVideo);
-      onSaveVideo(withFilePrefix(trimmedVideo.outputPath));
+      onSaveVideo(fileUriWrapper(trimmedVideo.outputPath));
     } catch (error) {
       console.log('Trim error:', error);
     }
