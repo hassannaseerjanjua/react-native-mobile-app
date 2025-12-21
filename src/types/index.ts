@@ -136,6 +136,13 @@ export interface UpdateProfileApiResponse {
   ResponseCode: number;
   Success: boolean;
   ResponseMessage: string;
+};
+
+export interface fetchApiResponse<T>{
+  Success: boolean;
+  ResponseMessage?: string;
+  Data?: T;
+  ResponseCode?: number;
 }
 export interface FavStoreItems {
   FavItemId: number;

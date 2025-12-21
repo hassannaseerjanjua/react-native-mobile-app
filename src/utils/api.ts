@@ -128,3 +128,12 @@ export const getAuthHeader = (token: string) => {
     },
   };
 };
+
+export const getAuthHeaderWithFormData = (token: string) => {
+  return {
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'multipart/form-data',
+    },
+  };
+};

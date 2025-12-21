@@ -24,15 +24,23 @@ import { launchImageLibrary } from 'react-native-image-picker';
 import BottomSheetHeader from '../app/BottomSheetHeader';
 import SearchUserItem from '../app/SearchUserItem';
 import { SvgCrossIcon, SvgImageIcon } from '../../assets/icons';
-import { ActiveUser } from '../../types';
+import { ActiveUser, fetchApiResponse } from '../../types';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
-import api from '../../utils/api';
+import api, { getAuthHeader, getAuthHeaderWithFormData } from '../../utils/api';
 import apiEndpoints from '../../constants/api-endpoints';
 import { useNavigation } from '@react-navigation/native';
-import { isIOSThen, scaleWithMax, rtlTextAlign } from '../../utils';
+import {
+  isIOSThen,
+  scaleWithMax,
+  rtlTextAlign,
+  compressImage,
+  fileUriWrapper,
+} from '../../utils';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
+import notify from '../../utils/notify';
+import { useAuthStore } from '../../store/reducer/auth';
 
 const dummyImage = require('../../assets/images/user.png');
 
@@ -78,6 +86,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   const [modalStep, setModalStep] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<Set<number>>(new Set());
+  const { token } = useAuthStore();
   const [groupName, setGroupName] = useState('');
   const [groupImage, setGroupImage] = useState<{
     uri: string;
@@ -186,14 +195,14 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         quality: 0.8,
         selectionLimit: 1,
       },
-      response => {
+      async response => {
         if (response.assets && response.assets[0]) {
           const asset = response.assets[0];
+          const imageUri = fileUriWrapper(asset.uri || '');
+          const compressedImage = await compressImage(imageUri || '');
+
           setGroupImage({
-            uri:
-              Platform.OS === 'ios'
-                ? asset.uri?.replace('file://', '') || ''
-                : asset.uri || '',
+            uri: compressedImage,
             type: asset.type || 'image/jpeg',
             name: asset.fileName || `group_image_${Date.now()}.jpg`,
           });
@@ -203,7 +212,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     );
   }, [groupError]);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async () => {
     if (isSendAGift) {
       setGroupError('');
 
@@ -235,16 +244,20 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         formData.append('MemberUserIds', userId.toString());
       });
 
-      api
-        .post(apiEndpoints.CREATE_GROUP, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        })
-        .then(() => {
-          onSave(selectedUsersData, groupName, groupImage);
-          closeModal();
-          navigation.navigate('SendToGroup' as never);
-        })
-        .catch(error => {});
+      const res = await api.post(
+        apiEndpoints.CREATE_GROUP,
+        formData,
+        getAuthHeaderWithFormData(token || ''),
+      );
+
+      if (res.failed) {
+        notify.error(res.error);
+        return;
+      }
+
+      onSave(selectedUsersData, groupName, groupImage);
+      closeModal();
+      navigation.navigate('SendToGroup' as never);
     } else {
       onSave(selectedUsersData, groupName, groupImage);
       closeModal();
