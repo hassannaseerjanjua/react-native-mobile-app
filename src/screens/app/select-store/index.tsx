@@ -215,6 +215,9 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                     paddingHorizontal: theme.sizes.PADDING * 0.4,
                     backgroundColor: 'transparent',
                     borderWidth: 0,
+                    shadowOpacity: 0,
+                    shadowRadius: 0,
+                    elevation: 0,
                   }}
                 />
               </View>
