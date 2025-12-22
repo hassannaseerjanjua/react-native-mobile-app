@@ -28,6 +28,7 @@ const ViewTrimmer = ({
   const [duration, setDuration] = useState<null | number>(null);
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState<null | number>(null);
+  const [isSaving, setIsSaving] = useState(false);
 
   const { TrimmerUIComponent, onCurrentPositionChange } = useTrimmer({
     totalDuration: duration || 0,
@@ -58,13 +59,26 @@ const ViewTrimmer = ({
   }, [duration]);
 
   const saveVideo = async () => {
+    if (isSaving) return;
+
     console.log('saveVideo called with state:', {
       startTime,
       endTime,
       duration,
     });
 
-    const inputPath = fileUriWrapper(videoUrl);
+    // Handle path formatting for different platforms
+    let inputPath = videoUrl;
+    if (Platform.OS === 'ios') {
+      // On iOS, react-native-video-trim needs the path with file:// prefix
+      // Ensure file:// prefix is present
+      if (!inputPath.startsWith('file://')) {
+        inputPath = 'file://' + inputPath;
+      }
+    } else {
+      // Use fileUriWrapper for Android (keeps file:// prefix)
+      inputPath = fileUriWrapper(videoUrl);
+    }
 
     if (!duration) {
       console.log('duration is null');
@@ -82,6 +96,7 @@ const ViewTrimmer = ({
     console.log('Trimming with (ms):', { trimStartMs, trimEndMs, inputPath });
     console.log('Trim duration:', actualEndTime - startTime, 'seconds');
 
+    setIsSaving(true);
     try {
       const trimmedVideo = await trim(inputPath, {
         startTime: trimStartMs,
@@ -89,9 +104,16 @@ const ViewTrimmer = ({
       });
 
       console.log('Trim result:', trimmedVideo);
-      onSaveVideo(fileUriWrapper(trimmedVideo.outputPath));
+
+      if (trimmedVideo?.outputPath) {
+        onSaveVideo(fileUriWrapper(trimmedVideo.outputPath));
+      } else {
+        console.error('Trim result missing outputPath:', trimmedVideo);
+      }
     } catch (error) {
-      console.log('Trim error:', error);
+      console.error('Trim error:', error);
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -177,12 +199,16 @@ const ViewTrimmer = ({
 
         <TouchableOpacity
           onPress={saveVideo}
+          disabled={isSaving}
           style={{
             paddingVertical: 10,
             paddingHorizontal: 16,
+            opacity: isSaving ? 0.5 : 1,
           }}
         >
-          <Text style={{ color: theme.colors.PRIMARY }}>Save</Text>
+          <Text style={{ color: theme.colors.PRIMARY }}>
+            {isSaving ? 'Saving...' : 'Save'}
+          </Text>
         </TouchableOpacity>
       </View>
     </ParentView>

@@ -118,6 +118,12 @@ const useStyles = () => {
         ...theme.globalStyles.SHADOW_STYLE_LOW,
         shadowColor: '#00000050',
       },
+      bottomSheet: {
+        width: sizes.PADDED_WIDTH,
+        alignSelf: 'center',
+        position: 'relative',
+        gap: sizes.HEIGHT * 0.01,
+      },
     });
   }, [theme]);
 

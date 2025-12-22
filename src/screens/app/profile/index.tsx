@@ -41,6 +41,7 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import QRCode from 'react-native-qrcode-svg';
 import { scaleWithMax } from '../../../utils';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
+import CustomButton from '../../../components/global/Custombutton';
 
 const ProfileScreen: React.FC = () => {
   const { styles: screenStyles, theme } = useStyles();
@@ -51,6 +52,7 @@ const ProfileScreen: React.FC = () => {
   const dummyImage = require('../../../assets/images/user.png');
   const [isUploading, setIsUploading] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
+  const [showPhotoOptions, setShowPhotoOptions] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -106,18 +108,22 @@ const ProfileScreen: React.FC = () => {
     );
   };
 
-  const uploadProfileImage = (asset: any) => {
+  const uploadProfileImage = (asset: any, isRemove: boolean = false) => {
     setIsUploading(true);
 
     const formData = new FormData();
-    formData.append('File', {
-      uri:
-        Platform.OS === 'ios'
-          ? asset.uri?.replace('file://', '') || ''
-          : asset.uri || '',
-      type: asset.type || 'image/jpeg',
-      name: asset.fileName || `profile_image_${Date.now()}.jpg`,
-    });
+    formData.append('removePhoto', isRemove);
+
+    if (!isRemove && asset) {
+      formData.append('File', {
+        uri:
+          Platform.OS === 'ios'
+            ? asset.uri?.replace('file://', '') || ''
+            : asset.uri || '',
+        type: asset.type || 'image/jpeg',
+        name: asset.fileName || `profile_image_${Date.now()}.jpg`,
+      });
+    }
 
     api
       .put<UpdateProfileApiResponse>(
@@ -142,7 +148,20 @@ const ProfileScreen: React.FC = () => {
       .catch(error => {})
       .finally(() => {
         setIsUploading(false);
+        setShowPhotoOptions(false);
       });
+  };
+
+  const handleRemovePhoto = () => {
+    if (isUploading) return;
+    uploadProfileImage(null, true);
+  };
+
+  const handleChangePhoto = () => {
+    setShowPhotoOptions(false);
+    setTimeout(() => {
+      handleImageSelect();
+    }, 300);
   };
 
   const profileMenuItems = [
@@ -281,7 +300,7 @@ const ProfileScreen: React.FC = () => {
       >
         <View style={screenStyles.profileSection}>
           <TouchableOpacity
-            onPress={handleImageSelect}
+            onPress={() => setShowPhotoOptions(true)}
             disabled={isUploading}
             style={screenStyles.profileImageContainer}
           >
@@ -353,6 +372,41 @@ const ProfileScreen: React.FC = () => {
               </View>
             )}
           </View>
+        </View>
+      </AppBottomSheet>
+
+      <AppBottomSheet
+        isOpen={showPhotoOptions}
+        onClose={() => setShowPhotoOptions(false)}
+        height={
+          user?.ProfileUrl
+            ? theme.sizes.HEIGHT * 0.2
+            : theme.sizes.HEIGHT * 0.13
+        }
+        enablePanDownToClose={true}
+      >
+        <View style={screenStyles.bottomSheet}>
+          <CustomButton
+            title={user?.ProfileUrl ? 'Change Photo' : 'Add Photo'}
+            onPress={handleChangePhoto}
+            disabled={isUploading}
+            loading={isUploading}
+          />
+          {user?.ProfileUrl && (
+            <CustomButton
+              title="Remove Photo"
+              type="secondary"
+              onPress={handleRemovePhoto}
+              disabled={isUploading}
+              loading={isUploading}
+              buttonStyle={{
+                borderColor: 'red',
+              }}
+              labelStyle={{
+                color: 'red',
+              }}
+            />
+          )}
         </View>
       </AppBottomSheet>
     </ParentView>

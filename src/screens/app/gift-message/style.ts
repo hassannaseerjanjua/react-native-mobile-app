@@ -142,6 +142,22 @@ const useStyles = () => {
           justifyContent: 'center',
           alignItems: 'center',
         },
+        flipButton: {
+          // Positioned on the right side
+        },
+        flipButtonBackground: {
+          backgroundColor: 'rgba(0,0,0,0.3)',
+          borderWidth: 1,
+          borderColor: theme.colors.WHITE,
+          borderRadius: 50, // circle
+          width: scaleWithMax(44, 48),
+          height: scaleWithMax(44, 48),
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        flipButtonIcon: {
+          fontSize: scaleWithMax(20, 22),
+        },
         recordButtonContainer: {
           position: 'absolute',
           bottom: sizes.HEIGHT * 0.05,

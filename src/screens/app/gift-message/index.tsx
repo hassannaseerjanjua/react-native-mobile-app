@@ -142,6 +142,11 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   const [isCompressing, setIsCompressing] = useState(false);
   const [compressionProgress, setCompressionProgress] = useState(0);
   const [selectedVideo, setSelectedVideo] = useState<string | null>(null);
+  const [originalVideoPath, setOriginalVideoPath] = useState<string | null>(
+    null,
+  );
+  const [isVideoLongerThan15Seconds, setIsVideoLongerThan15Seconds] =
+    useState(false);
   const [isVideoCancelled, setIsVideoCancelled] = useState(false);
   const [showCamera, setShowCamera] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
@@ -163,6 +168,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     isCameraActive,
     cancelRecording,
     requestPermission,
+    toggleCamera,
+    cameraPosition,
   } = useVisionCamera();
   const [recordingTime, setRecordingTime] = useState(0);
   const recordingTimerRef = useRef<any>(null);
@@ -365,14 +372,22 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     setCompressionProgress(0);
 
     try {
+      const compressionOptions =
+        Platform.OS === 'android'
+          ? {
+              // Use auto compression for Android camera videos for better compatibility
+              compressionMethod: 'auto' as const,
+            }
+          : {
+              compressionMethod: 'manual' as const,
+              maxSize: 720, // Reduced from 1920 for smaller file size
+              bitrate: 1000000, // 1 Mbps for better compression
+              minimumFileSizeForCompress: 0,
+            };
+
       const compressedUri = await Video.compress(
         videoUri,
-        {
-          compressionMethod: 'manual',
-          maxSize: 720, // Reduced from 1920 for smaller file size
-          bitrate: 1000000, // 1 Mbps for better compression
-          minimumFileSizeForCompress: 0,
-        },
+        compressionOptions,
         progress => {
           console.log('[GiftMessage] Compression progress:', progress);
           setCompressionProgress(progress);
@@ -409,6 +424,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       // Auto-open trim screen if video is longer than 15 seconds
       if (autoOpenTrim) {
         console.log('[GiftMessage] Auto-opening trim screen for long video');
+        setOriginalVideoPath(fileUriWrapper(processedUri));
+        setIsVideoLongerThan15Seconds(true);
         setSelectedVideo(fileUriWrapper(processedUri));
       }
     } catch (error: any) {
@@ -598,10 +615,44 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             return updated;
           });
 
+          setOriginalVideoPath(null);
+          setIsVideoLongerThan15Seconds(false);
           setSelectedVideo(null);
           setShowCamera(false);
         }}
         onCancel={() => {
+          // Only remove video on cancel if it was originally longer than 15 seconds
+          if (isVideoLongerThan15Seconds) {
+            // Video is longer than 15 seconds - remove it on cancel
+            setSendMessagePayload(prev => {
+              const updated = { ...prev, VideoFile: undefined };
+              if (orderId) {
+                saveGiftMessageData(orderId, updated);
+              }
+              return updated;
+            });
+          } else {
+            // Video is 15 seconds or less - save the full video on cancel
+            if (selectedVideo) {
+              const videoFile = {
+                uri: fileUriWrapper(selectedVideo),
+                type: 'video/mp4',
+                name:
+                  sendMessagePayload.VideoFile?.name ||
+                  `video_${Date.now()}.mp4`,
+              };
+
+              setSendMessagePayload(prev => {
+                const updated = { ...prev, VideoFile: videoFile };
+                if (orderId) {
+                  saveGiftMessageData(orderId, updated);
+                }
+                return updated;
+              });
+            }
+          }
+          setOriginalVideoPath(null);
+          setIsVideoLongerThan15Seconds(false);
           setSelectedVideo(null);
           setShowCamera(false);
         }}
@@ -634,16 +685,6 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               />
               {/* Timer Display - Top Left */}
               <View style={styles.timer}>
-                {isRecording && (
-                  <View style={styles.timerDisplay}>
-                    <Text style={styles.timerText}>
-                      {Math.floor(recordingTime / 60)}:
-                      {(recordingTime % 60).toString().padStart(2, '0')} /{' '}
-                      {MAX_VIDEO_DURATION}s
-                    </Text>
-                  </View>
-                )}
-
                 <TouchableOpacity
                   onPress={() => {
                     console.log('🛑 Done button pressed');
@@ -664,6 +705,30 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                     <Text style={{ color: '#FFF', fontWeight: '600' }}>
                       Done
                     </Text>
+                  </View>
+                </TouchableOpacity>
+
+                {isRecording && (
+                  <View style={styles.timerDisplay}>
+                    <Text style={styles.timerText}>
+                      {Math.floor(recordingTime / 60)}:
+                      {(recordingTime % 60).toString().padStart(2, '0')} /{' '}
+                      {MAX_VIDEO_DURATION}s
+                    </Text>
+                  </View>
+                )}
+
+                <TouchableOpacity
+                  onPress={() => {
+                    if (!isRecording) {
+                      toggleCamera();
+                    }
+                  }}
+                  disabled={isRecording}
+                  style={styles.flipButton}
+                >
+                  <View style={styles.flipButtonBackground}>
+                    <Text style={styles.flipButtonIcon}>🔄</Text>
                   </View>
                 </TouchableOpacity>
               </View>
@@ -729,8 +794,32 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                               return;
                             }
 
-                            const videoUri = 'file://' + video.path;
-                            compressVideo(videoUri, `video_${Date.now()}.mp4`);
+                            // Handle video path correctly for both platforms
+                            // On Android, path might already include file:// or might not need it
+                            let videoUri = video.path;
+                            if (Platform.OS === 'android') {
+                              // Ensure proper URI format for Android
+                              if (
+                                !videoUri.startsWith('file://') &&
+                                !videoUri.startsWith('content://')
+                              ) {
+                                videoUri = 'file://' + videoUri;
+                              }
+                              // Add a small delay on Android to ensure video file is fully finalized
+                              setTimeout(() => {
+                                compressVideo(
+                                  videoUri,
+                                  `video_${Date.now()}.mp4`,
+                                );
+                              }, 500);
+                            } else {
+                              // iOS format
+                              videoUri = 'file://' + videoUri;
+                              compressVideo(
+                                videoUri,
+                                `video_${Date.now()}.mp4`,
+                              );
+                            }
                           },
                           onRecordingError: error => {
                             console.error('Recording error:', error);
@@ -880,6 +969,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               setPopupVisible(false);
               if (sendMessagePayload.VideoFile) {
                 // Trim video - open ViewTrimmer
+                // Don't set isVideoLongerThan15Seconds here since this is manual trim (video might be <= 15s)
+                setOriginalVideoPath(sendMessagePayload.VideoFile.uri);
                 setSelectedVideo(sendMessagePayload.VideoFile.uri);
               } else {
                 // Select from gallery

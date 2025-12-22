@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import {
   Camera,
   CameraPermissionStatus,
@@ -9,7 +9,12 @@ import {
 
 export function useVisionCamera(frameProcessor?: (frame: any) => void) {
   const cameraRef = useRef<Camera>(null);
-  const device = useCameraDevice('back');
+  const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>(
+    'front',
+  );
+  const frontDevice = useCameraDevice('front');
+  const backDevice = useCameraDevice('back');
+  const device = cameraPosition === 'front' ? frontDevice : backDevice;
 
   const [permission, setPermission] =
     useState<CameraPermissionStatus>('not-determined');
@@ -19,6 +24,11 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
 
   const [timer, setTimer] = useState(0);
   const timerRef = useRef<any>(null);
+
+  // Toggle camera between front and back
+  const toggleCamera = useCallback(() => {
+    setCameraPosition(prev => (prev === 'front' ? 'back' : 'front'));
+  }, []);
 
   // Request Permissions
   const requestPermission = useCallback(async () => {
@@ -89,7 +99,8 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
       }
     }
 
-    if (!device) {
+    const currentDevice = cameraPosition === 'front' ? frontDevice : backDevice;
+    if (!currentDevice) {
       Alert.alert('Error', 'No camera device found');
       setPermission(finalCameraStatus);
       setIsAuthorized(false);
@@ -102,7 +113,7 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
       setPermission(finalCameraStatus);
       setIsAuthorized(true);
     }
-  }, [device]);
+  }, [frontDevice, backDevice, cameraPosition]);
 
   // Don't auto-request permissions on mount - let the component request when needed
 
@@ -196,9 +207,14 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
         });
       }, 1000);
 
-      cameraRef.current.startRecording({
+      const recordingOptions: RecordVideoOptions = {
         flash: 'off',
         fileType: 'mp4',
+        ...(Platform.OS === 'android' && {
+          videoCodec: 'h264',
+          videoBitRate: 5000000, // 5 Mbps for better compatibility
+        }),
+        ...options,
         onRecordingFinished: video => {
           console.log('✅ Recording finished:', video);
           stopRecording();
@@ -209,7 +225,9 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
           stopRecording();
           options.onRecordingError?.(err);
         },
-      });
+      };
+
+      cameraRef.current.startRecording(recordingOptions);
     } catch (e) {
       console.error('❌ Video error:', e);
       stopRecording();
@@ -252,5 +270,7 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
     stopRecording,
     cancelRecording,
     device,
+    toggleCamera,
+    cameraPosition,
   };
 }
