@@ -1,5 +1,5 @@
-import { StyleSheet, View } from 'react-native';
-import React, { useState } from 'react';
+import { Keyboard, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
 
 import useStyles from './style';
 import ParentView from '../../../components/app/ParentView';
@@ -76,7 +76,12 @@ const LocationSelection: React.FC = () => {
             enableReinitialize={true}
           >
             {formik => (
-              <View style={{ position: 'relative' }}>
+              <View
+                style={{
+                  position: 'relative',
+                  marginTop: theme.sizes.HEIGHT * 0.01,
+                }}
+              >
                 <InputField
                   error={
                     formik.touched.address && formik.errors.address

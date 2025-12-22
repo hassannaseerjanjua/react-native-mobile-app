@@ -161,7 +161,11 @@ const HomeScreen: React.FC = () => {
           <SkeletonLoader screenType="home" />
         ) : (
           <>
-            <Text style={styles.welcomeText}>
+            <Text
+              style={styles.welcomeText}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
               {getString('HOME_WELCOME')}
               {', '}
               <Text style={styles.userName}>{user?.FullNameEn}</Text>
