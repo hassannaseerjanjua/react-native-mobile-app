@@ -281,25 +281,25 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           Message: message,
           hasVideo: !!sendMessagePayload.VideoFile,
         });
-
-        const res = await fetch(
-          apiEndpoints.BASE_URL + apiEndpoints.SEND_GIFT_FILTER,
+        const response = await api.post(
+          apiEndpoints.SEND_GIFT_FILTER,
+          formData,
           {
-            method: 'POST',
-            body: formData,
+
+
             headers: {
               'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`,
+
             },
           },
         );
-        const response = (await res.json()) as fetchApiResponse<any>;
 
-        if (response.Success) {
+
+        if (response.success) {
           console.log('[GiftMessage] Gift message sent successfully');
 
           // Cache the video path if server URL is in response
-          const responseData = response.Data as any;
+          const responseData = response.data as any;
           const serverVideoUrl =
             responseData?.Data?.ImageUrl || responseData?.ImageUrl;
           if (serverVideoUrl && localVideoPath) {
@@ -310,13 +310,13 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         } else {
           console.error(
             '[GiftMessage] Failed to send gift message:',
-            response.ResponseMessage,
+            response.error,
           );
           clearPendingVideoPath();
-          notify.error(
-            response.ResponseMessage || 'Failed to send gift message',
-          );
-          return { success: false, error: response.ResponseMessage };
+          notify.error(response.error || 'Failed to send gift message');
+          return { success: false, error: response.error };
+
+
         }
       } catch (error: any) {
         console.error('[GiftMessage] Error sending gift message:', error);
@@ -794,9 +794,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           stroke="#FF0000"
                           strokeWidth="4"
                           fill="transparent"
-                          strokeDasharray={`${
-                            2 * Math.PI * scaleWithMax(33, 38)
-                          }`}
+                          strokeDasharray={`${2 * Math.PI * scaleWithMax(33, 38)
+                            }`}
                           strokeDashoffset={recordingProgress.interpolate({
                             inputRange: [0, 1],
                             outputRange: [
@@ -1033,7 +1032,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           onPress={async () => {
                             const newFilterId =
                               sendMessagePayload.ImageFilterId ===
-                              filter.FilterId
+                                filter.FilterId
                                 ? null
                                 : filter.FilterId;
                             setSendMessagePayload(prev => ({
@@ -1056,7 +1055,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                               {
                                 borderWidth:
                                   filter.FilterId ===
-                                  sendMessagePayload.ImageFilterId
+                                    sendMessagePayload.ImageFilterId
                                     ? 2
                                     : 0,
                                 borderColor: theme.colors.PRIMARY,

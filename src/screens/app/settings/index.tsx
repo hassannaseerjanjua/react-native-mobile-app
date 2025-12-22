@@ -152,50 +152,70 @@ const SettingsScreen: React.FC = () => {
   //       setLoading(false);
   //     });
   // };
-  const handleUpdate = async (values: typeof initialValues) => {
+  const handleUpdate = (values: typeof initialValues) => {
     if (loading) return;
     setLoading(true);
 
-    try {
-      const formData = new FormData();
-
-      const fieldsToUpdate = ['Fullname', 'CityId', 'Dob', 'GenderId'] as const;
-
-      fieldsToUpdate.forEach(field => {
-        const value = values[field];
-        if (value !== undefined && value !== null && value !== '') {
-          formData.append(field, String(value));
-        }
-      });
-
-      const response = await fetch(apiEndpoints.BASE_URL + apiEndpoints.UPDATE_PROFILE, {
-        method: 'PUT',
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: formData,
-      });
-
-      const result = await response.json() as fetchApiResponse<User>
-      console.log("api result ==>", result)
-      if (result.Success && result.Data && token) {
-        dispatch(
-          login({
-            user: { ...user, ...result.Data },
-            token,
-          }),
-        );
-        notify.success('Profile updated successfully');
-        setTimeout(() => navigation.goBack(), 500);
-      } else {
-        notify.error(result?.ResponseMessage || getString('AU_ERROR_OCCURRED'));
+    const formData = new FormData();
+    const fieldsToUpdate = ['Fullname', 'CityId', 'Dob', 'GenderId'];
+    fieldsToUpdate.forEach(field => {
+      if (values[field as keyof typeof values]) {
+        formData.append(field, values[field as keyof typeof values]);
       }
-    } catch (error: any) {
-      notify.error(error?.message || getString('AU_ERROR_OCCURRED'));
-    } finally {
-      setLoading(false);
-    }
+    });
+
+    api
+      .put<UpdateProfileApiResponse>(apiEndpoints.UPDATE_PROFILE, formData, {
+
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      })
+      .then(response => {
+        if (response.success && response.data?.Data && token) {
+          dispatch(
+            login({
+              user: { ...user, ...response.data.Data },
+              token: token,
+            }),
+          );
+
+          notify.success('Profile updated successfully');
+          setTimeout(() => {
+            navigation.goBack();
+          }, 500);
+        } else if (response.failed) {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
+      })
+      .catch(error => {
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   };
+
 
   return (
     <ParentView style={styles.container}>
