@@ -42,20 +42,20 @@ const SuccessMessage: React.FC<SuccessMessageProps> = ({
       {showFooter && (
         <CustomFooter>
           <View style={styles.buttonsRow}>
+            {!!primaryButtonTitle && (
+              <View style={styles.buttonWrapper}>
+                <CustomButton
+                  title={primaryButtonTitle}
+                  onPress={onPrimaryPress}
+                />
+              </View>
+            )}
             {!!secondaryButtonTitle && (
               <View style={styles.buttonWrapper}>
                 <CustomButton
                   type="secondary"
                   title={secondaryButtonTitle}
                   onPress={onSecondaryPress}
-                />
-              </View>
-            )}
-            {!!primaryButtonTitle && (
-              <View style={styles.buttonWrapper}>
-                <CustomButton
-                  title={primaryButtonTitle}
-                  onPress={onPrimaryPress}
                 />
               </View>
             )}

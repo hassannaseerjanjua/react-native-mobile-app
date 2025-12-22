@@ -48,8 +48,8 @@ const apiEndpoints = {
   HANDLE_FAVORITE_STORE: `/${version}/User/FavoriteUnFavoriteStore`,
   GET_STORE_LIST: `/${version}/Panel/GetAllActiveStores`,
   GET_STORE_DETAIL: `/${version}/Panel/GetAllItems`,
-  GET_STORE_ITEM_BY_ID: (itemId?: any) =>
-    `/${version}/Panel/GetItemById?itemId=${itemId}`,
+  GET_STORE_ITEM_BY_ID: (itemId?: any, isCampaign?: boolean) =>
+    `/${version}/Panel/GetItemById?itemId=${itemId}&isCampaign=${isCampaign}`,
   GET_BUSINESS_TYPE: `/${version}/Panel/GetBusinessTypesForPanel`,
   GET_CATEGORIES: `/${version}/Panel/GetCategoriesForPanel?isApp=true`,
   SEND_GIFT_FILTER: `/${version}/User/AddGiftMessageToOrder`,

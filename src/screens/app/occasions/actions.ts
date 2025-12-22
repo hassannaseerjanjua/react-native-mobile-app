@@ -7,6 +7,7 @@ import notify from '../../../utils/notify';
 import { Occasion, OccasionsApiResponse } from '../../../types/index.ts';
 import { getAuthHeader } from '../../../utils/api';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import { useAuthStore } from '../../../store/reducer/auth';
 
 export interface ImageFile {
   uri: string;
@@ -117,6 +118,7 @@ export const updateOccasion = async (
     const formData = new FormData();
     formData.append('OccassionId', id.toString());
     formData.append('NameEn', values.occasionName);
+    formData.append('OccasionDate', values.occasionDate);
     if (values.image && typeof values.image === 'object') {
       formData.append('ImageUrl', {
         uri: values.image.uri,
@@ -155,6 +157,7 @@ export const deleteOccasion = async (
 
 export const useOccasions = () => {
   const { getString, langCode } = useLocaleStore();
+  const { user } = useAuthStore();
   const [loading, setLoading] = useState(false);
   const [occasionsLoading, setOccasionsLoading] = useState(false);
   const [occasions, setOccasions] = useState<Occasion[]>([]);
@@ -264,7 +267,7 @@ export const useOccasions = () => {
   };
 
   const handleGetOccasionDetail = async (id: number) => {
-    if (!id) return;
+    if (!id || id === -1) return; // Skip API call for birthday
     setLoading(true);
     const result = await getOccasionDetail(id, getString('AU_ERROR_OCCURRED'));
     if (result) {
@@ -289,8 +292,23 @@ export const useOccasions = () => {
 
   const handleViewPress = async (item: Occasion) => {
     if (!isEditGroupOpen) {
-      setSelectedOccasion({ occasionType: 'view', id: item.OccassionId });
-      await handleGetOccasionDetail(item.OccassionId);
+      // Handle birthday special case
+      if (item.OccassionId === -1) {
+        setSelectedOccasion({ occasionType: 'view', id: -1 });
+        // Set birthday form values
+        const birthdayDate = user?.DateOfBirth || '';
+        setFormInitialValues({
+          occasionName: 'My Birthday',
+          occasionDate: birthdayDate,
+          image: null, // No image for birthday
+        });
+        if (birthdayDate) {
+          setDate(new Date(birthdayDate));
+        }
+      } else {
+        setSelectedOccasion({ occasionType: 'view', id: item.OccassionId });
+        await handleGetOccasionDetail(item.OccassionId);
+      }
     }
   };
 
@@ -316,18 +334,14 @@ export const useOccasions = () => {
     today.setHours(0, 0, 0, 0);
     const selected = new Date(selectedDate);
     selected.setHours(0, 0, 0, 0);
-    
+
     // Only accept future dates (dates after today)
-    if (selected > today) {
-      setShowDatePicker(false);
-      setDate(selectedDate);
-      const dateString = selectedDate.toISOString().split('T')[0];
-      formik.setFieldValue('occasionDate', dateString, false);
-      formik.setFieldTouched('occasionDate', true, false);
-    } else {
-      // Show error if user somehow selects today or past date
-      notify.error('Please select a future date');
-    }
+
+    setShowDatePicker(false);
+    setDate(selectedDate);
+    const dateString = selectedDate.toISOString().split('T')[0];
+    formik.setFieldValue('occasionDate', dateString, false);
+    formik.setFieldTouched('occasionDate', true, false);
   };
 
   return {

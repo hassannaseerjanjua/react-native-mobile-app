@@ -47,7 +47,7 @@ const useStyles = () => {
         ...theme.globalStyles.SHADOW_STYLE,
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.015,
-        paddingBottom: sizes.HEIGHT * 0.024,
+        paddingBottom: scaleWithMax(25, 30),
       },
       footerButton: {
         flexDirection: 'row',

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   StatusBar,
@@ -67,9 +67,18 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     }
   }, [activeTab, user?.UserId]);
 
-  // useFocusEffect(() => {
-  //   setActiveTab('friends');
-  // });
+  useFocusEffect(
+    useCallback(() => {
+      // Refetch data when screen comes into focus if we're on friends tab and have no data
+      if (
+        activeTab === 'friends' &&
+        activeUsersApi.data.length === 0 &&
+        !activeUsersApi.loading
+      ) {
+        activeUsersApi.recall();
+      }
+    }, [activeTab]),
+  );
 
   const tabs = [
     {
@@ -99,7 +108,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const getDisplayData = () => {
     const baseData = activeUsersApi.data || [];
 
-    if (!activeUsersApi.search && user) {
+    if (!activeUsersApi.search && activeTab === 'friends' && user) {
       const currentUser: ActiveUser = {
         UserId: user.UserId,
         FullName: `${
@@ -180,13 +189,29 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           </View>
         )}
         <View style={styles.scrollableContentContainer}>
-          <Text style={styles.sectionTitle}>{getString('SG_FRIENDS')}</Text>
+          <Text style={styles.sectionTitle}>
+            {activeTab === 'friends'
+              ? getString('SG_FRIENDS')
+              : activeTab === 'group'
+              ? getString('SG_GROUP')
+              : getString('SG_OTHERS')}
+          </Text>
           {isLoading ? (
             <View style={styles.listCard}>
               <SkeletonLoader screenType="sendAGift" />
             </View>
           ) : displayData.length > 1 ? (
-            <View style={styles.listCard}>
+            <View
+              style={[
+                styles.listCard,
+                {
+                  marginBottom:
+                    route.params.routeTo === 'SelectStore'
+                      ? theme.sizes.HEIGHT * 0.24
+                      : theme.sizes.HEIGHT * 0.17,
+                },
+              ]}
+            >
               <FlatList
                 data={displayData}
                 keyExtractor={item => item.UserId.toString()}
@@ -201,7 +226,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                       route.params.routeTo === 'SelectStore'
                         ? navigation.navigate('SelectStore', {
                             friendUserId: item.UserId,
-                            CityId: item.CityId,
+                            CityId: item.CityId || user?.CityId || null,
                             sendType: 1,
                           })
                         : navigation.navigate('CatchScreen', {

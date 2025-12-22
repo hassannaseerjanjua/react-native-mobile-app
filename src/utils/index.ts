@@ -1,6 +1,7 @@
 import { Platform } from 'react-native';
 import { scale } from 'react-native-size-matters';
 import { DropdownOption } from '../components/global/DropdownField';
+import ImageCompressor from 'react-native-compressor';
 
 export const isAndroid = Platform.OS === 'android';
 export const isAndroidThen = (x: any, y: any) => (isAndroid ? x : y);
@@ -38,9 +39,23 @@ export const dynamicArrayItem = (item: any, condition: boolean) => {
 
 export * from './rtl';
 
-export const withFilePrefix = (uri: string) => {
+export const fileUriWrapper = (uri: string) => {
+  if (isIOS) {
+    return uri.replace('file://', '');
+  }
+
   if (uri.startsWith('file://')) {
     return uri;
   }
   return `file://${uri}`;
+};
+
+export const compressImage = async (image: string) => {
+  try {
+    const compressedImage = await ImageCompressor.Image.compress(image);
+    return fileUriWrapper(compressedImage);
+  } catch (error) {
+    console.error('Error compressing image:', error);
+    return fileUriWrapper(image);
+  }
 };

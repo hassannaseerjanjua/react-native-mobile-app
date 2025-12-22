@@ -6,6 +6,7 @@ import {
   Image,
   Text,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
@@ -21,7 +22,9 @@ import {
 } from '../../../assets/icons/index.ts';
 import { rtlTransform, scaleWithMax } from '../../../utils';
 import useGetApi from '../../../hooks/useGetApi.ts';
+import { useListingApi } from '../../../hooks/useListingApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
+import { useAuthStore } from '../../../store/reducer/auth';
 import {
   StoreProduct,
   FaveItems,
@@ -38,6 +41,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const { styles, theme } = useStyles();
   const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation();
+  const { token } = useAuthStore();
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
   const storeId = route.params?.storeId ?? null;
@@ -59,10 +63,22 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     transformData: (data: any) => data.Data.Items || [],
   });
 
-  const getStoreProducts = useGetApi<StoreProduct[]>(
-    apiEndpoints.GET_STORE_DETAIL + `?StoreId=${storeId}&status=1`,
+  const getStoreProducts = useListingApi<StoreProduct>(
+    apiEndpoints.GET_STORE_DETAIL,
+    token,
     {
-      transformData: (data: any) => data.Data.Items || [],
+      transformData: (data: any) => {
+        return {
+          data: data.Data?.Items || [],
+          totalCount: data.Data?.TotalCount || 0,
+        };
+      },
+      extraParams: {
+        StoreId: storeId,
+        status: 1,
+        categoryId: null,
+      },
+      idExtractor: (item: StoreProduct) => item.ItemId,
     },
   );
 
@@ -89,12 +105,12 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   }, [categoriesApi.data, getString, langCode]);
 
   useEffect(() => {
-    if (getStoreProducts.data) {
+    if (getStoreProducts.data && getStoreProducts.data.length > 0) {
       const initialState: Record<number, boolean> = {};
       getStoreProducts.data.forEach(item => {
         initialState[item.ItemId] = item.isFavourite ?? false;
       });
-      setFavoriteStates(initialState);
+      setFavoriteStates(prev => ({ ...prev, ...initialState }));
     }
   }, [getStoreProducts.data]);
 
@@ -146,14 +162,13 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     }
   };
 
-  const filteredProducts = useMemo(() => {
-    if (!getStoreProducts.data) return [];
-    if (selectedFilter === 'all') return getStoreProducts.data;
-    const categoryId = Number(selectedFilter);
-    return getStoreProducts.data.filter(
-      product => product.CategoryId === categoryId,
-    );
-  }, [getStoreProducts.data, selectedFilter]);
+  useEffect(() => {
+    getStoreProducts.setExtraParams({
+      StoreId: storeId,
+      status: 1,
+      categoryId: selectedFilter === 'all' ? null : Number(selectedFilter),
+    });
+  }, [selectedFilter, storeId]);
 
   const isCartFromCurrentStore = useMemo(() => {
     if (
@@ -211,7 +226,14 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           <GroupTabs
             tabs={filterOptions}
             activeTab={selectedFilter}
-            onTabPress={setSelectedFilter}
+            onTabPress={id => {
+              setSelectedFilter(id);
+              getStoreProducts.setExtraParams({
+                StoreId: storeId,
+                status: 1,
+                categoryId: id === 'all' ? null : Number(id),
+              });
+            }}
           />
         </View>
 
@@ -222,7 +244,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             columnWrapperStyle={{
               gap: 16,
             }}
-            data={filteredProducts}
+            data={getStoreProducts.data || []}
             numColumns={2}
             keyExtractor={item => item.ItemId.toString()}
             extraData={favoriteStates}
@@ -233,6 +255,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
               },
             ]}
             showsVerticalScrollIndicator={false}
+            onEndReached={getStoreProducts.loadMore}
+            onEndReachedThreshold={0.5}
             ListEmptyComponent={
               <View
                 style={{
@@ -244,6 +268,21 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
               >
                 <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
               </View>
+            }
+            ListFooterComponent={
+              getStoreProducts.loadingMore ? (
+                <View
+                  style={{
+                    paddingVertical: theme.sizes.HEIGHT * 0.02,
+                    alignItems: 'center',
+                  }}
+                >
+                  <ActivityIndicator
+                    size="small"
+                    color={theme.colors.PRIMARY}
+                  />
+                </View>
+              ) : null
             }
             renderItem={({ item }) => (
               <FavoriteProductCard

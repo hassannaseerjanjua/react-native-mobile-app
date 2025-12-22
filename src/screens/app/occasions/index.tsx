@@ -3,6 +3,7 @@ import { View, StatusBar, FlatList, TouchableOpacity } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
+import { useAuthStore } from '../../../store/reducer/auth';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import TabItem from '../../../components/global/TabItem.tsx';
 import CustomButton from '../../../components/global/Custombutton.tsx';
@@ -26,6 +27,7 @@ import { Text } from '../../../utils/elements.tsx';
 const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
+  const { user } = useAuthStore();
   const navigation = useNavigation();
   const {
     loading,
@@ -95,7 +97,7 @@ const OccasionsScreen: React.FC = () => {
                 // Default Birthday entry - always at the top
                 {
                   OccassionId: -1, // Special ID for default birthday
-                  NameEn: 'Birthday',
+                  NameEn: 'My Birthday',
                   NameAr: 'عيد الميلاد',
                   OccasionDate: null,
                   Type: null,
@@ -112,26 +114,21 @@ const OccasionsScreen: React.FC = () => {
               renderItem={({ item }: { item: Occasion }) => {
                 const isDefaultBirthday = item.OccassionId === -1;
 
-                // For default birthday, use birthday.png image
+                // For default birthday, show icon outside and make viewable
                 if (isDefaultBirthday) {
                   return (
                     <TabItem
                       isGroupImage={require('../../../assets/images/birthday.png')}
                       title={item.NameEn}
                       isEditGroup={false} // Default birthday is not editable/deletable
-                      onPress={() => {
-                        // Default birthday is not clickable for view/edit
-                        // Can add custom behavior here if needed
-                      }}
+                      onPress={() => handleViewPress(item)}
                       TabItemStyles={styles.TabItem}
                     />
                   );
                 }
 
                 // Regular occasions
-                const imageSource = item.ImageUrl
-                  ? { uri: item.ImageUrl }
-                  : require('../../../assets/images/birthday.png');
+                const imageSource = item.ImageUrl ? { uri: item.ImageUrl } : '';
                 return (
                   <TabItem
                     isGroupImage={imageSource}
@@ -184,7 +181,7 @@ const OccasionsScreen: React.FC = () => {
                         }
                         icon={<SvgCrownIcon />}
                         fieldProps={{
-                          placeholder: getString('OCC_EVENT'),
+                          placeholder: 'Event Name',
                           value: formik.values.occasionName,
                           onChangeText: (text: string) => {
                             formik.setFieldValue('occasionName', text, false);
@@ -215,7 +212,8 @@ const OccasionsScreen: React.FC = () => {
                           fieldProps={{
                             placeholder: getString('OCC_DATE'),
                             value:
-                              selectedOccasion.occasionType === 'view'
+                              selectedOccasion.occasionType === 'view' ||
+                              selectedOccasion.occasionType === 'edit'
                                 ? formatDateForDisplay(
                                     formik.values.occasionDate,
                                   )
@@ -233,12 +231,23 @@ const OccasionsScreen: React.FC = () => {
                         />
                       </TouchableOpacity>
                     </View>
-                    <View style={styles.inputContainer}>
-                      {selectedOccasion.occasionType !== 'view' ? (
-                        <TouchableOpacity
-                          onPress={() => handleImageSelect(formik)}
-                          activeOpacity={0.8}
-                        >
+                    {/* Hide image section for birthday */}
+                    {selectedOccasion.id !== -1 && (
+                      <View style={styles.inputContainer}>
+                        {selectedOccasion.occasionType !== 'view' ? (
+                          <TouchableOpacity
+                            onPress={() => handleImageSelect(formik)}
+                            activeOpacity={0.8}
+                          >
+                            <View style={styles.uploadImageContainer}>
+                              <SvgGalleryIcon />
+                              <Text style={styles.uploadButtonText}>
+                                {getImageDisplayValue(formik.values.image) ||
+                                  getString('OCC_IMAGE')}
+                              </Text>
+                            </View>
+                          </TouchableOpacity>
+                        ) : (
                           <View style={styles.uploadImageContainer}>
                             <SvgGalleryIcon />
                             <Text style={styles.uploadButtonText}>
@@ -246,17 +255,9 @@ const OccasionsScreen: React.FC = () => {
                                 getString('OCC_IMAGE')}
                             </Text>
                           </View>
-                        </TouchableOpacity>
-                      ) : (
-                        <View style={styles.uploadImageContainer}>
-                          <SvgGalleryIcon />
-                          <Text style={styles.uploadButtonText}>
-                            {getImageDisplayValue(formik.values.image) ||
-                              getString('OCC_IMAGE')}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
+                        )}
+                      </View>
+                    )}
                     {selectedOccasion.occasionType !== 'view' && (
                       <CustomButton
                         title={
@@ -273,12 +274,13 @@ const OccasionsScreen: React.FC = () => {
                       modal
                       open={showDatePicker}
                       date={
-                        formik.values.occasionDate
+                        selectedOccasion.occasionType === 'edit' && date
+                          ? date
+                          : formik.values.occasionDate
                           ? new Date(formik.values.occasionDate)
                           : date
                       }
                       mode="date"
-                      minimumDate={new Date()}
                       onConfirm={selectedDate =>
                         handleDatePickerConfirm(selectedDate, formik)
                       }

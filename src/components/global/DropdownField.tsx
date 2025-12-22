@@ -34,6 +34,7 @@ type Props = {
   onSearchChange?: (value: string) => void;
   isLoading?: boolean;
   selectedOption?: DropdownOption | null;
+  textAlign?: 'left' | 'right';
 };
 
 const DropdownField = ({
@@ -50,6 +51,7 @@ const DropdownField = ({
   onSearchChange,
   isLoading = false,
   selectedOption,
+  textAlign = 'left',
 }: Props) => {
   const { theme, styles } = useStyles();
   const { getString } = useLocaleStore();
@@ -102,6 +104,7 @@ const DropdownField = ({
               styles.displayText,
               {
                 paddingLeft: icon ? theme.sizes.PADDING : 0,
+                textAlign: textAlign,
                 color: selectedOption
                   ? theme.colors.PRIMARY_TEXT
                   : theme.colors.SECONDARY_TEXT,

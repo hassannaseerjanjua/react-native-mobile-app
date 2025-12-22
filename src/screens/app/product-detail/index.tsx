@@ -40,7 +40,10 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [item, setItem] = useState<any>(null);
 
   const itemApi = useGetApi<StoreProduct>(
-    apiEndpoints.GET_STORE_ITEM_BY_ID(itemId),
+    apiEndpoints.GET_STORE_ITEM_BY_ID(
+      itemId,
+      route.params.type === 'GiftOneGetOne',
+    ),
     {
       transformData: (data: any) => data?.Data ?? null,
     },
@@ -54,8 +57,16 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       navigation.goBack();
     } else if (itemApi.data) {
       setItem(itemApi.data);
-      const firstVariantId = itemApi.data?.Variants?.[0]?.ItemVariantId;
-      setSelectedFilter(firstVariantId ? String(firstVariantId) : '');
+      // First try to find variant with IsDefault === true and Status === 1
+      // Otherwise, find first variant with Status === 1
+      const defaultVariant = itemApi.data?.Variants?.find(
+        (v: any) => v.Status === 1 && v.IsDefault === true,
+      );
+      const activeVariant =
+        defaultVariant ||
+        itemApi.data?.Variants?.find((v: any) => v.Status === 1);
+      const variantId = activeVariant?.ItemVariantId;
+      setSelectedFilter(variantId ? String(variantId) : '');
     }
   }, [itemApi.data, itemApi.error]);
 
@@ -115,6 +126,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     }
   };
 
+  console.log('route.params.type', route.params.type);
   const handleAddToCart = async () => {
     if (submitting) return;
     const IsGift =
@@ -129,8 +141,10 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         Quantity: quantity,
         StoreId: storeId ?? null,
         SendType: route.params.sendType ?? 1,
-        CampaignId: item.CampaignId,
-        IsGift,
+        ...(route.params.type === 'GiftOneGetOne' && {
+          CampaignId: item.CampaignId,
+        }),
+        IsGift: true,
       };
 
       const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
@@ -154,7 +168,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         )
       : itemApi.data.Variants.find(v => v.IsDefault);
 
-    return (selectedVariant?.Price ?? 0) + (selectedVariant?.FeelingFee ?? 0);
+    return selectedVariant?.FinalPrice ?? 0;
   }, [item, selectedFilter]);
 
   return (

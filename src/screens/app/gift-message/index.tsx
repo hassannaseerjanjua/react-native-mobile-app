@@ -33,11 +33,15 @@ import {
   rtlPosition,
   scaleWithMax,
   rtlMargin,
-  withFilePrefix,
+  fileUriWrapper,
 } from '../../../utils';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useGetApi from '../../../hooks/useGetApi';
-import { GiftFilter, CartResponse } from '../../../types/index';
+import {
+  GiftFilter,
+  CartResponse,
+  fetchApiResponse,
+} from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
@@ -60,6 +64,7 @@ import {
   loadGiftMessageData,
 } from '../../../utils/giftMessageStorage';
 import ViewTrimmer from '../../../components/app/ViewTrimmer';
+import { useAuthStore } from '../../../store/reducer/auth';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
@@ -141,6 +146,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   const [showCamera, setShowCamera] = useState(false);
   const [popupVisible, setPopupVisible] = useState(false);
   const [isRecordingPaused, setIsRecordingPaused] = useState(false);
+  const { token } = useAuthStore();
   const [isRecording, setIsRecording] = useState(false);
   const videoViewerRef = useRef<{ preload: (url: string) => void } | null>(
     null,
@@ -275,21 +281,25 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           Message: message,
           hasVideo: !!sendMessagePayload.VideoFile,
         });
-        const response = await api.post(
-          apiEndpoints.SEND_GIFT_FILTER,
-          formData,
+
+        const res = await fetch(
+          apiEndpoints.BASE_URL + apiEndpoints.SEND_GIFT_FILTER,
           {
+            method: 'POST',
+            body: formData,
             headers: {
               'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
             },
           },
         );
+        const response = (await res.json()) as fetchApiResponse<any>;
 
-        if (response.success) {
+        if (response.Success) {
           console.log('[GiftMessage] Gift message sent successfully');
 
           // Cache the video path if server URL is in response
-          const responseData = response.data as any;
+          const responseData = response.Data as any;
           const serverVideoUrl =
             responseData?.Data?.ImageUrl || responseData?.ImageUrl;
           if (serverVideoUrl && localVideoPath) {
@@ -300,11 +310,13 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         } else {
           console.error(
             '[GiftMessage] Failed to send gift message:',
-            response.error,
+            response.ResponseMessage,
           );
           clearPendingVideoPath();
-          notify.error(response.error || 'Failed to send gift message');
-          return { success: false, error: response.error };
+          notify.error(
+            response.ResponseMessage || 'Failed to send gift message',
+          );
+          return { success: false, error: response.ResponseMessage };
         }
       } catch (error: any) {
         console.error('[GiftMessage] Error sending gift message:', error);
@@ -378,7 +390,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           : compressedUri;
 
       const videoFile = {
-        uri: withFilePrefix(processedUri),
+        uri: fileUriWrapper(processedUri),
         type: 'video/mp4',
         name: fileName || `video_${Date.now()}.mp4`,
       };
@@ -397,7 +409,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       // Auto-open trim screen if video is longer than 15 seconds
       if (autoOpenTrim) {
         console.log('[GiftMessage] Auto-opening trim screen for long video');
-        setSelectedVideo(withFilePrefix(processedUri));
+        setSelectedVideo(fileUriWrapper(processedUri));
       }
     } catch (error: any) {
       console.error('[GiftMessage] Video compression failed:', error);
@@ -572,7 +584,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         videoUrl={selectedVideo}
         onSaveVideo={trimmedPath => {
           const videoFile = {
-            uri: withFilePrefix(trimmedPath),
+            uri: fileUriWrapper(trimmedPath),
             type: 'video/mp4',
             name:
               sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`,
