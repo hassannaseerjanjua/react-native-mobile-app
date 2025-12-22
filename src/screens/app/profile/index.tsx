@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Platform,
   Share,
+  Modal,
+  StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { launchImageLibrary } from 'react-native-image-picker';
@@ -42,6 +44,7 @@ import QRCode from 'react-native-qrcode-svg';
 import { scaleWithMax } from '../../../utils';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
+import { BlurView } from '@react-native-community/blur';
 
 const ProfileScreen: React.FC = () => {
   const { styles: screenStyles, theme } = useStyles();
@@ -331,43 +334,84 @@ const ProfileScreen: React.FC = () => {
         </View>
       </ScrollView>
 
-      <AppBottomSheet
-        isOpen={showQrModal}
-        onClose={() => setShowQrModal(false)}
-        height={theme.sizes.HEIGHT * 0.5}
-        enablePanDownToClose={true}
+      <Modal
+        visible={showQrModal}
+        transparent
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setShowQrModal(false)}
       >
-        <View style={screenStyles.qrContent}>
-          <Text style={screenStyles.qrTitle}>Let's Swap Gifts! 🎁</Text>
-          <Text style={screenStyles.qrSubtitle}>Scan to add me</Text>
+        <View style={screenStyles.modalContainer}>
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="light"
+            blurAmount={2}
+            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.5)"
+          />
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            activeOpacity={1}
+            onPress={() => setShowQrModal(false)}
+          />
+          <View
+            style={[
+              screenStyles.modalContent,
+              {
+                backgroundColor: theme.colors.BACKGROUND,
+                borderRadius: theme.sizes.BORDER_RADIUS_HIGH,
+              },
+            ]}
+          >
+            <View style={screenStyles.qrContent}>
+              <Text style={screenStyles.qrTitle}>Let's Swap Gifts! 🎁</Text>
+              <Text style={screenStyles.qrSubtitle}>Scan to add me</Text>
 
-          <View style={screenStyles.qrCodeContainer}>
-            {user?.UserId ? (
-              <QRCode
-                value={`giftee://add-friend/${user.UserId}`}
-                size={scaleWithMax(220, 250)}
-                color={theme.colors.PRIMARY}
-                backgroundColor={theme.colors.WHITE}
-                ecl="H"
-              />
-            ) : (
-              <View
-                style={{
-                  width: scaleWithMax(220, 250),
-                  height: scaleWithMax(220, 250),
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  backgroundColor: '#f0f0f0',
-                }}
-              >
-                <Text style={{ color: theme.colors.SECONDARY_TEXT }}>
-                  No user ID available
-                </Text>
+              <View style={screenStyles.qrCodeContainer}>
+                <View style={screenStyles.modalProfileSection}>
+                  <Image
+                    source={
+                      user?.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
+                    }
+                    style={screenStyles.modalProfileImage}
+                  />
+                  <View style={screenStyles.modalProfileInfo}>
+                    <Text style={screenStyles.modalProfileName}>
+                      {user?.FullNameEn}
+                    </Text>
+                    <Text style={screenStyles.modalProfileUsername}>
+                      {user?.UserName}
+                    </Text>
+                  </View>
+                </View>
+
+                {user?.UserId ? (
+                  <QRCode
+                    value={`giftee://add-friend/${user.UserId}`}
+                    size={scaleWithMax(220, 250)}
+                    color={theme.colors.PRIMARY}
+                    backgroundColor={theme.colors.WHITE}
+                    ecl="Q"
+                  />
+                ) : (
+                  <View
+                    style={{
+                      width: scaleWithMax(220, 250),
+                      height: scaleWithMax(220, 250),
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      backgroundColor: '#f0f0f0',
+                    }}
+                  >
+                    <Text style={{ color: theme.colors.SECONDARY_TEXT }}>
+                      No user ID available
+                    </Text>
+                  </View>
+                )}
               </View>
-            )}
+            </View>
           </View>
         </View>
-      </AppBottomSheet>
+      </Modal>
 
       <AppBottomSheet
         isOpen={showPhotoOptions}

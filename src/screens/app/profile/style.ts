@@ -75,9 +75,9 @@ const useStyles = () => {
         padding: sizes.PADDING,
       },
       modalContent: {
-        width: '90%',
+        // width: '90%',
         maxWidth: 400,
-        padding: sizes.PADDING * 1.5,
+        padding: sizes.PADDING * 1,
         alignItems: 'center',
         shadowColor: '#000',
         shadowOffset: {
@@ -88,16 +88,35 @@ const useStyles = () => {
         shadowRadius: 10,
         elevation: 10,
       },
-      closeButton: {
-        position: 'absolute',
-        top: sizes.PADDING,
-        right: sizes.PADDING,
-        zIndex: 1,
-        padding: 4,
-      },
       qrContent: {
         width: '100%',
         alignItems: 'center',
+      },
+      modalProfileSection: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        marginBottom: sizes.PADDING * 1.5,
+      },
+      modalProfileImage: {
+        width: scaleWithMax(50, 55),
+        height: scaleWithMax(50, 55),
+        borderRadius: 9999,
+      },
+      modalProfileInfo: {
+        flex: 1,
+        marginLeft: sizes.WIDTH * 0.03,
+      },
+      modalProfileName: {
+        fontFamily: fonts.Quicksand.semibold,
+        fontSize: sizes.FONTSIZE_BUTTON,
+        color: colors.BLACK,
+        marginBottom: sizes.PADDING * 0.2,
+      },
+      modalProfileUsername: {
+        fontFamily: fonts.Quicksand.regular,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: colors.SECONDARY_TEXT,
       },
       qrTitle: {
         fontSize: sizes.FONTSIZE_HEADING,
@@ -115,6 +134,7 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         padding: sizes.PADDING * 1.5,
         borderRadius: 20,
+        alignItems: 'center',
         ...theme.globalStyles.SHADOW_STYLE_LOW,
         shadowColor: '#00000050',
       },
