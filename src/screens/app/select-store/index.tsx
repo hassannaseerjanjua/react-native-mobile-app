@@ -203,6 +203,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               >
                 <DropdownField
                   options={cityOptions}
+                  textAlign="right"
                   selectedValue={selectedCityId ?? undefined}
                   selectedOption={selectedCityOption}
                   onSelect={option => setSelectedCityId(option.value)}
@@ -216,6 +217,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                     backgroundColor: 'transparent',
                     borderWidth: 0,
                     elevation: 0,
+                    textAlign: 'right',
                   }}
                 />
               </View>

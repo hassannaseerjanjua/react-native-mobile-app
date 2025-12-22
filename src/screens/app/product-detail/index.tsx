@@ -40,7 +40,10 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [item, setItem] = useState<any>(null);
 
   const itemApi = useGetApi<StoreProduct>(
-    apiEndpoints.GET_STORE_ITEM_BY_ID(itemId),
+    apiEndpoints.GET_STORE_ITEM_BY_ID(
+      itemId,
+      route.params.type === 'GiftOneGetOne',
+    ),
     {
       transformData: (data: any) => data?.Data ?? null,
     },
@@ -123,6 +126,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     }
   };
 
+  console.log('route.params.type', route.params.type);
   const handleAddToCart = async () => {
     if (submitting) return;
     const IsGift =
@@ -140,7 +144,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         ...(route.params.type === 'GiftOneGetOne' && {
           CampaignId: item.CampaignId,
         }),
-        IsGift,
+        IsGift: true,
       };
 
       const response = await api.post(apiEndpoints.ADD_TO_CART, payload);

@@ -25,7 +25,7 @@ const useStyles = () => {
         borderRadius: 99,
         width: scaleWithMax(50, 55),
         height: scaleWithMax(50, 55),
-        resizeMode: 'stretch',
+        resizeMode: 'cover',
       },
       imageContainer: {
         borderRadius: 12,

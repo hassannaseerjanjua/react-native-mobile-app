@@ -328,59 +328,64 @@ const InboxOutbox: React.FC = () => {
         blurAmount={100}
         isOpen={openBottomSheet}
         height={
-          selectedItem?.Quantity && selectedItem?.Quantity > 1
+          selectedItem?.Quantity &&
+          selectedItem?.Quantity - selectedItem?.UsedQuantity > 1
             ? theme.sizes.HEIGHT * 0.45
             : theme.sizes.HEIGHT * 0.3
         }
         snapPoints={
-          selectedItem?.Quantity && selectedItem?.Quantity > 1
+          selectedItem?.Quantity &&
+          selectedItem?.Quantity - selectedItem?.UsedQuantity > 1
             ? ['28%']
             : ['20%']
         }
         onClose={handleCloseBottomSheet}
       >
         <View style={styles.bottomSheet}>
-          {selectedItem && selectedItem.Quantity > 1 && (
-            <View style={styles.quantityContainer}>
-              <Text style={styles.quantityLabel}>Quantity:</Text>
-              <View style={styles.quantitySelector}>
-                <TouchableOpacity
-                  onPress={() => handleQuantityChange('decrement')}
-                  disabled={selectedQuantity <= 1}
-                  style={[
-                    styles.quantityButton,
-                    selectedQuantity <= 1 && styles.quantityButtonDisabled,
-                  ]}
-                >
-                  <MinusIcon
-                    width={scaleWithMax(20, 22)}
-                    height={scaleWithMax(20, 22)}
-                    fill={selectedQuantity <= 1 ? '#ccc' : theme.colors.PRIMARY}
-                  />
-                </TouchableOpacity>
-                <Text style={styles.quantityText}>{selectedQuantity}</Text>
-                <TouchableOpacity
-                  onPress={() => handleQuantityChange('increment')}
-                  disabled={selectedQuantity >= selectedItem.Quantity}
-                  style={[
-                    styles.quantityButton,
-                    selectedQuantity >= selectedItem.Quantity &&
-                      styles.quantityButtonDisabled,
-                  ]}
-                >
-                  <PlusIcon
-                    width={scaleWithMax(20, 22)}
-                    height={scaleWithMax(20, 22)}
-                    fill={
-                      selectedQuantity >= selectedItem.Quantity
-                        ? '#ccc'
-                        : theme.colors.PRIMARY
-                    }
-                  />
-                </TouchableOpacity>
+          {selectedItem &&
+            selectedItem.Quantity - selectedItem.UsedQuantity > 1 && (
+              <View style={styles.quantityContainer}>
+                <Text style={styles.quantityLabel}>Quantity:</Text>
+                <View style={styles.quantitySelector}>
+                  <TouchableOpacity
+                    onPress={() => handleQuantityChange('decrement')}
+                    disabled={selectedQuantity <= 1}
+                    style={[
+                      styles.quantityButton,
+                      selectedQuantity <= 1 && styles.quantityButtonDisabled,
+                    ]}
+                  >
+                    <MinusIcon
+                      width={scaleWithMax(20, 22)}
+                      height={scaleWithMax(20, 22)}
+                      fill={
+                        selectedQuantity <= 1 ? '#ccc' : theme.colors.PRIMARY
+                      }
+                    />
+                  </TouchableOpacity>
+                  <Text style={styles.quantityText}>{selectedQuantity}</Text>
+                  <TouchableOpacity
+                    onPress={() => handleQuantityChange('increment')}
+                    disabled={selectedQuantity >= selectedItem.Quantity}
+                    style={[
+                      styles.quantityButton,
+                      selectedQuantity >= selectedItem.Quantity &&
+                        styles.quantityButtonDisabled,
+                    ]}
+                  >
+                    <PlusIcon
+                      width={scaleWithMax(20, 22)}
+                      height={scaleWithMax(20, 22)}
+                      fill={
+                        selectedQuantity >= selectedItem.Quantity
+                          ? '#ccc'
+                          : theme.colors.PRIMARY
+                      }
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          )}
+            )}
           <CustomButton title="Pick Up" onPress={handlePickUpPress} />
           <CustomButton
             title="Delivery"
@@ -606,7 +611,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
                         >
                           {item.ItemName}
                         </Text>
-                        {item.Quantity > 0 && (
+
+                        {item.Quantity - item.UsedQuantity > 0 && (
                           <View style={styles.numCircle}>
                             <Text style={styles.numText}>
                               {item.Quantity - item.UsedQuantity}

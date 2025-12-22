@@ -59,9 +59,9 @@ export const useLanguageShifter = () => {
       }),
     );
 
-    // setTimeout(() => {
-    //   RNRestart.restart();
-    // }, 500);
+    setTimeout(() => {
+      RNRestart.restart();
+    }, 500);
   };
 
   return {

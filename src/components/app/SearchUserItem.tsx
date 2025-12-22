@@ -70,7 +70,18 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
             style={styles.avatar}
           />
         </View>
-        <Text style={styles.userName}>{item.FullName}</Text>
+        <Text
+          style={[
+            styles.userName,
+            {
+              width: shouldShowButton ? '80%' : '85%',
+            },
+          ]}
+          numberOfLines={1}
+          ellipsizeMode="tail"
+        >
+          {item.FullName}
+        </Text>
       </View>
 
       {shouldShowButton && (
@@ -91,6 +102,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
                 style={[
                   styles.addButtonText,
                   (isAdded || isTempAdded) && styles.addedButtonText,
+                  ,
                 ]}
               >
                 {isTempAdded
