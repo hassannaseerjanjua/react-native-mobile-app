@@ -6,6 +6,8 @@ import {
   View,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Share,
+  Platform,
 } from 'react-native';
 import { Text } from '../../../utils/elements';
 import React, { useState, useRef, useMemo } from 'react';
@@ -45,6 +47,7 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import useDebounceClick from '../../../hooks/useDebounceClick';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
+import { useAuthStore } from '../../../store/reducer/auth';
 
 const InboxOutbox: React.FC = () => {
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
@@ -435,8 +438,9 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const profileImage = getProfileImage(order, isInbox);
   const userName = getUserName(order, isInbox);
   const storeName = getStoreName(order, isRtl);
+  const { user } = useAuthStore();
   const timeAgo = formatRelativeTime(order.OrderTime);
-
+  const { getString } = useLocaleStore();
   const { createDebouceClick } = useDebounceClick();
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -452,6 +456,41 @@ const InboxItem: React.FC<InboxItemProps> = ({
       x: index * itemWidth,
       animated: true,
     });
+  };
+
+  const handleShareGiftLink = async (giftId: number) => {
+    const response = await api.get<any>(
+      apiEndpoints.GET_SHARE_GIFT_LINK(giftId),
+    );
+    const responseData = (response.data as any) || {};
+    if (response.success && responseData.Data) {
+      const data = responseData.Data;
+      console.log(data);
+      const giftLink = data.GiftLink;
+
+      const senderName = user?.FullNameEn || user?.FullNameAr || 'Someone';
+      const shareMessage = `💝 You have received a gift from ${senderName}. Click on the link below to redeem the gift.\n\n${giftLink}`;
+
+      const shareOptions = Platform.select({
+        ios: {
+          message: shareMessage,
+          url: giftLink,
+        },
+        android: {
+          message: shareMessage,
+          title: getString('P_GIFT_ME_ON_GIFTEE'),
+        },
+      }) || {
+        message: shareMessage,
+        title: getString('P_GIFT_ME_ON_GIFTEE'),
+      };
+
+      const result = await Share.share(shareOptions);
+
+      if (result.action === Share.sharedAction) {
+      } else if (result.action === Share.dismissedAction) {
+      }
+    }
   };
 
   return (
@@ -542,10 +581,14 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     </TouchableOpacity>
                   )}
                   {order.SendType === 2 && (
-                    <SvgOutboxShareIcon
-                      height={scaleWithMax(20, 20)}
-                      width={scaleWithMax(20, 20)}
-                    />
+                    <TouchableOpacity
+                      onPress={() => handleShareGiftLink(order.OrderId)}
+                    >
+                      <SvgOutboxShareIcon
+                        height={scaleWithMax(20, 20)}
+                        width={scaleWithMax(20, 20)}
+                      />
+                    </TouchableOpacity>
                   )}
                 </View>
               </View>

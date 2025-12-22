@@ -60,25 +60,19 @@ const ProfileScreen: React.FC = () => {
 
   const handleShareGiftLink = async () => {
     try {
-      const giftLink = `https://giftee.app/share/${
-        user?.UserName || 'user123'
-      }`;
-      const inviteLink = `giftee.com/${user?.UserName || 'user123'}`;
+      const giftLink = `https://giftee.app/share/${user?.UserId}-${user?.CityId}`;
+      const shareMessage = `🎁 Want to send me a gift? Clink the link below to send a gift.\n\n ${giftLink}`;
       const shareOptions = Platform.select({
         ios: {
-          message: `${getString('P_GIFT_ME_ON_GIFTEE')}\n\n${inviteLink}`,
+          message: shareMessage,
           url: giftLink,
         },
         android: {
-          message: `${getString(
-            'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
-          )}\n\n${inviteLink}`,
+          message: shareMessage,
           title: getString('P_GIFT_ME_ON_GIFTEE'),
         },
       }) || {
-        message: `${getString(
-          'P_GIFT_ME_ON_GIFTEE_EXCLAMATION',
-        )}\n\n${inviteLink}`,
+        message: shareMessage,
         title: getString('P_GIFT_ME_ON_GIFTEE'),
       };
 

@@ -83,6 +83,9 @@ const apiEndpoints = {
   GET_FAQS: `/${version}/Home/GetAllFAQ`,
   UPDATE_PROFILE_IMAGE: `/${version}/Home/UpdateProfilePhoto`,
   GET_ORDER_HISTORY: `/${version}/User/GetOrders`,
+
+  GET_SHARE_GIFT_LINK: (giftId: number) =>
+    `/${version}/User/GetGiftLink/${giftId}`,
 };
 
 export default apiEndpoints;

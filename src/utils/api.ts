@@ -9,17 +9,17 @@ const axiosInter = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-axiosInter.interceptors.request.use(
-  config => {
-    if (config.data instanceof FormData) {
-      delete config.headers['Content-Type'];
-    }
-    return config;
-  },
-  error => {
-    return Promise.reject(error);
-  },
-);
+// axiosInter.interceptors.request.use(
+//   config => {
+//     if (config.data instanceof FormData) {
+//       delete config.headers['Content-Type'];
+//     }
+//     return config;
+//   },
+//   error => {
+//     return Promise.reject(error);
+//   },
+// );
 
 interface ResponseObject<T> {
   success: boolean;
