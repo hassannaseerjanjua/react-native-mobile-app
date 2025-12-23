@@ -381,7 +381,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                           viewOnly
                             ? () => {
                                 closeModal();
-                                console.log('item', item);
                                 routeTo === 'SelectStore'
                                   ? (navigation as any).navigate(
                                       'SelectStore',

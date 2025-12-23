@@ -6,19 +6,16 @@ import {
   View,
   NativeScrollEvent,
   NativeSyntheticEvent,
-  Share,
-  Platform,
+  ActivityIndicator,
 } from 'react-native';
 import { Text } from '../../../utils/elements';
-import React, { useState, useRef, useMemo } from 'react';
+import React, { useState, useRef } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
 import useStyles from './style';
 import {
-  DecrementIcon,
   GiftIcon,
-  IncrementIcon,
   RoundedBackIcon,
   SmsTrackingIcon,
   SvgOutboxShareIcon,
@@ -28,7 +25,7 @@ import {
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
-import { InboxOrder, GiftFilter, InboxOrderItem } from '../../../types/index';
+import { InboxOrder, InboxOrderItem } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import {
   useInboxOutboxActions,
@@ -37,42 +34,14 @@ import {
   getUserName,
   getStoreName,
   getMainImage,
-  getItemName,
 } from './actions';
-import { rtlFlexDirection, scaleWithMax } from '../../../utils';
-import { useNavigation, useRoute } from '@react-navigation/native';
+import { scaleWithMax } from '../../../utils';
+import { useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
-import useGetApi from '../../../hooks/useGetApi';
-import apiEndpoints from '../../../constants/api-endpoints';
 import useDebounceClick from '../../../hooks/useDebounceClick';
-import api from '../../../utils/api';
-import notify from '../../../utils/notify';
-import { useAuthStore } from '../../../store/reducer/auth';
 
 const InboxOutbox: React.FC = () => {
-  const [openBottomSheet, setOpenBottomSheet] = useState(false);
-  const [quantity, setQuantity] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [openBottomSheet2, setOpenBottomSheet2] = useState(false);
-  const [videoViewerData, setVideoViewerData] = useState<{
-    visible: boolean;
-    videoUrl: string;
-    profileImage: any;
-    userName: string;
-    timeAgo: string;
-    filterImageUrl?: string | null;
-    messageText?: string | null;
-  }>({
-    visible: false,
-    videoUrl: '',
-    profileImage: null,
-    userName: '',
-    timeAgo: '',
-    filterImageUrl: null,
-    messageText: null,
-  });
   const { getString } = useLocaleStore();
-  const navigation = useNavigation();
   const route = useRoute();
   const params = route.params as
     | {
@@ -83,172 +52,32 @@ const InboxOutbox: React.FC = () => {
   const isInbox = params?.isInbox ?? true;
   const title = params?.title ?? (isInbox ? 'Inbox' : 'Outbox');
   const { styles, theme } = useStyles();
-  const { orders, isLoading, isRtl, refetch } = useInboxOutboxActions(isInbox);
-  const [orderId, setOrderId] = useState<number | null>(null);
-  const [selectedOrder, setSelectedOrder] = useState<InboxOrder | null>(null);
-  const [selectedItem, setSelectedItem] = useState<InboxOrderItem | null>(null);
-  const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
-  // Fetch all filters to get filter image URLs
-  const filtersApi = useGetApi<GiftFilter[]>(apiEndpoints.GET_ALL_FILTERS, {
-    transformData: (data: any) => data.Data?.Items || data.Data || [],
-  });
-
-  // Create a map of filter ID to image URL for quick lookup
-  const filterMap = useMemo(() => {
-    const map = new Map<number, string>();
-    if (filtersApi.data) {
-      filtersApi.data.forEach(filter => {
-        map.set(filter.FilterId, filter.ImageUrl);
-      });
-    }
-    return map;
-  }, [filtersApi.data]);
+  const {
+    orders,
+    isLoading,
+    isRtl,
+    openBottomSheet,
+    selectedOrder,
+    selectedItem,
+    selectedQuantity,
+    videoViewerData,
+    videoViewerRef,
+    search,
+    setSearch,
+    loadMore,
+    loadingMore,
+    hasMore,
+    handleItemPress,
+    handleCloseBottomSheet,
+    handleQuantityChange,
+    handlePickUpPress,
+    handleDeliveryPress,
+    handleVideoPress,
+    handleCloseVideoViewer,
+    handleShareGiftLink,
+  } = useInboxOutboxActions(isInbox);
 
   const { createDebouceClick } = useDebounceClick();
-
-  const handleItemPress = (orderId: number, itemId: InboxOrderItem) => {
-    setOrderId(orderId);
-    const selectedOrder = orders.find(o => o.OrderId === orderId) as any;
-
-    setSelectedItem(itemId);
-    setSelectedOrder(selectedOrder);
-    setSelectedQuantity(itemId.Quantity - itemId.UsedQuantity); // Initialize with item's quantity
-
-    setOpenBottomSheet(true);
-  };
-
-  const handleCloseBottomSheet = () => {
-    setOpenBottomSheet(false);
-  };
-
-  const handleQuantityChange = (type: 'increment' | 'decrement') => {
-    if (!selectedItem) return;
-
-    if (type === 'increment') {
-      if (
-        selectedQuantity <
-        selectedItem.Quantity - selectedItem.UsedQuantity
-      ) {
-        setSelectedQuantity(prevQuantity => prevQuantity + 1);
-      }
-    } else {
-      if (selectedQuantity > 1) {
-        setSelectedQuantity(prevQuantity => prevQuantity - 1);
-      }
-    }
-  };
-
-  const handlePickUpPress = async () => {
-    if (!selectedItem || !selectedOrder || !orderId) return;
-
-    try {
-      const payload = {
-        orderid: orderId,
-        orderPaymentType: 1, // Hardcoded
-        IsRedeem: true,
-        RedeemQuantity: selectedQuantity,
-        Items: [
-          {
-            OrderItemId: selectedItem.OrderItemId,
-            Quantity: selectedQuantity,
-          },
-        ],
-      };
-
-      const response = await api.post<any>(apiEndpoints.INIT_ORDER_v2, payload);
-      const responseData = (response.data as any) || {};
-
-      if (response.success && responseData.Data) {
-        const data = responseData.Data;
-        const responseOrderId = data.OrderId;
-        const uniqueCode = data.UniqueCode;
-
-        if (responseOrderId && uniqueCode) {
-          const productImage = getMainImage(selectedItem);
-          const storeName = getStoreName(selectedOrder, isRtl);
-
-          (navigation as any).navigate('ScanQr', {
-            OrderId: responseOrderId,
-            UniqueCode: uniqueCode,
-            productImage,
-            storeName,
-            quantity: selectedQuantity,
-            productName: selectedOrder?.Items?.[0]?.ItemName,
-          });
-          setOpenBottomSheet(false);
-        } else {
-          notify.error(
-            data.Message ||
-              responseData.ResponseMessage ||
-              'Failed to generate QR code',
-          );
-        }
-      } else {
-        const errorMessage =
-          responseData.Data?.Message ||
-          responseData.ResponseMessage ||
-          response.error ||
-          'Failed to redeem item';
-        notify.error(errorMessage);
-      }
-    } catch (error: any) {
-      console.error('Error redeeming item:', error);
-      notify.error(error?.message || 'An error occurred while redeeming item');
-    }
-  };
-
-  const handleDeliveryPress = () => {
-    navigation.navigate('LocationSelection' as never);
-    setOpenBottomSheet(false);
-  };
-
-  const videoViewerRef = useRef<{ preload: (url: string) => void } | null>(
-    null,
-  );
-
-  const handleVideoPress = (order: InboxOrder) => {
-    const profileImage = getProfileImage(order, isInbox);
-    const userName = getUserName(order, isInbox);
-    const timeAgo = formatRelativeTime(order.OrderTime);
-
-    const filterImageUrl =
-      order.OrderFilterId && filterMap.has(order.OrderFilterId)
-        ? filterMap.get(order.OrderFilterId) || null
-        : null;
-
-    const messageText = order.OrderMessage || null;
-
-    const hasVideo = order.orderImages && order.orderImages.length > 0;
-    const videoUrl = hasVideo ? order.orderImages[0].ImageUrl : '';
-
-    if (hasVideo && videoUrl) {
-      videoViewerRef.current?.preload(videoUrl);
-    }
-
-    setVideoViewerData({
-      visible: false,
-      videoUrl,
-      profileImage,
-      userName,
-      timeAgo,
-      filterImageUrl,
-      messageText,
-    });
-
-    setTimeout(() => {
-      setVideoViewerData(prev => ({
-        ...prev,
-        visible: true,
-      }));
-    }, 300);
-  };
-
-  const handleCloseVideoViewer = () => {
-    setVideoViewerData(prev => ({
-      ...prev,
-      visible: false,
-    }));
-  };
 
   return (
     <ParentView>
@@ -281,6 +110,9 @@ const InboxOutbox: React.FC = () => {
           showBackButton
           title={title}
           showSearchBar
+          searchValue={search}
+          onSearchChange={setSearch}
+          searchPlaceholder={getString('HOME_SEARCH')}
           customContainerStyle={
             isInbox ? { backgroundColor: 'transparent' } : undefined
           }
@@ -308,9 +140,12 @@ const InboxOutbox: React.FC = () => {
                   : undefined
               }
               onVideoPress={() => handleVideoPress(item)}
+              onShareGiftLink={handleShareGiftLink}
             />
           )}
           keyExtractor={item => item.OrderId.toString()}
+          onEndReached={hasMore ? loadMore : undefined}
+          onEndReachedThreshold={0.5}
           ListEmptyComponent={() => (
             <View style={{ padding: theme.sizes.PADDING }}>
               <Text
@@ -324,6 +159,18 @@ const InboxOutbox: React.FC = () => {
               </Text>
             </View>
           )}
+          ListFooterComponent={
+            loadingMore ? (
+              <View
+                style={{
+                  paddingVertical: theme.sizes.HEIGHT * 0.02,
+                  alignItems: 'center',
+                }}
+              >
+                <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
+              </View>
+            ) : null
+          }
           contentContainerStyle={orders.length === 0 ? { flex: 1 } : undefined}
         />
       )}
@@ -421,6 +268,7 @@ interface InboxItemProps {
   isInbox: boolean;
   onClick?: (item: InboxOrderItem) => void;
   onVideoPress?: () => void;
+  onShareGiftLink?: (giftId: number) => void;
 }
 
 const InboxItem: React.FC<InboxItemProps> = ({
@@ -430,6 +278,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   onClick,
   isInbox,
   onVideoPress,
+  onShareGiftLink,
 }) => {
   const { styles, theme } = useStyles();
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -438,9 +287,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const profileImage = getProfileImage(order, isInbox);
   const userName = getUserName(order, isInbox);
   const storeName = getStoreName(order, isRtl);
-  const { user } = useAuthStore();
   const timeAgo = formatRelativeTime(order.OrderTime);
-  const { getString } = useLocaleStore();
   const { createDebouceClick } = useDebounceClick();
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
@@ -456,41 +303,6 @@ const InboxItem: React.FC<InboxItemProps> = ({
       x: index * itemWidth,
       animated: true,
     });
-  };
-
-  const handleShareGiftLink = async (giftId: number) => {
-    const response = await api.get<any>(
-      apiEndpoints.GET_SHARE_GIFT_LINK(giftId),
-    );
-    const responseData = (response.data as any) || {};
-    if (response.success && responseData.Data) {
-      const data = responseData.Data;
-      console.log(data);
-      const giftLink = data.GiftLink;
-
-      const senderName = user?.FullNameEn || user?.FullNameAr || 'Someone';
-      const shareMessage = `💝 You have received a gift from ${senderName}. Click on the link below to redeem the gift.\n\n${giftLink}`;
-
-      const shareOptions = Platform.select({
-        ios: {
-          message: shareMessage,
-          url: giftLink,
-        },
-        android: {
-          message: shareMessage,
-          title: getString('P_GIFT_ME_ON_GIFTEE'),
-        },
-      }) || {
-        message: shareMessage,
-        title: getString('P_GIFT_ME_ON_GIFTEE'),
-      };
-
-      const result = await Share.share(shareOptions);
-
-      if (result.action === Share.sharedAction) {
-      } else if (result.action === Share.dismissedAction) {
-      }
-    }
   };
 
   return (
@@ -533,7 +345,11 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   justifyContent: 'space-between',
                 }}
               >
-                <Text style={styles.userNameText}>
+                <Text
+                  style={styles.userNameText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
                   {order.SendType === 2 ? 'Gift Link' : userName}
                 </Text>
                 <Text style={styles.timeText}>{timeAgo}</Text>
@@ -580,9 +396,13 @@ const InboxItem: React.FC<InboxItemProps> = ({
                       />
                     </TouchableOpacity>
                   )}
-                  {order.SendType === 2 && (
+                  {order.SendType === 2 && onShareGiftLink && (
                     <TouchableOpacity
-                      onPress={() => handleShareGiftLink(order.OrderId)}
+                      onPress={() =>
+                        createDebouceClick('share-gift', () =>
+                          onShareGiftLink(order.OrderId),
+                        )
+                      }
                     >
                       <SvgOutboxShareIcon
                         height={scaleWithMax(20, 20)}

@@ -259,7 +259,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       return;
     }
     if (isCompressing) {
-      notify.error('Please wait, video is being processed...');
+      notify.error(getString('GIFT_MESSAGE_PLEASE_WAIT_VIDEO'));
       return;
     }
 
@@ -320,7 +320,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             response.error,
           );
           clearPendingVideoPath();
-          notify.error(response.error || 'Failed to send gift message');
+          notify.error(response.error || getString('GIFT_MESSAGE_FAILED_TO_SEND'));
           return { success: false, error: response.error };
 
 
@@ -328,7 +328,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       } catch (error: any) {
         console.error('[GiftMessage] Error sending gift message:', error);
         clearPendingVideoPath();
-        notify.error(error?.message || 'An error occurred while sending');
+        notify.error(error?.message || getString('GIFT_MESSAGE_ERROR_WHILE_SENDING'));
         return { success: false, error: error?.message };
       } finally {
         clearVideoUploadPromise();
@@ -430,7 +430,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       }
     } catch (error: any) {
       console.error('[GiftMessage] Video compression failed:', error);
-      notify.error('Failed to process video. Please try again.');
+      notify.error(getString('GIFT_MESSAGE_FAILED_TO_PROCESS_VIDEO'));
     } finally {
       setIsCompressing(false);
       setCompressionProgress(0);
@@ -439,7 +439,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
 
   const handleVideoSelect = () => {
     if (isCompressing) {
-      notify.error('Please wait, video is being processed...');
+      notify.error(getString('GIFT_MESSAGE_PLEASE_WAIT_VIDEO'));
       return;
     }
 
@@ -830,7 +830,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                               clearInterval(recordingTimerRef.current);
                               recordingTimerRef.current = null;
                             }
-                            notify.error('Recording failed');
+                            notify.error(getString('GIFT_MESSAGE_RECORDING_FAILED'));
                           },
                         },
                         MAX_VIDEO_DURATION,
@@ -952,17 +952,17 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           <ConfirmationModal
             key={popupVisible ? 'open' : 'closed'}
             visible={popupVisible}
-            title={sendMessagePayload.VideoFile ? 'Video Options' : 'Select'}
+            title={sendMessagePayload.VideoFile ? getString('GIFT_MESSAGE_VIDEO_OPTIONS') : getString('GIFT_MESSAGE_SELECT')}
             message={
               sendMessagePayload.VideoFile
-                ? 'Choose what to do with your video'
-                : 'Select how you want the video'
+                ? getString('GIFT_MESSAGE_CHOOSE_VIDEO_ACTION')
+                : getString('GIFT_MESSAGE_SELECT_VIDEO_SOURCE')
             }
             confirmText={
-              sendMessagePayload.VideoFile ? 'Trim Video' : 'from Gallery'
+              sendMessagePayload.VideoFile ? getString('GIFT_MESSAGE_TRIM_VIDEO') : getString('GIFT_MESSAGE_FROM_GALLERY')
             }
             cancelText={
-              sendMessagePayload.VideoFile ? 'Retake Video' : 'from Camera'
+              sendMessagePayload.VideoFile ? getString('GIFT_MESSAGE_RETAKE_VIDEO') : getString('GIFT_MESSAGE_FROM_CAMERA')
             }
             onConfirm={() => {
               setPopupVisible(false);

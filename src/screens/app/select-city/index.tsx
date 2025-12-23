@@ -27,7 +27,6 @@ const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
       };
     },
   });
-  console.log('citiesApi', citiesApi);
 
   const onSelectCity = (city: City) => {
     navigation.navigate('SelectStore', {

@@ -45,6 +45,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
   const storeId = route.params?.storeId ?? null;
+  const businessTypeId = route.params?.businessTypeId ?? null;
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
@@ -59,9 +60,12 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
   const [selectedFilter, setSelectedFilter] = useState('all');
 
-  const categoriesApi = useGetApi<Category[]>(apiEndpoints.GET_CATEGORIES, {
-    transformData: (data: any) => data.Data.Items || [],
-  });
+  const categoriesApi = useGetApi<Category[]>(
+    apiEndpoints.GET_CATEGORIES(businessTypeId),
+    {
+      transformData: (data: any) => data.Data.Items || [],
+    },
+  );
 
   const getStoreProducts = useListingApi<StoreProduct>(
     apiEndpoints.GET_STORE_DETAIL,

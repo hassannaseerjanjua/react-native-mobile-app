@@ -1,5 +1,11 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { StatusBar, FlatList, View, TouchableOpacity } from 'react-native';
+import {
+  StatusBar,
+  FlatList,
+  View,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -35,7 +41,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const { styles, theme } = useStyles();
   const [openModal, setOpenModal] = useState(false);
   const { getString, isRtl, langCode } = useLocaleStore();
-  const [loading, setLoading] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
   const storeID = route.params?.storeID;
@@ -44,17 +49,22 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   );
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const friendUserId = route.params?.friendUserId ?? null;
-  const [submitting, setSubmitting] = useState(false);
-  const categoriesApi = useGetApi<Category[]>(apiEndpoints.GET_CATEGORIES, {
+  const categoriesApi = useGetApi<Category[]>(apiEndpoints.GET_CATEGORIES(15), {
     transformData: (data: any) => data.Data?.Items || [],
   });
 
-  const getFavoriteItems = useGetApi<FaveItems[]>(
-    route.params?.type === 'favorite' && storeID
-      ? apiEndpoints.GET_FAV_STORE_ITEMS(storeID)
-      : '',
+  const getFavoriteItems = useListingApi<FaveItems>(
+    route.params?.type === 'favorite' ? apiEndpoints.GET_FAV_STORE_ITEMS : '',
+    '',
     {
-      transformData: (data: any) => data.Data?.Items || [],
+      transformData: (data: any) => {
+        return {
+          data: data.Data?.Items || [],
+          totalCount: data.Data?.TotalCount || 0,
+        };
+      },
+      extraParams: storeID ? { StoreId: storeID } : {},
+      idExtractor: (item: FaveItems) => item.ItemId,
     },
   );
 
@@ -68,6 +78,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           totalCount: data.Data?.TotalCount || 0,
         };
       },
+      idExtractor: (item: CatchItem) => `${item.CampaignId}-${item.ItemId}`,
     },
   );
   const getStoreProducts = useListingApi<StoreProduct>(
@@ -81,6 +92,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         };
       },
       extraParams: { campaingType: 3 },
+      idExtractor: (item: StoreProduct) => item.ItemId,
     },
   );
   const cartApi = useGetApi<CartResponse>(
@@ -96,28 +108,25 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     });
     return unsubscribe;
   }, [navigation, cartApi.refetch]);
-  useEffect(() => {
-    if (screenType !== 'GiftOneGetOne') return;
-    if (getStoreProducts.data) {
-      const initialState: Record<number, boolean> = {};
-      getStoreProducts.data.forEach(item => {
-        initialState[item.ItemId] = item.isFavourite ?? false;
-      });
-      setFavoriteStates(initialState);
-    }
-  }, [getStoreProducts.data]);
-
-  console.log('getCatchItems', getStoreProducts);
 
   useEffect(() => {
-    if (screenType === 'favorite' && getFavoriteItems.data) {
+    const initializeFavoriteStates = (
+      items: Array<{ ItemId: number; isFavourite?: boolean }>,
+      defaultFavorite: boolean = false,
+    ) => {
       const initialState: Record<number, boolean> = {};
-      getFavoriteItems.data.forEach(item => {
-        initialState[item.ItemId] = item.isFavourite ?? true;
+      items.forEach(item => {
+        initialState[item.ItemId] = item.isFavourite ?? defaultFavorite;
       });
       setFavoriteStates(initialState);
+    };
+
+    if (screenType === 'GiftOneGetOne' && getStoreProducts.data) {
+      initializeFavoriteStates(getStoreProducts.data, false);
+    } else if (screenType === 'favorite' && getFavoriteItems.data) {
+      initializeFavoriteStates(getFavoriteItems.data, true);
     }
-  }, [screenType, getFavoriteItems.data]);
+  }, [screenType, getStoreProducts.data, getFavoriteItems.data]);
 
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
@@ -136,56 +145,48 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     return getCatchItems.data.map((item: CatchItem) => ({
       id: `${item.CampaignId}-${item.ItemId}`,
       title: isRtl ? item.ItemNameAr : item.ItemNameEn,
-      subtitle: isRtl ? item.CategoryNameAr : item.CategoryNameEn,
+      subTitle2: isRtl ? item.CategoryNameAr : item.CategoryNameEn,
       coverImage:
         item.ItemImage && item.ItemImage.trim()
           ? { uri: item.ItemImage }
           : require('../../../assets/images/img-placeholder.png'),
-      category: item.CategoryNameEn?.toLowerCase() || 'all',
       price: item.ItemPrice,
       discountedPrice: item.DiscountedPrice || 0,
       isGift: false,
-      subTitle2: isRtl ? item.CategoryNameAr : item.CategoryNameEn,
+      subtitle: isRtl ? item.StoreNameAr : item.StoreNameEn,
       catchItem: item,
     }));
   }, [getCatchItems.data, isRtl]);
 
   const filteredItems = useMemo(() => {
     if (screenType === 'favorite') {
-      const items = getFavoriteItems.data || [];
-      if (selectedFilter === 'all') {
-        return items;
-      }
-      const categoryId = Number(selectedFilter);
-      return items.filter((item: FaveItems) => {
-        return item.CategoryId === categoryId;
-      });
+      return getFavoriteItems.data || [];
     } else if (screenType === 'GiftOneGetOne') {
-      const items = getStoreProducts.data || [];
-      if (selectedFilter === 'all') {
-        return items;
-      }
-      const categoryId = Number(selectedFilter);
-      return items.filter((item: StoreProduct) => {
-        return item.CategoryId === categoryId;
-      });
+      return getStoreProducts.data || [];
     } else {
-      const items = transformedCatchItems;
-      if (selectedFilter === 'all') {
-        return items;
-      }
-      const categoryId = Number(selectedFilter);
-      return items.filter(item => {
-        return item.catchItem?.CategoryId === categoryId;
-      });
+      return transformedCatchItems;
     }
   }, [
-    selectedFilter,
     screenType,
     getFavoriteItems.data,
     transformedCatchItems,
     getStoreProducts.data,
   ]);
+
+  const listingApi = useMemo(() => {
+    if (screenType === 'favorite') return getFavoriteItems;
+    if (screenType === 'GiftOneGetOne') return getStoreProducts;
+    if (screenType === 'catch') return getCatchItems;
+    return null;
+  }, [screenType, getFavoriteItems, getStoreProducts, getCatchItems]);
+
+  const searchValue = listingApi?.search || '';
+
+  const handleSearchChange = (text: string) => {
+    if (listingApi) {
+      listingApi.setSearch(text);
+    }
+  };
 
   const _handleCatchPress = async (item: CatchItem) => {
     const itemKey = `${item.CampaignId}-${item.ItemId}`;
@@ -239,30 +240,15 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         itemId: favItem.ItemId,
         friendUserId: friendUserId ?? undefined,
       });
-    } else if (screenType === 'catch' && item.catchItem) {
-      // navigation.navigate('ProductDetails', {
-      //   itemId: item.catchItem.ItemId,
-      //   friendUserId: friendUserId ?? undefined,
-      // });
     } else if (screenType === 'GiftOneGetOne') {
-      if ('ItemId' in item && 'Thumbnail' in item) {
-        const product = item as CatchItem;
-        (navigation as any).navigate('ProductDetails', {
-          itemId: product.ItemId,
-          storeId: product.StoreId,
-          friendUserId,
-          type: 'GiftOneGetOne',
-          campaignId: product.CampaignId,
-        });
-      } else {
-        (navigation as any).navigate('ProductDetails', {
-          itemId: (item as any)?.ItemId ?? 0,
-          storeId: (item as any)?.StoreId ?? null,
-          friendUserId,
-          type: 'GiftOneGetOne',
-          campaignId: (item as any)?.CampaignId,
-        });
-      }
+      const product = item as StoreProduct | CatchItem;
+      (navigation as any).navigate('ProductDetails', {
+        itemId: product.ItemId ?? 0,
+        storeId: product.StoreId ?? null,
+        friendUserId,
+        type: 'GiftOneGetOne',
+        campaignId: (product as CatchItem).CampaignId,
+      });
     }
   };
 
@@ -274,67 +260,62 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       ...prev,
       [payload.ItemId]: payload.IsFavorite,
     }));
+
+    const revertFavorite = () => {
+      setFavoriteStates(prev => ({
+        ...prev,
+        [payload.ItemId]: !payload.IsFavorite,
+      }));
+    };
+
     try {
       const res = await api.post<any>(
         apiEndpoints.HANDLE_FAVORITE_ITEM,
         payload,
       );
       if (!res.success) {
-        setFavoriteStates(prev => ({
-          ...prev,
-          [payload.ItemId]: !payload.IsFavorite,
-        }));
+        revertFavorite();
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
     } catch (error: any) {
-      setFavoriteStates(prev => ({
-        ...prev,
-        [payload.ItemId]: !payload.IsFavorite,
-      }));
+      revertFavorite();
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
-  const filteredProducts = useMemo(() => {
-    if (!getStoreProducts.data) return [];
-    if (selectedFilter === 'all') return getStoreProducts.data;
-    const categoryId = Number(selectedFilter);
-    return getStoreProducts.data.filter(
-      product => product.CategoryId === categoryId,
-    );
-  }, [getStoreProducts.data, selectedFilter]);
-  const handleAddToCart = async (item: CatchItem) => {
-    if (submitting) return;
-    try {
-      setSubmitting(true);
-      const payload = {
-        StoreId: item?.StoreId ?? null,
-        ItemId: item?.ItemId,
-        CampaignId: item.CampaignId,
-      };
-      const response = await api.post(
-        apiEndpoints.ADD_CAMPAIGN_TO_CART,
-        payload,
-      );
-      if (response.success) {
-        navigation.navigate('CheckOut' as never);
-      } else {
-        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
-      }
-    } catch (error: any) {
-      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-    } finally {
-      setSubmitting(false);
+
+  const getFavoriteState = (item: any): boolean => {
+    return favoriteStates[item.ItemId] ?? item.isFavourite ?? true;
+  };
+
+  const createFavoritePressHandler = (item: any) => () => {
+    handleFavoritePress({
+      ItemId: item.ItemId,
+      IsFavorite: !getFavoriteState(item),
+    });
+  };
+
+  const isLoading = () => {
+    return listingApi?.loading || false;
+  };
+
+  const getItemKey = (item: any): string => {
+    if (screenType === 'favorite' || screenType === 'GiftOneGetOne') {
+      return item.ItemId.toString();
     }
+    return item.id || `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`;
   };
   if (openModal) {
     return (
       <SuccessMessage
         SuccessLogo={<GiftPlacedSvg />}
-        SuccessMessage="🎉 Nice Catch 🎉"
-        SuccessSubMessage="You have successfully captured it!"
-        primaryButtonTitle="Inbox"
+        SuccessMessage={getString('CATCH_SUCCESS_MESSAGE')}
+        SuccessSubMessage={getString('CATCH_SUCCESS_SUB_MESSAGE')}
+        primaryButtonTitle={getString('HOME_INBOX')}
         onPrimaryPress={() => {
           setOpenModal(false);
+          if (screenType === 'catch') {
+            getCatchItems.recall();
+          }
           navigation.navigate('InboxOutbox', {
             title: getString('HOME_INBOX'),
             isInbox: true,
@@ -343,6 +324,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         secondaryButtonTitle="Continue"
         onSecondaryPress={() => {
           setOpenModal(false);
+          if (screenType === 'catch') {
+            getCatchItems.recall();
+          }
         }}
       />
     );
@@ -365,6 +349,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         showBackButton
         onBackPress={() => navigation.goBack()}
         showSearchBar
+        searchValue={searchValue}
+        onSearchChange={handleSearchChange}
+        searchPlaceholder={getString('HOME_SEARCH')}
       />
 
       <View style={styles.listWrapper}>
@@ -374,31 +361,32 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             activeTab={selectedFilter}
             onTabPress={id => {
               setSelectedFilter(id);
-              screenType === 'GiftOneGetOne'
-                ? getStoreProducts.setExtraParams({
-                    categoryId: id === 'all' ? null : Number(id),
-                  })
-                : getCatchItems.setExtraParams({
-                    categoryId: id === 'all' ? null : Number(id),
-                  });
+              const categoryId = id === 'all' ? null : Number(id);
+              if (screenType === 'favorite') {
+                getFavoriteItems.setExtraParams({
+                  ...(storeID ? { StoreId: storeID } : {}),
+                  categoryId,
+                });
+              } else if (screenType === 'GiftOneGetOne') {
+                getStoreProducts.setExtraParams({
+                  categoryId,
+                  campaingType: 3,
+                });
+              } else if (screenType === 'catch') {
+                getCatchItems.setExtraParams({ categoryId });
+              }
             }}
           />
         </View>
-        {(screenType === 'favorite' && getFavoriteItems.loading) ||
-        (screenType === 'GiftOneGetOne' && getStoreProducts.loading) ||
-        (screenType === 'catch' && getCatchItems.loading) ? (
+        {isLoading() ? (
           <SkeletonLoader screenType="productListing" />
         ) : (
           <FlatList
             data={filteredItems as any}
             numColumns={2}
-            keyExtractor={(item: any) =>
-              screenType === 'favorite' || screenType === 'GiftOneGetOne'
-                ? item.ItemId.toString()
-                : item.id ||
-                  `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`
-            }
+            keyExtractor={getItemKey}
             columnWrapperStyle={styles.columnWrapper}
+            extraData={favoriteStates}
             contentContainerStyle={[
               styles.listContent,
               styles.listContainer,
@@ -407,69 +395,73 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               },
             ]}
             showsVerticalScrollIndicator={false}
+            onEndReached={
+              listingApi && listingApi.hasMore ? listingApi.loadMore : undefined
+            }
+            onEndReachedThreshold={0.5}
             ListEmptyComponent={
               <View
                 style={{
                   flex: 1,
                   justifyContent: 'center',
                   alignItems: 'center',
+                  height: theme.sizes.HEIGHT * 0.5,
                 }}
               >
                 <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
               </View>
             }
-            renderItem={({ item }) =>
-              screenType === 'favorite' ? (
-                <FavoriteProductCard
-                  item={item as FaveItems}
-                  onPress={handleProductPress}
-                  isFavorite={
-                    favoriteStates[item.ItemId] ?? item.isFavourite ?? true
-                  }
-                  hasFavorite={screenType === 'favorite'}
-                  onFavoritePress={() => {
-                    handleFavoritePress({
-                      ItemId: item.ItemId,
-                      IsFavorite: !(
-                        favoriteStates[item.ItemId] ??
-                        item.isFavourite ??
-                        true
-                      ),
-                    });
+            ListFooterComponent={
+              listingApi && listingApi.loadingMore ? (
+                <View
+                  style={{
+                    paddingVertical: theme.sizes.HEIGHT * 0.02,
+                    alignItems: 'center',
                   }}
-                />
-              ) : screenType === 'GiftOneGetOne' ? (
-                <GiftOneGetOneProductCard
-                  item={item}
-                  onPress={handleProductPress}
-                  isFavorite={
-                    favoriteStates[item.ItemId] ?? item.isFavourite ?? true
-                  }
-                  hasFavorite={false}
-                  onFavoritePress={() => {
-                    handleFavoritePress({
-                      ItemId: item.ItemId,
-                      IsFavorite: !(
-                        favoriteStates[item.ItemId] ??
-                        item.isFavourite ??
-                        true
-                      ),
-                    });
-                  }}
-                />
-              ) : (
-                <CatchProductCard
-                  loading={loadingItems[item.id] || false}
-                  item={item}
-                  onPress={handleProductPress}
-                  onCatchPress={item => {
-                    if (item.catchItem) {
-                      _handleCatchPress(item.catchItem);
-                    }
-                  }}
-                />
-              )
+                >
+                  <ActivityIndicator
+                    size="small"
+                    color={theme.colors.PRIMARY}
+                  />
+                </View>
+              ) : null
             }
+            renderItem={({ item }) => {
+              if (screenType === 'favorite') {
+                return (
+                  <FavoriteProductCard
+                    item={item as FaveItems}
+                    onPress={handleProductPress}
+                    isFavorite={getFavoriteState(item)}
+                    hasFavorite={true}
+                    onFavoritePress={createFavoritePressHandler(item)}
+                  />
+                );
+              } else if (screenType === 'GiftOneGetOne') {
+                return (
+                  <GiftOneGetOneProductCard
+                    item={item}
+                    onPress={handleProductPress}
+                    isFavorite={getFavoriteState(item)}
+                    hasFavorite={false}
+                    onFavoritePress={createFavoritePressHandler(item)}
+                  />
+                );
+              } else {
+                return (
+                  <CatchProductCard
+                    loading={loadingItems[item.id] || false}
+                    item={item}
+                    onPress={handleProductPress}
+                    onCatchPress={item => {
+                      if (item.catchItem) {
+                        _handleCatchPress(item.catchItem);
+                      }
+                    }}
+                  />
+                );
+              }
+            }}
           />
         )}
       </View>

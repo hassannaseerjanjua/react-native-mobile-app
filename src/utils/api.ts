@@ -68,7 +68,6 @@ const caller = async <T>(
     responseObject.data = response.data;
     responseObject.error = '';
   } catch (err: any) {
-    console.log('error ->', err);
     const response = err?.response?.data;
     let errorMessage =
       response?.error?.message ||
@@ -78,11 +77,15 @@ const caller = async <T>(
       'Something went wrong';
 
     if (err?.response?.status === 401) {
-      errorMessage = 'Session expired. Please login again.';
+      const localeState = store.getState().locale.localeData;
+      const localeKey = 'API_SESSION_EXPIRED';
+      errorMessage = (localeState.stringsLangId === localeState.langId && localeState.strings?.[localeKey]) || localeKey;
       store.dispatch(logout());
     }
     if (err?.response?.status === 413) {
-      errorMessage = 'File size is too large. Please use a smaller image.';
+      const localeState = store.getState().locale.localeData;
+      const localeKey = 'API_FILE_TOO_LARGE';
+      errorMessage = (localeState.stringsLangId === localeState.langId && localeState.strings?.[localeKey]) || localeKey;
     }
 
     responseObject.error = errorMessage;

@@ -12,7 +12,7 @@ import api from '../../../utils/api';
 import ParentView from '../../../components/app/ParentView';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import SearchUserItem from '../../../components/app/SearchUserItem';
-import ConfirmationModal from '../../../components/global/ConfirmationModal';
+import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import { Text } from '../../../utils/elements';
 import notify from '../../../utils/notify';
 
@@ -238,7 +238,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         </View>
       </View>
 
-      <ConfirmationModal
+      <ConfirmationPopup
         visible={unfriendModal.visible}
         title={getString('SEARCH_UNFRIEND_USER')}
         message={

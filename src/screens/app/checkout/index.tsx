@@ -36,6 +36,7 @@ import CustomButton from '../../../components/global/Custombutton';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import CustomFooter from '../../../components/global/CustomFooter';
 import { Text } from '../../../utils/elements';
+import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import { AppStackScreen } from '../../../types/navigation.types';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
@@ -65,6 +66,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [updatingQuantities, setUpdatingQuantities] = useState<
     Record<number, 'increment' | 'decrement' | null>
   >({});
+  const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
+  const [itemToRemove, setItemToRemove] = useState<CartItem | null>(null);
 
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => {
@@ -88,6 +91,73 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   //   }
   // }, [cartItemsApi.data]);
 
+  const removeCartItem = async (
+    item: CartItem,
+    skipStateUpdate = false,
+  ): Promise<boolean> => {
+    const originalCartData = cartData
+      ? JSON.parse(JSON.stringify(cartData))
+      : null;
+
+    if (cartData && !skipStateUpdate) {
+      const updatedItems = cartData.Items.filter(
+        cartItem => cartItem.OrderItemId !== item.OrderItemId,
+      );
+
+      const newOrderAmount = updatedItems.reduce(
+        (sum, cartItem) => sum + cartItem.OrderAmount,
+        0,
+      );
+      const newTotalDiscount = cartData.TotalDiscount;
+      const newTotalVat = cartData.TotalVat;
+      const newDeliveryCharges = cartData.DeliveryCharges;
+      const newTotalAmount =
+        newOrderAmount - newTotalDiscount + newTotalVat + newDeliveryCharges;
+
+      setCartData({
+        ...cartData,
+        Items: updatedItems,
+        OrderAmount: newOrderAmount,
+        TotalAmount: newTotalAmount,
+      });
+    }
+
+    try {
+      setUpdatingQuantities(prev => ({
+        ...prev,
+        [item.OrderItemId]: 'decrement',
+      }));
+
+      const payload = {
+        ItemId: item.ItemId,
+        ItemVariantId: item.Variant?.ItemVariantId,
+      };
+
+      const response = await api.post(apiEndpoints.REMOVE_CART_BY_ID, payload);
+      if (!response.success) {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        if (originalCartData && !skipStateUpdate) {
+          setCartData(originalCartData);
+        }
+        return false;
+      }
+      return true;
+    } catch (error: any) {
+      console.error('Error removing cart item:', error);
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+      if (originalCartData && !skipStateUpdate) {
+        setCartData(originalCartData);
+      }
+      return false;
+    } finally {
+      setUpdatingQuantities(prev => {
+        const newState = { ...prev };
+        delete newState[item.OrderItemId];
+        return newState;
+      });
+    }
+  };
+
   const handleQuantityChange = async (
     item: CartItem,
     type: 'increment' | 'decrement',
@@ -99,68 +169,18 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       return;
     }
 
+    // Show confirmation if trying to remove item (quantity is 1 and decrementing)
+    if (item.Quantity === 1 && type === 'decrement') {
+      setItemToRemove(item);
+      return;
+    }
+
     const originalCartData = cartData
       ? JSON.parse(JSON.stringify(cartData))
       : null;
 
     if (newQuantity < 1) {
-      if (cartData) {
-        const updatedItems = cartData.Items.filter(
-          cartItem => cartItem.OrderItemId !== item.OrderItemId,
-        );
-
-        const newOrderAmount = updatedItems.reduce(
-          (sum, cartItem) => sum + cartItem.OrderAmount,
-          0,
-        );
-        const newTotalDiscount = cartData.TotalDiscount;
-        const newTotalVat = cartData.TotalVat;
-        const newDeliveryCharges = cartData.DeliveryCharges;
-        const newTotalAmount =
-          newOrderAmount - newTotalDiscount + newTotalVat + newDeliveryCharges;
-
-        setCartData({
-          ...cartData,
-          Items: updatedItems,
-          OrderAmount: newOrderAmount,
-          TotalAmount: newTotalAmount,
-        });
-      }
-
-      try {
-        setUpdatingQuantities(prev => ({
-          ...prev,
-          [item.OrderItemId]: 'decrement',
-        }));
-
-        const payload = {
-          ItemId: item.ItemId,
-          ItemVariantId: item.Variant?.ItemVariantId,
-        };
-
-        const response = await api.post(
-          apiEndpoints.REMOVE_CART_BY_ID,
-          payload,
-        );
-        if (!response.success) {
-          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
-          if (originalCartData) {
-            setCartData(originalCartData);
-          }
-        }
-      } catch (error: any) {
-        console.error('Error removing cart item:', error);
-        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-        if (originalCartData) {
-          setCartData(originalCartData);
-        }
-      } finally {
-        setUpdatingQuantities(prev => {
-          const newState = { ...prev };
-          delete newState[item.OrderItemId];
-          return newState;
-        });
-      }
+      await removeCartItem(item);
       return;
     }
 
@@ -234,14 +254,27 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   };
 
   const handleClearCart = async () => {
+    setShowRemoveConfirmation(false);
     const response = await api.put(apiEndpoints.CLEAR_CART, {});
     if (response.success) {
-      setCartData(null);
-      setTimeout(() => {
-        navigation.dispatch(StackActions.popToTop());
-      }, 200);
+      navigation.dispatch(StackActions.popToTop());
     } else {
       notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+    }
+  };
+
+  const handleRemoveItem = async () => {
+    if (!itemToRemove) return;
+
+    const item = itemToRemove;
+    const isLastItem = cartData?.Items?.length === 1;
+    setItemToRemove(null);
+
+    // If it's the last item, use clear cart API instead of remove item API
+    if (isLastItem) {
+      await handleClearCart();
+    } else {
+      await removeCartItem(item);
     }
   };
 
@@ -437,7 +470,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       </ParentView>
     );
   }
-  console.log('cartData', cartData, loading);
   if (!cartData || !cartData.Items || cartData.Items.length === 0) {
     return (
       <ParentView>
@@ -460,7 +492,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const giftImage = firstItem.Images?.[0]?.ImageUrls || firstItem.ThumbnailUrl;
   const giftImageSource = cartData.FriendImageUrl
     ? { uri: cartData.FriendImageUrl }
-    : require('../../../assets/images/gift-link.png');
+    : cartData.SendType === 2
+    ? require('../../../assets/images/gift-link.png')
+    : require('../../../assets/images/img-placeholder.png');
 
   return (
     <ParentView>
@@ -468,6 +502,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <ScrollView
         showsVerticalScrollIndicator={false}
         contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         <View style={styles.section}>
           <View
@@ -479,7 +515,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             <Text style={styles.heading}>
               {getString('CHECKOUT_ORDER_DETAILS')}
             </Text>
-            <TouchableOpacity onPress={handleClearCart}>
+            <TouchableOpacity onPress={() => setShowRemoveConfirmation(true)}>
               <Text
                 style={[
                   styles.TextMedium,
@@ -521,13 +557,17 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               <Image
                 source={giftImageSource}
                 style={
-                  cartData.FriendImageUrl
-                    ? styles.GiftContainerImage
-                    : styles.LinkImage
+                  cartData.SendType === 2
+                    ? styles.LinkImage
+                    : styles.GiftContainerImage
                 }
               />
               <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
-                <Text style={styles.TextMedium}>
+                <Text
+                  style={[styles.TextMedium]}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
                   {cartData.CampaginType === 3
                     ? cartData.users.FullName
                     : cartData.FriendName || 'Sending through link'}
@@ -587,6 +627,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             </TouchableOpacity>
           </View>
           <TouchableOpacity
+            disabled
             onPress={() =>
               setSelectedPaymentMethod(
                 selectedPaymentMethod === 'visa' ? null : 'visa',
@@ -609,11 +650,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               >
                 <CheckBox
                   Selected={selectedPaymentMethod === 'visa'}
-                  onSelectionPress={() =>
-                    setSelectedPaymentMethod(
-                      selectedPaymentMethod === 'visa' ? null : 'visa',
-                    )
-                  }
+                  // onSelectionPress={() =>
+                  //   setSelectedPaymentMethod(
+                  //     selectedPaymentMethod === 'visa' ? null : 'visa',
+                  //   )
+                  // }
                 />
                 <VisaIcon
                   height={scaleWithMax(32, 35)}
@@ -742,7 +783,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               }}
               icon={<SvgEhsanIcon />}
               fieldProps={{
-                placeholder: 'Enter amount',
+                placeholder: getString('CHECKOUT_ENTER_AMOUNT'),
                 keyboardType: 'numeric',
                 maxLength: 10,
               }}
@@ -793,6 +834,26 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           </View>
         </View>
       </View>
+      <ConfirmationPopup
+        visible={showRemoveConfirmation}
+        title={getString('CHECKOUT_REMOVE_ITEMS')}
+        message={getString('CHECKOUT_REMOVE_ALL_ITEMS_CONFIRM')}
+        confirmText={getString('CHECKOUT_REMOVE')}
+        cancelText={getString('NG_CANCEL')}
+        onConfirm={handleClearCart}
+        onCancel={() => setShowRemoveConfirmation(false)}
+      />
+      <ConfirmationPopup
+        visible={!!itemToRemove}
+        title={getString('CHECKOUT_REMOVE_ITEM')}
+        message={`${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${
+          itemToRemove?.ItemName
+        }" ${getString('CHECKOUT_FROM_CART')}`}
+        confirmText={getString('CHECKOUT_REMOVE')}
+        cancelText={getString('NG_CANCEL')}
+        onConfirm={handleRemoveItem}
+        onCancel={() => setItemToRemove(null)}
+      />
     </ParentView>
   );
 };

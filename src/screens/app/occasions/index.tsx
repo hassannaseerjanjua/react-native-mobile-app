@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StatusBar, FlatList, TouchableOpacity } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
@@ -23,12 +23,17 @@ import { Occasion } from '../../../types/index.ts';
 import SkeletonLoader from '../../../components/SkeletonLoader/index.tsx';
 import { useOccasions, OccasionFormValues } from './actions';
 import { Text } from '../../../utils/elements.tsx';
+import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 
 const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const { user } = useAuthStore();
   const navigation = useNavigation();
+  const [occasionToDelete, setOccasionToDelete] = useState<{
+    id: number;
+    name: string;
+  } | null>(null);
   const {
     loading,
     occasionsLoading,
@@ -51,6 +56,13 @@ const OccasionsScreen: React.FC = () => {
     handleBackPress,
     handleDatePickerConfirm,
   } = useOccasions();
+
+  const confirmDeleteOccasion = () => {
+    if (occasionToDelete) {
+      handleDeleteOccasion(occasionToDelete.id);
+      setOccasionToDelete(null);
+    }
+  };
 
   const validationSchema = Yup.object().shape({
     occasionName: Yup.string().required('required'),
@@ -135,7 +147,12 @@ const OccasionsScreen: React.FC = () => {
                     title={item.NameEn}
                     isEditGroup={isEditGroupOpen}
                     onEditPress={() => handleEditPress(item)}
-                    onDeletePress={() => handleDeleteOccasion(item.OccassionId)}
+                    onDeletePress={() =>
+                      setOccasionToDelete({
+                        id: item.OccassionId,
+                        name: item.NameEn,
+                      })
+                    }
                     onPress={() => handleViewPress(item)}
                     TabItemStyles={styles.TabItem}
                   />
@@ -294,6 +311,16 @@ const OccasionsScreen: React.FC = () => {
           </View>
         </>
       )}
+
+      <ConfirmationPopup
+        visible={!!occasionToDelete}
+        title="Delete Occasion"
+        message={`Are you sure you want to delete "${occasionToDelete?.name}"?`}
+        confirmText="Delete"
+        cancelText={getString('NG_CANCEL') || 'Cancel'}
+        onConfirm={confirmDeleteOccasion}
+        onCancel={() => setOccasionToDelete(null)}
+      />
     </View>
   );
 };

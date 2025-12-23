@@ -73,10 +73,12 @@ export type AppStackParamList = {
       overlayImage?: any;
       imageLogo?: string | null;
       imageCover?: string | null;
+      businessTypeId?: number | null;
     };
     sendType?: number | null;
     friendUserId?: number | null;
     storeId?: number | null;
+    businessTypeId?: number | null;
   };
   SelectStore: {
     friendUserId?: number | null;

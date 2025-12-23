@@ -99,6 +99,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,
       },
+      businessTypeId: store.BusinessTypeID,
       sendType: route.params.sendType,
       storeId: store.StoreId ?? null,
       friendUserId: friendUserId ?? undefined,
@@ -208,7 +209,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                   selectedOption={selectedCityOption}
                   onSelect={option => setSelectedCityId(option.value)}
                   isLoading={citiesApi.loading}
-                  label="Select City"
+                  label={getString('SELECT_STORE_SELECT_CITY')}
                   placeholder=""
                   style={{
                     height: theme.sizes.HEIGHT * 0.045,
@@ -259,7 +260,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                   >
                     {searchQuery
                       ? getString('SEARCH_NO_RESULTS_FOUND')
-                      : 'No Stores Found'}
+                      : getString('SELECT_STORE_NO_STORES_FOUND')}
                   </Text>
                 </View>
               ) : (

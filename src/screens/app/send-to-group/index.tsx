@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, StatusBar, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { View, StatusBar, FlatList, ActivityIndicator } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import useStyles from './style';
 import ParentView from '../../../components/app/ParentView';
@@ -15,13 +15,13 @@ import {
   GroupData,
 } from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
-import useGetApi from '../../../hooks/useGetApi';
 import { useListingApi } from '../../../hooks/useListingApi';
 import api from '../../../utils/api';
 import { useAuthStore } from '../../../store/reducer/auth';
 import { Text } from '../../../utils/elements';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import notify from '../../../utils/notify';
+import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 
 interface SendToGroupProps extends AppStackScreen<'SendToGroup'> {}
 
@@ -31,11 +31,11 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
 }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
-  const [searchQuery, setSearchQuery] = useState('');
   const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
   const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
   const [isViewMembersOpen, setIsViewMembersOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<GroupData | null>(null);
+  const [groupToDelete, setGroupToDelete] = useState<GroupData | null>(null);
 
   const { user, token } = useAuthStore();
 
@@ -55,17 +55,17 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
     },
   );
 
-  const getGroupsData = useGetApi<GroupData[]>(
-    apiEndpoints.GET_GROUPS(searchQuery),
+  const getGroupsData = useListingApi<GroupData>(
+    apiEndpoints.GET_GROUPS,
+    token,
     {
-      withAuth: true,
-      transformData: (data: getGroupsDataApiResponse) => data.Data.Items || [],
+      transformData: (data: getGroupsDataApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
+      idExtractor: (item: GroupData) => item.UserGroupId,
     },
   );
-
-  useEffect(() => {
-    getGroupsData.refetch();
-  }, [searchQuery]);
 
   const getGroupMembersData = (): ActiveUser[] => {
     if (!selectedGroup) return [];
@@ -86,6 +86,14 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
   };
 
   const handleDeleteGroup = (group: GroupData) => {
+    setGroupToDelete(group);
+  };
+
+  const confirmDeleteGroup = () => {
+    if (!groupToDelete) return;
+
+    const group = groupToDelete;
+
     api
       .delete(apiEndpoints.DELETE_GROUP, {
         params: {
@@ -94,7 +102,11 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
       })
       .then(response => {
         if (response.success) {
-          getGroupsData.refetch();
+          setTimeout(() => {
+            setGroupToDelete(null);
+          }, 300);
+
+          getGroupsData.recall();
         } else {
           notify.error(response.error || getString('AU_ERROR_OCCURRED'));
         }
@@ -148,7 +160,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
       })
       .then(response => {
         if (response.success) {
-          getGroupsData.refetch();
+          getGroupsData.recall();
           setIsEditGroupOpen(false);
           setIsMemberSelectionOpen(false);
         } else {
@@ -177,23 +189,23 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
         rightSideTitle={
           isEditGroupOpen
             ? ''
-            : getGroupsData?.data?.length !== 0
+            : (getGroupsData?.data || []).length !== 0
             ? getString('STG_EDIT_GROUP')
             : ''
         }
         rightSideTitlePress={() => setIsEditGroupOpen(true)}
         rightSideIcon={<SvgEditGroup />}
-        searchValue={searchQuery}
-        onSearchChange={setSearchQuery}
+        searchValue={getGroupsData.search}
+        onSearchChange={getGroupsData.setSearch}
         searchPlaceholder={getString('STG_SEARCH_GROUP')}
       />
-      {getGroupsData?.loading ? (
+      {getGroupsData.loading ? (
         <View style={styles.content}>
           <SkeletonLoader screenType="sendToGroup" />
         </View>
       ) : (
         <FlatList
-          data={getGroupsData?.data || []}
+          data={getGroupsData.data || []}
           keyExtractor={item => item.UserGroupId.toString()}
           renderItem={({ item: group }) => (
             <TabItem
@@ -219,8 +231,17 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
             />
           )}
           ItemSeparatorComponent={() => <View style={styles.tabSpacing} />}
+          onEndReached={
+            getGroupsData.hasMore ? getGroupsData.loadMore : undefined
+          }
+          onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            <View style={styles.content}>
+            <View
+              style={[
+                styles.content,
+                { justifyContent: 'center', alignItems: 'center', flexGrow: 1 },
+              ]}
+            >
               <Text
                 style={[
                   theme.globalStyles.TEXT_STYLE,
@@ -233,9 +254,21 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
               </Text>
             </View>
           }
+          ListFooterComponent={
+            getGroupsData.loadingMore ? (
+              <View
+                style={{
+                  paddingVertical: theme.sizes.HEIGHT * 0.02,
+                  alignItems: 'center',
+                }}
+              >
+                <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
+              </View>
+            ) : null
+          }
           contentContainerStyle={[
             styles.content,
-            (getGroupsData?.data || []).length === 0 && { flexGrow: 1 },
+            (getGroupsData.data || []).length === 0 && { flexGrow: 1 },
           ]}
           showsVerticalScrollIndicator={false}
         />
@@ -275,6 +308,16 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
             ),
           },
         ]}
+      />
+
+      <ConfirmationPopup
+        visible={!!groupToDelete}
+        title={getString('STG_DELETE_GROUP')}
+        message={`${getString('STG_DELETE_GROUP_CONFIRM')} "${groupToDelete?.GroupName}"?`}
+        confirmText={getString('STG_DELETE')}
+        cancelText={getString('NG_CANCEL')}
+        onConfirm={confirmDeleteGroup}
+        onCancel={() => setGroupToDelete(null)}
       />
     </ParentView>
   );

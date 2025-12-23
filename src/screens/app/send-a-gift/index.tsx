@@ -32,6 +32,10 @@ import { Text } from '../../../utils/elements';
 import { scaleWithMax } from '../../../utils';
 import CustomButton from '../../../components/global/Custombutton';
 import { useFocusEffect } from '@react-navigation/native';
+import api from '../../../utils/api';
+import useGetApi from '../../../hooks/useGetApi';
+import { CartResponse } from '../../../types';
+import notify from '../../../utils/notify';
 
 interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 
@@ -41,6 +45,11 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const [activeTab, setActiveTab] = useState('friends');
   const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
   const { user, token } = useAuthStore();
+
+  // Fetch cart to check if there's an existing cart for a different user
+  const cartApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
+    transformData: (data: any) => (data?.Data || data) as CartResponse,
+  });
 
   const activeUsersApi = useListingApi<ActiveUser>(
     apiEndpoints.GET_ACTIVE_USERS,
@@ -58,8 +67,30 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     },
   );
 
+  // Separate API for group creation modal - always uses friends: true
+  const friendsForGroupApi = useListingApi<ActiveUser>(
+    apiEndpoints.GET_ACTIVE_USERS,
+    token,
+    {
+      idExtractor: (item: ActiveUser) => item.UserId,
+      transformData: (data: ActiveUsersApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
+      extraParams: {
+        // userId: user?.UserId,
+        friends: true,
+      },
+    },
+  );
+
   useEffect(() => {
     if (activeTab !== 'group') {
+      // Clear search when switching tabs to avoid stale filtered data
+      if (activeUsersApi.search) {
+        activeUsersApi.setSearch('');
+      }
+      // Update params - the useListingApi hook will automatically refetch when extraParams change
       activeUsersApi.setExtraParams({
         // userId: user?.UserId,
         friends: activeTab === 'friends',
@@ -80,12 +111,20 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     }, [activeTab]),
   );
 
+  const handleTabChange = (tabId: string) => {
+    // Clear search when switching tabs to ensure fresh data
+    if (activeUsersApi.search) {
+      activeUsersApi.setSearch('');
+    }
+    setActiveTab(tabId);
+  };
+
   const tabs = [
     {
       id: 'friends',
       title: getString('SG_FRIENDS'),
       onPress: () => {
-        setActiveTab('friends');
+        handleTabChange('friends');
       },
     },
     {
@@ -100,7 +139,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       id: 'others',
       title: getString('SG_OTHERS'),
       onPress: () => {
-        setActiveTab('others');
+        handleTabChange('others');
       },
     },
   ];
@@ -151,11 +190,16 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
-        rightSideTitle={getString('SG_NEW_GROUP')}
+        rightSideTitle={
+          activeTab === 'friends' ? getString('SG_NEW_GROUP') : ''
+        }
         rightSideTitlePress={() => {
-          setIsMemberSelectionOpen(true);
+          if (activeTab === 'friends') {
+            friendsForGroupApi.recall();
+            setIsMemberSelectionOpen(true);
+          }
         }}
-        rightSideIcon={<SvgAddGroup />}
+        rightSideIcon={activeTab === 'friends' ? <SvgAddGroup /> : undefined}
       />
 
       <View style={styles.content}>
@@ -222,17 +266,44 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                     isLast={index === displayData.length - 1}
                     showAddButton={false}
                     showSelection={false}
-                    onPress={() => {
-                      route.params.routeTo === 'SelectStore'
-                        ? navigation.navigate('SelectStore', {
-                            friendUserId: item.UserId,
-                            CityId: item.CityId || user?.CityId || null,
-                            sendType: 1,
-                          })
-                        : navigation.navigate('CatchScreen', {
-                            type: 'GiftOneGetOne',
-                            friendUserId: item.UserId,
-                          });
+                    onPress={async () => {
+                      const selectedFriendUserId = item.UserId;
+
+                      // Check if there's a cart for a different user
+                      const existingCart = cartApi.data;
+                      if (
+                        existingCart &&
+                        existingCart.FriendId !== null &&
+                        existingCart.FriendId !== selectedFriendUserId &&
+                        existingCart.Items &&
+                        existingCart.Items.length > 0
+                      ) {
+                        // Clear the cart for the previous user to start fresh flow
+                        const response = await api.put(
+                          apiEndpoints.CLEAR_CART,
+                          {},
+                        );
+                        if (!response.success) {
+                          notify.error(
+                            response.error || getString('AU_ERROR_OCCURRED'),
+                          );
+                          return;
+                        }
+                      }
+
+                      // Navigate to the next screen
+                      if (route.params.routeTo === 'SelectStore') {
+                        navigation.navigate('SelectStore', {
+                          friendUserId: selectedFriendUserId,
+                          CityId: item.CityId || user?.CityId || null,
+                          sendType: 1,
+                        });
+                      } else {
+                        navigation.navigate('CatchScreen', {
+                          type: 'GiftOneGetOne',
+                          friendUserId: selectedFriendUserId,
+                        });
+                      }
                     }}
                   />
                 )}
@@ -279,7 +350,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         listings={[
           {
             title: getString('NG_TITLE_FRIENDS'),
-            users: activeUsersApi.data || [],
+            users: friendsForGroupApi.data || [],
           },
         ]}
         isSendAGift={true}

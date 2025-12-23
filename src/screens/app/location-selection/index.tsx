@@ -18,9 +18,11 @@ import SuccessMessage from '../../../components/global/SuccessComponent';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { scaleWithMax } from '../../../utils';
 import { Text } from '../../../utils/elements';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const LocationSelection: React.FC = () => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const initialValues = {
     address: '',
   };
@@ -115,9 +117,9 @@ const LocationSelection: React.FC = () => {
   ) : (
     <SuccessMessage
       SuccessLogo={<GiftPlacedSvg />}
-      SuccessSubMessage="Store will contact you shortly"
-      SuccessMessage="Your order has been placed"
-      primaryButtonTitle="Home"
+      SuccessSubMessage={getString('LOCATION_STORE_CONTACT_SHORTLY')}
+      SuccessMessage={getString('LOCATION_ORDER_PLACED')}
+      primaryButtonTitle={getString('CHECKOUT_HOME')}
       onPrimaryPress={() => navigation.dispatch(StackActions.popToTop())}
     />
   );

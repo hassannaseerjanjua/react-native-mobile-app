@@ -180,7 +180,7 @@ const SettingsScreen: React.FC = () => {
             }),
           );
 
-          notify.success('Profile updated successfully');
+          notify.success(getString('PROFILE_UPDATED_SUCCESSFULLY'));
           setTimeout(() => {
             navigation.goBack();
           }, 500);

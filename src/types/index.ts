@@ -136,9 +136,9 @@ export interface UpdateProfileApiResponse {
   ResponseCode: number;
   Success: boolean;
   ResponseMessage: string;
-};
+}
 
-export interface fetchApiResponse<T>{
+export interface fetchApiResponse<T> {
   Success: boolean;
   ResponseMessage?: string;
   Data?: T;
@@ -515,6 +515,7 @@ export interface CartResponse {
   DeliveryCharges: number;
   TotalAmount: number;
   Items: CartItem[];
+  SendType: number;
   CampaginType: number;
   users: {
     UserId: number;

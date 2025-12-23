@@ -77,7 +77,7 @@ const HomeScreen: React.FC = () => {
       // Invalid or malformed QR
       if (!userId) {
         if (url.includes('add-friend')) {
-          notify.error('Invalid QR code', 'top');
+          notify.error(getString('HOME_INVALID_QR_CODE'), 'top');
         }
         processedUrls.add(url); // Mark as processed to prevent retries
         return;
@@ -98,7 +98,7 @@ const HomeScreen: React.FC = () => {
         });
 
         if (response.success) {
-          notify.success('Friend added successfully', 'top');
+          notify.success(getString('HOME_FRIEND_ADDED_SUCCESSFULLY'), 'top');
         } else {
           notify.error(response.error || getString('AU_ERROR_OCCURRED'), 'top');
         }

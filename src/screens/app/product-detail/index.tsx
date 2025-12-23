@@ -89,7 +89,10 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     }
   };
   const productImages = useMemo(() => {
-    const placeholderImage = require('../../../assets/images/img-placeholder.png');
+    console.log('item?.ThumbnailUrl', item?.Thumbnail);
+    const placeholderImage = item?.Thumbnail
+      ? { uri: item?.Thumbnail }
+      : require('../../../assets/images/img-placeholder.png');
 
     if (!item?.Images || item.Images.length === 0) {
       return [placeholderImage];
@@ -126,32 +129,60 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     }
   };
 
-  console.log('route.params.type', route.params.type);
   const handleAddToCart = async () => {
     if (submitting) return;
+
+    const selectedVariant = item?.Variants?.find(
+      (v: any) => v.ItemVariantId === Number(selectedFilter),
+    );
+    const isAlreadyInCart = selectedVariant?.IsAddedToCart === true;
+    const currentCartQuantity = selectedVariant?.CountInCart || 0;
+
     const IsGift =
       route.params.type === 'GiftOneGetOne' || route.params.sendType !== 1;
+
     try {
       setSubmitting(true);
 
-      const payload = {
-        FriendId: friendUserId,
-        ItemId: item.ItemId,
-        ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
-        Quantity: quantity,
-        StoreId: storeId ?? null,
-        SendType: route.params.sendType ?? 1,
-        ...(route.params.type === 'GiftOneGetOne' && {
-          CampaignId: item.CampaignId,
-        }),
-        IsGift: true,
-      };
+      if (isAlreadyInCart) {
+        // Update cart item quantity
+        const newQuantity = currentCartQuantity + quantity;
+        const payload = {
+          ItemId: item.ItemId,
+          ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
+          Quantity: newQuantity,
+        };
 
-      const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
-      if (response.success) {
-        navigation.goBack();
+        const response = await api.put(
+          apiEndpoints.UPDATE_CART_ITEM_QUANTITY,
+          payload,
+        );
+        if (response.success) {
+          navigation.goBack();
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
       } else {
-        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        // Add new item to cart
+        const payload = {
+          FriendId: friendUserId,
+          ItemId: item.ItemId,
+          ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
+          Quantity: quantity,
+          StoreId: storeId ?? null,
+          SendType: route.params.sendType ?? 1,
+          ...(route.params.type === 'GiftOneGetOne' && {
+            CampaignId: item.CampaignId,
+          }),
+          IsGift: true,
+        };
+
+        const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
+        if (response.success) {
+          navigation.goBack();
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
       }
     } catch (error: any) {
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));

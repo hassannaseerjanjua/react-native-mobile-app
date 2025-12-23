@@ -45,6 +45,7 @@ import { scaleWithMax } from '../../../utils';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
 import { BlurView } from '@react-native-community/blur';
+import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 
 const ProfileScreen: React.FC = () => {
   const { styles: screenStyles, theme } = useStyles();
@@ -56,6 +57,7 @@ const ProfileScreen: React.FC = () => {
   const [isUploading, setIsUploading] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
+  const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
 
   const handleLogout = () => {
     dispatch(logout());
@@ -269,7 +271,7 @@ const ProfileScreen: React.FC = () => {
       title: getString('P_LOGOUT'),
       icon: <SvgProfileLogout />,
       onPress: () => {
-        handleLogout();
+        setShowLogoutConfirmation(true);
       },
     },
   ];
@@ -447,6 +449,19 @@ const ProfileScreen: React.FC = () => {
           )}
         </View>
       </AppBottomSheet>
+
+      <ConfirmationPopup
+        visible={showLogoutConfirmation}
+        title={getString('P_LOGOUT') || 'Logout'}
+        message={getString('PROFILE_LOGOUT_CONFIRM')}
+        confirmText={getString('P_LOGOUT') || 'Logout'}
+        cancelText={getString('NG_CANCEL') || 'Cancel'}
+        onConfirm={() => {
+          setShowLogoutConfirmation(false);
+          handleLogout();
+        }}
+        onCancel={() => setShowLogoutConfirmation(false)}
+      />
     </ParentView>
   );
 };
