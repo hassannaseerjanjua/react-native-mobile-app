@@ -100,6 +100,7 @@ import SvgGiftSentIcon from './gift-sent.svg';
 import SvgOutboxShareIcon from './outbox-share.svg';
 import SvgGiftClaimIcon from './catch-gift-icon.svg';
 import SvgRiyalIconPrimary from './svgRiyalPrimary.svg';
+import SvgLinkShareIcon from './link-share.svg';
 
 export {
   SvgLogoBlue,
@@ -202,5 +203,7 @@ export {
   SvgAddGiftMessageIcon,
   SvgGiftSentIcon,
   SvgOutboxShareIcon,
-  SvgGiftClaimIcon,SvgRiyalIconPrimary
+  SvgGiftClaimIcon,
+  SvgRiyalIconPrimary,
+  SvgLinkShareIcon,
 };

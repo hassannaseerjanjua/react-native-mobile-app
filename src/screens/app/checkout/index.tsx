@@ -19,6 +19,7 @@ import {
   SvgEhsanIcon,
   SvgGifteeWalletIcon,
   SvgGiftSentIcon,
+  SvgLinkShareIcon,
   SvgRiyalIcon,
   SvgRiyalIconWhite,
   SvgSelectedCheck,
@@ -68,6 +69,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   >({});
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<CartItem | null>(null);
+  const [giftLink, setGiftLink] = useState<string | null>(null);
 
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => {
@@ -430,7 +432,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       if (response.success) {
         setCheckoutCompleted(true);
         if (response.data?.Data?.GiftLink) {
-          handleShareGiftLink(response.data?.Data?.GiftLink);
+          setGiftLink(response.data?.Data?.GiftLink);
+          // Only auto-share if not send type 2
+          if (cartData?.SendType !== 2) {
+            handleShareGiftLink(response.data?.Data?.GiftLink);
+          }
         }
       } else {
         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
@@ -445,20 +451,51 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   };
 
   if (checkoutCompleted) {
+    const isSendType2 = cartData?.SendType === 2;
+
     return (
-      <View style={styles.checkoutCompletedContainer}>
-        {/* <Image source={GiftSend} /> */}
-        <SvgGiftSentIcon />
-        <Text style={styles.TextLarge}>{getString('CHECKOUT_GIFT_SENT')}</Text>
-        <CustomFooter>
-          <View style={{ position: 'relative' }}>
-            <CustomButton
-              title={getString('CHECKOUT_HOME')}
-              onPress={() => navigation.dispatch(StackActions.popToTop())}
-            />
-          </View>
-        </CustomFooter>
-      </View>
+      <>
+        <View style={styles.checkoutCompletedContainer}>
+          {isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
+          <Text style={styles.TextLarge}>
+            {isSendType2
+              ? 'Gift Link Created'
+              : getString('CHECKOUT_GIFT_SENT')}
+          </Text>
+          <CustomFooter>
+            <View
+              style={{
+                position: 'relative',
+                width: '100%',
+                gap: theme.sizes.HEIGHT * 0.01,
+              }}
+            >
+              {isSendType2 ? (
+                <>
+                  <CustomButton
+                    title="Share Link"
+                    onPress={() => {
+                      if (giftLink) {
+                        handleShareGiftLink(giftLink);
+                      }
+                    }}
+                  />
+                  <CustomButton
+                    title={getString('CHECKOUT_HOME')}
+                    type="secondary"
+                    onPress={() => navigation.dispatch(StackActions.popToTop())}
+                  />
+                </>
+              ) : (
+                <CustomButton
+                  title={getString('CHECKOUT_HOME')}
+                  onPress={() => navigation.dispatch(StackActions.popToTop())}
+                />
+              )}
+            </View>
+          </CustomFooter>
+        </View>
+      </>
     );
   }
 

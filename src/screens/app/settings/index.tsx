@@ -26,7 +26,12 @@ import { scaleWithMax, toOption } from '../../../utils';
 import { createSettingsSchema } from '../../../utils/validationSchemas';
 import DropdownField from '../../../components/global/DropdownField';
 import useGetApi from '../../../hooks/useGetApi';
-import { City, fetchApiResponse, UpdateProfileApiResponse, User } from '../../../types';
+import {
+  City,
+  fetchApiResponse,
+  UpdateProfileApiResponse,
+  User,
+} from '../../../types';
 import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
@@ -108,50 +113,6 @@ const SettingsScreen: React.FC = () => {
     Dob: user?.DateOfBirth || '',
     GenderId: user?.GenderId || '',
   };
-
-  // const handleUpdate = (values: typeof initialValues) => {
-  //   if (loading) return;
-  //   setLoading(true);
-
-  //   const formData = new FormData();
-
-  //   const fieldsToUpdate = ['Fullname', 'CityId', 'Dob', 'GenderId'];
-  //   fieldsToUpdate.forEach(field => {
-  //     if (values[field as keyof typeof values]) {
-  //       formData.append(field, values[field as keyof typeof values]);
-  //     }
-  //   });
-
-  //   api
-  //     .put<UpdateProfileApiResponse>(apiEndpoints.UPDATE_PROFILE, formData, {
-  //       headers: {
-  //         'Content-Type': 'multipart/form-data',
-  //       },
-  //     })
-  //     .then(response => {
-  //       if (response.success && response.data?.Data && token) {
-  //         dispatch(
-  //           login({
-  //             user: { ...user, ...response.data.Data },
-  //             token: token,
-  //           }),
-  //         );
-
-  //         notify.success('Profile updated successfully');
-  //         setTimeout(() => {
-  //           navigation.goBack();
-  //         }, 500);
-  //       } else if (response.failed) {
-  //         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
-  //       }
-  //     })
-  //     .catch(error => {
-  //       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-  //     })
-  //     .finally(() => {
-  //       setLoading(false);
-  //     });
-  // };
   const handleUpdate = (values: typeof initialValues) => {
     if (loading) return;
     setLoading(true);
@@ -166,7 +127,6 @@ const SettingsScreen: React.FC = () => {
 
     api
       .put<UpdateProfileApiResponse>(apiEndpoints.UPDATE_PROFILE, formData, {
-
         headers: {
           'Content-Type': 'multipart/form-data',
         },
@@ -194,28 +154,7 @@ const SettingsScreen: React.FC = () => {
       .finally(() => {
         setLoading(false);
       });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
   };
-
 
   return (
     <ParentView style={styles.container}>
@@ -377,7 +316,7 @@ const SettingsScreen: React.FC = () => {
                         isPhone={true}
                         error={
                           formik.touched.phoneNumber &&
-                            formik.errors.phoneNumber
+                          formik.errors.phoneNumber
                             ? formik.errors.phoneNumber
                             : undefined
                         }
