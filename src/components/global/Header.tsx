@@ -66,7 +66,11 @@ const Header: React.FC<HeaderProps> = ({
         <View />
       )}
 
-      {title && <Text style={styles.title}>{title}</Text>}
+      {title && (
+        <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+          {title}
+        </Text>
+      )}
       {isSearch && (
         <View style={styles.rightSection}>
           <View style={styles.searchContainer}>

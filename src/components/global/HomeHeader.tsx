@@ -282,6 +282,8 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.regular,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.WHITE,
+        textAlign: 'center',
+        lineHeight: scaleWithMax(14, 16),
       },
       avatarContainer: {
         marginStart: sizes.WIDTH * 0.04,

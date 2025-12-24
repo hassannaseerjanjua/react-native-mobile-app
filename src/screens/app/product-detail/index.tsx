@@ -4,7 +4,7 @@ import useStyles from './style';
 import {
   MinusIcon,
   PlusIcon,
-  SvgBackIconProduct,
+  SvgHomeBack,
   SvgItemFavouriteIcon,
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
@@ -227,13 +227,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       >
         <TouchableOpacity
           onPress={navigation.goBack}
-          style={styles.rounded_white_background}
+          style={styles.backContainer}
         >
-          <SvgBackIconProduct
-            width={scaleWithMax(14, 16)}
-            height={scaleWithMax(14, 16)}
-            style={{ transform: rtlTransform(isRtl) }}
-          />
+          <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.rounded_white_background}
@@ -252,6 +248,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           )}
         </TouchableOpacity>
       </View>
+
       {loading ? (
         <View style={{}}>
           <ScrollView

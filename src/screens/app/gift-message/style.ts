@@ -110,45 +110,65 @@ const useStyles = () => {
           right: 0,
           paddingHorizontal: sizes.PADDING,
         },
-        timer: {
+        doneButtonContainer: {
           position: 'absolute',
           top: sizes.PADDING,
           left: sizes.PADDING,
-          right: sizes.PADDING,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          alignItems: 'flex-start',
+          zIndex: 10,
         },
         timerDisplay: {
-          backgroundColor: 'rgba(0, 0, 0, 0.6)',
-          paddingHorizontal: scaleWithMax(12, 14),
-          paddingVertical: scaleWithMax(6, 8),
-          borderRadius: scaleWithMax(8, 10),
+          position: 'absolute',
+          top: sizes.PADDING,
+          alignSelf: 'center',
+          backgroundColor: '#FF0000',
+          paddingHorizontal: scaleWithMax(10, 12),
+          paddingVertical: scaleWithMax(4, 6),
+          borderRadius: scaleWithMax(4, 5),
+          zIndex: 10,
         },
         timerText: {
           color: '#FFFFFF',
           fontSize: scaleWithMax(14, 16),
           fontWeight: '600',
         },
-        crossButton: {
-          // Removed marginLeft since timer text is gone
-        },
         crossBackground: {
           backgroundColor: 'rgba(0,0,0,0.3)',
-          borderWidth: 1,
-          borderColor: theme.colors.WHITE,
           borderRadius: 50, // circle
-          padding: sizes.PADDING / 2,
+          width: scaleWithMax(36, 40),
+          height: scaleWithMax(36, 40),
           justifyContent: 'center',
           alignItems: 'center',
         },
+        closeButtonIcon: {
+          width: scaleWithMax(20, 22),
+          height: scaleWithMax(20, 22),
+        },
         flipButton: {
-          // Positioned on the right side
+          position: 'absolute',
+          right: scaleWithMax(60, 70),
+        },
+        flashButton: {
+          position: 'absolute',
+          top: sizes.PADDING,
+          right: sizes.PADDING,
+        },
+        flashButtonBackground: {
+          backgroundColor: 'rgba(0,0,0,0.3)',
+          borderRadius: 50, // circle
+          width: scaleWithMax(36, 40),
+          height: scaleWithMax(36, 40),
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        flashButtonBackgroundActive: {
+          backgroundColor: 'rgba(255, 255, 0, 0.3)',
+        },
+        flashButtonIcon: {
+          width: scaleWithMax(20, 22),
+          height: scaleWithMax(20, 22),
         },
         flipButtonBackground: {
           backgroundColor: 'rgba(0,0,0,0.3)',
-          borderWidth: 1,
-          borderColor: theme.colors.WHITE,
           borderRadius: 50, // circle
           width: scaleWithMax(44, 48),
           height: scaleWithMax(44, 48),
@@ -156,12 +176,19 @@ const useStyles = () => {
           alignItems: 'center',
         },
         flipButtonIcon: {
-          fontSize: scaleWithMax(20, 22),
+          width: '100%',
+          height: '100%',
         },
         recordButtonContainer: {
           position: 'absolute',
-          bottom: sizes.HEIGHT * 0.05,
-          alignSelf: 'center',
+          bottom: sizes.HEIGHT * 0.08,
+          left: 0,
+          right: 0,
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexDirection: 'row',
+        },
+        recordButtonWrapper: {
           alignItems: 'center',
           justifyContent: 'center',
         },
@@ -200,6 +227,8 @@ const useStyles = () => {
           ...theme.globalStyles.TEXT_STYLE_BOLD,
           fontSize: scaleWithMax(11, 12),
           color: theme.colors.WHITE,
+          textAlign: 'center',
+          lineHeight: scaleWithMax(14, 16),
         },
         floatingButtonsContainer: {
           position: 'absolute',

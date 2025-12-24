@@ -29,6 +29,15 @@ const useStyles = () => {
         shadowOffset: { width: 0, height: 2 },
         elevation: 4,
       },
+      backContainer: {
+        ...theme.globalStyles.SHADOW_STYLE,
+        backgroundColor: theme.colors.WHITE,
+        borderRadius: 9999,
+        width: scaleWithMax(25, 30),
+        height: scaleWithMax(25, 30),
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
       ProductImage: {
         width: '100%',
         height: 300,
@@ -96,11 +105,12 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.SECONDARY_TEXT,
+        textAlign: 'right',
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         color: theme.colors.PRIMARY_TEXT,
-        fontSize: sizes.FONTSIZE_LESS_HIGH,
+        fontSize: scaleWithMax(20, 22),
       },
       ProductTitleContainer: {
         paddingVertical: sizes.HEIGHT * 0.015,

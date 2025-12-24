@@ -115,7 +115,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
           />
 
           <View
-            style={{ flexDirection: 'column', gap: theme.sizes.PADDING * 0.2 }}
+            style={{ flexDirection: 'column', gap: theme.sizes.PADDING * 0.25 }}
           >
             <Text
               style={{

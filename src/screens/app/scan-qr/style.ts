@@ -41,8 +41,9 @@ const useStyles = () => {
 
         marginVertical: sizes.PADDING * 0.6,
         flexDirection: 'row',
-        gap: sizes.PADDING,
+        gap: sizes.PADDING * 0.8,
         alignItems: 'center',
+        ...theme.globalStyles.SHADOW_STYLE,
       },
       ProductImage: {
         borderRadius: 10,

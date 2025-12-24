@@ -33,7 +33,7 @@ const useStyles = () => {
       },
       languageContainer: {
         position: 'absolute',
-        top: sizes.HEIGHT * 0.08,
+        top: isIOS ? sizes.HEIGHT * 0.08 : sizes.HEIGHT * 0.06,
         display: 'flex',
         flexDirection: 'row',
         justifyContent: 'flex-end',

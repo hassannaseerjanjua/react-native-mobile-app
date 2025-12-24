@@ -86,7 +86,7 @@ const AddCart: React.FC = () => {
                         formik.setFieldValue('CardNumber', formatted);
                       },
                       keyboardType: 'number-pad',
-                      maxLength: 23,
+                      maxLength: 19,
                       autoCapitalize: 'none',
                     }}
                   />
@@ -164,7 +164,7 @@ const AddCart: React.FC = () => {
                           formik.setFieldValue('CVV', digits);
                         },
                         keyboardType: 'number-pad',
-                        maxLength: 4,
+                        maxLength: 3,
                         autoCapitalize: 'none',
                         secureTextEntry: true,
                       }}
@@ -190,6 +190,7 @@ const AddCart: React.FC = () => {
                         formik.setFieldValue('CardHolder', value);
                       },
                       autoCapitalize: 'words',
+                      maxLength: 50,
                     }}
                   />
                 </View>
