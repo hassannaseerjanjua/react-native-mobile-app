@@ -99,7 +99,11 @@ export const createOccasion = async (
         name: values.image.name,
       } as any);
     }
-    const response = await api.post(apiEndpoints.CREATE_OCCASION, formData, {});
+    const response = await api.post(apiEndpoints.CREATE_OCCASION, formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     if (response.success) return true;
     if (response.failed) notify.error(response.error || errorMessage);
     return false;
