@@ -57,7 +57,7 @@ const ContactUsScreen: React.FC = () => {
   };
 
   const handleWhatsAppPress = async () => {
-    const phoneNumber = '03333138657';
+    const phoneNumber = '+966544656676';
     const whatsappUrl = `https://wa.me/${phoneNumber}`;
 
     try {

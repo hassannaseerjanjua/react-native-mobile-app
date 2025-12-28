@@ -451,7 +451,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                       onPress={() => onClick && onClick(item)}
                       activeOpacity={isInbox ? 0.8 : 1}
                       style={styles.imageContainer}
-                      disabled={item.Status === 10}
+                      // disabled={item.Status === 10}
                     >
                       {item.Status === 10 && (
                         <View style={styles.redeemedBox}>

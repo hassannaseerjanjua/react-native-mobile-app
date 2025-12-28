@@ -104,6 +104,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
 
   const [groupError, setGroupError] = useState('');
   const [keyboardHeight, setKeyboardHeight] = useState(0);
+  const [isSaving, setIsSaving] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
   const textInputRef = useRef<TextInput>(null);
 
@@ -135,6 +136,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           : null,
       );
       setGroupError('');
+      setIsSaving(false);
       setSelectedUsers(
         prefillGroupName
           ? new Set(existingMembers?.map(member => member.UserId) || [])
@@ -213,22 +215,17 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   }, [groupError]);
 
   const handleSave = useCallback(async () => {
+    if (isSaving) return; // Prevent multiple clicks
+
     if (isSendAGift) {
       setGroupError('');
 
-      if (!groupImage && !groupName.trim()) {
-        setGroupError(getString('VE_PLEASE_ENTER_GROUP_NAME_AND_IMAGE'));
-        return;
-      }
       if (!groupName.trim()) {
         setGroupError(getString('VE_PLEASE_ENTER_GROUP_NAME'));
         return;
       }
-      if (!groupImage) {
-        setGroupError(getString('VE_PLEASE_ENTER_IMAGE'));
-        return;
-      }
 
+      setIsSaving(true);
       const formData = new FormData();
       formData.append('Name', groupName);
 
@@ -244,25 +241,39 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         formData.append('MemberUserIds', userId.toString());
       });
 
-      const res = await api.post(
-        apiEndpoints.CREATE_GROUP,
-        formData,
-        getAuthHeaderWithFormData(token || ''),
-      );
+      try {
+        const res = await api.post(
+          apiEndpoints.CREATE_GROUP,
+          formData,
+          getAuthHeaderWithFormData(token || ''),
+        );
 
-      if (res.failed) {
-        notify.error(res.error);
-        return;
+        if (res.failed) {
+          notify.error(res.error);
+          setIsSaving(false);
+          return;
+        }
+
+        onSave(selectedUsersData, groupName, groupImage);
+        closeModal();
+        navigation.navigate('SendToGroup' as never);
+      } catch (error: any) {
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+        setIsSaving(false);
       }
-
-      onSave(selectedUsersData, groupName, groupImage);
-      closeModal();
-      navigation.navigate('SendToGroup' as never);
     } else {
-      onSave(selectedUsersData, groupName, groupImage);
-      closeModal();
+      setIsSaving(true);
+      try {
+        await onSave(selectedUsersData, groupName, groupImage);
+        closeModal();
+      } catch (error: any) {
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+      } finally {
+        setIsSaving(false);
+      }
     }
   }, [
+    isSaving,
     isSendAGift,
     groupName,
     groupImage,
@@ -271,6 +282,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     onSave,
     closeModal,
     navigation,
+    token,
+    getString,
   ]);
 
   const selectedUsersContainerStyle = useMemo(
@@ -604,6 +617,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   showSearchBar={false}
                   leftSideTitlePress={handleBackStep}
                   rightSideTitlePress={handleSave}
+                  rightSideLoading={isSaving}
                 />
                 <ScrollView
                   ref={scrollViewRef}
@@ -672,7 +686,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       <Text style={styles.errorText}>{groupError}</Text>
                     ) : null}
                     <Text style={styles.membersHeading}>
-                      {getString('NG_MEMBERS')}: {selectedUsers.size}
+                      {getString('NG_MEMBERS')}: {selectedUsers.size}{' '}
                       {getString('NG_OUT_OF')} {allUsers.length}
                     </Text>
                     <SelectedMembersGrid />

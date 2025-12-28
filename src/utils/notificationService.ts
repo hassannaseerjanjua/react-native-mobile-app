@@ -4,6 +4,8 @@ import messaging, {
 import { Platform, PermissionsAndroid } from 'react-native';
 import notifee, { AndroidImportance } from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import apiEndpoints from '../constants/api-endpoints';
+import api from './api';
 
 /**
  * NOTE: Background handler is now in index.js
@@ -102,7 +104,7 @@ export const requestNotificationPermission = async (): Promise<boolean> => {
   }
 };
 
-export const getFCMToken = async (): Promise<string | null> => {
+export const getFCMToken = async (userId?: number): Promise<string | null> => {
   try {
     const granted = await requestNotificationPermission();
     if (!granted) return null;
@@ -130,20 +132,28 @@ export const getFCMToken = async (): Promise<string | null> => {
         }
 
         // Wait 500ms before checking again
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise<void>(resolve => setTimeout(() => resolve(), 500));
         retries++;
       }
 
       // Check if we're on simulator
       const apnsToken = await messaging().getAPNSToken();
       if (!apnsToken) {
-        console.warn('⚠️ No APNS token available. FCM notifications will NOT work on iOS Simulator. Please test on a real iOS device.');
+        console.warn(
+          '⚠️ No APNS token available. FCM notifications will NOT work on iOS Simulator. Please test on a real iOS device.',
+        );
       }
     }
 
     const fcmToken = await messaging().getToken();
     if (fcmToken) {
       await saveFCMToken(fcmToken);
+      if (userId) {
+        await api.post(apiEndpoints.SAVE_TOKEN, {
+          UserId: userId,
+          token: fcmToken,
+        });
+      }
       console.log('FCM Token received:', fcmToken);
     }
     return fcmToken || null;
@@ -215,13 +225,14 @@ export const initializeNotifications = async (
   onForegroundMessage?: (message: FirebaseMessagingTypes.RemoteMessage) => void,
   onNotificationTap?: (message: FirebaseMessagingTypes.RemoteMessage) => void,
   onTokenUpdate?: (token: string) => void,
+  userId?: number,
 ): Promise<{
   token: string | null;
   initialNotification: FirebaseMessagingTypes.RemoteMessage | null;
   unsubscribe: () => void;
 }> => {
   // Get FCM token
-  const token = await getFCMToken();
+  const token = await getFCMToken(userId);
   if (token && onTokenUpdate) {
     onTokenUpdate(token);
   }

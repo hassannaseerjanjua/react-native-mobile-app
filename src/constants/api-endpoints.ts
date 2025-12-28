@@ -17,6 +17,7 @@ const apiEndpoints = {
   VERIFY_OTP: `/${version}/Auth/VerifyOTP`,
   SIGNIN: `/${version}/Auth/SignIn`,
   VERIFY_OTP_SIGNIN: `/${version}/Auth/VerifyOTP-SignIn`,
+  SAVE_TOKEN: `/${version}/User/save-token`,
 
   // ============================================
   // HOME & GENERAL
@@ -73,8 +74,8 @@ const apiEndpoints = {
   GET_STORE_ITEM_BY_ID: (itemId?: number, isCampaign?: boolean) =>
     `/${version}/Panel/GetItemById?itemId=${itemId}&isCampaign=${isCampaign}`,
   GET_BUSINESS_TYPE: `/${version}/Panel/GetBusinessTypesForPanel`,
-  GET_CATEGORIES: (businessTypeId?: any) =>
-    `/${version}/Panel/GetCategoriesForPanel?isApp=true&businessTypeId=${businessTypeId}`,
+  GET_CATEGORIES: (businessTypeId?: any, storeId?: any) =>
+    `/${version}/Panel/GetCategoriesForPanel?isApp=true&businessTypeId=${businessTypeId}&storeId=${storeId}`,
   GET_ALL_FILTERS: `/${version}/Panel/GetAllFilters`,
 
   // ============================================

@@ -8,6 +8,8 @@ import {
   deleteFCMToken,
 } from '../utils/notificationService';
 import { useAuthStore } from '../store/reducer/auth';
+import api from '../utils/api';
+import apiEndpoints from '../constants/api-endpoints';
 
 /**
  * Notification Hook - Logs notification clicks
@@ -15,7 +17,7 @@ import { useAuthStore } from '../store/reducer/auth';
 
 const useNotification = () => {
   const unsubscribeRef = useRef<(() => void) | null>(null);
-  const { isAuthenticated } = useAuthStore();
+  const { isAuthenticated, user } = useAuthStore();
 
   // Handle foreground notifications
   const handleForegroundNotification = useCallback(
@@ -63,10 +65,24 @@ const useNotification = () => {
   );
 
   // Handle FCM token updates
-  const handleTokenUpdate = useCallback(async (token: string) => {
-    console.log('FCM Token:', token);
-    // TODO: Send token to backend when authenticated
-  }, []);
+  const handleTokenUpdate = useCallback(
+    async (token: string) => {
+      console.log('FCM Token:', token);
+      // Send token to backend when authenticated
+      if (user?.UserId) {
+        try {
+          await api.post(apiEndpoints.SAVE_TOKEN, {
+            UserId: user.UserId,
+            token,
+          });
+          console.log('FCM Token saved to backend');
+        } catch (error) {
+          console.error('Failed to save token to backend:', error);
+        }
+      }
+    },
+    [user?.UserId],
+  );
 
   // Initialize notifications
   const initNotifications = useCallback(async () => {
@@ -77,6 +93,7 @@ const useNotification = () => {
         handleForegroundNotification,
         handleNotificationTap,
         handleTokenUpdate,
+        user?.UserId,
       );
 
       unsubscribeRef.current = result.unsubscribe;
@@ -92,7 +109,12 @@ const useNotification = () => {
     } catch (error) {
       console.error('Notification init error:', error);
     }
-  }, [handleForegroundNotification, handleNotificationTap, handleTokenUpdate]);
+  }, [
+    handleForegroundNotification,
+    handleNotificationTap,
+    handleTokenUpdate,
+    user?.UserId,
+  ]);
 
   // Cleanup notifications
   const cleanup = useCallback(async () => {

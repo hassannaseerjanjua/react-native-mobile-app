@@ -61,7 +61,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const [selectedFilter, setSelectedFilter] = useState('all');
 
   const categoriesApi = useGetApi<Category[]>(
-    apiEndpoints.GET_CATEGORIES(businessTypeId),
+    apiEndpoints.GET_CATEGORIES(businessTypeId, storeId),
     {
       transformData: (data: any) => data.Data.Items || [],
     },

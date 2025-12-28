@@ -1,5 +1,12 @@
 import React from 'react';
-import { View, StatusBar, ScrollView, Image, FlatList } from 'react-native';
+import {
+  View,
+  StatusBar,
+  ScrollView,
+  Image,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
 import { Text } from '../../../utils/elements';
@@ -9,7 +16,8 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 import { SvgRiyalIcon } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import { useLocaleStore } from '../../../store/reducer/locale';
-import useGetApi from '../../../hooks/useGetApi';
+import { useListingApi } from '../../../hooks/useListingApi';
+import { useAuthStore } from '../../../store/reducer/auth';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { Order, OrdersApiResponse } from '../../../types/index';
 
@@ -59,17 +67,22 @@ const OrdersScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const { getString } = useLocaleStore();
+  const { token } = useAuthStore();
 
-  const orderHistory = useGetApi<OrdersApiResponse['Data']>(
+  const ordersListing = useListingApi<Order>(
     apiEndpoints.GET_ORDER_HISTORY,
+    token,
     {
-      transformData: (data: any) => data?.Data,
-      withAuth: true,
+      idExtractor: (item: Order) => item.OrderId,
+      transformData: (data: OrdersApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
     },
   );
 
-  const orders = orderHistory.data?.Items ?? [];
-  const isLoading = orderHistory.loading;
+  const orders = ordersListing.data ?? [];
+  const isLoading = ordersListing.loading;
 
   return (
     <ParentView style={styles.container}>
@@ -82,6 +95,10 @@ const OrdersScreen: React.FC = () => {
         title={getString('O_ORDERS')}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
+        showSearchBar={true}
+        searchPlaceholder={getString('O_SEARCH_ORDER')}
+        searchValue={ordersListing.search}
+        onSearchChange={ordersListing.setSearch}
       />
 
       {isLoading ? (
@@ -103,6 +120,12 @@ const OrdersScreen: React.FC = () => {
             styles.contentContainer,
           ]}
           showsVerticalScrollIndicator={false}
+          onEndReached={() => {
+            if (ordersListing.hasMore && !ordersListing.loadingMore) {
+              ordersListing.loadMore();
+            }
+          }}
+          onEndReachedThreshold={0.5}
           ListEmptyComponent={() => (
             <View style={{ padding: theme.sizes.PADDING }}>
               <Text
@@ -116,6 +139,19 @@ const OrdersScreen: React.FC = () => {
               </Text>
             </View>
           )}
+          ListFooterComponent={() => {
+            if (ordersListing.loadingMore) {
+              return (
+                <View style={{ padding: theme.sizes.PADDING }}>
+                  <ActivityIndicator
+                    size="small"
+                    color={theme.colors.PRIMARY}
+                  />
+                </View>
+              );
+            }
+            return null;
+          }}
           renderItem={({ item }) => (
             <View style={{ marginBottom: theme.sizes.PADDING * 0.8 }}>
               <OrderCard order={item} />

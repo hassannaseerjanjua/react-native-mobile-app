@@ -168,6 +168,10 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
   const isLoading = getInboxOutboxDetails.loading;
 
   const handleItemPress = (orderId: number, itemId: InboxOrderItem) => {
+    if (itemId.Status === 10) {
+      notify.error(getString('INBOX_ITEM_ALREADY_REDEEMED'));
+      return;
+    }
     setOrderId(orderId);
     const selectedOrder = orders.find(o => o.OrderId === orderId) as any;
     setSelectedItem(itemId);
@@ -320,7 +324,6 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
       const shareOptions = Platform.select({
         ios: {
           message: shareMessage,
-          url: giftLink,
         },
         android: {
           message: shareMessage,

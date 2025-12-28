@@ -335,7 +335,11 @@ const SettingsScreen: React.FC = () => {
                     </View>
 
                     <View style={styles.inputContainer}>
-                      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                      <TouchableOpacity
+                        onPress={() =>
+                          !user?.IsBirthdayUpdated && setShowDatePicker(true)
+                        }
+                      >
                         <InputField
                           icon={
                             <SvgBirthdayIcon width={scaleWithMax(20, 25)} />

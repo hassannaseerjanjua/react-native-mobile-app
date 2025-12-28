@@ -365,7 +365,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       const shareOptions = Platform.select({
         ios: {
           message: shareMessage,
-          url: giftLink,
         },
         android: {
           message: shareMessage,
@@ -381,7 +380,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) { }
+    } catch (error) {}
   };
   const handleProceedToCheckout = async () => {
     if (!cartData || submitting || waitingForVideoUpload) return;
@@ -459,18 +458,18 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <>
         <SuccessMessage
           SuccessLogo={isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
-
-          SuccessMessage={isSendType2
-            ? 'Gift Link Created'
-            : "Gift Delivered"}
-          SuccessSubMessage={isSendType2 ? "Your Surprise Has Been Sent" : ""}
-          primaryButtonTitle={isSendType2 ? "Share Link" : getString('CHECKOUT_HOME')}
+          SuccessMessage={isSendType2 ? 'Gift Link Created' : 'Gift Delivered'}
+          SuccessSubMessage={!isSendType2 ? 'Your Surprise Has Been Sent' : ''}
+          primaryButtonTitle={
+            isSendType2 ? 'Share Link' : getString('CHECKOUT_HOME')
+          }
           onSecondaryPress={() => navigation.dispatch(StackActions.popToTop())}
-          secondaryButtonTitle={isSendType2 ? getString('CHECKOUT_HOME') : ""}
-          onPrimaryPress={
-            () => isSendType2 && giftLink ?
-              handleShareGiftLink(giftLink) :
-              navigation.dispatch(StackActions.popToTop())}
+          secondaryButtonTitle={isSendType2 ? getString('CHECKOUT_HOME') : ''}
+          onPrimaryPress={() =>
+            isSendType2 && giftLink
+              ? handleShareGiftLink(giftLink)
+              : navigation.dispatch(StackActions.popToTop())
+          }
         />
         {/* <View style={styles.checkoutCompletedContainer}>
           {isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
@@ -547,8 +546,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const giftImageSource = cartData.FriendImageUrl
     ? { uri: cartData.FriendImageUrl }
     : cartData.SendType === 2
-      ? require('../../../assets/images/gift-link.png')
-      : require('../../../assets/images/img-placeholder.png');
+    ? require('../../../assets/images/gift-link.png')
+    : require('../../../assets/images/img-placeholder.png');
 
   return (
     <ParentView>
@@ -608,14 +607,22 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 flexDirection: rtlFlexDirection(isRtl),
               }}
             >
-              {cartData.FriendImageUrl ? <Image
-                source={giftImageSource}
-                style={
-                  cartData.SendType === 2
-                    ? styles.LinkImage
-                    : styles.GiftContainerImage
-                }
-              /> : <SvgGiftLink height={scaleWithMax(20, 25)} width={scaleWithMax(20, 25)} style={{ paddingVertical: theme.sizes.HEIGHT * 0.02 }} />}
+              {cartData.FriendImageUrl ? (
+                <Image
+                  source={giftImageSource}
+                  style={
+                    cartData.SendType === 2
+                      ? styles.LinkImage
+                      : styles.GiftContainerImage
+                  }
+                />
+              ) : (
+                <SvgGiftLink
+                  height={scaleWithMax(20, 25)}
+                  width={scaleWithMax(20, 25)}
+                  style={{ paddingVertical: theme.sizes.HEIGHT * 0.02 }}
+                />
+              )}
               <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
                 <Text
                   style={[styles.TextMedium]}
@@ -704,11 +711,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               >
                 <CheckBox
                   Selected={selectedPaymentMethod === 'visa'}
-                // onSelectionPress={() =>
-                //   setSelectedPaymentMethod(
-                //     selectedPaymentMethod === 'visa' ? null : 'visa',
-                //   )
-                // }
+                  // onSelectionPress={() =>
+                  //   setSelectedPaymentMethod(
+                  //     selectedPaymentMethod === 'visa' ? null : 'visa',
+                  //   )
+                  // }
                 />
                 <VisaIcon
                   height={scaleWithMax(32, 35)}
@@ -900,8 +907,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <ConfirmationPopup
         visible={!!itemToRemove}
         title={getString('CHECKOUT_REMOVE_ITEM')}
-        message={`${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${itemToRemove?.ItemName
-          }" ${getString('CHECKOUT_FROM_CART')}`}
+        message={`${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${
+          itemToRemove?.ItemName
+        }" ${getString('CHECKOUT_FROM_CART')}`}
         confirmText={getString('CHECKOUT_REMOVE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={handleRemoveItem}

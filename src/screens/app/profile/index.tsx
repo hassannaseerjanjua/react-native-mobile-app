@@ -66,11 +66,10 @@ const ProfileScreen: React.FC = () => {
   const handleShareGiftLink = async () => {
     try {
       const giftLink = `https://giftee.app/share/${user?.UserId}-${user?.CityId}`;
-      const shareMessage = `🎁 Want to send me a gift? Click the link below.\n\n ${giftLink}`;
+      const shareMessage = `🎁 Want to send me a gift? Click the link below.\n\n${giftLink}`;
       const shareOptions = Platform.select({
         ios: {
           message: shareMessage,
-          url: giftLink,
         },
         android: {
           message: shareMessage,
