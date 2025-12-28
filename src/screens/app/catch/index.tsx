@@ -5,6 +5,7 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -304,11 +305,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     }
     return item.id || `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`;
   };
+  const catchIcon = require('../../../assets/images/catch-Group-Icon.png');
   if (openModal) {
     return (
       <SuccessMessage
-        SuccessLogo={<GiftPlacedSvg />}
-        SuccessMessage={getString('CATCH_SUCCESS_MESSAGE')}
+        SuccessLogo={<Image source={catchIcon} style={styles.catchIcon} />} SuccessMessage={getString('CATCH_SUCCESS_MESSAGE')}
         SuccessSubMessage={getString('CATCH_SUCCESS_SUB_MESSAGE')}
         primaryButtonTitle={getString('HOME_INBOX')}
         onPrimaryPress={() => {
@@ -343,8 +344,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           screenType === 'favorite'
             ? getString('FAV_FAVORITES')
             : screenType === 'GiftOneGetOne'
-            ? getString('HOME_GIFT_ONE_GET_ONE')
-            : getString('HOME_CATCH')
+              ? getString('HOME_GIFT_ONE_GET_ONE')
+              : getString('HOME_CATCH')
         }
         showBackButton
         onBackPress={() => navigation.goBack()}

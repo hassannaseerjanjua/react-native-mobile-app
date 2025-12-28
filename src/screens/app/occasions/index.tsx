@@ -80,17 +80,17 @@ const OccasionsScreen: React.FC = () => {
           selectedOccasion.occasionType === 'none'
             ? getString('OCC_OCCASIONS')
             : selectedOccasion.occasionType === 'create'
-            ? getString('OCC_CREATE_OCCASION')
-            : selectedOccasion.occasionType === 'edit'
-            ? getString('OCC_EDIT_OCCASION')
-            : getString('OCC_VIEW_OCCASION')
+              ? getString('OCC_CREATE_OCCASION')
+              : selectedOccasion.occasionType === 'edit'
+                ? getString('OCC_EDIT_OCCASION')
+                : getString('OCC_VIEW_OCCASION')
         }
         rightSideTitle={
           isEditGroupOpen || selectedOccasion.occasionType !== 'none'
             ? ''
             : occasions?.length !== 0
-            ? getString('OCC_EDIT_OCCASION')
-            : ''
+              ? getString('OCC_EDIT_OCCASION')
+              : ''
         }
         rightSideTitlePress={() => setIsEditGroupOpen(!isEditGroupOpen)}
         rightSideIcon={<SvgEditGroup />}
@@ -192,7 +192,7 @@ const OccasionsScreen: React.FC = () => {
                       <InputField
                         error={
                           formik.touched.occasionName &&
-                          formik.errors.occasionName
+                            formik.errors.occasionName
                             ? formik.errors.occasionName
                             : undefined
                         }
@@ -200,6 +200,7 @@ const OccasionsScreen: React.FC = () => {
                         fieldProps={{
                           placeholder: 'Event Name',
                           value: formik.values.occasionName,
+                          editable: selectedOccasion.occasionType !== "view",
                           onChangeText: (text: string) => {
                             formik.setFieldValue('occasionName', text, false);
                             formik.setFieldTouched('occasionName', true, false);
@@ -221,7 +222,7 @@ const OccasionsScreen: React.FC = () => {
                         <InputField
                           error={
                             formik.touched.occasionDate &&
-                            formik.errors.occasionDate
+                              formik.errors.occasionDate
                               ? formik.errors.occasionDate
                               : undefined
                           }
@@ -230,12 +231,12 @@ const OccasionsScreen: React.FC = () => {
                             placeholder: getString('OCC_DATE'),
                             value:
                               selectedOccasion.occasionType === 'view' ||
-                              selectedOccasion.occasionType === 'edit'
+                                selectedOccasion.occasionType === 'edit'
                                 ? formatDateForDisplay(
-                                    formik.values.occasionDate,
-                                  )
+                                  formik.values.occasionDate,
+                                )
                                 : formik.values.occasionDate,
-                            onChangeText: () => {},
+                            onChangeText: () => { },
                             onFocus: () =>
                               formik.setFieldTouched(
                                 'occasionDate',
@@ -294,8 +295,8 @@ const OccasionsScreen: React.FC = () => {
                         selectedOccasion.occasionType === 'edit' && date
                           ? date
                           : formik.values.occasionDate
-                          ? new Date(formik.values.occasionDate)
-                          : date
+                            ? new Date(formik.values.occasionDate)
+                            : date
                       }
                       mode="date"
                       onConfirm={selectedDate =>

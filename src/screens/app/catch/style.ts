@@ -84,6 +84,11 @@ const useStyles = () => {
         textAlign: 'center',
         zIndex: 0,
       },
+        catchIcon: {
+        width: scaleWithMax(120, 140),
+        height: scaleWithMax(120, 140),
+        objectFit:"contain"
+      },
       footerPriceRow: {
         flexDirection: 'row',
         alignItems: 'center',
