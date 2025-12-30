@@ -152,6 +152,8 @@ export const getFCMToken = async (userId?: number): Promise<string | null> => {
         await api.post(apiEndpoints.SAVE_TOKEN, {
           UserId: userId,
           token: fcmToken,
+          LanguageId: 1, //1 = English , 2= Arabic
+          DeviceType: Platform.OS === 'android' ? 1 : 2, //1 = Andriod , 2= IOS
         });
       }
       console.log('FCM Token received:', fcmToken);

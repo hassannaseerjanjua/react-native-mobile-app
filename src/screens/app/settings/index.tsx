@@ -118,7 +118,12 @@ const SettingsScreen: React.FC = () => {
     setLoading(true);
 
     const formData = new FormData();
-    const fieldsToUpdate = ['Fullname', 'CityId', 'Dob', 'GenderId'];
+    const fieldsToUpdate = [
+      'Fullname',
+      'CityId',
+      ...(!user?.IsBirthdayUpdated ? ['Dob'] : []),
+      'GenderId',
+    ];
     fieldsToUpdate.forEach(field => {
       if (values[field as keyof typeof values]) {
         formData.append(field, values[field as keyof typeof values]);

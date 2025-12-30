@@ -29,6 +29,7 @@ const apiEndpoints = {
     `/${version}/Home/GetStaticContent?code=${code}`,
   GET_FAQS: `/${version}/Home/GetAllFAQ`,
   CONTACT_US_SUBMIT: `/${version}/Home/ContactUsRequest`,
+  VERIFY_USER: `/${version}/User/check-app-users`,
 
   // ============================================
   // PROFILE & USER MANAGEMENT

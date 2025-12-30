@@ -471,46 +471,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               : navigation.dispatch(StackActions.popToTop())
           }
         />
-        {/* <View style={styles.checkoutCompletedContainer}>
-          {isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
-          <Text style={styles.TextLarge}>
-            {isSendType2
-              ? 'Gift Link Created'
-              : "Gift Delivered"}
-          </Text>
-          <CustomFooter>
-            <View
-              style={{
-                position: 'relative',
-                width: '100%',
-                gap: theme.sizes.HEIGHT * 0.01,
-              }}
-            >
-              {isSendType2 ? (
-                <>
-                  <CustomButton
-                    title="Share Link"
-                    onPress={() => {
-                      if (giftLink) {
-                        handleShareGiftLink(giftLink);
-                      }
-                    }}
-                  />
-                  <CustomButton
-                    title={getString('CHECKOUT_HOME')}
-                    type="secondary"
-                    onPress={() => navigation.dispatch(StackActions.popToTop())}
-                  />
-                </>
-              ) : (
-                <CustomButton
-                  title={getString('CHECKOUT_HOME')}
-                  onPress={() => navigation.dispatch(StackActions.popToTop())}
-                />
-              )}
-            </View>
-          </CustomFooter>
-        </View> */}
       </>
     );
   }
@@ -541,13 +501,18 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     );
   }
 
-  const firstItem = cartData.Items[0];
-  const giftImage = firstItem.Images?.[0]?.ImageUrls || firstItem.ThumbnailUrl;
-  const giftImageSource = cartData.FriendImageUrl
-    ? { uri: cartData.FriendImageUrl }
-    : cartData.SendType === 2
-    ? require('../../../assets/images/gift-link.png')
-    : require('../../../assets/images/img-placeholder.png');
+  const giftImageSource =
+    cartData.CampaginType === 3
+      ? {
+          uri:
+            cartData.users.ProfileUrl ||
+            require('../../../assets/images/img-placeholder.png'),
+        }
+      : cartData.FriendImageUrl
+      ? { uri: cartData.FriendImageUrl }
+      : cartData.SendType === 2
+      ? require('../../../assets/images/gift-link.png')
+      : require('../../../assets/images/img-placeholder.png');
 
   return (
     <ParentView>
@@ -623,17 +588,15 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   style={{ paddingVertical: theme.sizes.HEIGHT * 0.02 }}
                 />
               )}
-              <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
-                <Text
-                  style={[styles.TextMedium]}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {cartData.CampaginType === 3
-                    ? cartData.users.FullName
-                    : cartData.FriendName || 'Sending through link'}
-                </Text>
-              </View>
+              <Text
+                style={[styles.TextMedium, { width: '90%' }]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {cartData.CampaginType === 3
+                  ? cartData.users.FullName
+                  : cartData.FriendName || 'Sending through link'}
+              </Text>
             </View>
             <View
               style={[

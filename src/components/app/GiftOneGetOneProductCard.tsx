@@ -9,7 +9,8 @@ import {
   SvgRiyalIcon,
   SvgRiyalIconPrimary,
 } from '../../assets/icons';
-import { CatchItem } from '../../types'; // Update this import path as needed
+import { CatchItem } from '../../types';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface GiftOneGetOneProductCardProps {
   item: CatchItem;
@@ -28,10 +29,12 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
 }) => {
   const { theme } = useStyles();
   const { styles } = useStyles();
+  const { isRtl } = useLocaleStore();
 
   const itemImage = item.ItemImage;
-  const itemName = item.ItemNameEn;
-  const categoryName = item.CategoryNameEn;
+  const itemName = isRtl ? item.ItemNameAr : item.ItemNameEn;
+  const storeName = isRtl ? item.StoreNameAr : item.StoreNameEn;
+  const categoryName = isRtl ? item.CategoryNameAr : item.CategoryNameEn;
   const price = item.ItemPrice || 0;
   const discountedPrice = item.FinalPrice;
   const hasDiscount =
@@ -79,6 +82,18 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
           <Text style={styles.title} numberOfLines={1}>
             {itemName}
           </Text>
+        </View>
+
+        <View
+          style={{
+            justifyContent: 'space-between',
+            flexDirection: 'row',
+            alignItems: 'center',
+          }}
+        >
+          <Text style={styles.subtitle} numberOfLines={1}>
+            {storeName}
+          </Text>
           {hasDiscount && (
             <View style={styles.priceContainer}>
               <SvgRiyalIconPrimary
@@ -92,6 +107,7 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
             </View>
           )}
         </View>
+
         <View
           style={{
             justifyContent: 'space-between',
@@ -99,9 +115,11 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
             alignItems: 'center',
           }}
         >
-          <Text style={styles.subtitle} numberOfLines={1}>
-            {categoryName}
-          </Text>
+          {categoryName && (
+            <Text style={styles.subTitle2} numberOfLines={1}>
+              {categoryName}
+            </Text>
+          )}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
             <SvgRiyalIcon
               opacity={0.5}
@@ -161,11 +179,17 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: '#1A1A1A',
         fontSize: scaleWithMax(12, 13),
+        marginVertical: sizes.HEIGHT * 0.0016,
       },
       subtitle: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: '#A0A0A0',
         fontSize: sizes.FONTSIZE_MEDIUM,
+      },
+      subTitle2: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        color: '#A0A0A0',
+        fontSize: sizes.FONTSIZE_SMALL,
       },
       priceContainer: {
         flexDirection: 'row',

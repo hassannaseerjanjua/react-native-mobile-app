@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
-import api from '../../../utils/api';
+import api, { getAuthHeaderWithFormData } from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import notify from '../../../utils/notify';
 import { Occasion, OccasionsApiResponse } from '../../../types/index.ts';
 import { getAuthHeader } from '../../../utils/api';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { useAuthStore } from '../../../store/reducer/auth';
+import { compressImage, fileUriWrapper } from '../../../utils';
 
 export interface ImageFile {
   uri: string;
@@ -130,11 +131,11 @@ export const updateOccasion = async (
         name: values.image.name,
       } as any);
     }
-    const response = await api.put(
-      apiEndpoints.UPDATE_OCCASION(id),
-      formData,
-      {},
-    );
+    const response = await api.put(apiEndpoints.UPDATE_OCCASION(id), formData, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    });
     if (response.success) return true;
     if (response.failed) notify.error(response.error || errorMessage);
     return false;
@@ -195,25 +196,38 @@ export const useOccasions = () => {
     launchImageLibrary(
       {
         mediaType: 'photo',
-        quality: 0.4,
+        quality: 0.8,
         selectionLimit: 1,
-        maxWidth: 800,
-        maxHeight: 800,
         includeBase64: false,
       },
-      response => {
+      async response => {
         if (response.assets?.[0]) {
           const asset = response.assets[0];
-          const imageFile: ImageFile = {
-            uri:
-              Platform.OS === 'ios'
-                ? asset.uri?.replace('file://', '') || ''
-                : asset.uri || '',
-            type: asset.type || 'image/jpeg',
-            name: asset.fileName || `occasion_image_${Date.now()}.jpg`,
-          };
-          formik.setFieldValue('image', imageFile, false);
-          formik.setFieldTouched('image', true, false);
+          try {
+            const imageUri = fileUriWrapper(asset.uri || '');
+            const compressedImage = await compressImage(imageUri || '');
+
+            const imageFile: ImageFile = {
+              uri: compressedImage,
+              type: asset.type || 'image/jpeg',
+              name: asset.fileName || `occasion_image_${Date.now()}.jpg`,
+            };
+            formik.setFieldValue('image', imageFile, false);
+            formik.setFieldTouched('image', true, false);
+          } catch (error) {
+            console.error('Error compressing image:', error);
+            // Fallback to original image if compression fails
+            const imageFile: ImageFile = {
+              uri:
+                Platform.OS === 'ios'
+                  ? asset.uri?.replace('file://', '') || ''
+                  : asset.uri || '',
+              type: asset.type || 'image/jpeg',
+              name: asset.fileName || `occasion_image_${Date.now()}.jpg`,
+            };
+            formik.setFieldValue('image', imageFile, false);
+            formik.setFieldTouched('image', true, false);
+          }
         }
       },
     );
@@ -246,16 +260,22 @@ export const useOccasions = () => {
   };
 
   const handleSubmit = async (values: OccasionFormValues) => {
+    if (loading) return;
+    setLoading(true);
     const errorMsg = getString('AU_ERROR_OCCURRED');
     let success = false;
-    if (selectedOccasion.occasionType === 'create') {
-      success = await createOccasion(values, errorMsg);
-    } else if (selectedOccasion.id) {
-      success = await updateOccasion(selectedOccasion.id, values, errorMsg);
-    }
-    if (success) {
-      await fetchOccasions();
-      setSelectedOccasion({ id: null, occasionType: 'none' });
+    try {
+      if (selectedOccasion.occasionType === 'create') {
+        success = await createOccasion(values, errorMsg);
+      } else if (selectedOccasion.id) {
+        success = await updateOccasion(selectedOccasion.id, values, errorMsg);
+      }
+      if (success) {
+        await fetchOccasions();
+        setSelectedOccasion({ id: null, occasionType: 'none' });
+      }
+    } finally {
+      setLoading(false);
     }
   };
 

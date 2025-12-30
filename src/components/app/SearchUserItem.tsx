@@ -28,6 +28,8 @@ interface SearchUserItemProps {
   tempAddedUserIds?: Set<number>;
   isGeneralSearchScreen?: boolean;
   onPress?: () => void;
+  customButtonText?: string;
+  onCustomButtonPress?: () => void;
 }
 
 const SearchUserItem: React.FC<SearchUserItemProps> = ({
@@ -44,6 +46,8 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   tempAddedUserIds,
   isGeneralSearchScreen = false,
   onPress,
+  customButtonText,
+  onCustomButtonPress,
 }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
@@ -91,7 +95,13 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
             styles.addButton,
             (isAdded || isTempAdded) && styles.addedButton,
           ]}
-          onPress={() => handleAddUser?.(item.UserId)}
+          onPress={() => {
+            if (customButtonText && onCustomButtonPress) {
+              onCustomButtonPress();
+            } else {
+              handleAddUser?.(item.UserId);
+            }
+          }}
           disabled={isLoading || isTempAdded}
         >
           {isLoading ? (
@@ -102,14 +112,14 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
                 style={[
                   styles.addButtonText,
                   (isAdded || isTempAdded) && styles.addedButtonText,
-                  ,
                 ]}
               >
-                {isTempAdded
-                  ? getString('SEARCH_ADDED')
-                  : isAdded
-                  ? getString('MF_UNFRIEND')
-                  : getString('SEARCH_ADD')}
+                {customButtonText ||
+                  (isTempAdded
+                    ? getString('SEARCH_ADDED')
+                    : isAdded
+                    ? getString('MF_UNFRIEND')
+                    : getString('SEARCH_ADD'))}
               </Text>
             </View>
           )}
