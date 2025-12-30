@@ -339,6 +339,7 @@ export interface InboxOrderStore {
   Email: string;
   PhoneNo: string;
   NationalAddress: string | null;
+  IsDeliveryEnabled: boolean;
 }
 
 export interface InboxOrder {

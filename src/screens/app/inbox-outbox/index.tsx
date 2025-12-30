@@ -25,6 +25,7 @@ import {
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
+import CheckBox from '../../../components/global/CheckBox';
 import { InboxOrder, InboxOrderItem } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import {
@@ -60,6 +61,7 @@ const InboxOutbox: React.FC = () => {
     selectedOrder,
     selectedItem,
     selectedQuantity,
+    selectedItems,
     videoViewerData,
     videoViewerRef,
     search,
@@ -70,6 +72,7 @@ const InboxOutbox: React.FC = () => {
     handleItemPress,
     handleCloseBottomSheet,
     handleQuantityChange,
+    handleItemToggle,
     handlePickUpPress,
     handleDeliveryPress,
     handleVideoPress,
@@ -177,73 +180,222 @@ const InboxOutbox: React.FC = () => {
       <AppBottomSheet
         blurAmount={100}
         isOpen={openBottomSheet}
-        height={
-          selectedItem?.Quantity &&
-          selectedItem?.Quantity - selectedItem?.UsedQuantity > 1
-            ? theme.sizes.HEIGHT * 0.45
-            : theme.sizes.HEIGHT * 0.3
-        }
-        snapPoints={
-          selectedItem?.Quantity &&
-          selectedItem?.Quantity - selectedItem?.UsedQuantity > 1
-            ? ['28%']
-            : ['20%']
-        }
+        height={(() => {
+          const availableItems =
+            selectedOrder?.Items?.filter(
+              item =>
+                item.Status !== 10 && item.Quantity - item.UsedQuantity > 0,
+            ) || [];
+          const availableCount = availableItems.length;
+
+          if (availableCount > 1) {
+            return Math.min(
+              theme.sizes.HEIGHT * 0.7,
+              100 + availableCount * 100,
+            );
+          }
+          return theme.sizes.HEIGHT * 0.35;
+        })()}
+        snapPoints={(() => {
+          const availableItems =
+            selectedOrder?.Items?.filter(
+              item =>
+                item.Status !== 10 && item.Quantity - item.UsedQuantity > 0,
+            ) || [];
+          return availableItems.length > 1 ? ['70%'] : ['35%'];
+        })()}
         onClose={handleCloseBottomSheet}
       >
-        <View style={styles.bottomSheet}>
-          {selectedItem &&
-            selectedItem.Quantity - selectedItem.UsedQuantity > 1 && (
-              <View style={styles.quantityContainer}>
-                <Text style={styles.quantityLabel}>Quantity:</Text>
-                <View style={styles.quantitySelector}>
-                  <TouchableOpacity
-                    onPress={() => handleQuantityChange('decrement')}
-                    disabled={selectedQuantity <= 1}
-                    style={[
-                      styles.quantityButton,
-                      selectedQuantity <= 1 && styles.quantityButtonDisabled,
-                    ]}
-                  >
-                    <MinusIcon
-                      width={scaleWithMax(20, 22)}
-                      height={scaleWithMax(20, 22)}
-                      fill={
-                        selectedQuantity <= 1 ? '#ccc' : theme.colors.PRIMARY
-                      }
-                    />
-                  </TouchableOpacity>
-                  <Text style={styles.quantityText}>{selectedQuantity}</Text>
-                  <TouchableOpacity
-                    onPress={() => handleQuantityChange('increment')}
-                    disabled={selectedQuantity >= selectedItem.Quantity}
-                    style={[
-                      styles.quantityButton,
-                      selectedQuantity >= selectedItem.Quantity &&
-                        styles.quantityButtonDisabled,
-                    ]}
-                  >
-                    <PlusIcon
-                      width={scaleWithMax(20, 22)}
-                      height={scaleWithMax(20, 22)}
-                      fill={
-                        selectedQuantity >= selectedItem.Quantity
-                          ? '#ccc'
-                          : theme.colors.PRIMARY
-                      }
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
+        <ScrollView
+          style={{ maxHeight: theme.sizes.HEIGHT * 0.6 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.bottomSheet}>
+            {selectedOrder?.Items &&
+              (() => {
+                const availableItems = selectedOrder.Items.filter(
+                  item =>
+                    item.Status !== 10 && item.Quantity - item.UsedQuantity > 0,
+                );
+                const hasMultipleItems = availableItems.length > 1;
+
+                return availableItems.map(item => {
+                  const availableQuantity = item.Quantity - item.UsedQuantity;
+                  const selectedQty = selectedItems.get(item.OrderItemId) || 0;
+                  const isSelected = selectedQty > 0;
+                  const hasMultipleQuantity = availableQuantity > 1;
+
+                  return (
+                    <View
+                      key={item.OrderItemId}
+                      style={[
+                        styles.itemRow,
+                        { marginBottom: theme.sizes.PADDING * 0.5 },
+                      ]}
+                    >
+                      <TouchableOpacity
+                        style={styles.itemCheckboxRow}
+                        onPress={() =>
+                          hasMultipleItems &&
+                          handleItemToggle(item.OrderItemId, availableQuantity)
+                        }
+                        disabled={!hasMultipleItems}
+                      >
+                        {hasMultipleItems && (
+                          <CheckBox
+                            Selected={isSelected}
+                            onSelectionPress={() =>
+                              handleItemToggle(
+                                item.OrderItemId,
+                                availableQuantity,
+                              )
+                            }
+                          />
+                        )}
+                        <Image
+                          source={getMainImage(item)}
+                          style={{
+                            width: scaleWithMax(60, 65),
+                            height: scaleWithMax(60, 65),
+                            borderRadius: theme.sizes.BORDER_RADIUS,
+                            marginLeft: hasMultipleItems
+                              ? theme.sizes.PADDING * 0.7
+                              : 0,
+                          }}
+                        />
+                        <View
+                          style={{
+                            flex: 1,
+                            marginLeft: theme.sizes.PADDING * 0.7,
+                            gap: scaleWithMax(18, 20),
+                          }}
+                        >
+                          <Text
+                            style={[styles.itemNameText]}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                          >
+                            {item.ItemName}
+                          </Text>
+                          <View
+                            style={{
+                              flexDirection: 'row',
+                              position: 'relative',
+                            }}
+                          >
+                            <Text
+                              style={{
+                                fontSize: scaleWithMax(11, 12),
+                                color: theme.colors.SECONDARY_TEXT,
+                              }}
+                            >
+                              Available: {availableQuantity}
+                            </Text>
+                            {isSelected && hasMultipleQuantity && (
+                              <View style={styles.quantitySelector}>
+                                <TouchableOpacity
+                                  onPress={() =>
+                                    handleQuantityChange(
+                                      item.OrderItemId,
+                                      'decrement',
+                                      availableQuantity,
+                                    )
+                                  }
+                                  disabled={selectedQty <= 1}
+                                  style={[
+                                    styles.quantityButton,
+                                    selectedQty <= 1 &&
+                                      styles.quantityButtonDisabled,
+                                  ]}
+                                  hitSlop={{
+                                    top: 10,
+                                    bottom: 10,
+                                    left: 10,
+                                    right: 10,
+                                  }}
+                                >
+                                  <MinusIcon
+                                    width={scaleWithMax(14, 16)}
+                                    height={scaleWithMax(14, 16)}
+                                    fill={
+                                      selectedQty <= 1
+                                        ? '#ccc'
+                                        : theme.colors.PRIMARY
+                                    }
+                                  />
+                                </TouchableOpacity>
+                                <Text style={styles.quantityText}>
+                                  {selectedQty}
+                                </Text>
+                                <TouchableOpacity
+                                  onPress={() =>
+                                    handleQuantityChange(
+                                      item.OrderItemId,
+                                      'increment',
+                                      availableQuantity,
+                                    )
+                                  }
+                                  disabled={selectedQty >= availableQuantity}
+                                  style={[
+                                    styles.quantityButton,
+                                    selectedQty >= availableQuantity &&
+                                      styles.quantityButtonDisabled,
+                                  ]}
+                                  hitSlop={{
+                                    top: 10,
+                                    bottom: 10,
+                                    left: 10,
+                                    right: 10,
+                                  }}
+                                >
+                                  <PlusIcon
+                                    width={scaleWithMax(14, 16)}
+                                    height={scaleWithMax(14, 16)}
+                                    fill={
+                                      selectedQty >= availableQuantity
+                                        ? '#ccc'
+                                        : theme.colors.PRIMARY
+                                    }
+                                  />
+                                </TouchableOpacity>
+                              </View>
+                            )}
+                          </View>
+                        </View>
+                      </TouchableOpacity>
+                    </View>
+                  );
+                });
+              })()}
+            <CustomButton
+              title={'Pick Up'}
+              onPress={handlePickUpPress}
+              buttonStyle={{
+                backgroundColor: !Array.from(selectedItems.values()).some(
+                  qty => qty > 0,
+                )
+                  ? '#FFA5A5'
+                  : theme.colors.PRIMARY,
+                borderColor: !Array.from(selectedItems.values()).some(
+                  qty => qty > 0,
+                )
+                  ? '#FFA5A5'
+                  : theme.colors.PRIMARY,
+              }}
+              disabled={
+                !Array.from(selectedItems.values()).some(qty => qty > 0)
+              }
+            />
+            {selectedOrder?.stores?.IsDeliveryEnabled && (
+              <CustomButton
+                title="Delivery"
+                type="secondary"
+                onPress={handleDeliveryPress}
+                buttonStyle={{ backgroundColor: theme.colors.WHITE }}
+              />
             )}
-          <CustomButton title="Pick Up" onPress={handlePickUpPress} />
-          <CustomButton
-            title="Delivery"
-            type="secondary"
-            onPress={handleDeliveryPress}
-            buttonStyle={{ backgroundColor: theme.colors.WHITE }}
-          />
-        </View>
+          </View>
+        </ScrollView>
       </AppBottomSheet>
 
       <VideoStoryViewer

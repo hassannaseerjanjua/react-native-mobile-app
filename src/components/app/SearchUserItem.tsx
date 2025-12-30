@@ -78,7 +78,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
           style={[
             styles.userName,
             {
-              width: shouldShowButton ? '80%' : '85%',
+              width: shouldShowButton ? '80%' : '80%',
             },
           ]}
           numberOfLines={1}

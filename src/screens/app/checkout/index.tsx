@@ -503,17 +503,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   const giftImageSource =
     cartData.CampaginType === 3
-      ? {
-          uri:
-            cartData.users.ProfileUrl ||
-            require('../../../assets/images/img-placeholder.png'),
-        }
+      ? cartData.users?.ProfileUrl
+        ? { uri: cartData.users.ProfileUrl }
+        : require('../../../assets/images/img-placeholder.png')
       : cartData.FriendImageUrl
       ? { uri: cartData.FriendImageUrl }
-      : cartData.SendType === 2
-      ? require('../../../assets/images/gift-link.png')
       : require('../../../assets/images/img-placeholder.png');
 
+  console.log('Image Source', giftImageSource);
   return (
     <ParentView>
       <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
@@ -572,7 +569,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 flexDirection: rtlFlexDirection(isRtl),
               }}
             >
-              {cartData.FriendImageUrl ? (
+              {cartData.SendType === 2 ? (
+                <SvgGiftLink
+                  height={scaleWithMax(20, 25)}
+                  width={scaleWithMax(20, 25)}
+                  style={{ paddingVertical: theme.sizes.HEIGHT * 0.02 }}
+                />
+              ) : (
                 <Image
                   source={giftImageSource}
                   style={
@@ -580,12 +583,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       ? styles.LinkImage
                       : styles.GiftContainerImage
                   }
-                />
-              ) : (
-                <SvgGiftLink
-                  height={scaleWithMax(20, 25)}
-                  width={scaleWithMax(20, 25)}
-                  style={{ paddingVertical: theme.sizes.HEIGHT * 0.02 }}
                 />
               )}
               <Text

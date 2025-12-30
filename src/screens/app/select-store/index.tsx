@@ -199,7 +199,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             route.params.sendType !== 2 && (
               <View
                 style={{
-                  width: theme.sizes.WIDTH * 0.4,
+                  width: theme.sizes.WIDTH * 0.48,
                 }}
               >
                 <DropdownField

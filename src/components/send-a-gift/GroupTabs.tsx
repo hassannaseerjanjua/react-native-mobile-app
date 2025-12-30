@@ -16,7 +16,7 @@ interface GroupTabsProps {
 
 const GroupTabs = ({ tabs, activeTab, onTabPress }: GroupTabsProps) => {
   const { styles, theme } = useStyles();
-
+  console.log('Active Tab', activeTab);
   return (
     <ScrollView
       horizontal
