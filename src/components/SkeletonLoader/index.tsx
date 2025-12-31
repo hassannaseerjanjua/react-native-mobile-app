@@ -30,7 +30,8 @@ type SkeletonLoaderProps = {
     | 'inbox'
     | 'giftFilters'
     | 'tabItem'
-    | 'tabItemCity';
+    | 'tabItemCity'
+    | 'groupTabs';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -1549,6 +1550,25 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                   height={screenHeight * 0.21}
                   borderRadius={12}
                   marginRight={index < 2 ? scaleWithMax(15, 18) : 0}
+                />
+              ))}
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
+        );
+      case 'groupTabs':
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item
+              flexDirection="row"
+              paddingLeft={theme.sizes.PADDING}
+              gap={10}
+            >
+              {[...Array(4)].map((_, index) => (
+                <SkeletonPlaceholder.Item
+                  key={index}
+                  width={screenWidth * 0.2}
+                  height={scaleWithMax(35, 40)}
+                  borderRadius={10}
                 />
               ))}
             </SkeletonPlaceholder.Item>

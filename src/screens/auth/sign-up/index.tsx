@@ -79,12 +79,13 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                 apiEndpoints.VERIFY_USERNAME,
                 formData.username,
               );
-              if (response.success) {
-                setCurrentStep(currentStep + 1);
-              } else {
+              console.log('response', response);
+              if (response.error === 'This username already exists.') {
                 setUsernameApiError(
                   getString('API_THIS_USERNAME_ALREADY_EXISTS'),
                 );
+              } else {
+                setCurrentStep(currentStep + 1);
               }
             } catch (error) {
               notify.error((error as string) || getString('AU_ERROR_OCCURRED'));

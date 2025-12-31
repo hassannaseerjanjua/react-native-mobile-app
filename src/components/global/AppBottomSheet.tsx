@@ -74,7 +74,6 @@ const AppBottomSheet = ({
       onClose();
     }
   };
-  console.log('isOpen', isOpen);
 
   return (
     <Modal

@@ -77,9 +77,7 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
     const [trimStart, setTrimStart] = useState(0);
     const [trimEnd, setTrimEnd] = useState(0);
     const [videoDuration, setVideoDuration] = useState(0); // Actual video duration, never changes after load
-    console.log('Trim End ==> ', trimEnd);
-    console.log('Video Duration ==> ', videoDuration);
-    console.log('[VideoStoryViewer] Video URL:', resolvedVideoUrl);
+
     // Add trim handler - only updates trim positions, does NOT change videoDuration
     const handleTrimChange = useCallback((start: number, end: number) => {
       console.log('Trim change output', start, end);

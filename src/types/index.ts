@@ -46,6 +46,7 @@ export interface User {
   CityId: number;
   City: string | null;
   IsBirthdayUpdated: boolean;
+  IsVerified: boolean;
 }
 
 export interface LoginApiResponse {
@@ -63,6 +64,7 @@ export interface ActiveUser {
   ProfileUrl: string | null;
   CityId?: number;
   RelationStatus: number;
+  IsVerified: boolean;
 }
 
 export interface ActiveUsersApiResponse {

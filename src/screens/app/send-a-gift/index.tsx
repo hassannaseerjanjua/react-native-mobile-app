@@ -162,6 +162,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         ProfileUrl: user.ProfileUrl,
         RelationStatus: 1,
         CityId: user.CityId,
+        IsVerified: user.IsVerified,
       };
 
       return [currentUser, ...baseData];
@@ -299,6 +300,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                       if (route.params.routeTo === 'SelectStore') {
                         navigation.navigate('SelectStore', {
                           friendUserId: selectedFriendUserId,
+                          friendName:
+                            item.FullName.replace(getString('SG_ME'), '') ||
+                            null,
                           CityId: item.CityId || user?.CityId || null,
                           sendType: 1,
                         });

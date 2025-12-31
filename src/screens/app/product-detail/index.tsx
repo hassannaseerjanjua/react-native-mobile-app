@@ -89,7 +89,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     }
   };
   const productImages = useMemo(() => {
-    console.log('item?.ThumbnailUrl', item?.Thumbnail);
     const placeholderImage = item?.Thumbnail
       ? { uri: item?.Thumbnail }
       : require('../../../assets/images/img-placeholder.png');
@@ -306,11 +305,15 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             )}
           </View>
           <View style={styles.tabsContainer}>
-            <GroupTabs
-              tabs={filterOptions}
-              activeTab={selectedFilter}
-              onTabPress={setSelectedFilter}
-            />
+            {loading || !item ? (
+              <SkeletonLoader screenType="groupTabs" />
+            ) : (
+              <GroupTabs
+                tabs={filterOptions}
+                activeTab={selectedFilter}
+                onTabPress={setSelectedFilter}
+              />
+            )}
           </View>
         </ScrollView>
       )}

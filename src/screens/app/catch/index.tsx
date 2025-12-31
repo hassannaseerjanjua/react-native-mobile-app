@@ -357,27 +357,31 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
 
       <View style={styles.listWrapper}>
         <View style={styles.tabsContainer}>
-          <GroupTabs
-            tabs={filterOptions}
-            activeTab={selectedFilter}
-            onTabPress={id => {
-              setSelectedFilter(id);
-              const categoryId = id === 'all' ? null : Number(id);
-              if (screenType === 'favorite') {
-                getFavoriteItems.setExtraParams({
-                  ...(storeID ? { StoreId: storeID } : {}),
-                  categoryId,
-                });
-              } else if (screenType === 'GiftOneGetOne') {
-                getStoreProducts.setExtraParams({
-                  categoryId,
-                  campaingType: 3,
-                });
-              } else if (screenType === 'catch') {
-                getCatchItems.setExtraParams({ categoryId });
-              }
-            }}
-          />
+          {categoriesApi.loading ? (
+            <SkeletonLoader screenType="groupTabs" />
+          ) : (
+            <GroupTabs
+              tabs={filterOptions}
+              activeTab={selectedFilter}
+              onTabPress={id => {
+                setSelectedFilter(id);
+                const categoryId = id === 'all' ? null : Number(id);
+                if (screenType === 'favorite') {
+                  getFavoriteItems.setExtraParams({
+                    ...(storeID ? { StoreId: storeID } : {}),
+                    categoryId,
+                  });
+                } else if (screenType === 'GiftOneGetOne') {
+                  getStoreProducts.setExtraParams({
+                    categoryId,
+                    campaingType: 3,
+                  });
+                } else if (screenType === 'catch') {
+                  getCatchItems.setExtraParams({ categoryId });
+                }
+              }}
+            />
+          )}
         </View>
         {isLoading() ? (
           <SkeletonLoader screenType="productListing" />

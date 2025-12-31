@@ -54,6 +54,11 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.BLACK,
       },
+      verifiedIconContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: scaleWithMax(4, 5),
+      },
       menuContainer: {
         gap: sizes.HEIGHT * 0.016,
       },

@@ -101,6 +101,7 @@ import SvgOutboxShareIcon from './outbox-share.svg';
 import SvgGiftClaimIcon from './catch-gift-icon.svg';
 import SvgRiyalIconPrimary from './svgRiyalPrimary.svg';
 import SvgLinkShareIcon from './link-share.svg';
+import SvgVerifiedIcon from './verified-user.svg';
 
 export {
   SvgLogoBlue,
@@ -206,4 +207,5 @@ export {
   SvgGiftClaimIcon,
   SvgRiyalIconPrimary,
   SvgLinkShareIcon,
+  SvgVerifiedIcon,
 };

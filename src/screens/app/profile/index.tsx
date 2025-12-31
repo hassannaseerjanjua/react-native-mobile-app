@@ -33,6 +33,7 @@ import {
   SvgProfileFavorites,
   SvgProfileCrossIcon,
   SvgProfileQrIcon,
+  SvgVerifiedIcon,
 } from '../../../assets/icons';
 import { useDispatch } from 'react-redux';
 import { login, logout, useAuthStore } from '../../../store/reducer/auth';
@@ -323,7 +324,10 @@ const ProfileScreen: React.FC = () => {
             />
           </TouchableOpacity>
           <View style={screenStyles.profileInfo}>
-            <Text style={screenStyles.profileName}>{user?.FullNameEn}</Text>
+            <View style={screenStyles.verifiedIconContainer}>
+              <Text style={screenStyles.profileName}>{user?.FullNameEn}</Text>{' '}
+              {true && <SvgVerifiedIcon />}
+            </View>
             <Text style={screenStyles.profileUsername}>{user?.UserName}</Text>
           </View>
           <TouchableOpacity onPress={() => setShowQrModal(true)}>

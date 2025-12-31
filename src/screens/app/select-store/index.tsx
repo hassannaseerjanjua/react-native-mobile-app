@@ -103,6 +103,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       sendType: route.params.sendType,
       storeId: store.StoreId ?? null,
       friendUserId: friendUserId ?? undefined,
+      friendName: route.params?.friendName ?? null,
     });
   };
   const storeListApi = useListingApi<Store>(
@@ -226,11 +227,15 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
           }
         />
         <View style={styles.tabsContainer}>
-          <GroupTabs
-            tabs={filterOptions}
-            activeTab={selectedFilter}
-            onTabPress={setSelectedFilter}
-          />
+          {businessTypeApi.loading ? (
+            <SkeletonLoader screenType="groupTabs" />
+          ) : (
+            <GroupTabs
+              tabs={filterOptions}
+              activeTab={selectedFilter}
+              onTabPress={setSelectedFilter}
+            />
+          )}
         </View>
 
         <View style={styles.content}>

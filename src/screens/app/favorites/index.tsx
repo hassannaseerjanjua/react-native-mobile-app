@@ -163,11 +163,15 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         showSearchBar={true}
       />
       <View style={styles.tabsContainer}>
-        <GroupTabs
-          tabs={filterOptions}
-          activeTab={selectedFilter}
-          onTabPress={setSelectedFilter}
-        />
+        {businessTypeApi.loading ? (
+          <SkeletonLoader screenType="groupTabs" />
+        ) : (
+          <GroupTabs
+            tabs={filterOptions}
+            activeTab={selectedFilter}
+            onTabPress={setSelectedFilter}
+          />
+        )}
       </View>
 
       <View style={styles.content}>

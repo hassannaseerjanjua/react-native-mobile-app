@@ -68,9 +68,7 @@ const caller = async <T>(
     responseObject.data = response.data;
     responseObject.error = '';
   } catch (err: any) {
-    console.log('err', err);
     const response = err?.response?.data;
-    console.log('response', response);
     let errorMessage =
       response?.error?.message ||
       response?.message ||

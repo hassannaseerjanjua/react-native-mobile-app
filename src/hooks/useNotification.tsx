@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import notifee, { EventType } from '@notifee/react-native';
 import {
@@ -74,6 +74,8 @@ const useNotification = () => {
           await api.post(apiEndpoints.SAVE_TOKEN, {
             UserId: user.UserId,
             token,
+            LanguageId: 1, //1 = English , 2= Arabic
+            DeviceType: Platform.OS === 'android' ? 1 : 2, //1 = Andriod , 2= IOS
           });
           console.log('FCM Token saved to backend');
         } catch (error) {

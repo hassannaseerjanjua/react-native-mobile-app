@@ -44,6 +44,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const { token } = useAuthStore();
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
+  const friendName = route.params?.friendName ?? null;
   const storeId = route.params?.storeId ?? null;
   const businessTypeId = route.params?.businessTypeId ?? null;
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
@@ -86,6 +87,24 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     },
   );
 
+  const getFavoriteItems = useListingApi<FaveItems>(
+    apiEndpoints.GET_FAV_STORE_ITEMS,
+    token,
+    {
+      transformData: (data: any) => {
+        return {
+          data: data.Data?.Items || [],
+          totalCount: data.Data?.TotalCount || 0,
+        };
+      },
+      extraParams: {
+        StoreId: storeId,
+        userId: friendUserId,
+      },
+      idExtractor: (item: FaveItems) => item.ItemId,
+    },
+  );
+
   const cartApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => (data?.Data || data) as CartResponse,
   });
@@ -98,15 +117,21 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
+    const favoritesTabTitle =
+      friendUserId && friendName
+        ? `${friendName}'s Favorites`
+        : getString('FAV_FAVORITES');
+    const favoritesOption = { id: 'favorites', title: favoritesTabTitle };
+
     if (!categoriesApi.data || categoriesApi.data.length === 0) {
-      return [allOption];
+      return [allOption, favoritesOption];
     }
     const categoryOptions = categoriesApi.data.map(category => ({
       id: String(category.CategoryId),
       title: langCode === 'ar' ? category.NameAr : category.NameEn,
     }));
-    return [allOption, ...categoryOptions];
-  }, [categoriesApi.data, getString, langCode]);
+    return [allOption, favoritesOption, ...categoryOptions];
+  }, [categoriesApi.data, getString, langCode, friendUserId, friendName]);
 
   useEffect(() => {
     if (getStoreProducts.data && getStoreProducts.data.length > 0) {
@@ -117,6 +142,16 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       setFavoriteStates(prev => ({ ...prev, ...initialState }));
     }
   }, [getStoreProducts.data]);
+
+  useEffect(() => {
+    if (getFavoriteItems.data && getFavoriteItems.data.length > 0) {
+      const initialState: Record<number, boolean> = {};
+      getFavoriteItems.data.forEach(item => {
+        initialState[item.ItemId] = true; // Favorite items are always favorited
+      });
+      setFavoriteStates(prev => ({ ...prev, ...initialState }));
+    }
+  }, [getFavoriteItems.data]);
 
   const handleProductPress = (item: StoreProduct | FaveItems) => {
     if ('ItemId' in item && 'Thumbnail' in item) {
@@ -167,12 +202,19 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   };
 
   useEffect(() => {
-    getStoreProducts.setExtraParams({
-      StoreId: storeId,
-      status: 1,
-      categoryId: selectedFilter === 'all' ? null : Number(selectedFilter),
-    });
-  }, [selectedFilter, storeId]);
+    if (selectedFilter === 'favorites') {
+      getFavoriteItems.setExtraParams({
+        StoreId: storeId,
+        userId: friendUserId,
+      });
+    } else {
+      getStoreProducts.setExtraParams({
+        StoreId: storeId,
+        status: 1,
+        categoryId: selectedFilter === 'all' ? null : Number(selectedFilter),
+      });
+    }
+  }, [selectedFilter, storeId, friendUserId]);
 
   const isCartFromCurrentStore = useMemo(() => {
     if (
@@ -227,21 +269,96 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         />
 
         <View style={styles.tabsContainer}>
-          <GroupTabs
-            tabs={filterOptions}
-            activeTab={selectedFilter}
-            onTabPress={id => {
-              setSelectedFilter(id);
-              getStoreProducts.setExtraParams({
-                StoreId: storeId,
-                status: 1,
-                categoryId: id === 'all' ? null : Number(id),
-              });
-            }}
-          />
+          {categoriesApi.loading ? (
+            <SkeletonLoader screenType="groupTabs" />
+          ) : (
+            <GroupTabs
+              tabs={filterOptions}
+              activeTab={selectedFilter}
+              onTabPress={id => {
+                setSelectedFilter(id);
+                if (id === 'favorites') {
+                  getFavoriteItems.setExtraParams({
+                    StoreId: storeId,
+                    userId: friendUserId,
+                  });
+                } else {
+                  getStoreProducts.setExtraParams({
+                    StoreId: storeId,
+                    status: 1,
+                    categoryId: id === 'all' ? null : Number(id),
+                  });
+                }
+              }}
+            />
+          )}
         </View>
 
-        {getStoreProducts.loading ? (
+        {selectedFilter === 'favorites' ? (
+          getFavoriteItems.loading ? (
+            <SkeletonLoader screenType="productListing" />
+          ) : (
+            <FlatList
+              columnWrapperStyle={{
+                gap: 16,
+              }}
+              data={getFavoriteItems.data || []}
+              numColumns={2}
+              keyExtractor={item => item.ItemId.toString()}
+              extraData={favoriteStates}
+              contentContainerStyle={[
+                styles.content,
+                isCartFromCurrentStore && {
+                  paddingBottom: theme.sizes.HEIGHT * 0.12,
+                },
+              ]}
+              showsVerticalScrollIndicator={false}
+              onEndReached={getFavoriteItems.loadMore}
+              onEndReachedThreshold={0.5}
+              ListEmptyComponent={
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    height: theme.sizes.HEIGHT * 0.5,
+                  }}
+                >
+                  <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
+                </View>
+              }
+              ListFooterComponent={
+                getFavoriteItems.loadingMore ? (
+                  <View
+                    style={{
+                      paddingVertical: theme.sizes.HEIGHT * 0.02,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <ActivityIndicator
+                      size="small"
+                      color={theme.colors.PRIMARY}
+                    />
+                  </View>
+                ) : null
+              }
+              renderItem={({ item }) => (
+                <FavoriteProductCard
+                  item={item}
+                  onPress={handleProductPress}
+                  isFavorite={favoriteStates[item.ItemId] ?? true}
+                  hasFavorite={true}
+                  onFavoritePress={() => {
+                    handleFavoritePress({
+                      ItemId: item.ItemId,
+                      isFavorite: !(favoriteStates[item.ItemId] ?? true),
+                    });
+                  }}
+                />
+              )}
+            />
+          )
+        ) : getStoreProducts.loading ? (
           <SkeletonLoader screenType="productListing" />
         ) : (
           <FlatList
@@ -295,6 +412,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                 isFavorite={
                   favoriteStates[item.ItemId] ?? item.isFavourite ?? false
                 }
+                hasFavorite={true}
                 onFavoritePress={() => {
                   handleFavoritePress({
                     ItemId: item.ItemId,

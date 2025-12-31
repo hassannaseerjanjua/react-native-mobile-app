@@ -510,7 +510,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       ? { uri: cartData.FriendImageUrl }
       : require('../../../assets/images/img-placeholder.png');
 
-  console.log('Image Source', giftImageSource);
   return (
     <ParentView>
       <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />

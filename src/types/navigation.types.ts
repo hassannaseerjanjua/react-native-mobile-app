@@ -77,11 +77,13 @@ export type AppStackParamList = {
     };
     sendType?: number | null;
     friendUserId?: number | null;
+    friendName?: string | null;
     storeId?: number | null;
     businessTypeId?: number | null;
   };
   SelectStore: {
     friendUserId?: number | null;
+    friendName?: string | null;
     storeId?: number | null;
     CityId?: number | null;
     sendType?: number | null;

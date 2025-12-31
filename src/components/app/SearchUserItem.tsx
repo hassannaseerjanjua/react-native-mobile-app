@@ -6,7 +6,11 @@ import {
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
-import { SvgSearchAdd, SvgSelectedCheck } from '../../assets/icons';
+import {
+  SvgSearchAdd,
+  SvgSelectedCheck,
+  SvgVerifiedIcon,
+} from '../../assets/icons';
 import { ActiveUser } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
 import useTheme from '../../styles/theme';
@@ -78,7 +82,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
           style={[
             styles.userName,
             {
-              width: shouldShowButton ? '80%' : '80%',
+              maxWidth: shouldShowButton ? '80%' : '80%',
             },
           ]}
           numberOfLines={1}
@@ -86,6 +90,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
         >
           {item.FullName}
         </Text>
+        {item.IsVerified && <SvgVerifiedIcon />}
       </View>
 
       {shouldShowButton && (
@@ -187,6 +192,7 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_BUTTON,
         letterSpacing: 0.15,
         color: colors.PRIMARY_TEXT,
+        marginEnd: scaleWithMax(6, 7),
       },
       addButton: {
         borderRadius: sizes.BORDER_RADIUS,
