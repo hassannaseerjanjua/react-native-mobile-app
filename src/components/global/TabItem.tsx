@@ -68,7 +68,7 @@ const TabItem = ({
         ) : (
           isGroupImage === '' && <SvgGroup />
         )}
-        {isLink && <SvgGiftLink />}
+        {isLink && <SvgGiftLink height={scaleWithMax(20, 25)} width={scaleWithMax(20, 25)} />}
         {icon && icon}
         <Text
           style={[styles.titleText, TabTextStyles]}

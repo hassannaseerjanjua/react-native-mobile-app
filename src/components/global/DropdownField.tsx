@@ -100,6 +100,8 @@ const DropdownField = ({
         {icon}
         <View style={styles.textContainer}>
           <Text
+            numberOfLines={1}
+            ellipsizeMode="tail"
             style={[
               styles.displayText,
               {

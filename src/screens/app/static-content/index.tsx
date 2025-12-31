@@ -15,7 +15,7 @@ import RenderHTML from 'react-native-render-html';
 import { useSizes } from '../../../styles/sizes';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
-interface StaticProps extends AppStackScreen<'StaticContent'> {}
+interface StaticProps extends AppStackScreen<'StaticContent'> { }
 
 const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
@@ -60,8 +60,56 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
         {getStaticContent.loading ? (
           <SkeletonLoader screenType="staticContent" />
         ) : (
-          <RenderHTML source={source} contentWidth={sizes.WIDTH} />
-        )}
+          <RenderHTML
+            tagsStyles={{
+              h1: {
+                fontSize: 24,
+                fontWeight: 'bold',
+                marginTop: 8,
+                marginBottom: 4,
+                padding: 0,
+              },
+              h2: {
+                fontSize: 18,
+                fontWeight: 'bold',
+                marginTop: 12,
+                marginBottom: 4,
+                padding: 0,
+              },
+              p: {
+                fontSize: 14,
+                lineHeight: 20,
+                marginTop: 0,
+                marginBottom: 8,
+                padding: 0,
+              },
+              strong: {
+                fontWeight: 'bold',
+              },
+              ol: {
+                marginTop: 0,
+                marginBottom: 8,
+                paddingLeft: 20,
+              },
+              li: {
+                fontSize: 14,
+                lineHeight: 20,
+                marginBottom: 4,
+              },
+              br: {
+                height: 0,
+                margin: 0,
+                padding: 0,
+              },
+            }}
+            baseStyle={{
+              fontSize: 14,
+              lineHeight: 20,
+            }}
+            source={source}
+            contentWidth={sizes.WIDTH}
+            enableExperimentalMarginCollapsing={true}
+          />)}
       </ScrollView>
     </ParentView>
   );

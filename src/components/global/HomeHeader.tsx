@@ -173,7 +173,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               onPress={handleSearchPress}
               activeOpacity={0.7}
             >
-              <SvgSearchIcon />
+              <SvgSearchIcon height={scaleWithMax(20, 24)} width={scaleWithMax(20, 24)} />
             </TouchableOpacity>
           )}
 

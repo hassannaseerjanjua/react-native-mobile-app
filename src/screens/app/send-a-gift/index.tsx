@@ -100,15 +100,14 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
   useFocusEffect(
     useCallback(() => {
-      // Refetch data when screen comes into focus if we're on friends tab and have no data
-      if (
-        activeTab === 'friends' &&
-        activeUsersApi.data.length === 0 &&
-        !activeUsersApi.loading
-      ) {
-        activeUsersApi.recall();
-      }
-    }, [activeTab]),
+      // Reset to friends tab when screen comes into focus
+      setActiveTab('friends');
+
+      // Cleanup: Reset to friends tab when screen loses focus (navigating away)
+      return () => {
+        setActiveTab('friends');
+      };
+    }, []),
   );
 
   const handleTabChange = (tabId: string) => {
@@ -147,7 +146,12 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const getDisplayData = () => {
     const baseData = activeUsersApi.data || [];
 
-    if (!activeUsersApi.search && activeTab === 'friends' && user) {
+    if (
+      !activeUsersApi.search &&
+      activeTab === 'friends' &&
+      user &&
+      route.params.routeTo === 'SelectStore'
+    ) {
       const currentUser: ActiveUser = {
         UserId: user.UserId,
         FullName: `${
@@ -328,8 +332,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 title={getString('SG_FIND_FRIENDS')}
                 onPress={() => {
                   navigation.navigate('Search', {
-                    title: getString('C_CONNECT'),
-                    showConnectOnly: true,
+                    title: getString('SG_FIND_FRIENDS'),
+                    // showConnectOnly: true,
                   });
                 }}
                 type="primary"

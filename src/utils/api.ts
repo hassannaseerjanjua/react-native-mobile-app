@@ -68,7 +68,9 @@ const caller = async <T>(
     responseObject.data = response.data;
     responseObject.error = '';
   } catch (err: any) {
+    console.log('err', err);
     const response = err?.response?.data;
+    console.log('response', response);
     let errorMessage =
       response?.error?.message ||
       response?.message ||
@@ -79,13 +81,19 @@ const caller = async <T>(
     if (err?.response?.status === 401) {
       const localeState = store.getState().locale.localeData;
       const localeKey = 'API_SESSION_EXPIRED';
-      errorMessage = (localeState.stringsLangId === localeState.langId && localeState.strings?.[localeKey]) || localeKey;
+      errorMessage =
+        (localeState.stringsLangId === localeState.langId &&
+          localeState.strings?.[localeKey]) ||
+        localeKey;
       store.dispatch(logout());
     }
     if (err?.response?.status === 413) {
       const localeState = store.getState().locale.localeData;
       const localeKey = 'API_FILE_TOO_LARGE';
-      errorMessage = (localeState.stringsLangId === localeState.langId && localeState.strings?.[localeKey]) || localeKey;
+      errorMessage =
+        (localeState.stringsLangId === localeState.langId &&
+          localeState.strings?.[localeKey]) ||
+        localeKey;
     }
 
     responseObject.error = errorMessage;

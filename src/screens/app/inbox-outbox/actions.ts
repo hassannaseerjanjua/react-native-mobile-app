@@ -14,7 +14,11 @@ const defaultProfileImage = require('../../../assets/images/user.png');
 const defaultItemImage = require('../../../assets/images/img-placeholder.png');
 
 export const formatRelativeTime = (dateString: string): string => {
+  if (!dateString) return 'N/A';
+
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) return 'N/A';
+
   const now = new Date();
   const diffInMs = now.getTime() - date.getTime();
   const diffInSeconds = Math.floor(diffInMs / 1000);
@@ -113,6 +117,10 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
   const [selectedOrder, setSelectedOrder] = useState<InboxOrder | null>(null);
   const [selectedItem, setSelectedItem] = useState<InboxOrderItem | null>(null);
   const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
+  // Track multiple selected items with their quantities: { OrderItemId: quantity }
+  const [selectedItems, setSelectedItems] = useState<Map<number, number>>(
+    new Map(),
+  );
   const [videoViewerData, setVideoViewerData] = useState<{
     visible: boolean;
     videoUrl: string;
@@ -168,50 +176,140 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
   const isLoading = getInboxOutboxDetails.loading;
 
   const handleItemPress = (orderId: number, itemId: InboxOrderItem) => {
+    if (itemId.Status === 10) {
+      notify.error(getString('INBOX_ITEM_ALREADY_REDEEMED'));
+      return;
+    }
+
     setOrderId(orderId);
     const selectedOrder = orders.find(o => o.OrderId === orderId) as any;
-    setSelectedItem(itemId);
+
+    // Initialize selected items map with all available items from the order
+    const itemsMap = new Map<number, number>();
+    const filteredAvailableItems =
+      selectedOrder?.Items?.filter(
+        (item: InboxOrderItem) =>
+          item.Status !== 10 && item.Quantity - item.UsedQuantity > 0,
+      ) || [];
+    const hasMultipleItems = filteredAvailableItems.length > 1;
+
+    if (selectedOrder?.Items) {
+      selectedOrder.Items.forEach((item: InboxOrderItem) => {
+        if (item.Status !== 10) {
+          const availableQty = item.Quantity - item.UsedQuantity;
+          if (availableQty > 0) {
+            // If only one item, auto-select it. Otherwise, pre-select the clicked item
+            if (!hasMultipleItems) {
+              itemsMap.set(item.OrderItemId, availableQty);
+            } else {
+              itemsMap.set(
+                item.OrderItemId,
+                item.OrderItemId === itemId.OrderItemId ? availableQty : 0,
+              );
+            }
+          }
+        }
+      });
+    }
+
+    setSelectedItems(itemsMap);
     setSelectedOrder(selectedOrder);
-    setSelectedQuantity(itemId.Quantity - itemId.UsedQuantity);
+    setSelectedItem(itemId); // Keep for backward compatibility
+
+    // If there are multiple items, always show bottom sheet
+    if (hasMultipleItems) {
+      setOpenBottomSheet(true);
+      return;
+    }
+
+    // Single item logic
+    const availableQuantity = itemId.Quantity - itemId.UsedQuantity;
+    setSelectedQuantity(availableQuantity);
+
+    // If quantity is 1 and delivery is not enabled, directly call pickup
+    if (availableQuantity === 1 && !selectedOrder?.stores?.IsDeliveryEnabled) {
+      handlePickUpPress();
+      return;
+    }
+
+    // Show bottom sheet for single item with quantity > 1 or delivery enabled
     setOpenBottomSheet(true);
   };
 
   const handleCloseBottomSheet = () => {
     setOpenBottomSheet(false);
+    setSelectedItems(new Map());
   };
 
-  const handleQuantityChange = (type: 'increment' | 'decrement') => {
-    if (!selectedItem) return;
+  const handleQuantityChange = (
+    itemId: number,
+    type: 'increment' | 'decrement',
+    maxQuantity: number,
+  ) => {
+    setSelectedItems(prev => {
+      const newMap = new Map(prev);
+      const currentQty = newMap.get(itemId) || 0;
 
-    if (type === 'increment') {
-      if (
-        selectedQuantity <
-        selectedItem.Quantity - selectedItem.UsedQuantity
-      ) {
-        setSelectedQuantity(prevQuantity => prevQuantity + 1);
+      if (type === 'increment') {
+        if (currentQty < maxQuantity) {
+          newMap.set(itemId, currentQty + 1);
+        }
+      } else {
+        if (currentQty > 0) {
+          newMap.set(itemId, currentQty - 1);
+        }
       }
-    } else {
-      if (selectedQuantity > 1) {
-        setSelectedQuantity(prevQuantity => prevQuantity - 1);
+
+      return newMap;
+    });
+  };
+
+  const handleItemToggle = (itemId: number, maxQuantity: number) => {
+    setSelectedItems(prev => {
+      const newMap = new Map(prev);
+      const currentQty = newMap.get(itemId) || 0;
+
+      if (currentQty > 0) {
+        // Unselect
+        newMap.set(itemId, 0);
+      } else {
+        // Select with max available quantity
+        newMap.set(itemId, maxQuantity);
       }
-    }
+
+      return newMap;
+    });
   };
 
   const handlePickUpPress = async () => {
-    if (!selectedItem || !selectedOrder || !orderId) return;
+    if (!selectedOrder || !orderId) return;
+
+    // Build items array from selected items map
+    const items: Array<{ OrderItemId: number; Quantity: number }> = [];
+    let totalRedeemQuantity = 0;
+
+    selectedItems.forEach((quantity, orderItemId) => {
+      if (quantity > 0) {
+        items.push({
+          OrderItemId: orderItemId,
+          Quantity: quantity,
+        });
+        totalRedeemQuantity += quantity;
+      }
+    });
+
+    if (items.length === 0) {
+      notify.error('Please select at least one item');
+      return;
+    }
 
     try {
       const payload = {
         orderid: orderId,
         orderPaymentType: 1,
         IsRedeem: true,
-        RedeemQuantity: selectedQuantity,
-        Items: [
-          {
-            OrderItemId: selectedItem.OrderItemId,
-            Quantity: selectedQuantity,
-          },
-        ],
+        RedeemQuantity: totalRedeemQuantity,
+        Items: items,
       };
 
       const response = await api.post<any>(apiEndpoints.INIT_ORDER_v2, payload);
@@ -223,7 +321,17 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
         const uniqueCode = data.UniqueCode;
 
         if (responseOrderId && uniqueCode) {
-          const productImage = getMainImage(selectedItem);
+          // Get first selected item for navigation display
+          const firstSelectedItemId = Array.from(selectedItems.keys()).find(
+            id => selectedItems.get(id)! > 0,
+          );
+          const firstSelectedItem = selectedOrder?.Items?.find(
+            item => item.OrderItemId === firstSelectedItemId,
+          );
+
+          const productImage = firstSelectedItem
+            ? getMainImage(firstSelectedItem)
+            : getMainImage(selectedOrder?.Items?.[0] || ({} as InboxOrderItem));
           const storeName = getStoreName(selectedOrder, isRtl);
 
           (navigation as any).navigate('ScanQr', {
@@ -231,7 +339,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
             UniqueCode: uniqueCode,
             productImage,
             storeName,
-            quantity: selectedQuantity,
+            quantity: totalRedeemQuantity,
             productName: selectedOrder?.Items?.[0]?.ItemName,
           });
           setOpenBottomSheet(false);
@@ -320,7 +428,6 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
       const shareOptions = Platform.select({
         ios: {
           message: shareMessage,
-          url: giftLink,
         },
         android: {
           message: shareMessage,
@@ -345,6 +452,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
     selectedOrder,
     selectedItem,
     selectedQuantity,
+    selectedItems,
     videoViewerData,
     videoViewerRef,
     filterMap,
@@ -356,6 +464,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
     handleItemPress,
     handleCloseBottomSheet,
     handleQuantityChange,
+    handleItemToggle,
     handlePickUpPress,
     handleDeliveryPress,
     handleVideoPress,

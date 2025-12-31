@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, StatusBar, FlatList } from 'react-native';
+import { View, StatusBar, FlatList, Linking } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import SkeletonLoader from '../../../components/SkeletonLoader';
@@ -15,6 +15,16 @@ import SearchUserItem from '../../../components/app/SearchUserItem';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import { Text } from '../../../utils/elements';
 import notify from '../../../utils/notify';
+import {
+  getContactsWithPhoneNumbers,
+  ContactInfo,
+} from '../../../utils/contacts';
+
+interface VerifiedUser {
+  PhoneNo: string;
+  IsAppUser: boolean;
+  UserID: number | null;
+}
 
 interface SearchProps extends AppStackScreen<'Search'> {}
 
@@ -40,6 +50,12 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const [tempAddedUserIds, setTempAddedUserIds] = useState<Set<number>>(
     new Set(),
   );
+  const [mobileContacts, setMobileContacts] = useState<ContactInfo[]>([]);
+  const [loadingContacts, setLoadingContacts] = useState(false);
+  const [verifiedUsers, setVerifiedUsers] = useState<
+    Record<string, VerifiedUser>
+  >({});
+  const [verifyingContacts, setVerifyingContacts] = useState(false);
 
   const activeUsersApi = useListingApi<ActiveUser>(
     apiEndpoints.GET_ACTIVE_USERS,
@@ -63,6 +79,121 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       friends: showFriendsOnly,
     });
   }, [showFriendsOnly, user?.UserId]);
+
+  // Load mobile contacts when in connect mode
+  useEffect(() => {
+    if (showConnectOnly) {
+      loadMobileContacts();
+    } else {
+      setMobileContacts([]);
+    }
+  }, [showConnectOnly]);
+
+  // Format phone number with + prefix
+  const formatPhoneNumber = (phone: string): string => {
+    // Remove all non-digit characters except +
+    let cleaned = phone.replace(/[^\d+]/g, '');
+    // Add + if not present
+    if (!cleaned.startsWith('+')) {
+      cleaned = '+' + cleaned;
+    }
+    return cleaned;
+  };
+
+  // Verify users in batches
+  const verifyUsers = async (phoneNumbers: string[]) => {
+    const BATCH_SIZE = 50; // Adjust based on API limits
+    const results: Record<string, VerifiedUser> = {};
+
+    for (let i = 0; i < phoneNumbers.length; i += BATCH_SIZE) {
+      const batch = phoneNumbers.slice(i, i + BATCH_SIZE);
+      try {
+        const response = await api.post<{
+          Data: VerifiedUser[];
+          ResponseCode: number;
+          Success: boolean;
+          ResponseMessage: string;
+        }>(apiEndpoints.VERIFY_USER, {
+          phoneNos: batch,
+        });
+
+        if (response.success && response.data?.Data) {
+          response.data.Data.forEach(user => {
+            results[user.PhoneNo] = user;
+          });
+        }
+      } catch (error: any) {
+        console.error('Error verifying users batch:', error);
+      }
+    }
+
+    return results;
+  };
+
+  const loadMobileContacts = async () => {
+    setLoadingContacts(true);
+    setVerifyingContacts(true);
+    try {
+      const contacts = await getContactsWithPhoneNumbers();
+      setMobileContacts(contacts);
+
+      // Extract and format phone numbers
+      const phoneNumbers = contacts
+        .flatMap(contact => contact.phoneNumbers)
+        .map(formatPhoneNumber)
+        .filter((phone, index, self) => self.indexOf(phone) === index); // Remove duplicates
+
+      // Verify users
+      if (phoneNumbers.length > 0) {
+        const verified = await verifyUsers(phoneNumbers);
+        setVerifiedUsers(verified);
+      }
+    } catch (error) {
+      console.error('Error loading contacts:', error);
+      notify.error(getString('AU_ERROR_OCCURRED'));
+    } finally {
+      setLoadingContacts(false);
+      setVerifyingContacts(false);
+    }
+  };
+
+  const openWhatsApp = async (phoneNumber: string) => {
+    try {
+      const formattedPhone = phoneNumber.replace(/[^\d]/g, ''); // Remove + and other chars
+      const whatsappUrl = `https://wa.me/${formattedPhone}?text=join giftee`;
+
+      const canOpen = await Linking.canOpenURL(whatsappUrl);
+      if (canOpen) {
+        await Linking.openURL(whatsappUrl);
+      } else {
+        notify.error(
+          getString('O_WHATSAPP_NOT_INSTALLED_MESSAGE') ||
+            'WhatsApp is not installed on your device.',
+        );
+      }
+    } catch (error) {
+      notify.error(
+        getString('O_UNABLE_TO_OPEN_WHATSAPP') ||
+          'Unable to open WhatsApp. Please try again.',
+      );
+    }
+  };
+
+  const handleContactAction = async (contact: ActiveUser) => {
+    const phoneNo = contact.PhoneNo;
+    if (!phoneNo) return;
+
+    const formattedPhone = formatPhoneNumber(phoneNo);
+    const verified = verifiedUsers[formattedPhone];
+
+    if (verified?.IsAppUser && verified.UserID) {
+      // User is in app, add as friend
+      await addFriend(verified.UserID);
+    } else {
+      // User not in app, invite via WhatsApp
+      await openWhatsApp(phoneNo);
+    }
+  };
 
   const searchQuery = activeUsersApi.search;
   const setSearchQuery = activeUsersApi.setSearch;
@@ -183,25 +314,119 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
 
       <View style={[styles.content, styles.contentContainer]}>
         <View style={styles.listCard}>
-          {activeUsersApi.loading ? (
+          {activeUsersApi.loading ||
+          (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
             <SkeletonLoader screenType="search" />
           ) : (
             (() => {
-              const filteredData = showConnectOnly
-                ? activeUsersApi.data?.filter(
-                    (user: any) => user.RelationStatus === 2,
-                  )
-                : activeUsersApi?.data;
+              // In connect mode, only show mobile contacts
+              if (showConnectOnly) {
+                // Map mobile contacts to ActiveUser format for display
+                const mappedContacts: ActiveUser[] = mobileContacts.map(
+                  (contact, index) => {
+                    const phoneNo = contact.phoneNumbers[0] || '';
+                    const formattedPhone = formatPhoneNumber(phoneNo);
+                    const verified = verifiedUsers[formattedPhone];
 
+                    return {
+                      UserId:
+                        verified?.IsAppUser && verified.UserID
+                          ? verified.UserID
+                          : -(index + 1), // Negative IDs for non-app users
+                      FullName: contact.name,
+                      PhoneNo: phoneNo,
+                      Email: contact.emails[0] || '',
+                      ProfileUrl: contact.thumbnail || null,
+                      RelationStatus: verified?.IsAppUser ? 2 : 0, // 2 = not friend, 0 = not a user
+                    };
+                  },
+                );
+
+                // Filter contacts by search query if needed
+                const filteredContacts = mappedContacts.filter(contact => {
+                  if (!searchQuery) return true;
+                  const query = searchQuery.toLowerCase();
+                  return (
+                    contact.FullName?.toLowerCase().includes(query) ||
+                    contact.PhoneNo?.includes(query) ||
+                    contact.Email?.toLowerCase().includes(query)
+                  );
+                });
+
+                const isEmpty =
+                  !filteredContacts || filteredContacts.length === 0;
+
+                if (isEmpty) {
+                  return (
+                    <View style={styles.loadingContainer}>
+                      <Text style={styles.loadingText}>
+                        {getString('SEARCH_NO_USERS_FOUND_TO_CONNECT')}
+                      </Text>
+                    </View>
+                  );
+                }
+
+                return (
+                  <FlatList
+                    data={filteredContacts}
+                    keyExtractor={item => item.UserId.toString()}
+                    renderItem={({ item, index }) => {
+                      const phoneNo = item.PhoneNo || '';
+                      const formattedPhone = formatPhoneNumber(phoneNo);
+                      const verified = verifiedUsers[formattedPhone];
+                      const isAppUser = verified?.IsAppUser || false;
+
+                      return (
+                        <SearchUserItem
+                          item={item}
+                          index={index}
+                          isLast={index === (filteredContacts?.length ?? 0) - 1}
+                          updatedUsers={updatedUsers}
+                          loadingUsers={loadingUsers}
+                          handleAddUser={
+                            isAppUser
+                              ? () => handleContactAction(item)
+                              : undefined
+                          }
+                          showAddButton={true}
+                          tempAddedUserIds={tempAddedUserIds}
+                          isGeneralSearchScreen={false}
+                          // Pass custom button text for invite
+                          customButtonText={!isAppUser ? 'Invite' : undefined}
+                          onCustomButtonPress={
+                            !isAppUser
+                              ? () => handleContactAction(item)
+                              : undefined
+                          }
+                        />
+                      );
+                    }}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.listContainer}
+                    ListFooterComponent={
+                      loadingContacts || verifyingContacts ? (
+                        <View style={{ padding: 20, alignItems: 'center' }}>
+                          <Text>
+                            {verifyingContacts
+                              ? 'Verifying contacts...'
+                              : 'Loading contacts...'}
+                          </Text>
+                        </View>
+                      ) : null
+                    }
+                  />
+                );
+              }
+
+              // For other modes, show API users
+              const filteredData = activeUsersApi?.data;
               const isEmpty = !filteredData || filteredData.length === 0;
 
               if (isEmpty) {
                 return (
                   <View style={styles.loadingContainer}>
                     <Text style={styles.loadingText}>
-                      {showConnectOnly
-                        ? getString('SEARCH_NO_USERS_FOUND_TO_CONNECT')
-                        : searchQuery
+                      {searchQuery
                         ? getString('SEARCH_NO_RESULTS_FOUND')
                         : getString('SEARCH_NO_USERS_FOUND')}
                     </Text>

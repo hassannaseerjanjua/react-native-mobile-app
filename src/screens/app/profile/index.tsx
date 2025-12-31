@@ -41,7 +41,7 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import { UpdateProfileApiResponse } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import QRCode from 'react-native-qrcode-svg';
-import { scaleWithMax } from '../../../utils';
+import { scaleWithMax, compressImage, fileUriWrapper } from '../../../utils';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
 import { BlurView } from '@react-native-community/blur';
@@ -66,11 +66,10 @@ const ProfileScreen: React.FC = () => {
   const handleShareGiftLink = async () => {
     try {
       const giftLink = `https://giftee.app/share/${user?.UserId}-${user?.CityId}`;
-      const shareMessage = `🎁 Want to send me a gift? Click the link below.\n\n ${giftLink}`;
+      const shareMessage = `🎁 Want to send me a gift? Click the link below.\n\n${giftLink}`;
       const shareOptions = Platform.select({
         ios: {
           message: shareMessage,
-          url: giftLink,
         },
         android: {
           message: shareMessage,
@@ -98,10 +97,24 @@ const ProfileScreen: React.FC = () => {
         quality: 0.8,
         selectionLimit: 1,
       },
-      response => {
+      async response => {
         if (response.assets && response.assets[0]) {
           const asset = response.assets[0];
-          uploadProfileImage(asset);
+          try {
+            const imageUri = fileUriWrapper(asset.uri || '');
+            const compressedImage = await compressImage(imageUri || '');
+
+            // Create a new asset object with compressed URI
+            const compressedAsset = {
+              ...asset,
+              uri: compressedImage,
+            };
+            uploadProfileImage(compressedAsset);
+          } catch (error) {
+            console.error('Error compressing image:', error);
+            // Fallback to original image if compression fails
+            uploadProfileImage(asset);
+          }
         }
       },
     );
@@ -114,11 +127,9 @@ const ProfileScreen: React.FC = () => {
     formData.append('removePhoto', isRemove);
 
     if (!isRemove && asset) {
+      // The URI is already processed by fileUriWrapper in handleImageSelect
       formData.append('File', {
-        uri:
-          Platform.OS === 'ios'
-            ? asset.uri?.replace('file://', '') || ''
-            : asset.uri || '',
+        uri: asset.uri || '',
         type: asset.type || 'image/jpeg',
         name: asset.fileName || `profile_image_${Date.now()}.jpg`,
       });

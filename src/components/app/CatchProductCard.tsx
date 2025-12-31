@@ -97,13 +97,20 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
             justifyContent: 'space-between',
             flexDirection: 'row',
             alignItems: 'center',
+            position: 'relative',
           }}
         >
           {item.subTitle2 && (
             <Text style={styles.subTitle2}>{item.subTitle2}</Text>
           )}
 
-          <View style={styles.priceContainer}>
+          <View
+            style={{
+              position: 'absolute',
+              end: 0,
+              top: -scaleWithMax(7, 8),
+            }}
+          >
             <SvgGiftClaimIcon />
           </View>
         </View>
@@ -131,14 +138,15 @@ const useStyles = () => {
         width: '100%',
       },
       AddContainer: {
-        ...theme.globalStyles.SHADOW_STYLE,
+        ...theme.globalStyles.SHADOW_STYLE_MEDIUM,
+        overflow: 'visible',
         backgroundColor: colors.WHITE,
         borderRadius: 9999,
         width: scaleWithMax(30, 34),
         height: scaleWithMax(30, 34),
         position: 'absolute',
-        bottom: -10,
-        right: 0,
+        bottom: -scaleWithMax(14, 14),
+        end: 0,
         alignItems: 'center',
         justifyContent: 'center',
       },
@@ -167,6 +175,7 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: '#1A1A1A',
         fontSize: scaleWithMax(12, 13),
+        marginVertical: sizes.HEIGHT * 0.0016,
       },
       subtitle: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,

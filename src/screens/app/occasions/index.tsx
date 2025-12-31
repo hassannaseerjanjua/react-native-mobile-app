@@ -30,10 +30,10 @@ const OccasionsScreen: React.FC = () => {
   const { getString } = useLocaleStore();
   const { user } = useAuthStore();
   const navigation = useNavigation();
-  const [occasionToDelete, setOccasionToDelete] = useState<{
-    id: number;
-    name: string;
-  } | null>(null);
+  const [occasionToDelete, setOccasionToDelete] = useState<Occasion | null>(
+    null,
+  );
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const {
     loading,
     occasionsLoading,
@@ -58,10 +58,12 @@ const OccasionsScreen: React.FC = () => {
   } = useOccasions();
 
   const confirmDeleteOccasion = () => {
-    if (occasionToDelete) {
-      handleDeleteOccasion(occasionToDelete.id);
-      setOccasionToDelete(null);
-    }
+    if (!occasionToDelete) return;
+
+    const occasion = occasionToDelete;
+    setShowDeleteModal(false);
+    handleDeleteOccasion(occasion.OccassionId);
+    setOccasionToDelete(null);
   };
 
   const validationSchema = Yup.object().shape({
@@ -147,12 +149,10 @@ const OccasionsScreen: React.FC = () => {
                     title={item.NameEn}
                     isEditGroup={isEditGroupOpen}
                     onEditPress={() => handleEditPress(item)}
-                    onDeletePress={() =>
-                      setOccasionToDelete({
-                        id: item.OccassionId,
-                        name: item.NameEn,
-                      })
-                    }
+                    onDeletePress={() => {
+                      setOccasionToDelete(item);
+                      setShowDeleteModal(true);
+                    }}
                     onPress={() => handleViewPress(item)}
                     TabItemStyles={styles.TabItem}
                   />
@@ -200,6 +200,7 @@ const OccasionsScreen: React.FC = () => {
                         fieldProps={{
                           placeholder: 'Event Name',
                           value: formik.values.occasionName,
+                          editable: selectedOccasion.occasionType !== 'view',
                           onChangeText: (text: string) => {
                             formik.setFieldValue('occasionName', text, false);
                             formik.setFieldTouched('occasionName', true, false);
@@ -285,6 +286,8 @@ const OccasionsScreen: React.FC = () => {
                         type="primary"
                         buttonStyle={styles.button}
                         onPress={() => formik.handleSubmit()}
+                        loading={loading}
+                        disabled={loading}
                       />
                     )}
                     <DatePicker
@@ -313,13 +316,16 @@ const OccasionsScreen: React.FC = () => {
       )}
 
       <ConfirmationPopup
-        visible={!!occasionToDelete}
+        visible={showDeleteModal}
         title="Delete Occasion"
-        message={`Are you sure you want to delete "${occasionToDelete?.name}"?`}
+        message={`Are you sure you want to delete "${occasionToDelete?.NameEn}"?`}
         confirmText="Delete"
         cancelText={getString('NG_CANCEL') || 'Cancel'}
         onConfirm={confirmDeleteOccasion}
-        onCancel={() => setOccasionToDelete(null)}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setOccasionToDelete(null);
+        }}
       />
     </View>
   );

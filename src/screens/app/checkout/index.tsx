@@ -18,6 +18,7 @@ import {
   PlusIcon,
   SvgEhsanIcon,
   SvgGifteeWalletIcon,
+  SvgGiftLink,
   SvgGiftSentIcon,
   SvgLinkShareIcon,
   SvgRiyalIcon,
@@ -49,6 +50,7 @@ import useGetApi from '../../../hooks/useGetApi';
 import InputField from '../../../components/global/InputField';
 import { getVideoUploadPromise } from '../../../utils/videoUploadState';
 import { useAuthStore } from '../../../store/reducer/auth';
+import SuccessMessage from '../../../components/global/SuccessComponent';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
@@ -363,7 +365,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       const shareOptions = Platform.select({
         ios: {
           message: shareMessage,
-          url: giftLink,
         },
         android: {
           message: shareMessage,
@@ -455,46 +456,21 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
     return (
       <>
-        <View style={styles.checkoutCompletedContainer}>
-          {isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
-          <Text style={styles.TextLarge}>
-            {isSendType2
-              ? 'Gift Link Created'
-              : getString('CHECKOUT_GIFT_SENT')}
-          </Text>
-          <CustomFooter>
-            <View
-              style={{
-                position: 'relative',
-                width: '100%',
-                gap: theme.sizes.HEIGHT * 0.01,
-              }}
-            >
-              {isSendType2 ? (
-                <>
-                  <CustomButton
-                    title="Share Link"
-                    onPress={() => {
-                      if (giftLink) {
-                        handleShareGiftLink(giftLink);
-                      }
-                    }}
-                  />
-                  <CustomButton
-                    title={getString('CHECKOUT_HOME')}
-                    type="secondary"
-                    onPress={() => navigation.dispatch(StackActions.popToTop())}
-                  />
-                </>
-              ) : (
-                <CustomButton
-                  title={getString('CHECKOUT_HOME')}
-                  onPress={() => navigation.dispatch(StackActions.popToTop())}
-                />
-              )}
-            </View>
-          </CustomFooter>
-        </View>
+        <SuccessMessage
+          SuccessLogo={isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
+          SuccessMessage={isSendType2 ? 'Gift Link Created' : 'Gift Delivered'}
+          SuccessSubMessage={!isSendType2 ? 'Your Surprise Has Been Sent' : ''}
+          primaryButtonTitle={
+            isSendType2 ? 'Share Link' : getString('CHECKOUT_HOME')
+          }
+          onSecondaryPress={() => navigation.dispatch(StackActions.popToTop())}
+          secondaryButtonTitle={isSendType2 ? getString('CHECKOUT_HOME') : ''}
+          onPrimaryPress={() =>
+            isSendType2 && giftLink
+              ? handleShareGiftLink(giftLink)
+              : navigation.dispatch(StackActions.popToTop())
+          }
+        />
       </>
     );
   }
@@ -525,14 +501,16 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     );
   }
 
-  const firstItem = cartData.Items[0];
-  const giftImage = firstItem.Images?.[0]?.ImageUrls || firstItem.ThumbnailUrl;
-  const giftImageSource = cartData.FriendImageUrl
-    ? { uri: cartData.FriendImageUrl }
-    : cartData.SendType === 2
-    ? require('../../../assets/images/gift-link.png')
-    : require('../../../assets/images/img-placeholder.png');
+  const giftImageSource =
+    cartData.CampaginType === 3
+      ? cartData.users?.ProfileUrl
+        ? { uri: cartData.users.ProfileUrl }
+        : require('../../../assets/images/img-placeholder.png')
+      : cartData.FriendImageUrl
+      ? { uri: cartData.FriendImageUrl }
+      : require('../../../assets/images/img-placeholder.png');
 
+  console.log('Image Source', giftImageSource);
   return (
     <ParentView>
       <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
@@ -591,25 +569,31 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 flexDirection: rtlFlexDirection(isRtl),
               }}
             >
-              <Image
-                source={giftImageSource}
-                style={
-                  cartData.SendType === 2
-                    ? styles.LinkImage
-                    : styles.GiftContainerImage
-                }
-              />
-              <View style={{ gap: theme.sizes.HEIGHT * 0.004 }}>
-                <Text
-                  style={[styles.TextMedium]}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {cartData.CampaginType === 3
-                    ? cartData.users.FullName
-                    : cartData.FriendName || 'Sending through link'}
-                </Text>
-              </View>
+              {cartData.SendType === 2 ? (
+                <SvgGiftLink
+                  height={scaleWithMax(20, 25)}
+                  width={scaleWithMax(20, 25)}
+                  style={{ paddingVertical: theme.sizes.HEIGHT * 0.02 }}
+                />
+              ) : (
+                <Image
+                  source={giftImageSource}
+                  style={
+                    cartData.SendType === 2
+                      ? styles.LinkImage
+                      : styles.GiftContainerImage
+                  }
+                />
+              )}
+              <Text
+                style={[styles.TextMedium, { width: '90%' }]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {cartData.CampaginType === 3
+                  ? cartData.users.FullName
+                  : cartData.FriendName || 'Sending through link'}
+              </Text>
             </View>
             <View
               style={[

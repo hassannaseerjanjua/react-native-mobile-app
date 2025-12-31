@@ -7,7 +7,7 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 import HomeHeader from '../../../components/global/HomeHeader';
 import TabItem from '../../../components/global/TabItem';
 import { MemberSelectionModal } from '../../../components/send-a-gift';
-import { SvgEditGroup } from '../../../assets/icons';
+import { SvgEditGroup, SvgAddGroup } from '../../../assets/icons';
 import {
   ActiveUser,
   ActiveUsersApiResponse,
@@ -33,9 +33,11 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
   const { getString } = useLocaleStore();
   const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
   const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
+  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const [isViewMembersOpen, setIsViewMembersOpen] = useState(false);
   const [selectedGroup, setSelectedGroup] = useState<GroupData | null>(null);
   const [groupToDelete, setGroupToDelete] = useState<GroupData | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const { user, token } = useAuthStore();
 
@@ -87,6 +89,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
 
   const handleDeleteGroup = (group: GroupData) => {
     setGroupToDelete(group);
+    setShowDeleteModal(true);
   };
 
   const confirmDeleteGroup = () => {
@@ -94,18 +97,22 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
 
     const group = groupToDelete;
 
+    // Close modal immediately
+    setShowDeleteModal(false);
+
     api
       .delete(apiEndpoints.DELETE_GROUP, {
         params: {
           groupId: group.UserGroupId,
         },
       })
-      .then(response => {
+      .then(async response => {
         if (response.success) {
-          setTimeout(() => {
-            setGroupToDelete(null);
-          }, 300);
-
+          setGroupToDelete(null);
+          setIsEditGroupOpen(false);
+          // Clear data immediately to show "New Group" button
+          getGroupsData.setData([]);
+          // Then refresh from API
           getGroupsData.recall();
         } else {
           notify.error(response.error || getString('AU_ERROR_OCCURRED'));
@@ -114,6 +121,15 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
       .catch(error => {
         notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
       });
+  };
+
+  const handleCreateGroup = (
+    selectedMembers: ActiveUser[],
+    groupName?: string,
+    groupImage?: { uri: string; type: string; name: string } | null,
+  ) => {
+    // Refresh data after group creation (handled by MemberSelectionModal)
+    getGroupsData.recall();
   };
 
   const handleSaveGroupMembers = (
@@ -191,10 +207,23 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
             ? ''
             : (getGroupsData?.data || []).length !== 0
             ? getString('STG_EDIT_GROUP')
-            : ''
+            : getString('SG_NEW_GROUP') || 'New Group'
         }
-        rightSideTitlePress={() => setIsEditGroupOpen(true)}
-        rightSideIcon={<SvgEditGroup />}
+        rightSideTitlePress={() => {
+          if ((getGroupsData?.data || []).length !== 0) {
+            setIsEditGroupOpen(true);
+          } else {
+            activeUsersApi.recall();
+            setIsCreateGroupOpen(true);
+          }
+        }}
+        rightSideIcon={
+          (getGroupsData?.data || []).length !== 0 ? (
+            <SvgEditGroup />
+          ) : (
+            <SvgAddGroup />
+          )
+        }
         searchValue={getGroupsData.search}
         onSearchChange={getGroupsData.setSearch}
         searchPlaceholder={getString('STG_SEARCH_GROUP')}
@@ -239,7 +268,12 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
             <View
               style={[
                 styles.content,
-                { justifyContent: 'center', alignItems: 'center', flexGrow: 1 },
+                {
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  flexGrow: 1,
+                  marginBottom: theme.sizes.HEIGHT * 0.125,
+                },
               ]}
             >
               <Text
@@ -310,14 +344,34 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
         ]}
       />
 
+      <MemberSelectionModal
+        visible={isCreateGroupOpen}
+        onClose={() => setIsCreateGroupOpen(false)}
+        existingMembers={[]}
+        onSave={handleCreateGroup}
+        title={getString('NG_ADD_MEMBERS') || 'Add Members'}
+        listings={[
+          {
+            title: getString('NG_TITLE_FRIENDS') || 'Friends',
+            users: activeUsersApi.data || [],
+          },
+        ]}
+        isSendAGift={true}
+      />
+
       <ConfirmationPopup
-        visible={!!groupToDelete}
+        visible={showDeleteModal}
         title={getString('STG_DELETE_GROUP')}
-        message={`${getString('STG_DELETE_GROUP_CONFIRM')} "${groupToDelete?.GroupName}"?`}
+        message={`${getString('STG_DELETE_GROUP_CONFIRM')} "${
+          groupToDelete?.GroupName
+        }"?`}
         confirmText={getString('STG_DELETE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={confirmDeleteGroup}
-        onCancel={() => setGroupToDelete(null)}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setGroupToDelete(null);
+        }}
       />
     </ParentView>
   );

@@ -45,6 +45,7 @@ export interface User {
   ModifiedBy: number | null;
   CityId: number;
   City: string | null;
+  IsBirthdayUpdated: boolean;
 }
 
 export interface LoginApiResponse {
@@ -338,6 +339,7 @@ export interface InboxOrderStore {
   Email: string;
   PhoneNo: string;
   NationalAddress: string | null;
+  IsDeliveryEnabled: boolean;
 }
 
 export interface InboxOrder {

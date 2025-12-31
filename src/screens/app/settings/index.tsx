@@ -118,7 +118,12 @@ const SettingsScreen: React.FC = () => {
     setLoading(true);
 
     const formData = new FormData();
-    const fieldsToUpdate = ['Fullname', 'CityId', 'Dob', 'GenderId'];
+    const fieldsToUpdate = [
+      'Fullname',
+      'CityId',
+      ...(!user?.IsBirthdayUpdated ? ['Dob'] : []),
+      'GenderId',
+    ];
     fieldsToUpdate.forEach(field => {
       if (values[field as keyof typeof values]) {
         formData.append(field, values[field as keyof typeof values]);
@@ -335,7 +340,11 @@ const SettingsScreen: React.FC = () => {
                     </View>
 
                     <View style={styles.inputContainer}>
-                      <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+                      <TouchableOpacity
+                        onPress={() =>
+                          !user?.IsBirthdayUpdated && setShowDatePicker(true)
+                        }
+                      >
                         <InputField
                           icon={
                             <SvgBirthdayIcon width={scaleWithMax(20, 25)} />

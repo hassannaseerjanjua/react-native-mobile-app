@@ -1,5 +1,11 @@
 import React, { useMemo } from 'react';
-import { View, TouchableOpacity, TextInput, StyleSheet } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  TextInput,
+  StyleSheet,
+  ActivityIndicator,
+} from 'react-native';
 import useTheme from '../../styles/theme';
 import { SvgImageIcon, SvgSearchIcon } from '../../assets/icons';
 import fonts from '../../assets/fonts';
@@ -17,6 +23,7 @@ interface BottomSheetHeaderProps {
   onSearchChange?: (text: string) => void;
   rightSideTitle?: string;
   rightSideTitlePress?: () => void;
+  rightSideLoading?: boolean;
   leftSideTitlePress?: () => void;
   isGroup?: boolean;
 }
@@ -31,6 +38,7 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
   onSearchChange,
   rightSideTitle,
   rightSideTitlePress,
+  rightSideLoading = false,
   leftSideTitlePress,
   isGroup,
 }) => {
@@ -54,8 +62,16 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
         </View>
 
         {rightSideTitle && (
-          <TouchableOpacity onPress={rightSideTitlePress}>
-            <Text style={styles.rightSideTitle}>{rightSideTitle}</Text>
+          <TouchableOpacity
+            onPress={rightSideTitlePress}
+            disabled={rightSideLoading}
+            activeOpacity={rightSideLoading ? 1 : 0.7}
+          >
+            {rightSideLoading ? (
+              <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
+            ) : (
+              <Text style={styles.rightSideTitle}>{rightSideTitle}</Text>
+            )}
           </TouchableOpacity>
         )}
       </View>
