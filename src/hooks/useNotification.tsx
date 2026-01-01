@@ -6,10 +6,14 @@ import {
   initializeNotifications,
   displayNotification,
   deleteFCMToken,
+  subscribeToTopic,
+  unsubscribeFromTopic,
 } from '../utils/notificationService';
 import { useAuthStore } from '../store/reducer/auth';
+import { useLocaleStore } from '../store/reducer/locale';
 import api from '../utils/api';
 import apiEndpoints from '../constants/api-endpoints';
+import { getTopicsForLanguage } from '../utils/firebaseTopics';
 
 /**
  * Notification Hook - Logs notification clicks
@@ -17,7 +21,10 @@ import apiEndpoints from '../constants/api-endpoints';
 
 const useNotification = () => {
   const unsubscribeRef = useRef<(() => void) | null>(null);
+  const subscribedTopicsRef = useRef<string[]>([]);
+  const previousLangCodeRef = useRef<string | null>(null);
   const { isAuthenticated, user } = useAuthStore();
+  const { langCode, langId } = useLocaleStore();
 
   // Handle foreground notifications
   const handleForegroundNotification = useCallback(
@@ -74,8 +81,8 @@ const useNotification = () => {
           await api.post(apiEndpoints.SAVE_TOKEN, {
             UserId: user.UserId,
             token,
-            LanguageId: 1, //1 = English , 2= Arabic
-            DeviceType: Platform.OS === 'android' ? 1 : 2, //1 = Andriod , 2= IOS
+            LanguageId: langId, // 1 = English, 2 = Arabic
+            DeviceType: Platform.OS === 'android' ? 1 : 2, // 1 = Android, 2 = iOS
           });
           console.log('FCM Token saved to backend');
         } catch (error) {
@@ -83,7 +90,45 @@ const useNotification = () => {
         }
       }
     },
-    [user?.UserId],
+    [user?.UserId, langId],
+  );
+
+  // Subscribe to Firebase topics based on language and city
+  const subscribeToFirebaseTopics = useCallback(
+    async (currentLangCode: 'en' | 'ar', cityId: number | null) => {
+      try {
+        const topics = getTopicsForLanguage(cityId, currentLangCode);
+        console.log('Subscribing to Firebase topics:', topics);
+
+        // Subscribe to all topics
+        for (const topic of topics) {
+          await subscribeToTopic(topic);
+          console.log(`✅ Subscribed to topic: ${topic}`);
+        }
+
+        subscribedTopicsRef.current = topics;
+      } catch (error) {
+        console.error('Firebase topics subscription error:', error);
+      }
+    },
+    [],
+  );
+
+  // Unsubscribe from Firebase topics
+  const unsubscribeFromFirebaseTopics = useCallback(
+    async (topics: string[]) => {
+      try {
+        console.log('Unsubscribing from Firebase topics:', topics);
+
+        for (const topic of topics) {
+          await unsubscribeFromTopic(topic);
+          console.log(`✅ Unsubscribed from topic: ${topic}`);
+        }
+      } catch (error) {
+        console.error('Firebase topics unsubscription error:', error);
+      }
+    },
+    [],
   );
 
   // Initialize notifications
@@ -99,6 +144,11 @@ const useNotification = () => {
       );
 
       unsubscribeRef.current = result.unsubscribe;
+
+      // Subscribe to Firebase topics based on current language and city
+      const currentLangCode = (langCode as 'en' | 'ar') || 'en';
+      const cityId = user?.CityId || null;
+      await subscribeToFirebaseTopics(currentLangCode, cityId);
 
       // Handle initial notification (app opened from killed state)
       if (result.initialNotification) {
@@ -116,6 +166,9 @@ const useNotification = () => {
     handleNotificationTap,
     handleTokenUpdate,
     user?.UserId,
+    user?.CityId,
+    langCode,
+    subscribeToFirebaseTopics,
   ]);
 
   // Cleanup notifications
@@ -164,6 +217,39 @@ const useNotification = () => {
     return unsubscribe;
   }, []);
 
+  // Handle language changes - unsubscribe from old topics and subscribe to new ones
+  useEffect(() => {
+    if (!isAuthenticated || !user?.CityId) return;
+
+    const currentLangCode = (langCode as 'en' | 'ar') || 'en';
+    const previousLangCode = previousLangCodeRef.current;
+
+    // Only handle language change if language actually changed (skip initial mount)
+    if (previousLangCode && previousLangCode !== currentLangCode) {
+      const previousTopics = subscribedTopicsRef.current;
+
+      if (previousTopics.length > 0) {
+        console.log(
+          `Language changed from ${previousLangCode} to ${currentLangCode}. Updating topics...`,
+        );
+        // Unsubscribe from previous topics
+        unsubscribeFromFirebaseTopics(previousTopics).then(() => {
+          // Subscribe to new topics
+          subscribeToFirebaseTopics(currentLangCode, user.CityId);
+        });
+      }
+    }
+
+    // Update the previous language code ref
+    previousLangCodeRef.current = currentLangCode;
+  }, [
+    langCode,
+    user?.CityId,
+    isAuthenticated,
+    subscribeToFirebaseTopics,
+    unsubscribeFromFirebaseTopics,
+  ]);
+
   // Initialize on mount
   useEffect(() => {
     initNotifications();
@@ -176,9 +262,15 @@ const useNotification = () => {
   // Cleanup on logout
   useEffect(() => {
     if (!isAuthenticated) {
+      // Unsubscribe from all topics before cleanup
+      if (subscribedTopicsRef.current.length > 0) {
+        unsubscribeFromFirebaseTopics(subscribedTopicsRef.current).then(() => {
+          subscribedTopicsRef.current = [];
+        });
+      }
       cleanup();
     }
-  }, [isAuthenticated, cleanup]);
+  }, [isAuthenticated, cleanup, unsubscribeFromFirebaseTopics]);
 };
 
 export default useNotification;
