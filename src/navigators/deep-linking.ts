@@ -5,7 +5,11 @@ import {
 } from '../types/navigation.types';
 
 export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
-  prefixes: ['giftee://', 'https://giftee.app'],
+  prefixes: [
+    'giftee://',
+    'https://giftee.app',
+    'https://admin.giftee.hostinger.bitscollision.net',
+  ],
   config: {
     screens: {
       // Auth screens

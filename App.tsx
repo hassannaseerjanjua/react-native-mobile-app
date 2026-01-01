@@ -1,5 +1,8 @@
-import { NavigationContainer } from '@react-navigation/native';
-import React, { useEffect } from 'react';
+import {
+  NavigationContainer,
+  NavigationContainerRef,
+} from '@react-navigation/native';
+import React, { useEffect, useRef } from 'react';
 import RootNavigator from './src/navigators/stack.navigator';
 import BootSplash from 'react-native-bootsplash';
 import { Provider } from 'react-redux';
@@ -14,7 +17,13 @@ import { I18nManager } from 'react-native';
 import { linking } from './src/navigators/deep-linking';
 import Toast from 'react-native-toast-message';
 import useNotification from './src/hooks/useNotification';
+import useDeepLinkHandler from './src/hooks/useDeepLinkHandler';
 import { getContacts } from './src/utils/contacts';
+import { AppStackParamList } from './src/types/navigation.types';
+
+// Navigation ref for programmatic navigation
+export const navigationRef =
+  React.createRef<NavigationContainerRef<AppStackParamList>>();
 
 const App = () => {
   return (
@@ -23,6 +32,7 @@ const App = () => {
         <PersistGate loading={null} persistor={persistor}>
           <DataWrapper>
             <NavigationContainer
+              ref={navigationRef}
               linking={linking}
               fallback={<Text>Loading... Please wait...</Text>}
             >
@@ -47,6 +57,7 @@ const DataWrapper = ({ children }: { children: React.ReactNode }) => {
   const { strings, isRtl } = useLocaleStore();
 
   useNotification();
+  useDeepLinkHandler();
 
   if (isRtl !== I18nManager.isRTL) {
     I18nManager.forceRTL(isRtl);
