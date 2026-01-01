@@ -65,6 +65,7 @@ export interface ActiveUser {
   CityId?: number;
   RelationStatus: number;
   IsVerified: boolean;
+  OrdersCount?: number | null;
 }
 
 export interface ActiveUsersApiResponse {

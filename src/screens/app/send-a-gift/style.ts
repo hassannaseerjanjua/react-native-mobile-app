@@ -19,7 +19,7 @@ const useStyles = () => {
       listCard: {
         backgroundColor: colors.WHITE,
         borderRadius: 16,
-        marginBottom: sizes.HEIGHT * 0.24,
+        // marginBottom: sizes.HEIGHT * 0.24,
         ...theme.globalStyles.SHADOW_STYLE,
       },
       listContainer: {

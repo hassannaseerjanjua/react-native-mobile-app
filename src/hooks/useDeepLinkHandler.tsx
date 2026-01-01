@@ -5,15 +5,90 @@ import api from '../utils/api';
 import apiEndpoints from '../constants/api-endpoints';
 import { navigationRef } from '../../App';
 import { AppStackParamList } from '../types/navigation.types';
+import { useAuthStore } from '../store/reducer/auth';
+import { useLocaleStore } from '../store/reducer/locale';
+import notify from '../utils/notify';
+
+// Global ref to track processed URLs across component lifecycle
+const processedUrls = new Set<string>();
 
 /**
- * Hook to handle redeem-gift deep links
- * Extracts gifttoken from URL and calls GET_GIFT_DETAILS API
+ * Hook to handle deep links (redeem-gift and add-friend)
  */
 const useDeepLinkHandler = () => {
   const initialUrlProcessedRef = useRef(false);
+  const isProcessingAddFriendRef = useRef(false);
+  const { user } = useAuthStore();
+  const { getString } = useLocaleStore();
 
   useEffect(() => {
+    // Validate and extract userId from URL for add-friend
+    const parseAddFriendUrl = (url: string): string | null => {
+      if (!url || !url.includes('add-friend/')) return null;
+
+      try {
+        const parts = url.split('add-friend/');
+        if (parts.length < 2) return null;
+
+        const userId = parts[1]?.split('?')[0]?.split('/')[0]?.trim();
+
+        // Validate userId is a valid number
+        if (!userId || isNaN(Number(userId)) || Number(userId) <= 0) {
+          return null;
+        }
+
+        return userId;
+      } catch {
+        return null;
+      }
+    };
+
+    // Handle add-friend deep link
+    const handleAddFriendUrl = async (url: string) => {
+      // Prevent concurrent processing
+      if (isProcessingAddFriendRef.current) return;
+
+      // Check if already processed
+      if (processedUrls.has(url)) return;
+
+      const userId = parseAddFriendUrl(url);
+
+      // Invalid or malformed URL
+      if (!userId) {
+        if (url.includes('add-friend')) {
+          notify.error(getString('HOME_INVALID_QR_CODE'), 'top');
+        }
+        processedUrls.add(url); // Mark as processed to prevent retries
+        return;
+      }
+
+      // No logged in user
+      if (!user?.UserId) {
+        return;
+      }
+
+      // Mark as processing and processed
+      isProcessingAddFriendRef.current = true;
+      processedUrls.add(url);
+
+      try {
+        const response = await api.post(apiEndpoints.ADD_FRIEND(user.UserId), {
+          friendUserId: Number(userId),
+        });
+
+        if (response.success) {
+          notify.success(getString('HOME_FRIEND_ADDED_SUCCESSFULLY'), 'top');
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'), 'top');
+        }
+      } catch (err: any) {
+        notify.error(err?.error || getString('AU_ERROR_OCCURRED'), 'top');
+      } finally {
+        isProcessingAddFriendRef.current = false;
+      }
+    };
+
+    // Handle redeem-gift deep link
     const handleRedeemGiftUrl = async (url: string) => {
       try {
         console.log('='.repeat(60));
@@ -112,23 +187,31 @@ const useDeepLinkHandler = () => {
     if (!initialUrlProcessedRef.current) {
       initialUrlProcessedRef.current = true;
       Linking.getInitialURL().then(url => {
-        if (url && url.includes('/giftee/redeem-gift')) {
-          handleRedeemGiftUrl(url);
+        if (url) {
+          if (url.includes('/giftee/redeem-gift')) {
+            handleRedeemGiftUrl(url);
+          } else if (url.includes('add-friend/')) {
+            handleAddFriendUrl(url);
+          }
         }
       });
     }
 
     // Handle URL events (foreground + background to foreground)
     const subscription = Linking.addEventListener('url', ({ url }) => {
-      if (url && url.includes('/giftee/redeem-gift')) {
-        handleRedeemGiftUrl(url);
+      if (url) {
+        if (url.includes('/giftee/redeem-gift')) {
+          handleRedeemGiftUrl(url);
+        } else if (url.includes('add-friend/')) {
+          handleAddFriendUrl(url);
+        }
       }
     });
 
     return () => {
       subscription.remove();
     };
-  }, []);
+  }, [user?.UserId, getString]);
 };
 
 export default useDeepLinkHandler;
