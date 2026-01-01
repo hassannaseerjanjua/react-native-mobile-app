@@ -102,6 +102,12 @@ export type AppStackParamList = {
     storeName?: string;
     quantity?: number;
     productName?: string;
+    selectedItems?: Array<{
+      OrderItemId: number;
+      ItemName: string;
+      ItemImage: any;
+      Quantity: number;
+    }>;
   };
   Occasions: undefined;
   SelectCity: {

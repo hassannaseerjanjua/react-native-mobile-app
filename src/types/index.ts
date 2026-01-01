@@ -449,6 +449,17 @@ export interface StoreListApiResponse {
 }
 
 export interface StoreProduct {
+  Campaign: {
+    CampaignId: number;
+    Type: number;
+    Percentage: number;
+    StartDate: string;
+    EndDate: string;
+    IsLifeTime: boolean;
+    IsAllItems: boolean;
+    IsCustomUsers: boolean;
+    IsVerifiedUsers: boolean;
+  };
   isFavourite: boolean;
   CategoryNameEn: string;
   CategoryNameAr: string;

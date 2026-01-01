@@ -111,13 +111,11 @@ export const getItemName = (order: InboxOrder): string => {
 export const useInboxOutboxActions = (isInbox: boolean = true) => {
   const navigation = useNavigation();
   const { isRtl, getString } = useLocaleStore();
-  const { user } = useAuthStore();
   const [openBottomSheet, setOpenBottomSheet] = useState(false);
   const [orderId, setOrderId] = useState<number | null>(null);
   const [selectedOrder, setSelectedOrder] = useState<InboxOrder | null>(null);
   const [selectedItem, setSelectedItem] = useState<InboxOrderItem | null>(null);
   const [selectedQuantity, setSelectedQuantity] = useState<number>(1);
-  // Track multiple selected items with their quantities: { OrderItemId: quantity }
   const [selectedItems, setSelectedItems] = useState<Map<number, number>>(
     new Map(),
   );
@@ -176,15 +174,17 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
   const isLoading = getInboxOutboxDetails.loading;
 
   const handleItemPress = (orderId: number, itemId: InboxOrderItem) => {
-    if (itemId.Status === 10) {
-      notify.error(getString('INBOX_ITEM_ALREADY_REDEEMED'));
-      return;
-    }
-
     setOrderId(orderId);
     const selectedOrder = orders.find(o => o.OrderId === orderId) as any;
 
-    // Initialize selected items map with all available items from the order
+    const allItemsRedeemed =
+      selectedOrder?.Items &&
+      selectedOrder.Items.every((item: InboxOrderItem) => item.Status === 10);
+
+    if (allItemsRedeemed) {
+      notify.error(getString('INBOX_ITEM_ALREADY_REDEEMED'));
+      return;
+    }
     const itemsMap = new Map<number, number>();
     const filteredAvailableItems =
       selectedOrder?.Items?.filter(
@@ -198,7 +198,6 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
         if (item.Status !== 10) {
           const availableQty = item.Quantity - item.UsedQuantity;
           if (availableQty > 0) {
-            // If only one item, auto-select it. Otherwise, pre-select the clicked item
             if (!hasMultipleItems) {
               itemsMap.set(item.OrderItemId, availableQty);
             } else {
@@ -214,25 +213,27 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
 
     setSelectedItems(itemsMap);
     setSelectedOrder(selectedOrder);
-    setSelectedItem(itemId); // Keep for backward compatibility
+    setSelectedItem(itemId);
 
-    // If there are multiple items, always show bottom sheet
     if (hasMultipleItems) {
       setOpenBottomSheet(true);
       return;
     }
 
-    // Single item logic
     const availableQuantity = itemId.Quantity - itemId.UsedQuantity;
     setSelectedQuantity(availableQuantity);
 
-    // If quantity is 1 and delivery is not enabled, directly call pickup
     if (availableQuantity === 1 && !selectedOrder?.stores?.IsDeliveryEnabled) {
-      handlePickUpPress();
+      const itemsArray = [
+        {
+          OrderItemId: itemId.OrderItemId,
+          Quantity: availableQuantity,
+        },
+      ];
+      handlePickUpPress(itemsArray, orderId, selectedOrder);
       return;
     }
 
-    // Show bottom sheet for single item with quantity > 1 or delivery enabled
     setOpenBottomSheet(true);
   };
 
@@ -281,22 +282,75 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
     });
   };
 
-  const handlePickUpPress = async () => {
-    if (!selectedOrder || !orderId) return;
+  const handlePickUpPress = async (
+    overrideItems?: Array<{ OrderItemId: number; Quantity: number }>,
+    overrideOrderId?: number,
+    overrideSelectedOrder?: InboxOrder | null,
+  ) => {
+    // Use override values if provided, otherwise use state
+    const currentOrderId = overrideOrderId ?? orderId;
+    const currentSelectedOrder = overrideSelectedOrder ?? selectedOrder;
 
-    // Build items array from selected items map
+    if (!currentSelectedOrder || !currentOrderId) {
+      notify.error('Order information is missing');
+      return;
+    }
+
+    const allItemsRedeemed =
+      currentSelectedOrder?.Items &&
+      currentSelectedOrder.Items.every(
+        (item: InboxOrderItem) => item.Status === 10,
+      );
+
+    if (allItemsRedeemed) {
+      notify.error(getString('INBOX_ITEM_ALREADY_REDEEMED'));
+      return;
+    }
+
     const items: Array<{ OrderItemId: number; Quantity: number }> = [];
     let totalRedeemQuantity = 0;
 
-    selectedItems.forEach((quantity, orderItemId) => {
-      if (quantity > 0) {
-        items.push({
-          OrderItemId: orderItemId,
-          Quantity: quantity,
-        });
-        totalRedeemQuantity += quantity;
+    const isEventObject =
+      overrideItems &&
+      typeof overrideItems === 'object' &&
+      'nativeEvent' in overrideItems;
+
+    if (overrideItems && !isEventObject && Array.isArray(overrideItems)) {
+      items.push(...overrideItems);
+      totalRedeemQuantity = overrideItems.reduce(
+        (sum, item) => sum + item.Quantity,
+        0,
+      );
+    } else {
+      // Build from selectedItems state
+      selectedItems.forEach((quantity, orderItemId) => {
+        if (quantity > 0) {
+          items.push({
+            OrderItemId: orderItemId,
+            Quantity: quantity,
+          });
+          totalRedeemQuantity += quantity;
+        }
+      });
+
+      if (items.length === 0 && currentSelectedOrder?.Items) {
+        const availableItems = currentSelectedOrder.Items.filter(
+          (item: InboxOrderItem) =>
+            item.Status !== 10 && item.Quantity - item.UsedQuantity > 0,
+        );
+        if (availableItems.length > 0) {
+          if (availableItems.length === 1) {
+            const item = availableItems[0];
+            const availableQty = item.Quantity - item.UsedQuantity;
+            items.push({
+              OrderItemId: item.OrderItemId,
+              Quantity: availableQty,
+            });
+            totalRedeemQuantity = availableQty;
+          }
+        }
       }
-    });
+    }
 
     if (items.length === 0) {
       notify.error('Please select at least one item');
@@ -305,7 +359,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
 
     try {
       const payload = {
-        orderid: orderId,
+        orderid: currentOrderId,
         orderPaymentType: 1,
         IsRedeem: true,
         RedeemQuantity: totalRedeemQuantity,
@@ -321,18 +375,34 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
         const uniqueCode = data.UniqueCode;
 
         if (responseOrderId && uniqueCode) {
-          // Get first selected item for navigation display
-          const firstSelectedItemId = Array.from(selectedItems.keys()).find(
-            id => selectedItems.get(id)! > 0,
-          );
-          const firstSelectedItem = selectedOrder?.Items?.find(
+          const firstSelectedItemId = overrideItems
+            ? overrideItems[0]?.OrderItemId
+            : Array.from(selectedItems.keys()).find(
+                id => selectedItems.get(id)! > 0,
+              ) || items[0]?.OrderItemId;
+          const firstSelectedItem = currentSelectedOrder?.Items?.find(
             item => item.OrderItemId === firstSelectedItemId,
           );
 
           const productImage = firstSelectedItem
             ? getMainImage(firstSelectedItem)
-            : getMainImage(selectedOrder?.Items?.[0] || ({} as InboxOrderItem));
-          const storeName = getStoreName(selectedOrder, isRtl);
+            : getMainImage(
+                currentSelectedOrder?.Items?.[0] || ({} as InboxOrderItem),
+              );
+          const storeName = getStoreName(currentSelectedOrder, isRtl);
+
+          // Build selected items array for navigation
+          const selectedItemsForNav = items.map(item => {
+            const orderItem = currentSelectedOrder?.Items?.find(
+              oi => oi.OrderItemId === item.OrderItemId,
+            );
+            return {
+              OrderItemId: item.OrderItemId,
+              ItemName: orderItem?.ItemName || '',
+              ItemImage: orderItem ? getMainImage(orderItem) : productImage,
+              Quantity: item.Quantity,
+            };
+          });
 
           (navigation as any).navigate('ScanQr', {
             OrderId: responseOrderId,
@@ -340,7 +410,8 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
             productImage,
             storeName,
             quantity: totalRedeemQuantity,
-            productName: selectedOrder?.Items?.[0]?.ItemName,
+            productName: currentSelectedOrder?.Items?.[0]?.ItemName,
+            selectedItems: selectedItemsForNav,
           });
           setOpenBottomSheet(false);
         } else {
@@ -422,8 +493,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
       const data = responseData.Data;
       const giftLink = data.GiftLink;
 
-      const senderName = user?.FullNameEn || user?.FullNameAr || 'Someone';
-      const shareMessage = `💝 You have received a gift from ${senderName}. Click on the link below to redeem the gift.\n\n${giftLink}`;
+      const shareMessage = `💝 You have received a gift. Click on the link below to redeem the gift.\n\n${giftLink}`;
 
       const shareOptions = Platform.select({
         ios: {

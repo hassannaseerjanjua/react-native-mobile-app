@@ -38,12 +38,18 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [quantity, setQuantity] = useState<number>(1);
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [item, setItem] = useState<any>(null);
+  const sendType = route?.params?.sendType ?? null;
+  const isSendAGiftFlow = sendType !== null && sendType !== undefined;
+  const campaignId = route?.params?.campaignId ?? null;
 
+  console.log('campaignId', campaignId);
   const itemApi = useGetApi<StoreProduct>(
-    apiEndpoints.GET_STORE_ITEM_BY_ID(
-      itemId,
-      route.params.type === 'GiftOneGetOne',
-    ),
+    isSendAGiftFlow
+      ? apiEndpoints.GET_SEND_A_GIFT_ITEM_BY_ID(itemId, !!campaignId)
+      : apiEndpoints.GET_STORE_ITEM_BY_ID(
+          itemId,
+          route.params.type === 'GiftOneGetOne',
+        ),
     {
       transformData: (data: any) => data?.Data ?? null,
     },

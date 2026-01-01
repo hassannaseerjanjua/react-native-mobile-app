@@ -326,7 +326,7 @@ const ProfileScreen: React.FC = () => {
           <View style={screenStyles.profileInfo}>
             <View style={screenStyles.verifiedIconContainer}>
               <Text style={screenStyles.profileName}>{user?.FullNameEn}</Text>{' '}
-              {true && <SvgVerifiedIcon />}
+              {user?.IsVerified && <SvgVerifiedIcon />}
             </View>
             <Text style={screenStyles.profileUsername}>{user?.UserName}</Text>
           </View>
@@ -407,7 +407,7 @@ const ProfileScreen: React.FC = () => {
                     size={scaleWithMax(220, 250)}
                     color={theme.colors.PRIMARY}
                     backgroundColor={theme.colors.WHITE}
-                    ecl="Q"
+                    ecl="H"
                   />
                 ) : (
                   <View

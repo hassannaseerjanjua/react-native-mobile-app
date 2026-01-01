@@ -71,9 +71,12 @@ const apiEndpoints = {
   // ============================================
 
   GET_STORE_LIST: `/${version}/Panel/GetAllActiveStores`,
-  GET_STORE_DETAIL: `/${version}/Panel/GetAllItems`, // itemId?: number, isCampaign?: boolean - Item ID and campaign flag (both optional)
+  GET_STORE_DETAIL: `/${version}/Panel/GetAllItems`,
+  GET_SEND_A_GIFT_ITEMS: `/${version}/User/GetAllItemsListingForApp`, // itemId?: number, isCampaign?: boolean - Item ID and campaign flag (both optional)
   GET_STORE_ITEM_BY_ID: (itemId?: number, isCampaign?: boolean) =>
     `/${version}/Panel/GetItemById?itemId=${itemId}&isCampaign=${isCampaign}`,
+  GET_SEND_A_GIFT_ITEM_BY_ID: (itemId?: number, isCampaign?: boolean) =>
+    `/${version}/User/GetItemByIdV2?itemId=${itemId}&isCampaign=${isCampaign}`,
   GET_BUSINESS_TYPE: `/${version}/Panel/GetBusinessTypesForPanel`,
   GET_CATEGORIES: (businessTypeId?: any, storeId?: any) =>
     `/${version}/Panel/GetCategoriesForPanel?isApp=true&businessTypeId=${businessTypeId}&storeId=${storeId}`,

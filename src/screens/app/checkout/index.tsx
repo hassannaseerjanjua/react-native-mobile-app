@@ -51,6 +51,7 @@ import InputField from '../../../components/global/InputField';
 import { getVideoUploadPromise } from '../../../utils/videoUploadState';
 import { useAuthStore } from '../../../store/reducer/auth';
 import SuccessMessage from '../../../components/global/SuccessComponent';
+import TabItem from '../../../components/global/TabItem';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
@@ -554,71 +555,56 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           ))}
         </View>
 
-        {/* {cartData.FriendId && ( */}
         <View style={styles.section}>
           <Text style={styles.heading}>
             {getString('CHECKOUT_SEND_A_GIFT')}
           </Text>
-          <View style={styles.GiftContainer}>
-            <View
-              style={{
-                ...styles.row,
-                flex: 1,
-                gap: theme.sizes.WIDTH * 0.025,
-                flexDirection: rtlFlexDirection(isRtl),
-              }}
-            >
-              {cartData.SendType === 2 ? (
-                <SvgGiftLink
-                  height={scaleWithMax(20, 25)}
-                  width={scaleWithMax(20, 25)}
-                  style={{ paddingVertical: theme.sizes.HEIGHT * 0.02 }}
-                />
-              ) : (
-                <Image
-                  source={giftImageSource}
-                  style={
-                    cartData.SendType === 2
-                      ? styles.LinkImage
-                      : styles.GiftContainerImage
-                  }
-                />
-              )}
-              <Text
-                style={[styles.TextMedium, { width: '90%' }]}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {cartData.CampaginType === 3
+          <View style={[styles.tabContainer]}>
+            <TabItem
+              isGroupImage={
+                cartData.CampaginType === 3
+                  ? cartData.users.ProfileUrl
+                  : cartData.FriendImageUrl
+              }
+              title={
+                cartData.CampaginType === 3
                   ? cartData.users.FullName
-                  : cartData.FriendName || 'Sending through link'}
-              </Text>
-            </View>
-            <View
-              style={[
-                styles.row,
-                {
-                  gap: theme.sizes.WIDTH * 0.025,
-                  flexDirection: rtlFlexDirection(isRtl),
-                },
-              ]}
-            >
-              <GiftIcon />
-              <TouchableOpacity
-                onPress={() => {
-                  (navigation as any).navigate('GiftMessage', {
-                    friendUserId: cartData.FriendId,
-                    storeBranchId: cartData.StoreBranchId,
-                    orderId: cartData.OrderId,
-                  });
-                }}
-              >
-                <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
-              </TouchableOpacity>
-            </View>
+                  : cartData.FriendName || 'Sending through link'
+              }
+              TabTextStyles={{
+                ...styles.TextMedium,
+                maxWidth: '90%',
+              }}
+              onPress={() => {}}
+              isLink={cartData.SendType === 2}
+              hideRightIcon={true}
+              rightSideView={
+                <View
+                  style={[
+                    styles.row,
+                    {
+                      gap: theme.sizes.WIDTH * 0.025,
+                      flexDirection: rtlFlexDirection(isRtl),
+                    },
+                  ]}
+                >
+                  <GiftIcon />
+                  <TouchableOpacity
+                    onPress={() => {
+                      (navigation as any).navigate('GiftMessage', {
+                        friendUserId: cartData.FriendId,
+                        storeBranchId: cartData.StoreBranchId,
+                        orderId: cartData.OrderId,
+                      });
+                    }}
+                  >
+                    <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+                  </TouchableOpacity>
+                </View>
+              }
+            />
           </View>
         </View>
-        {/* )} */}
 
         <View style={styles.section}>
           <View

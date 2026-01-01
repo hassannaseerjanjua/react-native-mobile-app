@@ -3,7 +3,7 @@ import { Colors } from './colors';
 import { Sizes } from './sizes';
 import { useMemo } from 'react';
 import fonts from '../assets/fonts';
-import { isAndroid } from '../utils';
+import { isAndroid, scaleWithMax } from '../utils';
 
 export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
   return useMemo(
@@ -80,6 +80,9 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
         BORDER_BOTTOM_NORMAL: {
           borderBottomWidth: 0.7,
           borderBottomColor: '#EEEEEE',
+        },
+        BUTTON_TAB_TFIELD_HEIGHT: {
+          height: scaleWithMax(45, 50),
         },
       }),
     [colors, sizes],

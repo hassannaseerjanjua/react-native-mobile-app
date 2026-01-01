@@ -143,7 +143,12 @@ const useStyles = () => {
         marginHorizontal: sizes.PADDING,
         gap: sizes.HEIGHT * 0.008,
       },
+      tabContainer: {
+        marginBottom: sizes.HEIGHT * 0.018,
+        height: sizes.HEIGHT * 0.05,
+      },
     }),
+
     theme,
   };
 };

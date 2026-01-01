@@ -42,8 +42,8 @@ const CustomButton = ({
   const colors = theme.colors;
 
   const baseStyle: ViewStyle = {
+    ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
     width: '100%',
-    height: scaleWithMax(45, 50),
     borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',

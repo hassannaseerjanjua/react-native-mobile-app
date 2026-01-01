@@ -227,7 +227,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           >
             <TabItem
               title={getString('SG_SEND_THROUGH_LINK')}
-              // onPress={handleShareGiftLink}
+              TabTextStyles={{
+                color: theme.colors.PRIMARY,
+                maxWidth: '90%',
+              }}
               onPress={() => {
                 navigation.navigate('SelectCity', {
                   sendType: 2,

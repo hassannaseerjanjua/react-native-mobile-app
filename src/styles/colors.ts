@@ -1,12 +1,14 @@
 import { useColorScheme } from 'react-native';
 
 const defaultColors = {
+  //App Colors
+  PRIMARY: '#F72E50',
+  SECONDARY: '#FFDDE3',
+
   BACKGROUND: '#ffffff',
   HOME_BACKGROUND: '#fcfcfc',
   GRADIENT_COLOR: '#DCEDFD',
-  PRIMARY: '#F08080',
   PRIMARY_TEXT: '#313131',
-  SECONDARY: '#FEECDC',
   SECONDARY_TEXT: '#A0A0A0',
   UNDERLINE: '#C6C6C6',
   BORDER_COLOR: '#ECECEC',

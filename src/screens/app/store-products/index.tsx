@@ -47,6 +47,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const friendName = route.params?.friendName ?? null;
   const storeId = route.params?.storeId ?? null;
   const businessTypeId = route.params?.businessTypeId ?? null;
+  const sendType = route.params?.sendType ?? null;
+  const isSendAGiftFlow = sendType !== null && sendType !== undefined;
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
@@ -69,7 +71,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   );
 
   const getStoreProducts = useListingApi<StoreProduct>(
-    apiEndpoints.GET_STORE_DETAIL,
+    isSendAGiftFlow
+      ? apiEndpoints.GET_SEND_A_GIFT_ITEMS
+      : apiEndpoints.GET_STORE_DETAIL,
     token,
     {
       transformData: (data: any) => {
@@ -161,6 +165,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         storeId: product.StoreId ?? storeId,
         friendUserId,
         sendType: route.params.sendType,
+        campaignId: product.Campaign.CampaignId,
       });
     } else {
       (navigation as any).navigate('ProductDetails', {

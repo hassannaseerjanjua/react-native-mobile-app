@@ -32,6 +32,7 @@ interface TabItemProps {
   onEditPress?: () => void;
   icon?: React.ReactNode;
   hideRightIcon?: boolean;
+  rightSideView?: React.ReactNode;
 }
 
 const TabItem = ({
@@ -46,6 +47,7 @@ const TabItem = ({
   onEditPress,
   icon,
   hideRightIcon,
+  rightSideView,
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
   const { isRtl } = useLocaleStore();
@@ -68,7 +70,7 @@ const TabItem = ({
         ) : (
           isGroupImage === '' && <SvgGroup />
         )}
-        {isLink && <SvgGiftLink height={scaleWithMax(20, 25)} width={scaleWithMax(20, 25)} />}
+        {isLink && <SvgGiftLink />}
         {icon && icon}
         <Text
           style={[styles.titleText, TabTextStyles]}
@@ -78,6 +80,7 @@ const TabItem = ({
           {title}
         </Text>
       </View>
+      {rightSideView && rightSideView}
       {isEditGroup ? (
         <>
           <View style={styles.editGroupContainer}>

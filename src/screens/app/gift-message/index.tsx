@@ -962,7 +962,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 alignItems: 'center',
               }}
             >
-              <ActivityIndicator size="large" color="#F08080" />
+              <ActivityIndicator size="large" color="#F72E50" />
               <Text style={{ color: '#FFF', marginTop: 16 }}>
                 Loading Camera...
               </Text>

@@ -129,6 +129,7 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         fontSize: sizes.FONTSIZE_SMALL_HEADING,
         color: theme.colors.BLACK,
+        maxWidth: '85%',
         // flex: 1,
         marginRight: sizes.PADDING * 0.5,
       },

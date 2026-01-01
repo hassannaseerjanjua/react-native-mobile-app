@@ -106,8 +106,8 @@ const useStyles = () => {
     const { colors, sizes, globalStyles } = theme;
     return StyleSheet.create({
       container: {
+        ...globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
         width: '100%',
-        height: scaleWithMax(45, 50),
         borderRadius: sizes.BORDER_RADIUS,
         flexDirection: 'row',
         paddingHorizontal: sizes.PADDING,

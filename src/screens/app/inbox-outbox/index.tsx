@@ -84,30 +84,29 @@ const InboxOutbox: React.FC = () => {
 
   return (
     <ParentView>
-      {isInbox && (
-        <View
+      <View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: theme.sizes.HEIGHT * 0.35,
+          zIndex: 0,
+          overflow: 'hidden',
+        }}
+      >
+        <LinearGradient
+          colors={['#FFDDE3', '#FFFFFF']}
+          locations={[0.0005, 0.8847]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
           style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            right: 0,
-            height: theme.sizes.HEIGHT * 0.35,
-            zIndex: 0,
-            overflow: 'hidden',
+            flex: 1,
+            width: '100%',
           }}
-        >
-          <LinearGradient
-            colors={['#FEECDC', '#FFFFFF']}
-            locations={[0.0005, 0.8847]}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-            style={{
-              flex: 1,
-              width: '100%',
-            }}
-          />
-        </View>
-      )}
+        />
+      </View>
+
       <View style={{ zIndex: 1, backgroundColor: 'transparent' }}>
         <HomeHeader
           showBackButton
@@ -116,9 +115,9 @@ const InboxOutbox: React.FC = () => {
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={getString('HOME_SEARCH')}
-          customContainerStyle={
-            isInbox ? { backgroundColor: 'transparent' } : undefined
-          }
+          customContainerStyle={{
+            backgroundColor: 'transparent',
+          }}
         />
       </View>
       {isLoading ? (
@@ -194,6 +193,18 @@ const InboxOutbox: React.FC = () => {
               100 + availableCount * 100,
             );
           }
+
+          // Check if single item has multiple quantity (needs quantity selector)
+          if (availableCount === 1) {
+            const singleItem = availableItems[0];
+            const availableQuantity =
+              singleItem.Quantity - singleItem.UsedQuantity;
+            if (availableQuantity > 1) {
+              // Increase height for quantity selector
+              return theme.sizes.HEIGHT * 0.22;
+            }
+          }
+
           return theme.sizes.HEIGHT * 0.35;
         })()}
         snapPoints={(() => {
@@ -202,12 +213,31 @@ const InboxOutbox: React.FC = () => {
               item =>
                 item.Status !== 10 && item.Quantity - item.UsedQuantity > 0,
             ) || [];
-          return availableItems.length > 1 ? ['70%'] : ['35%'];
+          const availableCount = availableItems.length;
+
+          if (availableCount > 1) {
+            return ['75%'];
+          }
+
+          // Check if single item has multiple quantity
+          if (availableCount === 1) {
+            const singleItem = availableItems[0];
+            const availableQuantity =
+              singleItem.Quantity - singleItem.UsedQuantity;
+            if (availableQuantity > 1) {
+              return ['45%'];
+            }
+          }
+
+          return ['35%'];
         })()}
         onClose={handleCloseBottomSheet}
       >
         <ScrollView
-          style={{ maxHeight: theme.sizes.HEIGHT * 0.6 }}
+          contentContainerStyle={{
+            paddingBottom: theme.sizes.PADDING * 2,
+            flexGrow: 1,
+          }}
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.bottomSheet}>
@@ -369,7 +399,7 @@ const InboxOutbox: React.FC = () => {
               })()}
             <CustomButton
               title={'Pick Up'}
-              onPress={handlePickUpPress}
+              onPress={() => handlePickUpPress()}
               buttonStyle={{
                 backgroundColor: !Array.from(selectedItems.values()).some(
                   qty => qty > 0,
@@ -596,6 +626,9 @@ const InboxItem: React.FC<InboxItemProps> = ({
               >
                 {order.Items?.map((item, index) => {
                   const itemImage = getMainImage(item);
+                  const allItemsRedeemed =
+                    order.Items &&
+                    order.Items.every(item => item.Status === 10);
 
                   return (
                     <TouchableOpacity
@@ -603,7 +636,6 @@ const InboxItem: React.FC<InboxItemProps> = ({
                       onPress={() => onClick && onClick(item)}
                       activeOpacity={isInbox ? 0.8 : 1}
                       style={styles.imageContainer}
-                      // disabled={item.Status === 10}
                     >
                       {item.Status === 10 && (
                         <View style={styles.redeemedBox}>
