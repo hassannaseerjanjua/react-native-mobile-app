@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Platform } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
+import ImageCompressor from 'react-native-compressor';
 import api, { getAuthHeaderWithFormData } from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import notify from '../../../utils/notify';
@@ -196,7 +197,7 @@ export const useOccasions = () => {
     launchImageLibrary(
       {
         mediaType: 'photo',
-        quality: 0.8,
+        quality: 0.2, // High compression - low quality
         selectionLimit: 1,
         includeBase64: false,
       },
@@ -205,10 +206,16 @@ export const useOccasions = () => {
           const asset = response.assets[0];
           try {
             const imageUri = fileUriWrapper(asset.uri || '');
-            const compressedImage = await compressImage(imageUri || '');
+            // Use high compression with low quality
+            const compressedImage = await ImageCompressor.Image.compress(imageUri || '', {
+              quality: 0.2, // High compression - 20% quality
+              maxWidth: 800,
+              maxHeight: 800,
+            });
+            const finalImageUri = fileUriWrapper(compressedImage);
 
             const imageFile: ImageFile = {
-              uri: compressedImage,
+              uri: finalImageUri,
               type: asset.type || 'image/jpeg',
               name: asset.fileName || `occasion_image_${Date.now()}.jpg`,
             };

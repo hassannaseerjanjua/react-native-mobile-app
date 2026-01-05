@@ -21,10 +21,11 @@ import {
   SvgPhone,
   SvgBirthdayIcon,
   SvgLocationPin,
+  SvgDropDown,
 } from '../../../assets/icons';
 import { scaleWithMax, toOption } from '../../../utils';
 import { createSettingsSchema } from '../../../utils/validationSchemas';
-import DropdownField from '../../../components/global/DropdownField';
+import CityPickerModal from '../../../components/global/CityPickerModal';
 import useGetApi from '../../../hooks/useGetApi';
 import {
   City,
@@ -47,7 +48,6 @@ const SettingsScreen: React.FC = () => {
   const [selectedLanguage, setSelectedLanguage] = useState<
     'English' | 'Arabic'
   >(langCode === 'en' ? 'English' : 'Arabic');
-  const [areaSearch, setAreaSearch] = useState('');
   const [loading, setLoading] = useState(false);
   const [shimmerLoading, setShimmerLoading] = useState(false);
   const { shiftLanguage } = useLanguageShifter();
@@ -60,16 +60,23 @@ const SettingsScreen: React.FC = () => {
     return eighteenYearsAgo;
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
+  const [showCityPicker, setShowCityPicker] = useState(false);
 
   const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
     transformData: data => data.Data.cities,
   });
 
-  const options = toOption<City>(citiesApi.data || [], 'CityName', 'CityID');
-  const filteredOptions = options.filter(option =>
-    option.label.toLowerCase().includes(areaSearch.toLowerCase()),
+  const cityOptions = useMemo(
+    () =>
+      (citiesApi.data || []).map(city => ({
+        label:
+          langCode === 'ar'
+            ? city.CityNameAr || city.CityName
+            : city.CityNameEn || city.CityName,
+        value: city.CityID,
+      })),
+    [citiesApi.data, langCode],
   );
-  const [selectedOption, setSelectedOption] = useState<any>(null);
 
   useFocusEffect(
     React.useCallback(() => {
@@ -83,15 +90,6 @@ const SettingsScreen: React.FC = () => {
       return unsubscribe;
     }, [navigation, shimmerLoading]),
   );
-
-  useEffect(() => {
-    if (citiesApi.data && user?.CityId && !selectedOption) {
-      const defaultCity = options.find(option => option.value === user.CityId);
-      if (defaultCity) {
-        setSelectedOption(defaultCity);
-      }
-    }
-  }, [citiesApi.data, user?.CityId, options, selectedOption]);
 
   useEffect(() => {
     if (user?.DateOfBirth) {
@@ -293,26 +291,41 @@ const SettingsScreen: React.FC = () => {
                       />
                     </View>
                     <View style={styles.inputContainer}>
-                      <DropdownField
-                        isLoading={citiesApi.loading}
-                        label={getString('AU_PL_CITY')}
-                        selectedOption={selectedOption}
-                        icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
-                        options={filteredOptions}
-                        searchValue={areaSearch}
-                        onSearchChange={setAreaSearch}
-                        placeholder={getString('AU_PL_CITY')}
-                        selectedValue={formik.values.CityId}
-                        onSelect={value => {
-                          setSelectedOption(value);
-                          formik.setFieldValue('CityId', value.value);
-                        }}
-                        error={
-                          formik.touched.CityId && formik.errors.CityId
-                            ? formik.errors.CityId
-                            : undefined
-                        }
-                      />
+                      <TouchableOpacity
+                        onPress={() => setShowCityPicker(true)}
+                        activeOpacity={0.7}
+                        style={{ position: 'relative' }}
+                      >
+                        <InputField
+                          icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
+                          error={
+                            formik.touched.CityId && formik.errors.CityId
+                              ? formik.errors.CityId
+                              : undefined
+                          }
+                          fieldProps={{
+                            placeholder: getString('AU_PL_CITY'),
+                            value:
+                              cityOptions.find(
+                                opt => opt.value === formik.values.CityId,
+                              )?.label || '',
+                            editable: false,
+                            pointerEvents: 'none',
+                          }}
+                        />
+                        <View
+                          style={{
+                            position: 'absolute',
+                            right: theme.sizes.PADDING,
+                            top: 0,
+                            bottom: 0,
+                            justifyContent: 'center',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <SvgDropDown width={scaleWithMax(20, 25)} />
+                        </View>
+                      </TouchableOpacity>
                     </View>
 
                     <View style={styles.inputContainer}>
@@ -425,6 +438,21 @@ const SettingsScreen: React.FC = () => {
                     style={{
                       backgroundColor: theme.colors.BACKGROUND,
                     }}
+                  />
+
+                  <CityPickerModal
+                    visible={showCityPicker}
+                    onClose={() => setShowCityPicker(false)}
+                    options={cityOptions.map(opt => ({
+                      label: opt.label,
+                      value: opt.value,
+                    }))}
+                    selectedValue={formik.values.CityId || user?.CityId}
+                    onSelect={value => {
+                      formik.setFieldValue('CityId', value);
+                      setShowCityPicker(false);
+                    }}
+                    title={getString('AU_PL_CITY')}
                   />
                 </>
               )}

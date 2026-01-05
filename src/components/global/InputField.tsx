@@ -61,7 +61,7 @@ const InputField = ({
           style={[
             isMultiline ? styles.textarea : styles.input,
             {
-              paddingStart: isPhone || icon ? theme.sizes.PADDING : 0,
+              paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
               textAlign: rtlTextAlign(isRtl),
             },
             fieldProps.style,

@@ -25,6 +25,7 @@ import { Occasion } from '../../../types/index.ts';
 import SkeletonLoader from '../../../components/SkeletonLoader/index.tsx';
 import { useOccasions, OccasionFormValues } from './actions';
 import { Text } from '../../../utils/elements.tsx';
+import { scaleWithMax } from '../../../utils';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 
 const OccasionsScreen: React.FC = () => {
@@ -200,7 +201,54 @@ const OccasionsScreen: React.FC = () => {
                             ? formik.errors.occasionName
                             : undefined
                         }
-                        icon={<SvgOccasionIcon />}
+                        icon={
+                          selectedOccasion.occasionType !== 'view' ? (
+                            <TouchableOpacity
+                              onPress={() => handleImageSelect(formik)}
+                              activeOpacity={0.7}
+                              style={{
+                                marginLeft: -scaleWithMax(5, 6),
+                                marginRight: -scaleWithMax(2, 3),
+                              }}
+                            >
+                              {formik.values.image &&
+                              typeof formik.values.image === 'object' &&
+                              formik.values.image.uri ? (
+                                <Image
+                                  source={{ uri: formik.values.image.uri }}
+                                  style={{
+                                    width: scaleWithMax(30, 34),
+                                    height: scaleWithMax(30, 34),
+                                    borderRadius: scaleWithMax(14, 16),
+                                  }}
+                                  resizeMode="cover"
+                                />
+                              ) : formik.values.image &&
+                                typeof formik.values.image === 'string' &&
+                                formik.values.image ? (
+                                <Image
+                                  source={{ uri: formik.values.image }}
+                                  style={{
+                                    width: scaleWithMax(30, 34),
+                                    height: scaleWithMax(30, 34),
+                                    borderRadius: scaleWithMax(14, 16),
+                                  }}
+                                  resizeMode="cover"
+                                />
+                              ) : (
+                                <SvgOccasionIcon
+                                  width={scaleWithMax(30, 34)}
+                                  height={scaleWithMax(30, 34)}
+                                />
+                              )}
+                            </TouchableOpacity>
+                          ) : (
+                            <SvgOccasionIcon
+                              width={scaleWithMax(24, 26)}
+                              height={scaleWithMax(24, 26)}
+                            />
+                          )
+                        }
                         fieldProps={{
                           placeholder: 'Event Name',
                           value: formik.values.occasionName,
@@ -230,7 +278,12 @@ const OccasionsScreen: React.FC = () => {
                               ? formik.errors.occasionDate
                               : undefined
                           }
-                          icon={<SvgDateIcon />}
+                          icon={
+                            <SvgDateIcon
+                              width={scaleWithMax(24, 26)}
+                              height={scaleWithMax(24, 26)}
+                            />
+                          }
                           fieldProps={{
                             placeholder: getString('OCC_DATE'),
                             value:

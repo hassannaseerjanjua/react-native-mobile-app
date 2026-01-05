@@ -105,7 +105,7 @@ const DropdownField = ({
             style={[
               styles.displayText,
               {
-                paddingLeft: icon ? theme.sizes.PADDING : 0,
+                paddingLeft: icon ? theme.sizes.WIDTH * 0.0245 : 0,
                 textAlign: textAlign,
                 color: selectedOption
                   ? theme.colors.PRIMARY_TEXT
