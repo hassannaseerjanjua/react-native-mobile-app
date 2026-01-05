@@ -7,6 +7,7 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import TabItem from '../../../components/global/TabItem.tsx';
 import CustomButton from '../../../components/global/Custombutton.tsx';
+import { Image } from 'react-native';
 import {
   SvgAddOccasion,
   SvgCrownIcon,
@@ -14,6 +15,7 @@ import {
   SvgEditGroup,
   SvgGalleryIcon,
   SvgBirthdayIcon,
+  SvgOccasionIcon,
 } from '../../../assets/icons';
 import InputField from '../../../components/global/InputField.tsx';
 import { Formik } from 'formik';
@@ -142,7 +144,9 @@ const OccasionsScreen: React.FC = () => {
                 }
 
                 // Regular occasions
-                const imageSource = item.ImageUrl ? { uri: item.ImageUrl } : '';
+                const imageSource = item.ImageUrl
+                  ? { uri: item.ImageUrl }
+                  : require('../../../assets/images/img-placeholder.png');
                 return (
                   <TabItem
                     isGroupImage={imageSource}
@@ -196,7 +200,7 @@ const OccasionsScreen: React.FC = () => {
                             ? formik.errors.occasionName
                             : undefined
                         }
-                        icon={<SvgCrownIcon />}
+                        icon={<SvgOccasionIcon />}
                         fieldProps={{
                           placeholder: 'Event Name',
                           value: formik.values.occasionName,
@@ -249,33 +253,6 @@ const OccasionsScreen: React.FC = () => {
                         />
                       </TouchableOpacity>
                     </View>
-                    {/* Hide image section for birthday */}
-                    {selectedOccasion.id !== -1 && (
-                      <View style={styles.inputContainer}>
-                        {selectedOccasion.occasionType !== 'view' ? (
-                          <TouchableOpacity
-                            onPress={() => handleImageSelect(formik)}
-                            activeOpacity={0.8}
-                          >
-                            <View style={styles.uploadImageContainer}>
-                              <SvgGalleryIcon />
-                              <Text style={styles.uploadButtonText}>
-                                {getImageDisplayValue(formik.values.image) ||
-                                  getString('OCC_IMAGE')}
-                              </Text>
-                            </View>
-                          </TouchableOpacity>
-                        ) : (
-                          <View style={styles.uploadImageContainer}>
-                            <SvgGalleryIcon />
-                            <Text style={styles.uploadButtonText}>
-                              {getImageDisplayValue(formik.values.image) ||
-                                getString('OCC_IMAGE')}
-                            </Text>
-                          </View>
-                        )}
-                      </View>
-                    )}
                     {selectedOccasion.occasionType !== 'view' && (
                       <CustomButton
                         title={

@@ -163,11 +163,11 @@ const useStyles = () => {
         container: {
           position: 'relative',
           width: theme.sizes.WIDTH,
-          height: isProMax
-            ? theme.sizes.HEIGHT * 0.387
-            : isBaseModel
-            ? theme.sizes.HEIGHT * 0.345
-            : theme.sizes.HEIGHT * 0.345,
+          // height: isProMax
+          //   ? theme.sizes.HEIGHT * 0.387
+          //   : isBaseModel
+          //   ? theme.sizes.HEIGHT * 0.345
+          //   : theme.sizes.HEIGHT * 0.345,
           marginTop: theme.sizes.PADDING * 0.6,
           flex: 1,
         },

@@ -12,16 +12,29 @@ const useStyles = () => {
 
     return StyleSheet.create({
       container: {
-        ...theme.globalStyles.CONTAINER_STYLE,
+        flex: 1,
         paddingHorizontal: 0,
+        backgroundColor: 'transparent',
+        position: 'relative',
       },
       mainContent: {
         flex: 1,
-
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        // height: sizes.HEIGHT * 0.95,
+        // zIndex: 1000,
+      },
+      contentWrapper: {
+        flex: 1,
+        zIndex: 1,
+        backgroundColor: 'transparent',
       },
       contentContainer: {
         flex: 1,
-        gap: scaleWithMax(8, 10),
+        gap: scaleWithMax(10, 12),
         paddingHorizontal: sizes.PADDING,
       },
       welcomeText: {
@@ -35,7 +48,7 @@ const useStyles = () => {
       },
       heroImage: {
         borderRadius: sizes.BORDER_RADIUS_MID,
-        flex: 1,
+        height: sizes.HEIGHT * 0.285,
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.bold,
@@ -44,10 +57,16 @@ const useStyles = () => {
         marginVertical: isIOSThen(scaleWithMax(8, 9), scaleWithMax(5, 7)),
         paddingHorizontal: sizes.PADDING,
       },
+
+      innerSectionTitle: {
+        fontFamily: fonts.Quicksand.bold,
+        fontSize: sizes.FONTSIZE_HIGH,
+        color: colors.PRIMARY_TEXT,
+      },
       optionsWrapper: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: scaleWithMax(8, 10),
+        gap: scaleWithMax(10, 12),
       },
     });
   }, [theme]);

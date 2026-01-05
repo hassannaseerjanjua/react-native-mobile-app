@@ -45,14 +45,18 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
   const storeID = route.params?.storeID;
+  const businessTypeId = route.params?.businessTypeId;
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const friendUserId = route.params?.friendUserId ?? null;
-  const categoriesApi = useGetApi<Category[]>(apiEndpoints.GET_CATEGORIES(15), {
-    transformData: (data: any) => data.Data?.Items || [],
-  });
+  const categoriesApi = useGetApi<Category[]>(
+    apiEndpoints.GET_CATEGORIES(storeID, businessTypeId),
+    {
+      transformData: (data: any) => data.Data?.Items || [],
+    },
+  );
 
   const getFavoriteItems = useListingApi<FaveItems>(
     route.params?.type === 'favorite' ? apiEndpoints.GET_FAV_STORE_ITEMS : '',
@@ -309,7 +313,14 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   if (openModal) {
     return (
       <SuccessMessage
-        SuccessLogo={<Image source={catchIcon} style={styles.catchIcon} />} SuccessMessage={getString('CATCH_SUCCESS_MESSAGE')}
+        MediaLogo={
+          <Image
+            source={require('../../../assets/images/catch-gif.gif')}
+            // style={styles.catchIcon}
+          />
+        }
+        SuccessLogo={<Image source={catchIcon} style={styles.catchIcon} />}
+        SuccessMessage={getString('CATCH_SUCCESS_MESSAGE')}
         SuccessSubMessage={getString('CATCH_SUCCESS_SUB_MESSAGE')}
         primaryButtonTitle={getString('HOME_INBOX')}
         onPrimaryPress={() => {
@@ -344,8 +355,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           screenType === 'favorite'
             ? getString('FAV_FAVORITES')
             : screenType === 'GiftOneGetOne'
-              ? getString('HOME_GIFT_ONE_GET_ONE')
-              : getString('HOME_CATCH')
+            ? getString('HOME_GIFT_ONE_GET_ONE')
+            : getString('HOME_CATCH')
         }
         showBackButton
         onBackPress={() => navigation.goBack()}
@@ -356,33 +367,41 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       />
 
       <View style={styles.listWrapper}>
-        <View style={styles.tabsContainer}>
-          {categoriesApi.loading ? (
-            <SkeletonLoader screenType="groupTabs" />
-          ) : (
-            <GroupTabs
-              tabs={filterOptions}
-              activeTab={selectedFilter}
-              onTabPress={id => {
-                setSelectedFilter(id);
-                const categoryId = id === 'all' ? null : Number(id);
-                if (screenType === 'favorite') {
-                  getFavoriteItems.setExtraParams({
-                    ...(storeID ? { StoreId: storeID } : {}),
-                    categoryId,
-                  });
-                } else if (screenType === 'GiftOneGetOne') {
-                  getStoreProducts.setExtraParams({
-                    categoryId,
-                    campaingType: 3,
-                  });
-                } else if (screenType === 'catch') {
-                  getCatchItems.setExtraParams({ categoryId });
-                }
-              }}
-            />
-          )}
-        </View>
+        {screenType === 'favorite' ? (
+          <View style={styles.tabsContainer}>
+            {categoriesApi.loading ? (
+              <SkeletonLoader screenType="groupTabs" />
+            ) : (
+              <GroupTabs
+                tabs={filterOptions}
+                activeTab={selectedFilter}
+                onTabPress={id => {
+                  setSelectedFilter(id);
+                  const categoryId = id === 'all' ? null : Number(id);
+                  if (screenType === 'favorite') {
+                    getFavoriteItems.setExtraParams({
+                      ...(storeID ? { StoreId: storeID } : {}),
+                      categoryId,
+                    });
+                  } else if (screenType === 'GiftOneGetOne') {
+                    getStoreProducts.setExtraParams({
+                      categoryId,
+                      campaingType: 3,
+                    });
+                  } else if (screenType === 'catch') {
+                    getCatchItems.setExtraParams({ categoryId });
+                  }
+                }}
+              />
+            )}
+          </View>
+        ) : (
+          <View
+            style={{
+              marginVertical: theme.sizes.HEIGHT * 0.01,
+            }}
+          />
+        )}
         {isLoading() ? (
           <SkeletonLoader screenType="productListing" />
         ) : (

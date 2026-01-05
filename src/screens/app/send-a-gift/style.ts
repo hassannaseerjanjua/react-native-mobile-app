@@ -55,7 +55,7 @@ const useStyles = () => {
       },
       tabContainer: {
         marginBottom: sizes.HEIGHT * 0.018,
-        height: sizes.HEIGHT * 0.05,
+        ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
       },
       scrollableContent: {
         flex: 1,

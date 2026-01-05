@@ -1,6 +1,13 @@
 import React, { useRef } from 'react';
-import { View, StatusBar, useWindowDimensions } from 'react-native';
+import {
+  View,
+  StatusBar,
+  useWindowDimensions,
+  TouchableOpacity,
+} from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { LinearGradient } from 'react-native-linear-gradient';
+import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
 import ImageSlider from '../../../components/global/ImageSlider';
@@ -8,6 +15,10 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 import useStyles from './style';
 import {
   SvgGiftOneGetOne,
+  SvgHomeG1G1,
+  SvgHomeInbox,
+  SvgHomeOutbox,
+  SvgHomeSendAGift,
   SvgInboxGift,
   SvgOutboxGift,
   SvgProfileCrossIcon,
@@ -45,20 +56,39 @@ const HomeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <StatusBar
-        backgroundColor={theme.colors.BACKGROUND}
+        backgroundColor={theme.colors.WHITE}
         barStyle="dark-content"
+        translucent
       />
 
-      <HomeHeader
-        showProfileIcon={true}
-        onProfilePress={() => {
-          navigation.navigate('Profile' as never);
-        }}
-        showLogo={true}
-        showSearch={true}
-        showCartIcon={true}
-      />
-      <View style={styles.mainContent}>
+      <View style={styles.contentWrapper}>
+        <LinearGradient
+          colors={[
+            '#FFFFFF',
+            '#FEF8F8',
+            '#FDECEC',
+            '#FDECEC',
+            '#FDECEC',
+            '#FDECEC',
+            '#FFFFFF',
+          ]}
+          locations={[0, 0.95, 0.15, 0.4, 0.6, 0.85, 1]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={styles.mainContent}
+        ></LinearGradient>
+        <HomeHeader
+          showProfileIcon={true}
+          onProfilePress={() => {
+            navigation.navigate('Profile' as never);
+          }}
+          showLogo={true}
+          showSearch={true}
+          showCartIcon={true}
+          customContainerStyle={{
+            backgroundColor: 'transparent',
+          }}
+        />
         {showShimmer ? (
           <SkeletonLoader screenType="home" />
         ) : (
@@ -79,6 +109,7 @@ const HomeScreen: React.FC = () => {
                 error={sliderError}
               />
             </View>
+
             <View style={{ flex: 1 }}>
               <Text style={styles.sectionTitle}>
                 {getString('HOME_WHAT_ARE_YOU')}
@@ -101,30 +132,22 @@ const HomeScreenTabsContainer: React.FC = () => {
   const homeScreenTabs = [
     {
       id: 'gift-one-get-one',
-      icon: <SvgGiftOneGetOne />,
-      title: getString('HOME_GIFT_ONE'),
+      icon: <SvgHomeG1G1 />,
+      title: getString('HOME_GIFT_ONE') + ' ' + getString('HOME_GET_ONE'),
       titlePrimary: getString('HOME_GET_ONE'),
       description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
+      iconStyles: {
+        marginRight: scaleWithMax(18, 20),
+      },
       onPress: () =>
         (navigation as any).navigate('SendAGift' as never, {
           routeTo: 'GiftOneGetOne',
         }),
     },
     {
-      id: 'send-a-gift',
-      icon: <SvgSendAGift />,
-      title: getString('HOME_SEND_A_GIFT'),
-      description: getString('HOME_SEND_A_GIFT_DESC'),
-      onPress: () =>
-        (navigation as any).navigate('SendAGift' as never, {
-          routeTo: 'SelectStore',
-        }),
-    },
-    {
       id: 'catch',
-      image: require('../../../assets/images/catchIcon.png'),
+      image: require('../../../assets/catch-Group-Icon.png'),
       title: getString('HOME_CATCH'),
-      titlePrimary: '\n' + getString('HOME_CATCH_INSTANT_GIFTS_LIMITED_TIME'),
       description: getString('HOME_CATCH_INSTANT_GIFT_DESC'),
       onPress: () =>
         (navigation as any).navigate('CatchScreen', {
@@ -132,8 +155,19 @@ const HomeScreenTabsContainer: React.FC = () => {
         }),
     },
     {
+      id: 'send-a-gift',
+      icon: <SvgHomeSendAGift />,
+      title: getString('HOME_SEND_A_GIFT'),
+      description: getString('HOME_SEND_A_GIFT_DESC'),
+      onPress: () =>
+        (navigation as any).navigate('SendAGift' as never, {
+          routeTo: 'SelectStore',
+        }),
+    },
+
+    {
       id: 'inbox',
-      icon: <SvgInboxGift />,
+      icon: <SvgHomeInbox />,
       title: getString('HOME_INBOX'),
       description: getString('HOME_INBOX_DESC'),
       onPress: () =>
@@ -144,13 +178,7 @@ const HomeScreenTabsContainer: React.FC = () => {
     },
     {
       id: 'outbox',
-      icon: (
-        <SvgOutboxGift
-          style={{
-            transform: isIOSThen([{ rotate: '180deg' }], []),
-          }}
-        />
-      ),
+      icon: <SvgHomeOutbox />,
       title: getString('HOME_OUTBOX'),
       description: getString('HOME_OUTBOX_DESC'),
       onPress: () =>
@@ -164,28 +192,39 @@ const HomeScreenTabsContainer: React.FC = () => {
   return (
     <View style={styles.contentContainer}>
       <View style={styles.optionsWrapper}>
-        {homeScreenTabs.slice(0, 2).map(tab => (
+        <HomeScreenTabs
+          key={homeScreenTabs[0].id}
+          icon={homeScreenTabs[0].icon}
+          title={homeScreenTabs[0].title}
+          description={homeScreenTabs[0].description}
+          descriptionStyles={{
+            maxWidth: '50%',
+          }}
+          onPress={homeScreenTabs[0].onPress}
+          iconStyles={homeScreenTabs[0].iconStyles}
+          style={{
+            minHeight: scaleWithMax(90, 95),
+          }}
+        />
+      </View>
+      <View style={styles.optionsWrapper}>
+        {homeScreenTabs.slice(1, 3).map(tab => (
           <HomeScreenTabs
             key={tab.id}
             icon={tab.icon}
+            image={tab.image}
             title={tab.title}
             titlePrimary={tab.titlePrimary}
             description={tab.description}
             onPress={tab.onPress}
+            style={{
+              minHeight: scaleWithMax(85, 90),
+            }}
           />
         ))}
       </View>
 
-      <View style={styles.optionsWrapper}>
-        <HomeScreenTabs
-          key={homeScreenTabs[2].id}
-          image={homeScreenTabs[2].image}
-          title={homeScreenTabs[2].title}
-          titlePrimary={homeScreenTabs[2].titlePrimary}
-          description={homeScreenTabs[2].description}
-          onPress={homeScreenTabs[2].onPress}
-        />
-      </View>
+      <Text style={styles.innerSectionTitle}>Received and sent gifts</Text>
 
       <View style={styles.optionsWrapper}>
         {homeScreenTabs.slice(3, 5).map(tab => (
@@ -196,7 +235,8 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              minHeight: isProMax ? scaleWithMax(80, 86) : scaleWithMax(75, 80),
+              minHeight: scaleWithMax(80, 85),
+              ...theme.globalStyles.SHADOW_STYLE,
             }}
           />
         ))}

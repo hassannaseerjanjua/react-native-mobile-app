@@ -232,7 +232,14 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       />
 
       <View style={styles.content}>
-        <View style={styles.tabContainer}>
+        <View
+          style={[
+            styles.tabContainer,
+            {
+              height: scaleWithMax(40, 42),
+            },
+          ]}
+        >
           <GroupTabs
             tabs={tabs}
             activeTab={activeTab}
@@ -242,29 +249,28 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             }}
           />
         </View>
-        {route.params.routeTo === 'SelectStore' && (
-          <View
-            style={[
-              styles.tabContainer,
-              { paddingHorizontal: theme.sizes.PADDING },
-            ]}
-          >
-            <TabItem
-              title={getString('SG_SEND_THROUGH_LINK')}
-              TabTextStyles={{
-                color: theme.colors.PRIMARY,
-                maxWidth: '90%',
-              }}
-              onPress={() => {
-                navigation.navigate('SelectCity', {
-                  sendType: 2,
-                });
-              }}
-              isLink={true}
-            />
-          </View>
-        )}
-        <View style={styles.scrollableContentContainer}>
+
+        <ScrollView
+          style={styles.scrollableContentContainer}
+          showsVerticalScrollIndicator={false}
+        >
+          {route.params.routeTo === 'SelectStore' && (
+            <View style={[styles.tabContainer]}>
+              <TabItem
+                title={getString('SG_SEND_THROUGH_LINK')}
+                TabTextStyles={{
+                  color: theme.colors.PRIMARY,
+                  maxWidth: '90%',
+                }}
+                onPress={() => {
+                  navigation.navigate('SelectCity', {
+                    sendType: 2,
+                  });
+                }}
+                isLink={true}
+              />
+            </View>
+          )}
           {/* Frequently Sent Section - Only show for friends tab with no search */}
           {frequentlySentFriends.length > 0 &&
             activeTab === 'friends' &&
@@ -352,8 +358,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 {
                   marginBottom:
                     route.params.routeTo === 'SelectStore'
-                      ? theme.sizes.HEIGHT * 0.71
-                      : theme.sizes.HEIGHT * 0.645,
+                      ? theme.sizes.HEIGHT * 0.04
+                      : theme.sizes.HEIGHT * 0.04,
                 },
               ]}
             >
@@ -440,7 +446,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
               />
             </View>
           )}
-        </View>
+        </ScrollView>
       </View>
 
       <MemberSelectionModal

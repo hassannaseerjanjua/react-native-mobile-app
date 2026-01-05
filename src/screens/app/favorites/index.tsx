@@ -99,6 +99,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         storeID: favStore.StoreId,
         storeBranchID: favStore.StoreBranchID,
         type: 'favorite',
+        businessTypeId: favStore.BusinessTypeId,
       });
     }
   };

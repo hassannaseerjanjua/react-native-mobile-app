@@ -91,7 +91,7 @@ export type AppStackParamList = {
   CatchScreen: {
     storeID?: number;
     friendUserId?: number | null;
-
+    businessTypeId?: string | null;
     storeBranchID?: number;
     type?: 'favorite' | 'catch' | 'GiftOneGetOne';
   };

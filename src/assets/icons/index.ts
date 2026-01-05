@@ -31,7 +31,7 @@ import SvgOccasionsActive from './occasion-active.svg';
 import SvgOccasionsInactive from './occasion-inactive.svg';
 import SvgNotificationActive from './notification-active.svg';
 import SvgNotificationInactive from './notification-inactive.svg';
-import SvgGiftLink from './gift-link.svg';
+import SvgGiftLink from './gift-link-checkout.svg';
 import SvgNextIcon from './next-arrow.svg';
 import SvgSelectedCheck from './selected-item.svg';
 import SvgCrossIcon from './cross-icon.svg';
@@ -102,6 +102,11 @@ import SvgGiftClaimIcon from './catch-gift-icon.svg';
 import SvgRiyalIconPrimary from './svgRiyalPrimary.svg';
 import SvgLinkShareIcon from './link-share.svg';
 import SvgVerifiedIcon from './verified-user.svg';
+import SvgHomeG1G1 from './home-tab-icons/giftOneGetOne.svg';
+import SvgHomeSendAGift from './home-tab-icons/sendAGift.svg';
+import SvgHomeInbox from './home-tab-icons/inbox.svg';
+import SvgHomeOutbox from './home-tab-icons/outbox.svg';
+import SvgOccasionIcon from './chepi.svg';
 
 export {
   SvgLogoBlue,
@@ -208,4 +213,9 @@ export {
   SvgRiyalIconPrimary,
   SvgLinkShareIcon,
   SvgVerifiedIcon,
+  SvgHomeG1G1,
+  SvgHomeSendAGift,
+  SvgHomeInbox,
+  SvgHomeOutbox,
+  SvgOccasionIcon,
 };

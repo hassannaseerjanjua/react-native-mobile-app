@@ -9,6 +9,7 @@ import {
   TouchableWithoutFeedback,
   StyleProp,
   ViewStyle,
+  TextStyle,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
@@ -50,7 +51,8 @@ interface HomeHeaderProps {
   rightSideTitle?: string;
   rightSideTitlePress?: () => void;
   rightSideIcon?: any;
-  rightSideTitleStyle?: StyleProp<ViewStyle>;
+  rightSideTitleStyle?: StyleProp<TextStyle>;
+  rightSideTitleTextStyle?: StyleProp<TextStyle>;
   /** Custom element to render on the right side (e.g., dropdown) */
   rightSideView?: React.ReactNode;
   showLogo?: boolean;
@@ -76,6 +78,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   customContainerStyle,
   rightSideTitleStyle,
   rightSideView,
+  rightSideTitleTextStyle,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -173,7 +176,10 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               onPress={handleSearchPress}
               activeOpacity={0.7}
             >
-              <SvgSearchIcon height={scaleWithMax(20, 24)} width={scaleWithMax(20, 24)} />
+              <SvgSearchIcon
+                height={scaleWithMax(20, 24)}
+                width={scaleWithMax(20, 24)}
+              />
             </TouchableOpacity>
           )}
 
@@ -203,7 +209,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               ]}
             >
               {rightSideIcon && rightSideIcon}
-              <Text style={styles.rightSideTitle}>{rightSideTitle}</Text>
+              <Text style={[styles.rightSideTitle, rightSideTitleTextStyle]}>
+                {rightSideTitle}
+              </Text>
             </TouchableOpacity>
           )}
         </View>

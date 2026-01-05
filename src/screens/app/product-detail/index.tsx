@@ -286,7 +286,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                   />
                   <Text style={styles.price}>
                     {itemPrice !== undefined && itemPrice !== null
-                      ? String(itemPrice)
+                      ? Math.round(itemPrice)
                       : ''}
                   </Text>
                 </View>

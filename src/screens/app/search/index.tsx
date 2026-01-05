@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { View, StatusBar, FlatList, Linking } from 'react-native';
+import {
+  View,
+  StatusBar,
+  FlatList,
+  Linking,
+  TouchableOpacity,
+} from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
 import SkeletonLoader from '../../../components/SkeletonLoader';
@@ -19,6 +25,9 @@ import {
   getContactsWithPhoneNumbers,
   ContactInfo,
 } from '../../../utils/contacts';
+import fonts from '../../../assets/fonts';
+import { scaleWithMax } from '../../../utils';
+import useTheme from '../../../styles/theme';
 
 interface VerifiedUser {
   PhoneNo: string;
@@ -50,6 +59,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const [tempAddedUserIds, setTempAddedUserIds] = useState<Set<number>>(
     new Set(),
   );
+  const { globalStyles } = useTheme();
   const [mobileContacts, setMobileContacts] = useState<ContactInfo[]>([]);
   const [loadingContacts, setLoadingContacts] = useState(false);
   const [verifiedUsers, setVerifiedUsers] = useState<
@@ -302,7 +312,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         barStyle="dark-content"
       />
       <HomeHeader
-        title={title || getString('HOME_SEARCH')}
+        title={title || getString('FIND_PEOPLE')}
         showBackButton
         onBackPress={() => navigation.goBack()}
         showSearch={false}
@@ -310,6 +320,33 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
+        rightSideView={
+          !showConnectOnly &&
+          !showFriendsOnly && (
+            <TouchableOpacity
+              onPress={() =>
+                navigation.navigate('Search', {
+                  showConnectOnly: true,
+                })
+              }
+              style={{
+                backgroundColor: theme.colors.SECONDARY,
+                paddingHorizontal: scaleWithMax(10, 12),
+                paddingVertical: scaleWithMax(5, 6),
+                borderRadius: scaleWithMax(5, 6),
+              }}
+            >
+              <Text
+                style={{
+                  ...globalStyles.TEXT_STYLE,
+                  color: theme.colors.PRIMARY,
+                }}
+              >
+                {getString('C_CONNECT')}
+              </Text>
+            </TouchableOpacity>
+          )
+        }
       />
 
       <View style={[styles.content, styles.contentContainer]}>

@@ -7,6 +7,7 @@ import CustomButton from './Custombutton';
 
 type SuccessMessageProps = {
   SuccessLogo: React.ReactNode;
+  MediaLogo?: React.ReactNode;
   SuccessMessage: string;
   SuccessSubMessage?: string;
   /** Primary action button label */
@@ -21,6 +22,7 @@ type SuccessMessageProps = {
 
 const SuccessMessage: React.FC<SuccessMessageProps> = ({
   SuccessLogo,
+  MediaLogo,
   SuccessMessage,
   SuccessSubMessage,
   primaryButtonTitle,
@@ -34,6 +36,7 @@ const SuccessMessage: React.FC<SuccessMessageProps> = ({
 
   return (
     <View style={styles.checkoutCompletedContainer}>
+      {MediaLogo && <View style={styles.mediaLogoContainer}>{MediaLogo}</View>}
       {SuccessLogo}
       <Text style={styles.TextLarge}>{SuccessMessage}</Text>
       {!!SuccessSubMessage && (
@@ -80,6 +83,7 @@ const useStyles = () => {
           justifyContent: 'center',
           alignItems: 'center',
           rowGap: sizes.HEIGHT * 0.009,
+          position: 'relative',
         },
         TextLarge: {
           ...theme.globalStyles.TEXT_STYLE_MEDIUM,
@@ -100,6 +104,17 @@ const useStyles = () => {
         },
         buttonWrapper: {
           width: '100%',
+        },
+        mediaLogoContainer: {
+          width: '100%',
+          height: '100%',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'absolute',
+          top: -sizes.HEIGHT * 0.1,
+          left: 0,
+          right: 0,
+          bottom: 0,
         },
       }),
     [sizes, theme],

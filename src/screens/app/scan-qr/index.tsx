@@ -82,15 +82,45 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
           marginTop: theme.sizes.PADDING,
         }}
       >
-        <Text style={styles.TextLarge}>Claim Your Gift</Text>
+        <Text
+          style={[
+            styles.TextLarge,
+            {
+              marginTop: theme.sizes.HEIGHT * 0.01,
+            },
+          ]}
+        >
+          Claim Your Gift
+        </Text>
         <Text
           style={{
             ...styles.TextMedium,
-            marginTop: theme.sizes.PADDING * 0.6,
+            marginTop: theme.sizes.PADDING * 0.8,
           }}
         >
           Scan it at the store to claim
         </Text>
+
+        <View
+          style={{
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: theme.sizes.PADDING * 0.5,
+            marginTop: theme.sizes.HEIGHT * 0.03,
+          }}
+        >
+          <Text
+            style={{
+              ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+              fontSize: theme.sizes.FONTSIZE,
+            }}
+          >
+            QR Code #
+          </Text>
+          <Text style={styles.QrCodeNums}>
+            {qrCodeData?.UniqueCode || '---'}
+          </Text>
+        </View>
 
         <View style={styles.QrContainer}>
           {qrCodeData?.OrderId && qrCodeData?.UniqueCode ? (
@@ -119,25 +149,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
             </View>
           )}
         </View>
-        <View
-          style={{
-            justifyContent: 'center',
-            alignItems: 'center',
-            gap: theme.sizes.PADDING * 0.5,
-          }}
-        >
-          <Text
-            style={{
-              ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-              fontSize: theme.sizes.FONTSIZE,
-            }}
-          >
-            QR Code #
-          </Text>
-          <Text style={styles.QrCodeNums}>
-            {qrCodeData?.UniqueCode || '---'}
-          </Text>
-        </View>
+
         {hasMultipleItems ? (
           <View>
             <ScrollView

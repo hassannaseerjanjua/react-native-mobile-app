@@ -6,6 +6,7 @@ import notifee, { AndroidImportance } from '@notifee/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import apiEndpoints from '../constants/api-endpoints';
 import api from './api';
+import { store } from '../store/store';
 
 /**
  * NOTE: Background handler is now in index.js
@@ -149,11 +150,12 @@ export const getFCMToken = async (userId?: number): Promise<string | null> => {
     if (fcmToken) {
       await saveFCMToken(fcmToken);
       if (userId) {
+        const langId = store.getState().locale.localeData.langId;
         await api.post(apiEndpoints.SAVE_TOKEN, {
           UserId: userId,
           token: fcmToken,
-          LanguageId: 1, //1 = English , 2= Arabic
-          DeviceType: Platform.OS === 'android' ? 1 : 2, //1 = Andriod , 2= IOS
+          LanguageId: langId, // 1 = English, 2 = Arabic
+          DeviceType: Platform.OS === 'android' ? 1 : 2, // 1 = Android, 2 = iOS
         });
       }
       console.log('FCM Token received:', fcmToken);

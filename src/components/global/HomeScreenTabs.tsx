@@ -6,6 +6,7 @@ import {
   ImageSourcePropType,
   StyleSheet,
   ViewStyle,
+  TextStyle,
 } from 'react-native';
 import { ReactElement } from 'react';
 import useTheme from '../../styles/theme';
@@ -21,6 +22,8 @@ interface HomeScreenTabsProps {
   description: string;
   onPress?: () => void;
   style?: ViewStyle;
+  iconStyles?: ViewStyle;
+  descriptionStyles?: TextStyle;
 }
 
 const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
@@ -31,6 +34,8 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
   description,
   onPress,
   style,
+  iconStyles,
+  descriptionStyles,
 }) => {
   const theme = useTheme();
   const { colors, sizes } = theme;
@@ -41,40 +46,37 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
       StyleSheet.create({
         card: {
           flex: 1,
-          flexDirection: 'row',
+          flexDirection: 'row-reverse',
           alignItems: 'center',
-          borderRadius: sizes.BORDER_RADIUS_MID,
-          paddingHorizontal: isProMax
-            ? scaleWithMax(14, 15)
-            : scaleWithMax(11, 11),
-          paddingVertical: isProMax
-            ? scaleWithMax(16, 17)
-            : scaleWithMax(11, 11),
-          backgroundColor: colors.SECONDARY,
+          borderRadius: scaleWithMax(20, 20),
+          paddingHorizontal: scaleWithMax(14, 15),
+          paddingVertical: scaleWithMax(16, 17),
+          backgroundColor: colors.WHITE,
           position: 'relative',
         },
         content: {
           flex: 1,
-          marginLeft: scaleWithMax(10, 12),
+          // marginLeft: scaleWithMax(10, 12),
         },
         title: {
-          fontSize: isProMax ? scaleWithMax(14, 14) : scaleWithMax(12, 13),
+          fontSize: sizes.FONTSIZE_SMALL_HEADING,
           fontFamily: fonts.Quicksand.bold,
           color: colors.PRIMARY_TEXT,
           flexShrink: 1,
+          marginBottom: scaleWithMax(2.5, 3),
         },
         titlePrimary: {
           color: colors.PRIMARY,
         },
         description: {
-          fontSize: scaleWithMax(9, 11),
+          fontSize: scaleWithMax(10, 10),
           fontFamily: fonts.Quicksand.regular,
           color: colors.BLACK,
-          lineHeight: scaleWithMax(13, 14),
+          lineHeight: scaleWithMax(11.5, 12.5),
         },
         iconImage: {
-          width: scaleWithMax(32, 36),
-          height: scaleWithMax(32, 36),
+          width: scaleWithMax(40, 50),
+          height: scaleWithMax(40, 50),
           resizeMode: 'contain',
         },
         iconContainer: {
@@ -82,6 +84,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           height: scaleWithMax(32, 36),
           justifyContent: 'center',
           alignItems: 'center',
+          // marginRight: scaleWithMax(10, 12),
         },
       }),
     [theme, isProMax],
@@ -89,7 +92,9 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
 
   return (
     <TouchableOpacity style={[cardStyles.card, style]} onPress={onPress}>
-      {icon && <View style={cardStyles.iconContainer}>{icon}</View>}
+      {icon && (
+        <View style={[cardStyles.iconContainer, iconStyles]}>{icon}</View>
+      )}
       {image && <Image source={image} style={cardStyles.iconImage} />}
       <View style={cardStyles.content}>
         <Text style={cardStyles.title}>
@@ -98,14 +103,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
             <Text style={cardStyles.titlePrimary}> {titlePrimary}</Text>
           )}
         </Text>
-        <Text
-          style={[
-            cardStyles.description,
-            title === 'Catch' && {
-              maxWidth: '70%',
-            },
-          ]}
-        >
+        <Text style={[cardStyles.description, descriptionStyles]}>
           {description}
         </Text>
       </View>
