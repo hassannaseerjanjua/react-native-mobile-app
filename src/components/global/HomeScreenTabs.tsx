@@ -12,7 +12,7 @@ import { ReactElement } from 'react';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
 import { Text } from '../../utils/elements';
-import { isIOS, isIOSThen, scaleWithMax } from '../../utils';
+import { isAndroid, isIOS, isIOSThen, scaleWithMax } from '../../utils';
 
 interface HomeScreenTabsProps {
   icon?: ReactElement;
@@ -40,6 +40,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
   const theme = useTheme();
   const { colors, sizes } = theme;
   const isProMax = sizes.WIDTH >= 430 && isIOS;
+  const isLargeAndroid = isAndroid && sizes.HEIGHT > 800;
 
   const cardStyles = useMemo(
     () =>
@@ -50,7 +51,11 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           alignItems: 'center',
           borderRadius: scaleWithMax(20, 20),
           paddingHorizontal: scaleWithMax(14, 15),
-          paddingVertical: scaleWithMax(16, 17),
+          paddingVertical: isProMax
+            ? scaleWithMax(18, 20)
+            : isLargeAndroid
+            ? scaleWithMax(17, 18)
+            : scaleWithMax(16, 17),
           backgroundColor: colors.WHITE,
           position: 'relative',
         },
@@ -59,7 +64,11 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           // marginLeft: scaleWithMax(10, 12),
         },
         title: {
-          fontSize: sizes.FONTSIZE_SMALL_HEADING,
+          fontSize: isProMax
+            ? sizes.FONTSIZE_SMALL_HEADING * 1.05
+            : isLargeAndroid
+            ? sizes.FONTSIZE_SMALL_HEADING * 1.02
+            : sizes.FONTSIZE_SMALL_HEADING,
           fontFamily: fonts.Quicksand.bold,
           color: colors.PRIMARY_TEXT,
           flexShrink: 1,
@@ -69,25 +78,49 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           color: colors.PRIMARY,
         },
         description: {
-          fontSize: scaleWithMax(10, 10),
+          fontSize: isProMax
+            ? scaleWithMax(10.25, 10.75)
+            : isLargeAndroid
+            ? scaleWithMax(10.1, 10.2)
+            : scaleWithMax(10, 10),
           fontFamily: fonts.Quicksand.regular,
           color: colors.BLACK,
-          lineHeight: scaleWithMax(11.5, 12.5),
+          lineHeight: isProMax
+            ? scaleWithMax(12.25, 13.25)
+            : isLargeAndroid
+            ? scaleWithMax(11.75, 12.75)
+            : scaleWithMax(11.5, 12.5),
         },
         iconImage: {
-          width: scaleWithMax(40, 50),
-          height: scaleWithMax(40, 50),
+          width: isProMax
+            ? scaleWithMax(42, 54)
+            : isLargeAndroid
+            ? scaleWithMax(41, 52)
+            : scaleWithMax(40, 50),
+          height: isProMax
+            ? scaleWithMax(42, 54)
+            : isLargeAndroid
+            ? scaleWithMax(41, 52)
+            : scaleWithMax(40, 50),
           resizeMode: 'contain',
         },
         iconContainer: {
-          width: scaleWithMax(32, 36),
-          height: scaleWithMax(32, 36),
+          width: isProMax
+            ? scaleWithMax(34, 39)
+            : isLargeAndroid
+            ? scaleWithMax(33, 37)
+            : scaleWithMax(32, 36),
+          height: isProMax
+            ? scaleWithMax(34, 39)
+            : isLargeAndroid
+            ? scaleWithMax(33, 37)
+            : scaleWithMax(32, 36),
           justifyContent: 'center',
           alignItems: 'center',
           // marginRight: scaleWithMax(10, 12),
         },
       }),
-    [theme, isProMax],
+    [theme, isProMax, isLargeAndroid],
   );
 
   return (

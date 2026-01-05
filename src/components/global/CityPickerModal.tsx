@@ -8,9 +8,12 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   Platform,
+  Modal,
+  Animated,
+  Dimensions,
+  TouchableWithoutFeedback,
 } from 'react-native';
 import { LinearGradient } from 'react-native-linear-gradient';
-import AppBottomSheet from './AppBottomSheet';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import fonts from '../../assets/fonts';
@@ -45,6 +48,41 @@ const CityPickerModal: React.FC<CityPickerModalProps> = ({
   const theme = useTheme();
   const flatListRef = useRef<FlatList>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const slideAnim = useRef(new Animated.Value(0)).current;
+  const backdropOpacity = useRef(new Animated.Value(0)).current;
+  const screenHeight = Dimensions.get('window').height;
+  const modalHeight = CONTAINER_HEIGHT + scaleWithMax(100, 120);
+
+  // Animate modal open/close
+  useEffect(() => {
+    if (visible) {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 1,
+          duration: 300,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    } else {
+      Animated.parallel([
+        Animated.timing(slideAnim, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+        Animated.timing(backdropOpacity, {
+          toValue: 0,
+          duration: 250,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }
+  }, [visible, slideAnim, backdropOpacity]);
 
   // Find initial index when modal opens
   useEffect(() => {
@@ -53,8 +91,15 @@ const CityPickerModal: React.FC<CityPickerModalProps> = ({
       const targetIndex = index !== -1 ? index : 0;
       setSelectedIndex(targetIndex);
       setTimeout(() => {
+        const paddingOffset = ITEM_HEIGHT * MIDDLE_INDEX;
+        // Calculate offset to center the item: (targetIndex - MIDDLE_INDEX) * ITEM_HEIGHT
+        // But ensure it's not negative
+        const targetOffset = Math.max(
+          0,
+          (targetIndex - MIDDLE_INDEX) * ITEM_HEIGHT,
+        );
         flatListRef.current?.scrollToOffset({
-          offset: targetIndex * ITEM_HEIGHT,
+          offset: targetOffset,
           animated: false,
         });
       }, 200);
@@ -63,21 +108,43 @@ const CityPickerModal: React.FC<CityPickerModalProps> = ({
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
-    const index = Math.round(y / ITEM_HEIGHT);
+    // The center position in the content is: y + ITEM_HEIGHT * MIDDLE_INDEX
+    // Item i starts at: ITEM_HEIGHT * MIDDLE_INDEX + i * ITEM_HEIGHT in the content
+    // For item i to be centered: y + ITEM_HEIGHT * MIDDLE_INDEX = ITEM_HEIGHT * MIDDLE_INDEX + i * ITEM_HEIGHT
+    // Simplifying: y = i * ITEM_HEIGHT
+    // So: i = y / ITEM_HEIGHT
+    // When y = 0, item 0 is centered (due to padding)
+    const index = y === 0 ? 0 : Math.round(y / ITEM_HEIGHT);
     const clampedIndex = Math.max(0, Math.min(index, options.length - 1));
-    
+
     if (clampedIndex !== selectedIndex) {
       setSelectedIndex(clampedIndex);
     }
   };
 
-  const handleMomentumScrollEnd = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+  const handleMomentumScrollEnd = (
+    event: NativeSyntheticEvent<NativeScrollEvent>,
+  ) => {
     const y = event.nativeEvent.contentOffset.y;
-    const index = Math.round(y / ITEM_HEIGHT);
+    // Same calculation as handleScroll
+    const index = y === 0 ? 0 : Math.round(y / ITEM_HEIGHT);
     const clampedIndex = Math.max(0, Math.min(index, options.length - 1));
-    
+
     if (clampedIndex !== selectedIndex) {
       setSelectedIndex(clampedIndex);
+    }
+
+    // On Android, ensure we snap to the exact position to prevent drift
+    if (Platform.OS === 'android') {
+      const expectedOffset =
+        clampedIndex === 0 ? 0 : clampedIndex * ITEM_HEIGHT;
+      // Only correct if we're significantly off (more than 5% of item height)
+      if (Math.abs(y - expectedOffset) > ITEM_HEIGHT * 0.05) {
+        flatListRef.current?.scrollToOffset({
+          offset: expectedOffset,
+          animated: true,
+        });
+      }
     }
   };
 
@@ -91,22 +158,18 @@ const CityPickerModal: React.FC<CityPickerModalProps> = ({
 
   const { styles } = useStyles();
 
-  const renderItem = ({ item, index }: { item: CityPickerOption; index: number }) => {
+  const renderItem = ({
+    item,
+    index,
+  }: {
+    item: CityPickerOption;
+    index: number;
+  }) => {
     const isSelected = index === selectedIndex;
 
     return (
-      <View
-        style={[
-          styles.itemContainer,
-          isSelected && styles.selectedItem,
-        ]}
-      >
-        <Text
-          style={[
-            styles.itemText,
-            isSelected && styles.selectedItemText,
-          ]}
-        >
+      <View style={[styles.itemContainer, isSelected && styles.selectedItem]}>
+        <Text style={[styles.itemText, isSelected && styles.selectedItemText]}>
           {item.label}
         </Text>
       </View>
@@ -119,62 +182,98 @@ const CityPickerModal: React.FC<CityPickerModalProps> = ({
     index,
   });
 
+  const translateY = slideAnim.interpolate({
+    inputRange: [0, 1],
+    outputRange: [modalHeight, 0],
+  });
+
   return (
-    <AppBottomSheet
-      isOpen={visible}
-      onClose={onClose}
-      height={CONTAINER_HEIGHT + scaleWithMax(100, 120)}
-      enablePanDownToClose={true}
+    <Modal
+      visible={visible}
+      transparent
+      animationType="none"
+      statusBarTranslucent
+      onRequestClose={onClose}
     >
-      <View style={styles.container}>
-        <View style={styles.header}>
-          <TouchableOpacity onPress={onClose} style={styles.button}>
-            <Text style={styles.cancelText}>Cancel</Text>
-          </TouchableOpacity>
-          {title && (
-            <Text style={styles.title}>{title}</Text>
-          )}
-          <TouchableOpacity onPress={handleConfirm} style={styles.button}>
-            <Text style={styles.doneText}>Done</Text>
-          </TouchableOpacity>
-        </View>
+      <View style={styles.modalContainer}>
+        {/* Backdrop */}
+        <TouchableWithoutFeedback onPress={onClose}>
+          <Animated.View
+            style={[
+              styles.backdrop,
+              {
+                opacity: backdropOpacity,
+              },
+            ]}
+          />
+        </TouchableWithoutFeedback>
 
-        <View style={styles.pickerContainer}>
-          {/* Gradient overlays for iOS picker fade effect */}
-          <LinearGradient
-            colors={[theme.colors.BACKGROUND || '#FFFFFF', (theme.colors.BACKGROUND || '#FFFFFF') + '00']}
-            style={styles.topGradient}
-            pointerEvents="none"
-          />
-          <LinearGradient
-            colors={[(theme.colors.BACKGROUND || '#FFFFFF') + '00', theme.colors.BACKGROUND || '#FFFFFF']}
-            style={styles.bottomGradient}
-            pointerEvents="none"
-          />
-          
-          {/* Selection indicator */}
-          <View style={styles.selectionIndicator} />
+        {/* Bottom Sheet Content */}
+        <Animated.View
+          style={[
+            styles.bottomSheet,
+            {
+              height: modalHeight,
+              transform: [{ translateY }],
+            },
+          ]}
+        >
+          <View style={styles.container}>
+            <View style={styles.header}>
+              <TouchableOpacity onPress={onClose} style={styles.button}>
+                <Text style={styles.cancelText}>Cancel</Text>
+              </TouchableOpacity>
+              {title && <Text style={styles.title}>{title}</Text>}
+              <TouchableOpacity onPress={handleConfirm} style={styles.button}>
+                <Text style={styles.doneText}>Done</Text>
+              </TouchableOpacity>
+            </View>
 
-          <FlatList
-            ref={flatListRef}
-            data={options}
-            renderItem={renderItem}
-            keyExtractor={(item, index) => `${item.value}-${index}`}
-            getItemLayout={getItemLayout}
-            onScroll={handleScroll}
-            onMomentumScrollEnd={handleMomentumScrollEnd}
-            scrollEventThrottle={16}
-            showsVerticalScrollIndicator={false}
-            snapToInterval={ITEM_HEIGHT}
-            snapToAlignment="start"
-            decelerationRate="fast"
-            contentContainerStyle={styles.listContent}
-            bounces={true}
-            overScrollMode="never"
-          />
-        </View>
+            <View style={styles.pickerContainer}>
+              {/* Gradient overlays for iOS picker fade effect */}
+              <LinearGradient
+                colors={[
+                  theme.colors.BACKGROUND || '#FFFFFF',
+                  (theme.colors.BACKGROUND || '#FFFFFF') + '00',
+                ]}
+                style={styles.topGradient}
+                pointerEvents="none"
+              />
+              <LinearGradient
+                colors={[
+                  (theme.colors.BACKGROUND || '#FFFFFF') + '00',
+                  theme.colors.BACKGROUND || '#FFFFFF',
+                ]}
+                style={styles.bottomGradient}
+                pointerEvents="none"
+              />
+
+              {/* Selection indicator */}
+              <View style={styles.selectionIndicator} />
+
+              <FlatList
+                ref={flatListRef}
+                data={options}
+                renderItem={renderItem}
+                keyExtractor={(item, index) => `${item.value}-${index}`}
+                getItemLayout={getItemLayout}
+                onScroll={handleScroll}
+                onMomentumScrollEnd={handleMomentumScrollEnd}
+                scrollEventThrottle={16}
+                showsVerticalScrollIndicator={false}
+                snapToInterval={ITEM_HEIGHT}
+                snapToAlignment="start"
+                decelerationRate="fast"
+                contentContainerStyle={styles.listContent}
+                bounces={true}
+                overScrollMode="never"
+                nestedScrollEnabled={Platform.OS === 'android'}
+              />
+            </View>
+          </View>
+        </Animated.View>
       </View>
-    </AppBottomSheet>
+    </Modal>
   );
 };
 
@@ -185,6 +284,20 @@ const useStyles = () => {
     const { colors, sizes } = theme;
 
     return StyleSheet.create({
+      modalContainer: {
+        flex: 1,
+        justifyContent: 'flex-end',
+      },
+      backdrop: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      },
+      bottomSheet: {
+        backgroundColor: colors.BACKGROUND || '#FFFFFF',
+        borderTopLeftRadius: scaleWithMax(24, 30),
+        borderTopRightRadius: scaleWithMax(24, 30),
+        overflow: 'hidden',
+      },
       container: {
         flex: 1,
         backgroundColor: colors.BACKGROUND || '#FFFFFF',
@@ -245,17 +358,17 @@ const useStyles = () => {
         left: sizes.PADDING * 0.5,
         right: sizes.PADDING * 0.5,
         height: ITEM_HEIGHT,
-        zIndex: 1,
+        zIndex: 3,
         pointerEvents: 'none',
         borderTopWidth: StyleSheet.hairlineWidth,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderColor: Platform.OS === 'ios' 
-          ? 'rgba(0, 0, 0, 0.1)' 
-          : colors.SECONDARY_GRAY + '60',
+        borderColor: colors.PRIMARY
+          ? colors.PRIMARY + '40'
+          : 'rgba(0, 122, 255, 0.4)',
         borderRadius: scaleWithMax(4, 6),
-        backgroundColor: Platform.OS === 'ios' 
-          ? 'rgba(0, 122, 255, 0.05)' 
-          : 'transparent',
+        backgroundColor: colors.PRIMARY
+          ? colors.PRIMARY + '15'
+          : 'rgba(0, 122, 255, 0.15)',
       },
       listContent: {
         paddingVertical: ITEM_HEIGHT * MIDDLE_INDEX,
@@ -267,21 +380,25 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
       },
       selectedItem: {
-        // Selected item styling
+        backgroundColor: colors.PRIMARY
+          ? colors.PRIMARY + '08'
+          : 'rgba(0, 122, 255, 0.08)',
       },
       itemText: {
         fontFamily: fonts.Quicksand.regular,
         fontSize: sizes.FONTSIZE,
-        color: Platform.OS === 'ios' 
-          ? colors.SECONDARY_TEXT || '#C7C7CC' 
-          : colors.SECONDARY_TEXT || '#999999',
+        color:
+          Platform.OS === 'ios'
+            ? colors.SECONDARY_TEXT || '#C7C7CC'
+            : colors.SECONDARY_TEXT || '#999999',
       },
       selectedItemText: {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
-        color: Platform.OS === 'ios' 
-          ? colors.PRIMARY_TEXT || '#000000' 
-          : colors.PRIMARY_TEXT || '#000000',
+        color:
+          Platform.OS === 'ios'
+            ? colors.PRIMARY_TEXT || '#000000'
+            : colors.PRIMARY_TEXT || '#000000',
       },
     });
   }, [theme]);
@@ -290,4 +407,3 @@ const useStyles = () => {
 };
 
 export default CityPickerModal;
-

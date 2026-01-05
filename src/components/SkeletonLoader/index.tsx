@@ -3,7 +3,7 @@ import { View, Dimensions } from 'react-native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 import { SvgNextIcon } from '../../assets/icons';
 import { useLocaleStore } from '../../store/reducer/locale';
-import { rtlTransform, isIOS, scaleWithMax } from '../../utils';
+import { rtlTransform, isAndroid, isIOS, scaleWithMax } from '../../utils';
 import useTheme from '../../styles/theme';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
@@ -40,17 +40,40 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
 
   const getSliderHeight = () => {
     if (screenType === 'home') {
-      const isProMax = theme.sizes.WIDTH > 430 && isIOS;
-      const isBaseModel = theme.sizes.WIDTH < 430 && isIOS;
-      if (isProMax) {
-        return theme.sizes.HEIGHT * 0.358;
-      } else if (isBaseModel) {
-        return theme.sizes.HEIGHT * 0.342;
-      } else {
-        return theme.sizes.HEIGHT * 0.35;
-      }
+      return theme.sizes.HEIGHT * (theme.sizes.HEIGHT > 850 ? 0.29 : 0.29);
     }
     return screenHeight * 0.34;
+  };
+
+  const getTabHeight = (row: 1 | 2 | 3) => {
+    if (screenType === 'home') {
+      const isProMax = theme.sizes.WIDTH >= 430 && isIOS;
+      const isLargeAndroid = isAndroid && theme.sizes.HEIGHT > 800;
+
+      if (row === 1) {
+        // First row: Gift One Get one
+        return isProMax
+          ? scaleWithMax(95, 110)
+          : isLargeAndroid
+          ? scaleWithMax(95, 103)
+          : scaleWithMax(95, 95);
+      } else if (row === 2) {
+        // Second row: Catch, Send a Gift
+        return isProMax
+          ? scaleWithMax(85, 100)
+          : isLargeAndroid
+          ? scaleWithMax(85, 93)
+          : scaleWithMax(85, 85);
+      } else {
+        // Third row: Inbox, Outbox
+        return isProMax
+          ? scaleWithMax(75, 90)
+          : isLargeAndroid
+          ? scaleWithMax(75, 83)
+          : scaleWithMax(78, 80);
+      }
+    }
+    return screenHeight * 0.1;
   };
 
   const renderContent = () => {
@@ -69,7 +92,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
 
               {/* Hero Image Slider */}
               <SkeletonPlaceholder.Item
-                width={screenWidth * 0.92}
+                width={screenWidth - theme.sizes.PADDING * 2}
                 height={getSliderHeight()}
                 borderRadius={12}
                 marginTop={screenHeight * 0.01}
@@ -80,54 +103,83 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                 width={screenWidth * 0.7}
                 height={screenHeight * 0.025}
                 borderRadius={screenWidth * 0.01}
-                marginTop={screenHeight * 0.01}
+                marginTop={screenHeight * 0.015}
                 marginBottom={screenHeight * 0.01}
               />
 
-              {/* Tabs Layout - First Row (2 tabs) */}
+              {/* Tabs Layout - First Row (1 tab: Gift One Get one) */}
               <SkeletonPlaceholder.Item
                 flexDirection="row"
-                justifyContent="space-between"
-                marginBottom={screenHeight * 0.01}
+                marginBottom={scaleWithMax(10, 12)}
               >
                 <SkeletonPlaceholder.Item
-                  width={screenWidth * 0.45}
-                  height={screenHeight * 0.1}
-                  borderRadius={screenWidth * 0.02}
-                />
-                <SkeletonPlaceholder.Item
-                  width={screenWidth * 0.45}
-                  height={screenHeight * 0.1}
-                  borderRadius={screenWidth * 0.02}
+                  width={screenWidth - theme.sizes.PADDING * 2}
+                  height={getTabHeight(1)}
+                  borderRadius={20}
                 />
               </SkeletonPlaceholder.Item>
 
-              {/* Tabs Layout - Second Row (1 tab) */}
-              <SkeletonPlaceholder.Item
-                flexDirection="row"
-                marginBottom={screenHeight * 0.01}
-              >
-                <SkeletonPlaceholder.Item
-                  width={screenWidth * 0.92}
-                  height={screenHeight * 0.1}
-                  borderRadius={screenWidth * 0.02}
-                />
-              </SkeletonPlaceholder.Item>
-
+              {/* Tabs Layout - Second Row (2 tabs: Catch, Send a Gift) */}
               <SkeletonPlaceholder.Item
                 flexDirection="row"
                 justifyContent="space-between"
-                marginBottom={screenHeight * 0.01}
+                marginBottom={scaleWithMax(10, 12)}
               >
                 <SkeletonPlaceholder.Item
-                  width={screenWidth * 0.45}
-                  height={screenHeight * 0.1}
-                  borderRadius={screenWidth * 0.02}
+                  width={
+                    (screenWidth -
+                      theme.sizes.PADDING * 2 -
+                      scaleWithMax(10, 12)) /
+                    2
+                  }
+                  height={getTabHeight(2)}
+                  borderRadius={20}
                 />
                 <SkeletonPlaceholder.Item
-                  width={screenWidth * 0.45}
-                  height={screenHeight * 0.1}
-                  borderRadius={screenWidth * 0.02}
+                  width={
+                    (screenWidth -
+                      theme.sizes.PADDING * 2 -
+                      scaleWithMax(10, 12)) /
+                    2
+                  }
+                  height={getTabHeight(2)}
+                  borderRadius={20}
+                />
+              </SkeletonPlaceholder.Item>
+
+              {/* Inner Section Title */}
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.6}
+                height={screenHeight * 0.025}
+                borderRadius={screenWidth * 0.01}
+                // marginTop={screenHeight * 0.015}
+                marginBottom={screenHeight * 0.01}
+              />
+
+              {/* Tabs Layout - Third Row (2 tabs: Inbox, Outbox) */}
+              <SkeletonPlaceholder.Item
+                flexDirection="row"
+                justifyContent="space-between"
+              >
+                <SkeletonPlaceholder.Item
+                  width={
+                    (screenWidth -
+                      theme.sizes.PADDING * 2 -
+                      scaleWithMax(10, 12)) /
+                    2
+                  }
+                  height={getTabHeight(3)}
+                  borderRadius={20}
+                />
+                <SkeletonPlaceholder.Item
+                  width={
+                    (screenWidth -
+                      theme.sizes.PADDING * 2 -
+                      scaleWithMax(10, 12)) /
+                    2
+                  }
+                  height={getTabHeight(3)}
+                  borderRadius={20}
                 />
               </SkeletonPlaceholder.Item>
             </SkeletonPlaceholder.Item>

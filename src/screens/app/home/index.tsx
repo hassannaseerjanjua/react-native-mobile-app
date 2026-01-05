@@ -30,7 +30,13 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import useGetApi from '../../../hooks/useGetApi';
-import { isIOS, isIOSThen, scaleWithMax } from '../../../utils';
+import {
+  isAndroid,
+  isAndroidThen,
+  isIOS,
+  isIOSThen,
+  scaleWithMax,
+} from '../../../utils';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -72,11 +78,12 @@ const HomeScreen: React.FC = () => {
             '#FDECEC',
             '#FFFFFF',
           ]}
-          locations={[0, 0.95, 0.15, 0.4, 0.6, 0.85, 1]}
+          locations={[0, isAndroidThen(0.06, 0.92), 0.15, 0.4, 0.6, 0.85, 1]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
           style={styles.mainContent}
-        ></LinearGradient>
+          useAngle={false}
+        />
         <HomeHeader
           showProfileIcon={true}
           onProfilePress={() => {
@@ -128,6 +135,7 @@ const HomeScreenTabsContainer: React.FC = () => {
   const { getString } = useLocaleStore();
   const navigation = useNavigation();
   const isProMax = theme.sizes.WIDTH >= 430 && isIOS;
+  const isLargeAndroid = isAndroid && theme.sizes.HEIGHT > 800;
 
   const homeScreenTabs = [
     {
@@ -203,7 +211,11 @@ const HomeScreenTabsContainer: React.FC = () => {
           onPress={homeScreenTabs[0].onPress}
           iconStyles={homeScreenTabs[0].iconStyles}
           style={{
-            minHeight: scaleWithMax(90, 95),
+            minHeight: isProMax
+              ? scaleWithMax(95, 110)
+              : isLargeAndroid
+              ? scaleWithMax(95, 103)
+              : scaleWithMax(95, 95),
           }}
         />
       </View>
@@ -218,7 +230,11 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              minHeight: scaleWithMax(85, 90),
+              minHeight: isProMax
+                ? scaleWithMax(85, 100)
+                : isLargeAndroid
+                ? scaleWithMax(85, 93)
+                : scaleWithMax(85, 85),
             }}
           />
         ))}
@@ -235,8 +251,16 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              minHeight: scaleWithMax(80, 85),
-              ...theme.globalStyles.SHADOW_STYLE,
+              minHeight: isProMax
+                ? scaleWithMax(75, 90)
+                : isLargeAndroid
+                ? scaleWithMax(75, 83)
+                : scaleWithMax(78, 80),
+              shadowColor: '#000000',
+              shadowOffset: { width: 0, height: 5 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+              elevation: 2,
             }}
           />
         ))}

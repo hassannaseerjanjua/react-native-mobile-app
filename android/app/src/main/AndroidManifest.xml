@@ -39,13 +39,23 @@
         <category android:name="android.intent.category.BROWSABLE" />
         <data android:scheme="giftee" />
       </intent-filter>
-      <intent-filter>
+      <intent-filter android:autoVerify="true">
         <action android:name="android.intent.action.VIEW" />
         <category android:name="android.intent.category.DEFAULT" />
         <category android:name="android.intent.category.BROWSABLE" />
         <data
           android:scheme="https"
-          android:host="giftee.app" />
+          android:host="giftee.app"
+          android:pathPrefix="/" />
+      </intent-filter>
+      <intent-filter android:autoVerify="true">
+        <action android:name="android.intent.action.VIEW" />
+        <category android:name="android.intent.category.DEFAULT" />
+        <category android:name="android.intent.category.BROWSABLE" />
+        <data
+          android:scheme="https"
+          android:host="admin.giftee.hostinger.bitscollision.net"
+          android:pathPrefix="/" />
       </intent-filter>
     </activity>
   </application>
