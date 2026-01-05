@@ -66,7 +66,14 @@ const ProfileScreen: React.FC = () => {
 
   const handleShareGiftLink = async () => {
     try {
-      const giftLink = `https://giftee.app/share/${user?.UserId}-${user?.CityId}`;
+      if (!user?.UserId || !user?.CityId) {
+        return;
+      }
+
+      // Generate deep link using https format (already associated with the app)
+      // Format: https://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId={userId}&CityId={cityId}&sendType=1
+      const giftLink = `https://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId=${user.UserId}&CityId=${user.CityId}&sendType=1`;
+
       const shareMessage = `🎁 Want to send me a gift? Click the link below.\n\n${giftLink}`;
       const shareOptions = Platform.select({
         ios: {
@@ -328,7 +335,7 @@ const ProfileScreen: React.FC = () => {
               <Text style={screenStyles.profileName}>{user?.FullNameEn}</Text>{' '}
               {user?.IsVerified && <SvgVerifiedIcon />}
             </View>
-            <Text style={screenStyles.profileUsername}>{user?.UserName}</Text>
+            <Text style={screenStyles.profileUsername}>@{user?.UserName}</Text>
           </View>
           <TouchableOpacity onPress={() => setShowQrModal(true)}>
             <SvgProfileQrIcon />

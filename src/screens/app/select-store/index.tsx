@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, StatusBar, FlatList } from 'react-native';
+import { View, StatusBar, FlatList, TouchableOpacity } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -11,6 +11,8 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 import DropdownField, {
   DropdownOption,
 } from '../../../components/global/DropdownField.tsx';
+import CityPickerModal from '../../../components/global/CityPickerModal.tsx';
+import fonts from '../../../assets/fonts';
 import {
   AppStackScreen,
   AppStackParamList,
@@ -18,6 +20,7 @@ import {
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { useAuthStore } from '../../../store/reducer/auth';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
+import { ArrowDownIcon } from '../../../assets/icons';
 import {
   Store,
   BusinessType,
@@ -29,6 +32,7 @@ import { useListingApi } from '../../../hooks/useListingApi.ts';
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
 import { Text } from '../../../utils/elements';
+import { scaleWithMax } from '../../../utils';
 
 const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const friendUserId = route?.params?.friendUserId ?? null;
@@ -46,6 +50,29 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
+  const [showCityPicker, setShowCityPicker] = useState(false);
+
+  // Log received route parameters
+  useEffect(() => {
+    console.log('='.repeat(60));
+    console.log('SELECT STORE SCREEN - COMPONENT MOUNTED/RENDERED');
+    console.log('='.repeat(60));
+    console.log('Route object:', route);
+    console.log('Route params exists:', !!route?.params);
+    console.log(
+      'All route params:',
+      JSON.stringify(route?.params || {}, null, 2),
+    );
+    console.log('friendUserId (from route):', route?.params?.friendUserId);
+    console.log('CityId (from route):', route?.params?.CityId);
+    console.log('sendType (from route):', route?.params?.sendType);
+    console.log('friendName (from route):', route?.params?.friendName);
+    console.log('storeId (from route):', route?.params?.storeId);
+    console.log('Extracted friendUserId variable:', friendUserId);
+    console.log('Extracted initialCityId variable:', initialCityId);
+    console.log('Component mounted at:', new Date().toISOString());
+    console.log('='.repeat(60));
+  }, [route?.params, friendUserId, initialCityId]);
 
   const businessTypeApi = useGetApi<BusinessType[]>(
     apiEndpoints.GET_BUSINESS_TYPE,
@@ -191,38 +218,56 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         <HomeHeader
           title={getString('SELECT_STORE_TITLE')}
           showBackButton={true}
-          onBackPress={() => navigation.goBack()}
+          onBackPress={() => {
+            // Check if we can go back, otherwise navigate to home
+            if (navigation.canGoBack()) {
+              navigation.goBack();
+            } else {
+              // Navigate to home if there's no back history (e.g., from deep link)
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'BottomTabs' as never }],
+              });
+            }
+          }}
           showSearchBar={true}
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
           searchPlaceholder={getString('HOME_SEARCH')}
           rightSideView={
             route.params.sendType !== 2 && (
-              <View
+              <TouchableOpacity
+                onPress={() => setShowCityPicker(true)}
                 style={{
                   width: theme.sizes.WIDTH * 0.48,
+                  height: theme.sizes.HEIGHT * 0.045,
+                  flexDirection: 'row',
+                  justifyContent: 'flex-end',
+                  alignItems: 'center',
+                  paddingHorizontal: theme.sizes.PADDING * 0.4,
+                  gap: scaleWithMax(4, 6),
                 }}
               >
-                <DropdownField
-                  options={cityOptions}
-                  textAlign="right"
-                  selectedValue={selectedCityId ?? undefined}
-                  selectedOption={selectedCityOption}
-                  onSelect={option => setSelectedCityId(option.value)}
-                  isLoading={citiesApi.loading}
-                  label={getString('SELECT_STORE_SELECT_CITY')}
-                  placeholder=""
+                <Text
                   style={{
-                    height: theme.sizes.HEIGHT * 0.045,
-                    borderRadius: theme.sizes.BORDER_RADIUS,
-                    paddingHorizontal: theme.sizes.PADDING * 0.4,
-                    backgroundColor: 'transparent',
-                    borderWidth: 0,
-                    elevation: 0,
-                    textAlign: 'right',
+                    fontSize: theme.sizes.FONTSIZE,
+                    color: theme.colors.PRIMARY,
+                    fontFamily: selectedCityOption
+                      ? fonts.Quicksand.medium
+                      : fonts.Quicksand.regular,
                   }}
+                  numberOfLines={1}
+                >
+                  {selectedCityOption
+                    ? selectedCityOption.label
+                    : getString('SELECT_STORE_SELECT_CITY')}
+                </Text>
+                <ArrowDownIcon
+                  width={scaleWithMax(12, 14)}
+                  height={scaleWithMax(12, 14)}
+                  fill={theme.colors.PRIMARY}
                 />
-              </View>
+              </TouchableOpacity>
             )
           }
         />
@@ -305,6 +350,21 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
           )}
         </View>
       </View>
+
+      <CityPickerModal
+        visible={showCityPicker}
+        onClose={() => setShowCityPicker(false)}
+        options={cityOptions.map(opt => ({
+          label: opt.label,
+          value: opt.value,
+        }))}
+        selectedValue={selectedCityId}
+        onSelect={value => {
+          setSelectedCityId(value as number | null);
+          setShowCityPicker(false);
+        }}
+        title={getString('SELECT_STORE_SELECT_CITY')}
+      />
     </ParentView>
   );
 };

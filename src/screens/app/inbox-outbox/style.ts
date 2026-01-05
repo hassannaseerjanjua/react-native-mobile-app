@@ -52,7 +52,7 @@ const useStyles = () => {
       },
       inboxImage: {
         width: sizes.WIDTH * 0.78,
-        height: sizes.HEIGHT * 0.34,
+        height: sizes.HEIGHT * 0.25,
         resizeMode: 'cover',
         borderTopLeftRadius: 12,
         borderTopRightRadius: 12,
@@ -67,7 +67,7 @@ const useStyles = () => {
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical: sizes.PADDING * 0.6,
+        paddingVertical: sizes.PADDING * 0.4,
         paddingHorizontal: sizes.PADDING,
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,

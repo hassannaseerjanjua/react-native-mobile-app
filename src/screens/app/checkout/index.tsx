@@ -262,7 +262,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     setShowRemoveConfirmation(false);
     const response = await api.put(apiEndpoints.CLEAR_CART, {});
     if (response.success) {
-      navigation.dispatch(StackActions.popToTop());
+      // Navigate to home after clearing cart
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'BottomTabs' as never }],
+      });
     } else {
       notify.error(response.error || getString('AU_ERROR_OCCURRED'));
     }
@@ -464,13 +468,25 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           primaryButtonTitle={
             isSendType2 ? 'Share Link' : getString('CHECKOUT_HOME')
           }
-          onSecondaryPress={() => navigation.dispatch(StackActions.popToTop())}
+          onSecondaryPress={() => {
+            // Navigate to home after gift is sent
+            navigation.reset({
+              index: 0,
+              routes: [{ name: 'BottomTabs' as never }],
+            });
+          }}
           secondaryButtonTitle={isSendType2 ? getString('CHECKOUT_HOME') : ''}
-          onPrimaryPress={() =>
-            isSendType2 && giftLink
-              ? handleShareGiftLink(giftLink)
-              : navigation.dispatch(StackActions.popToTop())
-          }
+          onPrimaryPress={() => {
+            if (isSendType2 && giftLink) {
+              handleShareGiftLink(giftLink);
+            } else {
+              // Navigate to home after gift is sent
+              navigation.reset({
+                index: 0,
+                routes: [{ name: 'BottomTabs' as never }],
+              });
+            }
+          }}
         />
       </>
     );

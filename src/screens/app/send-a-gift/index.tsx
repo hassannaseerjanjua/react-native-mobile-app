@@ -131,7 +131,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       title: getString('SG_GROUP'),
       onPress: () =>
         navigation.navigate('SendToGroup' as any, {
-          routeTo: route.params.routeTo,
+          routeTo: route.params?.routeTo || 'SelectStore',
         }),
     },
     {
@@ -174,7 +174,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       !activeUsersApi.search &&
       activeTab === 'friends' &&
       user &&
-      route.params.routeTo === 'SelectStore'
+      (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo)
     ) {
       const currentUser: ActiveUser = {
         UserId: user.UserId,
@@ -208,7 +208,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       />
       <HomeHeader
         title={
-          route.params.routeTo === 'SelectStore'
+          route.params?.routeTo === 'SelectStore' || !route.params?.routeTo
             ? getString('HOME_SEND_A_GIFT')
             : getString('HOME_GIFT_ONE_GET_ONE')
         }
@@ -254,7 +254,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           style={styles.scrollableContentContainer}
           showsVerticalScrollIndicator={false}
         >
-          {route.params.routeTo === 'SelectStore' && (
+          {(route.params?.routeTo === 'SelectStore' ||
+            !route.params?.routeTo) && (
             <View style={[styles.tabContainer]}>
               <TabItem
                 title={getString('SG_SEND_THROUGH_LINK')}
@@ -315,7 +316,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                           }
 
                           // Navigate to the next screen
-                          if (route.params.routeTo === 'SelectStore') {
+                          if (
+                            route.params?.routeTo === 'SelectStore' ||
+                            !route.params?.routeTo
+                          ) {
                             navigation.navigate('SelectStore', {
                               friendUserId: selectedFriendUserId,
                               friendName:
@@ -357,7 +361,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 styles.listCard,
                 {
                   marginBottom:
-                    route.params.routeTo === 'SelectStore'
+                    route.params?.routeTo === 'SelectStore' ||
+                    !route.params?.routeTo
                       ? theme.sizes.HEIGHT * 0.04
                       : theme.sizes.HEIGHT * 0.04,
                 },
@@ -399,7 +404,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                       }
 
                       // Navigate to the next screen
-                      if (route.params.routeTo === 'SelectStore') {
+                      if (
+                        route.params?.routeTo === 'SelectStore' ||
+                        !route.params?.routeTo
+                      ) {
                         navigation.navigate('SelectStore', {
                           friendUserId: selectedFriendUserId,
                           friendName:

@@ -398,7 +398,7 @@ const InboxOutbox: React.FC = () => {
                 });
               })()}
             <CustomButton
-              title={'Pick Up'}
+              title={'Continue'}
               onPress={() => handlePickUpPress()}
               buttonStyle={{
                 backgroundColor: !Array.from(selectedItems.values()).some(
@@ -488,215 +488,227 @@ const InboxItem: React.FC<InboxItemProps> = ({
   };
 
   return (
-    <View>
+    <View
+      style={{
+        ...styles.inboxTop,
+        borderBottomWidth: isLast ? 0 : 0.7,
+        borderBottomColor: theme.colors.BORDER_COLOR,
+      }}
+    >
       <View
         style={{
-          ...styles.inboxTop,
-          borderBottomWidth: isLast ? 0 : 0.7,
-          borderBottomColor: theme.colors.BORDER_COLOR,
+          ...styles.row,
+          alignItems: 'flex-start',
         }}
       >
-        <View
-          style={{
-            ...styles.row,
-            alignItems: 'flex-start',
-          }}
-        >
-          <Image
-            style={styles.inboxProfile}
-            source={
-              order.SendType === 2
-                ? require('../../../assets/images/link.png')
-                : profileImage
-            }
-          />
-          <View style={{ flex: 1 }}>
+        {order.SendType === 2 ? (
+          <View
+            style={[
+              styles.inboxProfile,
+              {
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: 'transparent',
+              },
+            ]}
+          >
+            <Image
+              style={{
+                width: scaleWithMax(30, 35),
+                height: scaleWithMax(30, 35),
+                resizeMode: 'contain',
+              }}
+              source={require('../../../assets/images/gift-link-checkout.png')}
+            />
+          </View>
+        ) : (
+          <Image style={styles.inboxProfile} source={profileImage} />
+        )}
+        <View style={{ flex: 1 }}>
+          <View
+            style={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'space-between',
+              paddingVertical: theme.sizes.PADDING * 0.2,
+              rowGap: theme.sizes.PADDING * 0.24,
+            }}
+          >
             <View
               style={{
-                display: 'flex',
-                flexDirection: 'column',
+                flex: 1,
+                ...styles.row,
                 justifyContent: 'space-between',
-                paddingVertical: theme.sizes.PADDING * 0.2,
-                rowGap: theme.sizes.PADDING * 0.24,
               }}
             >
-              <View
-                style={{
-                  flex: 1,
-                  ...styles.row,
-                  justifyContent: 'space-between',
-                }}
+              <Text
+                style={styles.userNameText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
               >
-                <Text
-                  style={styles.userNameText}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {order.SendType === 2 ? 'Gift Link' : userName}
-                </Text>
-                <Text style={styles.timeText}>{timeAgo}</Text>
+                {order.SendType === 2 ? 'Gift Link' : userName}
+              </Text>
+              <Text style={styles.timeText}>{timeAgo}</Text>
+            </View>
+            <View
+              style={{
+                flex: 1,
+                ...styles.row,
+                justifyContent: 'space-between',
+              }}
+            >
+              <View style={styles.storeNameRow}>
+                <View style={styles.giftIconWrapper}>
+                  <GiftIcon
+                    height={theme.sizes.FONTSIZE}
+                    width={theme.sizes.FONTSIZE}
+                  />
+                </View>
+                <Text style={styles.storeNameText}>{storeName}</Text>
+                <View style={styles.backIconContainer}>
+                  <RoundedBackIcon
+                    height={scaleWithMax(8, 8)}
+                    width={scaleWithMax(8, 8)}
+                  />
+                </View>
               </View>
               <View
-                style={{
-                  flex: 1,
-                  ...styles.row,
-                  justifyContent: 'space-between',
-                }}
+                style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
               >
-                <View style={styles.storeNameRow}>
-                  <View style={styles.giftIconWrapper}>
-                    <GiftIcon
-                      height={theme.sizes.FONTSIZE}
-                      width={theme.sizes.FONTSIZE}
+                {((order.orderImages &&
+                  Array.isArray(order.orderImages) &&
+                  order.orderImages.length > 0) ||
+                  order.OrderMessage) && (
+                  <TouchableOpacity
+                    onPress={e => {
+                      e.stopPropagation?.();
+                      onVideoPress?.();
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <SmsTrackingIcon
+                      height={scaleWithMax(20, 20)}
+                      width={scaleWithMax(20, 20)}
                     />
-                  </View>
-                  <Text style={styles.storeNameText}>{storeName}</Text>
-                  <View style={styles.backIconContainer}>
-                    <RoundedBackIcon
-                      height={scaleWithMax(8, 8)}
-                      width={scaleWithMax(8, 8)}
+                  </TouchableOpacity>
+                )}
+                {order.SendType === 2 && onShareGiftLink && (
+                  <TouchableOpacity
+                    onPress={() =>
+                      createDebouceClick('share-gift', () =>
+                        onShareGiftLink(order.OrderId),
+                      )
+                    }
+                  >
+                    <SvgOutboxShareIcon
+                      height={scaleWithMax(20, 20)}
+                      width={scaleWithMax(20, 20)}
                     />
-                  </View>
-                </View>
-                <View
-                  style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
-                >
-                  {((order.orderImages &&
-                    Array.isArray(order.orderImages) &&
-                    order.orderImages.length > 0) ||
-                    order.OrderMessage) && (
-                    <TouchableOpacity
-                      onPress={e => {
-                        e.stopPropagation?.();
-                        onVideoPress?.();
-                      }}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    >
-                      <SmsTrackingIcon
-                        height={scaleWithMax(20, 20)}
-                        width={scaleWithMax(20, 20)}
-                      />
-                    </TouchableOpacity>
-                  )}
-                  {order.SendType === 2 && onShareGiftLink && (
-                    <TouchableOpacity
-                      onPress={() =>
-                        createDebouceClick('share-gift', () =>
-                          onShareGiftLink(order.OrderId),
-                        )
-                      }
-                    >
-                      <SvgOutboxShareIcon
-                        height={scaleWithMax(20, 20)}
-                        width={scaleWithMax(20, 20)}
-                      />
-                    </TouchableOpacity>
-                  )}
-                </View>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
+          </View>
 
-            {/* Slider with ScrollView */}
-            <View
+          {/* Slider with ScrollView */}
+          <View
+            style={{
+              paddingVertical: theme.sizes.PADDING * 0.3,
+            }}
+          >
+            <ScrollView
+              ref={scrollViewRef}
+              horizontal
+              pagingEnabled
+              overScrollMode="never"
+              showsHorizontalScrollIndicator={false}
+              onScroll={handleScroll}
+              scrollEventThrottle={16}
+              scrollEnabled={order.Items && order.Items.length > 1}
+              decelerationRate="fast"
+              snapToInterval={
+                theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8
+              }
+              snapToAlignment="start"
+              contentContainerStyle={{
+                paddingVertical: theme.sizes.HEIGHT * 0.016,
+                gap: theme.sizes.PADDING * 0.8,
+              }}
               style={{
-                paddingVertical: theme.sizes.PADDING * 0.45,
+                overflow: 'visible',
               }}
             >
-              <ScrollView
-                ref={scrollViewRef}
-                horizontal
-                pagingEnabled
-                overScrollMode="never"
-                showsHorizontalScrollIndicator={false}
-                onScroll={handleScroll}
-                scrollEventThrottle={16}
-                scrollEnabled={order.Items && order.Items.length > 1}
-                decelerationRate="fast"
-                snapToInterval={
-                  theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8
-                }
-                snapToAlignment="start"
-                contentContainerStyle={{
-                  paddingVertical: theme.sizes.PADDING * 0.4,
-                  gap: theme.sizes.PADDING * 0.8,
-                }}
-                style={{
-                  overflow: 'visible',
-                }}
-              >
-                {order.Items?.map((item, index) => {
-                  const itemImage = getMainImage(item);
-                  const allItemsRedeemed =
-                    order.Items &&
-                    order.Items.every(item => item.Status === 10);
+              {order.Items?.map((item, index) => {
+                const itemImage = getMainImage(item);
+                const allItemsRedeemed =
+                  order.Items && order.Items.every(item => item.Status === 10);
 
-                  return (
-                    <TouchableOpacity
-                      key={`item-${order.OrderId}-${index}`}
-                      onPress={() => onClick && onClick(item)}
-                      activeOpacity={isInbox ? 0.8 : 1}
-                      style={styles.imageContainer}
-                    >
-                      {item.Status === 10 && (
-                        <View style={styles.redeemedBox}>
-                          <Text
-                            style={{
-                              color: theme.colors.WHITE,
-                              fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                            }}
-                          >
-                            Redeemed
+                return (
+                  <TouchableOpacity
+                    key={`item-${order.OrderId}-${index}`}
+                    onPress={() => onClick && onClick(item)}
+                    activeOpacity={isInbox ? 0.8 : 1}
+                    style={styles.imageContainer}
+                  >
+                    {item.Status === 10 && (
+                      <View style={styles.redeemedBox}>
+                        <Text
+                          style={{
+                            color: theme.colors.WHITE,
+                            fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                          }}
+                        >
+                          Redeemed
+                        </Text>
+                      </View>
+                    )}
+                    <Image source={itemImage} style={styles.inboxImage} />
+                    <View style={styles.inboxImageBottom}>
+                      <Text
+                        style={styles.itemNameText}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {item.ItemName}
+                      </Text>
+
+                      {item.Quantity - item.UsedQuantity > 0 && (
+                        <View style={styles.numCircle}>
+                          <Text style={styles.numText}>
+                            {item.Quantity - item.UsedQuantity}
                           </Text>
                         </View>
                       )}
-                      <Image source={itemImage} style={styles.inboxImage} />
-                      <View style={styles.inboxImageBottom}>
-                        <Text
-                          style={styles.itemNameText}
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                        >
-                          {item.ItemName}
-                        </Text>
+                    </View>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
 
-                        {item.Quantity - item.UsedQuantity > 0 && (
-                          <View style={styles.numCircle}>
-                            <Text style={styles.numText}>
-                              {item.Quantity - item.UsedQuantity}
-                            </Text>
-                          </View>
-                        )}
-                      </View>
-                    </TouchableOpacity>
-                  );
-                })}
-              </ScrollView>
-
-              {/* Pagination Dots */}
-              {order.Items && order.Items.length > 1 && (
-                <View style={styles.paginationContainer}>
-                  {order.Items.map((_, index) => (
-                    <TouchableOpacity
-                      key={`dot-${order.OrderId}-${index}`}
-                      onPress={() => {
-                        createDebouceClick('scroll-to-index', () =>
-                          scrollToIndex(index),
-                        );
-                      }}
-                      activeOpacity={0.8}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    >
-                      <View
-                        style={[
-                          styles.paginationDot,
-                          index === currentIndex && styles.paginationDotActive,
-                        ]}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
-            </View>
+            {/* Pagination Dots */}
+            {order.Items && order.Items.length > 1 && (
+              <View style={styles.paginationContainer}>
+                {order.Items.map((_, index) => (
+                  <TouchableOpacity
+                    key={`dot-${order.OrderId}-${index}`}
+                    onPress={() => {
+                      createDebouceClick('scroll-to-index', () =>
+                        scrollToIndex(index),
+                      );
+                    }}
+                    activeOpacity={0.8}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <View
+                      style={[
+                        styles.paginationDot,
+                        index === currentIndex && styles.paginationDotActive,
+                      ]}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
           </View>
         </View>
       </View>

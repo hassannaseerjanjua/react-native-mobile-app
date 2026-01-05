@@ -12,6 +12,7 @@ import {
   Animated,
   InputAccessoryView,
 } from 'react-native';
+import { LinearGradient } from 'react-native-linear-gradient';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Video } from 'react-native-compressor';
@@ -1062,6 +1063,24 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             <View style={styles.body}>
               <View style={styles.messageContainer}>
                 <View style={styles.inputWrapper} pointerEvents="box-none">
+                  {/* Gradient background when no filter is selected */}
+                  {!selectedFilter && (
+                    <LinearGradient
+                      colors={['#FFFFFF', '#FDF0F0', '#FFFFFF']}
+                      locations={[0, 0.5, 1]}
+                      start={{ x: 0, y: 0 }}
+                      end={{ x: 0, y: 1 }}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        borderRadius: 10,
+                      }}
+                      pointerEvents="none"
+                    />
+                  )}
                   {/* Filter background with low opacity */}
                   {selectedFilter && (
                     <View

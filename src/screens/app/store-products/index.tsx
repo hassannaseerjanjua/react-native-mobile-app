@@ -165,7 +165,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         storeId: product.StoreId ?? storeId,
         friendUserId,
         sendType: route.params.sendType,
-        campaignId: product.Campaign.CampaignId,
+        campaignId: product?.Campaign?.CampaignId,
       });
     } else {
       (navigation as any).navigate('ProductDetails', {

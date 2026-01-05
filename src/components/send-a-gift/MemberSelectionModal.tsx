@@ -41,6 +41,7 @@ import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 import notify from '../../utils/notify';
 import { useAuthStore } from '../../store/reducer/auth';
+import Toast from 'react-native-toast-message';
 
 const dummyImage = require('../../assets/images/user.png');
 
@@ -249,7 +250,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         );
 
         if (res.failed) {
-          notify.error(res.error);
+          notify.error(res.error || getString('AU_ERROR_OCCURRED'), 'bottom');
           setIsSaving(false);
           return;
         }
@@ -258,7 +259,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         closeModal();
         navigation.navigate('SendToGroup' as never);
       } catch (error: any) {
-        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'), 'bottom');
         setIsSaving(false);
       }
     } else {
@@ -267,7 +268,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         await onSave(selectedUsersData, groupName, groupImage);
         closeModal();
       } catch (error: any) {
-        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'), 'bottom');
       } finally {
         setIsSaving(false);
       }
@@ -696,6 +697,19 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
             )}
           </View>
         </Animated.View>
+        {/* Toast with high z-index to appear above modal */}
+        <View
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            zIndex: 10000,
+            pointerEvents: 'box-none',
+          }}
+        >
+          <Toast />
+        </View>
       </View>
     </Modal>
   );
@@ -792,6 +806,20 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.RED,
         marginTop: scaleWithMax(4, 4),
+      },
+      generalErrorContainer: {
+        backgroundColor: colors.RED + '15',
+        borderRadius: sizes.BORDER_RADIUS_MID,
+        padding: sizes.PADDING * 0.6,
+        marginTop: sizes.HEIGHT * 0.015,
+        borderWidth: 1,
+        borderColor: colors.RED + '40',
+      },
+      generalErrorText: {
+        fontFamily: fonts.Quicksand.medium,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: colors.RED,
+        textAlign: 'center',
       },
       groupNameInput: {
         flex: 1,
