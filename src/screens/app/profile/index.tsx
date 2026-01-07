@@ -54,6 +54,7 @@ const ProfileScreen: React.FC = () => {
   const dispatch = useDispatch();
   const { user, token } = useAuthStore();
   const { getString } = useLocaleStore();
+  const isMerchant = user?.isMerchant === 1;
   const dummyImage = require('../../../assets/images/user.png');
   const [isUploading, setIsUploading] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
@@ -294,7 +295,22 @@ const ProfileScreen: React.FC = () => {
       },
     },
   ];
-
+  const allowedMenuItems: (typeof profileMenuItems)[number]['id'][] = isMerchant
+    ? ['gift-link', 'order', 'terms', 'privacy', 'faq', 'logout']
+    : [
+        'wallet',
+        'gift-link',
+        'favourites',
+        'friends',
+        'settings',
+        'order',
+        'connect',
+        'contact-us',
+        'terms',
+        'privacy',
+        'faq',
+        'logout',
+      ];
   return (
     <ParentView style={screenStyles.container}>
       <StatusBar
@@ -343,18 +359,20 @@ const ProfileScreen: React.FC = () => {
         </View>
 
         <View style={screenStyles.menuContainer}>
-          {profileMenuItems.map((item, index) => (
-            <View key={item.id} style={screenStyles.menuItemWrapper}>
-              <TabItem
-                title={item.title}
-                onPress={item.onPress}
-                hideRightIcon={true}
-                icon={item.icon}
-                TabItemStyles={screenStyles.menuItem}
-                TabTextStyles={screenStyles.menuItemText}
-              />
-            </View>
-          ))}
+          {profileMenuItems.map((item, index) =>
+            isMerchant && !allowedMenuItems.includes(item.id) ? null : (
+              <View key={item.id} style={screenStyles.menuItemWrapper}>
+                <TabItem
+                  title={item.title}
+                  onPress={item.onPress}
+                  hideRightIcon={true}
+                  icon={item.icon}
+                  TabItemStyles={screenStyles.menuItem}
+                  TabTextStyles={screenStyles.menuItemText}
+                />
+              </View>
+            ),
+          )}
         </View>
       </ScrollView>
 
@@ -403,7 +421,7 @@ const ProfileScreen: React.FC = () => {
                       {user?.FullNameEn}
                     </Text>
                     <Text style={screenStyles.modalProfileUsername}>
-                      {user?.UserName}
+                      @{user?.UserName}
                     </Text>
                   </View>
                 </View>

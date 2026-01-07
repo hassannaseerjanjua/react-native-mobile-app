@@ -15,7 +15,7 @@ import RenderHTML from 'react-native-render-html';
 import { useSizes } from '../../../styles/sizes';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
-interface StaticProps extends AppStackScreen<'StaticContent'> { }
+interface StaticProps extends AppStackScreen<'StaticContent'> {}
 
 const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
@@ -28,7 +28,6 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
       transformData: data => data.Data,
     },
   );
-
 
   const source = {
     html:
@@ -104,12 +103,13 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
             }}
             baseStyle={{
               fontSize: 14,
-              lineHeight: 20,
+              // lineHeight: 20,
             }}
             source={source}
             contentWidth={sizes.WIDTH}
             enableExperimentalMarginCollapsing={true}
-          />)}
+          />
+        )}
       </ScrollView>
     </ParentView>
   );

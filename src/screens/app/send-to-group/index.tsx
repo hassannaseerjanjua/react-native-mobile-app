@@ -238,7 +238,10 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
           keyExtractor={item => item.UserGroupId.toString()}
           renderItem={({ item: group }) => (
             <TabItem
-              isGroupImage={group.ImageUrl}
+              isGroupImage={
+                group.ImageUrl ||
+                require('../../../assets/images/img-placeholder.png')
+              }
               title={group.GroupName}
               onPress={
                 isEditGroupOpen

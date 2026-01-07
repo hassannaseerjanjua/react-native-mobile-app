@@ -19,8 +19,9 @@ const useStyles = () => {
         flex: 1,
       },
       scrollContent: {
-        padding: sizes.PADDING,
+        paddingHorizontal: sizes.PADDING,
         paddingBottom: sizes.HEIGHT * 0.02,
+        // backgroundColor: colors.RED,
       },
     });
   }, [theme]);

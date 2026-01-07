@@ -242,6 +242,41 @@ const OccasionsScreen: React.FC = () => {
                                 />
                               )}
                             </TouchableOpacity>
+                          ) : selectedOccasion.id === -1 ? (
+                            // Show birthday image for default birthday in view mode
+                            <Image
+                              source={require('../../../assets/images/birthday.png')}
+                              style={{
+                                width: scaleWithMax(30, 34),
+                                height: scaleWithMax(30, 34),
+                                borderRadius: scaleWithMax(14, 16),
+                              }}
+                              resizeMode="cover"
+                            />
+                          ) : formik.values.image &&
+                            typeof formik.values.image === 'object' &&
+                            formik.values.image.uri ? (
+                            <Image
+                              source={{ uri: formik.values.image.uri }}
+                              style={{
+                                width: scaleWithMax(30, 34),
+                                height: scaleWithMax(30, 34),
+                                borderRadius: scaleWithMax(14, 16),
+                              }}
+                              resizeMode="cover"
+                            />
+                          ) : formik.values.image &&
+                            typeof formik.values.image === 'string' &&
+                            formik.values.image ? (
+                            <Image
+                              source={{ uri: formik.values.image }}
+                              style={{
+                                width: scaleWithMax(30, 34),
+                                height: scaleWithMax(30, 34),
+                                borderRadius: scaleWithMax(14, 16),
+                              }}
+                              resizeMode="cover"
+                            />
                           ) : (
                             <SvgOccasionIcon
                               width={scaleWithMax(24, 26)}

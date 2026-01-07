@@ -122,9 +122,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
     const favoritesTabTitle =
-      friendUserId && friendName
-        ? `${friendName}'s Favorites`
-        : getString('FAV_FAVORITES');
+      friendUserId && friendName ? `Favorites` : getString('FAV_FAVORITES');
     const favoritesOption = { id: 'favorites', title: favoritesTabTitle };
 
     if (!categoriesApi.data || categoriesApi.data.length === 0) {

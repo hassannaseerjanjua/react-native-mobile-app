@@ -37,6 +37,7 @@ import {
   isIOSThen,
   scaleWithMax,
 } from '../../../utils';
+import notify from '../../../utils/notify';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -44,6 +45,7 @@ const HomeScreen: React.FC = () => {
   const { user } = useAuthStore();
   const navigation = useNavigation();
   const hasLoadedOnceRef = useRef(false);
+  const isMerchant = user?.isMerchant === 1;
 
   const {
     data: sliderResponse,
@@ -90,8 +92,8 @@ const HomeScreen: React.FC = () => {
             navigation.navigate('Profile' as never);
           }}
           showLogo={true}
-          showSearch={true}
-          showCartIcon={true}
+          showSearch={!isMerchant}
+          showCartIcon={!isMerchant}
           customContainerStyle={{
             backgroundColor: 'transparent',
           }}
@@ -133,7 +135,10 @@ const HomeScreen: React.FC = () => {
 const HomeScreenTabsContainer: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
+  const { user } = useAuthStore();
   const navigation = useNavigation();
+  const isMerchant = user?.isMerchant === 1;
+
   const isProMax = theme.sizes.WIDTH >= 430 && isIOS;
   const isLargeAndroid = isAndroid && theme.sizes.HEIGHT > 800;
 
@@ -148,9 +153,11 @@ const HomeScreenTabsContainer: React.FC = () => {
         marginRight: scaleWithMax(18, 20),
       },
       onPress: () =>
-        (navigation as any).navigate('SendAGift' as never, {
-          routeTo: 'GiftOneGetOne',
-        }),
+        isMerchant
+          ? notify.error(getString('MERCHANT_NOT_ALLOWED'))
+          : (navigation as any).navigate('SendAGift' as never, {
+              routeTo: 'GiftOneGetOne',
+            }),
     },
     {
       id: 'catch',
@@ -158,9 +165,11 @@ const HomeScreenTabsContainer: React.FC = () => {
       title: getString('HOME_CATCH'),
       description: getString('HOME_CATCH_INSTANT_GIFT_DESC'),
       onPress: () =>
-        (navigation as any).navigate('CatchScreen', {
-          type: 'catch',
-        }),
+        isMerchant
+          ? notify.error(getString('MERCHANT_NOT_ALLOWED'))
+          : (navigation as any).navigate('CatchScreen', {
+              type: 'catch',
+            }),
     },
     {
       id: 'send-a-gift',
@@ -179,10 +188,12 @@ const HomeScreenTabsContainer: React.FC = () => {
       title: getString('HOME_INBOX'),
       description: getString('HOME_INBOX_DESC'),
       onPress: () =>
-        (navigation as any).navigate('InboxOutbox', {
-          title: getString('HOME_INBOX'),
-          isInbox: true,
-        }),
+        isMerchant
+          ? notify.error(getString('MERCHANT_NOT_ALLOWED'))
+          : (navigation as any).navigate('InboxOutbox', {
+              title: getString('HOME_INBOX'),
+              isInbox: true,
+            }),
     },
     {
       id: 'outbox',
@@ -240,7 +251,9 @@ const HomeScreenTabsContainer: React.FC = () => {
         ))}
       </View>
 
-      <Text style={styles.innerSectionTitle}>Received and sent gifts</Text>
+      <Text style={styles.innerSectionTitle}>
+        {getString('HOME_RECEIVED_AND_SENT_GIFTS')}
+      </Text>
 
       <View style={styles.optionsWrapper}>
         {homeScreenTabs.slice(3, 5).map(tab => (

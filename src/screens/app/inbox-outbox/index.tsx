@@ -508,14 +508,15 @@ const InboxItem: React.FC<InboxItemProps> = ({
               {
                 justifyContent: 'center',
                 alignItems: 'center',
-                backgroundColor: 'transparent',
+                borderWidth: 0.5,
+                borderColor: theme.colors.SECONDARY,
               },
             ]}
           >
             <Image
               style={{
-                width: scaleWithMax(30, 35),
-                height: scaleWithMax(30, 35),
+                width: scaleWithMax(23, 28),
+                height: scaleWithMax(23, 28),
                 resizeMode: 'contain',
               }}
               source={require('../../../assets/images/gift-link-checkout.png')}

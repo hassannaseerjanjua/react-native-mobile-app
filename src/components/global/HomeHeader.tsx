@@ -2,7 +2,6 @@ import React, { useMemo, useState, useEffect } from 'react';
 import {
   View,
   TouchableOpacity,
-  TextInput,
   StyleSheet,
   Pressable,
   Image,
@@ -35,6 +34,7 @@ import { Text } from '../../utils/elements';
 import api from '../../utils/api';
 import apiEndpoints from '../../constants/api-endpoints';
 import useGetApi from '../../hooks/useGetApi';
+import InputField from './InputField';
 
 interface HomeHeaderProps {
   title?: string;
@@ -140,7 +140,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         {title && (
           <View style={styles.titleContainer}>
             <Pressable onPress={handleBackPress} style={styles.titlePressable}>
-              <Text style={styles.title}>{title}</Text>
+              <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+                {title}
+              </Text>
             </Pressable>
           </View>
         )}
@@ -219,23 +221,25 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
       {showSearchBar && (
         <View style={styles.searchBarContainer}>
-          <View style={styles.searchIconWrapper}>
-            <SvgSearchIcon
-              width={scaleWithMax(20, 22)}
-              height={scaleWithMax(20, 22)}
-            />
-          </View>
-          <TextInput
-            allowFontScaling={false}
-            style={[styles.searchInput, { textAlign: rtlTextAlign(isRtl) }]}
-            placeholder={defaultSearchPlaceholder}
-            placeholderTextColor={theme.colors.SECONDARY_TEXT}
-            value={displaySearchValue}
-            onChangeText={handleSearchChange}
-            editable={true}
-            autoCorrect={false}
-            autoCapitalize="none"
-            returnKeyType="search"
+          <InputField
+            icon={
+              <SvgSearchIcon
+                width={scaleWithMax(20, 22)}
+                height={scaleWithMax(20, 22)}
+              />
+            }
+            fieldProps={{
+              allowFontScaling: false,
+              placeholder: defaultSearchPlaceholder,
+              placeholderTextColor: theme.colors.SECONDARY_TEXT,
+              value: displaySearchValue,
+              onChangeText: handleSearchChange,
+              editable: true,
+              autoCorrect: false,
+              autoCapitalize: 'none',
+              returnKeyType: 'search',
+            }}
+            style={styles.searchInputContainer}
           />
         </View>
       )}
@@ -315,24 +319,10 @@ const useStyles = () => {
         color: colors.PRIMARY_TEXT,
       },
       searchBarContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        backgroundColor: colors.WHITE,
-        borderRadius: sizes.BORDER_RADIUS_MID,
         marginHorizontal: theme.sizes.PADDING,
-        paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.HEIGHT * 0.018,
+      },
+      searchInputContainer: {
         ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
-      },
-      searchIconWrapper: {
-        marginRight: sizes.PADDING * 0.8,
-      },
-      searchInput: {
-        flex: 1,
-        fontSize: sizes.FONTSIZE,
-        fontFamily: fonts.Quicksand.regular,
-        color: colors.PRIMARY_TEXT,
-        padding: 0,
       },
       avatar: {
         width: scaleWithMax(35, 38),

@@ -1550,7 +1550,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       case 'tabItemCity':
         return (
           <SkeletonPlaceholder>
-            {[...Array(10)].map((_, index) => (
+            {[...Array(7)].map((_, index) => (
               <SkeletonPlaceholder.Item
                 key={index}
                 width="100%"
@@ -1558,29 +1558,17 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                 alignItems="center"
                 justifyContent="space-between"
                 paddingHorizontal={theme.sizes.PADDING}
-                paddingVertical={theme.sizes.HEIGHT * 0.017}
+                paddingVertical={theme.sizes.HEIGHT * 0.01}
                 borderRadius={theme.sizes.BORDER_RADIUS}
               >
                 {/* Left section */}
-                <SkeletonPlaceholder.Item
-                  flexDirection="row"
-                  alignItems="center"
-                  paddingRight={theme.sizes.PADDING}
-                >
-                  {/* Title */}
-                  <SkeletonPlaceholder.Item
-                    marginLeft={scaleWithMax(10, 12)}
-                    width={theme.sizes.WIDTH * 0.8}
-                    height={theme.sizes.HEIGHT * 0.04}
-                    borderRadius={6}
-                  />
-                </SkeletonPlaceholder.Item>
 
-                {/* Right arrow */}
+                {/* Title */}
                 <SkeletonPlaceholder.Item
-                  width={12}
-                  height={12}
-                  marginRight={theme.sizes.WIDTH * 0.7}
+                  paddingHorizontal={theme.sizes.PADDING}
+                  // width={theme.sizes.WIDTH * 0.88}
+                  flex={1}
+                  height={scaleWithMax(40, 45)}
                   borderRadius={6}
                 />
               </SkeletonPlaceholder.Item>

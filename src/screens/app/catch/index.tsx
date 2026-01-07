@@ -30,10 +30,17 @@ import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 import { Text } from '../../../utils/elements';
 import { useListingApi } from '../../../hooks/useListingApi';
-import { GiftPlacedSvg, SvgRiyalIconWhite } from '../../../assets/icons';
+import {
+  ArrowDownIcon,
+  GiftPlacedSvg,
+  SvgRiyalIconWhite,
+} from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import GiftOneGetOneProductCard from '../../../components/app/GiftOneGetOneProductCard';
 import SuccessMessage from '../../../components/global/SuccessComponent';
+import fonts from '../../../assets/fonts';
+import CityPickerModal from '../../../components/global/CityPickerModal';
+import { City } from '../../../types';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -42,6 +49,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const { styles, theme } = useStyles();
   const [openModal, setOpenModal] = useState(false);
   const { getString, isRtl, langCode } = useLocaleStore();
+
+  const [selectedCityId, setSelectedCityId] = useState<number | null>(
+    route.params?.cityId || null,
+  );
+  const [showCityPicker, setShowCityPicker] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
   const storeID = route.params?.storeID;
@@ -55,6 +67,13 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     apiEndpoints.GET_CATEGORIES(storeID, businessTypeId),
     {
       transformData: (data: any) => data.Data?.Items || [],
+    },
+  );
+
+  const citiesApi = useGetApi<City[]>(
+    screenType === 'GiftOneGetOne' ? apiEndpoints.GET_CITY_LISTING : '',
+    {
+      transformData: (data: any) => data.Data?.cities || [],
     },
   );
 
@@ -96,7 +115,12 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           totalCount: data.Data?.TotalCount || 0,
         };
       },
-      extraParams: { campaingType: 3 },
+      extraParams: {
+        campaingType: 3,
+        ...(selectedCityId
+          ? { CityId: selectedCityId }
+          : { CityId: route.params?.cityId || null }),
+      },
       idExtractor: (item: StoreProduct) => item.ItemId,
     },
   );
@@ -113,6 +137,18 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     });
     return unsubscribe;
   }, [navigation, cartApi.refetch]);
+
+  // Update extraParams and recall API when selectedCityId changes (only for GiftOneGetOne)
+  useEffect(() => {
+    if (screenType === 'GiftOneGetOne' && selectedCityId !== null) {
+      getStoreProducts.setExtraParams({
+        campaingType: 3,
+        CityId: selectedCityId,
+      });
+      getStoreProducts.recall();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCityId, screenType]);
 
   useEffect(() => {
     const initializeFavoriteStates = (
@@ -292,6 +328,26 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     return favoriteStates[item.ItemId] ?? item.isFavourite ?? true;
   };
 
+  const cityOptions = useMemo(() => {
+    if (!citiesApi.data || citiesApi.data.length === 0) return [];
+    return citiesApi.data.map(city => ({
+      label:
+        langCode === 'ar'
+          ? city.CityNameAr || city.CityName
+          : city.CityNameEn || city.CityName,
+      value: city.CityID,
+    }));
+  }, [citiesApi.data, langCode]);
+
+  const handleCitySelect = (cityId: number | string | null) => {
+    const id = typeof cityId === 'string' ? parseInt(cityId, 10) : cityId;
+    setSelectedCityId(id);
+    const selectedCity =
+      citiesApi.data?.find(city => city.CityID === id) || null;
+
+    setShowCityPicker(false);
+  };
+
   const createFavoritePressHandler = (item: any) => () => {
     handleFavoritePress({
       ItemId: item.ItemId,
@@ -364,6 +420,43 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         searchValue={searchValue}
         onSearchChange={handleSearchChange}
         searchPlaceholder={getString('HOME_SEARCH')}
+        rightSideView={
+          screenType === 'GiftOneGetOne' && (
+            <TouchableOpacity
+              onPress={() => setShowCityPicker(true)}
+              style={{
+                // width: theme.sizes.WIDTH * 0.48,
+                height: theme.sizes.HEIGHT * 0.045,
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                paddingHorizontal: theme.sizes.PADDING * 0.4,
+                gap: scaleWithMax(4, 6),
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: theme.sizes.FONTSIZE,
+                  color: theme.colors.PRIMARY,
+                  fontFamily: selectedCityId
+                    ? fonts.Quicksand.medium
+                    : fonts.Quicksand.regular,
+                }}
+                numberOfLines={1}
+              >
+                {selectedCityId
+                  ? citiesApi.data?.find(city => city.CityID === selectedCityId)
+                      ?.CityName ?? ''
+                  : getString('SELECT_STORE_SELECT_CITY')}
+              </Text>
+              <ArrowDownIcon
+                width={scaleWithMax(12, 14)}
+                height={scaleWithMax(12, 14)}
+                fill={theme.colors.PRIMARY}
+              />
+            </TouchableOpacity>
+          )
+        }
       />
 
       <View style={styles.listWrapper}>
@@ -489,6 +582,17 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           />
         )}
       </View>
+
+      {screenType === 'GiftOneGetOne' && (
+        <CityPickerModal
+          visible={showCityPicker}
+          onClose={() => setShowCityPicker(false)}
+          options={cityOptions}
+          selectedValue={selectedCityId}
+          onSelect={handleCitySelect}
+          title={getString('SELECT_STORE_SELECT_CITY')}
+        />
+      )}
       {cartApi.data?.Items && (
         <View style={styles.footerContainer}>
           <TouchableOpacity

@@ -94,6 +94,7 @@ export type AppStackParamList = {
     businessTypeId?: string | null;
     storeBranchID?: number;
     type?: 'favorite' | 'catch' | 'GiftOneGetOne';
+    cityId?: number | null;
   };
   ScanQr: {
     OrderId?: number | null;

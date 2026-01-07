@@ -17,8 +17,9 @@ import {
 } from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
-import { scaleWithMax, rtlTransform } from '../../utils';
+import { isAndroid, scaleWithMax, rtlTransform } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
+import { Platform } from 'react-native';
 
 interface TabItemProps {
   title: string;
@@ -112,7 +113,8 @@ const useStyles = () => {
         gap: 10,
         width: '100%',
         paddingHorizontal: theme.sizes.PADDING,
-        paddingVertical: theme.sizes.HEIGHT * 0.017,
+        // paddingVertical: theme.sizes.HEIGHT * 0.017,
+        ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
         borderRadius: sizes.BORDER_RADIUS,
         ...theme.globalStyles.SHADOW_STYLE,
       },
@@ -127,8 +129,13 @@ const useStyles = () => {
         fontFamily: 'Quicksand-Medium',
         fontSize: theme.sizes.FONTSIZE_LESS_HIGH,
         color: colors.PRIMARY_TEXT,
-        maxWidth: '75%',
+        flex: 1,
         flexShrink: 1,
+        minWidth: 0,
+        ...(Platform.OS === 'android' && {
+          textAlignVertical: 'center',
+          includeFontPadding: false,
+        }),
       },
       editGroupContainer: {
         flexDirection: 'row',

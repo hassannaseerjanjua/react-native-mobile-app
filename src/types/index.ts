@@ -47,6 +47,7 @@ export interface User {
   City: string | null;
   IsBirthdayUpdated: boolean;
   IsVerified: boolean;
+  isMerchant: number;
 }
 
 export interface LoginApiResponse {

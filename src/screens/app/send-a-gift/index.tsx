@@ -143,7 +143,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     },
   ];
 
-  // Get frequently sent friends (top 3 with OrdersCount >= 1)
+  // Get frequently sent friends (first 3 from response with OrdersCount >= 1, in API order)
   const getFrequentlySentFriends = useCallback(() => {
     if (activeTab !== 'friends' || activeUsersApi.search) {
       return [];
@@ -151,7 +151,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
     const baseData = activeUsersApi.data || [];
 
-    // Filter friends with OrdersCount >= 1, sort by OrdersCount descending, take top 3
+    // Filter friends with OrdersCount >= 1, keep API response order, take first 3
     const frequentlySent = baseData
       .filter(
         (friend: ActiveUser) =>
@@ -159,7 +159,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           friend.OrdersCount !== undefined &&
           friend.OrdersCount >= 1,
       )
-      .sort((a, b) => (b.OrdersCount || 0) - (a.OrdersCount || 0))
       .slice(0, 3);
 
     return frequentlySent;
@@ -277,7 +276,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             activeTab === 'friends' &&
             !activeUsersApi.search && (
               <View style={{ marginBottom: theme.sizes.HEIGHT * 0.016 }}>
-                <Text style={styles.sectionTitle}>Frequently Sent</Text>
+                <Text style={styles.sectionTitle}>
+                  {getString('SG_FREQUENTLY_GIFTED')}
+                </Text>
                 <View style={styles.listCard}>
                   <FlatList
                     data={frequentlySentFriends}
@@ -332,6 +333,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                             navigation.navigate('CatchScreen', {
                               type: 'GiftOneGetOne',
                               friendUserId: selectedFriendUserId,
+                              cityId: item?.CityId || null,
                             });
                           }
                         }}
@@ -420,6 +422,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                         navigation.navigate('CatchScreen', {
                           type: 'GiftOneGetOne',
                           friendUserId: selectedFriendUserId,
+                          cityId: item?.CityId || null,
                         });
                       }
                     }}
@@ -466,6 +469,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         onSave={() => {}}
         title={getString('NG_ADD_MEMBERS')}
         listings={[
+          {
+            title: getString('SG_FREQUENTLY_GIFTED'),
+            users: frequentlySentFriends,
+          },
           {
             title: getString('NG_TITLE_FRIENDS'),
             users: friendsForGroupApi.data || [],

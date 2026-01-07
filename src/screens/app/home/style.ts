@@ -2,7 +2,7 @@ import { StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
 import fonts from '../../../assets/fonts';
-import { isIOSThen, scaleWithMax } from '../../../utils';
+import { isIOS, isIOSThen, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -52,7 +52,10 @@ const useStyles = () => {
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.bold,
-        fontSize: sizes.FONTSIZE_HIGH,
+        fontSize:
+          sizes.WIDTH >= 430 && isIOS
+            ? sizes.FONTSIZE_HIGH * 0.95
+            : sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
         marginVertical: isIOSThen(scaleWithMax(8, 9), scaleWithMax(5, 7)),
         paddingHorizontal: sizes.PADDING,

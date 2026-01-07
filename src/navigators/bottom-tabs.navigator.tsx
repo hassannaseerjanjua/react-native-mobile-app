@@ -26,6 +26,8 @@ import { TouchableOpacity, View } from 'react-native';
 import { isAndroidThen, isIOSThen, scaleWithMax } from '../utils';
 import { useLocaleStore } from '../store/reducer/locale';
 import { Text } from '../utils/elements';
+import { useAuthStore } from '../store/reducer/auth';
+import notify from '../utils/notify';
 
 const Tab = createBottomTabNavigator();
 
@@ -93,6 +95,9 @@ export default BottomTabNavigator;
 
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const theme = useTheme();
+  const { user } = useAuthStore();
+  const { getString } = useLocaleStore();
+  const isMerchant = user?.isMerchant === 1;
   return (
     <View
       style={{
@@ -136,6 +141,13 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
           });
 
           if (!isFocused && !event.defaultPrevented) {
+            if (
+              isMerchant &&
+              (route.name === 'Favorites' || route.name === 'Occasions')
+            ) {
+              notify.error(getString('MERCHANT_NOT_ALLOWED'));
+              return;
+            }
             navigation.navigate(route.name);
           }
         };

@@ -207,11 +207,14 @@ export const useOccasions = () => {
           try {
             const imageUri = fileUriWrapper(asset.uri || '');
             // Use high compression with low quality
-            const compressedImage = await ImageCompressor.Image.compress(imageUri || '', {
-              quality: 0.2, // High compression - 20% quality
-              maxWidth: 800,
-              maxHeight: 800,
-            });
+            const compressedImage = await ImageCompressor.Image.compress(
+              imageUri || '',
+              {
+                quality: 0.2, // High compression - 20% quality
+                maxWidth: 800,
+                maxHeight: 800,
+              },
+            );
             const finalImageUri = fileUriWrapper(compressedImage);
 
             const imageFile: ImageFile = {
@@ -280,6 +283,7 @@ export const useOccasions = () => {
       if (success) {
         await fetchOccasions();
         setSelectedOccasion({ id: null, occasionType: 'none' });
+        setIsEditGroupOpen(false);
       }
     } finally {
       setLoading(false);
