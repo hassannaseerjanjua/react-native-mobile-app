@@ -21,8 +21,9 @@ import api from '../../../utils/api';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi';
-import { StoreProduct } from '../../../types';
+import { StoreProduct, CartResponse } from '../../../types';
 import { Text } from '../../../utils/elements';
+import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 
 const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   route,
@@ -41,8 +42,18 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const sendType = route?.params?.sendType ?? null;
   const isSendAGiftFlow = sendType !== null && sendType !== undefined;
   const campaignId = route?.params?.campaignId ?? null;
+  const isGiftOneGetOne = route.params.type === 'GiftOneGetOne';
+  const [showClearCartConfirmation, setShowClearCartConfirmation] =
+    useState(false);
 
   console.log('campaignId', campaignId);
+
+  const cartApi = useGetApi<CartResponse>(
+    isGiftOneGetOne ? apiEndpoints.GET_CART_ITEMS : '',
+    {
+      transformData: (data: any) => (data?.Data || data) as CartResponse,
+    },
+  );
   const itemApi = useGetApi<StoreProduct>(
     isSendAGiftFlow
       ? apiEndpoints.GET_SEND_A_GIFT_ITEM_BY_ID(itemId, !!campaignId)
@@ -134,8 +145,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     }
   };
 
-  const handleAddToCart = async () => {
-    if (submitting) return;
+  const performAddToCart = async (skipSubmittingCheck = false) => {
+    if (!skipSubmittingCheck && submitting) return;
 
     const selectedVariant = item?.Variants?.find(
       (v: any) => v.ItemVariantId === Number(selectedFilter),
@@ -143,55 +154,101 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     const isAlreadyInCart = selectedVariant?.IsAddedToCart === true;
     const currentCartQuantity = selectedVariant?.CountInCart || 0;
 
-    const IsGift =
-      route.params.type === 'GiftOneGetOne' || route.params.sendType !== 1;
+    if (isAlreadyInCart) {
+      // Update cart item quantity
+      const newQuantity = currentCartQuantity + quantity;
+      const payload = {
+        ItemId: item.ItemId,
+        ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
+        Quantity: newQuantity,
+      };
+
+      const response = await api.put(
+        apiEndpoints.UPDATE_CART_ITEM_QUANTITY,
+        payload,
+      );
+      if (response.success) {
+        navigation.goBack();
+      } else {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+      }
+    } else {
+      // Add new item to cart
+      const payload = {
+        FriendId: friendUserId,
+        ItemId: item.ItemId,
+        ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
+        Quantity: quantity,
+        StoreId: storeId ?? null,
+        SendType: route.params.sendType ?? 1,
+        ...(route.params.type === 'GiftOneGetOne' && {
+          CampaignId: item.CampaignId,
+        }),
+        IsGift: true,
+      };
+
+      const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
+      if (response.success) {
+        navigation.goBack();
+      } else {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+      }
+    }
+  };
+
+  const handleClearCartAndAddItem = async () => {
+    setShowClearCartConfirmation(false);
+    if (submitting) return;
 
     try {
       setSubmitting(true);
 
-      if (isAlreadyInCart) {
-        // Update cart item quantity
-        const newQuantity = currentCartQuantity + quantity;
-        const payload = {
-          ItemId: item.ItemId,
-          ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
-          Quantity: newQuantity,
-        };
-
-        const response = await api.put(
-          apiEndpoints.UPDATE_CART_ITEM_QUANTITY,
-          payload,
-        );
-        if (response.success) {
-          navigation.goBack();
-        } else {
-          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
-        }
-      } else {
-        // Add new item to cart
-        const payload = {
-          FriendId: friendUserId,
-          ItemId: item.ItemId,
-          ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
-          Quantity: quantity,
-          StoreId: storeId ?? null,
-          SendType: route.params.sendType ?? 1,
-          ...(route.params.type === 'GiftOneGetOne' && {
-            CampaignId: item.CampaignId,
-          }),
-          IsGift: true,
-        };
-
-        const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
-        if (response.success) {
-          navigation.goBack();
-        } else {
-          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
-        }
+      // Clear the cart first
+      const clearResponse = await api.put(apiEndpoints.CLEAR_CART, {});
+      if (!clearResponse.success) {
+        notify.error(clearResponse.error || getString('AU_ERROR_OCCURRED'));
+        setSubmitting(false);
+        return;
       }
+
+      // Then add the new item (skip submitting check since we're already managing it)
+      await performAddToCart(true);
+      setSubmitting(false);
     } catch (error: any) {
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  const handleAddToCart = async () => {
+    if (submitting) return;
+
+    // Check if we're in GiftOneGetOne flow and cart has items
+    if (isGiftOneGetOne && cartApi.data) {
+      const cartItems = cartApi.data.Items || [];
+      const hasCartItems = cartItems.length > 0;
+
+      if (hasCartItems) {
+        // Check if the current item is different from items in cart
+        const isCurrentItemInCart = cartItems.some(
+          cartItem => cartItem.ItemId === item?.ItemId,
+        );
+
+        if (!isCurrentItemInCart) {
+          // Show confirmation popup
+          setShowClearCartConfirmation(true);
+          return;
+        }
+      }
+    }
+
+    // Proceed with normal add to cart flow
+    try {
+      setSubmitting(true);
+      await performAddToCart(true);
+      setSubmitting(false);
+    } catch (error: any) {
+      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
       setSubmitting(false);
     }
   };
@@ -286,7 +343,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                   />
                   <Text style={styles.price}>
                     {itemPrice !== undefined && itemPrice !== null
-                      ? Math.round(itemPrice)
+                      ? Number(itemPrice)
                       : ''}
                   </Text>
                 </View>
@@ -365,6 +422,15 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           />
         </View>
       </View>
+      <ConfirmationPopup
+        visible={showClearCartConfirmation}
+        message="Adding a different item will clear your previous item in cart. Do you want to continue?"
+        confirmText="Confirm"
+        cancelText={getString('NG_CANCEL')}
+        onConfirm={handleClearCartAndAddItem}
+        onCancel={() => setShowClearCartConfirmation(false)}
+        loading={submitting}
+      />
     </ParentView>
   );
 };

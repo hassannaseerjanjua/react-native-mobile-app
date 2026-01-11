@@ -3,7 +3,6 @@ import useDebouncedSearch from './useDebouncedSearch';
 import { getQueryFromObject } from '../utils';
 import api, { getAuthHeader } from '../utils/api';
 import notify from '../utils/notify';
-import { useFocusEffect } from '@react-navigation/native';
 
 export const useListingApi = <T>(
   url: string,
@@ -130,13 +129,14 @@ export const useListingApi = <T>(
         isLoadingMoreRef.current = false;
       });
   };
-  useFocusEffect(
-    useCallback(() => {
-      if (!isInitialLoad && !isFetchingRef.current) {
-        fetchData('', true, 1);
-      }
-    }, []),
-  );
+
+  // Only fetch on initial mount, not on focus
+  useEffect(() => {
+    if (!isInitialLoad && !isFetchingRef.current) {
+      fetchData('', true, 1);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const { search, setSearch } = useDebouncedSearch(searchValue => {
     if (!isInitialLoad) return;
