@@ -68,22 +68,27 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
         )}
       </TouchableOpacity>
       <View style={styles.logoContainer}>
-        <SvgLogoBlue
-          width={theme.sizes.APP_LOGO}
-          opacity={shimmerLoading ? 0.1 : 1}
-        />
+        <SvgLogoBlue width={theme.sizes.APP_LOGO} />
       </View>
       {shimmerLoading ? (
         <SkeletonLoader screenType="landing" />
       ) : (
         <View style={styles.buttonContainer}>
           <CustomButton
-            title={getString('AU_SIGN_IN')}
+            title={
+              getString('AU_SIGN_IN') === 'AU_SIGN_IN'
+                ? 'Sign In'
+                : getString('AU_SIGN_IN')
+            }
             type="primary"
             onPress={() => navigation.navigate('SignIn')}
           />
           <CustomButton
-            title={getString('AU_SIGN_UP')}
+            title={
+              getString('AU_SIGN_UP') === 'AU_SIGN_UP'
+                ? 'Sign Up'
+                : getString('AU_SIGN_UP')
+            }
             type="secondary"
             onPress={() => navigation.navigate('SignUp')}
           />

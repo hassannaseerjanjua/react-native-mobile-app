@@ -54,7 +54,7 @@ const useStyles = () => {
         textAlign: 'center',
       },
       tabContainer: {
-        marginBottom: sizes.HEIGHT * 0.018,
+        marginBottom: sizes.HEIGHT * 0.01,
         ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
       },
       scrollableContent: {
@@ -63,6 +63,7 @@ const useStyles = () => {
       scrollableContentContainer: {
         flexGrow: 1,
         paddingHorizontal: theme.sizes.PADDING,
+        paddingTop: sizes.HEIGHT * 0.01,
       },
       bottomSheetContainer: {
         width: sizes.PADDED_WIDTH,

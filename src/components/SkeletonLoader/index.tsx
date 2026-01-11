@@ -897,11 +897,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
         return (
           <SkeletonPlaceholder>
             <SkeletonPlaceholder.Item>
-              <SkeletonPlaceholder.Item
-                gap={16}
-                alignItems="center"
-                marginBottom={screenHeight * 0.01}
-              >
+              <SkeletonPlaceholder.Item gap={16} alignItems="center">
                 <SkeletonPlaceholder.Item
                   width="100%"
                   height={screenHeight * 0.062}

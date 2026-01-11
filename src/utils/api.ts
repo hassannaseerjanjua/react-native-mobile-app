@@ -94,6 +94,14 @@ const caller = async <T>(
         localeKey;
     }
 
+    if (
+      err?.response?.status === 500 ||
+      err?.response?.status === 503 ||
+      err?.response?.status === 0
+    ) {
+      errorMessage = 'Network Error, Please try again later.';
+    }
+
     responseObject.error = errorMessage;
     responseObject.data = response?.data || null;
     responseObject.failed = true;

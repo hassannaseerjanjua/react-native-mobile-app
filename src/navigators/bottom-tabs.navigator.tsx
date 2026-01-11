@@ -48,7 +48,10 @@ const BottomTabNavigator = () => {
             name="Home"
             component={Home}
             options={{
-              tabBarLabel: getString('FOOTER_HOME'),
+              tabBarLabel:
+                getString('FOOTER_HOME') === 'FOOTER_HOME'
+                  ? 'Home'
+                  : getString('FOOTER_HOME'),
               tabBarIcon: ({ color, size }) => (
                 <SvgHome width={size} height={size} fill={color} />
               ),
@@ -58,7 +61,10 @@ const BottomTabNavigator = () => {
             name="Favorites"
             component={Favorites as any}
             options={{
-              tabBarLabel: getString('FOOTER_FAVORITES'),
+              tabBarLabel:
+                getString('FOOTER_FAVORITES') === 'FOOTER_FAVORITES'
+                  ? 'Favorites'
+                  : getString('FOOTER_FAVORITES'),
               tabBarIcon: ({ color, size }) => (
                 <SvgFavourite width={size} height={size} fill={color} />
               ),
@@ -69,7 +75,10 @@ const BottomTabNavigator = () => {
             name="Occasions"
             component={Occasions}
             options={{
-              tabBarLabel: getString('FOOTER_OCCASIONS'),
+              tabBarLabel:
+                getString('FOOTER_OCCASIONS') === 'FOOTER_OCCASIONS'
+                  ? 'Occasions'
+                  : getString('FOOTER_OCCASIONS'),
               tabBarIcon: ({ color, size }) => (
                 <SvgOccasions width={size} height={size} fill={color} />
               ),
@@ -79,7 +88,10 @@ const BottomTabNavigator = () => {
             name="Notifications"
             component={Notifications}
             options={{
-              tabBarLabel: getString('FOOTER_NOTIFICATIONS'),
+              tabBarLabel:
+                getString('FOOTER_NOTIFICATIONS') === 'FOOTER_NOTIFICATIONS'
+                  ? 'Notifications'
+                  : getString('FOOTER_NOTIFICATIONS'),
               tabBarIcon: ({ color, size }) => (
                 <SvgNotification width={size} height={size} fill={color} />
               ),
@@ -145,7 +157,11 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
               isMerchant &&
               (route.name === 'Favorites' || route.name === 'Occasions')
             ) {
-              notify.error(getString('MERCHANT_NOT_ALLOWED'));
+              notify.error(
+                getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
+                  ? 'Merchant not allowed'
+                  : getString('MERCHANT_NOT_ALLOWED'),
+              );
               return;
             }
             navigation.navigate(route.name);

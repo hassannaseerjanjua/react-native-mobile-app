@@ -29,7 +29,7 @@ const useStyles = () => {
         gap: 16,
         justifyContent: 'flex-end',
         alignItems: 'center',
-        paddingBottom: 10,
+        paddingBottom: sizes.HEIGHT * 0.016,
       },
       languageContainer: {
         position: 'absolute',

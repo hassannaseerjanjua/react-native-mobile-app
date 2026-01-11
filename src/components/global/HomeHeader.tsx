@@ -5,33 +5,23 @@ import {
   StyleSheet,
   Pressable,
   Image,
-  TouchableWithoutFeedback,
   StyleProp,
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
 import {
-  SvgLogoHeader,
   SvgSearchIcon,
-  SvgDummyAvatar,
   SvgHomeBack,
   SvgLogoBlue,
   SvgCartIcon,
 } from '../../assets/icons';
-import {
-  isAndroid,
-  isAndroidThen,
-  scaleWithMax,
-  rtlTransform,
-  rtlTextAlign,
-} from '../../utils';
+import { isAndroidThen, scaleWithMax, rtlTransform } from '../../utils';
 import fonts from '../../assets/fonts';
 import { useAuthStore } from '../../store/reducer/auth';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Text } from '../../utils/elements';
-import api from '../../utils/api';
 import apiEndpoints from '../../constants/api-endpoints';
 import useGetApi from '../../hooks/useGetApi';
 import InputField from './InputField';
@@ -124,6 +114,13 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const getCartCount = useGetApi<any>(apiEndpoints.GET_CART_COUNT, {
     transformData: data => data.Data,
   });
+
+  // Refetch cart count when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      getCartCount.refetch();
+    }, []),
+  );
 
   return (
     <View>
