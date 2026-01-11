@@ -26,6 +26,7 @@ interface ResponseObject<T> {
   failed: boolean;
   data: T | null;
   error: string;
+  ResponseCode: number;
 }
 
 const caller = async <T>(
@@ -40,6 +41,7 @@ const caller = async <T>(
     failed: false,
     data: null,
     error: '',
+    ResponseCode: 0,
   };
 
   const langId = store.getState().locale.localeData.langId;
@@ -67,6 +69,7 @@ const caller = async <T>(
     responseObject.failed = false;
     responseObject.data = response.data;
     responseObject.error = '';
+    responseObject.ResponseCode = response.status;
   } catch (err: any) {
     const response = err?.response?.data;
     let errorMessage =
@@ -75,6 +78,8 @@ const caller = async <T>(
       response?.ResponseMessage ||
       err?.message ||
       'Something went wrong';
+
+    responseObject.ResponseCode = err?.response?.status || 0;
 
     if (err?.response?.status === 401) {
       const localeState = store.getState().locale.localeData;

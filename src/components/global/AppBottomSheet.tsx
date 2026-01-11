@@ -35,6 +35,10 @@ interface AppBottomSheetProps {
   blurAmount?: number;
   fullHeight?: boolean;
   pressBehavior?: 'close' | 'none';
+  initialSnapIndex?: number;
+  keyboardBehavior?: 'interactive' | 'extend' | 'fillParent';
+  keyboardBlurBehavior?: 'none' | 'restore';
+  android_keyboardInputMode?: 'adjustResize' | 'adjustPan';
 }
 
 const AppBottomSheet = ({
@@ -49,6 +53,10 @@ const AppBottomSheet = ({
   pressBehavior = 'close',
   fullHeight = false,
   hasBackDrop = true,
+  initialSnapIndex = 0,
+  keyboardBehavior = 'extend',
+  keyboardBlurBehavior = 'restore',
+  android_keyboardInputMode = 'adjustResize',
 }: AppBottomSheetProps) => {
   const theme = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -75,6 +83,12 @@ const AppBottomSheet = ({
     }
   };
 
+  useEffect(() => {
+    if (isOpen && bottomSheetRef.current) {
+      bottomSheetRef.current.snapToIndex(initialSnapIndex);
+    }
+  }, [isOpen, initialSnapIndex]);
+
   return (
     <Modal
       visible={isOpen}
@@ -86,8 +100,11 @@ const AppBottomSheet = ({
       <GestureHandlerRootView style={{ flex: 1 }}>
         <BottomSheet
           ref={bottomSheetRef}
-          index={isOpen ? 0 : -1}
+          index={isOpen ? initialSnapIndex : -1}
           snapPoints={calculatedSnapPoints()}
+          keyboardBehavior={keyboardBehavior}
+          keyboardBlurBehavior={keyboardBlurBehavior}
+          android_keyboardInputMode={android_keyboardInputMode}
           backdropComponent={
             hasBackDrop
               ? props => (
@@ -139,7 +156,13 @@ const AppBottomSheet = ({
           }}
           onChange={handleSheetChanges}
         >
-          <BottomSheetView style={{ height: height, flex: height ? 0 : 1 }}>
+          <BottomSheetView
+            style={
+              snapPoints
+                ? { flex: 1 }
+                : { height: height, flex: height ? 0 : 1 }
+            }
+          >
             <View
               style={{
                 flex: 1,

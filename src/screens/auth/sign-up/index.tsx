@@ -79,11 +79,12 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                 apiEndpoints.VERIFY_USERNAME,
                 formData.username,
               );
-              console.log('response', response);
               if (response.error === 'This username already exists.') {
                 setUsernameApiError(
                   getString('API_THIS_USERNAME_ALREADY_EXISTS'),
                 );
+              } else if (response.ResponseCode !== 200) {
+                notify.error(response.error);
               } else {
                 setCurrentStep(currentStep + 1);
               }
@@ -94,7 +95,25 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             setCurrentStep(currentStep + 1);
           }
         } else {
-          setIsBottomSheetOpen(true);
+          // Step 3: Verify email and phone before opening bottom sheet
+          try {
+            const verifyResponse = await api.post(
+              apiEndpoints.VERIFY_EMAIL_PHONE,
+              {
+                Email: formData.email,
+                PhoneNo: formData.phoneNumber,
+              },
+            );
+            if (verifyResponse.success && !verifyResponse.failed) {
+              setIsBottomSheetOpen(true);
+            } else {
+              notify.error(
+                verifyResponse.error || getString('AU_ERROR_OCCURRED'),
+              );
+            }
+          } catch (error) {
+            notify.error(getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'));
+          }
         }
       }
     } catch (error) {}

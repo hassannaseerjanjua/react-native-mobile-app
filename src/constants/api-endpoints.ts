@@ -18,6 +18,7 @@ const apiEndpoints = {
   SIGNIN: `/${version}/Auth/SignIn`,
   VERIFY_OTP_SIGNIN: `/${version}/Auth/VerifyOTP-SignIn`,
   SAVE_TOKEN: `/${version}/User/save-token`,
+  VERIFY_EMAIL_PHONE: `/${version}/User/VerifyEmailAndPhoneNo`,
 
   // ============================================
   // HOME & GENERAL
