@@ -117,9 +117,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       },
       extraParams: {
         campaingType: 3,
-        ...(selectedCityId
-          ? { CityId: selectedCityId }
-          : { CityId: route.params?.cityId || null }),
+        cityId: route.params?.cityId || null,
       },
       idExtractor: (item: StoreProduct) => item.ItemId,
     },
@@ -342,6 +340,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const handleCitySelect = (cityId: number | string | null) => {
     const id = typeof cityId === 'string' ? parseInt(cityId, 10) : cityId;
     setSelectedCityId(id);
+
+    getStoreProducts.setExtraParams({
+      cityId: id,
+    });
+
     const selectedCity =
       citiesApi.data?.find(city => city.CityID === id) || null;
 

@@ -579,8 +579,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             <TabItem
               isGroupImage={
                 cartData.CampaginType === 3
-                  ? cartData.users.ProfileUrl
-                  : cartData.FriendImageUrl
+                  ? cartData.users.ProfileUrl ||
+                    require('../../../assets/images/img-placeholder.png')
+                  : cartData.FriendImageUrl ||
+                    require('../../../assets/images/img-placeholder.png')
               }
               title={
                 cartData.CampaginType === 3

@@ -1,6 +1,6 @@
 import { useState, useMemo, useRef } from 'react';
 import { useNavigation } from '@react-navigation/native';
-import { ImageSourcePropType, Share, Platform } from 'react-native';
+import { ImageSourcePropType, Share, Platform, Image } from 'react-native';
 import useGetApi from '../../../hooks/useGetApi';
 import { useListingApi } from '../../../hooks/useListingApi';
 import apiEndpoints from '../../../constants/api-endpoints';
@@ -469,12 +469,32 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
       messageText,
     });
 
-    setTimeout(() => {
-      setVideoViewerData(prev => ({
-        ...prev,
-        visible: true,
-      }));
-    }, 300);
+    // Preload filter image if it exists before showing viewer
+    if (filterImageUrl) {
+      Image.prefetch(filterImageUrl)
+        .then(() => {
+          // Filter image loaded, now show the viewer
+          setVideoViewerData(prev => ({
+            ...prev,
+            visible: true,
+          }));
+        })
+        .catch(() => {
+          // Even if prefetch fails, show the viewer (image will load on display)
+          setVideoViewerData(prev => ({
+            ...prev,
+            visible: true,
+          }));
+        });
+    } else {
+      // No filter image, show immediately after short delay
+      setTimeout(() => {
+        setVideoViewerData(prev => ({
+          ...prev,
+          visible: true,
+        }));
+      }, 300);
+    }
   };
 
   const handleCloseVideoViewer = () => {
