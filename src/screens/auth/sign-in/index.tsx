@@ -12,11 +12,10 @@ import { createSignInSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useStyles from './style';
-import { login } from '../../../store/reducer/auth';
 import { useDispatch } from 'react-redux';
-import { User } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
+import notify from '../../../utils/notify';
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
@@ -26,6 +25,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const [activeTab, setActiveTab] = useState<'Phone' | 'Email'>('Phone');
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isVerifying, setIsVerifying] = useState(false);
   const [apiError, setApiError] = useState<string>('');
   const [currentFormValues, setCurrentFormValues] = useState({
     phone: '',
@@ -42,6 +42,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     values: typeof currentFormValues,
     formik: any,
   ) => {
+    if (isVerifying) return;
     const touched = {
       phone: activeTab === 'Phone',
       email: activeTab === 'Email',
@@ -56,7 +57,30 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     if (!hasErrors) {
       setApiError('');
       setCurrentFormValues(values);
-      setIsBottomSheetOpen(true);
+      setIsVerifying(true);
+
+      try {
+        const payload =
+          activeTab === 'Phone'
+            ? { PhoneNo: values.phone }
+            : { Email: values.email };
+
+        const verifyResponse = await api.post(
+          apiEndpoints.VERIFY_EMAIL_PHONE,
+          payload,
+        );
+
+        // For sign-in: if data EXISTS (user is registered), allow to proceed
+        if (!verifyResponse.success && verifyResponse.failed) {
+          setIsBottomSheetOpen(true);
+        } else {
+          setApiError('User not found.');
+        }
+      } catch (error) {
+        notify.error(getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'));
+      } finally {
+        setIsVerifying(false);
+      }
     }
   };
 
@@ -186,6 +210,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   title={getString('AU_SIGN_IN_BUTTON')}
                   type="primary"
                   onPress={handleSubmit}
+                  loading={isVerifying}
+                  disabled={isVerifying}
                 />
               </View>
             );

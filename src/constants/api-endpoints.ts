@@ -110,6 +110,8 @@ const apiEndpoints = {
 
   GET_CATCH_ITEMS: `/${version}/User/GetCampaignsForUsers`,
   ADD_CAMPAIGN_TO_CART: `/${version}/User/AddCampaignToCart`,
+  GET_CAMPAIGN_CATEGORIES: (campaingType: number) =>
+    `/${version}/User/GetCampaignCategories?campaingTypes=${campaingType}`,
 
   // ============================================
   // ORDERS & GIFTS

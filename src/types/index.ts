@@ -411,6 +411,24 @@ export interface Category {
   Status: number;
 }
 
+export interface CampaignCategoriesApiResponse {
+  Data: CampaignCategory[];
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}
+
+export interface CampaignCategoryItem {
+  CategoryId: number;
+  CategoryNameEn: string;
+  CategoryNameAr: string;
+}
+
+export interface CampaignCategory {
+  CampaignId: number;
+  Categories: CampaignCategoryItem[];
+}
+
 export interface Store {
   StoreId: number;
   UserId: number;

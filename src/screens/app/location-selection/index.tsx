@@ -20,7 +20,6 @@ import { Text } from '../../../utils/elements';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, { BottomSheetScrollView } from '@gorhom/bottom-sheet';
-import useTheme from '../../../styles/theme';
 
 const LocationSelection: React.FC = () => {
   const { styles, theme } = useStyles();

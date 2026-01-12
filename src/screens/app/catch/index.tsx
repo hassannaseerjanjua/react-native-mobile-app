@@ -22,6 +22,7 @@ import {
   CatchItem,
   CatchItemsApiResponse,
   Category,
+  CampaignCategory,
   StoreProduct,
   CartResponse,
 } from '../../../types';
@@ -63,10 +64,41 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   );
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const friendUserId = route.params?.friendUserId ?? null;
+
   const categoriesApi = useGetApi<Category[]>(
-    apiEndpoints.GET_CATEGORIES(storeID, businessTypeId),
+    screenType === 'favorite'
+      ? apiEndpoints.GET_CATEGORIES(storeID, businessTypeId)
+      : apiEndpoints.GET_CAMPAIGN_CATEGORIES(
+          screenType === 'GiftOneGetOne' ? 3 : 1,
+        ),
     {
-      transformData: (data: any) => data.Data?.Items || [],
+      transformData: (data: any) => {
+        if (screenType === 'favorite') {
+          return data.Data?.Items || [];
+        }
+        // For campaign categories, flatten the Categories array from each CampaignCategory
+        // and transform to match Category structure
+        const campaignCategories: CampaignCategory[] = data.Data || [];
+        const flattenedCategories: Category[] = [];
+        campaignCategories.forEach(campaign => {
+          campaign.Categories.forEach(cat => {
+            // Check if category already exists to avoid duplicates
+            if (
+              !flattenedCategories.find(c => c.CategoryId === cat.CategoryId)
+            ) {
+              flattenedCategories.push({
+                CategoryId: cat.CategoryId,
+                NameEn: cat.CategoryNameEn,
+                NameAr: cat.CategoryNameAr,
+                CategoryImage: '',
+                IsActive: true,
+                Status: 1,
+              });
+            }
+          });
+        });
+        return flattenedCategories;
+      },
     },
   );
 
@@ -245,6 +277,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         FriendId: friendUserId,
         ItemId: item.ItemId,
         ItemVariantId: item.ItemVariantId,
+        StoreBranchId: item.StoreBranchId,
         StoreId: item.StoreId,
         SendType: 1,
         CampaignId: item.CampaignId,
@@ -343,6 +376,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
 
     getStoreProducts.setExtraParams({
       cityId: id,
+      campaingType: 3,
     });
 
     const selectedCity =
@@ -463,41 +497,42 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       />
 
       <View style={styles.listWrapper}>
-        {screenType === 'favorite' ? (
-          <View style={styles.tabsContainer}>
-            {categoriesApi.loading ? (
-              <SkeletonLoader screenType="groupTabs" />
-            ) : (
-              <GroupTabs
-                tabs={filterOptions}
-                activeTab={selectedFilter}
-                onTabPress={id => {
-                  setSelectedFilter(id);
-                  const categoryId = id === 'all' ? null : Number(id);
-                  if (screenType === 'favorite') {
-                    getFavoriteItems.setExtraParams({
-                      ...(storeID ? { StoreId: storeID } : {}),
-                      categoryId,
-                    });
-                  } else if (screenType === 'GiftOneGetOne') {
-                    getStoreProducts.setExtraParams({
-                      categoryId,
-                      campaingType: 3,
-                    });
-                  } else if (screenType === 'catch') {
-                    getCatchItems.setExtraParams({ categoryId });
-                  }
-                }}
-              />
-            )}
-          </View>
-        ) : (
+        {/* {screenType === 'favorite' ? ( */}
+        <View style={styles.tabsContainer}>
+          {categoriesApi.loading ? (
+            <SkeletonLoader screenType="groupTabs" />
+          ) : (
+            <GroupTabs
+              tabs={filterOptions}
+              activeTab={selectedFilter}
+              onTabPress={id => {
+                setSelectedFilter(id);
+                const categoryId = id === 'all' ? null : Number(id);
+                if (screenType === 'favorite') {
+                  getFavoriteItems.setExtraParams({
+                    ...(storeID ? { StoreId: storeID } : {}),
+                    categoryId,
+                  });
+                } else if (screenType === 'GiftOneGetOne') {
+                  getStoreProducts.setExtraParams({
+                    categoryId,
+                    campaingType: 3,
+                    CityId: selectedCityId,
+                  });
+                } else if (screenType === 'catch') {
+                  getCatchItems.setExtraParams({ categoryId, campaingType: 1 });
+                }
+              }}
+            />
+          )}
+        </View>
+        {/* ) : (
           <View
             style={{
               marginVertical: theme.sizes.HEIGHT * 0.01,
             }}
           />
-        )}
+        )} */}
         {isLoading() ? (
           <SkeletonLoader screenType="productListing" />
         ) : (

@@ -132,9 +132,9 @@ export const useListingApi = <T>(
 
   // Only fetch on initial mount, not on focus
   useEffect(() => {
-    if (!isInitialLoad && !isFetchingRef.current) {
-      fetchData('', true, 1);
-    }
+      if (!isInitialLoad && !isFetchingRef.current) {
+        fetchData('', true, 1);
+      }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
