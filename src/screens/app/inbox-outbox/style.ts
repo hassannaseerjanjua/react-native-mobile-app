@@ -67,7 +67,7 @@ const useStyles = () => {
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical: sizes.PADDING * 0.4,
+        paddingVertical: sizes.PADDING * 0.54,
         paddingHorizontal: sizes.PADDING,
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,

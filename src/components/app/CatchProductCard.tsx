@@ -173,7 +173,7 @@ const useStyles = () => {
       },
       title: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-        color: '#1A1A1A',
+        color: theme.colors.DARK_GRAY,
         fontSize: scaleWithMax(12, 13),
         marginVertical: sizes.HEIGHT * 0.0016,
       },

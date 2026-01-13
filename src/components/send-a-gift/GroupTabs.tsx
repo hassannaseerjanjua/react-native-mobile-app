@@ -2,6 +2,7 @@ import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
+import { scaleWithMax } from '../../utils';
 
 interface TabItem {
   id: string;
@@ -52,7 +53,7 @@ const useStyles = () => {
       scrollContainer: {
         flexDirection: 'row',
         gap: 10,
-        paddingLeft: theme.sizes.PADDING,
+        // paddingLeft: theme.sizes.PADDING,
       },
       tab: {
         backgroundColor: colors.LIGHT_GRAY,
@@ -60,6 +61,7 @@ const useStyles = () => {
         paddingHorizontal: sizes.WIDTH * 0.04,
         alignItems: 'center',
         justifyContent: 'center',
+        height: scaleWithMax(40, 42),
       },
       activeTab: {
         backgroundColor: colors.SECONDARY,

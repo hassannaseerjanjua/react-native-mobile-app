@@ -231,13 +231,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       />
 
       <View style={styles.content}>
-        <View
-          style={[
-            styles.tabContainer,
-            {
-              height: scaleWithMax(40, 42),
-            },
-          ]}
+        <ScrollView
+          style={styles.scrollableContentContainer}
+          showsVerticalScrollIndicator={false}
         >
           <GroupTabs
             tabs={tabs}
@@ -247,12 +243,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
               tab?.onPress?.();
             }}
           />
-        </View>
-
-        <ScrollView
-          style={styles.scrollableContentContainer}
-          showsVerticalScrollIndicator={false}
-        >
           {(route.params?.routeTo === 'SelectStore' ||
             !route.params?.routeTo) && (
             <View style={[styles.tabContainer]}>

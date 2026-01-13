@@ -165,7 +165,7 @@
     "HOME_CATCH_INSTANT_GIFT_DESC"= "Be the fastest to claim surprise drops before they disappear.",
     "HOME_CATCH_INSTANT_GIFTS_LIMITED_TIME"= "Instant gifts, limited time",
     "HOME_GET_ONE"= "Get one",
-    "HOME_GIFT_ONE"= "Gift One",
+    "HOME_GIFT_ONE_GET_ONE"= "Gift One",
     "HOME_GIFT_ONE_GET_ONE"= "Gift One Get One",
     "HOME_GIFT_ONE_GET_ONE_DESC"= "Send a gift and score a bonus treat for yourself.",
     "HOME_INBOX"= "Inbox",

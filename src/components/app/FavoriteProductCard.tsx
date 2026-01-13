@@ -147,12 +147,12 @@ const useStyles = () => {
       },
       title: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-        color: '#1A1A1A',
+        color: theme.colors.DARK_GRAY,
         fontSize: scaleWithMax(12, 13),
       },
       subtitle: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-        color: '#A0A0A0',
+        color: theme.colors.GRAY,
         fontSize: sizes.FONTSIZE_MEDIUM,
       },
 

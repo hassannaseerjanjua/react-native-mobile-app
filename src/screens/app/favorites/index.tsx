@@ -163,17 +163,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         onBackPress={handleBackPress}
         showSearchBar={true}
       />
-      <View style={styles.tabsContainer}>
-        {businessTypeApi.loading ? (
-          <SkeletonLoader screenType="groupTabs" />
-        ) : (
-          <GroupTabs
-            tabs={filterOptions}
-            activeTab={selectedFilter}
-            onTabPress={setSelectedFilter}
-          />
-        )}
-      </View>
 
       <View style={styles.content}>
         {FavStoreListing.loading || businessTypeApi.loading ? (
@@ -186,6 +175,15 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
             data={filteredFavorites}
             keyExtractor={item => item.StoreId.toString()}
             showsVerticalScrollIndicator={false}
+            ListHeaderComponent={() => (
+              <View style={styles.tabsContainer}>
+                <GroupTabs
+                  tabs={filterOptions}
+                  activeTab={selectedFilter}
+                  onTabPress={setSelectedFilter}
+                />
+              </View>
+            )}
             contentContainerStyle={styles.favoritesContainer}
             renderItem={({ item }) => (
               <View style={styles.favoriteItemContainer}>

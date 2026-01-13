@@ -9,24 +9,13 @@ const useStyles = () => {
     styles: StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
-        paddingHorizontal: 0,
         flex: 1,
       },
       content: {
-        paddingHorizontal: sizes.PADDING,
-        paddingTop: sizes.HEIGHT * 0.005,
-        paddingBottom: sizes.HEIGHT * 0.0255,
-      },
-      favoritesContainer: {
-        paddingHorizontal: sizes.PADDING,
-        paddingTop: sizes.HEIGHT * 0.005,
-      },
-      favoriteItemContainer: {
-        paddingBottom: sizes.HEIGHT * 0.015,
+        paddingBottom: sizes.HEIGHT * 0.086,
       },
       tabsContainer: {
-        marginVertical: sizes.HEIGHT * 0.02,
-        height: sizes.HEIGHT * 0.044,
+        marginVertical: sizes.HEIGHT * 0.016,
       },
       gridContainer: {
         flexDirection: 'row',
@@ -34,7 +23,6 @@ const useStyles = () => {
         justifyContent: 'space-between',
         gap: sizes.PADDING,
       },
-      gridItem: {},
       topImage: {
         width: sizes.WIDTH,
         height: sizes.HEIGHT * 0.2,
@@ -64,15 +52,14 @@ const useStyles = () => {
       textLarge: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         fontSize: sizes.FONTSIZE_MED_HIGH,
-        color: '#1A1A1A',
+        color: theme.colors.DARK_GRAY,
       },
       textMedium: {
-        fontSize: sizes.FONTSIZE,
-        color: '#808080',
+        fontSize: sizes.FONTSIZE_BUTTON,
+        color: theme.colors.GRAY,
       },
       headingContainer: {
         paddingTop: sizes.HEIGHT * 0.028,
-        paddingHorizontal: sizes.PADDING,
       },
       footerContainer: {
         position: 'absolute',

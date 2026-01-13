@@ -14,7 +14,7 @@ const useStyles = () => {
       },
       content: {
         flex: 1,
-        marginTop: sizes.HEIGHT * 0.02,
+        paddingTop: sizes.HEIGHT * 0.01,
       },
       listCard: {
         backgroundColor: colors.WHITE,
@@ -54,8 +54,8 @@ const useStyles = () => {
         textAlign: 'center',
       },
       tabContainer: {
-        marginBottom: sizes.HEIGHT * 0.01,
-        ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
+        // marginBottom: sizes.HEIGHT * 0.01,
+        marginVertical: sizes.HEIGHT * 0.016,
       },
       scrollableContent: {
         flex: 1,

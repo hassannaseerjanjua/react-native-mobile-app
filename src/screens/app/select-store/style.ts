@@ -14,14 +14,13 @@ const useStyles = () => {
       content: {
         paddingBottom: sizes.HEIGHT * 0.05,
       },
-      favoritesContainer: {
-      },
+      favoritesContainer: {},
       favoriteItemContainer: {
         paddingBottom: sizes.HEIGHT * 0.015,
       },
       tabsContainer: {
-        marginVertical: sizes.HEIGHT * 0.02,
-        height: sizes.HEIGHT * 0.044,
+        marginVertical: sizes.HEIGHT * 0.016,
+        // height: sizes.HEIGHT * 0.044,
       },
       gridContainer: {
         flexDirection: 'row',
@@ -29,8 +28,7 @@ const useStyles = () => {
         justifyContent: 'space-between',
         gap: sizes.PADDING,
       },
-      gridItem: {
-      },
+      gridItem: {},
     }),
     theme,
   };

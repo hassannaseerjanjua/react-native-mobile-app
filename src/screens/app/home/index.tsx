@@ -134,17 +134,10 @@ const HomeScreenTabsContainer: React.FC = () => {
       id: 'gift-one-get-one',
       icon: <SvgHomeG1G1 />,
       title:
-        (getString('HOME_GIFT_ONE') === 'HOME_GIFT_ONE'
+        getString('HOME_GIFT_ONE_GET_ONE') === 'HOME_GIFT_ONE_GET_ONE'
           ? 'Gift One'
-          : getString('HOME_GIFT_ONE')) +
-        ' ' +
-        (getString('HOME_GET_ONE') === 'HOME_GET_ONE'
-          ? 'Get One'
-          : getString('HOME_GET_ONE')),
-      titlePrimary:
-        getString('HOME_GET_ONE') === 'HOME_GET_ONE'
-          ? 'Get One'
-          : getString('HOME_GET_ONE'),
+          : getString('HOME_GIFT_ONE_GET_ONE'),
+
       description:
         getString('HOME_GIFT_ONE_GET_ONE_DESC') === 'HOME_GIFT_ONE_GET_ONE_DESC'
           ? 'Gift One Get One'
@@ -280,7 +273,6 @@ const HomeScreenTabsContainer: React.FC = () => {
             icon={tab.icon}
             image={tab.image}
             title={tab.title}
-            titlePrimary={tab.titlePrimary}
             description={tab.description}
             onPress={tab.onPress}
             style={{

@@ -169,14 +169,14 @@ const useStyles = () => {
     },
     title: {
       ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-      color: '#1A1A1A',
+      color: theme.colors.DARK_GRAY,
       fontSize: sizes.FONTSIZE_BUTTON,
       marginBottom: 1,
     },
     subtitle: {
       ...theme.globalStyles.TEXT_STYLE,
       fontSize: sizes.FONTSIZE_MEDIUM,
-      color: '#808080',
+      color: theme.colors.GRAY,
     },
     iconContainer: {},
   });

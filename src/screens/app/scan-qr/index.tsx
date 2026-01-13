@@ -210,7 +210,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                       ellipsizeMode="tail"
                       style={{
                         fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                        color: '#808080',
+                        color: theme.colors.GRAY,
                       }}
                     >
                       {storeName || 'Store Name'}
@@ -281,7 +281,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                 ellipsizeMode="tail"
                 style={{
                   fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                  color: '#808080',
+                  color: theme.colors.GRAY,
                 }}
               >
                 {storeName || 'Store Name'}

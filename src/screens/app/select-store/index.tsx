@@ -271,20 +271,9 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             )
           }
         />
-        <View style={styles.tabsContainer}>
-          {businessTypeApi.loading ? (
-            <SkeletonLoader screenType="groupTabs" />
-          ) : (
-            <GroupTabs
-              tabs={filterOptions}
-              activeTab={selectedFilter}
-              onTabPress={setSelectedFilter}
-            />
-          )}
-        </View>
 
         <View style={styles.content}>
-          {storeListApi.loading ? (
+          {storeListApi.loading || businessTypeApi.loading ? (
             <View
               style={{
                 paddingHorizontal: theme.sizes.PADDING,
@@ -320,27 +309,38 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                     paddingBottom: theme.sizes.HEIGHT * 0.16,
                     paddingHorizontal: theme.sizes.PADDING,
                   }}
+                  ListHeaderComponent={() => (
+                    <View style={styles.tabsContainer}>
+                      <GroupTabs
+                        tabs={filterOptions}
+                        activeTab={selectedFilter}
+                        onTabPress={setSelectedFilter}
+                      />
+                    </View>
+                  )}
                   data={storeListApi.data}
                   extraData={favoriteStates}
                   keyExtractor={item => item.StoreId.toString()}
                   renderItem={({ item }) => (
-                    <View
-                      style={styles.favoriteItemContainer}
-                      key={item.StoreId}
-                    >
-                      <FavoriteItemCard
+                    <>
+                      <View
+                        style={styles.favoriteItemContainer}
                         key={item.StoreId}
-                        item={item}
-                        onPress={handleStoreSelect}
-                        showFavorite={true}
-                        isFavorite={
-                          favoriteStates[item.StoreId] ??
-                          item.isFavourite ??
-                          false
-                        }
-                        onFavoritePress={() => handleFavoritePress(item)}
-                      />
-                    </View>
+                      >
+                        <FavoriteItemCard
+                          key={item.StoreId}
+                          item={item}
+                          onPress={handleStoreSelect}
+                          showFavorite={true}
+                          isFavorite={
+                            favoriteStates[item.StoreId] ??
+                            item.isFavourite ??
+                            false
+                          }
+                          onFavoritePress={() => handleFavoritePress(item)}
+                        />
+                      </View>
+                    </>
                   )}
                   onEndReached={storeListApi.loadMore}
                   onEndReachedThreshold={0.5}

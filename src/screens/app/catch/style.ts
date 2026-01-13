@@ -17,16 +17,15 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         paddingBottom: sizes.PADDING * 2,
       },
-      tabsContainer: {
-        marginVertical: sizes.HEIGHT * 0.02,
-        height: sizes.HEIGHT * 0.044,
+      tabContainer: {
+        marginTop: sizes.HEIGHT * 0.016,
       },
       listWrapper: {
         flex: 1,
       },
       listContent: {
         paddingHorizontal: sizes.PADDING,
-        paddingTop: sizes.HEIGHT * 0.005,
+        // paddingTop: sizes.HEIGHT * 0.005,
         paddingBottom: sizes.PADDING * 2,
       },
       listContainer: {
@@ -84,10 +83,10 @@ const useStyles = () => {
         textAlign: 'center',
         zIndex: 0,
       },
-        catchIcon: {
+      catchIcon: {
         width: scaleWithMax(120, 140),
         height: scaleWithMax(120, 140),
-        objectFit:"contain"
+        objectFit: 'contain',
       },
       footerPriceRow: {
         flexDirection: 'row',

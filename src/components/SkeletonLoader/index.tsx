@@ -320,6 +320,22 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       case 'storeCard':
         return (
           <View>
+            <SkeletonPlaceholder>
+              <SkeletonPlaceholder.Item
+                flexDirection="row"
+                marginVertical={screenHeight * 0.016}
+                gap={10}
+              >
+                {[...Array(4)].map((_, index) => (
+                  <SkeletonPlaceholder.Item
+                    key={index}
+                    width={screenWidth * 0.2}
+                    height={scaleWithMax(40, 42)}
+                    borderRadius={10}
+                  />
+                ))}
+              </SkeletonPlaceholder.Item>
+            </SkeletonPlaceholder>
             {[...Array(3)].map((_, index) => (
               <View
                 key={index}
@@ -412,6 +428,23 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       case 'productListing':
         return (
           <SkeletonPlaceholder>
+            <SkeletonPlaceholder>
+              <SkeletonPlaceholder.Item
+                flexDirection="row"
+                marginTop={screenHeight * 0.016}
+                marginBottom={screenHeight * 0.006}
+                gap={10}
+              >
+                {[...Array(4)].map((_, index) => (
+                  <SkeletonPlaceholder.Item
+                    key={index}
+                    width={screenWidth * 0.2}
+                    height={scaleWithMax(40, 42)}
+                    borderRadius={10}
+                  />
+                ))}
+              </SkeletonPlaceholder.Item>
+            </SkeletonPlaceholder>
             <SkeletonPlaceholder.Item>
               <View style={{ marginVertical: screenHeight * 0.006 }} />
 
@@ -1603,7 +1636,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                 <SkeletonPlaceholder.Item
                   key={index}
                   width={screenWidth * 0.2}
-                  height={scaleWithMax(35, 40)}
+                  height={scaleWithMax(40, 42)}
                   borderRadius={10}
                 />
               ))}

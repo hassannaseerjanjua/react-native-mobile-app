@@ -232,6 +232,59 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     return cartApi.data.StoreId === Number(currentStoreId);
   }, [cartApi.data, store?.id, storeId]);
 
+  // Get the current listing API based on selected filter
+  const currentListingApi = useMemo(() => {
+    return selectedFilter === 'favorites' ? getFavoriteItems : getStoreProducts;
+  }, [selectedFilter, getFavoriteItems, getStoreProducts]);
+
+  // Get the current data
+  const currentData = useMemo(() => {
+    return selectedFilter === 'favorites'
+      ? getFavoriteItems.data || []
+      : getStoreProducts.data || [];
+  }, [selectedFilter, getFavoriteItems.data, getStoreProducts.data]);
+
+  // Handle tab press
+  const handleTabPress = (id: string) => {
+    setSelectedFilter(id);
+    if (id === 'favorites') {
+      getFavoriteItems.setExtraParams({
+        StoreId: storeId,
+        userId: friendUserId,
+      });
+    } else {
+      getStoreProducts.setExtraParams({
+        StoreId: storeId,
+        status: 1,
+        categoryId: id === 'all' ? null : Number(id),
+      });
+    }
+  };
+
+  // Render product item
+  const renderProductItem = ({ item }: { item: StoreProduct | FaveItems }) => {
+    const isFavoriteItem = selectedFilter === 'favorites';
+    const isFavorite =
+      (isFavoriteItem || favoriteStates[item.ItemId]) ??
+      (item as StoreProduct).isFavourite ??
+      false;
+
+    return (
+      <FavoriteProductCard
+        item={item}
+        onPress={handleProductPress}
+        isFavorite={isFavorite}
+        hasFavorite={true}
+        onFavoritePress={() => {
+          handleFavoritePress({
+            ItemId: item.ItemId,
+            isFavorite: !isFavorite,
+          });
+        }}
+      />
+    );
+  };
+
   return (
     <ParentView edges={['left', 'right']}>
       <View style={{ position: 'relative' }}>
@@ -256,7 +309,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           >
             <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
           </TouchableOpacity>
-          {/* <View style={styles.backContainer}><ShareIcon /></View> */}
         </View>
         <Image source={storeOverlayImage} style={styles.bottomImage} />
       </View>
@@ -271,165 +323,70 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           barStyle="light-content"
         />
 
-        <View style={styles.tabsContainer}>
-          {categoriesApi.loading ? (
-            <SkeletonLoader screenType="groupTabs" />
-          ) : (
-            <GroupTabs
-              tabs={filterOptions}
-              activeTab={selectedFilter}
-              onTabPress={id => {
-                setSelectedFilter(id);
-                if (id === 'favorites') {
-                  getFavoriteItems.setExtraParams({
-                    StoreId: storeId,
-                    userId: friendUserId,
-                  });
-                } else {
-                  getStoreProducts.setExtraParams({
-                    StoreId: storeId,
-                    status: 1,
-                    categoryId: id === 'all' ? null : Number(id),
-                  });
-                }
-              }}
-            />
-          )}
-        </View>
-
-        {selectedFilter === 'favorites' ? (
-          getFavoriteItems.loading ? (
+        <View style={styles.content}>
+          {currentListingApi.loading || categoriesApi.loading ? (
             <SkeletonLoader screenType="productListing" />
           ) : (
-            <FlatList
-              columnWrapperStyle={{
-                gap: 16,
-              }}
-              data={getFavoriteItems.data || []}
-              numColumns={2}
-              keyExtractor={item => item.ItemId.toString()}
-              extraData={favoriteStates}
-              contentContainerStyle={[
-                styles.content,
-                isCartFromCurrentStore && {
-                  paddingBottom: theme.sizes.HEIGHT * 0.12,
-                },
-              ]}
-              showsVerticalScrollIndicator={false}
-              onEndReached={getFavoriteItems.loadMore}
-              onEndReachedThreshold={0.5}
-              ListEmptyComponent={
+            <>
+              {!currentData || currentData.length === 0 ? (
                 <View
                   style={{
                     flex: 1,
                     justifyContent: 'center',
                     alignItems: 'center',
                     height: theme.sizes.HEIGHT * 0.5,
+                    paddingHorizontal: theme.sizes.PADDING,
                   }}
                 >
                   <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
                 </View>
-              }
-              ListFooterComponent={
-                getFavoriteItems.loadingMore ? (
-                  <View
-                    style={{
-                      paddingVertical: theme.sizes.HEIGHT * 0.02,
-                      alignItems: 'center',
-                    }}
-                  >
-                    <ActivityIndicator
-                      size="small"
-                      color={theme.colors.PRIMARY}
+              ) : (
+                <>
+                  <View style={styles.tabsContainer}>
+                    <GroupTabs
+                      tabs={filterOptions}
+                      activeTab={selectedFilter}
+                      onTabPress={handleTabPress}
                     />
                   </View>
-                ) : null
-              }
-              renderItem={({ item }) => (
-                <FavoriteProductCard
-                  item={item}
-                  onPress={handleProductPress}
-                  isFavorite={favoriteStates[item.ItemId] ?? true}
-                  hasFavorite={true}
-                  onFavoritePress={() => {
-                    handleFavoritePress({
-                      ItemId: item.ItemId,
-                      isFavorite: !(favoriteStates[item.ItemId] ?? true),
-                    });
-                  }}
-                />
-              )}
-            />
-          )
-        ) : getStoreProducts.loading ? (
-          <SkeletonLoader screenType="productListing" />
-        ) : (
-          <FlatList
-            columnWrapperStyle={{
-              gap: 16,
-            }}
-            data={getStoreProducts.data || []}
-            numColumns={2}
-            keyExtractor={item => item.ItemId.toString()}
-            extraData={favoriteStates}
-            contentContainerStyle={[
-              styles.content,
-              isCartFromCurrentStore && {
-                paddingBottom: theme.sizes.HEIGHT * 0.12,
-              },
-            ]}
-            showsVerticalScrollIndicator={false}
-            onEndReached={getStoreProducts.loadMore}
-            onEndReachedThreshold={0.5}
-            ListEmptyComponent={
-              <View
-                style={{
-                  flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: theme.sizes.HEIGHT * 0.5,
-                }}
-              >
-                <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
-              </View>
-            }
-            ListFooterComponent={
-              getStoreProducts.loadingMore ? (
-                <View
-                  style={{
-                    paddingVertical: theme.sizes.HEIGHT * 0.02,
-                    alignItems: 'center',
-                  }}
-                >
-                  <ActivityIndicator
-                    size="small"
-                    color={theme.colors.PRIMARY}
+                  <FlatList
+                    columnWrapperStyle={{ gap: 16 }}
+                    data={currentData}
+                    numColumns={2}
+                    keyExtractor={item => item.ItemId.toString()}
+                    extraData={favoriteStates}
+                    ListHeaderComponent={() => null}
+                    contentContainerStyle={[
+                      styles.content,
+                      isCartFromCurrentStore && {
+                        paddingBottom: theme.sizes.HEIGHT * 0.12,
+                      },
+                    ]}
+                    showsVerticalScrollIndicator={false}
+                    onEndReached={currentListingApi.loadMore}
+                    onEndReachedThreshold={0.5}
+                    ListFooterComponent={
+                      currentListingApi.loadingMore ? (
+                        <View
+                          style={{
+                            paddingVertical: theme.sizes.HEIGHT * 0.02,
+                            alignItems: 'center',
+                          }}
+                        >
+                          <ActivityIndicator
+                            size="small"
+                            color={theme.colors.PRIMARY}
+                          />
+                        </View>
+                      ) : null
+                    }
+                    renderItem={renderProductItem}
                   />
-                </View>
-              ) : null
-            }
-            renderItem={({ item }) => (
-              <FavoriteProductCard
-                item={item}
-                onPress={handleProductPress}
-                isFavorite={
-                  favoriteStates[item.ItemId] ?? item.isFavourite ?? false
-                }
-                hasFavorite={true}
-                onFavoritePress={() => {
-                  handleFavoritePress({
-                    ItemId: item.ItemId,
-                    isFavorite: !(
-                      favoriteStates[item.ItemId] ??
-                      item.isFavourite ??
-                      false
-                    ),
-                  });
-                }}
-              />
-            )}
-          />
-        )}
+                </>
+              )}
+            </>
+          )}
+        </View>
       </View>
 
       {isCartFromCurrentStore && cartApi.data && (

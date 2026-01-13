@@ -25,8 +25,7 @@ const useStyles = () => {
         paddingBottom: sizes.HEIGHT * 0.015,
       },
       tabsContainer: {
-        marginVertical: sizes.HEIGHT * 0.02,
-        height: sizes.HEIGHT * 0.044,
+        marginVertical: sizes.HEIGHT * 0.016,
       },
       gridContainer: {
         flexDirection: 'row',
@@ -34,8 +33,7 @@ const useStyles = () => {
         justifyContent: 'space-between',
         gap: sizes.PADDING,
       },
-      gridItem: {
-      },
+      gridItem: {},
       emptyContainer: {
         alignItems: 'center',
         justifyContent: 'center',

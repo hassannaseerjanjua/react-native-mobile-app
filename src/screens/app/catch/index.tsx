@@ -65,40 +65,46 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
   const friendUserId = route.params?.friendUserId ?? null;
 
+  // Common transform function for listing APIs
+  const transformListingData = (data: any) => ({
+    data: data.Data?.Items || [],
+    totalCount: data.Data?.TotalCount || 0,
+  });
+
+  // Transform categories data
+  const transformCategoriesData = (data: any) => {
+    if (screenType === 'favorite') {
+      return data.Data?.Items || [];
+    }
+    // For campaign categories, flatten the Categories array from each CampaignCategory
+    const campaignCategories: CampaignCategory[] = data.Data || [];
+    const flattenedCategories: Category[] = [];
+    campaignCategories.forEach(campaign => {
+      campaign.Categories.forEach(cat => {
+        if (!flattenedCategories.find(c => c.CategoryId === cat.CategoryId)) {
+          flattenedCategories.push({
+            CategoryId: cat.CategoryId,
+            NameEn: cat.CategoryNameEn,
+            NameAr: cat.CategoryNameAr,
+            CategoryImage: '',
+            IsActive: true,
+            Status: 1,
+          });
+        }
+      });
+    });
+    return flattenedCategories;
+  };
+
   const categoriesApi = useGetApi<Category[]>(
     screenType === 'favorite'
       ? apiEndpoints.GET_CATEGORIES(storeID, businessTypeId)
       : apiEndpoints.GET_CAMPAIGN_CATEGORIES(
           screenType === 'GiftOneGetOne' ? 3 : 1,
+          selectedCityId,
         ),
     {
-      transformData: (data: any) => {
-        if (screenType === 'favorite') {
-          return data.Data?.Items || [];
-        }
-        // For campaign categories, flatten the Categories array from each CampaignCategory
-        // and transform to match Category structure
-        const campaignCategories: CampaignCategory[] = data.Data || [];
-        const flattenedCategories: Category[] = [];
-        campaignCategories.forEach(campaign => {
-          campaign.Categories.forEach(cat => {
-            // Check if category already exists to avoid duplicates
-            if (
-              !flattenedCategories.find(c => c.CategoryId === cat.CategoryId)
-            ) {
-              flattenedCategories.push({
-                CategoryId: cat.CategoryId,
-                NameEn: cat.CategoryNameEn,
-                NameAr: cat.CategoryNameAr,
-                CategoryImage: '',
-                IsActive: true,
-                Status: 1,
-              });
-            }
-          });
-        });
-        return flattenedCategories;
-      },
+      transformData: transformCategoriesData,
     },
   );
 
@@ -110,43 +116,29 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   );
 
   const getFavoriteItems = useListingApi<FaveItems>(
-    route.params?.type === 'favorite' ? apiEndpoints.GET_FAV_STORE_ITEMS : '',
+    screenType === 'favorite' ? apiEndpoints.GET_FAV_STORE_ITEMS : '',
     '',
     {
-      transformData: (data: any) => {
-        return {
-          data: data.Data?.Items || [],
-          totalCount: data.Data?.TotalCount || 0,
-        };
-      },
+      transformData: transformListingData,
       extraParams: storeID ? { StoreId: storeID } : {},
       idExtractor: (item: FaveItems) => item.ItemId,
     },
   );
 
   const getCatchItems = useListingApi<CatchItem>(
-    route.params?.type === 'catch' ? apiEndpoints.GET_CATCH_ITEMS : '',
+    screenType === 'catch' ? apiEndpoints.GET_CATCH_ITEMS : '',
     '',
     {
-      transformData: (data: CatchItemsApiResponse) => {
-        return {
-          data: data.Data?.Items || [],
-          totalCount: data.Data?.TotalCount || 0,
-        };
-      },
+      transformData: transformListingData,
       idExtractor: (item: CatchItem) => `${item.CampaignId}-${item.ItemId}`,
     },
   );
+
   const getStoreProducts = useListingApi<StoreProduct>(
-    route.params?.type === 'GiftOneGetOne' ? apiEndpoints.GET_CATCH_ITEMS : '',
+    screenType === 'GiftOneGetOne' ? apiEndpoints.GET_CATCH_ITEMS : '',
     '',
     {
-      transformData: (data: any) => {
-        return {
-          data: data.Data?.Items || [],
-          totalCount: data.Data?.TotalCount || 0,
-        };
-      },
+      transformData: transformListingData,
       extraParams: {
         campaingType: 3,
         cityId: route.params?.cityId || null,
@@ -154,6 +146,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       idExtractor: (item: StoreProduct) => item.ItemId,
     },
   );
+
   const cartApi = useGetApi<CartResponse>(
     screenType === 'GiftOneGetOne' ? apiEndpoints.GET_CART_ITEMS : '',
     {
@@ -177,7 +170,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       });
       getStoreProducts.recall();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedCityId, screenType]);
 
   useEffect(() => {
@@ -250,8 +242,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     if (screenType === 'catch') return getCatchItems;
     return null;
   }, [screenType, getFavoriteItems, getStoreProducts, getCatchItems]);
-
-  const searchValue = listingApi?.search || '';
 
   const handleSearchChange = (text: string) => {
     if (listingApi) {
@@ -373,15 +363,10 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const handleCitySelect = (cityId: number | string | null) => {
     const id = typeof cityId === 'string' ? parseInt(cityId, 10) : cityId;
     setSelectedCityId(id);
-
     getStoreProducts.setExtraParams({
       cityId: id,
       campaingType: 3,
     });
-
-    const selectedCity =
-      citiesApi.data?.find(city => city.CityID === id) || null;
-
     setShowCityPicker(false);
   };
 
@@ -392,47 +377,113 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     });
   };
 
-  const isLoading = () => {
-    return listingApi?.loading || false;
-  };
-
   const getItemKey = (item: any): string => {
     if (screenType === 'favorite' || screenType === 'GiftOneGetOne') {
       return item.ItemId.toString();
     }
     return item.id || `${item.catchItem?.CampaignId}-${item.catchItem?.ItemId}`;
   };
+
+  // Get header title based on screen type
+  const getHeaderTitle = () => {
+    if (screenType === 'favorite') return getString('FAV_FAVORITES');
+    if (screenType === 'GiftOneGetOne')
+      return getString('HOME_GIFT_ONE_GET_ONE');
+    return getString('HOME_CATCH');
+  };
+
+  // Handle tab press
+  const handleTabPress = (id: string) => {
+    setSelectedFilter(id);
+    const categoryId = id === 'all' ? null : Number(id);
+
+    if (screenType === 'favorite') {
+      getFavoriteItems.setExtraParams({
+        ...(storeID ? { StoreId: storeID } : {}),
+        categoryId,
+      });
+    } else if (screenType === 'GiftOneGetOne') {
+      getStoreProducts.setExtraParams({
+        categoryId,
+        campaingType: 3,
+        CityId: selectedCityId,
+      });
+    } else if (screenType === 'catch') {
+      getCatchItems.setExtraParams({
+        categoryId,
+        campaingType: 1,
+      });
+    }
+  };
+
+  // Render product item based on screen type
+  const renderProductItem = ({ item }: { item: any }) => {
+    if (screenType === 'favorite') {
+      return (
+        <FavoriteProductCard
+          item={item as FaveItems}
+          onPress={handleProductPress}
+          isFavorite={getFavoriteState(item)}
+          hasFavorite={true}
+          onFavoritePress={createFavoritePressHandler(item)}
+        />
+      );
+    }
+
+    if (screenType === 'GiftOneGetOne') {
+      return (
+        <GiftOneGetOneProductCard
+          item={item}
+          onPress={handleProductPress}
+          isFavorite={getFavoriteState(item)}
+          hasFavorite={false}
+          onFavoritePress={createFavoritePressHandler(item)}
+        />
+      );
+    }
+
+    return (
+      <CatchProductCard
+        loading={loadingItems[item.id] || false}
+        item={item}
+        onPress={handleProductPress}
+        onCatchPress={item => {
+          if (item.catchItem) {
+            _handleCatchPress(item.catchItem);
+          }
+        }}
+      />
+    );
+  };
+
+  // Handle modal close and recall catch items if needed
+  const handleModalClose = () => {
+    setOpenModal(false);
+    if (screenType === 'catch') {
+      getCatchItems.recall();
+    }
+  };
+
   const catchIcon = require('../../../assets/images/catch-Group-Icon.png');
   if (openModal) {
     return (
       <SuccessMessage
         MediaLogo={
-          <Image
-            source={require('../../../assets/images/catch-gif.gif')}
-            // style={styles.catchIcon}
-          />
+          <Image source={require('../../../assets/images/catch-gif.gif')} />
         }
         SuccessLogo={<Image source={catchIcon} style={styles.catchIcon} />}
         SuccessMessage={getString('CATCH_SUCCESS_MESSAGE')}
         SuccessSubMessage={getString('CATCH_SUCCESS_SUB_MESSAGE')}
         primaryButtonTitle={getString('HOME_INBOX')}
         onPrimaryPress={() => {
-          setOpenModal(false);
-          if (screenType === 'catch') {
-            getCatchItems.recall();
-          }
+          handleModalClose();
           navigation.navigate('InboxOutbox', {
             title: getString('HOME_INBOX'),
             isInbox: true,
           });
         }}
         secondaryButtonTitle="Continue"
-        onSecondaryPress={() => {
-          setOpenModal(false);
-          if (screenType === 'catch') {
-            getCatchItems.recall();
-          }
-        }}
+        onSecondaryPress={handleModalClose}
       />
     );
   }
@@ -444,17 +495,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         barStyle="dark-content"
       />
       <HomeHeader
-        title={
-          screenType === 'favorite'
-            ? getString('FAV_FAVORITES')
-            : screenType === 'GiftOneGetOne'
-            ? getString('HOME_GIFT_ONE_GET_ONE')
-            : getString('HOME_CATCH')
-        }
+        title={getHeaderTitle()}
         showBackButton
         onBackPress={() => navigation.goBack()}
         showSearchBar
-        searchValue={searchValue}
+        searchValue={listingApi?.search}
         onSearchChange={handleSearchChange}
         searchPlaceholder={getString('HOME_SEARCH')}
         rightSideView={
@@ -497,127 +542,91 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       />
 
       <View style={styles.listWrapper}>
-        {/* {screenType === 'favorite' ? ( */}
-        <View style={styles.tabsContainer}>
-          {categoriesApi.loading ? (
-            <SkeletonLoader screenType="groupTabs" />
-          ) : (
-            <GroupTabs
-              tabs={filterOptions}
-              activeTab={selectedFilter}
-              onTabPress={id => {
-                setSelectedFilter(id);
-                const categoryId = id === 'all' ? null : Number(id);
-                if (screenType === 'favorite') {
-                  getFavoriteItems.setExtraParams({
-                    ...(storeID ? { StoreId: storeID } : {}),
-                    categoryId,
-                  });
-                } else if (screenType === 'GiftOneGetOne') {
-                  getStoreProducts.setExtraParams({
-                    categoryId,
-                    campaingType: 3,
-                    CityId: selectedCityId,
-                  });
-                } else if (screenType === 'catch') {
-                  getCatchItems.setExtraParams({ categoryId, campaingType: 1 });
-                }
-              }}
-            />
-          )}
-        </View>
-        {/* ) : (
-          <View
-            style={{
-              marginVertical: theme.sizes.HEIGHT * 0.01,
-            }}
-          />
-        )} */}
-        {isLoading() ? (
-          <SkeletonLoader screenType="productListing" />
+        {listingApi?.loading || categoriesApi.loading ? (
+          <View style={styles.listContent}>
+            <SkeletonLoader screenType="productListing" />
+          </View>
         ) : (
-          <FlatList
-            data={filteredItems as any}
-            numColumns={2}
-            keyExtractor={getItemKey}
-            columnWrapperStyle={styles.columnWrapper}
-            extraData={favoriteStates}
-            contentContainerStyle={[
-              styles.listContent,
-              styles.listContainer,
-              screenType === 'GiftOneGetOne' && {
-                paddingBottom: theme.sizes.HEIGHT * 0.12,
-              },
-            ]}
-            showsVerticalScrollIndicator={false}
-            onEndReached={
-              listingApi && listingApi.hasMore ? listingApi.loadMore : undefined
-            }
-            onEndReachedThreshold={0.5}
-            ListEmptyComponent={
+          <>
+            {!filteredItems || filteredItems.length === 0 ? (
               <View
                 style={{
-                  flex: 1,
+                  // flex: 1,
                   justifyContent: 'center',
                   alignItems: 'center',
                   height: theme.sizes.HEIGHT * 0.5,
+                  paddingHorizontal: theme.sizes.PADDING,
                 }}
               >
                 <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
               </View>
-            }
-            ListFooterComponent={
-              listingApi && listingApi.loadingMore ? (
-                <View
-                  style={{
-                    paddingVertical: theme.sizes.HEIGHT * 0.02,
-                    alignItems: 'center',
-                  }}
+            ) : (
+              <>
+                {/* <View
+                  style={[
+                    styles.tabContainer,
+                    {
+                      height: scaleWithMax(40, 42),
+                    },
+                  ]}
                 >
-                  <ActivityIndicator
-                    size="small"
-                    color={theme.colors.PRIMARY}
+                  <GroupTabs
+                    tabs={filterOptions}
+                    activeTab={selectedFilter}
+                    onTabPress={handleTabPress}
                   />
-                </View>
-              ) : null
-            }
-            renderItem={({ item }) => {
-              if (screenType === 'favorite') {
-                return (
-                  <FavoriteProductCard
-                    item={item as FaveItems}
-                    onPress={handleProductPress}
-                    isFavorite={getFavoriteState(item)}
-                    hasFavorite={true}
-                    onFavoritePress={createFavoritePressHandler(item)}
-                  />
-                );
-              } else if (screenType === 'GiftOneGetOne') {
-                return (
-                  <GiftOneGetOneProductCard
-                    item={item}
-                    onPress={handleProductPress}
-                    isFavorite={getFavoriteState(item)}
-                    hasFavorite={false}
-                    onFavoritePress={createFavoritePressHandler(item)}
-                  />
-                );
-              } else {
-                return (
-                  <CatchProductCard
-                    loading={loadingItems[item.id] || false}
-                    item={item}
-                    onPress={handleProductPress}
-                    onCatchPress={item => {
-                      if (item.catchItem) {
-                        _handleCatchPress(item.catchItem);
-                      }
-                    }}
-                  />
-                );
-              }
-            }}
-          />
+                </View> */}
+                <FlatList
+                  data={filteredItems as any}
+                  numColumns={2}
+                  keyExtractor={getItemKey}
+                  columnWrapperStyle={styles.columnWrapper}
+                  extraData={favoriteStates}
+                  ListHeaderComponent={() => {
+                    return (
+                      <View style={[styles.tabContainer]}>
+                        <GroupTabs
+                          tabs={filterOptions}
+                          activeTab={selectedFilter}
+                          onTabPress={handleTabPress}
+                        />
+                      </View>
+                    );
+                  }}
+                  contentContainerStyle={[
+                    styles.listContent,
+                    styles.listContainer,
+                    screenType === 'GiftOneGetOne' && {
+                      paddingBottom: theme.sizes.HEIGHT * 0.12,
+                    },
+                  ]}
+                  showsVerticalScrollIndicator={false}
+                  onEndReached={
+                    listingApi && listingApi.hasMore
+                      ? listingApi.loadMore
+                      : undefined
+                  }
+                  onEndReachedThreshold={0.5}
+                  ListFooterComponent={
+                    listingApi && listingApi.loadingMore ? (
+                      <View
+                        style={{
+                          paddingVertical: theme.sizes.HEIGHT * 0.02,
+                          alignItems: 'center',
+                        }}
+                      >
+                        <ActivityIndicator
+                          size="small"
+                          color={theme.colors.PRIMARY}
+                        />
+                      </View>
+                    ) : null
+                  }
+                  renderItem={renderProductItem}
+                />
+              </>
+            )}
+          </>
         )}
       </View>
 
