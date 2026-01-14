@@ -3,7 +3,8 @@ import {
   View,
   StatusBar,
   FlatList,
-  Linking,
+  Share,
+  Platform,
   TouchableOpacity,
 } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
@@ -167,25 +168,45 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     }
   };
 
-  const openWhatsApp = async (phoneNumber: string) => {
+  const handleInviteContact = async (
+    phoneNumber: string,
+    contactName?: string,
+  ) => {
     try {
       const formattedPhone = phoneNumber.replace(/[^\d]/g, ''); // Remove + and other chars
-      const whatsappUrl = `https://wa.me/${formattedPhone}?text=join giftee`;
 
-      const canOpen = await Linking.canOpenURL(whatsappUrl);
-      if (canOpen) {
-        await Linking.openURL(whatsappUrl);
-      } else {
+      // Generate invite message
+      const inviteMessage = `🎁 Join me on Giftee! Download the app and let's exchange gifts.\n\nhttps://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId=${
+        user?.UserId || ''
+      }&CityId=${user?.CityId || ''}&sendType=1`;
+
+      // Use Share API to show bottom sheet with all sharing options
+      const shareOptions = Platform.select({
+        ios: {
+          message: inviteMessage,
+        },
+        android: {
+          message: inviteMessage,
+          title: contactName
+            ? `Invite ${contactName} to Giftee`
+            : getString('C_INVITE') || 'Invite to Giftee',
+        },
+      }) || {
+        message: inviteMessage,
+        title: contactName
+          ? `Invite ${contactName} to Giftee`
+          : getString('C_INVITE') || 'Invite to Giftee',
+      };
+
+      await Share.share(shareOptions);
+    } catch (error: any) {
+      // Only show error if user didn't dismiss the share sheet
+      if (error.message !== 'User did not share') {
         notify.error(
-          getString('O_WHATSAPP_NOT_INSTALLED_MESSAGE') ||
-            'WhatsApp is not installed on your device.',
+          getString('O_UNABLE_TO_OPEN_WHATSAPP') ||
+            'Unable to share. Please try again.',
         );
       }
-    } catch (error) {
-      notify.error(
-        getString('O_UNABLE_TO_OPEN_WHATSAPP') ||
-          'Unable to open WhatsApp. Please try again.',
-      );
     }
   };
 
@@ -200,8 +221,9 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       // User is in app, add as friend
       await addFriend(verified.UserID);
     } else {
-      // User not in app, invite via WhatsApp
-      await openWhatsApp(phoneNo);
+      // User not in app, invite via share bottom sheet
+      const contactName = contact.FullName || contact.Email || undefined;
+      await handleInviteContact(phoneNo, contactName);
     }
   };
 
@@ -375,6 +397,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       Email: contact.emails[0] || '',
                       ProfileUrl: contact.thumbnail || null,
                       RelationStatus: verified?.IsAppUser ? 2 : 0, // 2 = not friend, 0 = not a user
+                      IsVerified: verified?.IsAppUser ? true : false,
                     };
                   },
                 );

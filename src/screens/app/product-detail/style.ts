@@ -13,7 +13,6 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
-        paddingHorizontal: 0,
         backgroundColor: theme.colors.HOME_BACKGROUND,
       },
       rounded_white_background: {
@@ -121,7 +120,7 @@ const useStyles = () => {
 
       ProductDescriptionContainer: {
         paddingBottom: sizes.HEIGHT * 0.006,
-        gap: sizes.HEIGHT * 0.01,
+        gap: sizes.HEIGHT * 0.008,
       },
       Heading: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
@@ -134,8 +133,7 @@ const useStyles = () => {
         color: theme.colors.BLACK,
       },
       tabsContainer: {
-        marginVertical: sizes.HEIGHT * 0.02,
-        height: sizes.HEIGHT * 0.04,
+        marginVertical: sizes.HEIGHT * 0.012,
       },
       button: {
         width: sizes.WIDTH * 0.6,
@@ -156,7 +154,7 @@ const useStyles = () => {
         color: theme.colors.PRIMARY,
       },
       LowerContainer: {
-        marginHorizontal: sizes.PADDING,
+        // marginHorizontal: sizes.PADDING,
         gap: sizes.HEIGHT * 0.02,
       },
     });

@@ -27,11 +27,11 @@ const getStatusText = (
 ): string => {
   const statusMap: { [key: number]: string } = {
     1: getString('O_PENDING'),
-    5: 'Added to Cart',
+    // 5: 'Added to Cart',
     6: getString('O_PENDING'),
-    7: 'QR Generated',
-    8: 'Approved',
-    9: 'Declined',
+    // 7: 'QR Generated',
+    // 8: 'Approved',
+    // 9: 'Declined',
     10: 'Redeemed',
   };
 

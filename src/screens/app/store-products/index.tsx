@@ -323,7 +323,16 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           barStyle="light-content"
         />
 
-        <View style={styles.content}>
+        <View
+          style={[
+            styles.content,
+            {
+              paddingBottom: isCartFromCurrentStore
+                ? theme.sizes.HEIGHT * 0.13
+                : theme.sizes.HEIGHT * 0.086,
+            },
+          ]}
+        >
           {currentListingApi.loading || categoriesApi.loading ? (
             <SkeletonLoader screenType="productListing" />
           ) : (

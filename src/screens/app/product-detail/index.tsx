@@ -312,7 +312,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       </View>
 
       {loading ? (
-        <View style={{}}>
+        <View>
           <ScrollView
             contentContainerStyle={{
               paddingHorizontal: sizes.PADDING,
@@ -326,7 +326,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         </View>
       ) : (
         <ScrollView
-          style={{ ...styles.container, marginBottom: sizes.HEIGHT * 0.025 }}
+          style={{ ...styles.container }}
           contentContainerStyle={styles.scrollViewContent}
         >
           <View style={styles.LowerContainer}>
@@ -368,15 +368,11 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             )}
           </View>
           <View style={styles.tabsContainer}>
-            {loading || !item ? (
-              <SkeletonLoader screenType="groupTabs" />
-            ) : (
-              <GroupTabs
-                tabs={filterOptions}
-                activeTab={selectedFilter}
-                onTabPress={setSelectedFilter}
-              />
-            )}
+            <GroupTabs
+              tabs={filterOptions}
+              activeTab={selectedFilter}
+              onTabPress={setSelectedFilter}
+            />
           </View>
         </ScrollView>
       )}
@@ -385,10 +381,12 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
           position: 'absolute',
-          bottom: 0,
+          bottom: scaleWithMax(3, 4),
+          // bottom: 0,
           left: 0,
           right: 0,
-          ...theme.globalStyles.SHADOW_STYLE,
+
+          ...theme.globalStyles.SHADOW_STYLE_STORE_CARD,
         }}
       >
         <View
@@ -398,6 +396,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             backgroundColor: theme.colors.WHITE,
             paddingHorizontal: sizes.PADDING,
             paddingVertical: sizes.HEIGHT * 0.028,
+            borderTopLeftRadius: 15,
+            borderTopRightRadius: 15,
+            // backgroundColor: 'red',
           }}
         >
           <View style={styles.QuantityContainer}>
