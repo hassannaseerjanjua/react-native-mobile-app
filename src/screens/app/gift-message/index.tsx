@@ -367,11 +367,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     });
   };
 
-  const compressVideo = async (
-    videoUri: string,
-    fileName: string,
-    autoOpenTrim: boolean = false,
-  ) => {
+  const compressVideo = async (videoUri: string, fileName: string) => {
     // Normalize the video URI to ensure proper format for Video.compress
     let normalizedUri = videoUri;
 
@@ -398,7 +394,6 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       originalUri: videoUri,
       normalizedUri,
       platform: Platform.OS,
-      autoOpenTrim,
     });
     setIsCompressing(true);
     setCompressionProgress(0);
@@ -460,13 +455,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         return updated;
       });
 
-      // Auto-open trim screen if video is longer than 15 seconds
-      if (autoOpenTrim) {
-        console.log('[GiftMessage] Auto-opening trim screen for long video');
-        setOriginalVideoPath(fileUriWrapper(processedUri));
-        setIsVideoLongerThan15Seconds(true);
-        setSelectedVideo(fileUriWrapper(processedUri));
-      }
+      // Note: Trim screen is now opened before compression
+      // This function only compresses (called from trim screen's onSaveVideo)
     } catch (error: any) {
       console.error('[GiftMessage] Video compression failed:', error);
       notify.error(getString('GIFT_MESSAGE_FAILED_TO_PROCESS_VIDEO'));
@@ -514,7 +504,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             const asset = response.assets[0];
             const duration = asset.duration || 0;
 
-            console.log('[GiftMessage] Video selected:', {
+            console.log('[GiftMessage] Video selected from gallery:', {
               uri: asset.uri,
               duration: duration,
               fileSize: asset.fileSize,
@@ -523,18 +513,18 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             });
 
             const videoUri = asset.uri || '';
-            const fileName = asset.fileName || `video_${Date.now()}.mp4`;
 
-            // Check if video is longer than 15 seconds
-            const shouldAutoTrim = duration > MAX_VIDEO_DURATION;
-            if (shouldAutoTrim) {
-              console.log(
-                `[GiftMessage] Video is ${duration}s, will auto-open trim screen`,
-              );
+            // Normalize URI for trim screen
+            let normalizedUri = videoUri;
+            if (Platform.OS === 'ios' && !normalizedUri.startsWith('file://')) {
+              normalizedUri = 'file://' + normalizedUri;
             }
 
-            // Compress the video before setting it
-            await compressVideo(videoUri, fileName, shouldAutoTrim);
+            // Always open trim screen - don't compress yet
+            console.log('[GiftMessage] Opening trim screen for gallery video');
+            setOriginalVideoPath(normalizedUri);
+            setSelectedVideo(normalizedUri);
+            setIsVideoLongerThan15Seconds(duration > MAX_VIDEO_DURATION);
           }
         },
       );
@@ -642,32 +632,22 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           // Compress the trimmed video before saving
           const fileName =
             sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`;
-          await compressVideo(trimmedPath, fileName, false);
+          await compressVideo(trimmedPath, fileName);
 
           setOriginalVideoPath(null);
           setIsVideoLongerThan15Seconds(false);
           setSelectedVideo(null);
           setShowCamera(false);
         }}
-        onCancel={async () => {
-          // Only remove video on cancel if it was originally longer than 15 seconds
-          if (isVideoLongerThan15Seconds) {
-            // Video is longer than 15 seconds - remove it on cancel
-            setSendMessagePayload(prev => {
-              const updated = { ...prev, VideoFile: undefined };
-              if (orderId) {
-                saveGiftMessageData(orderId, updated);
-              }
-              return updated;
-            });
-          } else {
-            // Video is 15 seconds or less - compress and save the full video on cancel
-            if (selectedVideo) {
-              const fileName =
-                sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`;
-              await compressVideo(selectedVideo, fileName, false);
+        onCancel={() => {
+          // Remove video on cancel - don't save anything
+          setSendMessagePayload(prev => {
+            const updated = { ...prev, VideoFile: undefined };
+            if (orderId) {
+              saveGiftMessageData(orderId, updated);
             }
-          }
+            return updated;
+          });
           setOriginalVideoPath(null);
           setIsVideoLongerThan15Seconds(false);
           setSelectedVideo(null);
@@ -827,31 +807,48 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                                 return;
                               }
 
-                              // Handle video path - compressVideo will normalize it
-                              const videoUri = video.path;
+                              // Handle video path - normalize and open trim screen
+                              let videoUri = video.path;
 
+                              // Normalize URI format for trim screen
+                              if (Platform.OS === 'android') {
+                                // Android: Ensure proper URI format
+                                if (
+                                  !videoUri.startsWith('file://') &&
+                                  !videoUri.startsWith('content://')
+                                ) {
+                                  videoUri = 'file://' + videoUri;
+                                }
+                              } else {
+                                // iOS: Ensure file:// prefix
+                                if (!videoUri.startsWith('file://')) {
+                                  videoUri = 'file://' + videoUri;
+                                }
+                              }
+
+                              // Always open trim screen - don't compress yet
                               // Add a small delay on Android to ensure video file is fully finalized
-                              const compressRecordedVideo = () => {
+                              const openTrimScreen = () => {
                                 console.log(
-                                  '[GiftMessage] Compressing recorded video:',
+                                  '[GiftMessage] Opening trim screen for recorded video:',
                                   {
                                     platform: Platform.OS,
                                     originalPath: videoUri,
                                   },
                                 );
-                                compressVideo(
-                                  videoUri,
-                                  `video_${Date.now()}.mp4`,
-                                  false, // Don't auto-open trim for recorded videos
+                                setOriginalVideoPath(videoUri);
+                                setSelectedVideo(videoUri);
+                                setIsVideoLongerThan15Seconds(
+                                  recordingTime >= MAX_VIDEO_DURATION,
                                 );
                               };
 
                               if (Platform.OS === 'android') {
                                 // Add delay on Android to ensure video file is fully finalized
-                                setTimeout(compressRecordedVideo, 500);
+                                setTimeout(openTrimScreen, 500);
                               } else {
-                                // iOS - compress immediately
-                                compressRecordedVideo();
+                                // iOS - open immediately
+                                openTrimScreen();
                               }
                             },
                             onRecordingError: error => {

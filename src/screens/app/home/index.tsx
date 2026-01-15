@@ -261,7 +261,7 @@ const HomeScreenTabsContainer: React.FC = () => {
             minHeight: isProMax
               ? scaleWithMax(95, 110)
               : isLargeAndroid
-              ? scaleWithMax(95, 103)
+              ? scaleWithMax(88, 93)
               : scaleWithMax(95, 95),
           }}
         />
@@ -279,7 +279,7 @@ const HomeScreenTabsContainer: React.FC = () => {
               minHeight: isProMax
                 ? scaleWithMax(85, 100)
                 : isLargeAndroid
-                ? scaleWithMax(85, 93)
+                ? scaleWithMax(78, 83)
                 : scaleWithMax(85, 85),
             }}
           />
@@ -305,7 +305,7 @@ const HomeScreenTabsContainer: React.FC = () => {
               minHeight: isProMax
                 ? scaleWithMax(75, 90)
                 : isLargeAndroid
-                ? scaleWithMax(75, 83)
+                ? scaleWithMax(73, 78)
                 : scaleWithMax(78, 80),
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 5 },
