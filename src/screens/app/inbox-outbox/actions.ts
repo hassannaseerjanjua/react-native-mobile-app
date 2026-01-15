@@ -1,4 +1,4 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { ImageSourcePropType, Share, Platform, Image } from 'react-native';
 import useGetApi from '../../../hooks/useGetApi';
@@ -9,6 +9,11 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import { useAuthStore } from '../../../store/reducer/auth';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
+import {
+  queueVideosForPreload,
+  extractVideoUrls,
+  isVideoPreloaded,
+} from '../../../utils/videoPreloader';
 
 const defaultProfileImage = require('../../../assets/images/user.png');
 const defaultItemImage = require('../../../assets/images/img-placeholder.png');
@@ -172,6 +177,19 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
   const refetch = () => getInboxOutboxDetails.recall();
   const orders = getInboxOutboxDetails.data || [];
   const isLoading = getInboxOutboxDetails.loading;
+
+  // Preload videos when orders are loaded
+  useEffect(() => {
+    if (orders.length > 0) {
+      const videoUrls = extractVideoUrls(orders);
+      if (videoUrls.length > 0) {
+        console.log(
+          `[InboxOutbox] Queueing ${videoUrls.length} videos for preload`,
+        );
+        queueVideosForPreload(videoUrls);
+      }
+    }
+  }, [orders]);
 
   const handleItemPress = (orderId: number, itemId: InboxOrderItem) => {
     setOrderId(orderId);
@@ -455,7 +473,10 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
     const hasVideo = order.orderImages && order.orderImages.length > 0;
     const videoUrl = hasVideo ? order.orderImages[0].ImageUrl : '';
 
-    if (hasVideo && videoUrl) {
+    // Check if video is already preloaded for faster playback
+    const videoIsPreloaded = videoUrl ? isVideoPreloaded(videoUrl) : false;
+
+    if (hasVideo && videoUrl && !videoIsPreloaded) {
       videoViewerRef.current?.preload(videoUrl);
     }
 
@@ -469,31 +490,39 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
       messageText,
     });
 
+    // Determine delay based on what needs to be loaded
+    // If video is preloaded, we can show faster
+    const showDelay = videoIsPreloaded ? 50 : 150;
+
     // Preload filter image if it exists before showing viewer
     if (filterImageUrl) {
       Image.prefetch(filterImageUrl)
         .then(() => {
           // Filter image loaded, now show the viewer
-          setVideoViewerData(prev => ({
-            ...prev,
-            visible: true,
-          }));
+          setTimeout(() => {
+            setVideoViewerData(prev => ({
+              ...prev,
+              visible: true,
+            }));
+          }, showDelay);
         })
         .catch(() => {
           // Even if prefetch fails, show the viewer (image will load on display)
-          setVideoViewerData(prev => ({
-            ...prev,
-            visible: true,
-          }));
+          setTimeout(() => {
+            setVideoViewerData(prev => ({
+              ...prev,
+              visible: true,
+            }));
+          }, showDelay);
         });
     } else {
-      // No filter image, show immediately after short delay
+      // No filter image, show quickly
       setTimeout(() => {
         setVideoViewerData(prev => ({
           ...prev,
           visible: true,
         }));
-      }, 300);
+      }, showDelay);
     }
   };
 

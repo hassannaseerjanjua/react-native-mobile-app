@@ -25,6 +25,7 @@ import { Text } from '../../utils/elements';
 import { SvgCrossIcon } from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
 import { getCachedVideoPath } from '../../utils/videoCache';
+import { isVideoPreloaded } from '../../utils/videoPreloader';
 import VideoTrimmer from './VideoTrimmer';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -426,9 +427,13 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
     const isTextStory = currentStory === 'text';
     const isVideoStory = currentStory === 'video';
 
+    // Skip rendering preload video if already preloaded by VideoPreloaderManager
+    const shouldRenderPreload =
+      preloadUrl && !visible && !isVideoPreloaded(preloadUrl);
+
     return (
       <>
-        {preloadUrl && !visible && (
+        {shouldRenderPreload && (
           <Video
             ref={preloadVideoRef}
             source={{ uri: preloadUrl }}
@@ -497,10 +502,10 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
                   playInBackground={false}
                   playWhenInactive={false}
                   bufferConfig={{
-                    minBufferMs: 2500,
-                    maxBufferMs: 5000,
-                    bufferForPlaybackMs: 1000,
-                    bufferForPlaybackAfterRebufferMs: 1500,
+                    minBufferMs: 5000,
+                    maxBufferMs: 30000,
+                    bufferForPlaybackMs: 500, // Start playing faster
+                    bufferForPlaybackAfterRebufferMs: 1000,
                   }}
                 />
               </TouchableOpacity>

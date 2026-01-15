@@ -13,6 +13,7 @@ import React, { useState, useRef } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
+import VideoPreloaderManager from '../../../components/global/VideoPreloaderManager';
 import useStyles from './style';
 import {
   GiftIcon,
@@ -439,6 +440,9 @@ const InboxOutbox: React.FC = () => {
         messageText={videoViewerData.messageText}
         onClose={handleCloseVideoViewer}
       />
+
+      {/* Background video preloader for instant playback */}
+      <VideoPreloaderManager />
     </ParentView>
   );
 };
