@@ -9,18 +9,6 @@ const axiosInter = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// axiosInter.interceptors.request.use(
-//   config => {
-//     if (config.data instanceof FormData) {
-//       delete config.headers['Content-Type'];
-//     }
-//     return config;
-//   },
-//   error => {
-//     return Promise.reject(error);
-//   },
-// );
-
 interface ResponseObject<T> {
   success: boolean;
   failed: boolean;
@@ -82,21 +70,11 @@ const caller = async <T>(
     responseObject.ResponseCode = err?.response?.status || 0;
 
     if (err?.response?.status === 401) {
-      const localeState = store.getState().locale.localeData;
-      const localeKey = 'API_SESSION_EXPIRED';
-      errorMessage =
-        (localeState.stringsLangId === localeState.langId &&
-          localeState.strings?.[localeKey]) ||
-        localeKey;
+      errorMessage = 'Session expired, Please login again.';
       store.dispatch(logout());
     }
     if (err?.response?.status === 413) {
-      const localeState = store.getState().locale.localeData;
-      const localeKey = 'API_FILE_TOO_LARGE';
-      errorMessage =
-        (localeState.stringsLangId === localeState.langId &&
-          localeState.strings?.[localeKey]) ||
-        localeKey;
+      errorMessage = 'File too large, Please try again with a smaller file.';
     }
 
     if (
