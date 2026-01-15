@@ -372,29 +372,60 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     fileName: string,
     autoOpenTrim: boolean = false,
   ) => {
+    // Normalize the video URI to ensure proper format for Video.compress
+    let normalizedUri = videoUri;
+
+    // For Android content:// URIs, keep as is
+    if (Platform.OS === 'android' && normalizedUri.startsWith('content://')) {
+      // Keep content:// URI as is
+    } else {
+      // For file paths, normalize:
+      // Remove file:// prefix if present (Video.compress handles paths without it)
+      if (normalizedUri.startsWith('file://')) {
+        normalizedUri = normalizedUri.replace('file://', '');
+      }
+
+      // Ensure absolute path (add leading slash if missing)
+      if (
+        !normalizedUri.startsWith('/') &&
+        !normalizedUri.startsWith('content://')
+      ) {
+        normalizedUri = '/' + normalizedUri;
+      }
+    }
+
     console.log('[GiftMessage] Starting video compression:', {
-      videoUri,
+      originalUri: videoUri,
+      normalizedUri,
+      platform: Platform.OS,
       autoOpenTrim,
     });
     setIsCompressing(true);
     setCompressionProgress(0);
 
     try {
+      // Dynamic compression settings for 1080p resolution
+      // Target: 1080p (1920x1080) with optimized bitrate for smaller file size
+      // Bitrate: 2.5 Mbps - good balance between quality and file size for 1080p
       const compressionOptions =
         Platform.OS === 'android'
           ? {
-              // Use auto compression for Android camera videos for better compatibility
-              compressionMethod: 'auto' as const,
+              // Android: Use manual compression for consistent 1080p output
+              compressionMethod: 'manual' as const,
+              maxSize: 1080, // 1080p resolution (1920x1080)
+              bitrate: 2500000, // 2.5 Mbps - optimized for 1080p quality
+              minimumFileSizeForCompress: 0,
             }
           : {
+              // iOS: Manual compression with 1080p target
               compressionMethod: 'manual' as const,
-              maxSize: 720, // Reduced from 1920 for smaller file size
-              bitrate: 1000000, // 1 Mbps for better compression
+              maxSize: 1080, // 1080p resolution (1920x1080)
+              bitrate: 2500000, // 2.5 Mbps - optimized for 1080p quality
               minimumFileSizeForCompress: 0,
             };
 
       const compressedUri = await Video.compress(
-        videoUri,
+        normalizedUri,
         compressionOptions,
         progress => {
           console.log('[GiftMessage] Compression progress:', progress);
@@ -607,28 +638,18 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     return (
       <ViewTrimmer
         videoUrl={selectedVideo}
-        onSaveVideo={trimmedPath => {
-          const videoFile = {
-            uri: fileUriWrapper(trimmedPath),
-            type: 'video/mp4',
-            name:
-              sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`,
-          };
-
-          setSendMessagePayload(prev => {
-            const updated = { ...prev, VideoFile: videoFile };
-            if (orderId) {
-              saveGiftMessageData(orderId, updated);
-            }
-            return updated;
-          });
+        onSaveVideo={async trimmedPath => {
+          // Compress the trimmed video before saving
+          const fileName =
+            sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`;
+          await compressVideo(trimmedPath, fileName, false);
 
           setOriginalVideoPath(null);
           setIsVideoLongerThan15Seconds(false);
           setSelectedVideo(null);
           setShowCamera(false);
         }}
-        onCancel={() => {
+        onCancel={async () => {
           // Only remove video on cancel if it was originally longer than 15 seconds
           if (isVideoLongerThan15Seconds) {
             // Video is longer than 15 seconds - remove it on cancel
@@ -640,23 +661,11 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               return updated;
             });
           } else {
-            // Video is 15 seconds or less - save the full video on cancel
+            // Video is 15 seconds or less - compress and save the full video on cancel
             if (selectedVideo) {
-              const videoFile = {
-                uri: fileUriWrapper(selectedVideo),
-                type: 'video/mp4',
-                name:
-                  sendMessagePayload.VideoFile?.name ||
-                  `video_${Date.now()}.mp4`,
-              };
-
-              setSendMessagePayload(prev => {
-                const updated = { ...prev, VideoFile: videoFile };
-                if (orderId) {
-                  saveGiftMessageData(orderId, updated);
-                }
-                return updated;
-              });
+              const fileName =
+                sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`;
+              await compressVideo(selectedVideo, fileName, false);
             }
           }
           setOriginalVideoPath(null);
@@ -818,31 +827,31 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                                 return;
                               }
 
-                              // Handle video path correctly for both platforms
-                              // On Android, path might already include file:// or might not need it
-                              let videoUri = video.path;
-                              if (Platform.OS === 'android') {
-                                // Ensure proper URI format for Android
-                                if (
-                                  !videoUri.startsWith('file://') &&
-                                  !videoUri.startsWith('content://')
-                                ) {
-                                  videoUri = 'file://' + videoUri;
-                                }
-                                // Add a small delay on Android to ensure video file is fully finalized
-                                setTimeout(() => {
-                                  compressVideo(
-                                    videoUri,
-                                    `video_${Date.now()}.mp4`,
-                                  );
-                                }, 500);
-                              } else {
-                                // iOS format
-                                videoUri = 'file://' + videoUri;
+                              // Handle video path - compressVideo will normalize it
+                              const videoUri = video.path;
+
+                              // Add a small delay on Android to ensure video file is fully finalized
+                              const compressRecordedVideo = () => {
+                                console.log(
+                                  '[GiftMessage] Compressing recorded video:',
+                                  {
+                                    platform: Platform.OS,
+                                    originalPath: videoUri,
+                                  },
+                                );
                                 compressVideo(
                                   videoUri,
                                   `video_${Date.now()}.mp4`,
+                                  false, // Don't auto-open trim for recorded videos
                                 );
+                              };
+
+                              if (Platform.OS === 'android') {
+                                // Add delay on Android to ensure video file is fully finalized
+                                setTimeout(compressRecordedVideo, 500);
+                              } else {
+                                // iOS - compress immediately
+                                compressRecordedVideo();
                               }
                             },
                             onRecordingError: error => {
