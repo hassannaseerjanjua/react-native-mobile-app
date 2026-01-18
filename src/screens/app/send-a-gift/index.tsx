@@ -14,10 +14,8 @@ import useStyles from './style';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import ParentView from '../../../components/app/ParentView';
 import SearchUserItem from '../../../components/app/SearchUserItem';
-import {
-  GroupTabs,
-  MemberSelectionModal,
-} from '../../../components/send-a-gift';
+import MemberSelectionModal from '../../../components/global/MemberSelectionModal';
+import GroupTabs from '../../../components/global/GroupTabs';
 import TabItem from '../../../components/global/TabItem';
 import { ActiveUser, ActiveUsersApiResponse } from '../../../types';
 import {
@@ -347,7 +345,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             <View style={styles.listCard}>
               <SkeletonLoader screenType="sendAGift" />
             </View>
-          ) : displayData.length > 1 ? (
+          ) : // ) : displayData.length > 1 ? (/
+          displayData.length > 1 ? (
             <View
               style={[
                 styles.listCard,

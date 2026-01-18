@@ -42,9 +42,11 @@ const useStyles = () => {
       noFriendsContainer: {
         alignItems: 'center',
         justifyContent: 'center',
+        // backgroundColor: 'red',
         flex: 1,
-        height: '50%',
-        paddingBottom: sizes.HEIGHT * 0.2,
+        height: '100%',
+        paddingTop: sizes.HEIGHT * 0.16,
+        // paddingBottom: sizes.HEIGHT * 0.2,
       },
       noFriendsText: {
         ...theme.globalStyles.TEXT_STYLE,

@@ -2,7 +2,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { StatusBar, View, ScrollView } from 'react-native';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
-import GroupTabs from '../../../components/send-a-gift/GroupTabs';
+import GroupTabs from '../../../components/global/GroupTabs';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import useStyles from './style';

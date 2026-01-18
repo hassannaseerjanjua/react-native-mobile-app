@@ -107,6 +107,9 @@ import SvgHomeSendAGift from './home-tab-icons/sendAGift.svg';
 import SvgHomeInbox from './home-tab-icons/inbox.svg';
 import SvgHomeOutbox from './home-tab-icons/outbox.svg';
 import SvgOccasionIcon from './chepi.svg';
+import SvgCheckoutGiftLinkIcon from './gift-link-white.svg';
+import SvgApplePayIcon from './apple-pay.svg';
+import SvgApplePayText from './apple-pay-text.svg';
 
 export {
   SvgLogoBlue,
@@ -218,4 +221,7 @@ export {
   SvgHomeInbox,
   SvgHomeOutbox,
   SvgOccasionIcon,
+  SvgCheckoutGiftLinkIcon,
+  SvgApplePayIcon,
+  SvgApplePayText,
 };

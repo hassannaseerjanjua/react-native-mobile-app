@@ -22,6 +22,8 @@ import {
   SvgOutboxShareIcon,
   PlusIcon,
   MinusIcon,
+  SvgGiftLink,
+  SvgCheckoutGiftLinkIcon,
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
@@ -41,6 +43,7 @@ import { scaleWithMax } from '../../../utils';
 import { useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import useDebounceClick from '../../../hooks/useDebounceClick';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 
 const InboxOutbox: React.FC = () => {
   const { getString } = useLocaleStore();
@@ -150,16 +153,12 @@ const InboxOutbox: React.FC = () => {
           onEndReached={hasMore ? loadMore : undefined}
           onEndReachedThreshold={0.5}
           ListEmptyComponent={() => (
-            <View style={{ padding: theme.sizes.PADDING }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  paddingVertical: theme.sizes.HEIGHT * 0.35,
-                  color: theme.colors.SECONDARY_TEXT,
-                }}
-              >
-                {getString('O_NO_ORDER_FOUND')}
-              </Text>
+            <View
+              style={{
+                height: theme.sizes.HEIGHT * 0.74,
+              }}
+            >
+              <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
             </View>
           )}
           ListFooterComponent={
@@ -308,92 +307,84 @@ const InboxOutbox: React.FC = () => {
                           >
                             {item.ItemName}
                           </Text>
-                          <View
-                            style={{
-                              flexDirection: 'row',
-                              position: 'relative',
-                            }}
-                          >
-                            {/* <Text
-                              style={{
-                                fontSize: scaleWithMax(11, 12),
-                                color: theme.colors.SECONDARY_TEXT,
-                              }}
-                            >
-                              Available: {availableQuantity}
-                            </Text> */}
-                            {isSelected && (
-                              <View style={styles.quantitySelector}>
-                                <TouchableOpacity
-                                  onPress={() =>
-                                    handleQuantityChange(
-                                      item.OrderItemId,
-                                      'decrement',
-                                      availableQuantity,
-                                    )
-                                  }
-                                  disabled={selectedQty <= 1}
-                                  style={[
-                                    styles.quantityButton,
-                                    selectedQty <= 1 &&
-                                      styles.quantityButtonDisabled,
-                                  ]}
-                                  hitSlop={{
-                                    top: 10,
-                                    bottom: 10,
-                                    left: 10,
-                                    right: 10,
-                                  }}
-                                >
-                                  <MinusIcon
-                                    width={scaleWithMax(14, 16)}
-                                    height={scaleWithMax(14, 16)}
-                                    fill={
-                                      selectedQty <= 1
-                                        ? '#ccc'
-                                        : theme.colors.PRIMARY
-                                    }
-                                  />
-                                </TouchableOpacity>
-                                <Text style={styles.quantityText}>
-                                  {selectedQty}
-                                </Text>
-                                <TouchableOpacity
-                                  onPress={() =>
-                                    handleQuantityChange(
-                                      item.OrderItemId,
-                                      'increment',
-                                      availableQuantity,
-                                    )
-                                  }
-                                  disabled={selectedQty >= availableQuantity}
-                                  style={[
-                                    styles.quantityButton,
-                                    selectedQty >= availableQuantity &&
-                                      styles.quantityButtonDisabled,
-                                  ]}
-                                  hitSlop={{
-                                    top: 10,
-                                    bottom: 10,
-                                    left: 10,
-                                    right: 10,
-                                  }}
-                                >
-                                  <PlusIcon
-                                    width={scaleWithMax(14, 16)}
-                                    height={scaleWithMax(14, 16)}
-                                    fill={
-                                      selectedQty >= availableQuantity
-                                        ? '#ccc'
-                                        : theme.colors.PRIMARY
-                                    }
-                                  />
-                                </TouchableOpacity>
-                              </View>
-                            )}
-                          </View>
                         </View>
                       </TouchableOpacity>
+                      <View
+                        style={{
+                          flexDirection: 'row',
+                          position: 'relative',
+                        }}
+                      >
+                        {isSelected && (
+                          <View style={styles.quantitySelector}>
+                            <TouchableOpacity
+                              onPress={() =>
+                                handleQuantityChange(
+                                  item.OrderItemId,
+                                  'decrement',
+                                  availableQuantity,
+                                )
+                              }
+                              disabled={selectedQty <= 1}
+                              style={[
+                                styles.quantityButton,
+                                selectedQty <= 1 &&
+                                  styles.quantityButtonDisabled,
+                              ]}
+                              hitSlop={{
+                                top: 10,
+                                bottom: 10,
+                                left: 10,
+                                right: 10,
+                              }}
+                            >
+                              <MinusIcon
+                                width={scaleWithMax(14, 16)}
+                                height={scaleWithMax(14, 16)}
+                                fill={
+                                  selectedQty <= 1
+                                    ? '#ccc'
+                                    : theme.colors.PRIMARY
+                                }
+                              />
+                            </TouchableOpacity>
+                            <Text style={styles.quantityText}>
+                              {selectedQty}
+                            </Text>
+                            <TouchableOpacity
+                              onPress={() =>
+                                handleQuantityChange(
+                                  item.OrderItemId,
+                                  'increment',
+                                  availableQuantity,
+                                )
+                              }
+                              disabled={selectedQty >= availableQuantity}
+                              style={[
+                                styles.quantityButton,
+                                selectedQty >= availableQuantity &&
+                                  styles.quantityButtonDisabled,
+                              ]}
+                              hitSlop={{
+                                top: 10,
+                                bottom: 10,
+                                left: 10,
+                                right: 10,
+                              }}
+                            >
+                              <PlusIcon
+                                width={scaleWithMax(14, 16)}
+                                height={scaleWithMax(14, 16)}
+                                fill={
+                                  selectedQty >= availableQuantity
+                                    ? '#ccc'
+                                    : theme.colors.PRIMARY
+                                }
+                              />
+                            </TouchableOpacity>
+                          </View>
+                        )}
+                      </View>
                     </View>
                   );
                 });
@@ -512,19 +503,22 @@ const InboxItem: React.FC<InboxItemProps> = ({
               {
                 justifyContent: 'center',
                 alignItems: 'center',
-                borderWidth: 0.5,
-                borderColor: theme.colors.SECONDARY,
+                backgroundColor: theme.colors.PRIMARY,
               },
             ]}
           >
-            <Image
+            <SvgCheckoutGiftLinkIcon
+              height={scaleWithMax(23, 28)}
+              width={scaleWithMax(23, 28)}
+            />
+            {/* <Image
               style={{
                 width: scaleWithMax(23, 28),
                 height: scaleWithMax(23, 28),
                 resizeMode: 'contain',
               }}
               source={require('../../../assets/images/gift-link-checkout.png')}
-            />
+            /> */}
           </View>
         ) : (
           <Image style={styles.inboxProfile} source={profileImage} />

@@ -67,7 +67,7 @@ const useStyles = () => {
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical: sizes.PADDING * 0.54,
+        paddingVertical: sizes.HEIGHT * 0.012,
         paddingHorizontal: sizes.PADDING,
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,
@@ -187,14 +187,15 @@ const useStyles = () => {
         borderColor: theme.colors.PRIMARY,
         position: 'absolute',
         end: 0,
-        // bottom: 0,
+        // top: sizes.HEIGHT * 0.005,
+        bottom: -sizes.HEIGHT * 0.005,
       },
       quantityButton: {
         padding: sizes.PADDING * 0.15,
         borderRadius: sizes.BORDER_RADIUS,
       },
       quantityButtonDisabled: {
-        opacity: 0.5,
+        opacity: 0.3,
       },
       quantityText: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,

@@ -155,6 +155,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
           totalCount: data.Data?.TotalCount || 0,
         };
       },
+      pageSize: 5,
       extraParams: { inbox: isInbox },
       idExtractor: (item: InboxOrder) => item.OrderId,
     },

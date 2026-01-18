@@ -12,7 +12,7 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { useLocaleStore } from '../../../store/reducer/locale';
-import GroupTabs from '../../../components/send-a-gift/GroupTabs';
+import GroupTabs from '../../../components/global/GroupTabs';
 import CatchProductCard from '../../../components/app/CatchProductCard';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard';
 import useGetApi from '../../../hooks/useGetApi';
@@ -42,6 +42,8 @@ import SuccessMessage from '../../../components/global/SuccessComponent';
 import fonts from '../../../assets/fonts';
 import CityPickerModal from '../../../components/global/CityPickerModal';
 import { City } from '../../../types';
+import { useAuthStore } from '../../../store/reducer/auth';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -50,7 +52,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const { styles, theme } = useStyles();
   const [openModal, setOpenModal] = useState(false);
   const { getString, isRtl, langCode } = useLocaleStore();
-
+  const { user } = useAuthStore();
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
     route.params?.cityId || null,
   );
@@ -101,7 +103,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       ? apiEndpoints.GET_CATEGORIES(storeID, businessTypeId)
       : apiEndpoints.GET_CAMPAIGN_CATEGORIES(
           screenType === 'GiftOneGetOne' ? 3 : 1,
-          selectedCityId,
+          selectedCityId || user?.CityId,
         ),
     {
       transformData: transformCategoriesData,
@@ -547,86 +549,63 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             <SkeletonLoader screenType="productListing" />
           </View>
         ) : (
-          <>
-            {!filteredItems || filteredItems.length === 0 ? (
+          <FlatList
+            data={filteredItems as any}
+            numColumns={2}
+            keyExtractor={getItemKey}
+            columnWrapperStyle={styles.columnWrapper}
+            extraData={favoriteStates}
+            ListEmptyComponent={() => (
               <View
                 style={{
-                  // flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  height: theme.sizes.HEIGHT * 0.5,
-                  paddingHorizontal: theme.sizes.PADDING,
+                  height: theme.sizes.HEIGHT * 0.55,
                 }}
               >
-                <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
+                <PlaceholderLogoText
+                  text={getString('EMPTY_NO_PRODUCTS_FOUND')}
+                />
               </View>
-            ) : (
-              <>
-                {/* <View
-                  style={[
-                    styles.tabContainer,
-                    {
-                      height: scaleWithMax(40, 42),
-                    },
-                  ]}
-                >
+            )}
+            ListHeaderComponent={() => {
+              return (
+                <View style={[styles.tabContainer]}>
                   <GroupTabs
                     tabs={filterOptions}
                     activeTab={selectedFilter}
                     onTabPress={handleTabPress}
                   />
-                </View> */}
-                <FlatList
-                  data={filteredItems as any}
-                  numColumns={2}
-                  keyExtractor={getItemKey}
-                  columnWrapperStyle={styles.columnWrapper}
-                  extraData={favoriteStates}
-                  ListHeaderComponent={() => {
-                    return (
-                      <View style={[styles.tabContainer]}>
-                        <GroupTabs
-                          tabs={filterOptions}
-                          activeTab={selectedFilter}
-                          onTabPress={handleTabPress}
-                        />
-                      </View>
-                    );
+                </View>
+              );
+            }}
+            contentContainerStyle={[
+              styles.listContent,
+              styles.listContainer,
+              screenType === 'GiftOneGetOne' && {
+                paddingBottom: theme.sizes.HEIGHT * 0.12,
+              },
+            ]}
+            showsVerticalScrollIndicator={false}
+            onEndReached={
+              listingApi && listingApi.hasMore ? listingApi.loadMore : undefined
+            }
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              listingApi && listingApi.loadingMore ? (
+                <View
+                  style={{
+                    paddingVertical: theme.sizes.HEIGHT * 0.02,
+                    alignItems: 'center',
                   }}
-                  contentContainerStyle={[
-                    styles.listContent,
-                    styles.listContainer,
-                    screenType === 'GiftOneGetOne' && {
-                      paddingBottom: theme.sizes.HEIGHT * 0.12,
-                    },
-                  ]}
-                  showsVerticalScrollIndicator={false}
-                  onEndReached={
-                    listingApi && listingApi.hasMore
-                      ? listingApi.loadMore
-                      : undefined
-                  }
-                  onEndReachedThreshold={0.5}
-                  ListFooterComponent={
-                    listingApi && listingApi.loadingMore ? (
-                      <View
-                        style={{
-                          paddingVertical: theme.sizes.HEIGHT * 0.02,
-                          alignItems: 'center',
-                        }}
-                      >
-                        <ActivityIndicator
-                          size="small"
-                          color={theme.colors.PRIMARY}
-                        />
-                      </View>
-                    ) : null
-                  }
-                  renderItem={renderProductItem}
-                />
-              </>
-            )}
-          </>
+                >
+                  <ActivityIndicator
+                    size="small"
+                    color={theme.colors.PRIMARY}
+                  />
+                </View>
+              ) : null
+            }
+            renderItem={renderProductItem}
+          />
         )}
       </View>
 

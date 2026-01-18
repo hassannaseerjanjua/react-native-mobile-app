@@ -11,7 +11,7 @@ import {
 } from '../../../assets/icons';
 import { scaleWithMax, rtlTransform } from '../../../utils';
 import ProductImageSlider from '../../../components/global/ProductImageSlider';
-import { GroupTabs } from '../../../components/send-a-gift';
+import GroupTabs from '../../../components/global/GroupTabs';
 import CustomButton from '../../../components/global/Custombutton';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { AppStackScreen } from '../../../types/navigation.types';
