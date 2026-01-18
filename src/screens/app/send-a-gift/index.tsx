@@ -265,7 +265,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           {frequentlySentFriends.length > 0 &&
             activeTab === 'friends' &&
             !activeUsersApi.search && (
-              <View style={{ marginBottom: theme.sizes.HEIGHT * 0.016 }}>
+              <View>
                 <Text style={styles.sectionTitle}>
                   {getString('SG_FREQUENTLY_GIFTED')}
                 </Text>

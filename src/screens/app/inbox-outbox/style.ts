@@ -31,7 +31,7 @@ const useStyles = () => {
         borderRadius: 12,
         // backgroundColor: theme.colors.RED,
         position: 'relative',
-        marginBottom: sizes.HEIGHT * 0.008,
+        marginBottom: sizes.HEIGHT * 0.004,
         marginRight: sizes.WIDTH * 0.01,
         width: sizes.WIDTH * 0.78,
         alignSelf: 'flex-start',
@@ -146,7 +146,8 @@ const useStyles = () => {
         flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
-        marginTop: sizes.PADDING * 0.8,
+        // marginTop: sizes.PADDING * 0.8,
+        marginBottom: sizes.HEIGHT * 0.01,
         gap: sizes.WIDTH * 0.02,
       },
       paginationDot: {
@@ -186,7 +187,7 @@ const useStyles = () => {
         borderColor: theme.colors.PRIMARY,
         position: 'absolute',
         end: 0,
-        bottom: 0,
+        // bottom: 0,
       },
       quantityButton: {
         padding: sizes.PADDING * 0.15,

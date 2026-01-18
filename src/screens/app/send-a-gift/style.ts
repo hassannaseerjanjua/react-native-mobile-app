@@ -14,7 +14,7 @@ const useStyles = () => {
       },
       content: {
         flex: 1,
-        paddingTop: sizes.HEIGHT * 0.01,
+        paddingTop: sizes.HEIGHT * 0.016,
       },
       listCard: {
         backgroundColor: colors.WHITE,
@@ -29,7 +29,8 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.PRIMARY_TEXT,
-        paddingBottom: sizes.HEIGHT * 0.01,
+        paddingTop: sizes.HEIGHT * 0.014,
+        paddingBottom: sizes.HEIGHT * 0.008,
       },
       errorText: {
         fontFamily: fonts.Quicksand.regular,
@@ -55,7 +56,7 @@ const useStyles = () => {
       },
       tabContainer: {
         // marginBottom: sizes.HEIGHT * 0.01,
-        marginVertical: sizes.HEIGHT * 0.016,
+        marginTop: sizes.HEIGHT * 0.016,
       },
       scrollableContent: {
         flex: 1,
@@ -63,7 +64,7 @@ const useStyles = () => {
       scrollableContentContainer: {
         flexGrow: 1,
         paddingHorizontal: theme.sizes.PADDING,
-        paddingTop: sizes.HEIGHT * 0.01,
+        // paddingTop: sizes.HEIGHT * 0.01,
       },
       bottomSheetContainer: {
         width: sizes.PADDED_WIDTH,

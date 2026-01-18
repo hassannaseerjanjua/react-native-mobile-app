@@ -286,19 +286,19 @@ const InboxOutbox: React.FC = () => {
                         <Image
                           source={getMainImage(item)}
                           style={{
-                            width: scaleWithMax(60, 65),
-                            height: scaleWithMax(60, 65),
+                            width: scaleWithMax(65, 70),
+                            height: scaleWithMax(65, 70),
                             borderRadius: theme.sizes.BORDER_RADIUS,
                             marginLeft: hasMultipleItems
-                              ? theme.sizes.PADDING * 0.7
+                              ? theme.sizes.WIDTH * 0.025
                               : 0,
                           }}
                         />
                         <View
                           style={{
                             flex: 1,
-                            marginLeft: theme.sizes.PADDING * 0.7,
-                            gap: scaleWithMax(18, 20),
+                            marginLeft: theme.sizes.WIDTH * 0.025,
+                            // gap: scaleWithMax(10, 12),
                           }}
                         >
                           <Text
@@ -314,15 +314,15 @@ const InboxOutbox: React.FC = () => {
                               position: 'relative',
                             }}
                           >
-                            <Text
+                            {/* <Text
                               style={{
                                 fontSize: scaleWithMax(11, 12),
                                 color: theme.colors.SECONDARY_TEXT,
                               }}
                             >
                               Available: {availableQuantity}
-                            </Text>
-                            {isSelected && hasMultipleQuantity && (
+                            </Text> */}
+                            {isSelected && (
                               <View style={styles.quantitySelector}>
                                 <TouchableOpacity
                                   onPress={() =>

@@ -82,7 +82,7 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           borderBottomColor: '#EEEEEE',
         },
         BUTTON_TAB_TFIELD_HEIGHT: {
-          height: scaleWithMax(45, 50),
+          height: scaleWithMax(48, 52),
         },
       }),
     [colors, sizes],
