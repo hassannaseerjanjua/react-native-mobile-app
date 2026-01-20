@@ -58,9 +58,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     isSendAGiftFlow
       ? apiEndpoints.GET_SEND_A_GIFT_ITEM_BY_ID(itemId, !!campaignId)
       : apiEndpoints.GET_STORE_ITEM_BY_ID(
-          itemId,
-          route.params.type === 'GiftOneGetOne',
-        ),
+        itemId,
+        route.params.type === 'GiftOneGetOne',
+      ),
     {
       transformData: (data: any) => data?.Data ?? null,
     },
@@ -181,9 +181,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         Quantity: quantity,
         StoreId: storeId ?? null,
         SendType: route.params.sendType ?? 1,
-        ...(route.params.type === 'GiftOneGetOne' && {
-          CampaignId: item.CampaignId,
-        }),
+        // ...(route.params.type === 'GiftOneGetOne' && {
+        ...(campaignId && { CampaignId: campaignId }),
+        // }),
         IsGift: true,
       };
 
@@ -257,8 +257,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
     const selectedVariant = selectedFilter
       ? itemApi.data.Variants.find(
-          v => v.ItemVariantId === Number(selectedFilter),
-        )
+        v => v.ItemVariantId === Number(selectedFilter),
+      )
       : itemApi.data.Variants.find(v => v.IsDefault);
 
     return selectedVariant?.FinalPrice ?? 0;

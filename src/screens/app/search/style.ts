@@ -31,15 +31,11 @@ const useStyles = () => {
         paddingVertical: 2,
       },
       loadingContainer: {
-        padding: 20,
         alignItems: 'center',
         justifyContent: 'center',
+        height: sizes.HEIGHT * .78,
       },
-      loadingText: {
-        fontSize: 16,
-        color: '#666',
-        fontFamily: fonts.Quicksand.medium,
-      },
+     
     });
   }, [theme]);
 

@@ -7,6 +7,7 @@ import {
   SvgItemFavouriteIcon,
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
+  SvgRiyalIconPrimary,
 } from '../../assets/icons';
 import { FaveItems, StoreProduct } from '../../types';
 
@@ -34,23 +35,38 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
   const itemImage = isStoreProduct
     ? (item as StoreProduct).Thumbnail
     : isFaveItems
-    ? (item as FaveItems).ItemImage
-    : null;
+      ? (item as FaveItems).ItemImage
+      : null;
   const itemName = isStoreProduct
     ? (item as StoreProduct).NameEn
     : isFaveItems
-    ? (item as FaveItems).ItemNameEn
-    : '';
+      ? (item as FaveItems).ItemNameEn
+      : '';
   const categoryName = isStoreProduct
     ? (item as StoreProduct).CategoryNameEn
     : isFaveItems
-    ? (item as FaveItems).CategoryNameEn
-    : '';
+      ? (item as FaveItems).CategoryNameEn
+      : '';
   const price =
     (item as StoreProduct).Variants?.length > 0
       ? (item as StoreProduct).Variants.find(v => v.IsDefault)?.FinalPrice ||
-        (item as StoreProduct).Price
-      : (item as StoreProduct).Price || 0;
+      (item as StoreProduct).Price
+      : 0;
+
+
+  const defaultVariant = (item as StoreProduct).Variants?.find(
+    v => v.IsDefault,
+  );
+  const cutPrice =
+    (item as StoreProduct).Variants?.length > 0 && defaultVariant
+      ? (defaultVariant.FinalPrice ?? 0) - (defaultVariant.DiscountedPrice ?? 0) ||
+      (item as StoreProduct).Price
+      : 0;
+
+  const isSpecialPrice = item.Campaign !== null;
+  // console.log(defaultVariant)
+  // console.log(cutPrice)
+  // console.log(price)
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
@@ -91,14 +107,26 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
           {categoryName}
         </Text>
         <View style={styles.priceContainer}>
+          {isSpecialPrice && (
+            <>
+              <SvgRiyalIconPrimary
+                width={scaleWithMax(11, 13)}
+                height={scaleWithMax(11, 13)}
+                style={{
+                  marginTop: 3.5,
+                }}
+              />
+              <Text style={styles.discountedPrice}>{cutPrice}</Text>
+            </>
+          )}
+
           <SvgRiyalIcon
-            width={scaleWithMax(11, 13)}
-            height={scaleWithMax(11, 13)}
-            style={{
-              marginTop: 3.5,
-            }}
+            width={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
+            height={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
+            opacity={isSpecialPrice ? 0.32 : 1}
           />
-          <Text style={styles.price}>{price || 'N/A'}</Text>
+
+          <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>{price || 'N/A'}</Text>
         </View>
       </View>
     </TouchableOpacity>
@@ -159,12 +187,24 @@ const useStyles = () => {
       priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 3,
+        gap: scaleWithMax(2, 3),
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         color: theme.colors.PRIMARY_TEXT,
         fontSize: sizes.FONTSIZE_BUTTON,
+      },
+      cutPrice: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        color: '#C6C6C6',
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        textDecorationLine: 'line-through',
+      },
+      discountedPrice: {
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        color: theme.colors.PRIMARY,
+        fontSize: sizes.FONTSIZE_SMALL_HEADING,
+        marginEnd: scaleWithMax(1, 2),
       },
     }),
     theme,

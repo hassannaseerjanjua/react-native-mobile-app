@@ -174,6 +174,17 @@ export interface FavStores {
   BusinessTypeNameAr: string;
 }
 export interface FaveItems {
+  Campaign: {
+    CampaignId: number;
+    Type: number;
+    Percentage: number;
+    StartDate: string | null;
+    EndDate: string | null;
+    IsLifeTime: boolean;
+    IsAllItems: boolean;
+    IsCustomUsers: boolean;
+    IsVerifiedUsers: boolean;
+}
   FavItemId: number;
   ItemId: number;
   ItemNameEn: string;
@@ -224,6 +235,7 @@ export interface OrderItemVariant {
   NameEn: string;
   Price: number;
   Status: number;
+  DiscountedPrice: number;
 }
 
 export interface OrderItem {

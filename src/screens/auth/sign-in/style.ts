@@ -54,10 +54,11 @@ const useStyles = () => {
       },
       tab: {
         flex: 1,
-        paddingVertical: 14,
+        ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
         alignItems: 'center',
         borderRadius: 12,
         backgroundColor: colors.LIGHT_GRAY,
+        justifyContent: 'center',
       },
       activeTab: {
         backgroundColor: colors.SECONDARY,

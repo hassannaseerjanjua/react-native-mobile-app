@@ -420,7 +420,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                 height={scaleWithMax(16, 18)}
               />
               <Text style={styles.footerPriceText}>
-                {cartApi.data?.TotalAmount.toFixed(2) || '0.00'}
+                {cartApi.data?.TotalAmount || '0.00'}
               </Text>
             </View>
           </TouchableOpacity>

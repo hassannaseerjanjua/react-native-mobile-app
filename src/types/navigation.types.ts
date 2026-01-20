@@ -35,6 +35,7 @@ export type AppStackParamList = {
     title?: string;
     showFriendsOnly?: boolean;
     showConnectOnly?: boolean;
+    showEmployeesOnly?: boolean;
   };
   StaticContent: {
     title?: string;

@@ -94,7 +94,7 @@ const ProfileScreen: React.FC = () => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleImageSelect = () => {
@@ -164,7 +164,7 @@ const ProfileScreen: React.FC = () => {
           );
         }
       })
-      .catch(error => {})
+      .catch(error => { })
       .finally(() => {
         setIsUploading(false);
         setShowPhotoOptions(false);
@@ -211,12 +211,12 @@ const ProfileScreen: React.FC = () => {
     },
     {
       id: 'friends',
-      title: getString('MF_MY_FRIENDS'),
+      title: isMerchant ? 'My Employees' : getString('MF_MY_FRIENDS'),
       icon: <SvgProfileFriends />,
       onPress: () => {
         (navigation as any).navigate('Search', {
-          title: getString('MF_MY_FRIENDS'),
-          showFriendsOnly: true,
+          title: isMerchant ? 'My Employees' : getString('MF_MY_FRIENDS'),
+          ...(isMerchant ? { showEmployeesOnly: true } : { showFriendsOnly: true }),
         });
       },
     },
@@ -296,21 +296,34 @@ const ProfileScreen: React.FC = () => {
     },
   ];
   const allowedMenuItems: (typeof profileMenuItems)[number]['id'][] = isMerchant
-    ? ['gift-link', 'order', 'terms', 'privacy', 'faq', 'logout']
+    ? [
+      'wallet',
+      // 'gift-link',
+      'favourites',
+      'friends',
+      'settings',
+      'order',
+      'connect',
+      'contact-us',
+      'terms',
+      'privacy',
+      'faq',
+      'logout',
+    ]
     : [
-        'wallet',
-        'gift-link',
-        'favourites',
-        'friends',
-        'settings',
-        'order',
-        'connect',
-        'contact-us',
-        'terms',
-        'privacy',
-        'faq',
-        'logout',
-      ];
+      'wallet',
+      'gift-link',
+      'favourites',
+      'friends',
+      'settings',
+      'order',
+      'connect',
+      'contact-us',
+      'terms',
+      'privacy',
+      'faq',
+      'logout',
+    ];
   return (
     <ParentView style={screenStyles.container}>
       <StatusBar

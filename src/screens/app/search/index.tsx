@@ -29,6 +29,7 @@ import {
 import fonts from '../../../assets/fonts';
 import { scaleWithMax } from '../../../utils';
 import useTheme from '../../../styles/theme';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 
 interface VerifiedUser {
   PhoneNo: string;
@@ -36,7 +37,7 @@ interface VerifiedUser {
   UserID: number | null;
 }
 
-interface SearchProps extends AppStackScreen<'Search'> {}
+interface SearchProps extends AppStackScreen<'Search'> { }
 
 const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
@@ -47,6 +48,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     title,
     showFriendsOnly = false,
     showConnectOnly = false,
+    showEmployeesOnly = false,
   } = route.params || {};
 
   const [updatedUsers, setUpdatedUsers] = useState<Record<number, number>>({});
@@ -69,7 +71,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const [verifyingContacts, setVerifyingContacts] = useState(false);
 
   const activeUsersApi = useListingApi<ActiveUser>(
-    apiEndpoints.GET_ACTIVE_USERS,
+    showEmployeesOnly ? '' : apiEndpoints.GET_ACTIVE_USERS,
     token,
     {
       idExtractor: (item: ActiveUser) => item.UserId,
@@ -84,12 +86,26 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     },
   );
 
+  const employeesApi = useListingApi<ActiveUser>(
+    showEmployeesOnly ? apiEndpoints.GET_EMPLOYEES : '',
+    token,
+    {
+      idExtractor: (item: ActiveUser) => item.UserId,
+      transformData: (data: ActiveUsersApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
+    },
+  );
+
   useEffect(() => {
-    activeUsersApi.setExtraParams({
-      userId: user?.UserId,
-      friends: showFriendsOnly,
-    });
-  }, [showFriendsOnly, user?.UserId]);
+    if (!showEmployeesOnly) {
+      activeUsersApi.setExtraParams({
+        userId: user?.UserId,
+        friends: showFriendsOnly,
+      });
+    }
+  }, [showFriendsOnly, showEmployeesOnly, user?.UserId]);
 
   // Load mobile contacts when in connect mode
   useEffect(() => {
@@ -176,9 +192,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       const formattedPhone = phoneNumber.replace(/[^\d]/g, ''); // Remove + and other chars
 
       // Generate invite message
-      const inviteMessage = `🎁 Join me on Giftee! Download the app and let's exchange gifts.\n\nhttps://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId=${
-        user?.UserId || ''
-      }&CityId=${user?.CityId || ''}&sendType=1`;
+      const inviteMessage = `🎁 Join me on Giftee! Download the app and let's exchange gifts.\n\nhttps://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId=${user?.UserId || ''
+        }&CityId=${user?.CityId || ''}&sendType=1`;
 
       // Use Share API to show bottom sheet with all sharing options
       const shareOptions = Platform.select({
@@ -204,7 +219,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       if (error.message !== 'User did not share') {
         notify.error(
           getString('O_UNABLE_TO_OPEN_WHATSAPP') ||
-            'Unable to share. Please try again.',
+          'Unable to share. Please try again.',
         );
       }
     }
@@ -227,8 +242,12 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     }
   };
 
-  const searchQuery = activeUsersApi.search;
-  const setSearchQuery = activeUsersApi.setSearch;
+  const searchQuery = showEmployeesOnly
+    ? employeesApi.search
+    : activeUsersApi.search;
+  const setSearchQuery = showEmployeesOnly
+    ? employeesApi.setSearch
+    : activeUsersApi.setSearch;
 
   const updateLoadingState = (userId: number, isLoading: boolean) => {
     setLoadingUsers(prev => {
@@ -343,8 +362,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
         rightSideView={
-          !showConnectOnly &&
-          !showFriendsOnly && (
+          showFriendsOnly && (
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('Search', {
@@ -374,7 +392,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       <View style={[styles.content, styles.contentContainer]}>
         <View style={styles.listCard}>
           {activeUsersApi.loading ||
-          (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
+            employeesApi.loading ||
+            (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
             <SkeletonLoader screenType="search" />
           ) : (
             (() => {
@@ -413,18 +432,18 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   );
                 });
 
-                const isEmpty =
-                  !filteredContacts || filteredContacts.length === 0;
+                // const isEmpty =
+                //   !filteredContacts || filteredContacts.length === 0;
 
-                if (isEmpty) {
-                  return (
-                    <View style={styles.loadingContainer}>
-                      <Text style={styles.loadingText}>
-                        {getString('SEARCH_NO_USERS_FOUND_TO_CONNECT')}
-                      </Text>
-                    </View>
-                  );
-                }
+                // if (isEmpty) {
+                //   return (
+                //     <View style={styles.loadingContainer}>
+                //       <Text style={styles.loadingText}>
+                //         {getString('SEARCH_NO_USERS_FOUND_TO_CONNECT')}
+                //       </Text>
+                //     </View>
+                //   );
+                // }
 
                 return (
                   <FlatList
@@ -462,6 +481,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       );
                     }}
                     showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={
+                      <View style={styles.loadingContainer}>
+                        <PlaceholderLogoText text={getString('SEARCH_NO_USERS_FOUND')} />
+                      </View>
+                    }
                     contentContainerStyle={styles.listContainer}
                     ListFooterComponent={
                       loadingContacts || verifyingContacts ? (
@@ -478,21 +502,23 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                 );
               }
 
-              // For other modes, show API users
-              const filteredData = activeUsersApi?.data;
-              const isEmpty = !filteredData || filteredData.length === 0;
+              // For other modes, show API users (employees or active users)
+              const filteredData = showEmployeesOnly
+                ? employeesApi?.data
+                : activeUsersApi?.data;
+              // const isEmpty = !filteredData || filteredData.length === 0;
 
-              if (isEmpty) {
-                return (
-                  <View style={styles.loadingContainer}>
-                    <Text style={styles.loadingText}>
-                      {searchQuery
-                        ? getString('SEARCH_NO_RESULTS_FOUND')
-                        : getString('SEARCH_NO_USERS_FOUND')}
-                    </Text>
-                  </View>
-                );
-              }
+              // if (isEmpty) {
+              //   return (
+              //     <View style={styles.loadingContainer}>
+              //       <Text style={styles.loadingText}>
+              //         {searchQuery
+              //           ? getString('SEARCH_NO_RESULTS_FOUND')
+              //           : getString('SEARCH_NO_USERS_FOUND')}
+              //       </Text>
+              //     </View>
+              //   );
+              // }
 
               return (
                 <FlatList
@@ -505,16 +531,26 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       isLast={index === (filteredData?.length ?? 0) - 1}
                       updatedUsers={updatedUsers}
                       loadingUsers={loadingUsers}
-                      handleAddUser={handleAddUser}
+                      handleAddUser={showEmployeesOnly ? undefined : handleAddUser}
+                      showAddButton={!showEmployeesOnly}
                       tempAddedUserIds={tempAddedUserIds}
                       isGeneralSearchScreen={
-                        !showFriendsOnly && !showConnectOnly
+                        !showFriendsOnly && !showConnectOnly && !showEmployeesOnly
                       }
                     />
                   )}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContainer}
-                  onEndReached={activeUsersApi.loadMore}
+                  ListEmptyComponent={
+                    <View style={styles.loadingContainer}>
+                      <PlaceholderLogoText text={getString('SEARCH_NO_USERS_FOUND')} />
+                    </View>
+                  }
+                  onEndReached={
+                    showEmployeesOnly
+                      ? employeesApi.loadMore
+                      : activeUsersApi.loadMore
+                  }
                   onEndReachedThreshold={0.5}
                 />
               );
