@@ -10,7 +10,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './src/store/store';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import useFetchLocale from './src/hooks/useFetchLocale';
-import { View } from 'react-native';
+import { View, Text as RNText, TextInput } from 'react-native';
 import { Text } from './src/utils/elements';
 import { useLocaleStore } from './src/store/reducer/locale';
 import { I18nManager } from 'react-native';
