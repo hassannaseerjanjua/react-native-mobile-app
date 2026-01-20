@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import React, { useMemo } from 'react';
 import { useSizes } from '../../styles/sizes';
 import useTheme from '../../styles/theme';
 import CustomFooter from './CustomFooter';
 import CustomButton from './Custombutton';
+import { Text } from '../../utils/elements';
 
 type SuccessMessageProps = {
   SuccessLogo: React.ReactNode;

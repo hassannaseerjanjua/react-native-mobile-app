@@ -3,7 +3,7 @@ import { View, StatusBar, FlatList } from 'react-native';
 import { Text } from '../../../utils/elements';
 import useStyles from './style.ts';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
-import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
+import GroupTabs from '../../../components/global/GroupTabs.tsx';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { AppStackScreen } from '../../../types/navigation.types.ts';

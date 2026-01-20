@@ -1,10 +1,11 @@
-import { Platform, Text, TouchableOpacity, View } from 'react-native';
+import { Platform, TouchableOpacity, View } from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
 import { trim } from 'react-native-video-trim';
 import Video, { VideoRef } from 'react-native-video';
 import ParentView from './ParentView';
 import useTheme from '../../styles/theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { Text } from '../../utils/elements';
 
 import useTrimmer from './Timmer';
 import { fileUriWrapper } from '../../utils';

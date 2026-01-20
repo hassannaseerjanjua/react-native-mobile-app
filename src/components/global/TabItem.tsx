@@ -34,6 +34,7 @@ interface TabItemProps {
   icon?: React.ReactNode;
   hideRightIcon?: boolean;
   rightSideView?: React.ReactNode;
+  subtitle?: string;
 }
 
 const TabItem = ({
@@ -49,6 +50,7 @@ const TabItem = ({
   icon,
   hideRightIcon,
   rightSideView,
+  subtitle,
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
   const { isRtl } = useLocaleStore();
@@ -56,7 +58,11 @@ const TabItem = ({
   return (
     <TouchableOpacity
       onPress={onPress}
-      style={[styles.container, TabItemStyles]}
+      style={[
+        styles.container,
+        TabItemStyles,
+        subtitle && styles.containerWithSubtitle,
+      ]}
     >
       <View style={styles.contentContainer}>
         {isGroupImage ? (
@@ -73,13 +79,20 @@ const TabItem = ({
         )}
         {isLink && <SvgGiftLink />}
         {icon && icon}
-        <Text
-          style={[styles.titleText, TabTextStyles]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {title}
-        </Text>
+        <View style={styles.titleContainer}>
+          <Text
+            style={[styles.titleText, TabTextStyles]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {title}
+          </Text>
+          {subtitle && (
+            <Text style={styles.subtitleText} numberOfLines={1}>
+              {subtitle}
+            </Text>
+          )}
+        </View>
       </View>
       {rightSideView && rightSideView}
       {isEditGroup ? (
@@ -125,17 +138,32 @@ const useStyles = () => {
         flex: 1,
         minWidth: 0,
       },
+      titleContainer: {
+        flex: 1,
+        minWidth: 0,
+        justifyContent: 'center',
+      },
       titleText: {
-        fontFamily: 'Quicksand-Medium',
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: theme.sizes.FONTSIZE_LESS_HIGH,
         color: colors.PRIMARY_TEXT,
-        flex: 1,
-        flexShrink: 1,
-        minWidth: 0,
         ...(Platform.OS === 'android' && {
           textAlignVertical: 'center',
           includeFontPadding: false,
         }),
+      },
+      subtitleText: {
+        ...theme.globalStyles.TEXT_STYLE,
+        fontSize: scaleWithMax(12, 13),
+        color: colors.PRIMARY_TEXT,
+        marginTop: scaleWithMax(2, 3),
+        ...(Platform.OS === 'android' && {
+          textAlignVertical: 'center',
+          includeFontPadding: false,
+        }),
+      },
+      containerWithSubtitle: {
+        paddingVertical: theme.sizes.HEIGHT * 0.015,
       },
       editGroupContainer: {
         flexDirection: 'row',

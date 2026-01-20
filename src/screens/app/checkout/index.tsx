@@ -16,12 +16,15 @@ import {
   GiftIcon,
   IncrementIcon,
   PlusIcon,
+  SvgApplePayIcon,
+  SvgApplePayText,
   SvgEhsanIcon,
   SvgGifteeWalletIcon,
   SvgGiftLink,
   SvgGiftSentIcon,
   SvgLinkShareIcon,
   SvgRiyalIcon,
+  SvgRiyalIconPrimary,
   SvgRiyalIconWhite,
   SvgSelectedCheck,
   VisaIcon,
@@ -52,6 +55,7 @@ import { getVideoUploadPromise } from '../../../utils/videoUploadState';
 import { useAuthStore } from '../../../store/reducer/auth';
 import SuccessMessage from '../../../components/global/SuccessComponent';
 import TabItem from '../../../components/global/TabItem';
+import GroupTabs from '../../../components/global/GroupTabs';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
@@ -73,7 +77,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
   const [itemToRemove, setItemToRemove] = useState<CartItem | null>(null);
   const [giftLink, setGiftLink] = useState<string | null>(null);
-
+  const [activeDomationAmount, setActiveDomationAmount] = useState<number>();
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => {
       setCartData(data?.Data);
@@ -527,6 +531,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       ? { uri: cartData.FriendImageUrl }
       : require('../../../assets/images/img-placeholder.png');
 
+  const DomationAmounts = [
+    { value: '10', title: '10' },
+    { value: '5', title: '5' },
+    { value: '3', title: '3' },
+    { value: 'Custom', title: 'Custom' },
+  ];
+
   return (
     <ParentView>
       <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
@@ -578,7 +589,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           <View style={[styles.tabContainer]}>
             <TabItem
               isGroupImage={
-                cartData.CampaginType === 3
+                cartData.SendType === 2
+                  ? null
+                  : cartData.CampaginType === 3
                   ? cartData.users.ProfileUrl ||
                     require('../../../assets/images/img-placeholder.png')
                   : cartData.FriendImageUrl ||
@@ -608,6 +621,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 >
                   <GiftIcon />
                   <TouchableOpacity
+                    hitSlop={15}
                     onPress={() => {
                       (navigation as any).navigate('GiftMessage', {
                         friendUserId: cartData.FriendId,
@@ -650,6 +664,55 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               </View>
             </TouchableOpacity>
           </View>
+          <TouchableOpacity
+            onPress={() =>
+              setSelectedPaymentMethod(
+                selectedPaymentMethod === 'applePay' ? null : 'applePay',
+              )
+            }
+          >
+            <View
+              style={[
+                styles.GiftContainer,
+                {
+                  flexDirection: rtlFlexDirection(isRtl),
+                  marginTop: theme.sizes.HEIGHT * 0.005,
+                },
+              ]}
+            >
+              <View
+                style={{
+                  ...styles.row,
+                  flex: 1,
+                  gap: theme.sizes.WIDTH * 0.03,
+                  flexDirection: rtlFlexDirection(isRtl),
+                }}
+              >
+                <CheckBox
+                  Selected={selectedPaymentMethod === 'applePay'}
+                  onSelectionPress={() =>
+                    setSelectedPaymentMethod(
+                      selectedPaymentMethod === 'applePay' ? null : 'applePay',
+                    )
+                  }
+                />
+                <SvgApplePayIcon
+                  height={scaleWithMax(32, 35)}
+                  width={scaleWithMax(32, 35)}
+                />
+                <View>
+                  <Text style={styles.TextMedium}>Apple Pay</Text>
+                </View>
+              </View>
+              <SvgSelectedCheck
+                width={scaleWithMax(16, 18)}
+                height={scaleWithMax(16, 18)}
+                style={{
+                  opacity: selectedPaymentMethod === 'applePay' ? 1 : 0,
+                }}
+              />
+            </View>
+          </TouchableOpacity>
           <TouchableOpacity
             disabled
             onPress={() =>
@@ -799,34 +862,110 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               <PriceWithIcon Price={cartData.DeliveryCharges} />
             </View>
           )}
-          <View style={{ marginTop: theme.sizes.HEIGHT * 0.004 }}>
+          <View
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              marginTop: theme.sizes.HEIGHT * 0.002,
+            }}
+          >
             <Text style={styles.TextMedium}>Send gift with Ehsan</Text>
-            <InputField
-              style={{
-                marginTop: theme.sizes.HEIGHT * 0.005,
-              }}
-              icon={<SvgEhsanIcon />}
-              fieldProps={{
-                placeholder: getString('CHECKOUT_ENTER_AMOUNT'),
-                keyboardType: 'numeric',
-                maxLength: 10,
-              }}
-            />
+            <SvgEhsanIcon />
           </View>
+          <Text
+            style={{
+              ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+              color: '#1B917B',
+              fontSize: scaleWithMax(10, 11),
+              // marginTop: theme.sizes.HEIGHT * 0.01,
+            }}
+          >
+            Express your feelings with a lasting reward what remains with Allah
+          </Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              flexDirection: 'row',
+              gap: 10,
+            }}
+          >
+            {DomationAmounts.map(amount => {
+              const isActive = activeDomationAmount === Number(amount.value);
+              return (
+                <TouchableOpacity
+                  key={amount.value}
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: theme.sizes.WIDTH * 0.02,
+                    paddingHorizontal: theme.sizes.WIDTH * 0.03,
+                    paddingVertical: scaleWithMax(8, 10),
+                    borderRadius: 10,
+                    backgroundColor: isActive
+                      ? theme.colors.SECONDARY
+                      : theme.colors.LIGHT_GRAY,
+                    // minHeight: scaleWithMax(36, 38),
+                  }}
+                  onPress={() => setActiveDomationAmount(Number(amount.value))}
+                >
+                  <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+                    {amount.value === 'Custom' ? null : isActive ? (
+                      <SvgRiyalIconPrimary
+                        width={scaleWithMax(12, 14)}
+                        height={scaleWithMax(12, 14)}
+                      />
+                    ) : (
+                      <SvgRiyalIcon
+                        width={scaleWithMax(12, 14)}
+                        height={scaleWithMax(12, 14)}
+                      />
+                    )}
+                    <Text
+                      style={[
+                        styles.TextMedium,
+                        isActive && {
+                          ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                          color: theme.colors.PRIMARY,
+                        },
+                      ]}
+                    >
+                      {amount.title}
+                    </Text>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
           <Text style={styles.vatNote}>{getString('CHECKOUT_VAT_NOTE')}</Text>
         </View>
       </ScrollView>
       <View style={styles.footerContainer}>
         <View style={{ position: 'relative' }}>
           <CustomButton
-            title={getString('CHECKOUT_PROCEED_TO_CHECKOUT')}
+            title={
+              selectedPaymentMethod === 'applePay'
+                ? ''
+                : getString('CHECKOUT_PROCEED_TO_CHECKOUT')
+            }
             onPress={handleProceedToCheckout}
+            icon={
+              selectedPaymentMethod === 'applePay' ? (
+                <SvgApplePayText />
+              ) : undefined
+            }
             buttonStyle={{
               backgroundColor: !selectedPaymentMethod
                 ? '#FFA5A5'
+                : selectedPaymentMethod === 'applePay'
+                ? '#000000'
                 : theme.colors.PRIMARY,
               borderColor: !selectedPaymentMethod
                 ? '#FFA5A5'
+                : selectedPaymentMethod === 'applePay'
+                ? '#000000'
                 : theme.colors.PRIMARY,
             }}
             labelStyle={{
@@ -844,7 +983,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             ]}
           >
             <PriceWithIcon
-              Price={cartData.TotalAmount}
+              Price={cartData.TotalAmount + (activeDomationAmount || 0)}
               style={{
                 color: theme.colors.WHITE,
               }}

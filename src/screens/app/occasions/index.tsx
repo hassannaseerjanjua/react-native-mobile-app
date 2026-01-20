@@ -37,6 +37,9 @@ const OccasionsScreen: React.FC = () => {
     null,
   );
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [expandedOccasionId, setExpandedOccasionId] = useState<number | null>(
+    null,
+  );
   const {
     loading,
     occasionsLoading,
@@ -86,9 +89,7 @@ const OccasionsScreen: React.FC = () => {
             ? getString('OCC_OCCASIONS')
             : selectedOccasion.occasionType === 'create'
             ? getString('OCC_CREATE_OCCASION')
-            : selectedOccasion.occasionType === 'edit'
-            ? getString('OCC_EDIT_OCCASION')
-            : getString('OCC_VIEW_OCCASION')
+            : getString('OCC_EDIT_OCCASION')
         }
         rightSideTitle={
           isEditGroupOpen || selectedOccasion.occasionType !== 'none'
@@ -100,7 +101,13 @@ const OccasionsScreen: React.FC = () => {
         rightSideTitlePress={() => setIsEditGroupOpen(!isEditGroupOpen)}
         rightSideIcon={<SvgEditGroup />}
         showBackButton={true}
-        onBackPress={() => handleBackPress(navigation)}
+        onBackPress={() => {
+          if (expandedOccasionId !== null) {
+            setExpandedOccasionId(null);
+          } else {
+            handleBackPress(navigation);
+          }
+        }}
       />
       {selectedOccasion.occasionType === 'none' && (
         <>
@@ -130,6 +137,13 @@ const OccasionsScreen: React.FC = () => {
               showsVerticalScrollIndicator={false}
               renderItem={({ item }: { item: Occasion }) => {
                 const isDefaultBirthday = item.OccassionId === -1;
+                const isExpanded = expandedOccasionId === item.OccassionId;
+                const formattedDate =
+                  isDefaultBirthday && user?.DateOfBirth
+                    ? formatDateForDisplay(user.DateOfBirth)
+                    : item.OccasionDate && item.OccasionDate !== 'null'
+                    ? formatDateForDisplay(item.OccasionDate)
+                    : null;
 
                 // For default birthday, show icon outside and make viewable
                 if (isDefaultBirthday) {
@@ -137,9 +151,20 @@ const OccasionsScreen: React.FC = () => {
                     <TabItem
                       isGroupImage={require('../../../assets/images/birthday.png')}
                       title={item.NameEn}
+                      subtitle={
+                        isExpanded ? formattedDate || undefined : undefined
+                      }
                       isEditGroup={false} // Default birthday is not editable/deletable
-                      onPress={() => handleViewPress(item)}
+                      hideRightIcon={isExpanded}
+                      onPress={() => {
+                        if (isExpanded) {
+                          setExpandedOccasionId(null);
+                        } else {
+                          setExpandedOccasionId(item.OccassionId);
+                        }
+                      }}
                       TabItemStyles={styles.TabItem}
+                      TabTextStyles={styles.TabText}
                     />
                   );
                 }
@@ -152,13 +177,26 @@ const OccasionsScreen: React.FC = () => {
                   <TabItem
                     isGroupImage={imageSource}
                     title={item.NameEn}
+                    subtitle={
+                      isExpanded ? formattedDate || undefined : undefined
+                    }
                     isEditGroup={isEditGroupOpen}
+                    hideRightIcon={isExpanded}
                     onEditPress={() => handleEditPress(item)}
                     onDeletePress={() => {
                       setOccasionToDelete(item);
                       setShowDeleteModal(true);
                     }}
-                    onPress={() => handleViewPress(item)}
+                    onPress={() => {
+                      if (!isEditGroupOpen) {
+                        if (isExpanded) {
+                          setExpandedOccasionId(null);
+                        } else {
+                          setExpandedOccasionId(item.OccassionId);
+                        }
+                      }
+                    }}
+                    TabTextStyles={styles.TabText}
                     TabItemStyles={styles.TabItem}
                   />
                 );
@@ -177,32 +215,32 @@ const OccasionsScreen: React.FC = () => {
           )}
         </>
       )}
-      {selectedOccasion.occasionType !== 'none' && (
-        <>
-          <View style={styles.content}>
-            {loading ? (
-              <SkeletonLoader screenType="occasionView" />
-            ) : (
-              <Formik
-                initialValues={formInitialValues}
-                enableReinitialize={true}
-                validationSchema={validationSchema}
-                validateOnChange={false}
-                validateOnBlur={true}
-                onSubmit={handleSubmit}
-              >
-                {formik => (
-                  <>
-                    <View style={styles.inputContainer}>
-                      <InputField
-                        error={
-                          formik.touched.occasionName &&
-                          formik.errors.occasionName
-                            ? formik.errors.occasionName
-                            : undefined
-                        }
-                        icon={
-                          selectedOccasion.occasionType !== 'view' ? (
+      {selectedOccasion.occasionType !== 'none' &&
+        selectedOccasion.occasionType !== 'view' && (
+          <>
+            <View style={styles.content}>
+              {loading ? (
+                <SkeletonLoader screenType="occasionView" />
+              ) : (
+                <Formik
+                  initialValues={formInitialValues}
+                  enableReinitialize={true}
+                  validationSchema={validationSchema}
+                  validateOnChange={false}
+                  validateOnBlur={true}
+                  onSubmit={handleSubmit}
+                >
+                  {formik => (
+                    <>
+                      <View style={styles.inputContainer}>
+                        <InputField
+                          error={
+                            formik.touched.occasionName &&
+                            formik.errors.occasionName
+                              ? formik.errors.occasionName
+                              : undefined
+                          }
+                          icon={
                             <TouchableOpacity
                               onPress={() => handleImageSelect(formik)}
                               activeOpacity={0.7}
@@ -242,106 +280,65 @@ const OccasionsScreen: React.FC = () => {
                                 />
                               )}
                             </TouchableOpacity>
-                          ) : selectedOccasion.id === -1 ? (
-                            // Show birthday image for default birthday in view mode
-                            <Image
-                              source={require('../../../assets/images/birthday.png')}
-                              style={{
-                                width: scaleWithMax(30, 34),
-                                height: scaleWithMax(30, 34),
-                                borderRadius: scaleWithMax(14, 16),
-                              }}
-                              resizeMode="cover"
-                            />
-                          ) : formik.values.image &&
-                            typeof formik.values.image === 'object' &&
-                            formik.values.image.uri ? (
-                            <Image
-                              source={{ uri: formik.values.image.uri }}
-                              style={{
-                                width: scaleWithMax(30, 34),
-                                height: scaleWithMax(30, 34),
-                                borderRadius: scaleWithMax(14, 16),
-                              }}
-                              resizeMode="cover"
-                            />
-                          ) : formik.values.image &&
-                            typeof formik.values.image === 'string' &&
-                            formik.values.image ? (
-                            <Image
-                              source={{ uri: formik.values.image }}
-                              style={{
-                                width: scaleWithMax(30, 34),
-                                height: scaleWithMax(30, 34),
-                                borderRadius: scaleWithMax(14, 16),
-                              }}
-                              resizeMode="cover"
-                            />
-                          ) : (
-                            <SvgOccasionIcon
-                              width={scaleWithMax(24, 26)}
-                              height={scaleWithMax(24, 26)}
-                            />
-                          )
-                        }
-                        fieldProps={{
-                          placeholder: 'Event Name',
-                          value: formik.values.occasionName,
-                          editable: selectedOccasion.occasionType !== 'view',
-                          onChangeText: (text: string) => {
-                            formik.setFieldValue('occasionName', text, false);
-                            formik.setFieldTouched('occasionName', true, false);
-                          },
-                          onBlur: () =>
-                            formik.setFieldTouched('occasionName', true),
-                          autoCapitalize: 'words',
-                        }}
-                      />
-                    </View>
-                    <View style={styles.inputContainer}>
-                      <TouchableOpacity
-                        onPress={() => {
-                          if (selectedOccasion.occasionType !== 'view') {
-                            setShowDatePicker(true);
-                          }
-                        }}
-                      >
-                        <InputField
-                          error={
-                            formik.touched.occasionDate &&
-                            formik.errors.occasionDate
-                              ? formik.errors.occasionDate
-                              : undefined
-                          }
-                          icon={
-                            <SvgDateIcon
-                              width={scaleWithMax(24, 26)}
-                              height={scaleWithMax(24, 26)}
-                            />
                           }
                           fieldProps={{
-                            placeholder: getString('OCC_DATE'),
-                            value:
-                              selectedOccasion.occasionType === 'view' ||
-                              selectedOccasion.occasionType === 'edit'
-                                ? formatDateForDisplay(
-                                    formik.values.occasionDate,
-                                  )
-                                : formik.values.occasionDate,
-                            onChangeText: () => {},
-                            onFocus: () =>
+                            placeholder: 'Event Name',
+                            value: formik.values.occasionName,
+                            editable: true,
+                            onChangeText: (text: string) => {
+                              formik.setFieldValue('occasionName', text, false);
                               formik.setFieldTouched(
-                                'occasionDate',
+                                'occasionName',
                                 true,
                                 false,
-                              ),
-                            editable: false,
-                            pointerEvents: 'none',
+                              );
+                            },
+                            onBlur: () =>
+                              formik.setFieldTouched('occasionName', true),
+                            autoCapitalize: 'words',
                           }}
                         />
-                      </TouchableOpacity>
-                    </View>
-                    {selectedOccasion.occasionType !== 'view' && (
+                      </View>
+                      <View style={styles.inputContainer}>
+                        <TouchableOpacity
+                          onPress={() => {
+                            setShowDatePicker(true);
+                          }}
+                        >
+                          <InputField
+                            error={
+                              formik.touched.occasionDate &&
+                              formik.errors.occasionDate
+                                ? formik.errors.occasionDate
+                                : undefined
+                            }
+                            icon={
+                              <SvgDateIcon
+                                width={scaleWithMax(24, 26)}
+                                height={scaleWithMax(24, 26)}
+                              />
+                            }
+                            fieldProps={{
+                              placeholder: getString('OCC_DATE'),
+                              value:
+                                selectedOccasion.occasionType === 'edit'
+                                  ? formatDateForDisplay(
+                                      formik.values.occasionDate,
+                                    )
+                                  : formik.values.occasionDate,
+                              onChangeText: () => {},
+                              onFocus: () =>
+                                formik.setFieldTouched(
+                                  'occasionDate',
+                                  true,
+                                  false,
+                                ),
+                              editable: false,
+                              pointerEvents: 'none',
+                            }}
+                          />
+                        </TouchableOpacity>
+                      </View>
                       <CustomButton
                         title={
                           selectedOccasion.occasionType === 'edit'
@@ -354,31 +351,30 @@ const OccasionsScreen: React.FC = () => {
                         loading={loading}
                         disabled={loading}
                       />
-                    )}
-                    <DatePicker
-                      modal
-                      open={showDatePicker}
-                      date={
-                        selectedOccasion.occasionType === 'edit' && date
-                          ? date
-                          : formik.values.occasionDate
-                          ? new Date(formik.values.occasionDate)
-                          : date
-                      }
-                      mode="date"
-                      onConfirm={selectedDate =>
-                        handleDatePickerConfirm(selectedDate, formik)
-                      }
-                      onCancel={() => setShowDatePicker(false)}
-                      theme="light"
-                    />
-                  </>
-                )}
-              </Formik>
-            )}
-          </View>
-        </>
-      )}
+                      <DatePicker
+                        modal
+                        open={showDatePicker}
+                        date={
+                          selectedOccasion.occasionType === 'edit' && date
+                            ? date
+                            : formik.values.occasionDate
+                            ? new Date(formik.values.occasionDate)
+                            : date
+                        }
+                        mode="date"
+                        onConfirm={selectedDate =>
+                          handleDatePickerConfirm(selectedDate, formik)
+                        }
+                        onCancel={() => setShowDatePicker(false)}
+                        theme="light"
+                      />
+                    </>
+                  )}
+                </Formik>
+              )}
+            </View>
+          </>
+        )}
 
       <ConfirmationPopup
         visible={showDeleteModal}

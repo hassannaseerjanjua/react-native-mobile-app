@@ -82,35 +82,42 @@ const CustomButton = ({
         />
       ) : (
         <>
-          <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-            <View
-              style={{
-                marginTop: 2,
-              }}
-            >
+          {!title && icon ? (
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
               {icon}
             </View>
-            <Text
-              style={[
-                type === 'error'
-                  ? theme.globalStyles.TEXT_STYLE
-                  : theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-                {
-                  color:
-                    type === 'primary'
-                      ? theme.colors.WHITE
-                      : type === 'error'
-                      ? theme.colors.RED
-                      : theme.colors.PRIMARY,
-                  fontSize: theme.sizes.FONTSIZE_BUTTON,
-                  marginStart: icon ? 5 : 0,
-                },
-                labelStyle,
-              ]}
-            >
-              {title}
-            </Text>
-          </View>
+          ) : (
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View
+                style={{
+                  marginTop: 2,
+                }}
+              >
+                {icon}
+              </View>
+
+              <Text
+                style={[
+                  type === 'error'
+                    ? theme.globalStyles.TEXT_STYLE
+                    : theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                  {
+                    color:
+                      type === 'primary'
+                        ? theme.colors.WHITE
+                        : type === 'error'
+                        ? theme.colors.RED
+                        : theme.colors.PRIMARY,
+                    fontSize: theme.sizes.FONTSIZE_BUTTON,
+                    marginStart: icon ? 5 : 0,
+                  },
+                  labelStyle,
+                ]}
+              >
+                {title}
+              </Text>
+            </View>
+          )}
         </>
       )}
     </TouchableOpacity>

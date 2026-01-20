@@ -5,6 +5,7 @@ import React, {
   forwardRef,
   useImperativeHandle,
   useEffect,
+  useMemo,
 } from 'react';
 import {
   View,
@@ -25,7 +26,9 @@ import { Text } from '../../utils/elements';
 import { SvgCrossIcon } from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
 import { getCachedVideoPath } from '../../utils/videoCache';
+import { isVideoPreloaded } from '../../utils/videoPreloader';
 import VideoTrimmer from './VideoTrimmer';
+import useTheme from '../../styles/theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -64,6 +67,7 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
     },
     ref,
   ) => {
+    const { styles } = useStyles();
     const videoRef = useRef<any>(null);
     const preloadVideoRef = useRef<any>(null);
     const progressAnim = useRef(new Animated.Value(0)).current;
@@ -426,9 +430,13 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
     const isTextStory = currentStory === 'text';
     const isVideoStory = currentStory === 'video';
 
+    // Skip rendering preload video if already preloaded by VideoPreloaderManager
+    const shouldRenderPreload =
+      preloadUrl && !visible && !isVideoPreloaded(preloadUrl);
+
     return (
       <>
-        {preloadUrl && !visible && (
+        {shouldRenderPreload && (
           <Video
             ref={preloadVideoRef}
             source={{ uri: preloadUrl }}
@@ -497,10 +505,10 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
                   playInBackground={false}
                   playWhenInactive={false}
                   bufferConfig={{
-                    minBufferMs: 2500,
-                    maxBufferMs: 5000,
-                    bufferForPlaybackMs: 1000,
-                    bufferForPlaybackAfterRebufferMs: 1500,
+                    minBufferMs: 5000,
+                    maxBufferMs: 30000,
+                    bufferForPlaybackMs: 500, // Start playing faster
+                    bufferForPlaybackAfterRebufferMs: 1000,
                   }}
                 />
               </TouchableOpacity>
@@ -615,157 +623,166 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
   },
 );
 
-const styles = StyleSheet.create({
-  container: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: '#000000',
-    zIndex: 9999,
-  },
-  textStoryContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  filterBackground: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-    position: 'absolute',
-    alignSelf: 'center',
-    backgroundColor: '#000000',
-  },
-  textOverlay: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 40,
-    width: '100%',
-  },
-  messageText: {
-    fontSize: scaleWithMax(24, 28),
-    fontWeight: '600',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 2 },
-    textShadowRadius: 4,
-  },
-  messageTextBlack: {
-    fontSize: scaleWithMax(24, 28),
-    fontWeight: '600',
-    color: '#000000',
-    textAlign: 'center',
-  },
-  whiteBackground: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT * 0.6,
-    position: 'absolute',
-    alignSelf: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  videoContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  video: {
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
-  },
-  hiddenVideo: {
-    width: 0,
-    height: 0,
-    position: 'absolute',
-    opacity: 0,
-  },
-  overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    paddingTop: 10,
-    paddingHorizontal: 12,
-  },
-  progressBarContainer: {
-    paddingHorizontal: 4,
-    marginBottom: 12,
-    flexDirection: 'row',
-    gap: 4,
-  },
-  progressBarBackground: {
-    height: 3,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: 2,
-    overflow: 'hidden',
-  },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: '#FFFFFF',
-    borderRadius: 2,
-  },
-  header: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    paddingHorizontal: 4,
-  },
-  profileContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-  },
-  profileImage: {
-    width: scaleWithMax(28, 32),
-    height: scaleWithMax(28, 32),
-    borderRadius: scaleWithMax(14, 16),
-    borderWidth: 1.5,
-    borderColor: '#FFFFFF',
-  },
-  userInfoContainer: {
-    marginLeft: 8,
-    justifyContent: 'flex-start',
-  },
-  userName: {
-    color: '#FFFFFF',
-    fontSize: scaleWithMax(12, 14),
-    fontWeight: '600',
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 3,
-  },
-  timeAgo: {
-    color: 'rgba(255, 255, 255, 0.7)',
-    fontSize: scaleWithMax(10, 11),
-    fontWeight: '400',
-    marginTop: 2,
-    textShadowColor: 'rgba(0, 0, 0, 0.5)',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 2,
-  },
-  closeButton: {
-    padding: 4,
-  },
-  closeIconWrapper: {
-    width: scaleWithMax(22, 26),
-    height: scaleWithMax(22, 26),
-    borderRadius: scaleWithMax(11, 13),
-    backgroundColor: '#FFFFFF',
-    justifyContent: 'center',
-    alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.25,
-    shadowRadius: 4,
-    elevation: 5,
-  },
-  loadingContainer: {
-    ...StyleSheet.absoluteFillObject,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  },
-});
+const useStyles = () => {
+  const theme = useTheme();
+  const styles = useMemo(
+    () =>
+      StyleSheet.create({
+        container: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: '#000000',
+          zIndex: 9999,
+        },
+        textStoryContainer: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        filterBackground: {
+          width: SCREEN_WIDTH,
+          height: SCREEN_HEIGHT,
+          position: 'absolute',
+          alignSelf: 'center',
+          backgroundColor: '#000000',
+        },
+        textOverlay: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          paddingHorizontal: 40,
+          width: '100%',
+        },
+        messageText: {
+          fontSize: scaleWithMax(24, 28),
+          fontWeight: '600',
+          color: '#FFFFFF',
+          textAlign: 'center',
+          textShadowColor: 'rgba(0, 0, 0, 0.5)',
+          textShadowOffset: { width: 0, height: 2 },
+          textShadowRadius: 4,
+        },
+        messageTextBlack: {
+          fontSize: scaleWithMax(24, 28),
+          fontWeight: '600',
+          color: '#000000',
+          textAlign: 'center',
+        },
+        whiteBackground: {
+          width: SCREEN_WIDTH,
+          height: SCREEN_HEIGHT * 0.6,
+          position: 'absolute',
+          alignSelf: 'center',
+          backgroundColor: '#FFFFFF',
+        },
+        videoContainer: {
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        video: {
+          width: SCREEN_WIDTH,
+          height: SCREEN_HEIGHT,
+        },
+        hiddenVideo: {
+          width: 0,
+          height: 0,
+          position: 'absolute',
+          opacity: 0,
+        },
+        overlay: {
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          paddingTop: 10,
+          paddingHorizontal: 12,
+        },
+        progressBarContainer: {
+          paddingHorizontal: 4,
+          marginBottom: 12,
+          flexDirection: 'row',
+          gap: 4,
+        },
+        progressBarBackground: {
+          height: 3,
+          backgroundColor: 'rgba(255, 255, 255, 0.3)',
+          borderRadius: 2,
+          overflow: 'hidden',
+        },
+        progressBarFill: {
+          height: '100%',
+          backgroundColor: '#FFFFFF',
+          borderRadius: 2,
+        },
+        header: {
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+          justifyContent: 'space-between',
+          paddingHorizontal: 4,
+        },
+        profileContainer: {
+          flexDirection: 'row',
+          alignItems: 'flex-start',
+        },
+        profileImage: {
+          width: scaleWithMax(36, 36),
+          height: scaleWithMax(36, 36),
+          borderRadius: 9999,
+          borderWidth: 1.5,
+          borderColor: '#FFFFFF',
+        },
+        userInfoContainer: {
+          marginLeft: 8,
+          justifyContent: 'flex-start',
+        },
+        userName: {
+          ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+          color: '#FFFFFF',
+          fontSize: theme.sizes.FONTSIZE_BUTTON,
+          textShadowColor: 'rgba(0, 0, 0, 0.5)',
+          textShadowOffset: { width: 0, height: 1 },
+          textShadowRadius: 3,
+        },
+        timeAgo: {
+          color: 'rgba(255, 255, 255, 0.7)',
+          fontSize: theme.sizes.FONTSIZE_MEDIUM,
+          fontWeight: '400',
+          // marginTop: 2,9
+          textShadowColor: 'rgba(0, 0, 0, 0.5)',
+          textShadowOffset: { width: 0, height: 1 },
+          textShadowRadius: 2,
+        },
+        closeButton: {
+          padding: 4,
+        },
+        closeIconWrapper: {
+          width: scaleWithMax(22, 26),
+          height: scaleWithMax(22, 26),
+          borderRadius: scaleWithMax(11, 13),
+          backgroundColor: '#FFFFFF',
+          justifyContent: 'center',
+          alignItems: 'center',
+          shadowColor: '#000',
+          shadowOffset: { width: 0, height: 2 },
+          shadowOpacity: 0.25,
+          shadowRadius: 4,
+          elevation: 5,
+        },
+        loadingContainer: {
+          ...StyleSheet.absoluteFillObject,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+        },
+      }),
+    [],
+  );
+
+  return { styles };
+};
 
 export default VideoStoryViewer;

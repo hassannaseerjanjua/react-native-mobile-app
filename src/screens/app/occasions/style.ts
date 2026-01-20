@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
-import { isAndroid } from '../../../utils';
+import { isAndroid, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -20,6 +20,11 @@ const useStyles = () => {
         height: sizes.HEIGHT * 0.075,
         marginBottom: sizes.HEIGHT * 0.016,
         borderRadius: sizes.BORDER_RADIUS_MID,
+      },
+      TabText: {
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: sizes.FONTSIZE_SMALL_HEADING,
+        color: theme.colors.PRIMARY_TEXT,
       },
       buttonContainer: {
         position: 'absolute',

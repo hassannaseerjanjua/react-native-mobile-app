@@ -5,7 +5,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import ParentView from '../../../components/app/ParentView.tsx';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
-import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
+import GroupTabs from '../../../components/global/GroupTabs.tsx';
 import FavoriteItemCard from '../../../components/app/FavoriteItemCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import DropdownField, {
@@ -33,6 +33,7 @@ import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
 import { Text } from '../../../utils/elements';
 import { scaleWithMax } from '../../../utils';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 
 const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const friendUserId = route?.params?.friendUserId ?? null;
@@ -283,69 +284,63 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             </View>
           ) : (
             <>
-              {!storeListApi.data || storeListApi.data.length === 0 ? (
-                <View
-                  style={{
-                    paddingHorizontal: theme.sizes.PADDING,
-                    paddingTop: theme.sizes.HEIGHT * 0.1,
-                    alignItems: 'center',
-                  }}
-                >
-                  <Text
+              <FlatList
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                  paddingBottom: theme.sizes.HEIGHT * 0.16,
+                  paddingHorizontal: theme.sizes.PADDING,
+                }}
+                ListHeaderComponent={() => (
+                  <View style={styles.tabsContainer}>
+                    <GroupTabs
+                      tabs={filterOptions}
+                      activeTab={selectedFilter}
+                      onTabPress={setSelectedFilter}
+                    />
+                  </View>
+                )}
+                data={storeListApi.data}
+                extraData={favoriteStates}
+                ListEmptyComponent={() => (
+                  <View
                     style={{
-                      fontSize: 16,
-                      color: theme.colors.SECONDARY_TEXT || '#666',
+                      height: theme.sizes.HEIGHT * 0.58,
                     }}
                   >
-                    {searchQuery
-                      ? getString('SEARCH_NO_RESULTS_FOUND')
-                      : getString('SELECT_STORE_NO_STORES_FOUND')}
-                  </Text>
-                </View>
-              ) : (
-                <FlatList
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={{
-                    paddingBottom: theme.sizes.HEIGHT * 0.16,
-                    paddingHorizontal: theme.sizes.PADDING,
-                  }}
-                  ListHeaderComponent={() => (
-                    <View style={styles.tabsContainer}>
-                      <GroupTabs
-                        tabs={filterOptions}
-                        activeTab={selectedFilter}
-                        onTabPress={setSelectedFilter}
+                    <PlaceholderLogoText
+                      text={
+                        searchQuery
+                          ? getString('SEARCH_NO_RESULTS_FOUND')
+                          : getString('SELECT_STORE_NO_STORES_FOUND')
+                      }
+                    />
+                  </View>
+                )}
+                keyExtractor={item => item.StoreId.toString()}
+                renderItem={({ item }) => (
+                  <>
+                    <View
+                      style={styles.favoriteItemContainer}
+                      key={item.StoreId}
+                    >
+                      <FavoriteItemCard
+                        key={item.StoreId}
+                        item={item}
+                        onPress={handleStoreSelect}
+                        showFavorite={true}
+                        isFavorite={
+                          favoriteStates[item.StoreId] ??
+                          item.isFavourite ??
+                          false
+                        }
+                        onFavoritePress={() => handleFavoritePress(item)}
                       />
                     </View>
-                  )}
-                  data={storeListApi.data}
-                  extraData={favoriteStates}
-                  keyExtractor={item => item.StoreId.toString()}
-                  renderItem={({ item }) => (
-                    <>
-                      <View
-                        style={styles.favoriteItemContainer}
-                        key={item.StoreId}
-                      >
-                        <FavoriteItemCard
-                          key={item.StoreId}
-                          item={item}
-                          onPress={handleStoreSelect}
-                          showFavorite={true}
-                          isFavorite={
-                            favoriteStates[item.StoreId] ??
-                            item.isFavourite ??
-                            false
-                          }
-                          onFavoritePress={() => handleFavoritePress(item)}
-                        />
-                      </View>
-                    </>
-                  )}
-                  onEndReached={storeListApi.loadMore}
-                  onEndReachedThreshold={0.5}
-                />
-              )}
+                  </>
+                )}
+                onEndReached={storeListApi.loadMore}
+                onEndReachedThreshold={0.5}
+              />
             </>
           )}
         </View>

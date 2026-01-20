@@ -481,11 +481,13 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       launchImageLibrary(
         {
           mediaType: 'video',
-          quality: 1,
           selectionLimit: 1,
-          videoQuality: 'high',
+          // Don't set videoQuality - this prevents transcoding and returns the original video instantly
+          // Compression will be applied later when saving from trim screen
+          assetRepresentationMode: 'current', // iOS: Use original asset without conversion
+          formatAsMp4: false, // iOS: Don't convert to MP4 (we'll compress later)
         },
-        async response => {
+        response => {
           if (response.didCancel) {
             console.log('[GiftMessage] User cancelled video selection');
             return;

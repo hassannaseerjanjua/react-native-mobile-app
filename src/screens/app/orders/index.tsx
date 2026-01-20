@@ -20,6 +20,7 @@ import { useListingApi } from '../../../hooks/useListingApi';
 import { useAuthStore } from '../../../store/reducer/auth';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { Order, OrdersApiResponse } from '../../../types/index';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 
 const getStatusText = (
   status: number,
@@ -127,16 +128,12 @@ const OrdersScreen: React.FC = () => {
           }}
           onEndReachedThreshold={0.5}
           ListEmptyComponent={() => (
-            <View style={{ padding: theme.sizes.PADDING }}>
-              <Text
-                style={{
-                  textAlign: 'center',
-                  paddingVertical: theme.sizes.HEIGHT * 0.35,
-                  color: theme.colors.SECONDARY_TEXT,
-                }}
-              >
-                {getString('O_NO_ORDER_FOUND')}
-              </Text>
+            <View
+              style={{
+                height: theme.sizes.HEIGHT * 0.68,
+              }}
+            >
+              <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
             </View>
           )}
           ListFooterComponent={() => {

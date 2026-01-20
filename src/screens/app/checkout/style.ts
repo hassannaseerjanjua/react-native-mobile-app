@@ -126,7 +126,7 @@ const useStyles = () => {
       },
       footerPriceWrapper: {
         position: 'absolute',
-        top: sizes.HEIGHT * 0.016,
+        top: sizes.HEIGHT * 0.018,
         right: sizes.WIDTH * 0.03,
       },
       sectionHeaderRow: {

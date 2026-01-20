@@ -312,10 +312,11 @@ const useStyles = () => {
       title: {
         fontFamily: fonts.Quicksand.bold,
         fontSize: sizes.FONTSIZE_HEADING,
-        lineHeight: sizes.FONTSIZE_HEADING * 1.6,
+        // lineHeight: sizes.FONTSIZE_HEADING * 1.6,
         color: colors.PRIMARY_TEXT,
       },
       searchBarContainer: {
+        marginTop: sizes.HEIGHT * 0.01,
         marginHorizontal: theme.sizes.PADDING,
       },
       searchInputContainer: {

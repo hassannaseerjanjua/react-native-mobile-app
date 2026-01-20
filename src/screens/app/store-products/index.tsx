@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
-import GroupTabs from '../../../components/send-a-gift/GroupTabs.tsx';
+import GroupTabs from '../../../components/global/GroupTabs.tsx';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { AppStackScreen } from '../../../types/navigation.types.ts';
@@ -34,6 +34,7 @@ import {
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
 import ParentView from '../../../components/app/ParentView';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 
 const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   route,
@@ -337,62 +338,52 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             <SkeletonLoader screenType="productListing" />
           ) : (
             <>
-              {!currentData || currentData.length === 0 ? (
-                <View
-                  style={{
-                    flex: 1,
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    height: theme.sizes.HEIGHT * 0.5,
-                    paddingHorizontal: theme.sizes.PADDING,
-                  }}
-                >
-                  <Text>{getString('EMPTY_NO_PRODUCTS_FOUND')}</Text>
-                </View>
-              ) : (
-                <>
-                  <View style={styles.tabsContainer}>
-                    <GroupTabs
-                      tabs={filterOptions}
-                      activeTab={selectedFilter}
-                      onTabPress={handleTabPress}
+              <View style={styles.tabsContainer}>
+                <GroupTabs
+                  tabs={filterOptions}
+                  activeTab={selectedFilter}
+                  onTabPress={handleTabPress}
+                />
+              </View>
+              <FlatList
+                columnWrapperStyle={{ gap: 16 }}
+                data={currentData}
+                numColumns={2}
+                keyExtractor={item => item.ItemId.toString()}
+                extraData={favoriteStates}
+                ListEmptyComponent={() => (
+                  <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
+                    <PlaceholderLogoText
+                      text={getString('EMPTY_NO_PRODUCTS_FOUND')}
                     />
                   </View>
-                  <FlatList
-                    columnWrapperStyle={{ gap: 16 }}
-                    data={currentData}
-                    numColumns={2}
-                    keyExtractor={item => item.ItemId.toString()}
-                    extraData={favoriteStates}
-                    ListHeaderComponent={() => null}
-                    contentContainerStyle={[
-                      styles.content,
-                      isCartFromCurrentStore && {
-                        paddingBottom: theme.sizes.HEIGHT * 0.12,
-                      },
-                    ]}
-                    showsVerticalScrollIndicator={false}
-                    onEndReached={currentListingApi.loadMore}
-                    onEndReachedThreshold={0.5}
-                    ListFooterComponent={
-                      currentListingApi.loadingMore ? (
-                        <View
-                          style={{
-                            paddingVertical: theme.sizes.HEIGHT * 0.02,
-                            alignItems: 'center',
-                          }}
-                        >
-                          <ActivityIndicator
-                            size="small"
-                            color={theme.colors.PRIMARY}
-                          />
-                        </View>
-                      ) : null
-                    }
-                    renderItem={renderProductItem}
-                  />
-                </>
-              )}
+                )}
+                contentContainerStyle={[
+                  styles.content,
+                  isCartFromCurrentStore && {
+                    paddingBottom: theme.sizes.HEIGHT * 0.12,
+                  },
+                ]}
+                showsVerticalScrollIndicator={false}
+                onEndReached={currentListingApi.loadMore}
+                onEndReachedThreshold={0.5}
+                ListFooterComponent={
+                  currentListingApi.loadingMore ? (
+                    <View
+                      style={{
+                        paddingVertical: theme.sizes.HEIGHT * 0.02,
+                        alignItems: 'center',
+                      }}
+                    >
+                      <ActivityIndicator
+                        size="small"
+                        color={theme.colors.PRIMARY}
+                      />
+                    </View>
+                  ) : null
+                }
+                renderItem={renderProductItem}
+              />
             </>
           )}
         </View>

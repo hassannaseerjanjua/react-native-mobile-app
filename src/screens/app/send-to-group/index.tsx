@@ -6,7 +6,7 @@ import ParentView from '../../../components/app/ParentView';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import HomeHeader from '../../../components/global/HomeHeader';
 import TabItem from '../../../components/global/TabItem';
-import { MemberSelectionModal } from '../../../components/send-a-gift';
+import MemberSelectionModal from '../../../components/global/MemberSelectionModal';
 import { SvgEditGroup, SvgAddGroup } from '../../../assets/icons';
 import {
   ActiveUser,
@@ -79,6 +79,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
       PhoneNo: '',
       ProfileUrl: member.ProfileUrl,
       RelationStatus: member.RelationStatus,
+      // IsVerified: member.IsVerified ,
     }));
   };
 

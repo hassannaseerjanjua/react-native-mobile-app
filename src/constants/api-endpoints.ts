@@ -55,6 +55,7 @@ const apiEndpoints = {
   DELETE_GROUP: `/${version}/Friends/DeleteGroup`, // friendUserId?: number - Friend user ID to check if linked with group (optional)
   CHECK_USER_LINKED_WITH_GROUP: (friendUserId?: number) =>
     `/${version}/Friends/CheckFriendInGroups?friendUserId=${friendUserId}`,
+  GET_EMPLOYEES: `/${version}/Panel/GetStoreEmployees`,
 
   // ============================================
   // OCCASIONS
@@ -78,7 +79,7 @@ const apiEndpoints = {
     `/${version}/Panel/GetItemById?itemId=${itemId}&isCampaign=${isCampaign}`,
   GET_SEND_A_GIFT_ITEM_BY_ID: (itemId?: number, isCampaign?: boolean) =>
     `/${version}/User/GetItemByIdV2?itemId=${itemId}&isCampaign=${isCampaign}`,
-  GET_BUSINESS_TYPE: `/${version}/Panel/GetBusinessTypesForPanel`,
+  GET_BUSINESS_TYPE: `/${version}/User/GetBusinessTypesForUserApp`,
   GET_CATEGORIES: (businessTypeId?: any, storeId?: any) =>
     `/${version}/Panel/GetCategoriesForPanel?isApp=true&businessTypeId=${businessTypeId}&storeId=${storeId}`,
   GET_ALL_FILTERS: `/${version}/Panel/GetAllFilters`,

@@ -149,6 +149,32 @@ const useStyles = () => {
         position: 'relative',
         gap: sizes.HEIGHT * 0.01,
       },
+      profileImageModalContent: {
+        width: '100%',
+        alignItems: 'center',
+        justifyContent: 'center',
+      },
+      profileImageModalImageContainer: {
+        position: 'relative',
+        width: scaleWithMax(220, 250),
+        height: scaleWithMax(220, 250),
+      },
+      profileImageModalImage: {
+        width: scaleWithMax(220, 250),
+        height: scaleWithMax(220, 250),
+        borderRadius: scaleWithMax(110, 125),
+      },
+      profileImageModalPencilContainer: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        backgroundColor: colors.WHITE,
+        borderRadius: scaleWithMax(12, 14),
+        padding: scaleWithMax(6, 8),
+        ...theme.globalStyles.SHADOW_STYLE_LOW,
+        shadowColor: '#00000050',
+        elevation: 4,
+      },
     });
   }, [theme]);
 
