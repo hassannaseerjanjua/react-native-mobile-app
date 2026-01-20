@@ -35,9 +35,12 @@ interface TabItemProps {
   hideRightIcon?: boolean;
   rightSideView?: React.ReactNode;
   subtitle?: string;
+  activeOpacity?: number;
+  disabled?: boolean;
 }
 
 const TabItem = ({
+  activeOpacity,
   title,
   onPress,
   TabItemStyles,
@@ -51,13 +54,16 @@ const TabItem = ({
   hideRightIcon,
   rightSideView,
   subtitle,
+  disabled = false,
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
   const { isRtl } = useLocaleStore();
 
   return (
     <TouchableOpacity
-      onPress={onPress}
+      activeOpacity={activeOpacity}
+      onPress={disabled ? undefined : onPress}
+      disabled={disabled}
       style={[
         styles.container,
         TabItemStyles,

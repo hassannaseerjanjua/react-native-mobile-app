@@ -14,6 +14,7 @@ import { FavStores, BusinessType } from '../../../types/index.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 
 const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   route,
@@ -198,7 +199,9 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
             )}
             ListEmptyComponent={
               <View style={styles.emptyContainer}>
-                <Text>{getString('EMPTY_NO_FAVORITES_FOUND')}</Text>
+                <PlaceholderLogoText
+                  text={getString('EMPTY_NO_FAVORITES_FOUND')}
+                />
               </View>
             }
           />

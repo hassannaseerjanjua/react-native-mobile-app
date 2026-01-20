@@ -78,6 +78,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [itemToRemove, setItemToRemove] = useState<CartItem | null>(null);
   const [giftLink, setGiftLink] = useState<string | null>(null);
   const [activeDomationAmount, setActiveDomationAmount] = useState<number>();
+  const [showCustomDonationInput, setShowCustomDonationInput] = useState(false);
+  const [customDonationAmount, setCustomDonationAmount] = useState<string>('');
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => {
       setCartData(data?.Data);
@@ -389,7 +391,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) {}
+    } catch (error) { }
   };
   const handleProceedToCheckout = async () => {
     if (!cartData || submitting || waitingForVideoUpload) return;
@@ -528,8 +530,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         ? { uri: cartData.users.ProfileUrl }
         : require('../../../assets/images/img-placeholder.png')
       : cartData.FriendImageUrl
-      ? { uri: cartData.FriendImageUrl }
-      : require('../../../assets/images/img-placeholder.png');
+        ? { uri: cartData.FriendImageUrl }
+        : require('../../../assets/images/img-placeholder.png');
 
   const DomationAmounts = [
     { value: '10', title: '10' },
@@ -588,13 +590,15 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           </Text>
           <View style={[styles.tabContainer]}>
             <TabItem
+              activeOpacity={0}
+              disabled={true}
               isGroupImage={
                 cartData.SendType === 2
                   ? null
                   : cartData.CampaginType === 3
-                  ? cartData.users.ProfileUrl ||
+                    ? cartData.users.ProfileUrl ||
                     require('../../../assets/images/img-placeholder.png')
-                  : cartData.FriendImageUrl ||
+                    : cartData.FriendImageUrl ||
                     require('../../../assets/images/img-placeholder.png')
               }
               title={
@@ -606,7 +610,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 ...styles.TextMedium,
                 maxWidth: '90%',
               }}
-              onPress={() => {}}
+              onPress={() => { }}
               isLink={cartData.SendType === 2}
               hideRightIcon={true}
               rightSideView={
@@ -737,11 +741,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               >
                 <CheckBox
                   Selected={selectedPaymentMethod === 'visa'}
-                  // onSelectionPress={() =>
-                  //   setSelectedPaymentMethod(
-                  //     selectedPaymentMethod === 'visa' ? null : 'visa',
-                  //   )
-                  // }
+                // onSelectionPress={() =>
+                //   setSelectedPaymentMethod(
+                //     selectedPaymentMethod === 'visa' ? null : 'visa',
+                //   )
+                // }
                 />
                 <VisaIcon
                   height={scaleWithMax(32, 35)}
@@ -871,7 +875,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             }}
           >
             <Text style={styles.TextMedium}>Send gift with Ehsan</Text>
-            <SvgEhsanIcon />
+            <SvgEhsanIcon width={scaleWithMax(26, 28)} height={scaleWithMax(26, 28)} />
           </View>
           <Text
             style={{
@@ -892,7 +896,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             }}
           >
             {DomationAmounts.map(amount => {
-              const isActive = activeDomationAmount === Number(amount.value);
+              const isActive =
+                amount.value === 'Custom'
+                  ? showCustomDonationInput
+                  : activeDomationAmount === Number(amount.value);
               return (
                 <TouchableOpacity
                   key={amount.value}
@@ -909,7 +916,17 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       : theme.colors.LIGHT_GRAY,
                     // minHeight: scaleWithMax(36, 38),
                   }}
-                  onPress={() => setActiveDomationAmount(Number(amount.value))}
+                  onPress={() => {
+                    if (amount.value === 'Custom') {
+                      setShowCustomDonationInput(true);
+                      setActiveDomationAmount(undefined);
+                      setCustomDonationAmount('');
+                    } else {
+                      setShowCustomDonationInput(false);
+                      setCustomDonationAmount('');
+                      setActiveDomationAmount(Number(amount.value));
+                    }
+                  }}
                 >
                   <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
                     {amount.value === 'Custom' ? null : isActive ? (
@@ -939,6 +956,34 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               );
             })}
           </ScrollView>
+          {showCustomDonationInput && (
+            <View style={{ marginTop: theme.sizes.HEIGHT * 0.015 }}>
+              <InputField
+                icon={
+                  <SvgEhsanIcon
+                    width={scaleWithMax(20, 22)}
+                    height={scaleWithMax(20, 22)}
+                  />
+                }
+                fieldProps={{
+                  placeholder: 'Enter amount',
+                  value: customDonationAmount,
+                  onChangeText: (text: string) => {
+                    // Only allow numbers
+                    const numericValue = text.replace(/[^0-9]/g, '');
+                    setCustomDonationAmount(numericValue);
+                    if (numericValue) {
+                      setActiveDomationAmount(Number(numericValue));
+                    } else {
+                      setActiveDomationAmount(undefined);
+                    }
+                  },
+                  keyboardType: 'numeric',
+                  autoFocus: true,
+                }}
+              />
+            </View>
+          )}
           <Text style={styles.vatNote}>{getString('CHECKOUT_VAT_NOTE')}</Text>
         </View>
       </ScrollView>
@@ -960,13 +1005,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               backgroundColor: !selectedPaymentMethod
                 ? '#FFA5A5'
                 : selectedPaymentMethod === 'applePay'
-                ? '#000000'
-                : theme.colors.PRIMARY,
+                  ? '#000000'
+                  : theme.colors.PRIMARY,
               borderColor: !selectedPaymentMethod
                 ? '#FFA5A5'
                 : selectedPaymentMethod === 'applePay'
-                ? '#000000'
-                : theme.colors.PRIMARY,
+                  ? '#000000'
+                  : theme.colors.PRIMARY,
             }}
             labelStyle={{
               color: theme.colors.WHITE,
@@ -1009,9 +1054,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <ConfirmationPopup
         visible={!!itemToRemove}
         title={getString('CHECKOUT_REMOVE_ITEM')}
-        message={`${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${
-          itemToRemove?.ItemName
-        }" ${getString('CHECKOUT_FROM_CART')}`}
+        message={`${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${itemToRemove?.ItemName
+          }" ${getString('CHECKOUT_FROM_CART')}`}
         confirmText={getString('CHECKOUT_REMOVE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={handleRemoveItem}

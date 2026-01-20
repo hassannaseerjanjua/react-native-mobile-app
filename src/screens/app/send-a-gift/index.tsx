@@ -35,9 +35,15 @@ import useGetApi from '../../../hooks/useGetApi';
 import { CartResponse } from '../../../types';
 import notify from '../../../utils/notify';
 
-interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
+interface SendAGiftProps extends AppStackScreen<'SendAGift'> { }
 
 const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
+
+  const isGiftOneGetOne = route.params?.routeTo === 'GiftOneGetOne';
+  console.log('isGiftOneGetOne', isGiftOneGetOne);
+
+
+  console.log('route', route);
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const [activeTab, setActiveTab] = useState('friends');
@@ -175,9 +181,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     ) {
       const currentUser: ActiveUser = {
         UserId: user.UserId,
-        FullName: `${
-          user.FullNameEn || user.FullNameAr || getString('SG_USER_ME')
-        }${getString('SG_ME')}`,
+        FullName: `${user.FullNameEn || user.FullNameAr || getString('SG_USER_ME')
+          }${getString('SG_ME')}`,
         Email: user.Email,
         PhoneNo: user.PhoneNo,
         ProfileUrl: user.ProfileUrl,
@@ -243,22 +248,22 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           />
           {(route.params?.routeTo === 'SelectStore' ||
             !route.params?.routeTo) && (
-            <View style={[styles.tabContainer]}>
-              <TabItem
-                title={getString('SG_SEND_THROUGH_LINK')}
-                TabTextStyles={{
-                  color: theme.colors.PRIMARY,
-                  maxWidth: '90%',
-                }}
-                onPress={() => {
-                  navigation.navigate('SelectCity', {
-                    sendType: 2,
-                  });
-                }}
-                isLink={true}
-              />
-            </View>
-          )}
+              <View style={[styles.tabContainer]}>
+                <TabItem
+                  title={getString('SG_SEND_THROUGH_LINK')}
+                  TabTextStyles={{
+                    color: theme.colors.PRIMARY,
+                    maxWidth: '90%',
+                  }}
+                  onPress={() => {
+                    navigation.navigate('SelectCity', {
+                      sendType: 2,
+                    });
+                  }}
+                  isLink={true}
+                />
+              </View>
+            )}
           {/* Frequently Sent Section - Only show for friends tab with no search */}
           {frequentlySentFriends.length > 0 &&
             activeTab === 'friends' &&
@@ -298,7 +303,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                             if (!response.success) {
                               notify.error(
                                 response.error ||
-                                  getString('AU_ERROR_OCCURRED'),
+                                getString('AU_ERROR_OCCURRED'),
                               );
                               return;
                             }
@@ -338,114 +343,114 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             {activeTab === 'friends'
               ? getString('SG_FRIENDS')
               : activeTab === 'group'
-              ? getString('SG_GROUP')
-              : getString('SG_OTHERS')}
+                ? getString('SG_GROUP')
+                : getString('SG_OTHERS')}
           </Text>
           {isLoading ? (
             <View style={styles.listCard}>
               <SkeletonLoader screenType="sendAGift" />
             </View>
           ) : // ) : displayData.length > 1 ? (/
-          displayData.length > 1 ? (
-            <View
-              style={[
-                styles.listCard,
-                {
-                  marginBottom:
-                    route.params?.routeTo === 'SelectStore' ||
-                    !route.params?.routeTo
-                      ? theme.sizes.HEIGHT * 0.04
-                      : theme.sizes.HEIGHT * 0.04,
-                },
-              ]}
-            >
-              <FlatList
-                data={displayData}
-                keyExtractor={item => item.UserId.toString()}
-                renderItem={({ item, index }) => (
-                  <SearchUserItem
-                    item={item}
-                    index={index}
-                    isLast={index === displayData.length - 1}
-                    showAddButton={false}
-                    showSelection={false}
-                    onPress={async () => {
-                      const selectedFriendUserId = item.UserId;
-
-                      // Check if there's a cart for a different user
-                      const existingCart = cartApi.data;
-                      if (
-                        existingCart &&
-                        existingCart.FriendId !== null &&
-                        existingCart.FriendId !== selectedFriendUserId &&
-                        existingCart.Items &&
-                        existingCart.Items.length > 0
-                      ) {
-                        // Clear the cart for the previous user to start fresh flow
-                        const response = await api.put(
-                          apiEndpoints.CLEAR_CART,
-                          {},
-                        );
-                        if (!response.success) {
-                          notify.error(
-                            response.error || getString('AU_ERROR_OCCURRED'),
-                          );
-                          return;
-                        }
-                      }
-
-                      // Navigate to the next screen
-                      if (
-                        route.params?.routeTo === 'SelectStore' ||
+            displayData.length > (isGiftOneGetOne ? 0 : 1) ? (
+              <View
+                style={[
+                  styles.listCard,
+                  {
+                    marginBottom:
+                      route.params?.routeTo === 'SelectStore' ||
                         !route.params?.routeTo
-                      ) {
-                        navigation.navigate('SelectStore', {
-                          friendUserId: selectedFriendUserId,
-                          friendName:
-                            item.FullName.replace(getString('SG_ME'), '') ||
-                            null,
-                          CityId: item.CityId || user?.CityId || null,
-                          sendType: 1,
-                        });
-                      } else {
-                        navigation.navigate('CatchScreen', {
-                          type: 'GiftOneGetOne',
-                          friendUserId: selectedFriendUserId,
-                          cityId: item?.CityId || null,
-                        });
-                      }
-                    }}
-                  />
-                )}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.listContainer}
-                onEndReached={activeUsersApi.loadMore}
-                onEndReachedThreshold={0.5}
-              />
-            </View>
-          ) : (
-            <View style={styles.noFriendsContainer}>
-              <SvgFindFriendsIcon
-                width={scaleWithMax(36, 40)}
-                height={scaleWithMax(36, 40)}
-              />
-              <Text style={styles.noFriendsText}>
-                {getString('SG_NO_FRIENDS_YET')}
-              </Text>
+                        ? theme.sizes.HEIGHT * 0.04
+                        : theme.sizes.HEIGHT * 0.04,
+                  },
+                ]}
+              >
+                <FlatList
+                  data={displayData}
+                  keyExtractor={item => item.UserId.toString()}
+                  renderItem={({ item, index }) => (
+                    <SearchUserItem
+                      item={item}
+                      index={index}
+                      isLast={index === displayData.length - 1}
+                      showAddButton={false}
+                      showSelection={false}
+                      onPress={async () => {
+                        const selectedFriendUserId = item.UserId;
 
-              <CustomButton
-                icon={<SvgSearchFindFriendsIcon />}
-                title={getString('SG_FIND_FRIENDS')}
-                onPress={() => {
-                  navigation.navigate('Search', {
-                    title: getString('SG_FIND_FRIENDS'),
-                    // showConnectOnly: true,
-                  });
-                }}
-                type="primary"
-              />
-            </View>
-          )}
+                        // Check if there's a cart for a different user
+                        const existingCart = cartApi.data;
+                        if (
+                          existingCart &&
+                          existingCart.FriendId !== null &&
+                          existingCart.FriendId !== selectedFriendUserId &&
+                          existingCart.Items &&
+                          existingCart.Items.length > 0
+                        ) {
+                          // Clear the cart for the previous user to start fresh flow
+                          const response = await api.put(
+                            apiEndpoints.CLEAR_CART,
+                            {},
+                          );
+                          if (!response.success) {
+                            notify.error(
+                              response.error || getString('AU_ERROR_OCCURRED'),
+                            );
+                            return;
+                          }
+                        }
+
+                        // Navigate to the next screen
+                        if (
+                          route.params?.routeTo === 'SelectStore' ||
+                          !route.params?.routeTo
+                        ) {
+                          navigation.navigate('SelectStore', {
+                            friendUserId: selectedFriendUserId,
+                            friendName:
+                              item.FullName.replace(getString('SG_ME'), '') ||
+                              null,
+                            CityId: item.CityId || user?.CityId || null,
+                            sendType: 1,
+                          });
+                        } else {
+                          navigation.navigate('CatchScreen', {
+                            type: 'GiftOneGetOne',
+                            friendUserId: selectedFriendUserId,
+                            cityId: item?.CityId || null,
+                          });
+                        }
+                      }}
+                    />
+                  )}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.listContainer}
+                  onEndReached={activeUsersApi.loadMore}
+                  onEndReachedThreshold={0.5}
+                />
+              </View>
+            ) : (
+              <View style={styles.noFriendsContainer}>
+                <SvgFindFriendsIcon
+                  width={scaleWithMax(36, 40)}
+                  height={scaleWithMax(36, 40)}
+                />
+                <Text style={styles.noFriendsText}>
+                  {getString('SG_NO_FRIENDS_YET')}
+                </Text>
+
+                <CustomButton
+                  icon={<SvgSearchFindFriendsIcon />}
+                  title={getString('SG_FIND_FRIENDS')}
+                  onPress={() => {
+                    navigation.navigate('Search', {
+                      title: getString('SG_FIND_FRIENDS'),
+                      // showConnectOnly: true,
+                    });
+                  }}
+                  type="primary"
+                />
+              </View>
+            )}
         </ScrollView>
       </View>
 
@@ -455,7 +460,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           setIsMemberSelectionOpen(false);
         }}
         existingMembers={[]}
-        onSave={() => {}}
+        onSave={() => { }}
         title={getString('NG_ADD_MEMBERS')}
         listings={[
           {
