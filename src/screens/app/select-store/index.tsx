@@ -241,7 +241,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                 onPress={() => setShowCityPicker(true)}
                 style={{
                   width: theme.sizes.WIDTH * 0.48,
-                  height: theme.sizes.HEIGHT * 0.045,
+                  // height: theme.sizes.HEIGHT * 0.045,
                   flexDirection: 'row',
                   justifyContent: 'flex-end',
                   alignItems: 'center',

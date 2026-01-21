@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   StatusBar,
@@ -6,6 +6,7 @@ import {
   ScrollView,
   Platform,
   Share,
+  TouchableOpacity,
 } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -17,18 +18,22 @@ import SearchUserItem from '../../../components/app/SearchUserItem';
 import MemberSelectionModal from '../../../components/global/MemberSelectionModal';
 import GroupTabs from '../../../components/global/GroupTabs';
 import TabItem from '../../../components/global/TabItem';
-import { ActiveUser, ActiveUsersApiResponse } from '../../../types';
+import { ActiveUser, ActiveUsersApiResponse, City } from '../../../types';
 import {
   SvgAddGroup,
   SvgFindFriendsIcon,
   SvgSearchFindFriendsIcon,
+  ArrowDownIcon,
 } from '../../../assets/icons';
+import CityPickerModal from '../../../components/global/CityPickerModal';
+import { DropdownOption } from '../../../components/global/DropdownField';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { useListingApi } from '../../../hooks/useListingApi';
 import { useAuthStore } from '../../../store/reducer/auth';
 import { Text } from '../../../utils/elements';
 import { scaleWithMax } from '../../../utils';
 import CustomButton from '../../../components/global/Custombutton';
+import fonts from '../../../assets/fonts';
 import { useFocusEffect } from '@react-navigation/native';
 import api from '../../../utils/api';
 import useGetApi from '../../../hooks/useGetApi';
@@ -40,15 +45,16 @@ interface SendAGiftProps extends AppStackScreen<'SendAGift'> { }
 const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
   const isGiftOneGetOne = route.params?.routeTo === 'GiftOneGetOne';
-  console.log('isGiftOneGetOne', isGiftOneGetOne);
-
-
-  console.log('route', route);
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
-  const [activeTab, setActiveTab] = useState('friends');
-  const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
+  const { getString, langCode } = useLocaleStore();
   const { user, token } = useAuthStore();
+  const isMerchant = user?.isMerchant === 1;
+  const [activeTab, setActiveTab] = useState(isMerchant ? 'employees' : 'friends');
+  const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
+  const [selectedCityId, setSelectedCityId] = useState<number | null>(
+    user?.CityId || null,
+  );
+  const [showCityPicker, setShowCityPicker] = useState(false);
 
   // Fetch cart to check if there's an existing cart for a different user
   const cartApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
@@ -67,11 +73,12 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       extraParams: {
         // userId: user?.UserId,
         friends: activeTab === 'friends',
+        cityid: isMerchant && activeTab === 'others' ? selectedCityId : undefined,
       },
     },
   );
 
-  // Separate API for group creation modal - always uses friends: true
+
   const friendsForGroupApi = useListingApi<ActiveUser>(
     apiEndpoints.GET_ACTIVE_USERS,
     token,
@@ -88,8 +95,41 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     },
   );
 
+  const employeesApi = useListingApi<ActiveUser>(
+    isMerchant ? apiEndpoints.GET_EMPLOYEES : '',
+    token,
+    {
+      idExtractor: (item: ActiveUser) => item.UserId,
+      transformData: (data: ActiveUsersApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
+    },
+  );
+
+  const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
+    transformData: (data: any) => data?.Data?.cities ?? [],
+  });
+
+  const cityOptions: DropdownOption[] = useMemo(
+    () =>
+      (citiesApi.data || []).map(city => ({
+        label:
+          langCode === 'ar'
+            ? city.CityNameAr || city.CityName
+            : city.CityNameEn || city.CityName,
+        value: city.CityID,
+      })),
+    [citiesApi.data, langCode],
+  );
+
+  const selectedCityOption: DropdownOption | null = useMemo(
+    () => cityOptions.find(option => option.value === selectedCityId) || null,
+    [cityOptions, selectedCityId],
+  );
+
   useEffect(() => {
-    if (activeTab !== 'group') {
+    if (activeTab !== 'group' && !isMerchant) {
       // Clear search when switching tabs to avoid stale filtered data
       if (activeUsersApi.search) {
         activeUsersApi.setSearch('');
@@ -99,19 +139,25 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         // userId: user?.UserId,
         friends: activeTab === 'friends',
       });
+    } else if (isMerchant && activeTab === 'others') {
+      // For merchant on others tab, update cityId param
+      activeUsersApi.setExtraParams({
+        friends: false,
+        cityid: selectedCityId,
+      });
     }
-  }, [activeTab, user?.UserId]);
+  }, [activeTab, user?.UserId, isMerchant, selectedCityId]);
 
   useFocusEffect(
     useCallback(() => {
-      // Reset to friends tab when screen comes into focus
-      setActiveTab('friends');
+      // Reset to appropriate tab when screen comes into focus
+      setActiveTab(isMerchant ? 'employees' : 'friends');
 
-      // Cleanup: Reset to friends tab when screen loses focus (navigating away)
+      // Cleanup: Reset to appropriate tab when screen loses focus (navigating away)
       return () => {
-        setActiveTab('friends');
+        setActiveTab(isMerchant ? 'employees' : 'friends');
       };
-    }, []),
+    }, [isMerchant]),
   );
 
   const handleTabChange = (tabId: string) => {
@@ -122,30 +168,54 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     setActiveTab(tabId);
   };
 
-  const tabs = [
-    {
-      id: 'friends',
-      title: getString('SG_FRIENDS'),
-      onPress: () => {
-        handleTabChange('friends');
+  const tabs = isMerchant
+    ? [
+      {
+        id: 'employees',
+        title: 'My Employees',
+        onPress: () => {
+          handleTabChange('employees');
+        },
       },
-    },
-    {
-      id: 'group',
-      title: getString('SG_GROUP'),
-      onPress: () =>
-        navigation.navigate('SendToGroup' as any, {
-          routeTo: route.params?.routeTo || 'SelectStore',
-        }),
-    },
-    {
-      id: 'others',
-      title: getString('SG_OTHERS'),
-      onPress: () => {
-        handleTabChange('others');
+      {
+        id: 'others',
+        title: getString('SG_OTHERS'),
+        onPress: () => {
+          handleTabChange('others');
+        },
       },
-    },
-  ];
+    ]
+    : [
+      {
+        id: 'employees',
+        title: 'My Employees',
+        onPress: () => {
+          handleTabChange('employees');
+        },
+      },
+      {
+        id: 'friends',
+        title: getString('SG_FRIENDS'),
+        onPress: () => {
+          handleTabChange('friends');
+        },
+      },
+      {
+        id: 'group',
+        title: getString('SG_GROUP'),
+        onPress: () =>
+          navigation.navigate('SendToGroup' as any, {
+            routeTo: route.params?.routeTo || 'SelectStore',
+          }),
+      },
+      {
+        id: 'others',
+        title: getString('SG_OTHERS'),
+        onPress: () => {
+          handleTabChange('others');
+        },
+      },
+    ];
 
   // Get frequently sent friends (first 3 from response with OrdersCount >= 1, in API order)
   const getFrequentlySentFriends = useCallback(() => {
@@ -171,6 +241,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const frequentlySentFriends = getFrequentlySentFriends();
 
   const getDisplayData = () => {
+    if (isMerchant && activeTab === 'employees') {
+      return employeesApi.data || [];
+    }
+
     const baseData = activeUsersApi.data || [];
 
     if (
@@ -198,9 +272,15 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   };
 
   const displayData = getDisplayData();
-  const isLoading = activeUsersApi.loading;
-  const searchQuery = activeUsersApi.search;
-  const setSearchQuery = activeUsersApi.setSearch;
+  const isLoading = isMerchant && activeTab === 'employees'
+    ? employeesApi.loading
+    : activeUsersApi.loading;
+  const searchQuery = isMerchant && activeTab === 'employees'
+    ? employeesApi.search
+    : activeUsersApi.search;
+  const setSearchQuery = isMerchant && activeTab === 'employees'
+    ? employeesApi.setSearch
+    : activeUsersApi.setSearch;
 
   return (
     <ParentView style={styles.container}>
@@ -222,15 +302,52 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
         rightSideTitle={
-          activeTab === 'friends' ? getString('SG_NEW_GROUP') : ''
+          !isMerchant && activeTab === 'friends' ? getString('SG_NEW_GROUP') : ''
         }
         rightSideTitlePress={() => {
-          if (activeTab === 'friends') {
+          if (!isMerchant && activeTab === 'friends') {
             friendsForGroupApi.recall();
             setIsMemberSelectionOpen(true);
           }
         }}
-        rightSideIcon={activeTab === 'friends' ? <SvgAddGroup /> : undefined}
+        rightSideIcon={
+          !isMerchant && activeTab === 'friends' ? <SvgAddGroup /> : undefined
+        }
+        rightSideView={
+          isMerchant && activeTab === 'others' ? (
+            <TouchableOpacity
+              onPress={() => setShowCityPicker(true)}
+              style={{
+                width: theme.sizes.WIDTH * 0.48,
+                flexDirection: 'row',
+                justifyContent: 'flex-end',
+                alignItems: 'center',
+                paddingHorizontal: theme.sizes.PADDING * 0.4,
+                gap: scaleWithMax(4, 6),
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: theme.sizes.FONTSIZE,
+                  color: theme.colors.PRIMARY,
+                  fontFamily: selectedCityOption
+                    ? fonts.Quicksand.medium
+                    : fonts.Quicksand.regular,
+                }}
+                numberOfLines={1}
+              >
+                {selectedCityOption
+                  ? selectedCityOption.label
+                  : getString('SELECT_STORE_SELECT_CITY') || 'Select City'}
+              </Text>
+              <ArrowDownIcon
+                width={scaleWithMax(12, 14)}
+                height={scaleWithMax(12, 14)}
+                fill={theme.colors.PRIMARY}
+              />
+            </TouchableOpacity>
+          ) : undefined
+        }
       />
 
       <View style={styles.content}>
@@ -340,11 +457,13 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             )}
 
           <Text style={styles.sectionTitle}>
-            {activeTab === 'friends'
-              ? getString('SG_FRIENDS')
-              : activeTab === 'group'
-                ? getString('SG_GROUP')
-                : getString('SG_OTHERS')}
+            {isMerchant && activeTab === 'employees'
+              ? 'My Employees'
+              : activeTab === 'friends'
+                ? getString('SG_FRIENDS')
+                : activeTab === 'group'
+                  ? getString('SG_GROUP')
+                  : getString('SG_OTHERS')}
           </Text>
           {isLoading ? (
             <View style={styles.listCard}>
@@ -424,7 +543,11 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   )}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContainer}
-                  onEndReached={activeUsersApi.loadMore}
+                  onEndReached={
+                    isMerchant && activeTab === 'employees'
+                      ? employeesApi.loadMore
+                      : activeUsersApi.loadMore
+                  }
                   onEndReachedThreshold={0.5}
                 />
               </View>
@@ -473,6 +596,18 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           },
         ]}
         isSendAGift={true}
+      />
+
+      <CityPickerModal
+        visible={showCityPicker}
+        onClose={() => setShowCityPicker(false)}
+        options={cityOptions}
+        selectedValue={selectedCityId}
+        onSelect={(value) => {
+          setSelectedCityId(value as number | null);
+          setShowCityPicker(false);
+        }}
+        title={getString('SELECT_STORE_SELECT_CITY') || 'Select City'}
       />
     </ParentView>
   );
