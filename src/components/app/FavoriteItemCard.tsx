@@ -7,6 +7,7 @@ import {
   SvgNextIcon,
   SvgItemFavouriteIcon,
   SvgItemFavouriteIconInActive,
+  SvgVerifiedIcon,
 } from '../../assets/icons';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { FavStores, Store } from '../../types';
@@ -48,7 +49,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
   const overlayImage = (item as Store | FavStores).ImageLogo
     ? { uri: (item as Store | FavStores).ImageLogo! }
     : placeholderImage;
-
+  console.log(item)
   return (
     <View style={[styles.shadowContainer, style]}>
       <TouchableOpacity
@@ -85,7 +86,15 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
             <Image source={overlayImage} style={styles.overlayImage} />
           </View>
           <View style={styles.textContainer}>
-            <Text style={styles.title}>{storeName}</Text>
+            <View style={styles.titleContainer}>
+              <Text style={styles.title}>{storeName}</Text>
+              {
+                (item as Store | FavStores).isVerified && (
+                  <SvgVerifiedIcon />
+                )
+              }
+            </View>
+
             <Text style={styles.subtitle}>{businessType}</Text>
           </View>
           <View style={styles.iconContainer}>
@@ -179,6 +188,11 @@ const useStyles = () => {
       color: theme.colors.GRAY,
     },
     iconContainer: {},
+    titleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: scaleWithMax(5, 5),
+    },
   });
 
   return {

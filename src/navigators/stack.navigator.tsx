@@ -33,6 +33,7 @@ import SelectStore from '../screens/app/select-store/index.tsx';
 import StoreProducts from '../screens/app/store-products/index.tsx';
 import GiftOneGetOneScreen from '../screens/app/gift-one-get-one/index.tsx';
 import SelectCity from '../screens/app/select-city/index.tsx';
+import ProfileImageViewer from '../screens/app/profile-image-viewer/index.tsx';
 
 const AppStack = createNativeStackNavigator<AppStackParamList>();
 const RootStack = createNativeStackNavigator<RootStackParamList>();
@@ -64,6 +65,7 @@ const AppStackNavigator = () => {
       <AppStack.Screen name="Settings" component={SettingsScreen} />
       <AppStack.Screen name="ContactUs" component={ContactUsScreen} />
       <AppStack.Screen name="Profile" component={ProfileScreen} />
+      <AppStack.Screen name="ProfileImageViewer" component={ProfileImageViewer} />
       <AppStack.Screen name="Orders" component={OrdersScreen} />
       <AppStack.Screen name="StaticContent" component={StaticContent} />
     </AppStack.Navigator>

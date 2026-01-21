@@ -34,6 +34,7 @@ import {
   SvgProfileCrossIcon,
   SvgProfileQrIcon,
   SvgVerifiedIcon,
+  SvgPencilIcon,
 } from '../../../assets/icons';
 import { useDispatch } from 'react-redux';
 import { login, logout, useAuthStore } from '../../../store/reducer/auth';
@@ -347,7 +348,18 @@ const ProfileScreen: React.FC = () => {
       >
         <View style={screenStyles.profileSection}>
           <TouchableOpacity
-            onPress={() => setShowPhotoOptions(true)}
+            onPress={() => {
+              if (user?.ProfileUrl) {
+                // If image exists, navigate to ProfileImageViewer
+                (navigation as any).navigate('ProfileImageViewer', {
+                  imageUri: user.ProfileUrl,
+                  placeholderImage: dummyImage,
+                });
+              } else {
+                // If no image, open gallery directly
+                handleImageSelect();
+              }
+            }}
             disabled={isUploading}
             style={screenStyles.profileImageContainer}
           >
@@ -358,6 +370,14 @@ const ProfileScreen: React.FC = () => {
                 isUploading && screenStyles.profileImageUploading,
               ]}
             />
+
+            <View style={screenStyles.pencilIconContainer}>
+              <SvgPencilIcon
+                width={scaleWithMax(10, 12)}
+                height={scaleWithMax(10, 12)}
+              />
+            </View>
+
           </TouchableOpacity>
           <View style={screenStyles.profileInfo}>
             <View style={screenStyles.verifiedIconContainer}>

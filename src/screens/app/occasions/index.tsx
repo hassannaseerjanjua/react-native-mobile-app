@@ -173,6 +173,7 @@ const OccasionsScreen: React.FC = () => {
                 const imageSource = item.ImageUrl
                   ? { uri: item.ImageUrl }
                   : require('../../../assets/images/img-placeholder.png');
+                const imageUri = item.ImageUrl || null;
                 return (
                   <TabItem
                     isGroupImage={imageSource}
@@ -242,7 +243,29 @@ const OccasionsScreen: React.FC = () => {
                           }
                           icon={
                             <TouchableOpacity
-                              onPress={() => handleImageSelect(formik)}
+                              onPress={() => {
+                                const imageUri = formik.values.image &&
+                                  typeof formik.values.image === 'object' &&
+                                  formik.values.image.uri
+                                  ? formik.values.image.uri
+                                  : formik.values.image &&
+                                    typeof formik.values.image === 'string' &&
+                                    formik.values.image
+                                  ? formik.values.image
+                                  : null;
+                                
+                                if (imageUri) {
+                                  // Open image viewer if image exists
+                                  (navigation as any).navigate('ProfileImageViewer', {
+                                    imageUri: imageUri,
+                                    placeholderImage: require('../../../assets/images/img-placeholder.png'),
+                                    title: formik.values.occasionName || getString('OCC_EDIT_OCCASION'),
+                                  });
+                                } else {
+                                  // Open gallery if no image
+                                  handleImageSelect(formik);
+                                }
+                              }}
                               activeOpacity={0.7}
                               style={{
                                 marginLeft: -scaleWithMax(5, 6),

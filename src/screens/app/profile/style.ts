@@ -40,6 +40,18 @@ const useStyles = () => {
       profileImageUploading: {
         opacity: 0.6,
       },
+      pencilIconContainer: {
+        position: 'absolute',
+        bottom: 0,
+        right: 0,
+        backgroundColor: colors.WHITE,
+        borderRadius: scaleWithMax(10, 12),
+        padding: scaleWithMax(3, 4),
+        width: scaleWithMax(16, 18),
+        height: scaleWithMax(16, 18),
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
       profileInfo: {
         flex: 1,
         marginLeft: sizes.WIDTH * 0.03,

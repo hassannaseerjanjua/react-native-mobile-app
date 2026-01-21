@@ -47,6 +47,8 @@ interface HomeHeaderProps {
   rightSideView?: React.ReactNode;
   showLogo?: boolean;
   customContainerStyle?: StyleProp<ViewStyle>;
+  titleTextStyle?: StyleProp<TextStyle>;
+  backButtonIconColor?: string;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -69,6 +71,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   rightSideTitleStyle,
   rightSideView,
   rightSideTitleTextStyle,
+  titleTextStyle,
+  backButtonIconColor,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -131,13 +135,16 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             onPress={handleBackPress}
             activeOpacity={0.7}
           >
-            <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
+            <SvgHomeBack 
+              style={{ transform: rtlTransform(isRtl) }}
+              fill={backButtonIconColor}
+            />
           </TouchableOpacity>
         )}
         {title && (
           <View style={styles.titleContainer}>
             <Pressable onPress={handleBackPress} style={styles.titlePressable}>
-              <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+              <Text style={[styles.title, titleTextStyle]} numberOfLines={1} ellipsizeMode="tail">
                 {title}
               </Text>
             </Pressable>

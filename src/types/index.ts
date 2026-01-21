@@ -172,6 +172,7 @@ export interface FavStores {
   BusinessTypeId: string;
   BusinessTypeNameEn: string;
   BusinessTypeNameAr: string;
+  isVerified: boolean;
 }
 export interface FaveItems {
   Campaign: {
@@ -470,6 +471,7 @@ export interface Store {
   ImageLogo: string | null;
   ImageCover: string | null;
   Documents: StoreDocument[];
+  isVerified: boolean;
 }
 
 export interface StoreListApiResponse {

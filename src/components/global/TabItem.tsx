@@ -31,6 +31,7 @@ interface TabItemProps {
   isGroupImage?: any;
   onDeletePress?: () => void;
   onEditPress?: () => void;
+  onImagePress?: () => void;
   icon?: React.ReactNode;
   hideRightIcon?: boolean;
   rightSideView?: React.ReactNode;
@@ -50,6 +51,7 @@ const TabItem = ({
   isGroupImage = false,
   onDeletePress,
   onEditPress,
+  onImagePress,
   icon,
   hideRightIcon,
   rightSideView,
@@ -72,14 +74,33 @@ const TabItem = ({
     >
       <View style={styles.contentContainer}>
         {isGroupImage ? (
-          <Image
-            source={
-              typeof isGroupImage === 'string'
-                ? { uri: isGroupImage }
-                : isGroupImage
-            }
-            style={styles.groupImage}
-          />
+          onImagePress ? (
+            <TouchableOpacity
+              onPress={e => {
+                e.stopPropagation();
+                onImagePress();
+              }}
+              activeOpacity={0.8}
+            >
+              <Image
+                source={
+                  typeof isGroupImage === 'string'
+                    ? { uri: isGroupImage }
+                    : isGroupImage
+                }
+                style={styles.groupImage}
+              />
+            </TouchableOpacity>
+          ) : (
+            <Image
+              source={
+                typeof isGroupImage === 'string'
+                  ? { uri: isGroupImage }
+                  : isGroupImage
+              }
+              style={styles.groupImage}
+            />
+          )
         ) : (
           isGroupImage === '' && <SvgGroup />
         )}

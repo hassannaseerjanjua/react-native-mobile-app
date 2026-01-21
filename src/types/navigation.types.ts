@@ -1,4 +1,5 @@
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { ImageSourcePropType } from 'react-native';
 
 type ProductCategory = 'all' | 'bouquet' | 'flowers' | 'roses' | 'cake';
 
@@ -41,6 +42,11 @@ export type AppStackParamList = {
   StaticContent: {
     title?: string;
     code: string;
+  };
+  ProfileImageViewer: {
+    imageUri?: string | null;
+    placeholderImage?: ImageSourcePropType;
+    title?: string;
   };
   SendAGift: {
     routeTo: 'GiftOneGetOne' | 'SelectStore';
