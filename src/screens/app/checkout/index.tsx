@@ -424,11 +424,17 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         setWaitingForVideoUpload(false);
       }
 
-      const payload = {
+      const payload: any = {
         orderid: cartData.OrderId,
         orderPaymentType: 1,
         IsRedeem: false,
+        EhsaanAmount: activeDomationAmount || 0,
       };
+
+      // For merchants, include FriendIds in payload if available
+      if (cartData.FriendIds && cartData.FriendIds.length > 0) {
+        payload.FriendIds = cartData.FriendIds;
+      }
 
       const response = await api.post<{
         Data: {

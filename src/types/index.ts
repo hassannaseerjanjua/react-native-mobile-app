@@ -551,6 +551,7 @@ export interface CartItem {
 export interface CartResponse {
   OrderId: number;
   FriendId: number | null;
+  FriendIds?: number[] | null;
   FriendName: string | null;
   FriendImageUrl: string | null;
   StoreId: number;

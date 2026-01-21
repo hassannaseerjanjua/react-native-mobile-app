@@ -26,6 +26,7 @@ export type AppStackParamList = {
   ProductDetails: {
     itemId: number;
     friendUserId?: number | null;
+    FriendIds?: number[];
     storeId?: number | null;
     type?: 'GiftOneGetOne' | 'catch';
     campaignId?: number;
@@ -78,12 +79,14 @@ export type AppStackParamList = {
     };
     sendType?: number | null;
     friendUserId?: number | null;
+    FriendIds?: number[];
     friendName?: string | null;
     storeId?: number | null;
     businessTypeId?: number | null;
   };
   SelectStore: {
     friendUserId?: number | null;
+    FriendIds?: number[];
     friendName?: string | null;
     storeId?: number | null;
     CityId?: number | null;
@@ -92,6 +95,7 @@ export type AppStackParamList = {
   CatchScreen: {
     storeID?: number;
     friendUserId?: number | null;
+    FriendIds?: number[];
     businessTypeId?: string | null;
     storeBranchID?: number;
     type?: 'favorite' | 'catch' | 'GiftOneGetOne';

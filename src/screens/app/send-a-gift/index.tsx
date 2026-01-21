@@ -56,6 +56,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     user?.CityId || null,
   );
   const [showCityPicker, setShowCityPicker] = useState(false);
+  const [isSelectionMode, setIsSelectionMode] = useState(false);
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<number>>(
+    new Set(),
+  );
 
   // Fetch cart to check if there's an existing cart for a different user
   const cartApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
@@ -168,6 +172,49 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       activeUsersApi.setSearch('');
     }
     setActiveTab(tabId);
+    // Reset selection mode when switching tabs
+    setIsSelectionMode(false);
+    setSelectedUserIds(new Set());
+  };
+
+  const navigateWithSelectedUsers = (friendIds: number[]) => {
+    if (friendIds.length === 0) return;
+
+    // Navigate to the next screen
+    if (
+      route.params?.routeTo === 'SelectStore' ||
+      !route.params?.routeTo
+    ) {
+      navigation.navigate('SelectStore', {
+        friendUserId: isMerchant ? null : friendIds[0],
+        FriendIds: isMerchant ? friendIds : undefined,
+        friendName: null,
+        CityId: user?.CityId || null,
+        sendType: 1,
+      });
+    } else {
+      navigation.navigate('CatchScreen', {
+        type: 'GiftOneGetOne',
+        friendUserId: isMerchant ? null : friendIds[0],
+        FriendIds: isMerchant ? friendIds : undefined,
+        cityId: null,
+      });
+    }
+    // Reset selection mode after navigation
+    setIsSelectionMode(false);
+    setSelectedUserIds(new Set());
+  };
+
+  const handleUserSelection = (userId: number) => {
+    setSelectedUserIds(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(userId)) {
+        newSet.delete(userId);
+      } else {
+        newSet.add(userId);
+      }
+      return newSet;
+    });
   };
 
   const tabs = isMerchant
@@ -188,13 +235,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       },
     ]
     : [
-      {
-        id: 'employees',
-        title: 'My Employees',
-        onPress: () => {
-          handleTabChange('employees');
-        },
-      },
       {
         id: 'friends',
         title: getString('SG_FRIENDS'),
@@ -355,6 +395,11 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       <View style={styles.content}>
         <ScrollView
           style={styles.scrollableContentContainer}
+          contentContainerStyle={
+            isMerchant && isSelectionMode
+              ? { paddingBottom: scaleWithMax(60, 65) }
+              : undefined
+          }
           showsVerticalScrollIndicator={false}
         >
           <GroupTabs
@@ -402,6 +447,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                         isLast={index === frequentlySentFriends.length - 1}
                         showAddButton={false}
                         showSelection={false}
+                        isGeneralSearchScreen={false}
                         onPress={async () => {
                           const selectedFriendUserId = item.UserId;
 
@@ -459,15 +505,46 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             )}
 
           {displayData.length > 0 && (
-            <Text style={styles.sectionTitle}>
-              {isMerchant && activeTab === 'employees'
-                ? 'My Employees'
-                : activeTab === 'friends'
-                  ? getString('SG_FRIENDS')
-                  : activeTab === 'group'
-                    ? getString('SG_GROUP')
-                    : getString('SG_OTHERS')}
-            </Text>
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+              }}
+            >
+              <Text style={styles.sectionTitle}>
+                {isMerchant && activeTab === 'employees'
+                  ? 'My Employees'
+                  : activeTab === 'friends'
+                    ? getString('SG_FRIENDS')
+                    : activeTab === 'group'
+                      ? getString('SG_GROUP')
+                      : getString('SG_OTHERS')}
+              </Text>
+              {isMerchant && (
+                <TouchableOpacity
+                  onPress={() => {
+                    if (isSelectionMode) {
+                      setIsSelectionMode(false);
+                      setSelectedUserIds(new Set());
+                    } else {
+                      setIsSelectionMode(true);
+                    }
+                  }}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={{
+                      fontSize: theme.sizes.FONTSIZE,
+                      color: theme.colors.PRIMARY,
+                      fontFamily: fonts.Quicksand.bold,
+                    }}
+                  >
+                    {isSelectionMode ? 'Cancel' : 'Select'}
+                  </Text>
+                </TouchableOpacity>
+              )}
+            </View>
           )}
           {isLoading ? (
             <View style={styles.listCard}>
@@ -495,8 +572,15 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                     index={index}
                     isLast={index === displayData.length - 1}
                     showAddButton={false}
-                    showSelection={false}
+                    showSelection={isMerchant && isSelectionMode}
+                    isSelected={selectedUserIds.has(item.UserId)}
+                    onSelectionPress={() => handleUserSelection(item.UserId)}
                     onPress={async () => {
+                      if (isMerchant && isSelectionMode) {
+                        handleUserSelection(item.UserId);
+                        return;
+                      }
+
                       const selectedFriendUserId = item.UserId;
 
                       // Check if there's a cart for a different user
@@ -616,6 +700,57 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         }}
         title={getString('SELECT_STORE_SELECT_CITY') || 'Select City'}
       />
+
+      {isMerchant && isSelectionMode && (
+        <View
+          style={{
+            position: 'absolute',
+            bottom: scaleWithMax(25, 30),
+            left: theme.sizes.PADDING,
+            right: theme.sizes.PADDING,
+          }}
+        >
+          <CustomButton
+            title="Next"
+            onPress={() => {
+              const friendIds = Array.from(selectedUserIds);
+              if (friendIds.length > 0) {
+                // Check if there's a cart for a different user
+                const existingCart = cartApi.data;
+                if (
+                  existingCart &&
+                  existingCart.FriendId !== null &&
+                  existingCart.Items &&
+                  existingCart.Items.length > 0
+                ) {
+                  // Clear the cart for the previous user to start fresh flow
+                  api.put(apiEndpoints.CLEAR_CART, {}).then(
+                    response => {
+                      if (response.success) {
+                        navigateWithSelectedUsers(friendIds);
+                      } else {
+                        notify.error(
+                          response.error ||
+                          getString('AU_ERROR_OCCURRED'),
+                        );
+                      }
+                    },
+                  );
+                } else {
+                  navigateWithSelectedUsers(friendIds);
+                }
+              } else {
+                notify.error('Please select at least one user');
+              }
+            }}
+            type="primary"
+            disabled={selectedUserIds.size === 0}
+            buttonStyle={{
+              opacity: selectedUserIds.size === 0 ? 0.5 : 1,
+            }}
+          />
+        </View>
+      )}
     </ParentView>
   );
 };

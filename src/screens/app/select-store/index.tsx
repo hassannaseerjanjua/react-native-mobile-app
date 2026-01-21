@@ -37,6 +37,7 @@ import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.
 
 const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const friendUserId = route?.params?.friendUserId ?? null;
+  const friendIds = route?.params?.FriendIds ?? undefined;
   const { styles, theme } = useStyles();
   const { getString, langCode } = useLocaleStore();
   const { token, user } = useAuthStore();
@@ -131,6 +132,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       sendType: route.params.sendType,
       storeId: store.StoreId ?? null,
       friendUserId: friendUserId ?? undefined,
+      FriendIds: friendIds,
       friendName: route.params?.friendName ?? null,
     });
   };

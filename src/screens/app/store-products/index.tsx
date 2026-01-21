@@ -45,6 +45,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const { token } = useAuthStore();
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
+  const friendIds = route.params?.FriendIds ?? undefined;
   const friendName = route.params?.friendName ?? null;
   const storeId = route.params?.storeId ?? null;
   const businessTypeId = route.params?.businessTypeId ?? null;
@@ -163,6 +164,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         itemId: product.ItemId,
         storeId: product.StoreId ?? storeId,
         friendUserId,
+        FriendIds: friendIds,
         sendType: route.params.sendType,
         campaignId: product?.Campaign?.CampaignId,
       });
@@ -171,6 +173,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         itemId: (item as any)?.ItemId ?? 0,
         storeId: (item as any)?.StoreId ?? storeId ?? null,
         friendUserId,
+        FriendIds: friendIds,
       });
     }
   };

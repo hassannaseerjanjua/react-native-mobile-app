@@ -33,6 +33,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const { getString, isRtl } = useLocaleStore();
   const itemId = route?.params?.itemId;
   const friendUserId = route?.params?.friendUserId ?? null;
+  const friendIds = route?.params?.FriendIds ?? undefined;
   const storeId = route?.params?.storeId ?? null;
   const { sizes } = theme;
   const [selectedFilter, setSelectedFilter] = useState<string>('');
@@ -174,8 +175,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       }
     } else {
       // Add new item to cart
-      const payload = {
-        FriendId: friendUserId,
+      const payload: any = {
         ItemId: item.ItemId,
         ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
         Quantity: quantity,
@@ -186,6 +186,13 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         // }),
         IsGift: true,
       };
+
+      // For merchants, use FriendIds array; otherwise use FriendId
+      if (friendIds && friendIds.length > 0) {
+        payload.FriendIds = friendIds;
+      } else if (friendUserId) {
+        payload.FriendId = friendUserId;
+      }
 
       const response = await api.post(apiEndpoints.ADD_TO_CART, payload);
       if (response.success) {
