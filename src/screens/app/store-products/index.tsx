@@ -127,15 +127,25 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       friendUserId && friendName ? `Favorites` : getString('FAV_FAVORITES');
     const favoritesOption = { id: 'favorites', title: favoritesTabTitle };
 
+    // Only include favorites option if there are favorite items and not in send gift flow
+    // Also hide it when coming from send through link flow (sendType === 2)
+    const hasFavorites = getFavoriteItems.data && getFavoriteItems.data.length > 0;
+    const isLinkFlow = sendType === 2;
+    const options = [allOption];
+
+    if (hasFavorites && !isLinkFlow) {
+      options.push(favoritesOption);
+    }
+
     if (!categoriesApi.data || categoriesApi.data.length === 0) {
-      return [allOption, favoritesOption];
+      return options;
     }
     const categoryOptions = categoriesApi.data.map(category => ({
       id: String(category.CategoryId),
       title: langCode === 'ar' ? category.NameAr : category.NameEn,
     }));
-    return [allOption, favoritesOption, ...categoryOptions];
-  }, [categoriesApi.data, getString, langCode, friendUserId, friendName]);
+    return [...options, ...categoryOptions];
+  }, [categoriesApi.data, getFavoriteItems.data, getString, langCode, friendUserId, friendName, isSendAGiftFlow, sendType]);
 
   useEffect(() => {
     if (getStoreProducts.data && getStoreProducts.data.length > 0) {
@@ -207,6 +217,18 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
+
+  // Reset to 'all' if favorites tab is selected but there are no favorite items
+  useEffect(() => {
+    if (
+      selectedFilter === 'favorites' &&
+      getFavoriteItems.data &&
+      getFavoriteItems.data.length === 0 &&
+      !getFavoriteItems.loading
+    ) {
+      setSelectedFilter('all');
+    }
+  }, [getFavoriteItems.data, getFavoriteItems.loading, selectedFilter]);
 
   useEffect(() => {
     if (selectedFilter === 'favorites') {

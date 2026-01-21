@@ -133,7 +133,8 @@ const useStyles = () => {
         color: theme.colors.BLACK,
       },
       tabsContainer: {
-        marginVertical: sizes.HEIGHT * 0.012,
+        // marginVertical: sizes.HEIGHT * 0.012,
+        gap: sizes.HEIGHT * 0.01,
       },
       button: {
         width: sizes.WIDTH * 0.6,

@@ -366,21 +366,24 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               </Text>
               <Text style={styles.Description}>{item?.DescEn ?? ''}</Text>
             </View>
-            {item?.Variants?.length > 0 && (
-              <View>
-                <Text style={styles.Heading}>
-                  {getString('PRODUCT_VARIANTS')}
-                </Text>
-              </View>
+            {item?.Variants?.length > 1 && (
+              <>
+                <View style={styles.tabsContainer}>
+                  <Text style={styles.Heading}>
+                    {getString('PRODUCT_VARIANTS')}
+                  </Text>
+
+
+                  <GroupTabs
+                    tabs={filterOptions}
+                    activeTab={selectedFilter}
+                    onTabPress={setSelectedFilter}
+                  />
+                </View>
+              </>
             )}
           </View>
-          <View style={styles.tabsContainer}>
-            <GroupTabs
-              tabs={filterOptions}
-              activeTab={selectedFilter}
-              onTabPress={setSelectedFilter}
-            />
-          </View>
+
         </ScrollView>
       )}
       <View

@@ -336,6 +336,7 @@ export interface InboxOrderItem {
   Variant: InboxOrderItemVariant | null;
   Images: InboxOrderItemImage[];
   UsedQuantity: number;
+  EhsaanAmount: number;
 }
 
 export interface InboxOrderUser {
@@ -382,6 +383,7 @@ export interface InboxOrder {
   catchId: number;
   OrderMessage: string | null;
   CampaginType: string | null;
+  EhsaanAmount: number;
 }
 
 export interface InboxApiResponseData {

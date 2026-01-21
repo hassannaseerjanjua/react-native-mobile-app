@@ -56,7 +56,7 @@ const useDeepLinkHandler = () => {
       // Invalid or malformed URL
       if (!userId) {
         if (url.includes('add-friend')) {
-          notify.error(getString('HOME_INVALID_QR_CODE'), 'top');
+          notify.error(getString('HOME_INVALID_QR_CODE'), 'bottom');
         }
         processedUrls.add(url); // Mark as processed to prevent retries
         return;
@@ -77,12 +77,12 @@ const useDeepLinkHandler = () => {
         });
 
         if (response.success) {
-          notify.success(getString('HOME_FRIEND_ADDED_SUCCESSFULLY'), 'top');
+          notify.success(getString('HOME_FRIEND_ADDED_SUCCESSFULLY'), 'bottom');
         } else {
-          notify.error(response.error || getString('AU_ERROR_OCCURRED'), 'top');
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'), 'bottom');
         }
       } catch (err: any) {
-        notify.error(err?.error || getString('AU_ERROR_OCCURRED'), 'top');
+        notify.error(err?.error || getString('AU_ERROR_OCCURRED'), 'bottom');
       } finally {
         isProcessingAddFriendRef.current = false;
       }

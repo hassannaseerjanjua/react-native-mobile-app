@@ -24,6 +24,7 @@ import {
   MinusIcon,
   SvgGiftLink,
   SvgCheckoutGiftLinkIcon,
+  SvgEhsanIcon,
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
@@ -50,9 +51,9 @@ const InboxOutbox: React.FC = () => {
   const route = useRoute();
   const params = route.params as
     | {
-        title?: string;
-        isInbox?: boolean;
-      }
+      title?: string;
+      isInbox?: boolean;
+    }
     | undefined;
   const isInbox = params?.isInbox ?? true;
   const title = params?.title ?? (isInbox ? 'Inbox' : 'Outbox');
@@ -139,10 +140,10 @@ const InboxOutbox: React.FC = () => {
               onClick={
                 isInbox
                   ? orderItem => {
-                      createDebouceClick('item-press', () =>
-                        handleItemPress(item.OrderId, orderItem),
-                      );
-                    }
+                    createDebouceClick('item-press', () =>
+                      handleItemPress(item.OrderId, orderItem),
+                    );
+                  }
                   : undefined
               }
               onVideoPress={() => handleVideoPress(item)}
@@ -329,7 +330,7 @@ const InboxOutbox: React.FC = () => {
                               style={[
                                 styles.quantityButton,
                                 selectedQty <= 1 &&
-                                  styles.quantityButtonDisabled,
+                                styles.quantityButtonDisabled,
                               ]}
                               hitSlop={{
                                 top: 10,
@@ -363,7 +364,7 @@ const InboxOutbox: React.FC = () => {
                               style={[
                                 styles.quantityButton,
                                 selectedQty >= availableQuantity &&
-                                  styles.quantityButtonDisabled,
+                                styles.quantityButtonDisabled,
                               ]}
                               hitSlop={{
                                 top: 10,
@@ -578,19 +579,19 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   Array.isArray(order.orderImages) &&
                   order.orderImages.length > 0) ||
                   order.OrderMessage) && (
-                  <TouchableOpacity
-                    onPress={e => {
-                      e.stopPropagation?.();
-                      onVideoPress?.();
-                    }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <SmsTrackingIcon
-                      height={scaleWithMax(20, 20)}
-                      width={scaleWithMax(20, 20)}
-                    />
-                  </TouchableOpacity>
-                )}
+                    <TouchableOpacity
+                      onPress={e => {
+                        e.stopPropagation?.();
+                        onVideoPress?.();
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <SmsTrackingIcon
+                        height={scaleWithMax(20, 20)}
+                        width={scaleWithMax(20, 20)}
+                      />
+                    </TouchableOpacity>
+                  )}
                 {order.SendType === 2 && onShareGiftLink && (
                   <TouchableOpacity
                     onPress={() =>
@@ -608,11 +609,17 @@ const InboxItem: React.FC<InboxItemProps> = ({
               </View>
             </View>
           </View>
+          {
+            order.EhsaanAmount > 0 && (<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
+              <Text style={{ ...theme.globalStyles.TEXT_STYLE, fontSize: theme.sizes.FONTSIZE_MEDIUM, color: theme.colors.PRIMARY_TEXT }}>This gift carries a good deed’s reward</Text>
+              <SvgEhsanIcon />
+            </View>)
+          }
 
           {/* Slider with ScrollView */}
           <View
             style={{
-              paddingVertical: theme.sizes.PADDING * 0.3,
+              paddingBottom: theme.sizes.PADDING * 0.3,
             }}
           >
             <ScrollView
@@ -630,7 +637,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
               }
               snapToAlignment="start"
               contentContainerStyle={{
-                paddingVertical: theme.sizes.HEIGHT * 0.016,
+                paddingVertical: theme.sizes.HEIGHT * 0.014,
                 gap: theme.sizes.PADDING * 0.8,
               }}
               style={{

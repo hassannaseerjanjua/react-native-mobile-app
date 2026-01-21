@@ -22,8 +22,9 @@ import { Text } from '../../../utils/elements';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import notify from '../../../utils/notify';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 
-interface SendToGroupProps extends AppStackScreen<'SendToGroup'> {}
+interface SendToGroupProps extends AppStackScreen<'SendToGroup'> { }
 
 const SendToGroupScreen: React.FC<SendToGroupProps> = ({
   navigation,
@@ -207,8 +208,8 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
           isEditGroupOpen
             ? ''
             : (getGroupsData?.data || []).length !== 0
-            ? getString('STG_EDIT_GROUP')
-            : getString('SG_NEW_GROUP') || 'New Group'
+              ? getString('STG_EDIT_GROUP')
+              : getString('SG_NEW_GROUP') || 'New Group'
         }
         rightSideTitlePress={() => {
           if ((getGroupsData?.data || []).length !== 0) {
@@ -248,12 +249,12 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
                 isEditGroupOpen
                   ? () => handleEditGroup(group)
                   : () => {
-                      setSelectedGroup(group);
-                      setIsViewMembersOpen(true);
-                      setTimeout(() => {
-                        setIsEditGroupOpen(false);
-                      }, 300);
-                    }
+                    setSelectedGroup(group);
+                    setIsViewMembersOpen(true);
+                    setTimeout(() => {
+                      setIsEditGroupOpen(false);
+                    }, 300);
+                  }
               }
               isEditGroup={isEditGroupOpen}
               TabItemStyles={styles.TabItem}
@@ -269,28 +270,9 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
           }
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            <View
-              style={[
-                styles.content,
-                {
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                  flexGrow: 1,
-                  marginBottom: theme.sizes.HEIGHT * 0.125,
-                },
-              ]}
-            >
-              <Text
-                style={[
-                  theme.globalStyles.TEXT_STYLE,
-                  {
-                    textAlign: 'center',
-                  },
-                ]}
-              >
-                {getString('STG_NO_GROUP_FOUND')}
-              </Text>
-            </View>
+            <PlaceholderLogoText
+              text={getString('STG_NO_GROUP_FOUND')}
+            />
           }
           ListFooterComponent={
             getGroupsData.loadingMore ? (
@@ -316,7 +298,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
         visible={isViewMembersOpen}
         onClose={() => setIsViewMembersOpen(false)}
         existingMembers={getGroupMembersData()}
-        onSave={() => {}}
+        onSave={() => { }}
         title={selectedGroup?.GroupName || getString('STG_GROUP_MEMBERS')}
         listings={[
           {
@@ -366,9 +348,8 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
       <ConfirmationPopup
         visible={showDeleteModal}
         title={getString('STG_DELETE_GROUP')}
-        message={`${getString('STG_DELETE_GROUP_CONFIRM')} "${
-          groupToDelete?.GroupName
-        }"?`}
+        message={`${getString('STG_DELETE_GROUP_CONFIRM')} "${groupToDelete?.GroupName
+          }"?`}
         confirmText={getString('STG_DELETE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={confirmDeleteGroup}
