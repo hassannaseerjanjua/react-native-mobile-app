@@ -34,6 +34,7 @@ import { Text } from '../../../utils/elements';
 import { scaleWithMax } from '../../../utils';
 import CustomButton from '../../../components/global/Custombutton';
 import fonts from '../../../assets/fonts';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import { useFocusEffect } from '@react-navigation/native';
 import api from '../../../utils/api';
 import useGetApi from '../../../hooks/useGetApi';
@@ -142,8 +143,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     } else if (isMerchant && activeTab === 'others') {
       // For merchant on others tab, update cityId param
       activeUsersApi.setExtraParams({
-        friends: false,
         cityid: selectedCityId,
+        friends: false,
+
       });
     }
   }, [activeTab, user?.UserId, isMerchant, selectedCityId]);
@@ -456,124 +458,129 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
               </View>
             )}
 
-          <Text style={styles.sectionTitle}>
-            {isMerchant && activeTab === 'employees'
-              ? 'My Employees'
-              : activeTab === 'friends'
-                ? getString('SG_FRIENDS')
-                : activeTab === 'group'
-                  ? getString('SG_GROUP')
-                  : getString('SG_OTHERS')}
-          </Text>
+          {displayData.length > 0 && (
+            <Text style={styles.sectionTitle}>
+              {isMerchant && activeTab === 'employees'
+                ? 'My Employees'
+                : activeTab === 'friends'
+                  ? getString('SG_FRIENDS')
+                  : activeTab === 'group'
+                    ? getString('SG_GROUP')
+                    : getString('SG_OTHERS')}
+            </Text>
+          )}
           {isLoading ? (
             <View style={styles.listCard}>
               <SkeletonLoader screenType="sendAGift" />
             </View>
-          ) : // ) : displayData.length > 1 ? (/
-            displayData.length > (isGiftOneGetOne ? 0 : 1) ? (
-              <View
-                style={[
-                  styles.listCard,
-                  {
-                    marginBottom:
-                      route.params?.routeTo === 'SelectStore' ||
-                        !route.params?.routeTo
-                        ? theme.sizes.HEIGHT * 0.04
-                        : theme.sizes.HEIGHT * 0.04,
-                  },
-                ]}
-              >
-                <FlatList
-                  data={displayData}
-                  keyExtractor={item => item.UserId.toString()}
-                  renderItem={({ item, index }) => (
-                    <SearchUserItem
-                      item={item}
-                      index={index}
-                      isLast={index === displayData.length - 1}
-                      showAddButton={false}
-                      showSelection={false}
-                      onPress={async () => {
-                        const selectedFriendUserId = item.UserId;
+          ) : displayData.length > (isGiftOneGetOne ? 0 : 1) ? (
+            <View
+              style={[
+                styles.listCard,
+                {
+                  marginBottom:
+                    route.params?.routeTo === 'SelectStore' ||
+                      !route.params?.routeTo
+                      ? theme.sizes.HEIGHT * 0.04
+                      : theme.sizes.HEIGHT * 0.04,
+                },
+              ]}
+            >
+              <FlatList
+                data={displayData}
+                keyExtractor={item => item.UserId.toString()}
+                renderItem={({ item, index }) => (
+                  <SearchUserItem
+                    item={item}
+                    index={index}
+                    isLast={index === displayData.length - 1}
+                    showAddButton={false}
+                    showSelection={false}
+                    onPress={async () => {
+                      const selectedFriendUserId = item.UserId;
 
-                        // Check if there's a cart for a different user
-                        const existingCart = cartApi.data;
-                        if (
-                          existingCart &&
-                          existingCart.FriendId !== null &&
-                          existingCart.FriendId !== selectedFriendUserId &&
-                          existingCart.Items &&
-                          existingCart.Items.length > 0
-                        ) {
-                          // Clear the cart for the previous user to start fresh flow
-                          const response = await api.put(
-                            apiEndpoints.CLEAR_CART,
-                            {},
+                      // Check if there's a cart for a different user
+                      const existingCart = cartApi.data;
+                      if (
+                        existingCart &&
+                        existingCart.FriendId !== null &&
+                        existingCart.FriendId !== selectedFriendUserId &&
+                        existingCart.Items &&
+                        existingCart.Items.length > 0
+                      ) {
+                        // Clear the cart for the previous user to start fresh flow
+                        const response = await api.put(
+                          apiEndpoints.CLEAR_CART,
+                          {},
+                        );
+                        if (!response.success) {
+                          notify.error(
+                            response.error || getString('AU_ERROR_OCCURRED'),
                           );
-                          if (!response.success) {
-                            notify.error(
-                              response.error || getString('AU_ERROR_OCCURRED'),
-                            );
-                            return;
-                          }
+                          return;
                         }
+                      }
 
-                        // Navigate to the next screen
-                        if (
-                          route.params?.routeTo === 'SelectStore' ||
-                          !route.params?.routeTo
-                        ) {
-                          navigation.navigate('SelectStore', {
-                            friendUserId: selectedFriendUserId,
-                            friendName:
-                              item.FullName.replace(getString('SG_ME'), '') ||
-                              null,
-                            CityId: item.CityId || user?.CityId || null,
-                            sendType: 1,
-                          });
-                        } else {
-                          navigation.navigate('CatchScreen', {
-                            type: 'GiftOneGetOne',
-                            friendUserId: selectedFriendUserId,
-                            cityId: item?.CityId || null,
-                          });
-                        }
-                      }}
-                    />
-                  )}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.listContainer}
-                  onEndReached={
-                    isMerchant && activeTab === 'employees'
-                      ? employeesApi.loadMore
-                      : activeUsersApi.loadMore
-                  }
-                  onEndReachedThreshold={0.5}
-                />
-              </View>
-            ) : (
-              <View style={styles.noFriendsContainer}>
-                <SvgFindFriendsIcon
-                  width={scaleWithMax(36, 40)}
-                  height={scaleWithMax(36, 40)}
-                />
-                <Text style={styles.noFriendsText}>
-                  {getString('SG_NO_FRIENDS_YET')}
-                </Text>
+                      // Navigate to the next screen
+                      if (
+                        route.params?.routeTo === 'SelectStore' ||
+                        !route.params?.routeTo
+                      ) {
+                        navigation.navigate('SelectStore', {
+                          friendUserId: selectedFriendUserId,
+                          friendName:
+                            item.FullName.replace(getString('SG_ME'), '') ||
+                            null,
+                          CityId: item.CityId || user?.CityId || null,
+                          sendType: 1,
+                        });
+                      } else {
+                        navigation.navigate('CatchScreen', {
+                          type: 'GiftOneGetOne',
+                          friendUserId: selectedFriendUserId,
+                          cityId: item?.CityId || null,
+                        });
+                      }
+                    }}
+                  />
+                )}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+                onEndReached={
+                  isMerchant && activeTab === 'employees'
+                    ? employeesApi.loadMore
+                    : activeUsersApi.loadMore
+                }
+                onEndReachedThreshold={0.5}
+              />
+            </View>
+          ) : isMerchant ? (
+            <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
+              <PlaceholderLogoText text="No Users Found" />
+            </View>
+          ) : (
+            <View style={styles.noFriendsContainer}>
+              <SvgFindFriendsIcon
+                width={scaleWithMax(36, 40)}
+                height={scaleWithMax(36, 40)}
+              />
+              <Text style={styles.noFriendsText}>
+                {getString('SG_NO_FRIENDS_YET')}
+              </Text>
 
-                <CustomButton
-                  icon={<SvgSearchFindFriendsIcon />}
-                  title={getString('SG_FIND_FRIENDS')}
-                  onPress={() => {
-                    navigation.navigate('Search', {
-                      title: getString('SG_FIND_FRIENDS'),
-                      // showConnectOnly: true,
-                    });
-                  }}
-                  type="primary"
-                />
-              </View>
-            )}
+              <CustomButton
+                icon={<SvgSearchFindFriendsIcon />}
+                title={getString('SG_FIND_FRIENDS')}
+                onPress={() => {
+                  navigation.navigate('Search', {
+                    title: getString('SG_FIND_FRIENDS'),
+                    // showConnectOnly: true,
+                  });
+                }}
+                type="primary"
+              />
+            </View>
+          )}
         </ScrollView>
       </View>
 
