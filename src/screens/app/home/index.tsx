@@ -76,7 +76,7 @@ const HomeScreen: React.FC = () => {
           }}
           showLogo={true}
           showSearch={!isMerchant}
-          showCartIcon={!isMerchant}
+          showCartIcon={true}
           customContainerStyle={{
             backgroundColor: 'transparent',
           }}
@@ -148,13 +148,13 @@ const HomeScreenTabsContainer: React.FC = () => {
       onPress: () =>
         isMerchant
           ? notify.error(
-              getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
-                ? 'Merchant not allowed'
-                : getString('MERCHANT_NOT_ALLOWED'),
-            )
+            getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
+              ? 'Merchant not allowed'
+              : getString('MERCHANT_NOT_ALLOWED'),
+          )
           : (navigation as any).navigate('SendAGift' as never, {
-              routeTo: 'GiftOneGetOne',
-            }),
+            routeTo: 'GiftOneGetOne',
+          }),
     },
     {
       id: 'catch',
@@ -165,19 +165,19 @@ const HomeScreenTabsContainer: React.FC = () => {
           : getString('HOME_CATCH'),
       description:
         getString('HOME_CATCH_INSTANT_GIFT_DESC') ===
-        'HOME_CATCH_INSTANT_GIFT_DESC'
+          'HOME_CATCH_INSTANT_GIFT_DESC'
           ? 'Catch instant gift'
           : getString('HOME_CATCH_INSTANT_GIFT_DESC'),
       onPress: () =>
         isMerchant
           ? notify.error(
-              getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
-                ? 'Merchant not allowed'
-                : getString('MERCHANT_NOT_ALLOWED'),
-            )
+            getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
+              ? 'Merchant not allowed'
+              : getString('MERCHANT_NOT_ALLOWED'),
+          )
           : (navigation as any).navigate('CatchScreen', {
-              type: 'catch',
-            }),
+            type: 'catch',
+          }),
     },
     {
       id: 'send-a-gift',
@@ -210,17 +210,17 @@ const HomeScreenTabsContainer: React.FC = () => {
       onPress: () =>
         isMerchant
           ? notify.error(
-              getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
-                ? 'Merchant not allowed'
-                : getString('MERCHANT_NOT_ALLOWED'),
-            )
+            getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
+              ? 'Merchant not allowed'
+              : getString('MERCHANT_NOT_ALLOWED'),
+          )
           : (navigation as any).navigate('InboxOutbox', {
-              title:
-                getString('HOME_INBOX') === 'HOME_INBOX'
-                  ? 'Inbox'
-                  : getString('HOME_INBOX'),
-              isInbox: true,
-            }),
+            title:
+              getString('HOME_INBOX') === 'HOME_INBOX'
+                ? 'Inbox'
+                : getString('HOME_INBOX'),
+            isInbox: true,
+          }),
     },
     {
       id: 'outbox',
@@ -261,8 +261,8 @@ const HomeScreenTabsContainer: React.FC = () => {
             minHeight: isProMax
               ? scaleWithMax(95, 110)
               : isLargeAndroid
-              ? scaleWithMax(88, 93)
-              : scaleWithMax(95, 95),
+                ? scaleWithMax(88, 93)
+                : scaleWithMax(95, 95),
           }}
         />
       </View>
@@ -279,8 +279,8 @@ const HomeScreenTabsContainer: React.FC = () => {
               minHeight: isProMax
                 ? scaleWithMax(85, 100)
                 : isLargeAndroid
-                ? scaleWithMax(78, 83)
-                : scaleWithMax(85, 85),
+                  ? scaleWithMax(78, 83)
+                  : scaleWithMax(85, 85),
             }}
           />
         ))}
@@ -288,7 +288,7 @@ const HomeScreenTabsContainer: React.FC = () => {
 
       <Text style={styles.innerSectionTitle}>
         {getString('HOME_RECEIVED_AND_SENT_GIFTS') ===
-        'HOME_RECEIVED_AND_SENT_GIFTS'
+          'HOME_RECEIVED_AND_SENT_GIFTS'
           ? 'Received and Sent Gifts'
           : getString('HOME_RECEIVED_AND_SENT_GIFTS')}
       </Text>
@@ -305,8 +305,8 @@ const HomeScreenTabsContainer: React.FC = () => {
               minHeight: isProMax
                 ? scaleWithMax(75, 90)
                 : isLargeAndroid
-                ? scaleWithMax(73, 78)
-                : scaleWithMax(78, 80),
+                  ? scaleWithMax(73, 78)
+                  : scaleWithMax(78, 80),
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 0.08,

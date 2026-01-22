@@ -127,6 +127,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         subtitle: store.BusinessTypeName,
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,
+        isVerified: store.isVerified,
       },
       businessTypeId: store.BusinessTypeID,
       sendType: route.params.sendType,

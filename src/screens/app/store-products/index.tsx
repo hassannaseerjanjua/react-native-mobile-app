@@ -19,6 +19,7 @@ import {
   ShareIcon,
   SvgHomeBack,
   SvgRiyalIconWhite,
+  SvgVerifiedIcon,
 } from '../../../assets/icons/index.ts';
 import { rtlTransform, scaleWithMax } from '../../../utils';
 import useGetApi from '../../../hooks/useGetApi.ts';
@@ -63,7 +64,11 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       ? { uri: store.imageLogo }
       : require('../../../assets/images/img-placeholder.png');
 
+  const isVerified = store?.isVerified ?? false;
+
   const [selectedFilter, setSelectedFilter] = useState('all');
+
+  console.log('store', store);
 
   const categoriesApi = useGetApi<Category[]>(
     apiEndpoints.GET_CATEGORIES(businessTypeId, storeId),
@@ -341,8 +346,16 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
       <View style={styles.container}>
         <View style={styles.headingContainer}>
-          <Text style={styles.textLarge}>{store?.title}</Text>
+
+          <View style={styles.verifiedContainer}>
+            <Text style={styles.textLarge}>{store?.title}</Text>
+            {isVerified && (
+              <SvgVerifiedIcon />
+            )}
+          </View>
+
           <Text style={styles.textMedium}>{store?.subtitle}</Text>
+
         </View>
         <StatusBar
           backgroundColor={theme.colors.BACKGROUND}

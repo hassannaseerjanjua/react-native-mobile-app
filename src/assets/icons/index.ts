@@ -111,6 +111,7 @@ import SvgCheckoutGiftLinkIcon from './gift-link-white.svg';
 import SvgApplePayIcon from './apple-pay.svg';
 import SvgApplePayText from './apple-pay-text.svg';
 import SvgPencilIcon from './pencil-icon.svg';
+import SvgSpecialPriceTag from './special-price-tag.svg'
 
 export {
   SvgLogoBlue,
@@ -226,4 +227,5 @@ export {
   SvgApplePayIcon,
   SvgApplePayText,
   SvgPencilIcon,
+  SvgSpecialPriceTag,
 };

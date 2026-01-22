@@ -20,6 +20,7 @@ type Store = {
   subtitle: string;
   backgroundImage: any;
   overlayImage: any;
+  isVerified: boolean;
 };
 
 export type AppStackParamList = {
@@ -82,6 +83,7 @@ export type AppStackParamList = {
       imageLogo?: string | null;
       imageCover?: string | null;
       businessTypeId?: number | null;
+      isVerified?: boolean;
     };
     sendType?: number | null;
     friendUserId?: number | null;

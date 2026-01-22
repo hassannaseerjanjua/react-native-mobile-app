@@ -145,6 +145,8 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
     null,
   );
 
+  const isMerchantBool = useAuthStore().user?.isMerchant;
+console.log('isMerchant', isMerchantBool);
   const getInboxOutboxDetails = useListingApi<InboxOrder>(
     apiEndpoints.GET_INBOX_OUTBOX_DETAILS,
     '',
@@ -156,7 +158,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
         };
       },
       pageSize: 5,
-      extraParams: { inbox: isInbox },
+      extraParams: { inbox: isInbox, isMerchant: !!isMerchantBool },
       idExtractor: (item: InboxOrder) => item.OrderId,
     },
   );

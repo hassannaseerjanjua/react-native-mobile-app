@@ -61,6 +61,11 @@ const useStyles = () => {
       headingContainer: {
         paddingTop: sizes.HEIGHT * 0.028,
       },
+      verifiedContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: scaleWithMax(4, 4),
+      },
       footerContainer: {
         position: 'absolute',
         bottom: 0,
