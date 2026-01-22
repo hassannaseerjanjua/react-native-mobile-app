@@ -27,7 +27,7 @@ interface CustomButtonProps {
 
 const CustomButton = ({
   title = 'Button',
-  onPress = () => {},
+  onPress = () => { },
   type = 'primary',
   buttonStyle,
   disabled = false,
@@ -44,22 +44,22 @@ const CustomButton = ({
   const baseStyle: ViewStyle = {
     ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
     width: '100%',
-    borderRadius: 10,
+    borderRadius: scaleWithMax(10, 12),
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor:
       type === 'primary'
         ? colors.PRIMARY
         : type === 'error'
-        ? 'rgba(255, 0, 0, 0.1)'
-        : 'transparent',
+          ? 'rgba(255, 0, 0, 0.1)'
+          : 'transparent',
     borderWidth: 1,
     borderColor:
       type === 'primary'
         ? colors.PRIMARY
         : type === 'error'
-        ? 'transparent'
-        : colors.PRIMARY,
+          ? 'transparent'
+          : colors.PRIMARY,
   };
 
   return (
@@ -76,8 +76,8 @@ const CustomButton = ({
             type === 'primary'
               ? theme.colors.WHITE
               : type === 'error'
-              ? theme.colors.RED
-              : theme.colors.PRIMARY
+                ? theme.colors.RED
+                : theme.colors.PRIMARY
           }
         />
       ) : (
@@ -106,8 +106,8 @@ const CustomButton = ({
                       type === 'primary'
                         ? theme.colors.WHITE
                         : type === 'error'
-                        ? theme.colors.RED
-                        : theme.colors.PRIMARY,
+                          ? theme.colors.RED
+                          : theme.colors.PRIMARY,
                     fontSize: theme.sizes.FONTSIZE_BUTTON,
                     marginStart: icon ? 5 : 0,
                   },

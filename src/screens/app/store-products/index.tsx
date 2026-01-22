@@ -43,7 +43,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const { styles, theme } = useStyles();
   const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation();
+
   const { token } = useAuthStore();
+
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
   const friendIds = route.params?.FriendIds ?? undefined;
@@ -68,7 +70,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
   const [selectedFilter, setSelectedFilter] = useState('all');
 
-  console.log('store', store);
 
   const categoriesApi = useGetApi<Category[]>(
     apiEndpoints.GET_CATEGORIES(businessTypeId, storeId),

@@ -99,6 +99,55 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_BUTTON,
         color: theme.colors.WHITE,
       },
+      // Error Modal Styles
+      modalContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      modalContent: {
+        width: '85%',
+        maxWidth: sizes.WIDTH * 0.9,
+        padding: 0,
+        overflow: 'visible',
+      },
+      innerContent: {
+        position: 'relative',
+        overflow: 'visible',
+      },
+      closeButton: {
+        position: 'absolute',
+        top: sizes.PADDING,
+        right: sizes.PADDING,
+        zIndex: 10,
+      },
+      contentWrapper: {
+        alignItems: 'center',
+        paddingVertical: sizes.HEIGHT * 0.015,
+        paddingHorizontal: sizes.PADDING,
+        position: 'relative',
+        overflow: 'visible',
+      },
+      modalTitle: {
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: sizes.FONTSIZE_HIGH,
+        color: theme.colors.BLACK,
+        marginTop: sizes.HEIGHT * 0.088,
+        marginBottom: sizes.HEIGHT * 0.015,
+        textAlign: 'center',
+      },
+      modalSubtitle: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        fontSize: sizes.FONTSIZE_BUTTON,
+        color: theme.colors.PRIMARY_TEXT,
+        textAlign: 'center',
+        lineHeight: sizes.FONTSIZE * 2,
+        // gap: sizes.HEIGHT * 0.015,
+      },
+      modalButton: {
+        marginTop: sizes.HEIGHT * 0.02,
+        width: '100%',
+      },
     }),
     theme,
   };

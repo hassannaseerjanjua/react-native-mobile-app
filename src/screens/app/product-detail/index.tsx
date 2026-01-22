@@ -24,6 +24,7 @@ import useGetApi from '../../../hooks/useGetApi';
 import { StoreProduct, CartResponse } from '../../../types';
 import { Text } from '../../../utils/elements';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import { useAuthStore } from '../../../store/reducer/auth';
 
 const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   route,
@@ -35,6 +36,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const friendUserId = route?.params?.friendUserId ?? null;
   const friendIds = route?.params?.FriendIds ?? undefined;
   const storeId = route?.params?.storeId ?? null;
+  const isMerchant = useAuthStore().user?.isMerchant;
   const { sizes } = theme;
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
@@ -47,10 +49,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [showClearCartConfirmation, setShowClearCartConfirmation] =
     useState(false);
 
-  console.log('campaignId', campaignId);
-
   const cartApi = useGetApi<CartResponse>(
-    isGiftOneGetOne ? apiEndpoints.GET_CART_ITEMS : '',
+    apiEndpoints.GET_CART_ITEMS,
     {
       transformData: (data: any) => (data?.Data || data) as CartResponse,
     },
@@ -68,6 +68,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   );
 
   const loading = itemApi.loading;
+  console.log('cartApi.data', cartApi.data);
 
   useEffect(() => {
     if (itemApi.error) {
@@ -161,7 +162,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       const payload = {
         ItemId: item.ItemId,
         ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
-        Quantity: newQuantity,
+        ...(!isMerchant ? { Quantity: newQuantity } : {
+          Quantity: quantity,
+        }),
       };
 
       const response = await api.put(

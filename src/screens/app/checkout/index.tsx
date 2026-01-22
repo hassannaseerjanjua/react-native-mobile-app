@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -96,6 +96,34 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   );
   const loading = cartItemsApi.loading;
 
+  // Merge items with the same ItemId
+  const mergedCartItems = useMemo(() => {
+    if (!cartData?.Items) return [];
+
+    const itemsMap = new Map<number, CartItem & { originalOrderItemIds: number[] }>();
+
+    cartData.Items.forEach(item => {
+      const existingItem = itemsMap.get(item.ItemId);
+
+      if (existingItem) {
+        // Merge quantities and amounts
+        existingItem.Quantity += item.Quantity;
+        existingItem.TotalAmount += item.TotalAmount;
+        existingItem.OrderAmount += item.OrderAmount;
+        existingItem.DiscountAmount += item.DiscountAmount;
+        existingItem.originalOrderItemIds.push(item.OrderItemId);
+      } else {
+        // First occurrence of this ItemId - use this as the primary OrderItemId
+        itemsMap.set(item.ItemId, {
+          ...item,
+          originalOrderItemIds: [item.OrderItemId],
+        });
+      }
+    });
+
+    return Array.from(itemsMap.values());
+  }, [cartData?.Items]);
+
   // useEffect(() => {
   //   if (cartItemsApi.data) {
   //     setCartData(cartItemsApi.data);
@@ -170,13 +198,18 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   };
 
   const handleQuantityChange = async (
-    item: CartItem,
+    item: CartItem & { originalOrderItemIds?: number[] },
     type: 'increment' | 'decrement',
   ) => {
     const newQuantity =
       type === 'increment' ? item.Quantity + 1 : item.Quantity - 1;
 
-    if (updatingQuantities[item.OrderItemId]) {
+    // Check if this is a merged item (has multiple OrderItemIds)
+    const isMergedItem = item.originalOrderItemIds && item.originalOrderItemIds.length > 1;
+    const itemIdsToUpdate = isMergedItem ? item.originalOrderItemIds! : [item.OrderItemId];
+    const primaryOrderItemId = item.OrderItemId;
+
+    if (updatingQuantities[primaryOrderItemId]) {
       return;
     }
 
@@ -196,8 +229,28 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
 
     if (cartData) {
+      // If merged item, calculate quantity per item
+      let quantityPerItem = newQuantity;
+      let remainder = 0;
+      if (isMergedItem && item.originalOrderItemIds) {
+        quantityPerItem = Math.floor(newQuantity / item.originalOrderItemIds.length);
+        remainder = newQuantity % item.originalOrderItemIds.length;
+      }
+
       const updatedItems = cartData.Items.map(cartItem => {
-        if (cartItem.OrderItemId === item.OrderItemId) {
+        if (isMergedItem && item.originalOrderItemIds?.includes(cartItem.OrderItemId)) {
+          // For merged items, distribute quantity evenly with remainder in first item
+          const isFirstItem = cartItem.OrderItemId === item.originalOrderItemIds[0];
+          const itemQuantity = quantityPerItem + (isFirstItem ? remainder : 0);
+          const newTotalAmount = cartItem.UnitPrice * itemQuantity;
+          return {
+            ...cartItem,
+            Quantity: itemQuantity,
+            TotalAmount: newTotalAmount,
+            OrderAmount: newTotalAmount,
+          };
+        } else if (cartItem.OrderItemId === item.OrderItemId) {
+          // Single item update
           const newTotalAmount = cartItem.UnitPrice * newQuantity;
           return {
             ...cartItem,
@@ -230,7 +283,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     try {
       setUpdatingQuantities(prev => ({
         ...prev,
-        [item.OrderItemId]: type,
+        [primaryOrderItemId]: type,
       }));
 
       const payload = {
@@ -258,7 +311,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     } finally {
       setUpdatingQuantities(prev => {
         const newState = { ...prev };
-        delete newState[item.OrderItemId];
+        delete newState[primaryOrderItemId];
         return newState;
       });
     }
@@ -580,10 +633,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             </TouchableOpacity>
           </View>
 
-          {cartData.Items.map((item, index) => (
-            <View key={item.OrderItemId}>
+          {mergedCartItems.map((item, index) => (
+            <View key={item.ItemId}>
               {renderCartItem(item)}
-              {index < cartData.Items.length - 1 && (
+              {index < mergedCartItems.length - 1 && (
                 <View style={{ height: theme.sizes.HEIGHT * 0.01 }} />
               )}
             </View>

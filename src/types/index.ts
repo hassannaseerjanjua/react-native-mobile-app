@@ -552,6 +552,19 @@ export interface CartItem {
   Images: CartItemImage[];
 }
 
+
+  export interface MultiUser {
+    UserId: number;
+    FullName: string;
+    FullNameAr: string | null;
+    GenderID: number | null;
+    DOB: string | null;
+    PhoneNo: string;
+    CityId: number | null;
+    ProfileUrl: string | null;
+    isEmployee: boolean | null;
+    isVerified: boolean | null;
+  }
 export interface CartResponse {
   OrderId: number;
   FriendId: number | null;
@@ -569,16 +582,8 @@ export interface CartResponse {
   Items: CartItem[];
   SendType: number;
   CampaginType: number;
-  users: {
-    UserId: number;
-    FullName: string;
-    FullNameAr: string | null;
-    GenderID: number | null;
-    DOB: string | null;
-    PhoneNo: string;
-    CityId: number | null;
-    ProfileUrl: string | null;
-  };
+  users: MultiUser;
+  MultiUsers: MultiUser[];
 }
 
 export interface StoreProductApiResponse {

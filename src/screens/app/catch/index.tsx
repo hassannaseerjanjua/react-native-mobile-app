@@ -6,6 +6,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Image,
+  Modal,
+  StyleSheet,
 } from 'react-native';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -35,6 +37,8 @@ import {
   ArrowDownIcon,
   GiftPlacedSvg,
   SvgRiyalIconWhite,
+  SvgCatchTimeIcon,
+  SvgProfileCrossIcon,
 } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import GiftOneGetOneProductCard from '../../../components/app/GiftOneGetOneProductCard';
@@ -44,6 +48,9 @@ import CityPickerModal from '../../../components/global/CityPickerModal';
 import { City } from '../../../types';
 import { useAuthStore } from '../../../store/reducer/auth';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+import ConfirmationModal from '../../../components/global/ConfirmationModal';
+import { BlurView } from '@react-native-community/blur';
+import CustomButton from '../../../components/global/Custombutton';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -51,6 +58,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
 }) => {
   const { styles, theme } = useStyles();
   const [openModal, setOpenModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
   const { getString, isRtl, langCode } = useLocaleStore();
   const { user } = useAuthStore();
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
@@ -102,9 +110,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     screenType === 'favorite'
       ? apiEndpoints.GET_CATEGORIES(storeID, businessTypeId)
       : apiEndpoints.GET_CAMPAIGN_CATEGORIES(
-          screenType === 'GiftOneGetOne' ? 3 : 1,
-          selectedCityId || user?.CityId,
-        ),
+        screenType === 'GiftOneGetOne' ? 3 : 1,
+        selectedCityId || user?.CityId,
+      ),
     {
       transformData: transformCategoriesData,
     },
@@ -288,15 +296,17 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         if (response.success) {
           setOpenModal(true);
         } else {
-          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+          setShowErrorModal(true);
         }
       } else {
-        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
+        setShowErrorModal(true);
       }
     } finally {
       setLoadingItems(prev => ({ ...prev, [itemKey]: false }));
     }
   };
+
+
   const handleProductPress = (item: any) => {
     if (screenType === 'favorite') {
       const favItem = item as FaveItems;
@@ -530,7 +540,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               >
                 {selectedCityId
                   ? citiesApi.data?.find(city => city.CityID === selectedCityId)
-                      ?.CityName ?? ''
+                    ?.CityName ?? ''
                   : getString('SELECT_STORE_SELECT_CITY')}
               </Text>
               <ArrowDownIcon
@@ -656,6 +666,86 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           </TouchableOpacity>
         </View>
       )}
+
+      <Modal
+        visible={showErrorModal}
+        transparent
+        style={{
+          position: 'relative',
+        }}
+        animationType="fade"
+        statusBarTranslucent
+        onRequestClose={() => setShowErrorModal(false)}
+      >
+        <View style={styles.modalContainer}>
+          <BlurView
+            style={StyleSheet.absoluteFill}
+            blurType="light"
+            blurAmount={2}
+            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.5)"
+          />
+          <TouchableOpacity
+            style={StyleSheet.absoluteFill}
+            activeOpacity={1}
+            onPress={() => setShowErrorModal(false)}
+          />
+          <View
+            style={[
+              styles.modalContent,
+              {
+                backgroundColor: theme.colors.BACKGROUND,
+                borderRadius: theme.sizes.BORDER_RADIUS_HIGH,
+              },
+            ]}
+          >
+            <View style={styles.innerContent}>
+              <TouchableOpacity
+                onPress={() => setShowErrorModal(false)}
+                style={styles.closeButton}
+              >
+                <SvgProfileCrossIcon
+                  width={scaleWithMax(12, 14)}
+                  height={scaleWithMax(12, 14)}
+                  stroke={theme.colors.BLACK}
+                />
+              </TouchableOpacity>
+
+              <View style={styles.contentWrapper}>
+                <SvgCatchTimeIcon
+                  width={scaleWithMax(120, 140)}
+                  height={scaleWithMax(120, 140)}
+                  style={{
+                    position: 'absolute',
+                    top: -scaleWithMax(60, 62),
+                    zIndex: 199999
+                  }}
+                />
+
+                <Text style={styles.modalTitle}>Already Claimed!</Text>
+
+                <Text style={styles.modalSubtitle}>
+                  Available once every 24 hours per store
+                </Text>
+                <Text style={styles.modalSubtitle}>
+                  You can still claim from any other store
+                </Text>
+
+                <CustomButton
+                  title="Explore Other Catch"
+                  onPress={() => setShowErrorModal(false)}
+                  buttonStyle={styles.modalButton}
+                  labelStyle={{
+                    ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+                    fontSize: theme.sizes.FONTSIZE_BUTTON,
+                    color: theme.colors.WHITE,
+                  }}
+                />
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
     </ParentView>
   );
 };

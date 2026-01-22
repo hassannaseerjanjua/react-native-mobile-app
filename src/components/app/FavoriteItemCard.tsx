@@ -49,7 +49,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
   const overlayImage = (item as Store | FavStores).ImageLogo
     ? { uri: (item as Store | FavStores).ImageLogo! }
     : placeholderImage;
-  console.log(item)
+  // console.log(item)
   return (
     <View style={[styles.shadowContainer, style]}>
       <TouchableOpacity
