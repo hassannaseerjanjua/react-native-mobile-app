@@ -28,6 +28,7 @@ import {
   SvgRiyalIconWhite,
   SvgSelectedCheck,
   VisaIcon,
+  SvgProfileFriends,
 } from '../../../assets/icons';
 import {
   scaleWithMax,
@@ -56,6 +57,9 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import SuccessMessage from '../../../components/global/SuccessComponent';
 import TabItem from '../../../components/global/TabItem';
 import GroupTabs from '../../../components/global/GroupTabs';
+import SearchUserItem from '../../../components/app/SearchUserItem';
+import AppBottomSheet from '../../../components/global/AppBottomSheet';
+import { FlatList } from 'react-native';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
@@ -80,6 +84,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [activeDomationAmount, setActiveDomationAmount] = useState<number>();
   const [showCustomDonationInput, setShowCustomDonationInput] = useState(false);
   const [customDonationAmount, setCustomDonationAmount] = useState<string>('');
+  const [showEmployeesBottomSheet, setShowEmployeesBottomSheet] = useState(false);
+  const isMerchant = user?.isMerchant === 1;
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => {
       setCartData(data?.Data);
@@ -654,16 +660,20 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               isGroupImage={
                 cartData.SendType === 2
                   ? null
-                  : cartData.CampaginType === 3
-                    ? cartData.users.ProfileUrl ||
-                    require('../../../assets/images/img-placeholder.png')
-                    : cartData.FriendImageUrl ||
-                    require('../../../assets/images/img-placeholder.png')
+                  : isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 0
+                    ? null
+                    : cartData.CampaginType === 3
+                      ? cartData.users.ProfileUrl ||
+                      require('../../../assets/images/img-placeholder.png')
+                      : cartData.FriendImageUrl ||
+                      require('../../../assets/images/img-placeholder.png')
               }
               title={
-                cartData.CampaginType === 3
-                  ? cartData.users.FullName
-                  : cartData.FriendName || 'Sending through link'
+                isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 0
+                  ? 'My Employees'
+                  : cartData.CampaginType === 3
+                    ? cartData.users.FullName
+                    : cartData.FriendName || 'Sending through link'
               }
               TabTextStyles={{
                 ...styles.TextMedium,
@@ -682,7 +692,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     },
                   ]}
                 >
-                  <GiftIcon />
                   <TouchableOpacity
                     hitSlop={15}
                     onPress={() => {
@@ -693,12 +702,106 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       });
                     }}
                   >
-                    <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+                    <GiftIcon />
                   </TouchableOpacity>
+                  {isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 0 && (
+                    <TouchableOpacity
+                      hitSlop={15}
+                      onPress={() => setShowEmployeesBottomSheet(true)}
+                    >
+                      <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+                    </TouchableOpacity>
+                  )}
                 </View>
+              }
+              icon={
+                isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 0 ? (
+                  <View
+                    style={{
+                      width: scaleWithMax(40, 45),
+                      height: scaleWithMax(40, 45),
+                      borderRadius: scaleWithMax(20, 22.5),
+                      backgroundColor: theme.colors.WHITE,
+                      borderWidth: 1,
+                      borderColor: theme.colors.DIVIDER_COLOR,
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      marginRight: theme.sizes.WIDTH * 0.025,
+                    }}
+                  >
+                    <SvgProfileFriends
+                      height={scaleWithMax(23, 28)}
+                      width={scaleWithMax(23, 28)}
+                    />
+                  </View>
+                ) : undefined
               }
             />
           </View>
+
+          {/* Employees Bottom Sheet */}
+          {isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 0 && (
+            <AppBottomSheet
+              isOpen={showEmployeesBottomSheet}
+              onClose={() => setShowEmployeesBottomSheet(false)}
+              height={Math.min(
+                theme.sizes.HEIGHT * 0.7,
+                100 + (cartData.MultiUsers?.length || 0) * 60,
+              )}
+              snapPoints={['70%']}
+            >
+              <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
+                <Text
+                  style={{
+                    ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                    fontSize: theme.sizes.FONTSIZE_MED_HIGH,
+                    paddingTop: theme.sizes.HEIGHT * 0.014,
+                    paddingBottom: theme.sizes.HEIGHT * 0.008,
+                  }}
+                >
+                  My Employees
+                </Text>
+                <View
+                  style={{
+                    backgroundColor: theme.colors.WHITE,
+                    borderRadius: 16,
+                    ...theme.globalStyles.SHADOW_STYLE,
+                    marginTop: theme.sizes.HEIGHT * 0.01,
+                    marginBottom: theme.sizes.HEIGHT * 0.024,
+                  }}
+                >
+                  <FlatList
+                    data={cartData.MultiUsers || []}
+                    keyExtractor={item => item.UserId.toString()}
+                    renderItem={({ item, index }) => (
+                      <SearchUserItem
+                        item={{
+                          UserId: item.UserId,
+                          FullName: item.FullName || '',
+                          Email: undefined,
+                          PhoneNo: item.PhoneNo || '',
+                          ProfileUrl: item.ProfileUrl || null,
+                          RelationStatus: 1,
+                          CityId: item.CityId || undefined,
+                          IsVerified: item.isVerified === true,
+                        }}
+                        index={index}
+                        isLast={index === (cartData.MultiUsers?.length || 0) - 1}
+                        showAddButton={false}
+                        showSelection={false}
+                        isGeneralSearchScreen={false}
+                        onPress={() => { }}
+                      />
+                    )}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={{
+                      paddingVertical: 0,
+                    }}
+                  />
+                </View>
+              </View>
+            </AppBottomSheet>
+          )}
         </View>
 
         <View style={styles.section}>

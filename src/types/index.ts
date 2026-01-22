@@ -173,6 +173,7 @@ export interface FavStores {
   BusinessTypeNameEn: string;
   BusinessTypeNameAr: string;
   isVerified: boolean;
+  SpecialPriceMenuApplied: boolean;
 }
 export interface FaveItems {
   Campaign: {
@@ -385,6 +386,7 @@ export interface InboxOrder {
   OrderMessage: string | null;
   CampaginType: string | null;
   EhsaanAmount: number;
+  MultiUsers?: MultiUser[];
 }
 
 export interface InboxApiResponseData {
@@ -472,6 +474,7 @@ export interface Store {
   ImageCover: string | null;
   Documents: StoreDocument[];
   isVerified: boolean;
+  SpecialPriceMenuApplied: boolean;
 }
 
 export interface StoreListApiResponse {

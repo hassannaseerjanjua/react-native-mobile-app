@@ -112,6 +112,7 @@ import SvgApplePayIcon from './apple-pay.svg';
 import SvgApplePayText from './apple-pay-text.svg';
 import SvgPencilIcon from './pencil-icon.svg';
 import SvgSpecialPriceTag from './special-price-tag.svg'
+import SvgSpecialPricePercentage from './percentage-circle.svg'
 import SvgCatchTimeIcon from './catch-time-popup.svg';
 
 export {
@@ -230,4 +231,5 @@ export {
   SvgPencilIcon,
   SvgSpecialPriceTag,
   SvgCatchTimeIcon,
+  SvgSpecialPricePercentage
 };

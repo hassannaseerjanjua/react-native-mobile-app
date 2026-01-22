@@ -104,7 +104,8 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE,
         color: theme.colors.BLACK,
-        width: '70%',
+        marginEnd: sizes.WIDTH * 0.01,
+        // width: '70%',
       },
       timeText: {
         ...theme.globalStyles.TEXT_STYLE,

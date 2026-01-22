@@ -25,6 +25,8 @@ import {
   SvgGiftLink,
   SvgCheckoutGiftLinkIcon,
   SvgEhsanIcon,
+  SvgProfileFriends,
+  ArrowDownIcon,
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
@@ -45,6 +47,8 @@ import { useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import useDebounceClick from '../../../hooks/useDebounceClick';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+import SearchUserItem from '../../../components/app/SearchUserItem';
+import { useAuthStore } from '../../../store/reducer/auth';
 
 const InboxOutbox: React.FC = () => {
   const { getString } = useLocaleStore();
@@ -459,7 +463,10 @@ const InboxItem: React.FC<InboxItemProps> = ({
   onShareGiftLink,
 }) => {
   const { styles, theme } = useStyles();
+  const { user } = useAuthStore();
+  const isMerchant = user?.isMerchant === 1;
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showEmployeesBottomSheet, setShowEmployeesBottomSheet] = useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const profileImage = getProfileImage(order, isInbox);
@@ -467,6 +474,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const storeName = getStoreName(order, isRtl);
   const timeAgo = formatRelativeTime(order.OrderTime);
   const { createDebouceClick } = useDebounceClick();
+
+  const hasMultiUsers = isMerchant && order.MultiUsers && order.MultiUsers.length > 0;
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
@@ -512,14 +521,27 @@ const InboxItem: React.FC<InboxItemProps> = ({
               height={scaleWithMax(23, 28)}
               width={scaleWithMax(23, 28)}
             />
-            {/* <Image
+          </View>
+        ) : hasMultiUsers ? (
+          <View
+            style={[
+              styles.inboxProfile,
+              {
+                justifyContent: 'center',
+                alignItems: 'center',
+                backgroundColor: theme.colors.WHITE,
+                borderWidth: 1,
+                borderColor: theme.colors.DIVIDER_COLOR
+              },
+            ]}
+          >
+            <SvgProfileFriends
+              height={scaleWithMax(23, 28)}
+              width={scaleWithMax(23, 28)}
               style={{
-                width: scaleWithMax(23, 28),
-                height: scaleWithMax(23, 28),
-                resizeMode: 'contain',
+
               }}
-              source={require('../../../assets/images/gift-link-checkout.png')}
-            /> */}
+            />
           </View>
         ) : (
           <Image style={styles.inboxProfile} source={profileImage} />
@@ -541,13 +563,39 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 justifyContent: 'space-between',
               }}
             >
-              <Text
-                style={styles.userNameText}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {order.SendType === 2 ? 'Gift Link' : userName}
-              </Text>
+              {hasMultiUsers ? (
+                <TouchableOpacity
+                  style={{
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    flex: 1,
+                    gap: scaleWithMax(4, 6),
+                  }}
+                  onPress={() => setShowEmployeesBottomSheet(true)}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={styles.userNameText}
+                    numberOfLines={1}
+                    ellipsizeMode="tail"
+                  >
+                    My Employees
+                  </Text>
+                  <ArrowDownIcon
+                    width={scaleWithMax(12, 14)}
+                    height={scaleWithMax(12, 14)}
+                    fill={theme.colors.PRIMARY_TEXT}
+                  />
+                </TouchableOpacity>
+              ) : (
+                <Text
+                  style={styles.userNameText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {order.SendType === 2 ? 'Gift Link' : userName}
+                </Text>
+              )}
               <Text style={styles.timeText}>{timeAgo}</Text>
             </View>
             <View
@@ -718,6 +766,70 @@ const InboxItem: React.FC<InboxItemProps> = ({
           </View>
         </View>
       </View>
+
+      {/* Employees Bottom Sheet */}
+      {hasMultiUsers && (
+        <AppBottomSheet
+          isOpen={showEmployeesBottomSheet}
+          onClose={() => setShowEmployeesBottomSheet(false)}
+          height={Math.min(
+            theme.sizes.HEIGHT * 0.7,
+            100 + (order.MultiUsers?.length || 0) * 60,
+          )}
+          snapPoints={['70%']}
+        >
+          <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
+            <Text
+              style={{
+                ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                fontSize: theme.sizes.FONTSIZE_MED_HIGH,
+                paddingTop: theme.sizes.HEIGHT * 0.014,
+                paddingBottom: theme.sizes.HEIGHT * 0.008,
+              }}
+            >
+              My Employees
+            </Text>
+            <View
+              style={{
+                backgroundColor: theme.colors.WHITE,
+                borderRadius: 16,
+                ...theme.globalStyles.SHADOW_STYLE,
+                marginTop: theme.sizes.HEIGHT * 0.01,
+                marginBottom: theme.sizes.HEIGHT * 0.024,
+              }}
+            >
+              <FlatList
+                data={order.MultiUsers || []}
+                keyExtractor={item => item.UserId.toString()}
+                renderItem={({ item, index }) => (
+                  <SearchUserItem
+                    item={{
+                      UserId: item.UserId,
+                      FullName: item.FullName || '',
+                      Email: undefined,
+                      PhoneNo: item.PhoneNo || '',
+                      ProfileUrl: item.ProfileUrl || null,
+                      RelationStatus: 1,
+                      CityId: item.CityId || undefined,
+                      IsVerified: item.isVerified === true,
+                    }}
+                    index={index}
+                    isLast={index === (order.MultiUsers?.length || 0) - 1}
+                    showAddButton={false}
+                    showSelection={false}
+                    isGeneralSearchScreen={false}
+                    onPress={() => { }}
+                  />
+                )}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={{
+                  paddingVertical: 0,
+                }}
+              />
+            </View>
+          </View>
+        </AppBottomSheet>
+      )}
     </View>
   );
 };

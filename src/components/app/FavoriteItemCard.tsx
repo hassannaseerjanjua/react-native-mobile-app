@@ -8,6 +8,8 @@ import {
   SvgItemFavouriteIcon,
   SvgItemFavouriteIconInActive,
   SvgVerifiedIcon,
+  SvgSpecialPriceTag,
+  SvgSpecialPricePercentage,
 } from '../../assets/icons';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { FavStores, Store } from '../../types';
@@ -33,6 +35,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
 }) => {
   const { isRtl } = useLocaleStore();
   const { theme, styles } = useStyles();
+  console.log(item)
 
   const isStore = 'StoreId' in item && 'NameEn' in item;
   const storeName = isStore
@@ -59,6 +62,24 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
       >
         <View style={styles.imageWrapper}>
           <Image source={backgroundImage} style={styles.backgroundImage} />
+          {
+            item.SpecialPriceMenuApplied && (<>
+              <SvgSpecialPriceTag style={{
+                position: 'absolute',
+                top: 0,
+                right: 0,
+                zIndex: 10,
+              }} />
+              <SvgSpecialPricePercentage style={{
+                position: 'absolute',
+                top: scaleWithMax(6, 7),
+                end: scaleWithMax(4, 4),
+                zIndex: 10,
+              }} />
+
+            </>)
+          }
+
           {/* {showFavorite && onFavoritePress && (
             <TouchableOpacity
               style={styles.favoriteIcon}
