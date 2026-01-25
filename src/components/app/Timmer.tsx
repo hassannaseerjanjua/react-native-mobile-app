@@ -47,7 +47,7 @@ export default function useTrimmer({
 
   const activeKnob = useSharedValue<'left' | 'right' | null>(null);
   const lastTranslation = useSharedValue(0);
-  
+
   // Initialize knob positions based on trim values
   useEffect(() => {
     if (totalDuration > 0) {
@@ -77,11 +77,11 @@ export default function useTrimmer({
         let x = leftX.value + delta;
         if (x < 0) x = 0;
         if (x > rightX.value - KNOB_SIZE) x = rightX.value - KNOB_SIZE;
-        
+
         // Enforce 15-second maximum trim duration
         const minLeftX = rightX.value - (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH;
         if (x < minLeftX) x = minLeftX;
-        
+
         leftX.value = x;
       }
 
@@ -89,11 +89,11 @@ export default function useTrimmer({
         let x = rightX.value + delta;
         if (x < leftX.value + KNOB_SIZE) x = leftX.value + KNOB_SIZE;
         if (x > TRACK_WIDTH) x = TRACK_WIDTH;
-        
+
         // Enforce 15-second maximum trim duration
         const maxRightX = leftX.value + (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH;
         if (x > maxRightX) x = maxRightX;
-        
+
         rightX.value = x;
       }
     })

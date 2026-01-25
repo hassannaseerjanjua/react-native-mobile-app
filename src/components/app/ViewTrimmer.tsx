@@ -21,7 +21,7 @@ interface ViewTrimmerProps {
 const ViewTrimmer = ({
   videoUrl,
   onSaveVideo,
-  onCancel = () => {},
+  onCancel = () => { },
 }: ViewTrimmerProps) => {
   const theme = useTheme();
   const videoRef = useRef<VideoRef | null>(null);
@@ -131,7 +131,8 @@ const ViewTrimmer = ({
         <Video
           ref={videoRef}
           source={{ uri: videoUrl }}
-          style={{ height: '100%', width: theme.sizes.WIDTH }}
+          style={{ flex: 1, width: '100%' }}
+          resizeMode="contain"
           onLoad={e => {
             if (duration === null) {
               const videoDuration = e.duration;
