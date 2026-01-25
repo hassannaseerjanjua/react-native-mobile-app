@@ -137,7 +137,8 @@ const useStyles = () => {
         gap: sizes.HEIGHT * 0.01,
       },
       button: {
-        width: sizes.WIDTH * 0.6,
+        // width: sizes.WIDTH * 0.6,
+        flex: 1
       },
       QuantityContainer: {
         flexDirection: 'row',

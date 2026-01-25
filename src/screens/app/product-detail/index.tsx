@@ -191,8 +191,13 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       };
 
       // For merchants, use FriendIds array; otherwise use FriendId
-      if (friendIds && friendIds.length > 0) {
-        payload.FriendIds = friendIds;
+      if (isMerchant) {
+        // Always use array format for merchants
+        if (friendIds) {
+          payload.FriendIds = Array.isArray(friendIds) ? friendIds : [friendIds];
+        } else if (friendUserId) {
+          payload.FriendIds = [friendUserId];
+        }
       } else if (friendUserId) {
         payload.FriendId = friendUserId;
       }
@@ -273,6 +278,23 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
     return selectedVariant?.FinalPrice ?? 0;
   }, [item, selectedFilter]);
+
+  // Check if item already exists in cart (merchant flow only)
+  const isItemInCart = useMemo(() => {
+    if (!isMerchant || !cartApi.data || !item) return false;
+
+    const cartItems = cartApi.data.Items || [];
+    const selectedVariantId = selectedFilter ? Number(selectedFilter) : null;
+
+    return cartItems.some((cartItem: any) => {
+      const matchesItemId = cartItem.ItemId === item.ItemId;
+      const matchesVariantId = selectedVariantId
+        ? cartItem.Variant?.ItemVariantId === selectedVariantId
+        : !cartItem.Variant?.ItemVariantId; // If no variant selected, match items without variants
+
+      return matchesItemId && matchesVariantId;
+    });
+  }, [isMerchant, cartApi.data, item, selectedFilter]);
 
   return (
     <ParentView edges={['bottom']}>
@@ -414,24 +436,38 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             // backgroundColor: 'red',
           }}
         >
-          <View style={styles.QuantityContainer}>
-            <MinusIcon
-              width={scaleWithMax(25, 28)}
-              height={scaleWithMax(25, 28)}
-              onPress={() => handleQuantityChange('decrement')}
-            />
-            <Text style={styles.QuantityText}>{quantity}</Text>
-            <PlusIcon
-              width={scaleWithMax(25, 28)}
-              height={scaleWithMax(25, 28)}
-              onPress={() => handleQuantityChange('increment')}
-            />
-          </View>
+
+          {
+            !isMerchant && (<View style={styles.QuantityContainer}>
+              <MinusIcon
+                width={scaleWithMax(25, 28)}
+                height={scaleWithMax(25, 28)}
+                onPress={() => handleQuantityChange('decrement')}
+              />
+              <Text style={styles.QuantityText}>{quantity}</Text>
+              <PlusIcon
+                width={scaleWithMax(25, 28)}
+                height={scaleWithMax(25, 28)}
+                onPress={() => handleQuantityChange('increment')}
+              />
+            </View>)
+          }
+
 
           <CustomButton
             buttonStyle={styles.button}
-            onPress={handleAddToCart}
-            title={getString('PRODUCT_ADD_TO_CART')}
+            onPress={() => {
+              if (isItemInCart) {
+                (navigation as any).navigate('CheckOut');
+              } else {
+                handleAddToCart();
+              }
+            }}
+            title={
+              isItemInCart
+                ? 'View Cart'
+                : getString('PRODUCT_ADD_TO_CART')
+            }
             disabled={submitting}
           />
         </View>

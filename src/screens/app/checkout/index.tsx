@@ -31,6 +31,7 @@ import {
   SvgSelectedCheck,
   VisaIcon,
   SvgProfileFriends,
+  SvgDeleteIcon,
 } from '../../../assets/icons';
 import {
   scaleWithMax,
@@ -340,12 +341,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
   };
 
-  const handleRemoveItem = async () => {
-    if (!itemToRemove) return;
+  const handleRemoveItem = async (itemParam?: CartItem) => {
+    const item = itemParam || itemToRemove;
+    if (!item) return;
 
-    const item = itemToRemove;
     const isLastItem = cartData?.Items?.length === 1;
-    setItemToRemove(null);
+    if (!itemParam) {
+      setItemToRemove(null);
+    }
 
     // If it's the last item, use clear cart API instead of remove item API
     if (isLastItem) {
@@ -376,52 +379,73 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               <Text style={styles.TextMedium}>{item.Variant.NameEn}</Text>
             )}
           </View>
-          <View
-            style={{
-              ...styles.row,
-              flexDirection: rtlFlexDirection(isRtl),
-              justifyContent: 'space-between',
-            }}
-          >
-            <PriceWithIcon
-              Price={item.TotalAmount}
-              style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
-            />
-            <View
-              style={[
-                styles.quantityControls,
-                { flexDirection: rtlFlexDirection(isRtl) },
-              ]}
+          {
+            isMerchant ? (<View
+              style={{
+                ...styles.row,
+                flexDirection: rtlFlexDirection(isRtl),
+                justifyContent: 'space-between',
+              }}
             >
-              <TouchableOpacity
-                onPress={() => handleQuantityChange(item, 'decrement')}
-                disabled={!!updatingQuantities[item.OrderItemId]}
-                style={{
-                  opacity:
-                    updatingQuantities[item.OrderItemId] === 'decrement'
-                      ? 0.5
-                      : 1,
-                }}
-              >
-                <DecrementIcon />
+              <PriceWithIcon
+                Price={item.TotalAmount}
+                style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+              />
+              <TouchableOpacity onPress={() => setItemToRemove(item)}>
+                <SvgDeleteIcon />
               </TouchableOpacity>
-              <Text style={styles.quantityValue}>
-                {`${item.Quantity < 10 ? '0' : ''}${item.Quantity}`}
-              </Text>
-              <TouchableOpacity
-                onPress={() => handleQuantityChange(item, 'increment')}
-                disabled={!!updatingQuantities[item.OrderItemId]}
-                style={{
-                  opacity:
-                    updatingQuantities[item.OrderItemId] === 'increment'
-                      ? 0.5
-                      : 1,
-                }}
+
+
+
+            </View>) : (<View
+              style={{
+                ...styles.row,
+                flexDirection: rtlFlexDirection(isRtl),
+                justifyContent: 'space-between',
+              }}
+            >
+              <PriceWithIcon
+                Price={item.TotalAmount}
+                style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+              />
+
+              <View
+                style={[
+                  styles.quantityControls,
+                  { flexDirection: rtlFlexDirection(isRtl) },
+                ]}
               >
-                <IncrementIcon />
-              </TouchableOpacity>
-            </View>
-          </View>
+                <TouchableOpacity
+                  onPress={() => handleQuantityChange(item, 'decrement')}
+                  disabled={!!updatingQuantities[item.OrderItemId]}
+                  style={{
+                    opacity:
+                      updatingQuantities[item.OrderItemId] === 'decrement'
+                        ? 0.5
+                        : 1,
+                  }}
+                >
+                  <DecrementIcon />
+                </TouchableOpacity>
+                <Text style={styles.quantityValue}>
+                  {`${item.Quantity < 10 ? '0' : ''}${item.Quantity}`}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => handleQuantityChange(item, 'increment')}
+                  disabled={!!updatingQuantities[item.OrderItemId]}
+                  style={{
+                    opacity:
+                      updatingQuantities[item.OrderItemId] === 'increment'
+                        ? 0.5
+                        : 1,
+                  }}
+                >
+                  <IncrementIcon />
+                </TouchableOpacity>
+              </View>
+            </View>)
+          }
+
         </View>
       </View>
     );
@@ -657,30 +681,37 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             <View style={[styles.tabContainer]}>
               <TabItem
                 activeOpacity={0}
-                disabled={true}
+                disabled={!(isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 1)}
                 isGroupImage={
                   cartData.SendType === 2
                     ? null
-                    : isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 0
-                      ? null
-                      : cartData.CampaginType === 3
-                        ? cartData.users.ProfileUrl ||
-                        require('../../../assets/images/img-placeholder.png')
-                        : cartData.FriendImageUrl ||
-                        require('../../../assets/images/img-placeholder.png')
+                    : isMerchant && cartData.MultiUsers && cartData.MultiUsers.length === 1
+                      ? cartData.MultiUsers[0].ProfileUrl ||
+                      require('../../../assets/images/img-placeholder.png')
+                      : isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 1
+                        ? null
+                        : cartData.CampaginType === 3
+                          ? cartData.users.ProfileUrl ||
+                          require('../../../assets/images/img-placeholder.png')
+                          : cartData.FriendImageUrl ||
+                          require('../../../assets/images/img-placeholder.png')
                 }
                 title={
-                  isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 0
-                    ? 'My Employees'
-                    : cartData.CampaginType === 3
-                      ? cartData.users.FullName
-                      : cartData.FriendName || 'Sending through link'
+                  isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 1
+                    ? 'My Employees' : cartData.MultiUsers && cartData.MultiUsers.length === 1 ? cartData.MultiUsers[0].FullName
+                      : cartData.CampaginType === 3
+                        ? cartData.users.FullName
+                        : cartData.FriendName || 'Sending through link'
                 }
                 TabTextStyles={{
                   ...styles.TextMedium,
                   maxWidth: '90%',
                 }}
-                onPress={() => { }}
+                onPress={() => {
+                  if (isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 1) {
+                    setShowEmployeesBottomSheet(true);
+                  }
+                }}
                 isLink={cartData.SendType === 2}
                 hideRightIcon={true}
                 rightSideView={
@@ -688,7 +719,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     style={[
                       styles.row,
                       {
-                        gap: theme.sizes.WIDTH * 0.025,
+                        gap: theme.sizes.WIDTH * 0.036,
                         flexDirection: rtlFlexDirection(isRtl),
                       },
                     ]}
@@ -706,17 +737,23 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       <GiftIcon />
                     </TouchableOpacity>
                     {isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 0 && (
-                      <TouchableOpacity
-                        hitSlop={15}
-                        onPress={() => setShowEmployeesBottomSheet(true)}
-                      >
-                        <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
-                      </TouchableOpacity>
+                      cartData.MultiUsers.length > 1 ? (
+                        <TouchableOpacity
+                          hitSlop={15}
+                          onPress={() => setShowEmployeesBottomSheet(true)}
+                        >
+                          <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+                        </TouchableOpacity>
+                      ) : (
+                        <View>
+                          <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+                        </View>
+                      )
                     )}
                   </View>
                 }
                 icon={
-                  isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 0 ? (
+                  isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 1 ? (
                     <View
                       style={{
                         width: scaleWithMax(40, 45),
@@ -1145,7 +1182,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     onSubmitEditing: () => {
                       Keyboard.dismiss();
                     },
-                    keyboardType: 'number-pad',
+                    keyboardType: 'numeric',
                     autoFocus: true,
                   }}
                 />

@@ -161,7 +161,7 @@ const useStyles = () => {
       contentContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: scaleWithMax(4, 5),
+        gap: scaleWithMax(8, 10),
         flex: 1,
         minWidth: 0,
       },
