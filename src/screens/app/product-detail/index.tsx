@@ -93,7 +93,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     return (
       item?.Variants?.map((v: any) => ({
         id: String(v.ItemVariantId),
-        title: v.NameEn,
+        title: isRtl ? v.NameAr : v.NameEn,
       })) ?? []
     );
   }, [item]);
@@ -313,7 +313,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           right: 0,
           flexDirection: 'row',
           justifyContent: 'space-between',
-          paddingHorizontal: 10,
+          paddingHorizontal: sizes.PADDING,
           alignItems: 'center',
           zIndex: 10,
           width: '100%',
@@ -364,7 +364,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           <View style={styles.LowerContainer}>
             <View style={styles.ProductTitleContainer}>
               <View style={styles.titleRow}>
-                <Text style={styles.ProductTitle}>{item?.NameEn ?? ''}</Text>
+                <Text style={styles.ProductTitle}>{isRtl ? item?.NameAr : item?.NameEn}</Text>
                 <View style={styles.priceContainer}>
                   <SvgRiyalIcon
                     width={scaleWithMax(15, 18)}
@@ -389,7 +389,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               <Text style={styles.Heading}>
                 {getString('PRODUCT_DESCRIPTION')}
               </Text>
-              <Text style={styles.Description}>{item?.DescEn ?? ''}</Text>
+              <Text style={styles.Description}>{isRtl ? item?.DescAr : item?.DescEn}</Text>
             </View>
             {item?.Variants?.length > 1 && (
               <>

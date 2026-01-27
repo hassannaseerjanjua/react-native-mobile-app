@@ -405,19 +405,19 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       const compressionOptions =
         Platform.OS === 'android'
           ? {
-              // Android: Use manual compression for consistent 1080p output
-              compressionMethod: 'manual' as const,
-              maxSize: 1080, // 1080p resolution (1920x1080)
-              bitrate: 2500000, // 2.5 Mbps - optimized for 1080p quality
-              minimumFileSizeForCompress: 0,
-            }
+            // Android: Use manual compression for consistent 1080p output
+            compressionMethod: 'manual' as const,
+            maxSize: 1080, // 1080p resolution (1920x1080)
+            bitrate: 2500000, // 2.5 Mbps - optimized for 1080p quality
+            minimumFileSizeForCompress: 0,
+          }
           : {
-              // iOS: Manual compression with 1080p target
-              compressionMethod: 'manual' as const,
-              maxSize: 1080, // 1080p resolution (1920x1080)
-              bitrate: 2500000, // 2.5 Mbps - optimized for 1080p quality
-              minimumFileSizeForCompress: 0,
-            };
+            // iOS: Manual compression with 1080p target
+            compressionMethod: 'manual' as const,
+            maxSize: 1080, // 1080p resolution (1920x1080)
+            bitrate: 2500000, // 2.5 Mbps - optimized for 1080p quality
+            minimumFileSizeForCompress: 0,
+          };
 
       const compressedUri = await Video.compress(
         normalizedUri,
@@ -917,9 +917,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                             stroke="#FF0000"
                             strokeWidth="4"
                             fill="transparent"
-                            strokeDasharray={`${
-                              2 * Math.PI * scaleWithMax(33, 38)
-                            }`}
+                            strokeDasharray={`${2 * Math.PI * scaleWithMax(33, 38)
+                              }`}
                             strokeDashoffset={recordingProgress.interpolate({
                               inputRange: [0, 1],
                               outputRange: [
@@ -1238,7 +1237,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           onPress={async () => {
                             const newFilterId =
                               sendMessagePayload.ImageFilterId ===
-                              filter.FilterId
+                                filter.FilterId
                                 ? null
                                 : filter.FilterId;
                             setSendMessagePayload(prev => ({
@@ -1261,7 +1260,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                               {
                                 borderWidth:
                                   filter.FilterId ===
-                                  sendMessagePayload.ImageFilterId
+                                    sendMessagePayload.ImageFilterId
                                     ? 2
                                     : 0,
                                 borderColor: theme.colors.PRIMARY,
@@ -1285,7 +1284,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             </View>
             <View style={styles.footer}>
               <CustomButton
-                title={hasContent ? 'Next' : 'Skip'}
+                title={hasContent ? getString('NG_NEXT') : getString('NG_SKIP')}
                 onPress={handleButtonPress}
                 disabled={isCompressing}
               />

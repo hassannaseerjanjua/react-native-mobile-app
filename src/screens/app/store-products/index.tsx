@@ -130,7 +130,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
     const favoritesTabTitle =
-      friendUserId && friendName ? `Favorites` : getString('FAV_FAVORITES');
+      friendUserId && friendName ? getString('FAV_FAVORITES') : getString('FAV_FAVORITES');
     const favoritesOption = { id: 'favorites', title: favoritesTabTitle };
 
     // Only include favorites option if there are favorite items and not in send gift flow

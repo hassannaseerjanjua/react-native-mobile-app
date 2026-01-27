@@ -25,7 +25,7 @@ const useStyles = () => {
       },
       topImage: {
         width: sizes.WIDTH,
-        height: sizes.HEIGHT * 0.2,
+        height: sizes.HEIGHT * 0.23,
         borderBottomLeftRadius: 15,
         borderBottomRightRadius: 15,
         objectFit: 'cover',
@@ -57,9 +57,11 @@ const useStyles = () => {
       textMedium: {
         fontSize: sizes.FONTSIZE_BUTTON,
         color: theme.colors.GRAY,
+        textAlign: 'left'
       },
       headingContainer: {
-        paddingTop: sizes.HEIGHT * 0.028,
+        paddingTop: sizes.HEIGHT * 0.038,
+        gap: scaleWithMax(2, 4),
       },
       verifiedContainer: {
         flexDirection: 'row',

@@ -65,7 +65,7 @@ const useStyles = () => {
       },
       scrollableContentContainer: {
         flexGrow: 1,
-        paddingHorizontal: theme.sizes.PADDING,
+        // paddingHorizontal: theme.sizes.PADDING,
         // paddingTop: sizes.HEIGHT * 0.01,
       },
       bottomSheetContainer: {

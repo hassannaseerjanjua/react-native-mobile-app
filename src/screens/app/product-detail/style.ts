@@ -14,6 +14,7 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         backgroundColor: theme.colors.HOME_BACKGROUND,
+        paddingHorizontal: 0,
       },
       rounded_white_background: {
         backgroundColor: colors.WHITE,
@@ -156,7 +157,7 @@ const useStyles = () => {
         color: theme.colors.PRIMARY,
       },
       LowerContainer: {
-        // marginHorizontal: sizes.PADDING,
+        paddingHorizontal: sizes.PADDING,
         gap: sizes.HEIGHT * 0.02,
       },
     });

@@ -13,6 +13,7 @@ import {
 } from '../../assets/icons';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { FavStores, Store } from '../../types';
+import { scale } from 'react-native-size-matters';
 
 type StoreItem = Store | FavStores;
 
@@ -39,7 +40,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
 
   const isStore = 'StoreId' in item && 'NameEn' in item;
   const storeName = isStore
-    ? (item as Store).NameEn
+    ? isRtl ? (item as Store).NameAr : (item as Store).NameEn
     : (item as FavStores).StoreNameEn;
   const businessType = isStore
     ? (item as Store).BusinessTypeName
@@ -67,8 +68,12 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
               <SvgSpecialPriceTag style={{
                 position: 'absolute',
                 top: 0,
-                right: 0,
+                right: isRtl ? -2 : 0,
                 zIndex: 10,
+                transform: [
+                  { rotate: isRtl ? '270deg' : '0deg' },
+                ],
+
               }} />
               <SvgSpecialPricePercentage style={{
                 position: 'absolute',

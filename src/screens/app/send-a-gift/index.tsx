@@ -217,6 +217,51 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     });
   };
 
+  const handleFriendPress = async (item: ActiveUser) => {
+    if (isMerchant && isSelectionMode) {
+      handleUserSelection(item.UserId);
+      return;
+    }
+
+    const selectedFriendUserId = item.UserId;
+
+    // Check if there's a cart for a different user
+    const existingCart = cartApi.data;
+    if (
+      existingCart &&
+      existingCart.FriendId !== null &&
+      existingCart.FriendId !== selectedFriendUserId &&
+      existingCart.Items &&
+      existingCart.Items.length > 0
+    ) {
+      // Clear the cart for the previous user to start fresh flow
+      const response = await api.put(apiEndpoints.CLEAR_CART, {});
+      if (!response.success) {
+        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        return;
+      }
+    }
+
+    // Navigate to the next screen
+    if (
+      route.params?.routeTo === 'SelectStore' ||
+      !route.params?.routeTo
+    ) {
+      navigation.navigate('SelectStore', {
+        friendUserId: selectedFriendUserId,
+        friendName: item.FullName.replace(getString('SG_ME'), '') || null,
+        CityId: item.CityId || user?.CityId || null,
+        sendType: 1,
+      });
+    } else {
+      navigation.navigate('CatchScreen', {
+        type: 'GiftOneGetOne',
+        friendUserId: selectedFriendUserId,
+        cityId: item?.CityId || null,
+      });
+    }
+  };
+
   const tabs = isMerchant
     ? [
       {
@@ -260,15 +305,13 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     ];
 
   // Get frequently sent friends (first 3 from response with OrdersCount >= 1, in API order)
+  // Only for friends tab with no search
   const getFrequentlySentFriends = useCallback(() => {
     if (activeTab !== 'friends' || activeUsersApi.search) {
       return [];
     }
-
     const baseData = activeUsersApi.data || [];
-
-    // Filter friends with OrdersCount >= 1, keep API response order, take first 3
-    const frequentlySent = baseData
+    return baseData
       .filter(
         (friend: ActiveUser) =>
           friend.OrdersCount !== null &&
@@ -276,8 +319,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           friend.OrdersCount >= 1,
       )
       .slice(0, 3);
-
-    return frequentlySent;
   }, [activeTab, activeUsersApi.data, activeUsersApi.search]);
 
   const frequentlySentFriends = getFrequentlySentFriends();
@@ -289,6 +330,20 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
     const baseData = activeUsersApi.data || [];
 
+    // Get frequently sent friend IDs to exclude from main list
+    const frequentlySentFriendIds = new Set(
+      frequentlySentFriends.map((friend: ActiveUser) => friend.UserId),
+    );
+
+    // Filter out frequently sent friends from base data to avoid duplicates
+    const remainingFriends = baseData.filter(
+      (friend: ActiveUser) => !frequentlySentFriendIds.has(friend.UserId),
+    );
+
+    // Build the final list (excluding frequently sent friends as they're in a separate section)
+    let finalData: ActiveUser[] = [];
+
+    // Add current user first if applicable
     if (
       !activeUsersApi.search &&
       activeTab === 'friends' &&
@@ -306,11 +361,13 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         CityId: user.CityId,
         IsVerified: user.IsVerified,
       };
-
-      return [currentUser, ...baseData];
+      finalData.push(currentUser);
     }
 
-    return baseData;
+    // Add remaining friends (frequently sent friends are shown in separate section)
+    finalData.push(...remainingFriends);
+
+    return finalData;
   };
 
   const displayData = getDisplayData();
@@ -395,11 +452,14 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       <View style={styles.content}>
         <ScrollView
           style={styles.scrollableContentContainer}
-          contentContainerStyle={
+          contentContainerStyle={[
+            {
+              paddingHorizontal: theme.sizes.PADDING,
+            },
             isMerchant && isSelectionMode
               ? { paddingBottom: scaleWithMax(60, 65) }
-              : undefined
-          }
+              : undefined,
+          ]}
           showsVerticalScrollIndicator={false}
         >
           <GroupTabs
@@ -428,6 +488,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 />
               </View>
             )}
+
           {/* Frequently Sent Section - Only show for friends tab with no search */}
           {frequentlySentFriends.length > 0 &&
             activeTab === 'friends' &&
@@ -448,53 +509,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                         showAddButton={false}
                         showSelection={false}
                         isGeneralSearchScreen={false}
-                        onPress={async () => {
-                          const selectedFriendUserId = item.UserId;
-
-                          // Check if there's a cart for a different user
-                          const existingCart = cartApi.data;
-                          if (
-                            existingCart &&
-                            existingCart.FriendId !== null &&
-                            existingCart.FriendId !== selectedFriendUserId &&
-                            existingCart.Items &&
-                            existingCart.Items.length > 0
-                          ) {
-                            // Clear the cart for the previous user to start fresh flow
-                            const response = await api.put(
-                              apiEndpoints.CLEAR_CART,
-                              {},
-                            );
-                            if (!response.success) {
-                              notify.error(
-                                response.error ||
-                                getString('AU_ERROR_OCCURRED'),
-                              );
-                              return;
-                            }
-                          }
-
-                          // Navigate to the next screen
-                          if (
-                            route.params?.routeTo === 'SelectStore' ||
-                            !route.params?.routeTo
-                          ) {
-                            navigation.navigate('SelectStore', {
-                              friendUserId: selectedFriendUserId,
-                              friendName:
-                                item.FullName.replace(getString('SG_ME'), '') ||
-                                null,
-                              CityId: item.CityId || user?.CityId || null,
-                              sendType: 1,
-                            });
-                          } else {
-                            navigation.navigate('CatchScreen', {
-                              type: 'GiftOneGetOne',
-                              friendUserId: selectedFriendUserId,
-                              cityId: item?.CityId || null,
-                            });
-                          }
-                        }}
+                        onPress={() => handleFriendPress(item)}
                       />
                     )}
                     showsVerticalScrollIndicator={false}
@@ -575,57 +590,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                     showSelection={isMerchant && isSelectionMode}
                     isSelected={selectedUserIds.has(item.UserId)}
                     onSelectionPress={() => handleUserSelection(item.UserId)}
-                    onPress={async () => {
-                      if (isMerchant && isSelectionMode) {
-                        handleUserSelection(item.UserId);
-                        return;
-                      }
-
-                      const selectedFriendUserId = item.UserId;
-
-                      // Check if there's a cart for a different user
-                      const existingCart = cartApi.data;
-                      if (
-                        existingCart &&
-                        existingCart.FriendId !== null &&
-                        existingCart.FriendId !== selectedFriendUserId &&
-                        existingCart.Items &&
-                        existingCart.Items.length > 0
-                      ) {
-                        // Clear the cart for the previous user to start fresh flow
-                        const response = await api.put(
-                          apiEndpoints.CLEAR_CART,
-                          {},
-                        );
-                        if (!response.success) {
-                          notify.error(
-                            response.error || getString('AU_ERROR_OCCURRED'),
-                          );
-                          return;
-                        }
-                      }
-
-                      // Navigate to the next screen
-                      if (
-                        route.params?.routeTo === 'SelectStore' ||
-                        !route.params?.routeTo
-                      ) {
-                        navigation.navigate('SelectStore', {
-                          friendUserId: selectedFriendUserId,
-                          friendName:
-                            item.FullName.replace(getString('SG_ME'), '') ||
-                            null,
-                          CityId: item.CityId || user?.CityId || null,
-                          sendType: 1,
-                        });
-                      } else {
-                        navigation.navigate('CatchScreen', {
-                          type: 'GiftOneGetOne',
-                          friendUserId: selectedFriendUserId,
-                          cityId: item?.CityId || null,
-                        });
-                      }
-                    }}
+                    onPress={() => handleFriendPress(item)}
                   />
                 )}
                 showsVerticalScrollIndicator={false}
@@ -711,7 +676,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           }}
         >
           <CustomButton
-            title="Next"
+            title={
+              getString("NG_NEXT")
+            }
             onPress={() => {
               const friendIds = Array.from(selectedUserIds);
               if (friendIds.length > 0) {

@@ -157,7 +157,7 @@ console.log('isMerchant', isMerchantBool);
           totalCount: data.Data?.TotalCount || 0,
         };
       },
-      pageSize: 15,
+      pageSize: 5,
       extraParams: { inbox: isInbox, isMerchant: !!isMerchantBool },
       idExtractor: (item: InboxOrder) => item.OrderId,
     },

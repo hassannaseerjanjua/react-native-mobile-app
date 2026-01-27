@@ -38,6 +38,7 @@ import {
   rtlTransform,
   rtlFlexDirection,
   rtlPosition,
+  rtlMargin,
 } from '../../../utils';
 import CheckBox from '../../../components/global/CheckBox';
 import PriceWithIcon from '../../../components/global/Price';
@@ -567,7 +568,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
       const payload: any = {
         orderid: cartData.OrderId,
-        orderPaymentType: 1,
+        orderPaymentType: selectedPaymentMethod === 'visa' ? 2 : 1,
         IsRedeem: false,
         EhsaanAmount: activeDomationAmount || 0,
       };
@@ -585,6 +586,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           QrCode: string | null;
           Success: boolean;
           UniqueCode: string | null;
+          isPaymentRequired: boolean;
         };
       }>(apiEndpoints.INITIATE_CHECKOUT, payload);
 
@@ -819,7 +821,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         borderColor: theme.colors.DIVIDER_COLOR,
                         justifyContent: 'center',
                         alignItems: 'center',
-                        marginRight: theme.sizes.WIDTH * 0.025,
+                        ...rtlMargin(isRtl, 0, theme.sizes.WIDTH * 0.025),
                       }}
                     >
                       <SvgProfileFriends
@@ -973,7 +975,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               </View>
             </TouchableOpacity>
             <TouchableOpacity
-              disabled
+              // disabled
               onPress={() =>
                 setSelectedPaymentMethod(
                   selectedPaymentMethod === 'visa' ? null : 'visa',
@@ -996,11 +998,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 >
                   <CheckBox
                     Selected={selectedPaymentMethod === 'visa'}
-                  // onSelectionPress={() =>
-                  //   setSelectedPaymentMethod(
-                  //     selectedPaymentMethod === 'visa' ? null : 'visa',
-                  //   )
-                  // }
+                    onSelectionPress={() =>
+                      setSelectedPaymentMethod(
+                        selectedPaymentMethod === 'visa' ? null : 'visa',
+                      )
+                    }
                   />
                   <VisaIcon
                     height={scaleWithMax(32, 35)}
@@ -1123,7 +1125,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             )}
             <View
               style={{
-                flexDirection: 'row',
+                flexDirection: rtlFlexDirection(isRtl),
                 alignItems: 'center',
                 justifyContent: 'space-between',
                 marginTop: theme.sizes.HEIGHT * 0.002,
@@ -1146,7 +1148,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{
-                flexDirection: 'row',
+                flexDirection: rtlFlexDirection(isRtl),
                 gap: 10,
               }}
             >
@@ -1159,7 +1161,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   <TouchableOpacity
                     key={amount.value}
                     style={{
-                      flexDirection: 'row',
+                      flexDirection: rtlFlexDirection(isRtl),
                       alignItems: 'center',
                       justifyContent: 'center',
                       gap: theme.sizes.WIDTH * 0.02,

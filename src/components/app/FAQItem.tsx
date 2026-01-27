@@ -54,7 +54,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
           <Text
             style={[
               styles.titleText,
-              { textAlign: isRtl ? 'right' : 'left' },
+              { textAlign: 'left' },
               textStyle,
             ]}
             numberOfLines={isExpanded ? undefined : 1}
@@ -69,7 +69,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
             {
               transform: [
                 ...rtlTransform(isRtl),
-                ...(isExpanded ? [{ rotate: isRtl ? '-90deg' : '90deg' }] : []),
+                ...(isExpanded ? [{ rotate: '90deg' }] : []),
               ],
             },
           ]}

@@ -39,7 +39,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const friendUserId = route?.params?.friendUserId ?? null;
   const friendIds = route?.params?.FriendIds ?? undefined;
   const { styles, theme } = useStyles();
-  const { getString, langCode } = useLocaleStore();
+  const { getString, langCode, isRtl } = useLocaleStore();
   const { token, user } = useAuthStore();
   const navigation =
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
@@ -123,7 +123,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       store: {
         id: store.StoreId,
         storeId: store.StoreId,
-        title: store.NameEn,
+        title: isRtl ? store.NameAr : store.NameEn,
         subtitle: store.BusinessTypeName,
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,

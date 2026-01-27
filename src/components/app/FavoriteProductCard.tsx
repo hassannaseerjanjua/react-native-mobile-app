@@ -10,6 +10,7 @@ import {
   SvgRiyalIconPrimary,
 } from '../../assets/icons';
 import { FaveItems, StoreProduct } from '../../types';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface FavoriteProductCardProps {
   item: FaveItems | StoreProduct;
@@ -28,7 +29,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
 }) => {
   const { theme } = useStyles();
   const { styles } = useStyles();
-
+  const { isRtl } = useLocaleStore();
   const isStoreProduct = 'ItemId' in item && 'Thumbnail' in item;
   const isFaveItems = 'FavItemId' in item && 'ItemImage' in item;
 
@@ -38,12 +39,12 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
       ? (item as FaveItems).ItemImage
       : null;
   const itemName = isStoreProduct
-    ? (item as StoreProduct).NameEn
+    ? isRtl ? (item as StoreProduct).NameAr : (item as StoreProduct).NameEn
     : isFaveItems
       ? (item as FaveItems).ItemNameEn
       : '';
   const categoryName = isStoreProduct
-    ? (item as StoreProduct).CategoryNameEn
+    ? isRtl ? (item as StoreProduct).CategoryNameAr : (item as StoreProduct).CategoryNameEn
     : isFaveItems
       ? (item as FaveItems).CategoryNameEn
       : '';
