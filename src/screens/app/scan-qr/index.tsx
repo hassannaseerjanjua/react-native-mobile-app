@@ -15,6 +15,7 @@ import { scaleWithMax } from '../../../utils';
 import { Text } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
 import QRCode from 'react-native-qrcode-svg';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 interface QrCodeData {
   OrderId: number;
@@ -31,6 +32,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
   const selectedItems = route?.params?.selectedItems;
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
+  const { getString } = useLocaleStore();
   const defaultImage = require('../../../assets/images/qr-product-dummy.png');
   const [qrCodeData, setQrCodeData] = useState<QrCodeData | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -40,10 +42,10 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
   const currentItem = hasMultipleItems
     ? selectedItems[currentIndex]
     : selectedItems?.[0] || {
-        ItemImage: productImage,
-        ItemName: productName,
-        Quantity: quantity,
-      };
+      ItemImage: productImage,
+      ItemName: productName,
+      Quantity: quantity,
+    };
 
   useEffect(() => {
     if (orderId && uniqueCode) {
@@ -90,7 +92,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
             },
           ]}
         >
-          Claim Your Gift
+          {getString('QR_CLAIM_YOUR_GIFT')}
         </Text>
         <Text
           style={{
@@ -98,7 +100,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
             marginTop: theme.sizes.PADDING * 0.8,
           }}
         >
-          Scan it at the store to claim
+          {getString('QR_SCAN_IT_AT_STORE')}
         </Text>
 
         <View
@@ -115,7 +117,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
               fontSize: theme.sizes.FONTSIZE,
             }}
           >
-            QR Code #
+            {getString('QR_CODE_NUMBER')}
           </Text>
           <Text style={styles.QrCodeNums}>
             {qrCodeData?.UniqueCode || '---'}
@@ -144,7 +146,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
               }}
             >
               <Text style={{ color: theme.colors.SECONDARY_TEXT }}>
-                No QR code available
+                {getString('QR_NO_CODE_AVAILABLE')}
               </Text>
             </View>
           )}
@@ -203,7 +205,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                         fontSize: theme.sizes.FONTSIZE_BUTTON,
                       }}
                     >
-                      {item.ItemName || 'Product Name'}
+                      {item.ItemName || getString('QR_PRODUCT_NAME')}
                     </Text>
                     <Text
                       numberOfLines={1}
@@ -213,7 +215,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                         color: theme.colors.GRAY,
                       }}
                     >
-                      {storeName || 'Store Name'}
+                      {storeName || getString('QR_STORE_NAME')}
                     </Text>
                   </View>
                   {item.Quantity > 0 && (
@@ -274,7 +276,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                   fontSize: theme.sizes.FONTSIZE_BUTTON,
                 }}
               >
-                {currentItem.ItemName || productName || 'Product Name'}
+                {currentItem.ItemName || productName || getString('QR_PRODUCT_NAME')}
               </Text>
               <Text
                 numberOfLines={1}
@@ -284,7 +286,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                   color: theme.colors.GRAY,
                 }}
               >
-                {storeName || 'Store Name'}
+                {storeName || getString('QR_STORE_NAME')}
               </Text>
             </View>
             {currentItem.Quantity > 0 && (

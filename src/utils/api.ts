@@ -60,21 +60,24 @@ const caller = async <T>(
     responseObject.ResponseCode = response.status;
   } catch (err: any) {
     const response = err?.response?.data;
+    const localeStrings = store.getState().locale.localeData.strings;
+    const getString = (key: string) => localeStrings?.[key as keyof typeof localeStrings] || key;
+    
     let errorMessage =
       response?.error?.message ||
       response?.message ||
       response?.ResponseMessage ||
       err?.message ||
-      'Something went wrong';
+      getString('API_SOMETHING_WENT_WRONG');
 
     responseObject.ResponseCode = err?.response?.status || 0;
 
     if (err?.response?.status === 401) {
-      errorMessage = 'Session expired, Please login again.';
+      errorMessage = getString('API_SESSION_EXPIRED');
       store.dispatch(logout());
     }
     if (err?.response?.status === 413) {
-      errorMessage = 'File too large, Please try again with a smaller file.';
+      errorMessage = getString('API_FILE_TOO_LARGE_TRY_AGAIN');
     }
 
     if (
@@ -82,7 +85,7 @@ const caller = async <T>(
       err?.response?.status === 503 ||
       err?.response?.status === 0
     ) {
-      errorMessage = 'Network Error, Please try again later.';
+      errorMessage = getString('API_NETWORK_ERROR_TRY_AGAIN');
     }
 
     responseObject.error = errorMessage;

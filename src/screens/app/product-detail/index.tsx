@@ -465,7 +465,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             }}
             title={
               isItemInCart
-                ? 'View Cart'
+                ? getString('PRODUCT_VIEW_CART')
                 : getString('PRODUCT_ADD_TO_CART')
             }
             disabled={submitting}
@@ -474,8 +474,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       </View>
       <ConfirmationPopup
         visible={showClearCartConfirmation}
-        message="Adding a different item will clear your previous item in cart. Do you want to continue?"
-        confirmText="Confirm"
+        message={getString('PRODUCT_CLEAR_CART_MESSAGE')}
+        confirmText={getString('PRODUCT_CONFIRM')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={handleClearCartAndAddItem}
         onCancel={() => setShowClearCartConfirmation(false)}

@@ -74,7 +74,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         if (!verifyResponse.success && verifyResponse.failed) {
           setIsBottomSheetOpen(true);
         } else {
-          setApiError('User not found.');
+          setApiError(getString('API_USER_NOT_FOUND'));
         }
       } catch (error) {
         notify.error(getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'));

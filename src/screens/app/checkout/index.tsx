@@ -83,7 +83,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     Record<number, 'increment' | 'decrement' | null>
   >({});
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
-  const [itemToRemove, setItemToRemove] = useState<CartItem | null>(null);
+  const [itemToRemove, setItemToRemove] = useState<(CartItem & { originalOrderItemIds?: number[] }) | null>(null);
   const [giftLink, setGiftLink] = useState<string | null>(null);
   const [activeDomationAmount, setActiveDomationAmount] = useState<number>();
   const [showCustomDonationInput, setShowCustomDonationInput] = useState(false);
@@ -141,24 +141,35 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   // }, [cartItemsApi.data]);
 
   const removeCartItem = async (
-    item: CartItem,
+    item: CartItem & { originalOrderItemIds?: number[] },
     skipStateUpdate = false,
   ): Promise<boolean> => {
     const originalCartData = cartData
       ? JSON.parse(JSON.stringify(cartData))
       : null;
 
+    // Check if this is a merged item (has multiple OrderItemIds)
+    const isMergedItem = item.originalOrderItemIds && item.originalOrderItemIds.length > 1;
+    const orderItemIdsToRemove = isMergedItem ? item.originalOrderItemIds! : [item.OrderItemId];
+
     if (cartData && !skipStateUpdate) {
+      // Remove all items that are part of the merged item
       const updatedItems = cartData.Items.filter(
-        cartItem => cartItem.OrderItemId !== item.OrderItemId,
+        cartItem => !orderItemIdsToRemove.includes(cartItem.OrderItemId),
       );
 
       const newOrderAmount = updatedItems.reduce(
         (sum, cartItem) => sum + cartItem.OrderAmount,
         0,
       );
-      const newTotalDiscount = cartData.TotalDiscount;
-      const newTotalVat = cartData.TotalVat;
+      const newTotalDiscount = updatedItems.reduce(
+        (sum, cartItem) => sum + (cartItem.DiscountAmount || 0),
+        0,
+      );
+      const newTotalVat = updatedItems.reduce(
+        (sum, cartItem) => sum + (cartItem.VatAmount || 0),
+        0,
+      );
       const newDeliveryCharges = cartData.DeliveryCharges;
       const newTotalAmount =
         newOrderAmount - newTotalDiscount + newTotalVat + newDeliveryCharges;
@@ -167,15 +178,21 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         ...cartData,
         Items: updatedItems,
         OrderAmount: newOrderAmount,
+        TotalDiscount: newTotalDiscount,
+        TotalVat: newTotalVat,
         TotalAmount: newTotalAmount,
       });
     }
 
     try {
-      setUpdatingQuantities(prev => ({
-        ...prev,
-        [item.OrderItemId]: 'decrement',
-      }));
+      // Set updating state for all items being removed
+      setUpdatingQuantities(prev => {
+        const newState = { ...prev };
+        orderItemIdsToRemove.forEach(orderItemId => {
+          newState[orderItemId] = 'decrement';
+        });
+        return newState;
+      });
 
       const payload = {
         ItemId: item.ItemId,
@@ -199,9 +216,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       }
       return false;
     } finally {
+      // Clear updating state for all removed items
       setUpdatingQuantities(prev => {
         const newState = { ...prev };
-        delete newState[item.OrderItemId];
+        orderItemIdsToRemove.forEach(orderItemId => {
+          delete newState[orderItemId];
+        });
         return newState;
       });
     }
@@ -252,21 +272,39 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           // For merged items, distribute quantity evenly with remainder in first item
           const isFirstItem = cartItem.OrderItemId === item.originalOrderItemIds[0];
           const itemQuantity = quantityPerItem + (isFirstItem ? remainder : 0);
-          const newTotalAmount = cartItem.UnitPrice * itemQuantity;
+          const newOrderAmount = cartItem.UnitPrice * itemQuantity;
+          // Recalculate discount proportionally based on quantity change
+          const discountPerUnit = cartItem.Quantity > 0 ? cartItem.DiscountAmount / cartItem.Quantity : 0;
+          const newDiscountAmount = discountPerUnit * itemQuantity;
+          // Recalculate VAT proportionally based on quantity change
+          const vatPerUnit = cartItem.Quantity > 0 ? (cartItem.VatAmount || 0) / cartItem.Quantity : 0;
+          const newVatAmount = vatPerUnit * itemQuantity;
+          const newTotalAmount = newOrderAmount - newDiscountAmount + newVatAmount;
           return {
             ...cartItem,
             Quantity: itemQuantity,
+            OrderAmount: newOrderAmount,
+            DiscountAmount: newDiscountAmount,
+            VatAmount: newVatAmount,
             TotalAmount: newTotalAmount,
-            OrderAmount: newTotalAmount,
           };
         } else if (cartItem.OrderItemId === item.OrderItemId) {
           // Single item update
-          const newTotalAmount = cartItem.UnitPrice * newQuantity;
+          const newOrderAmount = cartItem.UnitPrice * newQuantity;
+          // Recalculate discount proportionally based on quantity change
+          const discountPerUnit = cartItem.Quantity > 0 ? cartItem.DiscountAmount / cartItem.Quantity : 0;
+          const newDiscountAmount = discountPerUnit * newQuantity;
+          // Recalculate VAT proportionally based on quantity change
+          const vatPerUnit = cartItem.Quantity > 0 ? (cartItem.VatAmount || 0) / cartItem.Quantity : 0;
+          const newVatAmount = vatPerUnit * newQuantity;
+          const newTotalAmount = newOrderAmount - newDiscountAmount + newVatAmount;
           return {
             ...cartItem,
             Quantity: newQuantity,
+            OrderAmount: newOrderAmount,
+            DiscountAmount: newDiscountAmount,
+            VatAmount: newVatAmount,
             TotalAmount: newTotalAmount,
-            OrderAmount: newTotalAmount,
           };
         }
         return cartItem;
@@ -276,8 +314,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         (sum, cartItem) => sum + cartItem.OrderAmount,
         0,
       );
-      const newTotalDiscount = cartData.TotalDiscount;
-      const newTotalVat = cartData.TotalVat;
+      const newTotalDiscount = updatedItems.reduce(
+        (sum, cartItem) => sum + (cartItem.DiscountAmount || 0),
+        0,
+      );
+      const newTotalVat = updatedItems.reduce(
+        (sum, cartItem) => sum + (cartItem.VatAmount || 0),
+        0,
+      );
       const newDeliveryCharges = cartData.DeliveryCharges;
       const newTotalAmount =
         newOrderAmount - newTotalDiscount + newTotalVat + newDeliveryCharges;
@@ -286,6 +330,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         ...cartData,
         Items: updatedItems,
         OrderAmount: newOrderAmount,
+        TotalDiscount: newTotalDiscount,
+        TotalVat: newTotalVat,
         TotalAmount: newTotalAmount,
       });
     }
@@ -341,16 +387,23 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
   };
 
-  const handleRemoveItem = async (itemParam?: CartItem) => {
+  const handleRemoveItem = async (itemParam?: CartItem & { originalOrderItemIds?: number[] }) => {
     const item = itemParam || itemToRemove;
     if (!item) return;
 
-    const isLastItem = cartData?.Items?.length === 1;
+    // Check if this is a merged item (has multiple OrderItemIds)
+    const isMergedItem = item.originalOrderItemIds && item.originalOrderItemIds.length > 1;
+    const orderItemIdsToRemove = isMergedItem ? item.originalOrderItemIds! : [item.OrderItemId];
+
+    // Check if removing these items would leave the cart empty
+    const remainingItemsCount = (cartData?.Items?.length || 0) - orderItemIdsToRemove.length;
+    const isLastItem = remainingItemsCount <= 0;
+
     if (!itemParam) {
       setItemToRemove(null);
     }
 
-    // If it's the last item, use clear cart API instead of remove item API
+    // If it's the last item(s), use clear cart API instead of remove item API
     if (isLastItem) {
       await handleClearCart();
     } else {
@@ -358,7 +411,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
   };
 
-  const renderCartItem = (item: CartItem) => {
+  const renderCartItem = (item: CartItem & { originalOrderItemIds?: number[] }) => {
     const itemImage = item.Images?.[0]?.ImageUrls || item.ThumbnailUrl;
     const imageSource = itemImage
       ? { uri: itemImage }
@@ -456,8 +509,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         (langCode === 'ar' ? user?.FullNameAr : user?.FullNameEn) ||
         user?.FullNameEn ||
         user?.FullNameAr ||
-        'Someone';
-      const shareMessage = `💝 You have received a gift from ${senderName}. Click on the link below to redeem the gift.\n\n${giftLink}`;
+        getString('CHECKOUT_SOMEONE');
+      const shareMessage = getString('CHECKOUT_SHARE_GIFT_MESSAGE')
+        .replace('{senderName}', senderName)
+        .replace('{giftLink}', giftLink);
 
       const shareOptions = Platform.select({
         ios: {
@@ -561,10 +616,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <>
         <SuccessMessage
           SuccessLogo={isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
-          SuccessMessage={isSendType2 ? 'Gift Link Created' : 'Gift Delivered'}
-          SuccessSubMessage={!isSendType2 ? 'Your Surprise Has Been Sent' : ''}
+          SuccessMessage={isSendType2 ? getString('CHECKOUT_GIFT_LINK_CREATED') : getString('CHECKOUT_GIFT_DELIVERED')}
+          SuccessSubMessage={!isSendType2 ? getString('CHECKOUT_YOUR_SURPRISE_HAS_BEEN_SENT') : ''}
           primaryButtonTitle={
-            isSendType2 ? 'Share Link' : getString('CHECKOUT_HOME')
+            isSendType2 ? getString('CHECKOUT_SHARE_LINK') : getString('CHECKOUT_HOME')
           }
           onSecondaryPress={() => {
             // Navigate to home after gift is sent
@@ -603,7 +658,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <ParentView>
         <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
         <View style={styles.container}>
-          <PlaceholderLogoText text={getString('EMPTY_NO_PRODUCTS_FOUND') || 'Your cart is empty'} />
+          <PlaceholderLogoText text={getString('EMPTY_NO_PRODUCTS_FOUND') || getString('CHECKOUT_YOUR_CART_IS_EMPTY')} />
         </View>
       </ParentView>
     );
@@ -622,7 +677,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     { value: '10', title: '10' },
     { value: '5', title: '5' },
     { value: '3', title: '3' },
-    { value: 'Custom', title: 'Custom' },
+    { value: 'Custom', title: getString('CHECKOUT_CUSTOM') },
   ];
 
   return (
@@ -659,7 +714,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     },
                   ]}
                 >
-                  Remove
+                  {getString('CHECKOUT_REMOVE')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -698,10 +753,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 }
                 title={
                   isMerchant && cartData.MultiUsers && cartData.MultiUsers.length > 1
-                    ? 'My Employees' : cartData.MultiUsers && cartData.MultiUsers.length === 1 ? cartData.MultiUsers[0].FullName
+                    ? getString('CHECKOUT_MY_EMPLOYEES') : cartData.MultiUsers && cartData.MultiUsers.length === 1 ? cartData.MultiUsers[0].FullName
                       : cartData.CampaginType === 3
                         ? cartData.users.FullName
-                        : cartData.FriendName || 'Sending through link'
+                        : cartData.FriendName || getString('SG_SEND_THROUGH_LINK')
                 }
                 TabTextStyles={{
                   ...styles.TextMedium,
@@ -797,7 +852,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       paddingBottom: theme.sizes.HEIGHT * 0.008,
                     }}
                   >
-                    My Employees
+                    {getString('CHECKOUT_MY_EMPLOYEES')}
                   </Text>
                   <View
                     style={{
@@ -905,7 +960,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     width={scaleWithMax(32, 35)}
                   />
                   <View>
-                    <Text style={styles.TextMedium}>Apple Pay</Text>
+                    <Text style={styles.TextMedium}>{getString('CHECKOUT_APPLE_PAY')}</Text>
                   </View>
                 </View>
                 <SvgSelectedCheck
@@ -953,7 +1008,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   />
                   <View>
                     <Text style={styles.TextMedium}>424242XXXXXX4242</Text>
-                    <Text style={styles.TextMedium}>Visa</Text>
+                    <Text style={styles.TextMedium}>{getString('CHECKOUT_VISA')}</Text>
                   </View>
                 </View>
                 <SvgSelectedCheck
@@ -1000,7 +1055,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     width={scaleWithMax(32, 35)}
                   />
                   <View>
-                    <Text style={styles.TextMedium}>Giftee Wallet</Text>
+                    <Text style={styles.TextMedium}>{getString('W_GIFTEE_WALLET')}</Text>
                     <View style={styles.row}>
                       <SvgRiyalIcon
                         width={scaleWithMax(12, 14)}
@@ -1040,7 +1095,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   { flexDirection: rtlFlexDirection(isRtl) },
                 ]}
               >
-                <Text style={styles.TextMedium}>Discount</Text>
+                <Text style={styles.TextMedium}>{getString('CHECKOUT_DISCOUNT')}</Text>
                 <PriceWithIcon Price={cartData.TotalDiscount} />
               </View>
             )}
@@ -1051,7 +1106,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   { flexDirection: rtlFlexDirection(isRtl) },
                 ]}
               >
-                <Text style={styles.TextMedium}>VAT</Text>
+                <Text style={styles.TextMedium}>{getString('CHECKOUT_VAT')}</Text>
                 <PriceWithIcon Price={cartData.TotalVat} />
               </View>
             )}
@@ -1062,7 +1117,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   { flexDirection: rtlFlexDirection(isRtl) },
                 ]}
               >
-                <Text style={styles.TextMedium}>Delivery Charges</Text>
+                <Text style={styles.TextMedium}>{getString('CHECKOUT_DELIVERY_CHARGES')}</Text>
                 <PriceWithIcon Price={cartData.DeliveryCharges} />
               </View>
             )}
@@ -1074,7 +1129,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 marginTop: theme.sizes.HEIGHT * 0.002,
               }}
             >
-              <Text style={styles.TextMedium}>Send gift with Ehsan</Text>
+              <Text style={styles.TextMedium}>{getString('CHECKOUT_SEND_GIFT_WITH_EHSAN')}</Text>
               <SvgEhsanIcon width={scaleWithMax(26, 28)} height={scaleWithMax(26, 28)} />
             </View>
             <Text
@@ -1085,7 +1140,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 // marginTop: theme.sizes.HEIGHT * 0.01,
               }}
             >
-              Express your feelings with a lasting reward what remains with Allah
+              {getString('CHECKOUT_EHSAN_MESSAGE')}
             </Text>
             <ScrollView
               horizontal
@@ -1166,7 +1221,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     />
                   }
                   fieldProps={{
-                    placeholder: 'Enter amount',
+                    placeholder: getString('CHECKOUT_ENTER_AMOUNT'),
                     value: customDonationAmount,
                     onChangeText: (text: string) => {
                       // Only allow numbers
@@ -1263,7 +1318,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           }" ${getString('CHECKOUT_FROM_CART')}`}
         confirmText={getString('CHECKOUT_REMOVE')}
         cancelText={getString('NG_CANCEL')}
-        onConfirm={handleRemoveItem}
+        onConfirm={() => handleRemoveItem()}
         onCancel={() => setItemToRemove(null)}
       />
     </ParentView>

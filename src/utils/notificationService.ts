@@ -17,15 +17,18 @@ export const displayNotification = async (
   message: FirebaseMessagingTypes.RemoteMessage,
 ): Promise<void> => {
   try {
+    const localeStrings = store.getState().locale.localeData.strings;
+    const getString = (key: string) => localeStrings?.[key as keyof typeof localeStrings] || key;
+    
     const channelId = await notifee.createChannel({
       id: 'default',
-      name: 'Default Notifications',
+      name: getString('NOTIFICATION_DEFAULT_CHANNEL'),
       importance: AndroidImportance.HIGH,
       sound: 'default',
     });
 
     await notifee.displayNotification({
-      title: message.notification?.title || 'New Notification',
+      title: message.notification?.title || getString('NOTIFICATION_NEW_NOTIFICATION'),
       body: message.notification?.body || '',
       android: {
         channelId,
