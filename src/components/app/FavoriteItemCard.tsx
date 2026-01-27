@@ -5,15 +5,12 @@ import { scaleWithMax, rtlTransform, isAndroid } from '../../utils';
 import { Text } from '../../utils/elements';
 import {
   SvgNextIcon,
-  SvgItemFavouriteIcon,
-  SvgItemFavouriteIconInActive,
   SvgVerifiedIcon,
   SvgSpecialPriceTag,
   SvgSpecialPricePercentage,
 } from '../../assets/icons';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { FavStores, Store } from '../../types';
-import { scale } from 'react-native-size-matters';
 
 type StoreItem = Store | FavStores;
 
@@ -36,7 +33,6 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
 }) => {
   const { isRtl } = useLocaleStore();
   const { theme, styles } = useStyles();
-  console.log(item)
 
   const isStore = 'StoreId' in item && 'NameEn' in item;
   const storeName = isStore
@@ -53,7 +49,6 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
   const overlayImage = (item as Store | FavStores).ImageLogo
     ? { uri: (item as Store | FavStores).ImageLogo! }
     : placeholderImage;
-  // console.log(item)
   return (
     <View style={[styles.shadowContainer, style]}>
       <TouchableOpacity

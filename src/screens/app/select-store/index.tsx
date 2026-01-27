@@ -164,6 +164,12 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     }
   }, [storeListApi.data]);
 
+  // Clearing the cart before proceeding with another user 
+  useEffect(() => {
+    const response = api.put(apiEndpoints.CLEAR_CART, {});
+
+  }, []);
+
   useEffect(() => {
     storeListApi.setExtraParams(prev => ({
       ...prev,

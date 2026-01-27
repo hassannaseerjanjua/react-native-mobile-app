@@ -223,6 +223,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       return;
     }
 
+
+
     const selectedFriendUserId = item.UserId;
 
     // Check if there's a cart for a different user
@@ -236,6 +238,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     ) {
       // Clear the cart for the previous user to start fresh flow
       const response = await api.put(apiEndpoints.CLEAR_CART, {});
+
       if (!response.success) {
         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
         return;
