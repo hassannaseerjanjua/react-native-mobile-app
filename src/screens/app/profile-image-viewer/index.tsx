@@ -27,7 +27,7 @@ import notify from '../../../utils/notify';
 const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
     route,
 }) => {
-    const { imageUri, placeholderImage, title } = route.params;
+    const { imageUri, placeholderImage, title, occasionId, occasionName, occasionDate } = route.params;
     const { styles: screenStyles, theme } = useStyles();
     const navigation = useNavigation();
     const dispatch = useDispatch();
@@ -36,6 +36,9 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
     const [isUploading, setIsUploading] = useState(false);
     const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
     const [showImageLoader, setShowImageLoader] = useState(!!imageUri);
+
+    // Check if this is for occasion or profile
+    const isOccasionMode = occasionId !== null && occasionId !== undefined;
 
     const imageSource = imageUri
         ? { uri: imageUri }
@@ -88,52 +91,99 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
     const uploadProfileImage = (asset: any, isRemove: boolean = false) => {
         setIsUploading(true);
 
-        const formData = new FormData();
-        formData.append('removePhoto', isRemove);
+        if (isOccasionMode) {
+            // Handle occasion image update
+            const formData = new FormData();
+            formData.append('OccassionId', occasionId?.toString() || '');
+            formData.append('NameEn', occasionName || '');
+            formData.append('OccasionDate', occasionDate || '');
 
-        if (!isRemove && asset) {
-            // The URI is already processed by fileUriWrapper in handleImageSelect
-            formData.append('File', {
-                uri: asset.uri || '',
-                type: asset.type || 'image/jpeg',
-                name: asset.fileName || `profile_image_${Date.now()}.jpg`,
-            });
-        }
+            if (isRemove) {
+                // Explicitly indicate image removal by passing empty string
+                formData.append('ImageUrl', '' as any);
+            } else if (asset) {
+                formData.append('ImageUrl', {
+                    uri: asset.uri || '',
+                    type: asset.type || 'image/jpeg',
+                    name: asset.fileName || `occasion_image_${Date.now()}.jpg`,
+                } as any);
+            }
 
-        api
-            .put<UpdateProfileApiResponse>(
-                apiEndpoints.UPDATE_PROFILE_IMAGE,
-                formData,
-                {
-                    headers: {
-                        'Content-Type': 'multipart/form-data',
+            api
+                .put(
+                    apiEndpoints.UPDATE_OCCASION(occasionId!),
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
                     },
-                },
-            )
-            .then(response => {
-                if (response.data?.Data && token) {
-                    dispatch(
-                        login({
-                            user: { ...user, ...response.data.Data },
-                            token: token,
-                        }),
-                    );
-                    // Navigate back on success
-                    navigation.goBack();
-                } else {
-                    // If no data, show error and stay on screen
-                    notify.error(getString('AU_ERROR_OCCURRED') || 'Failed to update profile image');
+                )
+                .then(response => {
+                    if (response.success) {
+                        // Navigate back on success - no success notification as per structure
+                        navigation.goBack();
+                    } else {
+                        notify.error(response.error || getString('AU_ERROR_OCCURRED') || 'Failed to update occasion');
+                        setIsUploading(false);
+                    }
+                })
+                .catch(error => {
+                    notify.error(error?.error || getString('AU_ERROR_OCCURRED') || 'Failed to update occasion');
                     setIsUploading(false);
-                }
-            })
-            .catch(error => {
-                // Show error and stay on screen on failure
-                notify.error(error?.error || getString('AU_ERROR_OCCURRED') || 'Failed to update profile image');
-                setIsUploading(false);
-            })
-            .finally(() => {
-                setShowDeleteConfirmation(false);
-            });
+                })
+                .finally(() => {
+                    setShowDeleteConfirmation(false);
+                });
+        } else {
+            // Handle profile image update
+            const formData = new FormData();
+            formData.append('removePhoto', isRemove);
+
+            if (!isRemove && asset) {
+                // The URI is already processed by fileUriWrapper in handleImageSelect
+                formData.append('File', {
+                    uri: asset.uri || '',
+                    type: asset.type || 'image/jpeg',
+                    name: asset.fileName || `profile_image_${Date.now()}.jpg`,
+                });
+            }
+
+            api
+                .put<UpdateProfileApiResponse>(
+                    apiEndpoints.UPDATE_PROFILE_IMAGE,
+                    formData,
+                    {
+                        headers: {
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    },
+                )
+                .then(response => {
+                    if (response.data?.Data && token) {
+                        dispatch(
+                            login({
+                                user: { ...user, ...response.data.Data },
+                                token: token,
+                            }),
+                        );
+                        // Navigate back on success
+                        navigation.goBack();
+                    } else {
+                        // If no data, show error and stay on screen
+                        notify.error(getString('AU_ERROR_OCCURRED') || 'Failed to update profile image');
+                        setIsUploading(false);
+                    }
+                })
+                .catch(error => {
+                    // Show error and stay on screen on failure
+                    notify.error(error?.error || getString('AU_ERROR_OCCURRED') || 'Failed to update profile image');
+                    setIsUploading(false);
+                })
+                .finally(() => {
+                    setShowDeleteConfirmation(false);
+                });
+        }
     };
 
     const handleRemovePhoto = () => {
@@ -230,8 +280,10 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
 
             <ConfirmationPopup
                 visible={showDeleteConfirmation}
-                title="Delete Photo"
-                message="Are you sure you want to delete this photo?"
+                title={isOccasionMode ? "Delete Image" : "Delete Photo"}
+                message={isOccasionMode
+                    ? "Are you sure you want to delete this occasion image?"
+                    : "Are you sure you want to delete this photo?"}
                 confirmText="Delete"
                 cancelText={getString('NG_CANCEL') || 'Cancel'}
                 onConfirm={handleRemovePhoto}

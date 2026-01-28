@@ -401,5 +401,6 @@ export const useOccasions = () => {
     handleCreatePress,
     handleBackPress,
     handleDatePickerConfirm,
+    fetchOccasions,
   };
 };

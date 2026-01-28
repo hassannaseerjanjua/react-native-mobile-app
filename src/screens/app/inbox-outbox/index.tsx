@@ -522,27 +522,6 @@ const InboxItem: React.FC<InboxItemProps> = ({
               width={scaleWithMax(23, 28)}
             />
           </View>
-        ) : hasMultiUsers ? (
-          <View
-            style={[
-              styles.inboxProfile,
-              {
-                justifyContent: 'center',
-                alignItems: 'center',
-                backgroundColor: theme.colors.WHITE,
-                borderWidth: 1,
-                borderColor: theme.colors.DIVIDER_COLOR
-              },
-            ]}
-          >
-            <SvgProfileFriends
-              height={scaleWithMax(23, 28)}
-              width={scaleWithMax(23, 28)}
-              style={{
-
-              }}
-            />
-          </View>
         ) : (
           <Image style={styles.inboxProfile} source={profileImage} />
         )}
@@ -563,39 +542,15 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 justifyContent: 'space-between',
               }}
             >
-              {hasMultiUsers ? (
-                <TouchableOpacity
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    flex: 1,
-                    gap: scaleWithMax(4, 6),
-                  }}
-                  onPress={() => setShowEmployeesBottomSheet(true)}
-                  activeOpacity={0.7}
-                >
-                  <Text
-                    style={styles.userNameText}
-                    numberOfLines={1}
-                    ellipsizeMode="tail"
-                  >
-                    My Employees
-                  </Text>
-                  <ArrowDownIcon
-                    width={scaleWithMax(12, 14)}
-                    height={scaleWithMax(12, 14)}
-                    fill={theme.colors.PRIMARY_TEXT}
-                  />
-                </TouchableOpacity>
-              ) : (
-                <Text
-                  style={styles.userNameText}
-                  numberOfLines={1}
-                  ellipsizeMode="tail"
-                >
-                  {order.SendType === 2 ? 'Gift Link' : userName}
-                </Text>
-              )}
+
+              <Text
+                style={styles.userNameText}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
+                {order.SendType === 2 ? 'Gift Link' : userName}
+              </Text>
+
               <Text style={styles.timeText}>{timeAgo}</Text>
             </View>
             <View

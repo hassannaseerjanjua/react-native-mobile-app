@@ -109,6 +109,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
+      extraParams: {
+        cityId: selectedCityId,
+      },
     },
   );
 
@@ -153,6 +156,15 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       });
     }
   }, [activeTab, user?.UserId, isMerchant, selectedCityId]);
+
+  // Update employees API extraParams when city changes or when switching to employees tab
+  useEffect(() => {
+    if (isMerchant && activeTab === 'employees') {
+      employeesApi.setExtraParams({
+        cityId: selectedCityId,
+      });
+    }
+  }, [selectedCityId, isMerchant, activeTab]);
 
   useFocusEffect(
     useCallback(() => {
@@ -205,12 +217,19 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     setSelectedUserIds(new Set());
   };
 
+  const MAX_SELECTION_LIMIT = 10;
+
   const handleUserSelection = (userId: number) => {
     setSelectedUserIds(prev => {
       const newSet = new Set(prev);
       if (newSet.has(userId)) {
         newSet.delete(userId);
       } else {
+        // Selecting - check limit
+        if (newSet.size >= MAX_SELECTION_LIMIT) {
+          notify.error(`You can select a maximum of ${MAX_SELECTION_LIMIT} users`);
+          return prev;
+        }
         newSet.add(userId);
       }
       return newSet;
@@ -384,6 +403,16 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     ? employeesApi.setSearch
     : activeUsersApi.setSearch;
 
+
+  useFocusEffect(
+    useCallback(() => {
+      setSearchQuery('');
+      activeUsersApi.recall();
+      employeesApi.recall();
+    }, []),
+
+  );
+
   return (
     <ParentView style={styles.container}>
       <StatusBar
@@ -416,7 +445,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           !isMerchant && activeTab === 'friends' ? <SvgAddGroup /> : undefined
         }
         rightSideView={
-          isMerchant && activeTab === 'others' ? (
+          isMerchant ? (
             <TouchableOpacity
               onPress={() => setShowCityPicker(true)}
               style={{
@@ -568,7 +597,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             <View style={styles.listCard}>
               <SkeletonLoader screenType="sendAGift" />
             </View>
-          ) : displayData.length > (isGiftOneGetOne ? 0 : 1) ? (
+          ) : displayData.length > (isGiftOneGetOne || searchQuery !== '' ? 0 : 1) ? (
             <View
               style={[
                 styles.listCard,
@@ -594,6 +623,12 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                     isSelected={selectedUserIds.has(item.UserId)}
                     onSelectionPress={() => handleUserSelection(item.UserId)}
                     onPress={() => handleFriendPress(item)}
+                    selectionDisabled={
+                      isMerchant &&
+                      isSelectionMode &&
+                      selectedUserIds.size >= MAX_SELECTION_LIMIT &&
+                      !selectedUserIds.has(item.UserId)
+                    }
                   />
                 )}
                 showsVerticalScrollIndicator={false}
@@ -679,9 +714,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           }}
         >
           <CustomButton
-            title={
-              getString("NG_NEXT")
-            }
+            title={`${getString("NG_NEXT")} (${selectedUserIds.size}/${MAX_SELECTION_LIMIT})`}
             onPress={() => {
               const friendIds = Array.from(selectedUserIds);
               if (friendIds.length > 0) {

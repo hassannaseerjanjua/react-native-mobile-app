@@ -174,8 +174,8 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
     thumbnailUrl && thumbnailUrl.trim()
       ? { uri: thumbnailUrl }
       : require('../../../assets/images/img-placeholder.png');
-  const itemName = firstItem?.ItemName || getString('O_FLOWER_BOUQUET');
-  const storeName = order.FriendName || getString('O_COFFEEMATICS');
+  const itemName = firstItem?.ItemName;
+  const storeName = order.FriendName;
   const phoneNumber = order.stores?.PhoneNo || 'nahi mila';
   const orderDate = order.OrderTime || new Date().toISOString();
 

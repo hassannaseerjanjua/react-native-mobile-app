@@ -48,6 +48,9 @@ export type AppStackParamList = {
     imageUri?: string | null;
     placeholderImage?: ImageSourcePropType;
     title?: string;
+    occasionId?: number | null;
+    occasionName?: string;
+    occasionDate?: string;
   };
   SendAGift: {
     routeTo: 'GiftOneGetOne' | 'SelectStore';

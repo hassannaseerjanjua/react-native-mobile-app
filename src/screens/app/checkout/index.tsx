@@ -43,6 +43,7 @@ import {
   rtlFlexDirection,
   rtlPosition,
   rtlMargin,
+  isIOS,
 } from '../../../utils';
 import CheckBox from '../../../components/global/CheckBox';
 import PriceWithIcon from '../../../components/global/Price';
@@ -764,9 +765,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         : require('../../../assets/images/img-placeholder.png');
 
   const DomationAmounts = [
-    { value: '10', title: '10' },
-    { value: '5', title: '5' },
     { value: '3', title: '3' },
+    { value: '5', title: '5' },
+    { value: '10', title: '10' },
     { value: 'Custom', title: getString('CHECKOUT_CUSTOM') },
   ];
 
@@ -776,7 +777,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <KeyboardAvoidingView
         style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
       >
         <ScrollView
           showsVerticalScrollIndicator={false}
@@ -1013,7 +1014,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 </View>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity
+            {isIOS && <TouchableOpacity
               onPress={() =>
                 setSelectedPaymentMethod(
                   selectedPaymentMethod === 'applePay' ? null : 'applePay',
@@ -1061,7 +1062,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   }}
                 />
               </View>
-            </TouchableOpacity>
+            </TouchableOpacity>}
             <TouchableOpacity
               // disabled
               onPress={() =>
@@ -1176,7 +1177,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               <Text style={styles.TextMedium}>
                 {getString('CHECKOUT_TOTAL_AMOUNT')}
               </Text>
-              <PriceWithIcon Price={cartData.TotalAmount} />
+              <PriceWithIcon Price={cartData.TotalAmount + (activeDomationAmount || 0)} />
             </View>
             {cartData.TotalDiscount > 0 && (
               <View
@@ -1241,10 +1242,17 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               }}
             >
               {DomationAmounts.map(amount => {
+                // Check if custom value matches this preset value
+                const customMatchesPreset =
+                  showCustomDonationInput &&
+                  customDonationAmount &&
+                  Number(customDonationAmount) === Number(amount.value);
+
                 const isActive =
                   amount.value === 'Custom'
                     ? showCustomDonationInput
-                    : activeDomationAmount === Number(amount.value);
+                    : activeDomationAmount === Number(amount.value) && !customMatchesPreset;
+
                 return (
                   <TouchableOpacity
                     key={amount.value}
@@ -1263,13 +1271,27 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     }}
                     onPress={() => {
                       if (amount.value === 'Custom') {
-                        setShowCustomDonationInput(true);
-                        setActiveDomationAmount(undefined);
-                        setCustomDonationAmount('');
+                        // Toggle custom input
+                        if (showCustomDonationInput) {
+                          setShowCustomDonationInput(false);
+                          setCustomDonationAmount('');
+                          setActiveDomationAmount(undefined);
+                        } else {
+                          setShowCustomDonationInput(true);
+                          setActiveDomationAmount(undefined);
+                          setCustomDonationAmount('');
+                        }
                       } else {
-                        setShowCustomDonationInput(false);
-                        setCustomDonationAmount('');
-                        setActiveDomationAmount(Number(amount.value));
+                        // Toggle preset amount
+                        if (activeDomationAmount === Number(amount.value)) {
+                          // Already selected, deselect it
+                          setActiveDomationAmount(undefined);
+                        } else {
+                          // Select this preset
+                          setShowCustomDonationInput(false);
+                          setCustomDonationAmount('');
+                          setActiveDomationAmount(Number(amount.value));
+                        }
                       }
                     }}
                   >
@@ -1318,6 +1340,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       const numericValue = text.replace(/[^0-9]/g, '');
                       setCustomDonationAmount(numericValue);
                       if (numericValue) {
+                        // Set activeDomationAmount but presets won't highlight if custom matches them
                         setActiveDomationAmount(Number(numericValue));
                       } else {
                         setActiveDomationAmount(undefined);

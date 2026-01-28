@@ -34,6 +34,7 @@ interface SearchUserItemProps {
   onPress?: () => void;
   customButtonText?: string;
   onCustomButtonPress?: () => void;
+  selectionDisabled?: boolean;
 }
 
 const SearchUserItem: React.FC<SearchUserItemProps> = ({
@@ -52,6 +53,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   onPress,
   customButtonText,
   onCustomButtonPress,
+  selectionDisabled = false,
 }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
@@ -123,8 +125,8 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
                   (isTempAdded
                     ? getString('SEARCH_ADDED')
                     : isAdded
-                    ? getString('MF_UNFRIEND')
-                    : getString('SEARCH_ADD'))}
+                      ? getString('MF_UNFRIEND')
+                      : getString('SEARCH_ADD'))}
               </Text>
             </View>
           )}
@@ -133,9 +135,14 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
 
       {showSelection && (
         <TouchableOpacity
-          style={[styles.selectionCircle, isSelected && styles.selectedCircle]}
-          onPress={onSelectionPress}
-          activeOpacity={0.7}
+          style={[
+            styles.selectionCircle,
+            isSelected && styles.selectedCircle,
+            selectionDisabled && !isSelected && styles.disabledCircle,
+          ]}
+          onPress={selectionDisabled && !isSelected ? undefined : onSelectionPress}
+          activeOpacity={selectionDisabled && !isSelected ? 1 : 0.7}
+          disabled={selectionDisabled && !isSelected}
         >
           {isSelected && (
             <View style={styles.iconWrapper}>
@@ -229,6 +236,9 @@ const useStyles = () => {
       selectedCircle: {
         backgroundColor: colors.PRIMARY,
         borderColor: colors.PRIMARY,
+      },
+      disabledCircle: {
+        opacity: 0.4,
       },
       iconWrapper: {
         position: 'absolute',
