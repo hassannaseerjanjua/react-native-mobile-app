@@ -7,7 +7,11 @@ import {
   View,
   KeyboardAvoidingView,
   Keyboard,
+  Linking,
+  Modal,
+  ActivityIndicator,
 } from 'react-native';
+import WebView from 'react-native-webview';
 import React, { useState, useEffect, useMemo } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -90,6 +94,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [showCustomDonationInput, setShowCustomDonationInput] = useState(false);
   const [customDonationAmount, setCustomDonationAmount] = useState<string>('');
   const [showEmployeesBottomSheet, setShowEmployeesBottomSheet] = useState(false);
+  const [showPaymentWebView, setShowPaymentWebView] = useState(false);
+  const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
+  const [webViewLoading, setWebViewLoading] = useState(true);
   const isMerchant = user?.isMerchant === 1;
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => {
@@ -587,15 +594,25 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           Success: boolean;
           UniqueCode: string | null;
           isPaymentRequired: boolean;
+          PaymentUrl: string;
         };
       }>(apiEndpoints.INITIATE_CHECKOUT, payload);
 
       if (response.success) {
-        setCheckoutCompleted(true);
+        // Store the gift link if available (it might be available even before payment)
         if (response.data?.Data?.GiftLink) {
           setGiftLink(response.data?.Data?.GiftLink);
+        }
+
+        if (response.data?.Data?.PaymentUrl) {
+          // Open payment URL in in-app webview
+          setPaymentUrl(response.data?.Data?.PaymentUrl);
+          setShowPaymentWebView(true);
+        } else {
+          // No payment required, proceed to success
+          setCheckoutCompleted(true);
           // Only auto-share if not send type 2
-          if (cartData?.SendType !== 2) {
+          if (response.data?.Data?.GiftLink && cartData?.SendType !== 2) {
             handleShareGiftLink(response.data?.Data?.GiftLink);
           }
         }
@@ -610,6 +627,77 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       setWaitingForVideoUpload(false);
     }
   };
+
+  const handleWebViewNavigationStateChange = (navState: any) => {
+    const { url } = navState;
+
+    // Check if we've reached the callback URL
+    if (url.includes('/callback/processResultNew')) {
+      // The success/failure status is in the body content
+      // We'll handle it in the onMessage handler via injected JavaScript
+      console.log('Payment callback URL detected:', url);
+    }
+  };
+
+  const handleWebViewMessage = (event: any) => {
+    try {
+      const message = event.nativeEvent.data;
+      console.log('WebView message received:', message);
+
+      // Check if the body content indicates success
+      const isSuccess = message.includes('SUCCESS') || message.includes('Order:True');
+      const isFailure = message.includes('Payment Failed') || message.includes('FAILED');
+
+      if (isSuccess) {
+        // Payment successful - close webview and show success screen
+        setShowPaymentWebView(false);
+        setPaymentUrl(null);
+        setCheckoutCompleted(true);
+
+        // Auto-share gift link if available and not send type 2
+        if (giftLink && cartData?.SendType !== 2) {
+          handleShareGiftLink(giftLink);
+        }
+      } else if (isFailure) {
+        // Payment failed - close webview and show error
+        setShowPaymentWebView(false);
+        setPaymentUrl(null);
+        notify.error(getString('AU_ERROR_OCCURRED') || 'Payment failed. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error handling WebView message:', error);
+    }
+  };
+
+  // JavaScript to inject into the WebView to read body content
+  const injectedJavaScript = `
+    (function() {
+      // Function to send body content to React Native
+      function sendBodyContent() {
+        const bodyContent = document.body.innerText || document.body.textContent || '';
+        window.ReactNativeWebView.postMessage(bodyContent);
+      }
+
+      // Check if page is already loaded
+      if (document.readyState === 'complete') {
+        sendBodyContent();
+      } else {
+        // Wait for page to load
+        window.addEventListener('load', sendBodyContent);
+      }
+
+      // Also observe for any changes in the body content
+      const observer = new MutationObserver(function(mutations) {
+        sendBodyContent();
+      });
+      
+      observer.observe(document.body, {
+        childList: true,
+        subtree: true
+      });
+    })();
+    true;
+  `;
 
   if (checkoutCompleted) {
     const isSendType2 = cartData?.SendType === 2;
@@ -1235,6 +1323,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         setActiveDomationAmount(undefined);
                       }
                     },
+                    maxLength: 4,
                     returnKeyType: 'done',
                     onSubmitEditing: () => {
                       Keyboard.dismiss();
@@ -1323,6 +1412,104 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         onConfirm={() => handleRemoveItem()}
         onCancel={() => setItemToRemove(null)}
       />
+
+      {/* Payment WebView Modal */}
+      <Modal
+        visible={showPaymentWebView}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => {
+          setShowPaymentWebView(false);
+          setPaymentUrl(null);
+        }}
+      >
+        <View style={{ flex: 1, backgroundColor: theme.colors.WHITE }}>
+          {/* Header with close button */}
+          <View
+            style={{
+              flexDirection: rtlFlexDirection(isRtl),
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: theme.sizes.PADDING,
+              paddingVertical: theme.sizes.HEIGHT * 0.01,
+              backgroundColor: theme.colors.WHITE,
+              borderBottomWidth: 1,
+              borderBottomColor: theme.colors.DIVIDER_COLOR,
+              ...Platform.select({
+                ios: {
+                  paddingTop: theme.sizes.HEIGHT * 0.02,
+                },
+              }),
+            }}
+          >
+            <Text style={styles.heading}>{getString('CHECKOUT_PAYMENT_MANAGEMENT')}</Text>
+            <TouchableOpacity
+              onPress={() => {
+                setShowPaymentWebView(false);
+                setPaymentUrl(null);
+              }}
+              style={{
+                padding: 8,
+              }}
+            >
+              <Text style={{ ...styles.TextMedium, color: theme.colors.PRIMARY }}>
+                {getString('NG_CANCEL')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {/* WebView */}
+          {paymentUrl && (
+            <WebView
+              source={{ uri: paymentUrl }}
+              onNavigationStateChange={handleWebViewNavigationStateChange}
+              onMessage={handleWebViewMessage}
+              injectedJavaScript={injectedJavaScript}
+              onLoadStart={() => setWebViewLoading(true)}
+              onLoadEnd={() => setWebViewLoading(false)}
+              onError={(syntheticEvent) => {
+                const { nativeEvent } = syntheticEvent;
+                console.error('WebView error: ', nativeEvent);
+                notify.error(getString('AU_ERROR_OCCURRED'));
+              }}
+              style={{ flex: 1 }}
+              startInLoadingState={true}
+              javaScriptEnabled={true}
+              domStorageEnabled={true}
+              renderLoading={() => (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    backgroundColor: theme.colors.WHITE,
+                  }}
+                >
+                  <ActivityIndicator size="large" color={theme.colors.PRIMARY} />
+                </View>
+              )}
+            />
+          )}
+
+          {/* Loading indicator */}
+          {/* {webViewLoading && (
+            <View
+              style={{
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: [{ translateX: -25 }, { translateY: -25 }],
+              }}
+            >
+              <ActivityIndicator size="large" color={theme.colors.PRIMARY} />
+            </View>
+          )} */}
+        </View>
+      </Modal>
     </ParentView>
   );
 };
