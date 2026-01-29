@@ -349,6 +349,7 @@ export interface InboxOrderUser {
   PhoneNo: string;
   CityId: number | null;
   ProfileUrl: string | null;
+  isVerified: boolean;
 }
 
 export interface InboxOrderStore {

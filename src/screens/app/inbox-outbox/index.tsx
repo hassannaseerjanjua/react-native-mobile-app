@@ -27,6 +27,7 @@ import {
   SvgEhsanIcon,
   SvgProfileFriends,
   ArrowDownIcon,
+  SvgVerifiedIcon,
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
@@ -542,14 +543,19 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 justifyContent: 'space-between',
               }}
             >
+              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <Text
+                  style={styles.userNameText}
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                >
+                  {order.SendType === 2 ? 'Gift Link' : userName}
+                </Text>
+                {
+                  order?.users?.isVerified && (<SvgVerifiedIcon />)
+                }
+              </View>
 
-              <Text
-                style={styles.userNameText}
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {order.SendType === 2 ? 'Gift Link' : userName}
-              </Text>
 
               <Text style={styles.timeText}>{timeAgo}</Text>
             </View>
@@ -613,9 +619,9 @@ const InboxItem: React.FC<InboxItemProps> = ({
             </View>
           </View>
           {
-            order.EhsaanAmount > 0 && (<View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, justifyContent: 'space-between' }}>
+            order.EhsaanAmount > 0 && (<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'relative', marginTop: scaleWithMax(3, 4) }}>
               <Text style={{ ...theme.globalStyles.TEXT_STYLE, fontSize: theme.sizes.FONTSIZE_MEDIUM, color: theme.colors.PRIMARY_TEXT }}>This gift carries a good deed’s reward</Text>
-              <SvgEhsanIcon />
+              <SvgEhsanIcon style={{ position: 'absolute', end: -3 }} />
             </View>)
           }
 
