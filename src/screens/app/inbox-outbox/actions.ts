@@ -72,7 +72,7 @@ export const getProfileImage = (
 
 export const getUserName = (order: InboxOrder, isInbox: boolean): string => {
   if (isInbox) {
-    return order.users?.FullName || '';
+    return order.users?.FullName || order.FriendName || '';
   } else {
     return order.FriendName || order.users?.FullName || '';
   }
@@ -390,10 +390,81 @@ console.log('isMerchant', isMerchantBool);
       const response = await api.post<any>(apiEndpoints.INIT_ORDER_v2, payload);
       const responseData = (response.data as any) || {};
 
+      console.log('selectedOrder', currentSelectedOrder);
+      
+
       if (response.success && responseData.Data) {
         const data = responseData.Data;
         const responseOrderId = data.OrderId;
-        const uniqueCode = data.UniqueCode;
+        const uniqueCode = data.UniqueCode;   
+        const giftLink = data.GiftLink || '';
+
+        if (giftLink) {
+
+          notify.success('Gift token found');
+
+          let giftToken: string | null = null;
+          const gifttokenIndex = giftLink.indexOf('gifttoken=');
+  
+          if (gifttokenIndex !== -1) {
+            const tokenStart = gifttokenIndex + 'gifttoken='.length;
+            const remainingUrl = giftLink.substring(tokenStart);
+            const tokenEnd = remainingUrl.indexOf('&');
+            giftToken =
+              tokenEnd !== -1
+                ? remainingUrl.substring(0, tokenEnd)
+                : remainingUrl;
+          }
+  
+          if (!giftToken) {
+            console.log('No gifttoken parameter found in URL');
+            return;
+          }
+  
+          console.log('Extracted gifttoken:', giftToken);
+
+
+          const response = await api.get(
+            apiEndpoints.GET_GIFT_DETAILS(giftToken),
+          );
+          if (response.success && response.data) {
+            const responseData = response.data as any;
+            const giftData = responseData?.Data?.data;
+  
+            if (!giftData) {
+              console.log('No gift data found in response');
+              return;
+            }
+  
+            // Map API response to ScanQr screen params
+            const defaultItemImage = require('../../../assets/images/img-placeholder.png');
+            const selectedItems =
+              giftData.Items?.map((item: any) => ({
+                OrderItemId: item.OrderItemId,
+                ItemName: item.ItemName,
+                ItemImage: item.ItemImage
+                  ? { uri: item.ItemImage }
+                  : defaultItemImage,
+                Quantity: item.Quantity,
+              })) || [];
+  
+            // Navigate to ScanQr screen
+            (navigation as any).navigate('ScanQr', {
+                  OrderId: giftData.OrderId,
+                  UniqueCode: giftData.QRUniqueCode,
+                  storeName: giftData.StoreName,
+                  selectedItems: selectedItems,
+                  // For single item fallback
+                  productImage: selectedItems[0]?.ItemImage,
+                  productName: selectedItems[0]?.ItemName,
+                  quantity: selectedItems[0]?.Quantity || 1,
+                })
+              
+            
+          }
+          console.log('responseData', responseData);
+          return;
+        }
 
         if (responseOrderId && uniqueCode) {
           const firstSelectedItemId = overrideItems
@@ -425,6 +496,9 @@ console.log('isMerchant', isMerchantBool);
             };
           });
 
+         
+          
+          
           (navigation as any).navigate('ScanQr', {
             OrderId: responseOrderId,
             UniqueCode: uniqueCode,
@@ -433,6 +507,7 @@ console.log('isMerchant', isMerchantBool);
             quantity: totalRedeemQuantity,
             productName: currentSelectedOrder?.Items?.[0]?.ItemName,
             selectedItems: selectedItemsForNav,
+
           });
           setOpenBottomSheet(false);
         } else {

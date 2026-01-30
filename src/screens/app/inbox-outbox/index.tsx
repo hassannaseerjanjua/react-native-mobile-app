@@ -50,6 +50,7 @@ import useDebounceClick from '../../../hooks/useDebounceClick';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import SearchUserItem from '../../../components/app/SearchUserItem';
 import { useAuthStore } from '../../../store/reducer/auth';
+import notify from '../../../utils/notify';
 
 const InboxOutbox: React.FC = () => {
   const { getString } = useLocaleStore();
@@ -524,7 +525,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
             />
           </View>
         ) : (
-          <Image style={styles.inboxProfile} source={profileImage} />
+          <Image style={styles.inboxProfile} source={order.CampaginType === 1 ? { uri: order.stores.ImageLogo } : profileImage} />
         )}
         <View style={{ flex: 1 }}>
           <View
@@ -549,7 +550,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {order.SendType === 2 ? 'Gift Link' : userName}
+                  {order.SendType === 2 ? 'Gift Link' : order.CampaginType === 1 ? order.stores.NameEn : userName}
                 </Text>
                 {
                   order?.users?.isVerified && (<SvgVerifiedIcon />)
@@ -603,11 +604,16 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   )}
                 {order.SendType === 2 && onShareGiftLink && (
                   <TouchableOpacity
-                    onPress={() =>
+                    onPress={() => {
+
+                      if (order.Status === 10) {
+                        notify.error('Gift already redeemed');
+                        return;
+                      }
                       createDebouceClick('share-gift', () =>
                         onShareGiftLink(order.OrderId),
                       )
-                    }
+                    }}
                   >
                     <SvgOutboxShareIcon
                       height={scaleWithMax(20, 20)}

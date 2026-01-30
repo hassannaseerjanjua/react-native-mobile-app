@@ -115,25 +115,30 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   );
   const loading = cartItemsApi.loading;
 
-  // Merge items with the same ItemId
+  // Merge items with the same ItemId and ItemVariantId
   const mergedCartItems = useMemo(() => {
     if (!cartData?.Items) return [];
 
-    const itemsMap = new Map<number, CartItem & { originalOrderItemIds: number[] }>();
+    const itemsMap = new Map<string, CartItem & { originalOrderItemIds: number[] }>();
 
     cartData.Items.forEach(item => {
-      const existingItem = itemsMap.get(item.ItemId);
+      // Create a unique key combining ItemId and ItemVariantId
+      // Items with different variants should be kept separate
+      const itemVariantId = item.Variant?.ItemVariantId || null;
+      const uniqueKey = `${item.ItemId}_${itemVariantId ?? 'no-variant'}`;
+
+      const existingItem = itemsMap.get(uniqueKey);
 
       if (existingItem) {
-        // Merge quantities and amounts
+        // Merge quantities and amounts only if ItemId AND ItemVariantId match
         existingItem.Quantity += item.Quantity;
         existingItem.TotalAmount += item.TotalAmount;
         existingItem.OrderAmount += item.OrderAmount;
         existingItem.DiscountAmount += item.DiscountAmount;
         existingItem.originalOrderItemIds.push(item.OrderItemId);
       } else {
-        // First occurrence of this ItemId - use this as the primary OrderItemId
-        itemsMap.set(item.ItemId, {
+        // First occurrence of this ItemId+ItemVariantId combination
+        itemsMap.set(uniqueKey, {
           ...item,
           originalOrderItemIds: [item.OrderItemId],
         });

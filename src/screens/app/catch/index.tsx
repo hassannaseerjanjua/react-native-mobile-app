@@ -660,7 +660,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                 height={scaleWithMax(16, 18)}
               />
               <Text style={styles.footerPriceText}>
-                {cartApi.data?.TotalAmount.toFixed(2) || '0.00'}
+                {cartApi.data?.TotalAmount || '0.00'}
               </Text>
             </View>
           </TouchableOpacity>
@@ -711,13 +711,26 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               </TouchableOpacity>
 
               <View style={styles.contentWrapper}>
-                <SvgCatchTimeIcon
+                {/* <SvgCatchTimeIcon
                   width={scaleWithMax(120, 140)}
                   height={scaleWithMax(120, 140)}
                   style={{
                     position: 'absolute',
                     top: -scaleWithMax(60, 62),
                     zIndex: 199999
+                  }}
+                /> */}
+                <Image source={require('../../../assets/images/catch-time-icon.png')}
+
+                  width={scaleWithMax(120, 140)}
+                  height={scaleWithMax(120, 140)}
+                  resizeMode='contain'
+                  style={{
+                    position: 'absolute',
+                    top: -scaleWithMax(60, 62),
+                    zIndex: 199999,
+                    width: scaleWithMax(120, 140),
+                    height: scaleWithMax(120, 140),
                   }}
                 />
 
