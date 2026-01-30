@@ -13,11 +13,14 @@ import { scaleWithMax } from '../../../utils';
 import TabItem from '../../../components/global/TabItem';
 import { useListingApi } from '../../../hooks/useListingApi';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
-interface SelectCityProps extends AppStackScreen<'SelectCity'> {}
+interface SelectCityProps extends AppStackScreen<'SelectCity'> { }
 
 const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
 
   const citiesApi = useListingApi<City>(apiEndpoints.GET_CITY_LISTING, '', {
     transformData(data) {
@@ -61,6 +64,9 @@ const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
 
             gap: scaleWithMax(10, 12),
           }}
+          ListEmptyComponent={
+            <PlaceholderLogoText text={'No cities found'} />
+          }
           renderItem={({ item }) => (
             <TabItem
               TabItemStyles={theme.globalStyles.SHADOW_STYLE}

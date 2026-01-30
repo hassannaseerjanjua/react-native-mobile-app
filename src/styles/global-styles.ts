@@ -45,8 +45,8 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
         },
         SHADOW_STYLE: {
           shadowColor: '#000000',
-          shadowOffset: { width: 0, height: 0 },
-          shadowOpacity: 0.05,
+          shadowOffset: { width: 0, height: 1 },
+          shadowOpacity: 0.08,
           shadowRadius: 17,
           elevation: 4,
         },

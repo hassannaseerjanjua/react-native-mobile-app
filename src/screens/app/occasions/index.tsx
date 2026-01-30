@@ -27,6 +27,7 @@ import { useOccasions, OccasionFormValues } from './actions';
 import { Text } from '../../../utils/elements.tsx';
 import { scaleWithMax } from '../../../utils';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 
 const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -103,15 +104,15 @@ const OccasionsScreen: React.FC = () => {
           selectedOccasion.occasionType === 'none'
             ? getString('OCC_OCCASIONS')
             : selectedOccasion.occasionType === 'create'
-            ? getString('OCC_CREATE_OCCASION')
-            : getString('OCC_EDIT_OCCASION')
+              ? getString('OCC_CREATE_OCCASION')
+              : getString('OCC_EDIT_OCCASION')
         }
         rightSideTitle={
           isEditGroupOpen || selectedOccasion.occasionType !== 'none'
             ? ''
             : occasions?.length !== 0
-            ? getString('OCC_EDIT_OCCASION')
-            : ''
+              ? getString('OCC_EDIT_OCCASION')
+              : ''
         }
         rightSideTitlePress={() => setIsEditGroupOpen(!isEditGroupOpen)}
         rightSideIcon={<SvgEditGroup />}
@@ -150,6 +151,9 @@ const OccasionsScreen: React.FC = () => {
               keyExtractor={item => item.OccassionId.toString()}
               contentContainerStyle={styles.content}
               showsVerticalScrollIndicator={false}
+              ListEmptyComponent={
+                <PlaceholderLogoText text={'No occasions found'} />
+              }
               renderItem={({ item }: { item: Occasion }) => {
                 const isDefaultBirthday = item.OccassionId === -1;
                 const isExpanded = expandedOccasionId === item.OccassionId;
@@ -157,8 +161,8 @@ const OccasionsScreen: React.FC = () => {
                   isDefaultBirthday && user?.DateOfBirth
                     ? formatDateForDisplay(user.DateOfBirth)
                     : item.OccasionDate && item.OccasionDate !== 'null'
-                    ? formatDateForDisplay(item.OccasionDate)
-                    : null;
+                      ? formatDateForDisplay(item.OccasionDate)
+                      : null;
 
                 // For default birthday, show icon outside and make viewable
                 if (isDefaultBirthday) {
@@ -252,7 +256,7 @@ const OccasionsScreen: React.FC = () => {
                         <InputField
                           error={
                             formik.touched.occasionName &&
-                            formik.errors.occasionName
+                              formik.errors.occasionName
                               ? formik.errors.occasionName
                               : undefined
                           }
@@ -266,9 +270,9 @@ const OccasionsScreen: React.FC = () => {
                                   : formik.values.image &&
                                     typeof formik.values.image === 'string' &&
                                     formik.values.image
-                                  ? formik.values.image
-                                  : null;
-                                
+                                    ? formik.values.image
+                                    : null;
+
                                 if (imageUri) {
                                   // Open image viewer if image exists
                                   (navigation as any).navigate('ProfileImageViewer', {
@@ -291,8 +295,8 @@ const OccasionsScreen: React.FC = () => {
                               }}
                             >
                               {formik.values.image &&
-                              typeof formik.values.image === 'object' &&
-                              formik.values.image.uri ? (
+                                typeof formik.values.image === 'object' &&
+                                formik.values.image.uri ? (
                                 <Image
                                   source={{ uri: formik.values.image.uri }}
                                   style={{
@@ -349,7 +353,7 @@ const OccasionsScreen: React.FC = () => {
                           <InputField
                             error={
                               formik.touched.occasionDate &&
-                              formik.errors.occasionDate
+                                formik.errors.occasionDate
                                 ? formik.errors.occasionDate
                                 : undefined
                             }
@@ -364,8 +368,8 @@ const OccasionsScreen: React.FC = () => {
                               value:
                                 selectedOccasion.occasionType === 'edit'
                                   ? formatDateForDisplay(
-                                      formik.values.occasionDate,
-                                    )
+                                    formik.values.occasionDate,
+                                  )
                                   : formik.values.occasionDate,
                               onChangeText: () => { },
                               onFocus: () =>
@@ -399,8 +403,8 @@ const OccasionsScreen: React.FC = () => {
                           selectedOccasion.occasionType === 'edit' && date
                             ? date
                             : formik.values.occasionDate
-                            ? new Date(formik.values.occasionDate)
-                            : date
+                              ? new Date(formik.values.occasionDate)
+                              : date
                         }
                         mode="date"
                         onConfirm={selectedDate =>

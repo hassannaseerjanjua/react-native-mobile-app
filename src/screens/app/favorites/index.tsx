@@ -22,7 +22,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
 }) => {
   const { styles, theme } = useStyles();
   const { getString, langCode } = useLocaleStore();
-
   const FavStoreListing = useListingApi<FavStores>(
     apiEndpoints.GET_FAV_STORE,
     '',
@@ -49,7 +48,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
-
   useEffect(() => {
     if (FavStoreListing.data) {
       const initialState: Record<number, boolean> = {};
@@ -163,6 +161,8 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         showBackButton={true}
         onBackPress={handleBackPress}
         showSearchBar={true}
+        searchValue={FavStoreListing.search}
+        onSearchChange={FavStoreListing.setSearch}
       />
 
       <View style={styles.content}>
@@ -185,7 +185,10 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
                 />
               </View>
             )}
-            contentContainerStyle={styles.favoritesContainer}
+            contentContainerStyle={[
+              styles.favoritesContainer,
+              { flexGrow: 1 },
+            ]}
             renderItem={({ item }) => (
               <View style={styles.favoriteItemContainer}>
                 <FavoriteItemCard
@@ -198,11 +201,9 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
               </View>
             )}
             ListEmptyComponent={
-              <View style={styles.emptyContainer}>
-                <PlaceholderLogoText
-                  text={getString('EMPTY_NO_FAVORITES_FOUND')}
-                />
-              </View>
+              <PlaceholderLogoText
+                text={getString('EMPTY_NO_FAVORITES_FOUND')}
+              />
             }
           />
         )}

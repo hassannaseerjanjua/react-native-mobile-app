@@ -8,10 +8,9 @@ import {
     ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { launchImageLibrary } from 'react-native-image-picker';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { SvgPencilIcon, SvgDeleteIcon } from '../../../assets/icons';
-import { scaleWithMax, compressImage, fileUriWrapper } from '../../../utils';
+import { scaleWithMax } from '../../../utils';
 import { useDispatch } from 'react-redux';
 import { login, useAuthStore } from '../../../store/reducer/auth';
 import api from '../../../utils/api';
@@ -23,6 +22,7 @@ import ParentView from '../../../components/app/ParentView';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import useStyles from './style';
 import notify from '../../../utils/notify';
+import { selectAndCropImage } from '../../../utils/imageCropper';
 
 const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
     route,
@@ -56,36 +56,33 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
         }
     }, [imageUri]);
 
-    const handleImageSelect = () => {
+    const handleImageSelect = async () => {
         if (isUploading) return;
 
-        launchImageLibrary(
-            {
-                mediaType: 'photo',
-                quality: 0.8,
-                selectionLimit: 1,
-            },
-            async response => {
-                if (response.assets && response.assets[0]) {
-                    const asset = response.assets[0];
-                    try {
-                        const imageUri = fileUriWrapper(asset.uri || '');
-                        const compressedImage = await compressImage(imageUri || '');
+        try {
+            // Use WhatsApp-like cropper with circular overlay
+            const croppedImage = await selectAndCropImage({
+                cropSize: 400,
+                circularOverlay: true, // Round overlay like WhatsApp
+                fileNamePrefix: isOccasionMode ? 'occasion_image' : 'profile_image',
+                compress: true,
+                compressionQuality: isOccasionMode ? 0.2 : 0.8, // Higher compression for occasions
+                maxWidth: 800,
+                maxHeight: 800,
+            });
 
-                        // Create a new asset object with compressed URI
-                        const compressedAsset = {
-                            ...asset,
-                            uri: compressedImage,
-                        };
-                        uploadProfileImage(compressedAsset);
-                    } catch (error) {
-                        console.error('Error compressing image:', error);
-                        // Fallback to original image if compression fails
-                        uploadProfileImage(asset);
-                    }
-                }
-            },
-        );
+            if (croppedImage) {
+                // Create an asset object compatible with uploadProfileImage
+                const asset = {
+                    uri: croppedImage.uri,
+                    type: croppedImage.type,
+                    fileName: croppedImage.name,
+                };
+                uploadProfileImage(asset);
+            }
+        } catch (error) {
+            console.error('Error selecting/cropping image:', error);
+        }
     };
 
     const uploadProfileImage = (asset: any, isRemove: boolean = false) => {
@@ -194,10 +191,7 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
 
     return (
         <ParentView style={screenStyles.container}>
-            <StatusBar
-                backgroundColor={theme.colors.HOME_BACKGROUND}
-                barStyle="dark-content"
-            />
+
             <HomeHeader
                 title={title || "Profile Picture"}
                 showBackButton

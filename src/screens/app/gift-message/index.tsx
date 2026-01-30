@@ -45,6 +45,7 @@ import {
   fetchApiResponse,
 } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 import {
@@ -1273,9 +1274,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                       </View>
                     )}
                     ListEmptyComponent={
-                      <View style={styles.imageContainer}>
-                        <Text>No filters available</Text>
-                      </View>
+                      <PlaceholderLogoText text="No filters available" />
                     }
                     contentContainerStyle={styles.filtersScrollContent}
                   />

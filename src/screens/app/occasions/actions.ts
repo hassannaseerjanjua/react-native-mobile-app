@@ -1,7 +1,4 @@
 import { useState, useEffect } from 'react';
-import { Platform } from 'react-native';
-import { launchImageLibrary } from 'react-native-image-picker';
-import ImageCompressor from 'react-native-compressor';
 import api, { getAuthHeaderWithFormData } from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import notify from '../../../utils/notify';
@@ -9,7 +6,7 @@ import { Occasion, OccasionsApiResponse } from '../../../types/index.ts';
 import { getAuthHeader } from '../../../utils/api';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { useAuthStore } from '../../../store/reducer/auth';
-import { compressImage, fileUriWrapper } from '../../../utils';
+import { selectAndCropImage } from '../../../utils/imageCropper';
 
 export interface ImageFile {
   uri: string;
@@ -193,54 +190,31 @@ export const useOccasions = () => {
     fetchOccasions();
   }, []);
 
-  const handleImageSelect = (formik: any) => {
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 0.2, // High compression - low quality
-        selectionLimit: 1,
-        includeBase64: false,
-      },
-      async response => {
-        if (response.assets?.[0]) {
-          const asset = response.assets[0];
-          try {
-            const imageUri = fileUriWrapper(asset.uri || '');
-            // Use high compression with low quality
-            const compressedImage = await ImageCompressor.Image.compress(
-              imageUri || '',
-              {
-                quality: 0.2, // High compression - 20% quality
-                maxWidth: 800,
-                maxHeight: 800,
-              },
-            );
-            const finalImageUri = fileUriWrapper(compressedImage);
+  const handleImageSelect = async (formik: any) => {
+    try {
+      // Use WhatsApp-like cropper with circular overlay for square crop
+      const croppedImage = await selectAndCropImage({
+        cropSize: 400,
+        circularOverlay: true, // Round overlay like WhatsApp
+        fileNamePrefix: 'occasion_image',
+        compress: true,
+        compressionQuality: 0.2, // High compression for occasions
+        maxWidth: 800,
+        maxHeight: 800,
+      });
 
-            const imageFile: ImageFile = {
-              uri: finalImageUri,
-              type: asset.type || 'image/jpeg',
-              name: asset.fileName || `occasion_image_${Date.now()}.jpg`,
-            };
-            formik.setFieldValue('image', imageFile, false);
-            formik.setFieldTouched('image', true, false);
-          } catch (error) {
-            console.error('Error compressing image:', error);
-            // Fallback to original image if compression fails
-            const imageFile: ImageFile = {
-              uri:
-                Platform.OS === 'ios'
-                  ? asset.uri?.replace('file://', '') || ''
-                  : asset.uri || '',
-              type: asset.type || 'image/jpeg',
-              name: asset.fileName || `occasion_image_${Date.now()}.jpg`,
-            };
-            formik.setFieldValue('image', imageFile, false);
-            formik.setFieldTouched('image', true, false);
-          }
-        }
-      },
-    );
+      if (croppedImage) {
+        const imageFile: ImageFile = {
+          uri: croppedImage.uri,
+          type: croppedImage.type,
+          name: croppedImage.name,
+        };
+        formik.setFieldValue('image', imageFile, false);
+        formik.setFieldTouched('image', true, false);
+      }
+    } catch (error) {
+      console.error('Error selecting/cropping image:', error);
+    }
   };
 
   const getImageDisplayValue = (image: ImageValue): string => {

@@ -34,13 +34,6 @@ const useStyles = () => {
         gap: sizes.PADDING,
       },
       gridItem: {},
-      emptyContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        flex: 1,
-        minHeight: '85%',
-        // paddingVertical: sizes.HEIGHT * 0.1,
-      },
     }),
     theme,
   };
