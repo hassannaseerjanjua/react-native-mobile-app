@@ -524,9 +524,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         user?.FullNameEn ||
         user?.FullNameAr ||
         getString('CHECKOUT_SOMEONE');
-      const shareMessage = getString('CHECKOUT_SHARE_GIFT_MESSAGE')
-        .replace('{senderName}', senderName)
-        .replace('{giftLink}', giftLink);
+
+      // Use the same format as outbox share link functionality
+      const shareMessage = `💝 You have received a gift from ${senderName}. Click on the link below to redeem the gift.\n\n${giftLink}`;
 
       const shareOptions = Platform.select({
         ios: {
