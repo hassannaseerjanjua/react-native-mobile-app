@@ -1483,10 +1483,10 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                   >
                     {/* Profile Image */}
                     <SkeletonPlaceholder.Item
-                      width={scaleWithMax(45, 50)}
-                      height={scaleWithMax(45, 50)}
+                      width={scaleWithMax(50, 55)}
+                      height={scaleWithMax(50, 55)}
                       borderRadius={999}
-                      marginRight={theme.sizes.PADDING * 0.6}
+                      marginRight={screenWidth * 0.012}
                     />
                     {/* Content Section */}
                     <SkeletonPlaceholder.Item flex={1}>
@@ -1550,7 +1550,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                       >
                         <SkeletonPlaceholder.Item
                           width="100%"
-                          height={theme.sizes.HEIGHT * 0.34}
+                          height={theme.sizes.WIDTH * 0.50}
                           borderRadius={12}
                         />
                         {/* Bottom Section with Item Name */}

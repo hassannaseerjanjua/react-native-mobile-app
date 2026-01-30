@@ -483,7 +483,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
     const scrollPosition = event.nativeEvent.contentOffset.x;
     // Calculate item width: full width minus profile width and spacing
     const profileWidth = scaleWithMax(50, 55);
-    const spacing = theme.sizes.WIDTH * 0.02;
+    const spacing = theme.sizes.WIDTH * 0.012;
     const itemWidth = theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
     const index = Math.round(scrollPosition / itemWidth);
     setCurrentIndex(index);
@@ -492,7 +492,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const scrollToIndex = (index: number) => {
     // Calculate item width: full width minus profile width and spacing
     const profileWidth = scaleWithMax(50, 55);
-    const spacing = theme.sizes.WIDTH * 0.02;
+    const spacing = theme.sizes.WIDTH * 0.012;
     const itemWidth = theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
     scrollViewRef.current?.scrollTo({
       x: index * itemWidth,
@@ -533,7 +533,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
         ) : (
           <Image style={styles.inboxProfile} source={order.CampaginType === 1 ? { uri: order.stores.ImageLogo } : profileImage} />
         )}
-        <View style={{ flex: 1, ...rtlMargin(isRtl, theme.sizes.WIDTH * 0.02, 0) }}>
+        <View style={{ flex: 1, ...rtlMargin(isRtl, theme.sizes.WIDTH * 0.012, 0) }}>
           <View
             style={{
               display: 'flex',
@@ -656,7 +656,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
               snapToInterval={
                 (() => {
                   const profileWidth = scaleWithMax(50, 55);
-                  const spacing = theme.sizes.WIDTH * 0.02;
+                  const spacing = theme.sizes.WIDTH * 0.012;
                   return theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
                 })()
               }
