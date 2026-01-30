@@ -233,44 +233,8 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
           <SkeletonPlaceholder>
             <SkeletonPlaceholder.Item>
               {/* Frequently Gifted Section */}
-              {/* Section Title */}
-              <SkeletonPlaceholder.Item
-                width={screenWidth * 0.4}
-                height={screenHeight * 0.022}
-                borderRadius={screenWidth * 0.01}
-                marginTop={screenHeight * 0.014}
-                marginBottom={screenHeight * 0.008}
-                paddingHorizontal={screenWidth * 0.035}
-              />
 
-              {/* Frequently Gifted List Items */}
-              {[...Array(3)].map((_, index) => (
-                <SkeletonPlaceholder.Item
-                  key={`frequent-${index}`}
-                  flexDirection="row"
-                  alignItems="center"
-                  paddingVertical={screenHeight * 0.01}
-                  paddingHorizontal={screenWidth * 0.035}
-                  marginBottom={screenHeight * 0.001}
-                >
-                  {/* Profile Picture - Match actual size (36x36) */}
-                  <SkeletonPlaceholder.Item
-                    width={screenWidth * 0.09}
-                    height={screenWidth * 0.09}
-                    borderRadius={screenWidth * 0.045}
-                    marginRight={screenWidth * 0.03}
-                  />
 
-                  {/* User Info - Only name, no button */}
-                  <SkeletonPlaceholder.Item flex={1} justifyContent="center">
-                    <SkeletonPlaceholder.Item
-                      width={screenWidth * 0.5}
-                      height={screenHeight * 0.018}
-                      borderRadius={screenWidth * 0.01}
-                    />
-                  </SkeletonPlaceholder.Item>
-                </SkeletonPlaceholder.Item>
-              ))}
 
               {/* Main Friends List */}
               {[...Array(6)].map((_, index) => (

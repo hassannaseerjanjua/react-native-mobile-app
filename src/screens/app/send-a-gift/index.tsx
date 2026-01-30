@@ -594,7 +594,19 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             </View>
           )}
           {isLoading ? (
-            <View style={styles.listCard}>
+            <View
+              style={[
+                styles.listCard,
+                {
+                  marginTop:
+                    (route.params?.routeTo === 'SelectStore' ||
+                      !route.params?.routeTo) ||
+                      isMerchant
+                      ? theme.sizes.HEIGHT * 0.014
+                      : 0,
+                },
+              ]}
+            >
               <SkeletonLoader screenType="sendAGift" />
             </View>
           ) : displayData.length > (isGiftOneGetOne || searchQuery !== '' ? 0 : 1) ? (
@@ -642,7 +654,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
               />
             </View>
           ) : isMerchant ? (
-            <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
+            <View style={{ height: theme.sizes.HEIGHT * 0.6 }}>
               <PlaceholderLogoText text="No Users Found" />
             </View>
           ) : (
