@@ -482,7 +482,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                     }}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                      <View style={styles.loadingContainer}>
+                      <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
                         <PlaceholderLogoText text={getString('SEARCH_NO_USERS_FOUND')} />
                       </View>
                     }
@@ -542,7 +542,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContainer}
                   ListEmptyComponent={
-                    <View style={styles.loadingContainer}>
+                    <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
                       <PlaceholderLogoText text={getString('SEARCH_NO_USERS_FOUND')} />
                     </View>
                   }

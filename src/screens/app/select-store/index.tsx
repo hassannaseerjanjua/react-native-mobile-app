@@ -311,13 +311,15 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                 data={storeListApi.data}
                 extraData={favoriteStates}
                 ListEmptyComponent={() => (
-                  <PlaceholderLogoText
-                    text={
-                      searchQuery
-                        ? getString('SEARCH_NO_RESULTS_FOUND')
-                        : getString('SELECT_STORE_NO_STORES_FOUND')
-                    }
-                  />
+                  <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
+                    <PlaceholderLogoText
+                      text={
+                        searchQuery
+                          ? getString('SEARCH_NO_RESULTS_FOUND')
+                          : getString('SELECT_STORE_NO_STORES_FOUND')
+                      }
+                    />
+                  </View>
                 )}
                 keyExtractor={item => item.StoreId.toString()}
                 renderItem={({ item }) => (

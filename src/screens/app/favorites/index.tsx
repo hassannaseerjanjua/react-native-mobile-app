@@ -185,10 +185,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
                 />
               </View>
             )}
-            contentContainerStyle={[
-              styles.favoritesContainer,
-              { flexGrow: 1 },
-            ]}
+            contentContainerStyle={styles.favoritesContainer}
             renderItem={({ item }) => (
               <View style={styles.favoriteItemContainer}>
                 <FavoriteItemCard
@@ -201,9 +198,11 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
               </View>
             )}
             ListEmptyComponent={
-              <PlaceholderLogoText
-                text={getString('EMPTY_NO_FAVORITES_FOUND')}
-              />
+              <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
+                <PlaceholderLogoText
+                  text={getString('EMPTY_NO_FAVORITES_FOUND')}
+                />
+              </View>
             }
           />
         )}

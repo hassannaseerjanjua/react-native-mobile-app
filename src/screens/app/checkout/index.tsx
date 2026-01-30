@@ -1426,7 +1426,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           </View></>
       ) : (
 
-        <PlaceholderLogoText text={getString('CHECKOUT_YOUR_CART_IS_EMPTY')} />
+        <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
+          <PlaceholderLogoText text={getString('CHECKOUT_YOUR_CART_IS_EMPTY')} />
+        </View>
 
       )
       }

@@ -1274,7 +1274,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                       </View>
                     )}
                     ListEmptyComponent={
-                      <PlaceholderLogoText text="No filters available" />
+                      <View style={{ height: theme.sizes.HEIGHT * 0.20, justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+                        <PlaceholderLogoText text="No filters available" />
+                      </View>
                     }
                     contentContainerStyle={styles.filtersScrollContent}
                   />

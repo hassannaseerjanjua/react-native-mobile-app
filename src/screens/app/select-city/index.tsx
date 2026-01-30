@@ -65,7 +65,9 @@ const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
             gap: scaleWithMax(10, 12),
           }}
           ListEmptyComponent={
-            <PlaceholderLogoText text={'No cities found'} />
+            <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
+              <PlaceholderLogoText text={'No cities found'} />
+            </View>
           }
           renderItem={({ item }) => (
             <TabItem

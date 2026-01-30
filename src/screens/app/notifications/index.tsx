@@ -59,7 +59,9 @@ const NotificationsScreen: React.FC = () => {
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.content}
         ListEmptyComponent={
-          <PlaceholderLogoText text={'No notifications found'} />
+          <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
+            <PlaceholderLogoText text={'No notifications found'} />
+          </View>
         }
         renderItem={({ item }: { item: (typeof mockNotifications)[0] }) => (
           <NotificationItem

@@ -152,7 +152,9 @@ const OccasionsScreen: React.FC = () => {
               contentContainerStyle={styles.content}
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={
-                <PlaceholderLogoText text={'No occasions found'} />
+                <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
+                  <PlaceholderLogoText text={'No occasions found'} />
+                </View>
               }
               renderItem={({ item }: { item: Occasion }) => {
                 const isDefaultBirthday = item.OccassionId === -1;
