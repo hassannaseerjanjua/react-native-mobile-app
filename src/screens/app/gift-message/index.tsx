@@ -632,15 +632,17 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       <ViewTrimmer
         videoUrl={selectedVideo}
         onSaveVideo={async trimmedPath => {
-          // Compress the trimmed video before saving
+          // Close ViewTrimmer FIRST to prevent re-renders during compression
           const fileName =
             sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`;
-          await compressVideo(trimmedPath, fileName);
 
           setOriginalVideoPath(null);
           setIsVideoLongerThan15Seconds(false);
           setSelectedVideo(null);
           setShowCamera(false);
+
+          // Compress AFTER ViewTrimmer is unmounted
+          await compressVideo(trimmedPath, fileName);
         }}
         onCancel={() => {
           // Remove video on cancel - don't save anything
