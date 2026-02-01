@@ -206,6 +206,22 @@ console.log('isMerchant', isMerchantBool);
       notify.error(getString('INBOX_ITEM_ALREADY_REDEEMED'));
       return;
     }
+
+    // For sendType 2 (gift link), navigate directly to ScanQr
+    if (selectedOrder?.SendType === 2) {
+      const availableQuantity = itemId.Quantity - itemId.UsedQuantity;
+      if (availableQuantity > 0) {
+        const itemsArray = [
+          {
+            OrderItemId: itemId.OrderItemId,
+            Quantity: availableQuantity,
+          },
+        ];
+        handlePickUpPress(itemsArray, orderId, selectedOrder);
+        return;
+      }
+    }
+
     const itemsMap = new Map<number, number>();
     const filteredAvailableItems =
       selectedOrder?.Items?.filter(
@@ -400,8 +416,6 @@ console.log('isMerchant', isMerchantBool);
         const giftLink = data.GiftLink || '';
 
         if (giftLink) {
-
-          notify.success('Gift token found');
 
           let giftToken: string | null = null;
           const gifttokenIndex = giftLink.indexOf('gifttoken=');

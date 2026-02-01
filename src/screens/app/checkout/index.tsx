@@ -447,7 +447,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             )}
           </View>
           {
-            isMerchant ? (<View
+            isMerchant || cartData?.CampaginType === 3 ? (<View
               style={{
                 ...styles.row,
                 flexDirection: rtlFlexDirection(isRtl),

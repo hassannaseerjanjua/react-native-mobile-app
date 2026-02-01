@@ -155,6 +155,7 @@
     "PRODUCT_VIEW_CART": "View Cart",
     "PRODUCT_CONFIRM": "Confirm",
     "PRODUCT_CLEAR_CART_MESSAGE": "Adding a different item will clear your previous item in cart. Do you want to continue?",
+    "PRODUCT_CLEAR_CART_VARIANT_MESSAGE": "Adding a different variant will clear your previous item in cart. Do you want to continue?",
     "API_SOMETHING_WENT_WRONG": "Something went wrong",
     "API_SESSION_EXPIRED_PLEASE_LOGIN": "Session expired, Please login again.",
     "API_FILE_TOO_LARGE_TRY_AGAIN": "File too large, Please try again with a smaller file.",

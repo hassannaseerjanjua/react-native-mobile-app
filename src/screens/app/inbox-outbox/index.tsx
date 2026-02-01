@@ -608,7 +608,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                       />
                     </TouchableOpacity>
                   )}
-                {order.SendType === 2 && onShareGiftLink && (
+                {order.SendType === 2 && !isInbox && onShareGiftLink && (
                   <TouchableOpacity
                     onPress={() => {
 

@@ -48,6 +48,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const isGiftOneGetOne = route.params.type === 'GiftOneGetOne';
   const [showClearCartConfirmation, setShowClearCartConfirmation] =
     useState(false);
+  const [isVariantChange, setIsVariantChange] = useState(false);
 
   const cartApi = useGetApi<CartResponse>(
     apiEndpoints.GET_CART_ITEMS,
@@ -213,6 +214,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
   const handleClearCartAndAddItem = async () => {
     setShowClearCartConfirmation(false);
+    setIsVariantChange(false);
     if (submitting) return;
 
     try {
@@ -244,13 +246,26 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       const hasCartItems = cartItems.length > 0;
 
       if (hasCartItems) {
-        // Check if the current item is different from items in cart
-        const isCurrentItemInCart = cartItems.some(
+        // Check if the current item is in cart
+        const currentItemInCart = cartItems.find(
           cartItem => cartItem.ItemId === item?.ItemId,
         );
 
-        if (!isCurrentItemInCart) {
-          // Show confirmation popup
+        if (currentItemInCart) {
+          // Item is in cart, check if it's a different variant
+          const selectedVariantId = selectedFilter ? Number(selectedFilter) : null;
+          const cartVariantId = currentItemInCart.Variant?.ItemVariantId || null;
+
+          // If variants are different, show confirmation
+          if (selectedVariantId !== cartVariantId) {
+            setIsVariantChange(true);
+            setShowClearCartConfirmation(true);
+            return;
+          }
+          // Same item and same variant - proceed normally (will update quantity)
+        } else {
+          // Different item in cart, show confirmation
+          setIsVariantChange(false);
           setShowClearCartConfirmation(true);
           return;
         }
@@ -438,7 +453,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         >
 
           {
-            !isMerchant && (<View style={styles.QuantityContainer}>
+            !isMerchant && !isGiftOneGetOne && (<View style={styles.QuantityContainer}>
               <MinusIcon
                 width={scaleWithMax(25, 28)}
                 height={scaleWithMax(25, 28)}
@@ -474,11 +489,18 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       </View>
       <ConfirmationPopup
         visible={showClearCartConfirmation}
-        message={getString('PRODUCT_CLEAR_CART_MESSAGE')}
+        message={
+          isVariantChange
+            ? getString('PRODUCT_CLEAR_CART_VARIANT_MESSAGE')
+            : getString('PRODUCT_CLEAR_CART_MESSAGE')
+        }
         confirmText={getString('PRODUCT_CONFIRM')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={handleClearCartAndAddItem}
-        onCancel={() => setShowClearCartConfirmation(false)}
+        onCancel={() => {
+          setShowClearCartConfirmation(false);
+          setIsVariantChange(false);
+        }}
         loading={submitting}
       />
     </ParentView>
