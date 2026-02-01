@@ -85,6 +85,7 @@ const useStyles = () => {
         filtersScrollContent: {
           paddingRight: sizes.PADDING,
           paddingVertical: sizes.HEIGHT * 0.01,
+          flexGrow: 1,
         },
         imageContainer: {
           width: sizes.WIDTH * 0.5,

@@ -30,12 +30,6 @@ const useStyles = () => {
       listContainer: {
         paddingVertical: 2,
       },
-      loadingContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        height: sizes.HEIGHT * .78,
-      },
-     
     });
   }, [theme]);
 

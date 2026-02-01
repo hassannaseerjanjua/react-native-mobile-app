@@ -6,6 +6,7 @@ import { Text } from '../../../utils/elements';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import NotificationItem from '../../../components/global/NotificationItem.tsx';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 
 const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -57,10 +58,15 @@ const NotificationsScreen: React.FC = () => {
         data={mockNotifications}
         keyExtractor={item => item.id.toString()}
         contentContainerStyle={styles.content}
+        ListEmptyComponent={
+          <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
+            <PlaceholderLogoText text={'No notifications found'} />
+          </View>
+        }
         renderItem={({ item }: { item: (typeof mockNotifications)[0] }) => (
           <NotificationItem
             title={item.title}
-            onPress={() => {}}
+            onPress={() => { }}
             NotificationItemStyles={styles.NotificationItem}
             isGroupImage={item.image}
             time={item.time}

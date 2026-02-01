@@ -11,7 +11,6 @@ import {
   StyleSheet,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { launchImageLibrary } from 'react-native-image-picker';
 import useStyles from './style';
 import { Text } from '../../../utils/elements';
 import TabItem from '../../../components/global/TabItem';
@@ -43,11 +42,12 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import { UpdateProfileApiResponse } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import QRCode from 'react-native-qrcode-svg';
-import { scaleWithMax, compressImage, fileUriWrapper } from '../../../utils';
+import { scaleWithMax } from '../../../utils';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
 import { BlurView } from '@react-native-community/blur';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import { selectAndCropImage } from '../../../utils/imageCropper';
 
 const ProfileScreen: React.FC = () => {
   const { styles: screenStyles, theme } = useStyles();
@@ -98,36 +98,27 @@ const ProfileScreen: React.FC = () => {
     } catch (error) { }
   };
 
-  const handleImageSelect = () => {
+  const handleImageSelect = async () => {
     if (isUploading) return;
 
-    launchImageLibrary(
-      {
-        mediaType: 'photo',
-        quality: 0.8,
-        selectionLimit: 1,
-      },
-      async response => {
-        if (response.assets && response.assets[0]) {
-          const asset = response.assets[0];
-          try {
-            const imageUri = fileUriWrapper(asset.uri || '');
-            const compressedImage = await compressImage(imageUri || '');
+    try {
+      // Use WhatsApp-like cropper with circular overlay
+      const croppedImage = await selectAndCropImage({
+        cropSize: 400,
+        circularOverlay: true, // Round overlay like WhatsApp
+        fileNamePrefix: 'profile_image',
+        compress: true,
+        compressionQuality: 0.8,
+        maxWidth: 800,
+        maxHeight: 800,
+      });
 
-            // Create a new asset object with compressed URI
-            const compressedAsset = {
-              ...asset,
-              uri: compressedImage,
-            };
-            uploadProfileImage(compressedAsset);
-          } catch (error) {
-            console.error('Error compressing image:', error);
-            // Fallback to original image if compression fails
-            uploadProfileImage(asset);
-          }
-        }
-      },
-    );
+      if (croppedImage) {
+        uploadProfileImage(croppedImage);
+      }
+    } catch (error) {
+      console.error('Error selecting/cropping image:', error);
+    }
   };
 
   const uploadProfileImage = (asset: any, isRemove: boolean = false) => {

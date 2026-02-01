@@ -126,10 +126,10 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
       hasTextStory && hasVideo
         ? ['text', 'video']
         : hasTextStory
-        ? ['text']
-        : hasVideo
-        ? ['video']
-        : [];
+          ? ['text']
+          : hasVideo
+            ? ['video']
+            : [];
 
     // Expose preload method to parent
     useImperativeHandle(ref, () => ({
@@ -722,15 +722,15 @@ const useStyles = () => {
           flexDirection: 'row',
           alignItems: 'flex-start',
           justifyContent: 'space-between',
-          paddingHorizontal: 4,
+          paddingHorizontal: theme.sizes.PADDING * 0.7,
         },
         profileContainer: {
           flexDirection: 'row',
           alignItems: 'flex-start',
         },
         profileImage: {
-          width: scaleWithMax(36, 36),
-          height: scaleWithMax(36, 36),
+          width: scaleWithMax(40, 40),
+          height: scaleWithMax(40, 40),
           borderRadius: 9999,
           borderWidth: 1.5,
           borderColor: '#FFFFFF',

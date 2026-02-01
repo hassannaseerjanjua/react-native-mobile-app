@@ -360,6 +360,7 @@ export interface InboxOrderStore {
   PhoneNo: string;
   NationalAddress: string | null;
   IsDeliveryEnabled: boolean;
+  ImageLogo: string;
 }
 
 export interface InboxOrder {
@@ -385,7 +386,7 @@ export interface InboxOrder {
   stores: InboxOrderStore;
   catchId: number;
   OrderMessage: string | null;
-  CampaginType: string | null;
+  CampaginType: number;
   EhsaanAmount: number;
   MultiUsers?: MultiUser[];
 }

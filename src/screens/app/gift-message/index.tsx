@@ -45,6 +45,7 @@ import {
   fetchApiResponse,
 } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 import {
@@ -631,15 +632,17 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       <ViewTrimmer
         videoUrl={selectedVideo}
         onSaveVideo={async trimmedPath => {
-          // Compress the trimmed video before saving
+          // Close ViewTrimmer FIRST to prevent re-renders during compression
           const fileName =
             sendMessagePayload.VideoFile?.name || `video_${Date.now()}.mp4`;
-          await compressVideo(trimmedPath, fileName);
 
           setOriginalVideoPath(null);
           setIsVideoLongerThan15Seconds(false);
           setSelectedVideo(null);
           setShowCamera(false);
+
+          // Compress AFTER ViewTrimmer is unmounted
+          await compressVideo(trimmedPath, fileName);
         }}
         onCancel={() => {
           // Remove video on cancel - don't save anything
@@ -1273,8 +1276,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                       </View>
                     )}
                     ListEmptyComponent={
-                      <View style={styles.imageContainer}>
-                        <Text>No filters available</Text>
+                      <View style={{ height: theme.sizes.HEIGHT * 0.20, justifyContent: 'center', alignItems: 'center', flex: 1 }}>
+                        <PlaceholderLogoText text="No filters available" />
                       </View>
                     }
                     contentContainerStyle={styles.filtersScrollContent}

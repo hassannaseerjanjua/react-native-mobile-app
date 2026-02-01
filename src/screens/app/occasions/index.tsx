@@ -27,6 +27,7 @@ import { useOccasions, OccasionFormValues } from './actions';
 import { Text } from '../../../utils/elements.tsx';
 import { scaleWithMax } from '../../../utils';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 
 const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -150,6 +151,11 @@ const OccasionsScreen: React.FC = () => {
               keyExtractor={item => item.OccassionId.toString()}
               contentContainerStyle={styles.content}
               showsVerticalScrollIndicator={false}
+              ListEmptyComponent={
+                <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
+                  <PlaceholderLogoText text={'No occasions found'} />
+                </View>
+              }
               renderItem={({ item }: { item: Occasion }) => {
                 const isDefaultBirthday = item.OccassionId === -1;
                 const isExpanded = expandedOccasionId === item.OccassionId;

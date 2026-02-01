@@ -270,9 +270,11 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
           }
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
-            <PlaceholderLogoText
-              text={getString('STG_NO_GROUP_FOUND')}
-            />
+            <View style={{ height: theme.sizes.HEIGHT * 0.67 }}>
+              <PlaceholderLogoText
+                text={getString('STG_NO_GROUP_FOUND')}
+              />
+            </View>
           }
           ListFooterComponent={
             getGroupsData.loadingMore ? (

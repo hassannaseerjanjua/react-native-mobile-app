@@ -13,13 +13,13 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         paddingHorizontal: 0,
-        backgroundColor: theme.colors.HOME_BACKGROUND,
       },
       imageContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         // paddingHorizontal: sizes.PADDING,
+        backgroundColor: theme.colors.HOME_BACKGROUND,
       },
       imageTouchable: {
         width: '100%',
@@ -28,8 +28,8 @@ const useStyles = () => {
       },
       image: {
         width: '100%',
-        height: sizes.HEIGHT * 0.7,
-        maxHeight: sizes.HEIGHT * 0.7,
+        height: sizes.HEIGHT * 1,
+        maxHeight: sizes.HEIGHT *1,
       },
       rightIconsContainer: {
         flexDirection: 'row',

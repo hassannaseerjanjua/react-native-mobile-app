@@ -125,6 +125,7 @@ export type AppStackParamList = {
       ItemImage: any;
       Quantity: number;
     }>;
+    GiftLink?: string | null;
   };
   Occasions: undefined;
   SelectCity: {

@@ -9,6 +9,7 @@ const useStyles = () => {
     styles: StyleSheet.create({
       container: {
         flex: 1,
+        marginBottom: sizes.HEIGHT * 0.015,
       },
       scrollContent: {
         paddingHorizontal: 0,

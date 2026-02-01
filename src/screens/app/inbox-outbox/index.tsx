@@ -43,13 +43,14 @@ import {
   getStoreName,
   getMainImage,
 } from './actions';
-import { scaleWithMax } from '../../../utils';
+import { scaleWithMax, rtlMargin } from '../../../utils';
 import { useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import useDebounceClick from '../../../hooks/useDebounceClick';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import SearchUserItem from '../../../components/app/SearchUserItem';
 import { useAuthStore } from '../../../store/reducer/auth';
+import notify from '../../../utils/notify';
 
 const InboxOutbox: React.FC = () => {
   const { getString } = useLocaleStore();
@@ -480,13 +481,19 @@ const InboxItem: React.FC<InboxItemProps> = ({
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    const itemWidth = theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8;
+    // Calculate item width: full width minus profile width and spacing
+    const profileWidth = scaleWithMax(50, 55);
+    const spacing = theme.sizes.WIDTH * 0.012;
+    const itemWidth = theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
     const index = Math.round(scrollPosition / itemWidth);
     setCurrentIndex(index);
   };
 
   const scrollToIndex = (index: number) => {
-    const itemWidth = theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8;
+    // Calculate item width: full width minus profile width and spacing
+    const profileWidth = scaleWithMax(50, 55);
+    const spacing = theme.sizes.WIDTH * 0.012;
+    const itemWidth = theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
     scrollViewRef.current?.scrollTo({
       x: index * itemWidth,
       animated: true,
@@ -524,9 +531,9 @@ const InboxItem: React.FC<InboxItemProps> = ({
             />
           </View>
         ) : (
-          <Image style={styles.inboxProfile} source={profileImage} />
+          <Image style={styles.inboxProfile} source={order.CampaginType === 1 ? { uri: order.stores.ImageLogo } : profileImage} />
         )}
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, ...rtlMargin(isRtl, theme.sizes.WIDTH * 0.012, 0) }}>
           <View
             style={{
               display: 'flex',
@@ -549,7 +556,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {order.SendType === 2 ? 'Gift Link' : userName}
+                  {order.SendType === 2 ? 'Gift Link' : order.CampaginType === 1 ? order.stores.NameEn : userName}
                 </Text>
                 {
                   order?.users?.isVerified && (<SvgVerifiedIcon />)
@@ -603,11 +610,16 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   )}
                 {order.SendType === 2 && onShareGiftLink && (
                   <TouchableOpacity
-                    onPress={() =>
+                    onPress={() => {
+
+                      if (order.Status === 10) {
+                        notify.error('Gift already redeemed');
+                        return;
+                      }
                       createDebouceClick('share-gift', () =>
                         onShareGiftLink(order.OrderId),
                       )
-                    }
+                    }}
                   >
                     <SvgOutboxShareIcon
                       height={scaleWithMax(20, 20)}
@@ -642,7 +654,11 @@ const InboxItem: React.FC<InboxItemProps> = ({
               scrollEnabled={order.Items && order.Items.length > 1}
               decelerationRate="fast"
               snapToInterval={
-                theme.sizes.WIDTH * 0.78 + theme.sizes.PADDING * 0.8
+                (() => {
+                  const profileWidth = scaleWithMax(50, 55);
+                  const spacing = theme.sizes.WIDTH * 0.012;
+                  return theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
+                })()
               }
               snapToAlignment="start"
               contentContainerStyle={{

@@ -30,6 +30,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
   const quantity = route?.params?.quantity ?? 1;
   const productName = route?.params?.productName;
   const selectedItems = route?.params?.selectedItems;
+  const giftLink = route?.params?.GiftLink ?? null;
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const { getString } = useLocaleStore();

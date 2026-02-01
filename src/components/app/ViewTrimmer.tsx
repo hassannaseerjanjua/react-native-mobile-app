@@ -1,4 +1,4 @@
-import { Platform, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Platform, TouchableOpacity, View, StyleSheet, InteractionManager } from 'react-native';
 import React, { useRef, useState, useEffect } from 'react';
 import { trim } from 'react-native-video-trim';
 import Video, { VideoRef } from 'react-native-video';
@@ -8,7 +8,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Text } from '../../utils/elements';
 
 import useTrimmer from './Timmer';
-import { fileUriWrapper } from '../../utils';
+import { fileUriWrapper, scaleWithMax } from '../../utils';
 
 const MAX_VIDEO_DURATION = 15; // Maximum trim duration in seconds
 
@@ -30,6 +30,9 @@ const ViewTrimmer = ({
   const [startTime, setStartTime] = useState(0);
   const [endTime, setEndTime] = useState<null | number>(null);
   const [isSaving, setIsSaving] = useState(false);
+
+  // Use ref to immediately stop progress updates
+  const isSavingRef = useRef(false);
 
   const { TrimmerUIComponent, onCurrentPositionChange } = useTrimmer({
     totalDuration: duration || 0,
@@ -97,25 +100,33 @@ const ViewTrimmer = ({
     console.log('Trimming with (ms):', { trimStartMs, trimEndMs, inputPath });
     console.log('Trim duration:', actualEndTime - startTime, 'seconds');
 
+    // Immediately stop progress updates via ref
+    isSavingRef.current = true;
+    setIsPlaying(false);
     setIsSaving(true);
-    try {
-      const trimmedVideo = await trim(inputPath, {
-        startTime: trimStartMs,
-        endTime: trimEndMs,
-      });
 
-      console.log('Trim result:', trimmedVideo);
+    // Wait for UI to update before starting trim
+    InteractionManager.runAfterInteractions(async () => {
+      try {
+        const trimmedVideo = await trim(inputPath, {
+          startTime: trimStartMs,
+          endTime: trimEndMs,
+        });
 
-      if (trimmedVideo?.outputPath) {
-        onSaveVideo(fileUriWrapper(trimmedVideo.outputPath));
-      } else {
-        console.error('Trim result missing outputPath:', trimmedVideo);
+        console.log('Trim result:', trimmedVideo);
+
+        if (trimmedVideo?.outputPath) {
+          onSaveVideo(fileUriWrapper(trimmedVideo.outputPath));
+        } else {
+          console.error('Trim result missing outputPath:', trimmedVideo);
+        }
+      } catch (error) {
+        console.error('Trim error:', error);
+      } finally {
+        isSavingRef.current = false;
+        setIsSaving(false);
       }
-    } catch (error) {
-      console.error('Trim error:', error);
-    } finally {
-      setIsSaving(false);
-    }
+    });
   };
 
   return (
@@ -146,12 +157,15 @@ const ViewTrimmer = ({
             }
           }}
           onProgress={data => {
+            // Use ref to immediately check saving state
+            if (isSavingRef.current) return;
+
             onCurrentPositionChange(data.currentTime);
             if (data.currentTime >= (endTime || duration || 0)) {
               videoRef.current?.seek(startTime);
             }
           }}
-          paused={!isPlaying}
+          paused={!isPlaying || isSaving}
         />
       </View>
       <View
@@ -166,6 +180,24 @@ const ViewTrimmer = ({
           </GestureHandlerRootView>
         )}
       </View>
+
+      {/* Full screen overlay when saving */}
+      {isSaving && (
+        <View
+          style={[
+            StyleSheet.absoluteFill,
+            {
+              backgroundColor: 'rgba(255, 255, 255, 0.7)',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 999,
+            },
+          ]}
+          pointerEvents="box-only"
+        >
+          <ActivityIndicator size="large" color={theme.colors.PRIMARY} />
+        </View>
+      )}
       <View
         style={{
           width: '100%',
@@ -173,15 +205,19 @@ const ViewTrimmer = ({
           justifyContent: 'space-between',
           alignItems: 'center',
           marginTop: 8,
-          marginBottom: 16,
-          paddingHorizontal: 16,
+          marginBottom: 10,
+          paddingHorizontal: theme.sizes.PADDING,
+          height: 44,
         }}
       >
         <TouchableOpacity
           onPress={onCancel}
           style={{
-            paddingVertical: 10,
+            height: scaleWithMax(44, 50),
+            justifyContent: 'center',
             paddingHorizontal: 16,
+            width: scaleWithMax(80, 90),
+            alignItems: 'flex-start',
           }}
         >
           <Text style={{ color: theme.colors.SECONDARY_TEXT }}>Cancel</Text>
@@ -189,11 +225,16 @@ const ViewTrimmer = ({
 
         <TouchableOpacity
           onPress={() => setIsPlaying(prev => !prev)}
+          disabled={isSaving}
           style={{
-            paddingVertical: 10,
+            height: scaleWithMax(44, 50),
+            justifyContent: 'center',
             paddingHorizontal: 24,
             borderRadius: 999,
             backgroundColor: theme.colors.PRIMARY,
+            width: scaleWithMax(80, 90),
+            alignItems: 'center',
+            opacity: isSaving ? 0.5 : 1,
           }}
         >
           <Text style={{ color: '#fff' }}>{isPlaying ? 'Pause' : 'Play'}</Text>
@@ -203,14 +244,15 @@ const ViewTrimmer = ({
           onPress={saveVideo}
           disabled={isSaving}
           style={{
-            paddingVertical: 10,
+            height: scaleWithMax(44, 50),
+            justifyContent: 'center',
             paddingHorizontal: 16,
             opacity: isSaving ? 0.5 : 1,
+            width: scaleWithMax(80, 90),
+            alignItems: 'flex-end',
           }}
         >
-          <Text style={{ color: theme.colors.PRIMARY }}>
-            {isSaving ? 'Saving...' : 'Save'}
-          </Text>
+          <Text style={{ color: theme.colors.PRIMARY }}>Save</Text>
         </TouchableOpacity>
       </View>
     </ParentView>
