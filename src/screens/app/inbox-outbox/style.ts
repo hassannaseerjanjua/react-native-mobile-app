@@ -33,7 +33,7 @@ const useStyles = () => {
         position: 'relative',
         marginBottom: sizes.HEIGHT * 0.004,
         marginRight: sizes.WIDTH * 0.01,
-        width: '100%',
+        width: sizes.WIDTH - sizes.PADDING * 2 - scaleWithMax(50, 55) - sizes.WIDTH * 0.012,
         alignSelf: 'flex-start',
         overflow: 'visible',
         ...theme.globalStyles.SHADOW_STYLE,
@@ -51,7 +51,7 @@ const useStyles = () => {
         ...theme.globalStyles.SHADOW_STYLE,
       },
       inboxImage: {
-        width: '100%',
+        width: sizes.WIDTH - sizes.PADDING * 2 - scaleWithMax(50, 55) - sizes.WIDTH * 0.012,
         height: sizes.WIDTH * 0.50,
         resizeMode: 'cover',
         borderTopLeftRadius: 12,
@@ -72,7 +72,7 @@ const useStyles = () => {
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,
         backgroundColor: theme.colors.WHITE,
-        width: '100%',
+        width: sizes.WIDTH - sizes.PADDING * 2 - scaleWithMax(50, 55) - sizes.WIDTH * 0.012,
         alignSelf: 'flex-start',
       },
       numCircle: {

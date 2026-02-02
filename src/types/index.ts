@@ -186,7 +186,7 @@ export interface FaveItems {
     IsAllItems: boolean;
     IsCustomUsers: boolean;
     IsVerifiedUsers: boolean;
-}
+  };
   FavItemId: number;
   ItemId: number;
   ItemNameEn: string;
@@ -361,6 +361,8 @@ export interface InboxOrderStore {
   NationalAddress: string | null;
   IsDeliveryEnabled: boolean;
   ImageLogo: string;
+  Lat: number;
+  Long: number;
 }
 
 export interface InboxOrder {
@@ -557,19 +559,18 @@ export interface CartItem {
   Images: CartItemImage[];
 }
 
-
-  export interface MultiUser {
-    UserId: number;
-    FullName: string;
-    FullNameAr: string | null;
-    GenderID: number | null;
-    DOB: string | null;
-    PhoneNo: string;
-    CityId: number | null;
-    ProfileUrl: string | null;
-    isEmployee: boolean | null;
-    isVerified: boolean | null;
-  }
+export interface MultiUser {
+  UserId: number;
+  FullName: string;
+  FullNameAr: string | null;
+  GenderID: number | null;
+  DOB: string | null;
+  PhoneNo: string;
+  CityId: number | null;
+  ProfileUrl: string | null;
+  isEmployee: boolean | null;
+  isVerified: boolean | null;
+}
 export interface CartResponse {
   OrderId: number;
   FriendId: number | null;

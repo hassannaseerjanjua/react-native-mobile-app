@@ -7,6 +7,8 @@ import {
   NativeScrollEvent,
   NativeSyntheticEvent,
   ActivityIndicator,
+  Platform,
+  Linking,
 } from 'react-native';
 import { Text } from '../../../utils/elements';
 import React, { useState, useRef } from 'react';
@@ -455,6 +457,26 @@ interface InboxItemProps {
   onShareGiftLink?: (giftId: number) => void;
 }
 
+
+const openMap = (lat: number, lng: number, label: string) => {
+  if (!lat || !lng) {
+    notify.error('Store location not available');
+    return;
+  }
+  const scheme = Platform.select({
+    ios: 'maps://0,0?q=',
+    android: 'geo:0,0?q=',
+  });
+
+  const latLng = `${lat},${lng}`;
+  const url = Platform.select({
+    ios: `${scheme}${label}@${latLng}`,
+    android: `${scheme}${latLng}(${label})`,
+  });
+
+  Linking.openURL(url as string).catch(err => console.error('Error opening map', err));
+};
+
 const InboxItem: React.FC<InboxItemProps> = ({
   order,
   isLast,
@@ -581,12 +603,14 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   />
                 </View>
                 <Text style={styles.storeNameText}>{storeName}</Text>
-                <View style={styles.backIconContainer}>
+                <TouchableOpacity style={styles.backIconContainer} hitSlop={8} onPress={() => {
+                  openMap(order.stores.Lat, order.stores.Long, storeName);
+                }}>
                   <RoundedBackIcon
                     height={scaleWithMax(8, 8)}
                     width={scaleWithMax(8, 8)}
                   />
-                </View>
+                </TouchableOpacity>
               </View>
               <View
                 style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
