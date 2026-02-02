@@ -69,7 +69,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   );
 
   const loading = itemApi.loading;
-  console.log('cartApi.data', cartApi.data);
 
   useEffect(() => {
     if (itemApi.error) {

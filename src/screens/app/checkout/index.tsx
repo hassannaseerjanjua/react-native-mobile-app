@@ -519,15 +519,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   };
   const handleShareGiftLink = async (giftLink: string) => {
     try {
-      const senderName =
-        (langCode === 'ar' ? user?.FullNameAr : user?.FullNameEn) ||
-        user?.FullNameEn ||
-        user?.FullNameAr ||
-        getString('CHECKOUT_SOMEONE');
 
-      // Use the same format as outbox share link functionality
-      const shareMessage = `💝 You have received a gift from ${senderName}. Click on the link below to redeem the gift.\n\n${giftLink}`;
-
+      // const shareMessage = `💝 You have received a gift. Click on the link below to redeem the gift.\n\n${giftLink}`;
+      const shareMessage = `${getString('GIFT_VIA_LINK')}.\n\n${giftLink}`;
       const shareOptions = Platform.select({
         ios: {
           message: shareMessage,

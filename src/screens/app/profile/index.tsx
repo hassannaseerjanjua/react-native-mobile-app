@@ -76,18 +76,19 @@ const ProfileScreen: React.FC = () => {
       // Format: https://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId={userId}&CityId={cityId}&sendType=1
       const giftLink = `https://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId=${user.UserId}&CityId=${user.CityId}&sendType=1`;
 
-      const shareMessage = `🎁 Want to send me a gift? Click the link below.\n\n${giftLink}`;
+      // const shareMessage = `🎁 Want to send me a gift? Click the link below.\n\n${giftLink}`;
+      const shareMessage = `${getString('LINK_MY_GIFT_LINK')}.\n\n${giftLink}`;
       const shareOptions = Platform.select({
         ios: {
           message: shareMessage,
         },
         android: {
           message: shareMessage,
-          title: getString('P_GIFT_ME_ON_GIFTEE'),
+          title: 'Gift link',
         },
       }) || {
         message: shareMessage,
-        title: getString('P_GIFT_ME_ON_GIFTEE'),
+        title: 'Gift link',
       };
 
       const result = await Share.share(shareOptions);

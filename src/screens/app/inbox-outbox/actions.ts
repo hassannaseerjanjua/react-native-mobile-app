@@ -146,7 +146,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
   );
 
   const isMerchantBool = useAuthStore().user?.isMerchant;
-console.log('isMerchant', isMerchantBool);
+  console.log('isMerchant', isMerchantBool);
   const getInboxOutboxDetails = useListingApi<InboxOrder>(
     apiEndpoints.GET_INBOX_OUTBOX_DETAILS,
     '',
@@ -407,19 +407,17 @@ console.log('isMerchant', isMerchantBool);
       const responseData = (response.data as any) || {};
 
       console.log('selectedOrder', currentSelectedOrder);
-      
 
       if (response.success && responseData.Data) {
         const data = responseData.Data;
         const responseOrderId = data.OrderId;
-        const uniqueCode = data.UniqueCode;   
+        const uniqueCode = data.UniqueCode;
         const giftLink = data.GiftLink || '';
 
         if (giftLink) {
-
           let giftToken: string | null = null;
           const gifttokenIndex = giftLink.indexOf('gifttoken=');
-  
+
           if (gifttokenIndex !== -1) {
             const tokenStart = gifttokenIndex + 'gifttoken='.length;
             const remainingUrl = giftLink.substring(tokenStart);
@@ -429,14 +427,13 @@ console.log('isMerchant', isMerchantBool);
                 ? remainingUrl.substring(0, tokenEnd)
                 : remainingUrl;
           }
-  
+
           if (!giftToken) {
             console.log('No gifttoken parameter found in URL');
             return;
           }
-  
-          console.log('Extracted gifttoken:', giftToken);
 
+          console.log('Extracted gifttoken:', giftToken);
 
           const response = await api.get(
             apiEndpoints.GET_GIFT_DETAILS(giftToken),
@@ -444,12 +441,12 @@ console.log('isMerchant', isMerchantBool);
           if (response.success && response.data) {
             const responseData = response.data as any;
             const giftData = responseData?.Data?.data;
-  
+
             if (!giftData) {
               console.log('No gift data found in response');
               return;
             }
-  
+
             // Map API response to ScanQr screen params
             const defaultItemImage = require('../../../assets/images/img-placeholder.png');
             const selectedItems =
@@ -461,20 +458,18 @@ console.log('isMerchant', isMerchantBool);
                   : defaultItemImage,
                 Quantity: item.Quantity,
               })) || [];
-  
+
             // Navigate to ScanQr screen
             (navigation as any).navigate('ScanQr', {
-                  OrderId: giftData.OrderId,
-                  UniqueCode: giftData.QRUniqueCode,
-                  storeName: giftData.StoreName,
-                  selectedItems: selectedItems,
-                  // For single item fallback
-                  productImage: selectedItems[0]?.ItemImage,
-                  productName: selectedItems[0]?.ItemName,
-                  quantity: selectedItems[0]?.Quantity || 1,
-                })
-              
-            
+              OrderId: giftData.OrderId,
+              UniqueCode: giftData.QRUniqueCode,
+              storeName: giftData.StoreName,
+              selectedItems: selectedItems,
+              // For single item fallback
+              productImage: selectedItems[0]?.ItemImage,
+              productName: selectedItems[0]?.ItemName,
+              quantity: selectedItems[0]?.Quantity || 1,
+            });
           }
           console.log('responseData', responseData);
           return;
@@ -510,9 +505,6 @@ console.log('isMerchant', isMerchantBool);
             };
           });
 
-         
-          
-          
           (navigation as any).navigate('ScanQr', {
             OrderId: responseOrderId,
             UniqueCode: uniqueCode,
@@ -521,7 +513,6 @@ console.log('isMerchant', isMerchantBool);
             quantity: totalRedeemQuantity,
             productName: currentSelectedOrder?.Items?.[0]?.ItemName,
             selectedItems: selectedItemsForNav,
-
           });
           setOpenBottomSheet(false);
         } else {
@@ -634,7 +625,8 @@ console.log('isMerchant', isMerchantBool);
       const data = responseData.Data;
       const giftLink = data.GiftLink;
 
-      const shareMessage = `💝 You have received a gift. Click on the link below to redeem the gift.\n\n${giftLink}`;
+      // const shareMessage = `💝 You have received a gift. Click on the link below to redeem the gift.\n\n${giftLink}`;
+      const shareMessage = `${getString('GIFT_VIA_LINK')}.\n\n${giftLink}`;
 
       const shareOptions = Platform.select({
         ios: {
@@ -642,11 +634,11 @@ console.log('isMerchant', isMerchantBool);
         },
         android: {
           message: shareMessage,
-          title: getString('P_GIFT_ME_ON_GIFTEE'),
+          title: 'Gift link',
         },
       }) || {
         message: shareMessage,
-        title: getString('P_GIFT_ME_ON_GIFTEE'),
+        title: 'Gift link',
       };
 
       await Share.share(shareOptions);
