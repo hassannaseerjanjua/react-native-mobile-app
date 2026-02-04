@@ -27,7 +27,6 @@ import { SvgCrossIcon } from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
 import { getCachedVideoPath } from '../../utils/videoCache';
 import { isVideoPreloaded } from '../../utils/videoPreloader';
-import VideoTrimmer from './VideoTrimmer';
 import useTheme from '../../styles/theme';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
@@ -601,14 +600,6 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
               </View>
             </SafeAreaView>
 
-            {isRecording && videoDuration > 0 && (
-              <VideoTrimmer
-                videoDuration={videoDuration}
-                onTrimChange={handleTrimChange}
-                isRecording={isRecording}
-                currentProgress={progressAnim}
-              />
-            )}
 
             {/* Loading Indicator */}
             {isLoading && isVideoStory && (

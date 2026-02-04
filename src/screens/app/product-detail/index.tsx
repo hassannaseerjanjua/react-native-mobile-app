@@ -293,9 +293,11 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     return selectedVariant?.FinalPrice ?? 0;
   }, [item, selectedFilter]);
 
-  // Check if item already exists in cart (merchant flow only)
+  // Check if item already exists in cart (merchant flow or GiftOneGetOne flow - single item only)
   const isItemInCart = useMemo(() => {
-    if (!isMerchant || !cartApi.data || !item) return false;
+    if (!cartApi.data || !item) return false;
+    // Show View Cart in GiftOneGetOne or merchant flow when current item (with variant) is in cart
+    if (!isMerchant && !isGiftOneGetOne) return false;
 
     const cartItems = cartApi.data.Items || [];
     const selectedVariantId = selectedFilter ? Number(selectedFilter) : null;
@@ -308,7 +310,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
       return matchesItemId && matchesVariantId;
     });
-  }, [isMerchant, cartApi.data, item, selectedFilter]);
+  }, [isMerchant, isGiftOneGetOne, cartApi.data, item, selectedFilter]);
 
   return (
     <ParentView edges={['bottom']}>

@@ -352,26 +352,18 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
     const baseData = activeUsersApi.data || [];
 
-    // Get frequently sent friend IDs to exclude from main list
-    const frequentlySentFriendIds = new Set(
-      frequentlySentFriends.map((friend: ActiveUser) => friend.UserId),
-    );
-
-    // Filter out frequently sent friends from base data to avoid duplicates
-    const remainingFriends = baseData.filter(
-      (friend: ActiveUser) => !frequentlySentFriendIds.has(friend.UserId),
-    );
-
-    // Build the final list (excluding frequently sent friends as they're in a separate section)
-    let finalData: ActiveUser[] = [];
-
-    // Add current user first if applicable
-    if (
+    // Determine if "me" should be shown
+    const shouldShowMe =
       !activeUsersApi.search &&
       activeTab === 'friends' &&
       user &&
-      (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo)
-    ) {
+      (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo);
+
+    // Build the final list
+    let finalData: ActiveUser[] = [];
+
+    // Add current user first if applicable
+    if (shouldShowMe) {
       const currentUser: ActiveUser = {
         UserId: user.UserId,
         FullName: `${user.FullNameEn || user.FullNameAr || getString('SG_USER_ME')
@@ -386,13 +378,14 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       finalData.push(currentUser);
     }
 
-    // Add remaining friends (frequently sent friends are shown in separate section)
-    finalData.push(...remainingFriends);
+    // Add all friends (including frequently sent friends)
+    finalData.push(...baseData);
 
     return finalData;
   };
 
   const displayData = getDisplayData();
+  
   const isLoading = isMerchant && activeTab === 'employees'
     ? employeesApi.loading
     : activeUsersApi.loading;
@@ -402,6 +395,28 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const setSearchQuery = isMerchant && activeTab === 'employees'
     ? employeesApi.setSearch
     : activeUsersApi.setSearch;
+  
+  // Determine if "me" should be shown (same logic as in getDisplayData)
+  const shouldShowMe =
+    !activeUsersApi.search &&
+    activeTab === 'friends' &&
+    user &&
+    (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo);
+  
+  // Get base friends count (excluding "me")
+  const baseFriendsCount = isMerchant && activeTab === 'employees'
+    ? (employeesApi.data || []).length
+    : (activeUsersApi.data || []).length;
+  
+  // Check if we should show the list (has friends OR "me" is shown)
+  const shouldShowList = displayData.length > 0;
+  
+  // Check if we should show empty state
+  // Show empty state when: not merchant, not loading, no data to display, and on friends tab
+  const shouldShowEmptyState = !isMerchant && 
+    !isLoading && 
+    !shouldShowList && 
+    activeTab === 'friends';
 
 
   useFocusEffect(
@@ -551,7 +566,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
               </View>
             )}
 
-          {displayData.length > 0 && (
+          {shouldShowList && (
             <View
               style={{
                 flexDirection: 'row',
@@ -609,7 +624,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             >
               <SkeletonLoader screenType="sendAGift" />
             </View>
-          ) : displayData.length > (isGiftOneGetOne || searchQuery !== '' ? 0 : 1) ? (
+          ) : shouldShowList ? (
             <View
               style={[
                 styles.listCard,
@@ -657,7 +672,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             <View style={{ height: theme.sizes.HEIGHT * 0.6 }}>
               <PlaceholderLogoText text="No Users Found" />
             </View>
-          ) : (
+          ) : shouldShowEmptyState ? (
             <View style={styles.noFriendsContainer}>
               <SvgFindFriendsIcon
                 width={scaleWithMax(36, 40)}
@@ -679,7 +694,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 type="primary"
               />
             </View>
-          )}
+          ) : null}
         </ScrollView>
       </View>
 

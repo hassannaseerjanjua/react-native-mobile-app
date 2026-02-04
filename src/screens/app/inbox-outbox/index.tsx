@@ -580,9 +580,9 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 >
                   {order.SendType === 2 ? 'Gift Link' : order.CampaginType === 1 ? order.stores.NameEn : userName}
                 </Text>
-                {
-                  order?.users?.isVerified && (<SvgVerifiedIcon />)
-                }
+                {(!isMerchant
+                  ? order?.users?.isVerified && order?.SendType !== 2
+                  : order?.MultiUsers?.[0]?.isVerified) && <SvgVerifiedIcon />}
               </View>
 
 

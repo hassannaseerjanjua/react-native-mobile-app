@@ -14,6 +14,7 @@ import {
   SvgGiftLink,
   SvgGroup,
   SvgNextIcon,
+  SvgVerifiedIcon,
 } from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
@@ -23,6 +24,7 @@ import { Platform } from 'react-native';
 
 interface TabItemProps {
   title: string;
+  isVerified?: boolean;
   onPress: () => void;
   TabItemStyles?: StyleProp<ViewStyle>;
   TabTextStyles?: StyleProp<TextStyle>;
@@ -43,6 +45,7 @@ interface TabItemProps {
 const TabItem = ({
   activeOpacity,
   title,
+  isVerified,
   onPress,
   TabItemStyles,
   TabTextStyles,
@@ -114,6 +117,7 @@ const TabItem = ({
           >
             {title}
           </Text>
+          {isVerified && <SvgVerifiedIcon />}
           {subtitle && (
             <Text style={styles.subtitleText} numberOfLines={1}>
               {subtitle}

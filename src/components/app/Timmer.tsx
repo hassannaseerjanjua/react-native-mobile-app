@@ -204,6 +204,7 @@ const useStyles = () => {
         height: TRACK_HEIGHT,
         borderRadius: TRACK_HEIGHT / 2,
         backgroundColor: theme.colors.WHITE,
+        marginStart: scaleWithMax(3, 3),
       },
     });
   }, [theme]);

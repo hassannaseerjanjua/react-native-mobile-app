@@ -148,6 +148,23 @@ const useStyles = () => {
         marginBottom: sizes.HEIGHT * 0.018,
         height: sizes.HEIGHT * 0.05,
       },
+      discountedPrice: {
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        color: theme.colors.PRIMARY,
+        fontSize: sizes.FONTSIZE_SMALL_HEADING,
+        // marginEnd: scaleWithMax(1, 2),
+      },
+      price: {
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        color: theme.colors.PRIMARY_TEXT,
+        fontSize: sizes.FONTSIZE_BUTTON,
+      },
+      cutPrice: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        color: '#C6C6C6',
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        textDecorationLine: 'line-through',
+      },
     }),
 
     theme,

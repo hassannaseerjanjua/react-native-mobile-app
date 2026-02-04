@@ -1020,7 +1020,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             }
             confirmText={
               sendMessagePayload.VideoFile
-                ? getString('GIFT_MESSAGE_TRIM_VIDEO')
+                ? 'Remove Video'
                 : getString('GIFT_MESSAGE_FROM_GALLERY')
             }
             cancelText={
@@ -1033,8 +1033,12 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               if (sendMessagePayload.VideoFile) {
                 // Trim video - open ViewTrimmer
                 // Don't set isVideoLongerThan15Seconds here since this is manual trim (video might be <= 15s)
-                setOriginalVideoPath(sendMessagePayload.VideoFile.uri);
-                setSelectedVideo(sendMessagePayload.VideoFile.uri);
+                // setOriginalVideoPath(sendMessagePayload.VideoFile.uri);
+                // setSelectedVideo(sendMessagePayload.VideoFile.uri);
+                setSendMessagePayload({
+                  ...sendMessagePayload,
+                  VideoFile: undefined,
+                });
               } else {
                 // Select from gallery
                 handleVideoSelect();

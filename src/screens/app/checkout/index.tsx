@@ -431,6 +431,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       ? { uri: itemImage }
       : require('../../../assets/images/img-placeholder.png');
 
+    console.log('item', item);
+
     return (
       <View
         style={[
@@ -454,6 +456,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 justifyContent: 'space-between',
               }}
             >
+
+
               <PriceWithIcon
                 Price={item.TotalAmount}
                 style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
@@ -469,12 +473,35 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 ...styles.row,
                 flexDirection: rtlFlexDirection(isRtl),
                 justifyContent: 'space-between',
+                alignItems: 'center',
               }}
             >
-              <PriceWithIcon
+              {item.DiscountAmount > 0 ? <View style={[
+                styles.row,
+                { flexDirection: rtlFlexDirection(isRtl), gap: theme.sizes.WIDTH * 0.01 },
+              ]}>
+                <View style={[styles.row, { flexDirection: rtlFlexDirection(isRtl), gap: theme.sizes.WIDTH * 0.008 }]}>
+                  <SvgRiyalIconPrimary
+                    width={scaleWithMax(16, 16)}
+                    height={scaleWithMax(16, 16)}
+                    style={{
+                      marginTop: scaleWithMax(2, 2),
+                    }}
+                  />
+                  <Text style={styles.discountedPrice}>{item.TotalAmount}</Text>
+                </View>
+                <View style={[styles.row, { flexDirection: rtlFlexDirection(isRtl), gap: theme.sizes.WIDTH * 0.008 }]}>
+                  <SvgRiyalIcon
+                    width={scaleWithMax(11, 11)}
+                    height={scaleWithMax(11, 11)}
+                    opacity={0.32}
+                  />
+                  <Text style={styles.cutPrice}>{item.OrderAmount || 'N/A'}</Text>
+                </View>
+              </View> : <PriceWithIcon
                 Price={item.TotalAmount}
                 style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
-              />
+              />}
 
               <View
                 style={[
@@ -884,19 +911,15 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         >
                           <GiftIcon />
                         </TouchableOpacity>
-                        {isMerchant && cartData?.MultiUsers && cartData?.MultiUsers.length > 0 && (
-                          cartData?.MultiUsers.length > 1 ? (
-                            <TouchableOpacity
-                              hitSlop={15}
-                              onPress={() => setShowEmployeesBottomSheet(true)}
-                            >
-                              <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
-                            </TouchableOpacity>
-                          ) : (
-                            <View>
-                              <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
-                            </View>
-                          )
+                        {isMerchant && cartData?.MultiUsers && cartData?.MultiUsers.length > 1 && (
+
+                          <TouchableOpacity
+                            hitSlop={15}
+                            onPress={() => setShowEmployeesBottomSheet(true)}
+                          >
+                            <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
+                          </TouchableOpacity>
+
                         )}
                       </View>
                     }
