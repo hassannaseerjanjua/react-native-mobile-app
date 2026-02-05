@@ -1,11 +1,13 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { Linking, Platform } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import notifee, { EventType } from '@notifee/react-native';
 import {
   initializeNotifications,
   displayNotification,
   deleteFCMToken,
+  callLogoutWithDeviceToken,
   subscribeToTopic,
   unsubscribeFromTopic,
 } from '../utils/notificationService';
@@ -14,6 +16,9 @@ import { useLocaleStore } from '../store/reducer/locale';
 import api from '../utils/api';
 import apiEndpoints from '../constants/api-endpoints';
 import { getTopicsForLanguage } from '../utils/firebaseTopics';
+
+const FCM_TOKEN_SENT_KEY = 'fcm_token_sent_to_backend';
+const USER_DEVICE_TOKEN_ID_KEY = 'user_device_token_id'; // must match notificationService
 
 /**
  * Notification Hook - Logs notification clicks
@@ -71,23 +76,37 @@ const useNotification = () => {
     [],
   );
 
-  // Handle FCM token updates
+  // Handle FCM token updates - only call API when token doesn't exist or is different from last sent
   const handleTokenUpdate = useCallback(
     async (token: string) => {
       console.log('FCM Token:', token);
-      // Send token to backend when authenticated
-      if (user?.UserId) {
-        try {
-          await api.post(apiEndpoints.SAVE_TOKEN, {
-            UserId: user.UserId,
-            token,
-            LanguageId: langId, // 1 = English, 2 = Arabic
-            DeviceType: Platform.OS === 'android' ? 1 : 2, // 1 = Android, 2 = iOS
-          });
-          console.log('FCM Token saved to backend');
-        } catch (error) {
-          console.error('Failed to save token to backend:', error);
+      if (!user?.UserId) return;
+
+      try {
+        const lastSentToken = await AsyncStorage.getItem(FCM_TOKEN_SENT_KEY);
+        if (lastSentToken === token) {
+          return; // Already sent this token, skip
         }
+
+        const res = await api.post<{
+          data?: { Data?: { UserDeviceTokenId?: number } };
+        }>(apiEndpoints.SAVE_TOKEN, {
+          UserId: user.UserId,
+          Token: token,
+          LanguageId: langId, // 1 = English, 2 = Arabic
+          DeviceType: Platform.OS === 'android' ? 2 : 1, // 1 = Android, 2 = iOS
+        });
+        await AsyncStorage.setItem(FCM_TOKEN_SENT_KEY, token);
+        const userDeviceTokenId = res?.data?.data?.Data?.UserDeviceTokenId;
+        if (userDeviceTokenId != null) {
+          await AsyncStorage.setItem(
+            USER_DEVICE_TOKEN_ID_KEY,
+            String(userDeviceTokenId),
+          );
+        }
+        console.log('FCM Token saved to backend');
+      } catch (error) {
+        console.error('Failed to save token to backend:', error);
       }
     },
     [user?.UserId, langId],
@@ -175,6 +194,8 @@ const useNotification = () => {
   const cleanup = useCallback(async () => {
     try {
       await deleteFCMToken();
+      await AsyncStorage.removeItem(FCM_TOKEN_SENT_KEY);
+      await AsyncStorage.removeItem(USER_DEVICE_TOKEN_ID_KEY);
       console.log('Notifications cleaned up');
     } catch (error) {
       console.error('Notification cleanup error:', error);

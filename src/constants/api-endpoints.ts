@@ -19,6 +19,7 @@ const apiEndpoints = {
   VERIFY_OTP_SIGNIN: `/${version}/Auth/VerifyOTP-SignIn`,
   SAVE_TOKEN: `/${version}/User/save-token`,
   VERIFY_EMAIL_PHONE: `/${version}/User/VerifyEmailAndPhoneNo`,
+  LOGOUT: `/${version}/Auth/LogOut`,
 
   // ============================================
   // HOME & GENERAL
@@ -104,6 +105,7 @@ const apiEndpoints = {
   GET_CART_COUNT: `/${version}/Home/GetCartItemCount`,
   CLEAR_CART: `/${version}/User/ClearCart`,
   INITIATE_CHECKOUT: `/${version}/User/InitOrderV2`,
+  GET_CARDS: `/${version}/User/GetUserCards`,
 
   // ============================================
   // CATCH & CAMPAIGNS

@@ -48,6 +48,7 @@ import CustomButton from '../../../components/global/Custombutton';
 import { BlurView } from '@react-native-community/blur';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import { selectAndCropImage } from '../../../utils/imageCropper';
+import { callLogoutWithDeviceToken } from '../../../utils/notificationService';
 
 const ProfileScreen: React.FC = () => {
   const { styles: screenStyles, theme } = useStyles();
@@ -62,7 +63,8 @@ const ProfileScreen: React.FC = () => {
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    await callLogoutWithDeviceToken();
     dispatch(logout());
   };
 
@@ -521,9 +523,9 @@ const ProfileScreen: React.FC = () => {
         message={getString('PROFILE_LOGOUT_CONFIRM')}
         confirmText={getString('P_LOGOUT') || 'Logout'}
         cancelText={getString('NG_CANCEL') || 'Cancel'}
-        onConfirm={() => {
+        onConfirm={async () => {
           setShowLogoutConfirmation(false);
-          handleLogout();
+          await handleLogout();
         }}
         onCancel={() => setShowLogoutConfirmation(false)}
       />

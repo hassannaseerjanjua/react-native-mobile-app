@@ -1195,57 +1195,18 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               </View>
 
               <View style={styles.section}>
-                <Text style={styles.heading}>{getString('CHECKOUT_ORDER_INFO')}</Text>
-                <View
-                  style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}
-                >
-                  <Text style={styles.TextMedium}>
-                    {getString('CHECKOUT_TOTAL_AMOUNT')}
-                  </Text>
-                  <PriceWithIcon Price={(cartData?.TotalAmount || 0) + (activeDomationAmount || 0)} />
-                </View>
-                {(cartData?.TotalDiscount || 0) > 0 && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
-                    <Text style={styles.TextMedium}>{getString('CHECKOUT_DISCOUNT')}</Text>
-                    <PriceWithIcon Price={cartData?.TotalDiscount || 0} />
-                  </View>
-                )}
-                {(cartData?.TotalVat || 0) > 0 && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
-                    <Text style={styles.TextMedium}>{getString('CHECKOUT_VAT')}</Text>
-                    <PriceWithIcon Price={cartData?.TotalVat || 0} />
-                  </View>
-                )}
-                {(cartData?.DeliveryCharges || 0) > 0 && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
-                    <Text style={styles.TextMedium}>{getString('CHECKOUT_DELIVERY_CHARGES')}</Text>
-                    <PriceWithIcon Price={cartData?.DeliveryCharges || 0} />
-                  </View>
-                )}
                 <View
                   style={{
                     flexDirection: rtlFlexDirection(isRtl),
                     alignItems: 'center',
                     justifyContent: 'space-between',
-                    marginTop: theme.sizes.HEIGHT * 0.002,
                   }}
                 >
-                  <Text style={styles.TextMedium}>{getString('CHECKOUT_SEND_GIFT_WITH_EHSAN')}</Text>
+                  <Text style={{
+                    ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                    fontSize: theme.sizes.FONTSIZE_SMALL_HEADING,
+                    color: theme.colors.BLACK,
+                  }}>{getString('CHECKOUT_SEND_GIFT_WITH_EHSAN')}</Text>
                   <SvgEhsanIcon width={scaleWithMax(26, 28)} height={scaleWithMax(26, 28)} />
                 </View>
                 <Text
@@ -1253,7 +1214,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     ...theme.globalStyles.TEXT_STYLE_MEDIUM,
                     color: '#1B917B',
                     fontSize: scaleWithMax(10, 11),
-                    // marginTop: theme.sizes.HEIGHT * 0.01,
+                    marginTop: theme.sizes.HEIGHT * -0.00,
                   }}
                 >
                   {getString('CHECKOUT_EHSAN_MESSAGE')}
@@ -1349,7 +1310,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   })}
                 </ScrollView>
                 {showCustomDonationInput && (
-                  <View style={{ marginTop: theme.sizes.HEIGHT * 0.015 }}>
+                  <View style={{ marginTop: theme.sizes.HEIGHT * 0.01 }}>
                     <InputField
                       icon={
                         <SvgEhsanIcon
@@ -1382,6 +1343,67 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     />
                   </View>
                 )}
+                <Text style={[styles.heading, {
+                  marginTop: theme.sizes.HEIGHT * 0.01,
+                }]}>{getString('CHECKOUT_ORDER_INFO')}</Text>
+                <View
+                  style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}
+                >
+                  <Text style={styles.TextMedium}>
+                    {'Order Amount'}
+                  </Text>
+                  <PriceWithIcon Price={cartData?.TotalAmount || 0} />
+                </View>
+                {/* {(cartData?.TotalDiscount || 0) > 0 && (
+                  <View
+                    style={[
+                      styles.Prices,
+                      { flexDirection: rtlFlexDirection(isRtl) },
+                    ]}
+                  >
+                    <Text style={styles.TextMedium}>{getString('CHECKOUT_DISCOUNT')}</Text>
+                    <PriceWithIcon Price={cartData?.TotalDiscount || 0} />
+                  </View>
+                )} */}
+                {(cartData?.TotalVat || 0) > 0 && (
+                  <View
+                    style={[
+                      styles.Prices,
+                      { flexDirection: rtlFlexDirection(isRtl) },
+                    ]}
+                  >
+                    <Text style={styles.TextMedium}>{getString('CHECKOUT_VAT')}</Text>
+                    <PriceWithIcon Price={cartData?.TotalVat || 0} />
+                  </View>
+                )}
+                {(cartData?.DeliveryCharges || 0) > 0 && (
+                  <View
+                    style={[
+                      styles.Prices,
+                      { flexDirection: rtlFlexDirection(isRtl) },
+                    ]}
+                  >
+                    <Text style={styles.TextMedium}>{getString('CHECKOUT_DELIVERY_CHARGES')}</Text>
+                    <PriceWithIcon Price={cartData?.DeliveryCharges || 0} />
+                  </View>
+                )}
+                {
+                  activeDomationAmount && (
+                    <View style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}>
+                      <Text style={styles.TextMedium}>{'Ehsan'}</Text>
+                      <PriceWithIcon Price={activeDomationAmount} />
+                    </View>
+                  )
+                }
+                <View
+                  style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}
+                >
+                  <Text style={styles.TextMedium}>
+                    {getString('CHECKOUT_TOTAL_AMOUNT')}
+                  </Text>
+                  <PriceWithIcon Price={(cartData?.TotalAmount || 0) + (activeDomationAmount || 0)} />
+                </View>
+
                 <Text style={styles.vatNote}>{getString('CHECKOUT_VAT_NOTE')}</Text>
               </View>
             </ScrollView>

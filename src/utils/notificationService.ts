@@ -8,6 +8,8 @@ import apiEndpoints from '../constants/api-endpoints';
 import api from './api';
 import { store } from '../store/store';
 
+const USER_DEVICE_TOKEN_ID_KEY = 'user_device_token_id';
+
 /**
  * NOTE: Background handler is now in index.js
  * It MUST be at top level for killed app notifications
@@ -18,8 +20,9 @@ export const displayNotification = async (
 ): Promise<void> => {
   try {
     const localeStrings = store.getState().locale.localeData.strings;
-    const getString = (key: string) => localeStrings?.[key as keyof typeof localeStrings] || key;
-    
+    const getString = (key: string) =>
+      localeStrings?.[key as keyof typeof localeStrings] || key;
+
     const channelId = await notifee.createChannel({
       id: 'default',
       name: getString('NOTIFICATION_DEFAULT_CHANNEL'),
@@ -28,7 +31,9 @@ export const displayNotification = async (
     });
 
     await notifee.displayNotification({
-      title: message.notification?.title || getString('NOTIFICATION_NEW_NOTIFICATION'),
+      title:
+        message.notification?.title ||
+        getString('NOTIFICATION_NEW_NOTIFICATION'),
       body: message.notification?.body || '',
       android: {
         channelId,
@@ -152,15 +157,7 @@ export const getFCMToken = async (userId?: number): Promise<string | null> => {
     const fcmToken = await messaging().getToken();
     if (fcmToken) {
       await saveFCMToken(fcmToken);
-      if (userId) {
-        const langId = store.getState().locale.localeData.langId;
-        await api.post(apiEndpoints.SAVE_TOKEN, {
-          UserId: userId,
-          token: fcmToken,
-          LanguageId: langId, // 1 = English, 2 = Arabic
-          DeviceType: Platform.OS === 'android' ? 1 : 2, // 1 = Android, 2 = iOS
-        });
-      }
+      // Backend save is handled only in useNotification.handleTokenUpdate to avoid duplicate calls
       console.log('FCM Token received:', fcmToken);
     }
     return fcmToken || null;
@@ -298,11 +295,31 @@ const getSavedFCMToken = async (): Promise<string | null> => {
   }
 };
 
+/**
+ * Calls the logout API. Sends UserDeviceTokenId in body when available (from save-token response).
+ * Call this before dispatching logout() so the request is sent with auth headers.
+ */
+export const callLogoutWithDeviceToken = async (): Promise<void> => {
+  let stored: string | null = null;
+  try {
+    stored = await AsyncStorage.getItem(USER_DEVICE_TOKEN_ID_KEY);
+    const userDeviceTokenId =
+      stored && Number.isFinite(Number(stored)) ? Number(stored) : undefined;
+
+    await api.post(apiEndpoints.LOGOUT, { UserDeviceTokenId: userDeviceTokenId });
+    if (stored) await AsyncStorage.removeItem(USER_DEVICE_TOKEN_ID_KEY);
+  } catch (error) {
+    console.error('Logout with device token error:', error);
+    if (stored) await AsyncStorage.removeItem(USER_DEVICE_TOKEN_ID_KEY);
+  }
+};
+
 export default {
   checkNotificationPermission,
   requestNotificationPermission,
   getFCMToken,
   deleteFCMToken,
+  callLogoutWithDeviceToken,
   onTokenRefresh,
   onForegroundNotification,
   onNotificationOpenedApp,
