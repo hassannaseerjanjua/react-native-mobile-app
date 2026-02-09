@@ -84,12 +84,18 @@ const useNotification = () => {
 
       try {
         const lastSentToken = await AsyncStorage.getItem(FCM_TOKEN_SENT_KEY);
-        if (lastSentToken === token) {
-          return; // Already sent this token, skip
+        //       if (lastSentToken === token) {
+        // return; // Already sent this token, skip
+        const storedDeviceId = await AsyncStorage.getItem(USER_DEVICE_TOKEN_ID_KEY);
+
+        if (lastSentToken === token && storedDeviceId) {
+          return; // Already sent this token and have the ID, skip
         }
 
         const res = await api.post<{
-          data?: { Data?: { UserDeviceTokenId?: number } };
+          // data?: { Data?: { UserDeviceTokenId?: number } };
+
+          Data?: { UserDeviceTokenId?: number };
         }>(apiEndpoints.SAVE_TOKEN, {
           UserId: user.UserId,
           Token: token,
@@ -97,7 +103,8 @@ const useNotification = () => {
           DeviceType: Platform.OS === 'android' ? 2 : 1, // 1 = Android, 2 = iOS
         });
         await AsyncStorage.setItem(FCM_TOKEN_SENT_KEY, token);
-        const userDeviceTokenId = res?.data?.data?.Data?.UserDeviceTokenId;
+        // const userDeviceTokenId = res?.data?.data?.Data?.UserDeviceTokenId;
+        const userDeviceTokenId = res?.data?.Data?.UserDeviceTokenId;
         if (userDeviceTokenId != null) {
           await AsyncStorage.setItem(
             USER_DEVICE_TOKEN_ID_KEY,

@@ -62,7 +62,7 @@ const AddCart: React.FC = () => {
         <Formik
           initialValues={initialValues}
           validationSchema={validationSchema}
-          onSubmit={() => {}}
+          onSubmit={() => { }}
           enableReinitialize={true}
         >
           {formik => (

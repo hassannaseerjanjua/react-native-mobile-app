@@ -313,6 +313,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             isFavorite: !isFavorite,
           });
         }}
+        isFavoriteTab={isFavoriteItem}
       />
     );
   };

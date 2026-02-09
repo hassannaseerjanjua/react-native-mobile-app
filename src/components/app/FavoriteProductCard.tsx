@@ -18,6 +18,7 @@ interface FavoriteProductCardProps {
   onFavoritePress?: () => void;
   isFavorite?: boolean;
   hasFavorite?: boolean;
+  isFavoriteTab?: boolean;
 }
 
 const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
@@ -26,6 +27,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
   isFavorite,
   onFavoritePress,
   hasFavorite,
+  isFavoriteTab,
 }) => {
   const { theme } = useStyles();
   const { styles } = useStyles();
@@ -127,7 +129,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
             opacity={isSpecialPrice ? 0.32 : 1}
           />
 
-          <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>{price || 'N/A'}</Text>
+          <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>{(isFavoriteTab ? cutPrice : price) || 'N/A'}</Text>
         </View>
       </View>
     </TouchableOpacity>
