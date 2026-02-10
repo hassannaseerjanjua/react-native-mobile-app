@@ -34,6 +34,9 @@ import {
   SvgProfileQrIcon,
   SvgVerifiedIcon,
   SvgPencilIcon,
+  CardsIcon,
+  VisaIcon,
+  NoonIcon
 } from '../../../assets/icons';
 import { useDispatch } from 'react-redux';
 import { login, logout, useAuthStore } from '../../../store/reducer/auth';
@@ -194,6 +197,16 @@ const ProfileScreen: React.FC = () => {
       onPress: handleShareGiftLink,
     },
     {
+      id: 'manage-cards',
+      title: getString('P_MANAGE_CARDS'),
+      icon: <CardsIcon />,
+      onPress: () => {
+        (navigation as any).navigate('AddCard', {
+          fromProfile: true,
+        });
+      },
+    },
+    {
       id: 'favourites',
       title: getString('P_MY_FAVOURITES'),
       icon: <SvgProfileFavorites />,
@@ -223,6 +236,7 @@ const ProfileScreen: React.FC = () => {
         navigation.navigate('Settings' as never);
       },
     },
+
     {
       id: 'order',
       title: getString('O_ORDERS'),
@@ -297,6 +311,7 @@ const ProfileScreen: React.FC = () => {
       'favourites',
       'friends',
       'settings',
+      'manage-cards',
       'order',
       'connect',
       'contact-us',
@@ -311,6 +326,7 @@ const ProfileScreen: React.FC = () => {
       'favourites',
       'friends',
       'settings',
+      'manage-cards',
       'order',
       'connect',
       'contact-us',

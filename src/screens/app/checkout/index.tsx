@@ -36,6 +36,8 @@ import {
   VisaIcon,
   SvgProfileFriends,
   SvgDeleteIcon,
+  MasterCardIcon,
+  NoonIcon,
 } from '../../../assets/icons';
 import {
   scaleWithMax,
@@ -52,7 +54,7 @@ import { StackActions, useNavigation } from '@react-navigation/native';
 import CustomFooter from '../../../components/global/CustomFooter';
 import { Text } from '../../../utils/elements';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
-import { AppStackScreen } from '../../../types/navigation.types';
+import { AppStackScreen, UserCard } from '../../../types/navigation.types';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -70,6 +72,7 @@ import SearchUserItem from '../../../components/app/SearchUserItem';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { FlatList } from 'react-native';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
@@ -98,6 +101,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [showPaymentWebView, setShowPaymentWebView] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [webViewLoading, setWebViewLoading] = useState(true);
+  const [userCards, setUserCards] = useState<UserCard[]>([]);
+  const [selectedCardFromParams, setSelectedCardFromParams] = useState<UserCard | null>(null);
   const isMerchant = user?.isMerchant === 1;
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => {
@@ -147,6 +152,28 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
     return Array.from(itemsMap.values());
   }, [cartData?.Items]);
+
+  useEffect(() => {
+    fetchUserCards();
+  }, []);
+
+  useEffect(() => {
+    if (route.params?.selectedCard) {
+      setSelectedCardFromParams(route.params.selectedCard as UserCard);
+      setSelectedPaymentMethod('savedCard');
+    }
+  }, [route.params?.selectedCard]);
+
+  const fetchUserCards = async () => {
+    try {
+      const response = await api.get<{ Data: UserCard[] }>(apiEndpoints.GET_CARDS);
+      if (response.success && response.data?.Data) {
+        setUserCards(response.data.Data);
+      }
+    } catch (error: any) {
+      console.error('Error fetching cards:', error);
+    }
+  };
 
   // useEffect(() => {
   //   if (cartItemsApi.data) {
@@ -602,12 +629,18 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
       const payload: any = {
         orderid: cartData.OrderId,
-        orderPaymentType: selectedPaymentMethod === 'visa' ? 2 : 1,
+        orderPaymentType: selectedPaymentMethod === 'wallet' ? 1 : 2,
         IsRedeem: false,
         EhsaanAmount: activeDomationAmount || 0,
       };
 
-      // For merchants, include FriendIds in payload if available
+      if (selectedPaymentMethod === 'savedCard') {
+        const cardToken = selectedCardFromParams?.Token || userCards[0]?.Token;
+        if (cardToken) {
+          payload.CardToken = cardToken;
+        }
+      }
+
       if (cartData.FriendIds && cartData.FriendIds.length > 0) {
         payload.FriendIds = cartData.FriendIds;
       }
@@ -1029,12 +1062,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     <View
                       style={[styles.row, { flexDirection: rtlFlexDirection(isRtl) }]}
                     >
-                      <PlusIcon
+                      {/* <PlusIcon
                         height={scaleWithMax(15, 18)}
                         width={scaleWithMax(15, 18)}
-                      />
+                      /> */}
                       <Text style={styles.addCardAction}>
-                        {getString('CHECKOUT_ADD_CARD')}
+                        {getString('CHECKOUT_CHANGE_CARD')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -1088,18 +1121,21 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     />
                   </View>
                 </TouchableOpacity>}
+
                 <TouchableOpacity
-                  // disabled
                   onPress={() =>
                     setSelectedPaymentMethod(
-                      selectedPaymentMethod === 'visa' ? null : 'visa',
+                      selectedPaymentMethod === 'creditCard' ? null : 'creditCard',
                     )
                   }
                 >
                   <View
                     style={[
                       styles.GiftContainer,
-                      { flexDirection: rtlFlexDirection(isRtl) },
+                      {
+                        flexDirection: rtlFlexDirection(isRtl),
+                        marginBottom: theme.sizes.HEIGHT * 0.005,
+                      },
                     ]}
                   >
                     <View
@@ -1111,29 +1147,99 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       }}
                     >
                       <CheckBox
-                        Selected={selectedPaymentMethod === 'visa'}
+                        Selected={selectedPaymentMethod === 'creditCard'}
                         onSelectionPress={() =>
                           setSelectedPaymentMethod(
-                            selectedPaymentMethod === 'visa' ? null : 'visa',
+                            selectedPaymentMethod === 'creditCard' ? null : 'creditCard',
                           )
                         }
                       />
+                      {/* Placeholder icon - using VisaIcon temporarily */}
                       <VisaIcon
                         height={scaleWithMax(32, 35)}
                         width={scaleWithMax(32, 35)}
                       />
                       <View>
-                        <Text style={styles.TextMedium}>424242XXXXXX4242</Text>
-                        <Text style={styles.TextMedium}>{getString('CHECKOUT_VISA')}</Text>
+                        <Text style={styles.TextMedium}>Credit/Debit Card</Text>
                       </View>
                     </View>
                     <SvgSelectedCheck
                       width={scaleWithMax(16, 18)}
                       height={scaleWithMax(16, 18)}
-                      style={{ opacity: selectedPaymentMethod === 'visa' ? 1 : 0 }}
+                      style={{ opacity: selectedPaymentMethod === 'creditCard' ? 1 : 0 }}
                     />
                   </View>
                 </TouchableOpacity>
+
+                {/* 3. First saved card from GET_CARDS */}
+                {(selectedCardFromParams || userCards.length > 0) && (
+                  <TouchableOpacity
+                    onPress={() =>
+                      setSelectedPaymentMethod(
+                        selectedPaymentMethod === 'savedCard' ? null : 'savedCard',
+                      )
+                    }
+                  >
+                    <View
+                      style={[
+                        styles.GiftContainer,
+                        {
+                          flexDirection: rtlFlexDirection(isRtl),
+                          marginBottom: theme.sizes.HEIGHT * 0.005,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={{
+                          ...styles.row,
+                          flex: 1,
+                          gap: theme.sizes.WIDTH * 0.03,
+                          flexDirection: rtlFlexDirection(isRtl),
+                        }}
+                      >
+                        <CheckBox
+                          Selected={selectedPaymentMethod === 'savedCard'}
+                          onSelectionPress={() =>
+                            setSelectedPaymentMethod(
+                              selectedPaymentMethod === 'savedCard' ? null : 'savedCard',
+                            )
+                          }
+                        />
+
+                        {(selectedCardFromParams?.Brand || userCards[0]?.Brand)?.toLowerCase().includes('master') ? (
+                          <MasterCardIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                        ) : (selectedCardFromParams?.Brand || userCards[0]?.Brand)?.toLowerCase().includes('noon') ? (
+                          <NoonIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                        ) : (
+                          <VisaIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                        )}
+                        <View>
+                          <Text style={styles.TextMedium}>
+                            {selectedCardFromParams?.CardNumber || userCards[0]?.CardNumber}
+                          </Text>
+                          <Text style={styles.TextMedium}>
+                            {selectedCardFromParams?.Brand || userCards[0]?.Brand}
+                          </Text>
+                        </View>
+                      </View>
+                      <SvgSelectedCheck
+                        width={scaleWithMax(16, 18)}
+                        height={scaleWithMax(16, 18)}
+                        style={{ opacity: selectedPaymentMethod === 'savedCard' ? 1 : 0 }}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                )}
+
                 <TouchableOpacity
                   onPress={() =>
                     setSelectedPaymentMethod(
@@ -1146,7 +1252,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       styles.GiftContainer,
                       {
                         flexDirection: rtlFlexDirection(isRtl),
-                        marginTop: theme.sizes.HEIGHT * 0.005,
                       },
                     ]}
                   >

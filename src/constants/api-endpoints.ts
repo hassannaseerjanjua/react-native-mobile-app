@@ -106,6 +106,7 @@ const apiEndpoints = {
   CLEAR_CART: `/${version}/User/ClearCart`,
   INITIATE_CHECKOUT: `/${version}/User/InitOrderV2`,
   GET_CARDS: `/${version}/User/GetUserCards`,
+  DELETE_CARD: `/${version}/User/DeleteUserCard`,
 
   // ============================================
   // CATCH & CAMPAIGNS

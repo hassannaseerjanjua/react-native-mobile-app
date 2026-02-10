@@ -23,6 +23,14 @@ type Store = {
   isVerified: boolean;
 };
 
+export interface UserCard {
+  Brand: string;
+  CardNumber: string;
+  Token: string;
+  ExpiryMonth: string;
+  ExpiryYear: string;
+}
+
 export type AppStackParamList = {
   BottomTabs: undefined;
   ProductDetails: {
@@ -132,38 +140,39 @@ export type AppStackParamList = {
     sendType: number;
   };
   CheckOut:
-    | {
-        product?: {
-          id?: string | number;
-          title?: string;
-          subtitle?: string;
-          image?: any;
-          price?: number;
-          discountedPrice?: number;
-          storeId?: number;
-          storeBranchId?: number;
-          itemId?: number;
-          categoryId?: number;
-          categoryName?: string;
-        };
-        friendUserId?: number | null;
-        storeBranchId?: number | null;
-        addToCartPayload?: {
-          FriendId?: number | null;
-          ItemId: number;
-          ItemVariantId?: number;
-          Quantity: number;
-          storeBranchId?: number | null;
-        };
-        videoUploadPayload?: {
-          ImageFilterId: number | null;
-          Message: string;
-          VideoFile: any;
-        };
-        isVideoUploading?: boolean;
-      }
-    | undefined;
-  AddCard: undefined;
+  | {
+    product?: {
+      id?: string | number;
+      title?: string;
+      subtitle?: string;
+      image?: any;
+      price?: number;
+      discountedPrice?: number;
+      storeId?: number;
+      storeBranchId?: number;
+      itemId?: number;
+      categoryId?: number;
+      categoryName?: string;
+    };
+    friendUserId?: number | null;
+    storeBranchId?: number | null;
+    addToCartPayload?: {
+      FriendId?: number | null;
+      ItemId: number;
+      ItemVariantId?: number;
+      Quantity: number;
+      storeBranchId?: number | null;
+    };
+    videoUploadPayload?: {
+      ImageFilterId: number | null;
+      Message: string;
+      VideoFile: any;
+    };
+    isVideoUploading?: boolean;
+    selectedCard?: UserCard;
+  }
+  | undefined;
+  AddCard: { fromProfile?: boolean } | undefined;
   Notifications: undefined;
   Profile: undefined;
   Orders: undefined;

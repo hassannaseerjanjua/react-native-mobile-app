@@ -399,5 +399,15 @@
   "W_GIFTEE_WALLET": "Giftee Wallet",
   "W_WALLET": "Wallet",
   "W_WALLET_BALANCE": "Wallet",
-  "abcdabcd1": "abcdabcd"
+  "abcdabcd1": "abcdabcd",
+  "CHECKOUT_CHANGE_CARD": "Change Card",
+  "NO_CARDS_FOUND": "No cards found",
+  "P_DELETE_CARD": "Delete Card",
+  "P_DELETE_CARD_MESSAGE": "Are you sure you want to delete this card? This action cannot be undone.",
+  "P_DELETE_CARD_CONFIRM": "Delete",
+  "P_CARD_DELETED_SUCCESS": "Card deleted successfully",
+  "P_CARD_DELETE_FAILED": "Failed to delete card",
+  "P_SELECT_CARD": "Please select a card",
+  "P_SELECT_CARD_BUTTON": "Select Card",
+  "P_MANAGE_CARDS": "Manage Cards"
 }

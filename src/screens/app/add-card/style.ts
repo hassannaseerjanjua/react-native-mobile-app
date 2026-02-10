@@ -7,17 +7,54 @@ const useStyles = () => {
   const { sizes } = theme;
   return {
     styles: StyleSheet.create({
-      formContainer: {
-        marginVertical: 5,
+      loadingContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: sizes.HEIGHT * 0.2,
       },
-      inputContainer: {
-        marginBottom: 0,
+      listContainer: {
+        paddingVertical: sizes.PADDING,
+        gap: sizes.HEIGHT * 0.005,
       },
-      label: {
-        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-        fontSize: sizes.FONTSIZE_BUTTON,
-        paddingVertical: sizes.PADDING * 0.4,
-        paddingHorizontal: sizes.PADDING * 0.3,
+      cardContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: theme.colors.WHITE,
+        borderRadius: sizes.BORDER_RADIUS,
+        paddingVertical: sizes.PADDING * 0.5,
+        paddingHorizontal: sizes.PADDING * 0.75,
+        gap: sizes.WIDTH * 0.03,
+        ...theme.globalStyles.SHADOW_STYLE,
+      },
+      row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: sizes.WIDTH * 0.013,
+        // ...theme.globalStyles.SHADOW_STYLE,
+
+      },
+      cardNumber: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        fontSize: theme.sizes.FONTSIZE,
+        color: theme.colors.BLACK,
+      },
+      cardBrand: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        fontSize: theme.sizes.FONTSIZE,
+        color: theme.colors.BLACK,
+      },
+      emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingTop: sizes.HEIGHT * 0.2,
+      },
+      emptyText: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: theme.colors.SECONDARY_TEXT,
       },
     }),
     theme,

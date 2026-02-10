@@ -114,6 +114,9 @@ import SvgPencilIcon from './pencil-icon.svg';
 import SvgSpecialPriceTag from './special-price-tag.svg'
 import SvgSpecialPricePercentage from './percentage-circle.svg'
 import SvgCatchTimeIcon from './catch-time-popup.svg';
+import MasterCardIcon from './mastercard.svg';
+import NoonIcon from './noon.svg';
+import CardsIcon from './cards.svg';
 
 export {
   SvgLogoBlue,
@@ -231,5 +234,8 @@ export {
   SvgPencilIcon,
   SvgSpecialPriceTag,
   SvgCatchTimeIcon,
-  SvgSpecialPricePercentage
+  SvgSpecialPricePercentage,
+  MasterCardIcon,
+  NoonIcon,
+  CardsIcon,
 };
