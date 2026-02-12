@@ -44,7 +44,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation();
 
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
+  const isMerchant = user?.isMerchant === 1;
+
 
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
@@ -54,6 +56,10 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const businessTypeId = route.params?.businessTypeId ?? null;
   const sendType = route.params?.sendType ?? null;
   const isSendAGiftFlow = sendType !== null && sendType !== undefined;
+
+  const effectiveFriendUserId = friendUserId || (Array.isArray(friendIds) && friendIds.length === 1 ? friendIds[0] : null);
+  const isMultipleUsers = Array.isArray(friendIds) && friendIds.length > 1;
+
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
@@ -111,7 +117,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       },
       extraParams: {
         StoreId: storeId,
-        userId: friendUserId,
+        userId: effectiveFriendUserId,
       },
       idExtractor: (item: FaveItems) => item.ItemId,
     },
@@ -139,7 +145,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     const isLinkFlow = sendType === 2;
     const options = [allOption];
 
-    if (hasFavorites && !isLinkFlow) {
+    if (hasFavorites && !isLinkFlow && !isMultipleUsers) {
       options.push(favoritesOption);
     }
 
@@ -240,7 +246,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     if (selectedFilter === 'favorites') {
       getFavoriteItems.setExtraParams({
         StoreId: storeId,
-        userId: friendUserId,
+        userId: effectiveFriendUserId,
       });
     } else {
       getStoreProducts.setExtraParams({
@@ -249,7 +255,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         categoryId: selectedFilter === 'all' ? null : Number(selectedFilter),
       });
     }
-  }, [selectedFilter, storeId, friendUserId]);
+  }, [selectedFilter, storeId, effectiveFriendUserId]);
 
   const isCartFromCurrentStore = useMemo(() => {
     if (
@@ -282,7 +288,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     if (id === 'favorites') {
       getFavoriteItems.setExtraParams({
         StoreId: storeId,
-        userId: friendUserId,
+        userId: effectiveFriendUserId,
       });
     } else {
       getStoreProducts.setExtraParams({
@@ -306,7 +312,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         item={item}
         onPress={handleProductPress}
         isFavorite={isFavorite}
-        hasFavorite={true}
+        hasFavorite={!isMerchant}
         onFavoritePress={() => {
           handleFavoritePress({
             ItemId: item.ItemId,

@@ -15,7 +15,7 @@ const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const navigation =
-  useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+    useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const mockNotifications = [
     {
@@ -50,60 +50,60 @@ const NotificationsScreen: React.FC = () => {
     },
   ];
 
- const handleNotificationPress = (notificationType: NotificationType) => {
-  switch (notificationType) {
-    case NotificationType.SupportRequest:
-      navigation.navigate('ContactUs');
-      break;
+  const handleNotificationPress = (notificationType: NotificationType) => {
+    switch (notificationType) {
+      case NotificationType.SupportRequest:
+        navigation.navigate('ContactUs');
+        break;
 
-    case NotificationType.AdminPanelNotification:
-      navigation.navigate('BottomTabs');
-      break;
+      case NotificationType.AdminPanelNotification:
+        navigation.navigate('BottomTabs');
+        break;
 
-    case NotificationType.GiftReceived:
-     navigation.navigate('InboxOutbox', {
-            title: getString('HOME_INBOX'),
-            isInbox: true,
-          });
-      break;
+      case NotificationType.GiftReceived:
+        navigation.navigate('InboxOutbox', {
+          title: getString('HOME_INBOX'),
+          isInbox: true,
+        });
+        break;
 
-    case NotificationType.GiftRedeem:
-      navigation.navigate('Wallet');
-      break;
+      case NotificationType.GiftRedeem:
+        navigation.navigate('Wallet');
+        break;
 
-    case NotificationType.SpecialPriceMenu:
-      navigation.navigate('StoreProducts', {});
-      break;
+      case NotificationType.SpecialPriceMenu:
+        navigation.navigate('StoreProducts', {});
+        break;
 
-    case NotificationType.AddFriend:
-      navigation.navigate('Profile');
-      break;
+      case NotificationType.AddFriend:
+        navigation.navigate('Profile');
+        break;
 
-    case NotificationType.Catch:
-      navigation.navigate('CatchScreen', {
-        type: 'catch',
-      });
-      break;
+      case NotificationType.Catch:
+        navigation.navigate('CatchScreen', {
+          type: 'catch',
+        });
+        break;
 
-    case NotificationType.G1G1:
-      navigation.navigate('GiftOneGetOne');
-      break;
+      case NotificationType.G1G1:
+        navigation.navigate('GiftOneGetOne');
+        break;
 
-    case NotificationType.BirthdayNotification:
-      navigation.navigate('SendAGift', {
-        routeTo: 'SelectStore',
-      });
-      break;
+      case NotificationType.BirthdayNotification:
+        navigation.navigate('SendAGift', {
+          routeTo: 'SelectStore',
+        });
+        break;
 
-    case NotificationType.OccasionNotification:
-      navigation.navigate('Occasions',
-);
-      break;
+      case NotificationType.OccasionNotification:
+        navigation.navigate('Occasions',
+        );
+        break;
 
-    default:
-      break;
-  }
-};
+      default:
+        break;
+    }
+  };
 
   return (
     <View style={styles.container}>

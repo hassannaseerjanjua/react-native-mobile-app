@@ -31,6 +31,7 @@ import {
   SvgLinkShareIcon,
   SvgRiyalIcon,
   SvgRiyalIconPrimary,
+  SvgRiyalPink,
   SvgRiyalIconWhite,
   SvgSelectedCheck,
   VisaIcon,
@@ -95,6 +96,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [itemToRemove, setItemToRemove] = useState<(CartItem & { originalOrderItemIds?: number[] }) | null>(null);
   const [giftLink, setGiftLink] = useState<string | null>(null);
   const [activeDomationAmount, setActiveDomationAmount] = useState<number>();
+  const [originalEhsaanAmount, setOriginalEhsaanAmount] = useState<number>(0);
+  const [hasInitializedEhsaan, setHasInitializedEhsaan] = useState(false);
   const [showCustomDonationInput, setShowCustomDonationInput] = useState(false);
   const [customDonationAmount, setCustomDonationAmount] = useState<string>('');
   const [showEmployeesBottomSheet, setShowEmployeesBottomSheet] = useState(false);
@@ -119,6 +122,26 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     cartItemsApi.data,
   );
   const loading = cartItemsApi.loading;
+
+  useEffect(() => {
+    if (cartData && !hasInitializedEhsaan) {
+      const amount = cartData.EhsaanAmount || 0;
+      setOriginalEhsaanAmount(amount);
+      if (amount > 0) {
+        setActiveDomationAmount(amount);
+        const presetValues = [3, 5, 10];
+        if (!presetValues.includes(amount)) {
+          setShowCustomDonationInput(true);
+          setCustomDonationAmount(amount.toString());
+        }
+        setCartData({
+          ...cartData,
+          TotalAmount: cartData.TotalAmount - amount,
+        });
+      }
+      setHasInitializedEhsaan(true);
+    }
+  }, [cartData, hasInitializedEhsaan]);
 
   // Merge items with the same ItemId and ItemVariantId
   const mergedCartItems = useMemo(() => {
@@ -508,7 +531,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 { flexDirection: rtlFlexDirection(isRtl), gap: theme.sizes.WIDTH * 0.01 },
               ]}>
                 <View style={[styles.row, { flexDirection: rtlFlexDirection(isRtl), gap: theme.sizes.WIDTH * 0.008 }]}>
-                  <SvgRiyalIconPrimary
+                  <SvgRiyalPink
                     width={scaleWithMax(16, 16)}
                     height={scaleWithMax(16, 16)}
                     style={{
@@ -631,8 +654,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         orderid: cartData.OrderId,
         orderPaymentType: selectedPaymentMethod === 'wallet' ? 1 : 2,
         IsRedeem: false,
-        EhsaanAmount: activeDomationAmount || 0,
       };
+
+      const currentEhsaanAmount = activeDomationAmount || 0;
+      if (currentEhsaanAmount !== originalEhsaanAmount) {
+        payload.EhsaanAmount = currentEhsaanAmount;
+      }
 
       if (selectedPaymentMethod === 'savedCard') {
         const cardToken = selectedCardFromParams?.Token || userCards[0]?.Token;
@@ -704,9 +731,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       const message = event.nativeEvent.data;
       console.log('WebView message received:', message);
 
+      if (!message) return;
+
       // Check if the body content indicates success
       const isSuccess = message.includes('SUCCESS') || message.includes('Order:True');
       const isFailure = message.includes('Payment Failed') || message.includes('FAILED');
+      const isCancel = message.includes('Payment Cancelled') || message.includes('CANCELLED') || message.includes('Payment Cancelled') || message.includes('cancelled') || message.includes('Cancelled');
+
 
       if (isSuccess) {
         // Payment successful - close webview and show success screen
@@ -718,11 +749,39 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         if (giftLink && cartData?.SendType !== 2) {
           handleShareGiftLink(giftLink);
         }
-      } else if (isFailure) {
+      } else if (isFailure || isCancel) {
         // Payment failed - close webview and show error
         setShowPaymentWebView(false);
         setPaymentUrl(null);
-        notify.error(getString('AU_ERROR_OCCURRED') || 'Payment failed. Please try again.');
+        //  notify.error(getString('PAYMENT_FAILED') || 'Payment failed. Pleas
+
+        let errorToShow = getString('PAYMENT_FAILED') || 'Payment failed. Please try again.';
+
+        try {
+          // Attempt to extract structured error from the message
+          const jsonMatch = message.match(/\{.*\}/);
+          if (jsonMatch) {
+            const data = JSON.parse(jsonMatch[0]);
+            errorToShow = data.Message || data.message || data.Error || data.error || errorToShow;
+          } else {
+            // Try to extract message after keywords like FAILED: or Error:
+            const patterns = [/FAILED\s*[:|-]\s*(.*)/i, /Payment Failed\s*[:|-]\s*(.*)/i, /Error\s*[:|-]\s*(.*)/i];
+            for (const pattern of patterns) {
+              const match = message.match(pattern);
+              if (match && match[1] && match[1].trim()) {
+                const captured = match[1].trim();
+                if (captured.length < 250 && !captured.includes('<html')) {
+                  errorToShow = captured;
+                  break;
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.error('Error parsing WebView failure message:', e);
+        }
+
+        notify.error(errorToShow);
       }
     } catch (error) {
       console.error('Error handling WebView message:', error);
@@ -1154,13 +1213,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           )
                         }
                       />
-                      {/* Placeholder icon - using VisaIcon temporarily */}
-                      <VisaIcon
+                      <NoonIcon
                         height={scaleWithMax(32, 35)}
                         width={scaleWithMax(32, 35)}
                       />
                       <View>
-                        <Text style={styles.TextMedium}>Credit/Debit Card</Text>
+                        <Text style={styles.TextMedium}>{getString('CHECKOUT_CREDIT_DEBIT_CARD')}</Text>
                       </View>
                     </View>
                     <SvgSelectedCheck
@@ -1171,7 +1229,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   </View>
                 </TouchableOpacity>
 
-                {/* 3. First saved card from GET_CARDS */}
                 {(selectedCardFromParams || userCards.length > 0) && (
                   <TouchableOpacity
                     onPress={() =>
@@ -1388,7 +1445,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       >
                         <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
                           {amount.value === 'Custom' ? null : isActive ? (
-                            <SvgRiyalIconPrimary
+                            <SvgRiyalPink
                               width={scaleWithMax(12, 14)}
                               height={scaleWithMax(12, 14)}
                             />

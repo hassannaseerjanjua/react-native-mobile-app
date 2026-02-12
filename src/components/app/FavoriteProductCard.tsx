@@ -8,6 +8,7 @@ import {
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
   SvgRiyalIconPrimary,
+  SvgRiyalPink,
 } from '../../assets/icons';
 import { FaveItems, StoreProduct } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
@@ -112,7 +113,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
         <View style={styles.priceContainer}>
           {isSpecialPrice && (
             <>
-              <SvgRiyalIconPrimary
+              <SvgRiyalPink
                 width={scaleWithMax(11, 13)}
                 height={scaleWithMax(11, 13)}
                 style={{
@@ -123,13 +124,36 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
             </>
           )}
 
-          <SvgRiyalIcon
-            width={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
-            height={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
-            opacity={isSpecialPrice ? 0.32 : 1}
-          />
+          {!isFavoriteTab && (
+            <>
+              <SvgRiyalIcon
+                width={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
+                height={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
+                opacity={isSpecialPrice ? 0.32 : 1}
+              />
+            </>
+          )}
+          {!isFavoriteTab && (
+            <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>{(isFavoriteTab ? cutPrice : price) || 'N/A'}</Text>
+          )}
 
-          <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>{(isFavoriteTab ? cutPrice : price) || 'N/A'}</Text>
+          {isFavoriteTab && (
+            <>
+              <View style={styles.priceContainer}>
+
+                <SvgRiyalPink
+                  width={scaleWithMax(11, 13)}
+                  height={scaleWithMax(11, 13)}
+                  style={{
+                    marginTop: 3.5,
+                  }}
+                />
+                <Text style={styles.discountedPrice}>{cutPrice}</Text>
+                <Text style={styles.cutPrice}>{price}</Text>
+
+              </View>
+            </>
+          )}
         </View>
       </View>
     </TouchableOpacity>

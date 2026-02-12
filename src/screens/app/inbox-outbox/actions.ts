@@ -470,6 +470,8 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
               productName: selectedItems[0]?.ItemName,
               quantity: selectedItems[0]?.Quantity || 1,
             });
+          } else {
+            notify.error(response.error || getString('AU_ERROR_OCCURRED'));
           }
           console.log('responseData', responseData);
           return;
@@ -479,8 +481,8 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
           const firstSelectedItemId = overrideItems
             ? overrideItems[0]?.OrderItemId
             : Array.from(selectedItems.keys()).find(
-                id => selectedItems.get(id)! > 0,
-              ) || items[0]?.OrderItemId;
+              id => selectedItems.get(id)! > 0,
+            ) || items[0]?.OrderItemId;
           const firstSelectedItem = currentSelectedOrder?.Items?.find(
             item => item.OrderItemId === firstSelectedItemId,
           );
@@ -488,8 +490,8 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
           const productImage = firstSelectedItem
             ? getMainImage(firstSelectedItem)
             : getMainImage(
-                currentSelectedOrder?.Items?.[0] || ({} as InboxOrderItem),
-              );
+              currentSelectedOrder?.Items?.[0] || ({} as InboxOrderItem),
+            );
           const storeName = getStoreName(currentSelectedOrder, isRtl);
 
           // Build selected items array for navigation
@@ -518,8 +520,8 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
         } else {
           notify.error(
             data.Message ||
-              responseData.ResponseMessage ||
-              getString('INBOX_FAILED_TO_GENERATE_QR'),
+            responseData.ResponseMessage ||
+            getString('INBOX_FAILED_TO_GENERATE_QR'),
           );
         }
       } else {

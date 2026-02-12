@@ -117,6 +117,7 @@ import SvgCatchTimeIcon from './catch-time-popup.svg';
 import MasterCardIcon from './mastercard.svg';
 import NoonIcon from './noon.svg';
 import CardsIcon from './cards.svg';
+import SvgRiyalPink from './Riyal_pink.svg';
 
 export {
   SvgLogoBlue,
@@ -238,4 +239,5 @@ export {
   MasterCardIcon,
   NoonIcon,
   CardsIcon,
+  SvgRiyalPink,
 };

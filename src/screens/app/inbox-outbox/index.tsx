@@ -496,6 +496,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const profileImage = getProfileImage(order, isInbox);
   const userName = getUserName(order, isInbox);
   const storeName = getStoreName(order, isRtl);
+  const isRedeemed = order.Items && order.Items.every(item => item.Status === 10);
+  const showGiftLinkGeneric = !isInbox && order.SendType === 2 && !isRedeemed;
   const timeAgo = formatRelativeTime(order.OrderTime);
   const { createDebouceClick } = useDebounceClick();
 
@@ -536,7 +538,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
           alignItems: 'flex-start',
         }}
       >
-        {order.SendType === 2 ? (
+        {showGiftLinkGeneric ? (
           <View
             style={[
               styles.inboxProfile,
@@ -578,11 +580,12 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {order.SendType === 2 ? 'Gift Link' : order.CampaginType === 1 ? order.stores.NameEn : userName}
+                  {showGiftLinkGeneric ? 'Gift Link' : order.CampaginType === 1 ? order.stores.NameEn : userName}
                 </Text>
-                {(!isMerchant
-                  ? order?.users?.isVerified && order?.SendType !== 2
-                  : order?.MultiUsers?.[0]?.isVerified) && <SvgVerifiedIcon />}
+                {!showGiftLinkGeneric &&
+                  (!isMerchant
+                    ? order?.users?.isVerified
+                    : order?.MultiUsers?.[0]?.isVerified) && <SvgVerifiedIcon />}
               </View>
 
 

@@ -112,6 +112,18 @@ const useStyles = () => {
         color: theme.colors.PRIMARY_TEXT,
         fontSize: scaleWithMax(20, 22),
       },
+      cutPrice: {
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        color: '#C6C6C6',
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        textDecorationLine: 'line-through',
+      },
+      discountedPrice: {
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        color: theme.colors.PRIMARY,
+        fontSize: scaleWithMax(20, 22),
+        marginEnd: scaleWithMax(1, 2),
+      },
       ProductTitleContainer: {
         paddingVertical: sizes.HEIGHT * 0.015,
         borderBottomColor: colors.SECONDARY_GRAY,

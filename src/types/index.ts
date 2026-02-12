@@ -521,6 +521,7 @@ export interface StoreProduct {
   StoreBranchId: number;
   CategoryId: number;
   FinalPrice: number;
+  DiscountedPrice?: number;
   Categories: any | null;
 }
 
@@ -588,6 +589,7 @@ export interface CartResponse {
   Items: CartItem[];
   SendType: number;
   CampaginType: number;
+  EhsaanAmount?: number;
   users: MultiUser;
   MultiUsers: MultiUser[];
 }

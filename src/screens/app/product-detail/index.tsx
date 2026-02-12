@@ -8,6 +8,7 @@ import {
   SvgItemFavouriteIcon,
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
+  SvgRiyalPink,
 } from '../../../assets/icons';
 import { scaleWithMax, rtlTransform } from '../../../utils';
 import ProductImageSlider from '../../../components/global/ProductImageSlider';
@@ -27,8 +28,7 @@ import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import { useAuthStore } from '../../../store/reducer/auth';
 
 const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
-  route,
-  navigation,
+  route, navigation,
 }) => {
   const { styles, theme } = useStyles();
   const { getString, isRtl } = useLocaleStore();
@@ -281,17 +281,35 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       setSubmitting(false);
     }
   };
-  const itemPrice = useMemo(() => {
-    if (!itemApi.data?.Variants?.length) return itemApi.data?.Price;
+  // const itemPrice = useMemo(() => {
+  //   if (!itemApi.data?.Variants?.length) return itemApi.data?.Price;
+  const { originalPrice, discountedPrice, isSpecialPrice } = useMemo(() => {
+    if (!itemApi.data)
+      return { originalPrice: 0, discountedPrice: 0, isSpecialPrice: false };
 
     const selectedVariant = selectedFilter
-      ? itemApi.data.Variants.find(
-        v => v.ItemVariantId === Number(selectedFilter),
+      ? itemApi.data.Variants?.find(
+        (v: any) => v.ItemVariantId === Number(selectedFilter),
       )
-      : itemApi.data.Variants.find(v => v.IsDefault);
+      : itemApi.data.Variants?.find((v: any) => v.IsDefault);
+    //        return selectedVariant?.FinalPrice ?? 0;
+    // }, [item, selectedFilter]);
 
-    return selectedVariant?.FinalPrice ?? 0;
-  }, [item, selectedFilter]);
+    const price = selectedVariant ? selectedVariant.Price : itemApi.data.Price;
+    const discountAmount = selectedVariant
+      ? selectedVariant.DiscountedPrice
+      : itemApi.data.DiscountedPrice;
+
+    // User formula: "price - DiscountedPrice"
+    const calcDiscountedPrice = (price ?? 0) - (discountAmount ?? 0);
+    const hasDiscount = (discountAmount ?? 0) > 0;
+
+    return {
+      originalPrice: price ?? 0,
+      discountedPrice: calcDiscountedPrice,
+      isSpecialPrice: hasDiscount,
+    };
+  }, [itemApi.data, selectedFilter]);
 
   // Check if item already exists in cart (merchant flow or GiftOneGetOne flow - single item only)
   const isItemInCart = useMemo(() => {
@@ -341,22 +359,24 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         >
           <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
         </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.rounded_white_background}
-          onPress={() => handleFavorite()}
-        >
-          {item?.isFavourite ? (
-            <SvgItemFavouriteIcon
-              width={scaleWithMax(14, 16)}
-              height={scaleWithMax(14, 16)}
-            />
-          ) : (
-            <SvgItemFavouriteIconInActive
-              width={scaleWithMax(14, 16)}
-              height={scaleWithMax(14, 16)}
-            />
-          )}
-        </TouchableOpacity>
+        {!isMerchant && (
+          <TouchableOpacity
+            style={styles.rounded_white_background}
+            onPress={() => handleFavorite()}
+          >
+            {item?.isFavourite ? (
+              <SvgItemFavouriteIcon
+                width={scaleWithMax(14, 16)}
+                height={scaleWithMax(14, 16)}
+              />
+            ) : (
+              <SvgItemFavouriteIconInActive
+                width={scaleWithMax(14, 16)}
+                height={scaleWithMax(14, 16)}
+              />
+            )}
+          </TouchableOpacity>
+        )}
       </View>
 
       {loading ? (
@@ -382,17 +402,38 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               <View style={styles.titleRow}>
                 <Text style={styles.ProductTitle}>{isRtl ? item?.NameAr : item?.NameEn}</Text>
                 <View style={styles.priceContainer}>
+                  {isSpecialPrice && (
+                    <>
+                      <SvgRiyalPink
+                        width={scaleWithMax(15, 18)}
+                        height={scaleWithMax(15, 18)}
+                        style={{
+                          marginTop: 3.5,
+                        }}
+                      />
+                      <Text style={styles.discountedPrice}>
+                        {discountedPrice}
+                      </Text>
+                    </>
+                  )}
                   <SvgRiyalIcon
-                    width={scaleWithMax(15, 18)}
-                    height={scaleWithMax(15, 18)}
+                    width={
+                      isSpecialPrice
+                        ? scaleWithMax(11, 13)
+                        : scaleWithMax(15, 18)
+                    }
+                    height={
+                      isSpecialPrice
+                        ? scaleWithMax(11, 13)
+                        : scaleWithMax(15, 18)
+                    }
+                    opacity={isSpecialPrice ? 0.32 : 1}
                     style={{
                       marginTop: 3.5,
                     }}
                   />
-                  <Text style={styles.price}>
-                    {itemPrice !== undefined && itemPrice !== null
-                      ? Number(itemPrice)
-                      : ''}
+                  <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>
+                    {originalPrice}
                   </Text>
                 </View>
               </View>
