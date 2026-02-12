@@ -721,3 +721,27 @@ export const mockCatchItems = [
     price: 14,
   },
 ];
+
+export interface Notification {
+  NotificationId: number;
+  UserId: number;
+  StoreId: number | null;
+  TitleEn: string;
+  TitleAr: string;
+  DescriptionEn: string;
+  DescriptionAr: string;
+  Image: string | null;
+  JsonData: string;
+  NotificationType: number;
+  CreatedOn: string;
+}
+
+export interface NotificationsApiResponse {
+  Data: {
+    Items: Notification[];
+    TotalCount: number;
+  };
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}

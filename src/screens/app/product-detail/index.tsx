@@ -178,15 +178,16 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       }
     } else {
       // Add new item to cart
+      const finalCampaignId =
+        campaignId || item?.CampaignId || item?.Campaign?.CampaignId;
+
       const payload: any = {
         ItemId: item.ItemId,
         ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
         Quantity: quantity,
         StoreId: storeId ?? null,
         SendType: route.params.sendType ?? 1,
-        // ...(route.params.type === 'GiftOneGetOne' && {
-        ...(campaignId && { CampaignId: campaignId }),
-        // }),
+        ...(finalCampaignId && { CampaignId: finalCampaignId }),
         IsGift: true,
       };
 
@@ -281,40 +282,41 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       setSubmitting(false);
     }
   };
-  // const itemPrice = useMemo(() => {
-  //   if (!itemApi.data?.Variants?.length) return itemApi.data?.Price;
-  const { originalPrice, discountedPrice, isSpecialPrice } = useMemo(() => {
+
+  // Updated price calculation to use FinalPrice directly
+  const { originalPrice, finalPrice, discountAmount, hasDiscount } = useMemo(() => {
     if (!itemApi.data)
-      return { originalPrice: 0, discountedPrice: 0, isSpecialPrice: false };
+      return {
+        originalPrice: 0,
+        finalPrice: 0,
+        discountAmount: 0,
+        hasDiscount: false
+      };
 
     const selectedVariant = selectedFilter
       ? itemApi.data.Variants?.find(
         (v: any) => v.ItemVariantId === Number(selectedFilter),
       )
       : itemApi.data.Variants?.find((v: any) => v.IsDefault);
-    //        return selectedVariant?.FinalPrice ?? 0;
-    // }, [item, selectedFilter]);
 
-    const price = selectedVariant ? selectedVariant.Price : itemApi.data.Price;
-    const discountAmount = selectedVariant
-      ? selectedVariant.DiscountedPrice
-      : itemApi.data.DiscountedPrice;
+    // Get values from the selected variant or fallback to item level
+    const originalPrice = selectedVariant ? selectedVariant.Price : itemApi.data.Price;
+    const finalPrice = selectedVariant ? selectedVariant.FinalPrice : itemApi.data.FinalPrice;
+    const discountAmount = selectedVariant ? selectedVariant.DiscountedPrice : itemApi.data.DiscountedPrice;
 
-    // User formula: "price - DiscountedPrice"
-    const calcDiscountedPrice = (price ?? 0) - (discountAmount ?? 0);
-    const hasDiscount = (discountAmount ?? 0) > 0;
+    // Check if there's a discount (FinalPrice is less than original Price)
+    const hasDiscount = finalPrice < originalPrice;
 
     return {
-      originalPrice: price ?? 0,
-      discountedPrice: calcDiscountedPrice,
-      isSpecialPrice: hasDiscount,
+      originalPrice: originalPrice ?? 0,
+      finalPrice: finalPrice ?? 0,
+      discountAmount: discountAmount ?? 0,
+      hasDiscount,
     };
   }, [itemApi.data, selectedFilter]);
 
-  // Check if item already exists in cart (merchant flow or GiftOneGetOne flow - single item only)
   const isItemInCart = useMemo(() => {
     if (!cartApi.data || !item) return false;
-    // Show View Cart in GiftOneGetOne or merchant flow when current item (with variant) is in cart
     if (!isMerchant && !isGiftOneGetOne) return false;
 
     const cartItems = cartApi.data.Items || [];
@@ -324,11 +326,16 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       const matchesItemId = cartItem.ItemId === item.ItemId;
       const matchesVariantId = selectedVariantId
         ? cartItem.Variant?.ItemVariantId === selectedVariantId
-        : !cartItem.Variant?.ItemVariantId; // If no variant selected, match items without variants
+        : !cartItem.Variant?.ItemVariantId;
 
       return matchesItemId && matchesVariantId;
     });
   }, [isMerchant, isGiftOneGetOne, cartApi.data, item, selectedFilter]);
+
+  // Calculate savings amount
+  const savingsAmount = useMemo(() => {
+    return hasDiscount ? originalPrice - finalPrice : 0;
+  }, [hasDiscount, originalPrice, finalPrice]);
 
   return (
     <ParentView edges={['bottom']}>
@@ -400,9 +407,12 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           <View style={styles.LowerContainer}>
             <View style={styles.ProductTitleContainer}>
               <View style={styles.titleRow}>
-                <Text style={styles.ProductTitle}>{isRtl ? item?.NameAr : item?.NameEn}</Text>
+                <Text style={styles.ProductTitle}>
+                  {isRtl ? item?.NameAr : item?.NameEn}
+                </Text>
                 <View style={styles.priceContainer}>
-                  {isSpecialPrice && (
+                  {/* Final Price - Current price after discount */}
+                  {hasDiscount && (
                     <>
                       <SvgRiyalPink
                         width={scaleWithMax(15, 18)}
@@ -412,29 +422,25 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                         }}
                       />
                       <Text style={styles.discountedPrice}>
-                        {discountedPrice}
+                        {finalPrice}
                       </Text>
                     </>
                   )}
+
+                  {/* Original Price - Strikethrough when discounted */}
                   <SvgRiyalIcon
-                    width={
-                      isSpecialPrice
-                        ? scaleWithMax(11, 13)
-                        : scaleWithMax(15, 18)
-                    }
-                    height={
-                      isSpecialPrice
-                        ? scaleWithMax(11, 13)
-                        : scaleWithMax(15, 18)
-                    }
-                    opacity={isSpecialPrice ? 0.32 : 1}
+                    width={hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)}
+                    height={hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)}
+                    opacity={hasDiscount ? 0.32 : 1}
                     style={{
                       marginTop: 3.5,
                     }}
                   />
-                  <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>
+                  <Text style={hasDiscount ? styles.cutPrice : styles.price}>
                     {originalPrice}
                   </Text>
+
+
                 </View>
               </View>
               <Text style={styles.TaxIncludeText}>
@@ -446,7 +452,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               <Text style={styles.Heading}>
                 {getString('PRODUCT_DESCRIPTION')}
               </Text>
-              <Text style={styles.Description}>{isRtl ? item?.DescAr : item?.DescEn}</Text>
+              <Text style={styles.Description}>
+                {isRtl ? item?.DescAr : item?.DescEn}
+              </Text>
             </View>
             {item?.Variants?.length > 1 && (
               <>
@@ -454,8 +462,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                   <Text style={styles.Heading}>
                     {getString('PRODUCT_VARIANTS')}
                   </Text>
-
-
                   <GroupTabs
                     tabs={filterOptions}
                     activeTab={selectedFilter}
@@ -465,19 +471,18 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               </>
             )}
           </View>
-
         </ScrollView>
       )}
+
+      {/* Bottom Action Bar */}
       <View
         style={{
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
           position: 'absolute',
           bottom: scaleWithMax(3, 4),
-          // bottom: 0,
           left: 0,
           right: 0,
-
           ...theme.globalStyles.SHADOW_STYLE_STORE_CARD,
         }}
       >
@@ -490,12 +495,10 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             paddingVertical: sizes.HEIGHT * 0.028,
             borderTopLeftRadius: 15,
             borderTopRightRadius: 15,
-            // backgroundColor: 'red',
           }}
         >
-
-          {
-            !isMerchant && !isGiftOneGetOne && (<View style={styles.QuantityContainer}>
+          {!isMerchant && !isGiftOneGetOne && (
+            <View style={styles.QuantityContainer}>
               <MinusIcon
                 width={scaleWithMax(25, 28)}
                 height={scaleWithMax(25, 28)}
@@ -507,9 +510,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                 height={scaleWithMax(25, 28)}
                 onPress={() => handleQuantityChange('increment')}
               />
-            </View>)
-          }
-
+            </View>
+          )}
 
           <CustomButton
             buttonStyle={styles.button}
@@ -529,6 +531,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           />
         </View>
       </View>
+
       <ConfirmationPopup
         visible={showClearCartConfirmation}
         message={

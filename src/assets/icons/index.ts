@@ -118,6 +118,7 @@ import MasterCardIcon from './mastercard.svg';
 import NoonIcon from './noon.svg';
 import CardsIcon from './cards.svg';
 import SvgRiyalPink from './Riyal_pink.svg';
+import SvgGifteeNotifyIcon from './giftee_notify.svg';
 
 export {
   SvgLogoBlue,
@@ -240,4 +241,5 @@ export {
   NoonIcon,
   CardsIcon,
   SvgRiyalPink,
+  SvgGifteeNotifyIcon,
 };

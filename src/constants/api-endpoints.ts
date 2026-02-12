@@ -131,6 +131,7 @@ const apiEndpoints = {
   GENERATE_QR_CODE: (orderId: number) =>
     `/${version}/User/generate-qr?orderId=${orderId}`,
   SEND_GIFT_FILTER: `/${version}/User/AddGiftMessageToOrder`,
+  NOTIFICATIONS_LISTING: `/${version}/Panel/NotificationsListingForUser`,
 };
 
 export default apiEndpoints;

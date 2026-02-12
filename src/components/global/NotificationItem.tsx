@@ -9,7 +9,7 @@ import {
   Platform,
 } from 'react-native';
 import React, { useMemo } from 'react';
-import { SvgGiftLink, SvgGroup } from '../../assets/icons';
+import { SvgGiftLink, SvgGifteeNotifyIcon } from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
@@ -79,7 +79,9 @@ const NotificationItem = ({
             style={styles.groupImage}
           />
         ) : (
-          isGroupImage === '' && <SvgGroup />
+          <View style={styles.placeholderContainer}>
+            <SvgGifteeNotifyIcon width={scaleWithMax(50, 55)} height={scaleWithMax(50, 55)} />
+          </View>
         )}
         {isLink && <SvgGiftLink />}
         {icon && icon}
@@ -131,6 +133,13 @@ const useStyles = () => {
         width: scaleWithMax(50, 55),
         height: scaleWithMax(50, 55),
         borderRadius: 999,
+      },
+      placeholderContainer: {
+        width: scaleWithMax(50, 55),
+        height: scaleWithMax(50, 55),
+        borderRadius: 999,
+        justifyContent: 'center',
+        alignItems: 'center',
       },
       timeContainer: {
         position: 'absolute',

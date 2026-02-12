@@ -180,24 +180,17 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   }, [getFavoriteItems.data]);
 
   const handleProductPress = (item: StoreProduct | FaveItems) => {
-    if ('ItemId' in item && 'Thumbnail' in item) {
-      const product = item as StoreProduct;
-      (navigation as any).navigate('ProductDetails', {
-        itemId: product.ItemId,
-        storeId: product.StoreId ?? storeId,
-        friendUserId,
-        FriendIds: friendIds,
-        sendType: route.params.sendType,
-        campaignId: product?.Campaign?.CampaignId,
-      });
-    } else {
-      (navigation as any).navigate('ProductDetails', {
-        itemId: (item as any)?.ItemId ?? 0,
-        storeId: (item as any)?.StoreId ?? storeId ?? null,
-        friendUserId,
-        FriendIds: friendIds,
-      });
-    }
+    const productItem = item as any;
+    const itemCampaignId = productItem?.Campaign?.CampaignId || productItem?.CampaignId;
+
+    (navigation as any).navigate('ProductDetails', {
+      itemId: productItem?.ItemId ?? 0,
+      storeId: productItem?.StoreId ?? storeId ?? null,
+      friendUserId,
+      FriendIds: friendIds,
+      sendType: route.params.sendType,
+      campaignId: itemCampaignId,
+    });
   };
 
   const handleFavoritePress = async (payload: {
