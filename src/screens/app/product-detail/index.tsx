@@ -49,6 +49,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [showClearCartConfirmation, setShowClearCartConfirmation] =
     useState(false);
   const [isVariantChange, setIsVariantChange] = useState(false);
+  const [samestoreg1g1, setsamestoreg1g1] = useState(false);
 
   const cartApi = useGetApi<CartResponse>(
     apiEndpoints.GET_CART_ITEMS,
@@ -259,13 +260,19 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           // If variants are different, show confirmation
           if (selectedVariantId !== cartVariantId) {
             setIsVariantChange(true);
+            setsamestoreg1g1(false);
             setShowClearCartConfirmation(true);
             return;
           }
           // Same item and same variant - proceed normally (will update quantity)
         } else {
           // Different item in cart, show confirmation
+          const cartStoreId = cartApi.data.StoreId;
+          const currentStoreId = item?.StoreId || storeId;
+          const isSameStore = cartStoreId === currentStoreId;
+
           setIsVariantChange(false);
+          setsamestoreg1g1(isSameStore);
           setShowClearCartConfirmation(true);
           return;
         }
@@ -537,7 +544,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         message={
           isVariantChange
             ? getString('PRODUCT_CLEAR_CART_VARIANT_MESSAGE')
-            : getString('PRODUCT_CLEAR_CART_MESSAGE')
+            : samestoreg1g1
+              ? getString('PRODUCT_CLEAR_CART_MESSAGE_SAME')
+              : getString('PRODUCT_CLEAR_CART_MESSAGE')
         }
         confirmText={getString('PRODUCT_CONFIRM')}
         cancelText={getString('NG_CANCEL')}
@@ -545,6 +554,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         onCancel={() => {
           setShowClearCartConfirmation(false);
           setIsVariantChange(false);
+          setsamestoreg1g1(false);
         }}
         loading={submitting}
       />

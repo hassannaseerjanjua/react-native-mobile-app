@@ -754,7 +754,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         setShowPaymentWebView(false);
         setPaymentUrl(null);
         //  notify.error(getString('PAYMENT_FAILED') || 'Payment failed. Pleas
-
+        // Don't show toast if payment was cancelled
+        if (isCancel) {
+          console.log('canecl');
+          return;
+        }
         let errorToShow = getString('PAYMENT_FAILED') || 'Payment failed. Please try again.';
 
         try {
@@ -1570,61 +1574,64 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               </View>
             </ScrollView>
           </KeyboardAvoidingView>
-          <View style={styles.footerContainer}>
-            <View style={{ position: 'relative' }}>
-              <CustomButton
-                title={
-                  selectedPaymentMethod === 'applePay'
-                    ? ''
-                    : getString('CHECKOUT_PROCEED_TO_CHECKOUT')
-                }
-                onPress={handleProceedToCheckout}
-                icon={
-                  selectedPaymentMethod === 'applePay' ? (
-                    <SvgApplePayText />
-                  ) : undefined
-                }
-                buttonStyle={{
-                  backgroundColor: !selectedPaymentMethod
-                    ? '#FFA5A5'
-                    : selectedPaymentMethod === 'applePay'
-                      ? '#000000'
-                      : theme.colors.PRIMARY,
-                  borderColor: !selectedPaymentMethod
-                    ? '#FFA5A5'
-                    : selectedPaymentMethod === 'applePay'
-                      ? '#000000'
-                      : theme.colors.PRIMARY,
-                }}
-                labelStyle={{
-                  color: theme.colors.WHITE,
-                }}
-                disabled={
-                  submitting || waitingForVideoUpload || !selectedPaymentMethod
-                }
-                loading={submitting || waitingForVideoUpload}
-              />
-              <View
-                style={[
-                  styles.footerPriceWrapper,
-                  rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.03),
-                ]}
-              >
-                <PriceWithIcon
-                  Price={(cartData?.TotalAmount || 0) + (activeDomationAmount || 0)}
-                  style={{
+          <View style={{ height: theme.sizes.HEIGHT * 0.11, backgroundColor: theme.colors.WHITE }} >
+            <View style={styles.footerContainer}>
+              <View style={{ position: 'relative' }}>
+                <CustomButton
+                  title={
+                    selectedPaymentMethod === 'applePay'
+                      ? ''
+                      : getString('CHECKOUT_PROCEED_TO_CHECKOUT')
+                  }
+                  onPress={handleProceedToCheckout}
+                  icon={
+                    selectedPaymentMethod === 'applePay' ? (
+                      <SvgApplePayText />
+                    ) : undefined
+                  }
+                  buttonStyle={{
+                    backgroundColor: !selectedPaymentMethod
+                      ? '#FFA5A5'
+                      : selectedPaymentMethod === 'applePay'
+                        ? '#000000'
+                        : theme.colors.PRIMARY,
+                    borderColor: !selectedPaymentMethod
+                      ? '#FFA5A5'
+                      : selectedPaymentMethod === 'applePay'
+                        ? '#000000'
+                        : theme.colors.PRIMARY,
+                  }}
+                  labelStyle={{
                     color: theme.colors.WHITE,
                   }}
-                  Icon={
-                    <SvgRiyalIconWhite
-                      width={scaleWithMax(12, 14)}
-                      height={scaleWithMax(12, 14)}
-                    />
+                  disabled={
+                    submitting || waitingForVideoUpload || !selectedPaymentMethod
                   }
+                  loading={submitting || waitingForVideoUpload}
                 />
+                <View
+                  style={[
+                    styles.footerPriceWrapper,
+                    rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.03),
+                  ]}
+                >
+                  <PriceWithIcon
+                    Price={(cartData?.TotalAmount || 0) + (activeDomationAmount || 0)}
+                    style={{
+                      color: theme.colors.WHITE,
+                    }}
+                    Icon={
+                      <SvgRiyalIconWhite
+                        width={scaleWithMax(12, 14)}
+                        height={scaleWithMax(12, 14)}
+                      />
+                    }
+                  />
+                </View>
               </View>
             </View>
-          </View></>
+          </View>
+        </>
       ) : (
 
         <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
