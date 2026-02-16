@@ -38,7 +38,6 @@ const NotificationsScreen: React.FC = () => {
   const renderItem = ({ item }: { item: Notification }) => {
     const title = isRtl ? item.TitleAr : item.TitleEn;
 
-    // Extract bold text from JsonData if possible
     let boldText = '';
     try {
       if (item.JsonData) {
@@ -46,10 +45,9 @@ const NotificationsScreen: React.FC = () => {
         boldText = jsonData.StoreName || jsonData.OccasionUserName || jsonData.FullName || '';
       }
     } catch (e) {
-      console.error('Error parsing JsonData', e);
+      console.error(e);
     }
 
-    // Fallback for title/description if placeholders exist
     let finalTitle = title;
     if (boldText && finalTitle.includes('{FullName}')) {
       finalTitle = finalTitle.replace('{FullName}', boldText);

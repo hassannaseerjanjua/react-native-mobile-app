@@ -455,8 +455,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             <Text style={styles.footerButtonText}>View Cart</Text>
             <View style={styles.footerPriceRow}>
               <SvgRiyalIconWhite
-                width={scaleWithMax(16, 18)}
-                height={scaleWithMax(16, 18)}
+                width={scaleWithMax(12, 14)}
+                height={scaleWithMax(12, 14)}
               />
               <Text style={styles.footerPriceText}>
                 {cartApi.data?.TotalAmount || '0.00'}

@@ -126,8 +126,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   useEffect(() => {
     if (cartData && !hasInitializedEhsaan) {
       const amount = cartData.EhsaanAmount || 0;
+      console.log('[Ehsan Init] Setting originalEhsaanAmount to:', amount);
       setOriginalEhsaanAmount(amount);
       if (amount > 0) {
+        console.log('[Ehsan Init] Prefilling activeDomationAmount to:', amount);
         setActiveDomationAmount(amount);
         const presetValues = [3, 5, 10];
         if (!presetValues.includes(amount)) {
@@ -657,7 +659,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       };
 
       const currentEhsaanAmount = activeDomationAmount || 0;
+      console.log('[Checkout] Current:', currentEhsaanAmount, 'Original:', originalEhsaanAmount);
       if (currentEhsaanAmount !== originalEhsaanAmount) {
+        console.log('[Checkout] Sending EhsaanAmount:', currentEhsaanAmount);
         payload.EhsaanAmount = currentEhsaanAmount;
       }
 
@@ -686,6 +690,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       }>(apiEndpoints.INITIATE_CHECKOUT, payload);
 
       if (response.success) {
+        // Update originalEhsaanAmount after successful API call to prevent duplicate additions on retry
+        if (currentEhsaanAmount !== originalEhsaanAmount) {
+          console.log('[Checkout] Updating originalEhsaanAmount from', originalEhsaanAmount, 'to', currentEhsaanAmount);
+          setOriginalEhsaanAmount(currentEhsaanAmount);
+        }
+
         // Store the gift link if available (it might be available even before payment)
         if (response.data?.Data?.GiftLink) {
           setGiftLink(response.data?.Data?.GiftLink);
