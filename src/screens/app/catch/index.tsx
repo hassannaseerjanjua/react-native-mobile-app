@@ -731,17 +731,17 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   }}
                 />
 
-                <Text style={styles.modalTitle}>Already Claimed!</Text>
+                <Text style={styles.modalTitle}>{getString('ALREADY_CLAIMED')}</Text>
 
                 <Text style={styles.modalSubtitle}>
-                  Available once every 24 hours per store
+                  {getString('AVAILABLE_ONCE_EVERY_24_HOURS_PER_STORE')}
                 </Text>
                 <Text style={styles.modalSubtitle}>
-                  You can still claim from any other store
+                  {getString('YOU_CAN_STILL_CLAIM_FROM_ANY_OTHER_STORE')}
                 </Text>
 
                 <CustomButton
-                  title="Explore Other Catch"
+                  title={getString('EXPLORE_OTHER_CATCH')}
                   onPress={() => setShowErrorModal(false)}
                   buttonStyle={styles.modalButton}
                   labelStyle={{

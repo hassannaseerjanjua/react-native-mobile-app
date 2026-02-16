@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { View, StatusBar, FlatList, ActivityIndicator } from 'react-native';
+import { View, StatusBar, FlatList } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import NotificationItem from '../../../components/global/NotificationItem.tsx';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { Notification, NotificationsApiResponse } from '../../../types/index.ts';
@@ -36,7 +37,7 @@ const NotificationsScreen: React.FC = () => {
 
 
   const renderItem = ({ item }: { item: Notification }) => {
-    const title = isRtl ? item.TitleAr : item.TitleEn;
+    const title = isRtl ? item.DescriptionAr : item.DescriptionEn;
 
     let boldText = '';
     try {
@@ -59,7 +60,7 @@ const NotificationsScreen: React.FC = () => {
     return (
       <NotificationItem
         title={finalTitle}
-        onPress={() => { }}
+        // onPress={() => { }}
         NotificationItemStyles={styles.NotificationItem}
         isGroupImage={item.Image}
         time={formatRelativeTime(item.CreatedOn)}
@@ -81,9 +82,7 @@ const NotificationsScreen: React.FC = () => {
       />
 
       {loading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-          <ActivityIndicator size="large" color={theme.colors.PRIMARY} />
-        </View>
+        <SkeletonLoader screenType="notifications" />
       ) : (
         <FlatList
           data={notifications}

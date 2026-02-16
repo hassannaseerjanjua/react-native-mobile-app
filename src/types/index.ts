@@ -201,6 +201,7 @@ export interface FaveItems {
   Price: number;
   isFavourite: boolean;
 }
+
 export interface OccasionsApiResponse {
   Data: {
     Items: Occasion[];

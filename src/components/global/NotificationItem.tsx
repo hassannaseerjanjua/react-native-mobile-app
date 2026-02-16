@@ -1,7 +1,6 @@
 import {
   StyleSheet,
   View,
-  TouchableOpacity,
   StyleProp,
   ViewStyle,
   Image,
@@ -14,11 +13,10 @@ import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { I18nManager } from 'react-native';
-import { scaleWithMax } from '../../utils';
+import { rtlTransform, scaleWithMax } from '../../utils';
 
 interface NotificationItemProps {
   title: string;
-  onPress: () => void;
   NotificationItemStyles?: StyleProp<ViewStyle>;
   NotificationTextStyles?: StyleProp<TextStyle>;
   isLink?: boolean;
@@ -30,7 +28,6 @@ interface NotificationItemProps {
 
 const NotificationItem = ({
   title,
-  onPress,
   NotificationItemStyles,
   NotificationTextStyles,
   isLink,
@@ -59,13 +56,10 @@ const NotificationItem = ({
   };
 
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[styles.container, NotificationItemStyles]}
-    >
+    <View style={[styles.container, NotificationItemStyles]}>
       {time && (
         <View style={styles.timeContainer}>
-          <Text style={styles.timeText}>{time}</Text>
+          <Text style={[styles.timeText]}>{time}</Text>
         </View>
       )}
       <View style={styles.contentContainer}>
@@ -87,7 +81,7 @@ const NotificationItem = ({
         {icon && icon}
         {renderTitle()}
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
