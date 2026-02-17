@@ -89,6 +89,7 @@ export interface GroupMember {
   FullName: string;
   ProfileUrl: string;
   RelationStatus: number;
+  IsVerified?: boolean;
 }
 
 export interface GroupData {

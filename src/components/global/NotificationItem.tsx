@@ -144,10 +144,11 @@ const useStyles = () => {
       timeContainer: {
         position: 'absolute',
         top: theme.sizes.HEIGHT * 0.005,
-        ...(langCode === 'ar'
-          ? { left: theme.sizes.PADDING * 0.5 }
-          : { right: theme.sizes.PADDING * 0.5 }),
+        // ...(langCode === 'ar'
+        //   ? { left: theme.sizes.PADDING * 0.5 }
+        //   : { right: theme.sizes.PADDING * 0.5 }),
         zIndex: 1,
+        end: theme.sizes.PADDING * 0.5,
       },
       timeText: {
         ...theme.globalStyles.TEXT_STYLE,

@@ -80,7 +80,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
       PhoneNo: '',
       ProfileUrl: member.ProfileUrl,
       RelationStatus: member.RelationStatus,
-      // IsVerified: member.IsVerified ,
+      IsVerified: member.IsVerified || false,
     }));
   };
 
