@@ -24,7 +24,7 @@ import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText'
 
 const getStatusText = (
   status: number,
-  getString: (key: 'O_PENDING') => string,
+  getString: (key: 'O_PENDING' | 'O_REDEEMED') => string,
 ): string => {
   const statusMap: { [key: number]: string } = {
     1: getString('O_PENDING'),
@@ -33,6 +33,7 @@ const getStatusText = (
     // 7: 'QR Generated',
     // 8: 'Approved',
     // 9: 'Declined',
+    // 10: getString('O_REDEEMED'),
     10: 'Redeemed',
   };
 

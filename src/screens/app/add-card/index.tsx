@@ -21,7 +21,7 @@ import { UserCard, AppStackScreen } from '../../../types/navigation.types';
 
 const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   const { styles, theme } = useStyles();
-  const { getString, isRtl } = useLocaleStore();
+  const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation();
   // const route = useRoute();
   const [cards, setCards] = useState<UserCard[]>([]);
@@ -102,11 +102,12 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   };
 
   const renderCardItem = ({ item }: { item: UserCard }) => (
+
     <TouchableOpacity
       style={[
         styles.cardContainer,
         {
-          flexDirection: rtlFlexDirection(isRtl),
+          ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
           marginBottom: theme.sizes.HEIGHT * 0.005,
         },
       ]}
@@ -119,7 +120,8 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
           ...styles.row,
           flex: 1,
           gap: theme.sizes.WIDTH * 0.03,
-          flexDirection: rtlFlexDirection(isRtl),
+          ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
         }}
       >
         {!fromProfile && (

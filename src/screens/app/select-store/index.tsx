@@ -95,7 +95,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     const businessTypeOptions = businessTypeApi.data.map(businessType => ({
       id: String(businessType.BusinessTypeId),
       title: langCode === 'ar' ? businessType.NameAr : businessType.NameEn,
-    }));
+    })); ``
     return [allOption, ...businessTypeOptions];
   }, [businessTypeApi.data, getString, langCode]);
 
@@ -111,6 +111,16 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     [citiesApi.data, langCode],
   );
 
+  const businessTypeMap = useMemo(() => {
+    const map: Record<number, string> = {};
+    if (businessTypeApi.data) {
+      businessTypeApi.data.forEach(bt => {
+        map[bt.BusinessTypeId] = bt.NameAr;
+      });
+    }
+    return map;
+  }, [businessTypeApi.data]);
+
   const selectedCityOption: DropdownOption | null = useMemo(
     () => cityOptions.find(option => option.value === selectedCityId) || null,
     [cityOptions, selectedCityId],
@@ -124,7 +134,11 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         id: store.StoreId,
         storeId: store.StoreId,
         title: isRtl ? store.NameAr : store.NameEn,
-        subtitle: store.BusinessTypeName,
+        subtitle: isRtl
+          ? businessTypeMap[store.BusinessTypeID] ||
+          (store as any).BusinessTypeNameAr ||
+          store.BusinessTypeName
+          : store.BusinessTypeName,
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,
         isVerified: store.isVerified,
@@ -330,7 +344,12 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                     >
                       <FavoriteItemCard
                         key={item.StoreId}
-                        item={item}
+                        item={{
+                          ...item,
+                          BusinessTypeNameAr:
+                            businessTypeMap[item.BusinessTypeID] ||
+                            (item as any).BusinessTypeNameAr,
+                        } as any}
                         onPress={handleStoreSelect}
                         showFavorite={true}
                         isFavorite={

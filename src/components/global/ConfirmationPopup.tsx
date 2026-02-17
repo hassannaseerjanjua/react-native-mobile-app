@@ -53,7 +53,7 @@ const ConfirmationPopup: React.FC<ConfirmationPopupProps> = ({
     >
       <TouchableWithoutFeedback onPress={handleBackdropPress}>
         <View style={styles.backdrop}>
-          <TouchableWithoutFeedback onPress={() => {}}>
+          <TouchableWithoutFeedback onPress={() => { }}>
             <View style={styles.modalContainer}>
               {title && <Text style={styles.title}>{title}</Text>}
               <Text style={styles.message}>{message}</Text>

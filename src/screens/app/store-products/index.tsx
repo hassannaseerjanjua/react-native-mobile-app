@@ -368,7 +368,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             styles.content,
             {
               paddingBottom: isCartFromCurrentStore
-                ? theme.sizes.HEIGHT * 0.13
+                ? theme.sizes.HEIGHT * 0.18
                 : theme.sizes.HEIGHT * 0.086,
             },
           ]}
@@ -452,11 +452,11 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                 ) || 0}
               </Text>
             </View>
-            <Text style={styles.footerButtonText}>View Cart</Text>
+            <Text style={styles.footerButtonText}>{getString('VIEW_CART')}</Text>
             <View style={styles.footerPriceRow}>
               <SvgRiyalIconWhite
-                width={scaleWithMax(16, 18)}
-                height={scaleWithMax(16, 18)}
+                width={scaleWithMax(12, 14)}
+                height={scaleWithMax(12, 14)}
               />
               <Text style={styles.footerPriceText}>
                 {cartApi.data?.TotalAmount || '0.00'}

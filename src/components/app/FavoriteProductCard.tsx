@@ -42,14 +42,22 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
       ? (item as FaveItems).ItemImage
       : null;
   const itemName = isStoreProduct
-    ? isRtl ? (item as StoreProduct).NameAr : (item as StoreProduct).NameEn
+    ? isRtl
+      ? (item as StoreProduct).NameAr
+      : (item as StoreProduct).NameEn
     : isFaveItems
-      ? (item as FaveItems).ItemNameEn
+      ? isRtl
+        ? (item as FaveItems).ItemNameAr
+        : (item as FaveItems).ItemNameEn
       : '';
   const categoryName = isStoreProduct
-    ? isRtl ? (item as StoreProduct).CategoryNameAr : (item as StoreProduct).CategoryNameEn
+    ? isRtl
+      ? (item as StoreProduct).CategoryNameAr
+      : (item as StoreProduct).CategoryNameEn
     : isFaveItems
-      ? (item as FaveItems).CategoryNameEn
+      ? isRtl
+        ? (item as FaveItems).CategoryNameAr
+        : (item as FaveItems).CategoryNameEn
       : '';
   const price =
     (item as StoreProduct).Variants?.length > 0

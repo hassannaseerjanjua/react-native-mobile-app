@@ -31,7 +31,8 @@ type SkeletonLoaderProps = {
   | 'giftFilters'
   | 'tabItem'
   | 'tabItemCity'
-  | 'groupTabs';
+  | 'groupTabs'
+  | 'notifications';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -1644,6 +1645,43 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                   height={scaleWithMax(40, 42)}
                   borderRadius={10}
                 />
+              ))}
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
+        );
+      case 'notifications':
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item paddingHorizontal={theme.sizes.PADDING}>
+              {[...Array(8)].map((_, index) => (
+                <SkeletonPlaceholder.Item
+                  key={index}
+                  flexDirection="row"
+                  alignItems="center"
+                  width="100%"
+                  paddingVertical={theme.sizes.HEIGHT * 0.014}
+                  borderRadius={theme.sizes.BORDER_RADIUS_MID}
+                  marginBottom={screenHeight * 0.012}
+                >
+                  <SkeletonPlaceholder.Item
+                    width={scaleWithMax(50, 55)}
+                    height={scaleWithMax(50, 55)}
+                    borderRadius={999}
+                    marginRight={12}
+                  />
+                  <SkeletonPlaceholder.Item flex={1} justifyContent="center" gap={6}>
+                    <SkeletonPlaceholder.Item
+                      width="75%"
+                      height={14}
+                      borderRadius={4}
+                    />
+                    <SkeletonPlaceholder.Item
+                      width="25%"
+                      height={10}
+                      borderRadius={4}
+                    />
+                  </SkeletonPlaceholder.Item>
+                </SkeletonPlaceholder.Item>
               ))}
             </SkeletonPlaceholder.Item>
           </SkeletonPlaceholder>

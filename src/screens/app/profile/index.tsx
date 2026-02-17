@@ -448,8 +448,8 @@ const ProfileScreen: React.FC = () => {
             ]}
           >
             <View style={screenStyles.qrContent}>
-              <Text style={screenStyles.qrTitle}>Let's Swap Gifts! 🎁</Text>
-              <Text style={screenStyles.qrSubtitle}>Scan to add me</Text>
+              <Text style={screenStyles.qrTitle}>{getString('P_LETSSWAPGIFTS')}</Text>
+              <Text style={screenStyles.qrSubtitle}>{getString('P_SCANTOGETME')}</Text>
 
               <View style={screenStyles.qrCodeContainer}>
                 <View style={screenStyles.modalProfileSection}>
@@ -488,7 +488,7 @@ const ProfileScreen: React.FC = () => {
                     }}
                   >
                     <Text style={{ color: theme.colors.SECONDARY_TEXT }}>
-                      No user ID available
+                      {getString('P_NOUSERIDAVAILABLE')}
                     </Text>
                   </View>
                 )}

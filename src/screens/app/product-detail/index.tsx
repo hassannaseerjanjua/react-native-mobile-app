@@ -307,15 +307,17 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       : itemApi.data.Variants?.find((v: any) => v.IsDefault);
 
     // Get values from the selected variant or fallback to item level
-    const originalPrice = selectedVariant ? selectedVariant.Price : itemApi.data.Price;
+    const basePrice = selectedVariant ? selectedVariant.Price : itemApi.data.Price;
+    const feelingFee = selectedVariant ? selectedVariant.FeelingFee : 0;
     const finalPrice = selectedVariant ? selectedVariant.FinalPrice : itemApi.data.FinalPrice;
     const discountAmount = selectedVariant ? selectedVariant.DiscountedPrice : itemApi.data.DiscountedPrice;
 
-    // Check if there's a discount (FinalPrice is less than original Price)
+    const originalPrice = (basePrice ?? 0) + (feelingFee ?? 0);
+
     const hasDiscount = finalPrice < originalPrice;
 
     return {
-      originalPrice: originalPrice ?? 0,
+      originalPrice,
       finalPrice: finalPrice ?? 0,
       discountAmount: discountAmount ?? 0,
       hasDiscount,
