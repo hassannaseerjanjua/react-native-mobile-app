@@ -735,6 +735,7 @@ export interface Notification {
   JsonData: string;
   NotificationType: number;
   CreatedOn: string;
+  IsSeen: boolean;
 }
 
 export interface NotificationsApiResponse {
