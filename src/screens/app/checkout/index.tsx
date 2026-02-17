@@ -1123,7 +1123,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 <View
                   style={[
                     styles.sectionHeaderRow,
-                    { flexDirection: rtlFlexDirection(isRtl) },
+                    { ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }) }
+
                   ]}
                 >
                   <Text style={styles.heading}>
@@ -1133,7 +1134,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     onPress={() => navigation.navigate('AddCard' as never)}
                   >
                     <View
-                      style={[styles.row, { flexDirection: rtlFlexDirection(isRtl) }]}
+                      style={[styles.row,
+                      { ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }) }
+                      ]}
                     >
                       {/* <PlusIcon
                         height={scaleWithMax(15, 18)}
@@ -1156,7 +1159,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     style={[
                       styles.GiftContainer,
                       {
-                        flexDirection: rtlFlexDirection(isRtl),
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
                         marginBottom: theme.sizes.HEIGHT * 0.005,
                       },
                     ]}
@@ -1166,7 +1169,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         ...styles.row,
                         flex: 1,
                         gap: theme.sizes.WIDTH * 0.03,
-                        flexDirection: rtlFlexDirection(isRtl),
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
                       }}
                     >
                       <CheckBox
@@ -1206,7 +1209,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     style={[
                       styles.GiftContainer,
                       {
-                        flexDirection: rtlFlexDirection(isRtl),
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
                         marginBottom: theme.sizes.HEIGHT * 0.005,
                       },
                     ]}
@@ -1216,7 +1220,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         ...styles.row,
                         flex: 1,
                         gap: theme.sizes.WIDTH * 0.03,
-                        flexDirection: rtlFlexDirection(isRtl),
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
                       }}
                     >
                       <CheckBox
@@ -1255,7 +1260,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       style={[
                         styles.GiftContainer,
                         {
-                          flexDirection: rtlFlexDirection(isRtl),
+                          ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
                           marginBottom: theme.sizes.HEIGHT * 0.005,
                         },
                       ]}
@@ -1265,7 +1270,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           ...styles.row,
                           flex: 1,
                           gap: theme.sizes.WIDTH * 0.03,
-                          flexDirection: rtlFlexDirection(isRtl),
+                          ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
                         }}
                       >
                         <CheckBox
@@ -1322,7 +1328,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     style={[
                       styles.GiftContainer,
                       {
-                        flexDirection: rtlFlexDirection(isRtl),
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
                       },
                     ]}
                   >
@@ -1331,7 +1338,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         ...styles.row,
                         flex: 1,
                         gap: theme.sizes.WIDTH * 0.03,
-                        flexDirection: rtlFlexDirection(isRtl),
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
                       }}
                     >
                       <CheckBox
@@ -1526,7 +1534,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}
                 >
                   <Text style={styles.TextMedium}>
-                    {'Order Amount'}
+                    {getString('CHECKOUT_ORDER_AMOUNT')}
                   </Text>
                   <PriceWithIcon Price={cartData?.TotalAmount || 0} />
                 </View>

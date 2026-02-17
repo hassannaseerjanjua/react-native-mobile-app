@@ -486,6 +486,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   onVideoPress,
   onShareGiftLink,
 }) => {
+  const { getString } = useLocaleStore();
   const { styles, theme } = useStyles();
   const { user } = useAuthStore();
   const isMerchant = user?.isMerchant === 1;
@@ -659,7 +660,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
           </View>
           {
             order.EhsaanAmount > 0 && (<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'relative', marginTop: scaleWithMax(3, 4) }}>
-              <Text style={{ ...theme.globalStyles.TEXT_STYLE, fontSize: theme.sizes.FONTSIZE_MEDIUM, color: theme.colors.PRIMARY_TEXT }}>This gift carries a good deed’s reward</Text>
+              <Text style={{ ...theme.globalStyles.TEXT_STYLE, fontSize: theme.sizes.FONTSIZE_MEDIUM, color: theme.colors.PRIMARY_TEXT }}>{getString('INBOX_GOOD_DEED_MESSAGE')}</Text>
               <SvgEhsanIcon style={{ position: 'absolute', end: -3 }} />
             </View>)
           }
