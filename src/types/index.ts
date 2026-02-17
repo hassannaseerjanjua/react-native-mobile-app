@@ -201,6 +201,7 @@ export interface FaveItems {
   Price: number;
   isFavourite: boolean;
 }
+
 export interface OccasionsApiResponse {
   Data: {
     Items: Occasion[];
@@ -521,6 +522,7 @@ export interface StoreProduct {
   StoreBranchId: number;
   CategoryId: number;
   FinalPrice: number;
+  DiscountedPrice?: number;
   Categories: any | null;
 }
 
@@ -588,6 +590,7 @@ export interface CartResponse {
   Items: CartItem[];
   SendType: number;
   CampaginType: number;
+  EhsaanAmount?: number;
   users: MultiUser;
   MultiUsers: MultiUser[];
 }
@@ -719,3 +722,27 @@ export const mockCatchItems = [
     price: 14,
   },
 ];
+
+export interface Notification {
+  NotificationId: number;
+  UserId: number;
+  StoreId: number | null;
+  TitleEn: string;
+  TitleAr: string;
+  DescriptionEn: string;
+  DescriptionAr: string;
+  Image: string | null;
+  JsonData: string;
+  NotificationType: number;
+  CreatedOn: string;
+}
+
+export interface NotificationsApiResponse {
+  Data: {
+    Items: Notification[];
+    TotalCount: number;
+  };
+  ResponseCode: number;
+  Success: boolean;
+  ResponseMessage: string;
+}

@@ -295,6 +295,7 @@ const getSavedFCMToken = async (): Promise<string | null> => {
   }
 };
 
+
 /**
  * Calls the logout API. Sends UserDeviceTokenId in body when available (from save-token response).
  * Call this before dispatching logout() so the request is sent with auth headers.
@@ -302,14 +303,30 @@ const getSavedFCMToken = async (): Promise<string | null> => {
 export const callLogoutWithDeviceToken = async (): Promise<void> => {
   let stored: string | null = null;
   try {
+    // stored = await AsyncStorage.getItem(USER_DEVICE_TOKEN_ID_KEY);
+    // const userDeviceTokenId =
+    //   stored && Number.isFinite(Number(stored)) ? Number(stored) : undefined;  
+    // const fcmToken = await AsyncStorage.getItem('fcm_token');
+
+    //  await api.post(apiEndpoints.LOGOUT, { UserDeviceTokenId: userDeviceTokenId });
+    // console.log('Logout with device token success', userDeviceTokenId);
+    // if (stored) await AsyncStorage.removeItem(USER_DEVICE_TOKEN_ID_KEY);
     stored = await AsyncStorage.getItem(USER_DEVICE_TOKEN_ID_KEY);
     const userDeviceTokenId =
       stored && Number.isFinite(Number(stored)) ? Number(stored) : undefined;
 
-    await api.post(apiEndpoints.LOGOUT, { UserDeviceTokenId: userDeviceTokenId });
+    await api.post(apiEndpoints.LOGOUT, {
+      //  UserDeviceTokenId: fcmToken || undefined,
+      UserDeviceTokenId: userDeviceTokenId,
+    });
+    //  console.log('Logout with device token success', fcmToken);
+    // await AsyncStorage.removeItem(USER_DEVICE_TOKEN_ID_KEY);
+    console.log('Logout with device token success', userDeviceTokenId);
     if (stored) await AsyncStorage.removeItem(USER_DEVICE_TOKEN_ID_KEY);
   } catch (error) {
     console.error('Logout with device token error:', error);
+    // if (stored) await AsyncStorage.removeItem(USER_DEVICE_TOKEN_ID_KEY);
+    // await AsyncStorage.removeItem(USER_DEVICE_TOKEN_ID_KEY);
     if (stored) await AsyncStorage.removeItem(USER_DEVICE_TOKEN_ID_KEY);
   }
 };

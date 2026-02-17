@@ -62,8 +62,12 @@ const caller = async <T>(
     const response = err?.response?.data;
     const localeStrings = store.getState().locale.localeData.strings;
     const getString = (key: string) => localeStrings?.[key as keyof typeof localeStrings] || key;
-    
+
     let errorMessage =
+      response?.Data?.message ||
+      response?.Data?.Message ||
+      response?.data?.message ||
+      response?.data?.Message ||
       response?.error?.message ||
       response?.message ||
       response?.ResponseMessage ||
@@ -89,7 +93,7 @@ const caller = async <T>(
     }
 
     responseObject.error = errorMessage;
-    responseObject.data = response?.data || null;
+    responseObject.data = response?.Data || response?.data || null;
     responseObject.failed = true;
     responseObject.success = false;
   }

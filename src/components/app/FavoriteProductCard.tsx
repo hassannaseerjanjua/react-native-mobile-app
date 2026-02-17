@@ -8,6 +8,7 @@ import {
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
   SvgRiyalIconPrimary,
+  SvgRiyalPink,
 } from '../../assets/icons';
 import { FaveItems, StoreProduct } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
@@ -18,6 +19,7 @@ interface FavoriteProductCardProps {
   onFavoritePress?: () => void;
   isFavorite?: boolean;
   hasFavorite?: boolean;
+  isFavoriteTab?: boolean;
 }
 
 const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
@@ -26,6 +28,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
   isFavorite,
   onFavoritePress,
   hasFavorite,
+  isFavoriteTab,
 }) => {
   const { theme } = useStyles();
   const { styles } = useStyles();
@@ -39,14 +42,22 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
       ? (item as FaveItems).ItemImage
       : null;
   const itemName = isStoreProduct
-    ? isRtl ? (item as StoreProduct).NameAr : (item as StoreProduct).NameEn
+    ? isRtl
+      ? (item as StoreProduct).NameAr
+      : (item as StoreProduct).NameEn
     : isFaveItems
-      ? (item as FaveItems).ItemNameEn
+      ? isRtl
+        ? (item as FaveItems).ItemNameAr
+        : (item as FaveItems).ItemNameEn
       : '';
   const categoryName = isStoreProduct
-    ? isRtl ? (item as StoreProduct).CategoryNameAr : (item as StoreProduct).CategoryNameEn
+    ? isRtl
+      ? (item as StoreProduct).CategoryNameAr
+      : (item as StoreProduct).CategoryNameEn
     : isFaveItems
-      ? (item as FaveItems).CategoryNameEn
+      ? isRtl
+        ? (item as FaveItems).CategoryNameAr
+        : (item as FaveItems).CategoryNameEn
       : '';
   const price =
     (item as StoreProduct).Variants?.length > 0
@@ -110,7 +121,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
         <View style={styles.priceContainer}>
           {isSpecialPrice && (
             <>
-              <SvgRiyalIconPrimary
+              <SvgRiyalPink
                 width={scaleWithMax(11, 13)}
                 height={scaleWithMax(11, 13)}
                 style={{
@@ -121,13 +132,36 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
             </>
           )}
 
-          <SvgRiyalIcon
-            width={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
-            height={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
-            opacity={isSpecialPrice ? 0.32 : 1}
-          />
+          {!isFavoriteTab && (
+            <>
+              <SvgRiyalIcon
+                width={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
+                height={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
+                opacity={isSpecialPrice ? 0.32 : 1}
+              />
+            </>
+          )}
+          {!isFavoriteTab && (
+            <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>{(isFavoriteTab ? cutPrice : price) || 'N/A'}</Text>
+          )}
 
-          <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>{price || 'N/A'}</Text>
+          {isFavoriteTab && (
+            <>
+              <View style={styles.priceContainer}>
+
+                <SvgRiyalPink
+                  width={scaleWithMax(11, 13)}
+                  height={scaleWithMax(11, 13)}
+                  style={{
+                    marginTop: 3.5,
+                  }}
+                />
+                <Text style={styles.discountedPrice}>{cutPrice}</Text>
+                <Text style={styles.cutPrice}>{price}</Text>
+
+              </View>
+            </>
+          )}
         </View>
       </View>
     </TouchableOpacity>

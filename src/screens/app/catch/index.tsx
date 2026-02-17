@@ -438,6 +438,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           isFavorite={getFavoriteState(item)}
           hasFavorite={true}
           onFavoritePress={createFavoritePressHandler(item)}
+        // isFavoriteTab={true}
         />
       );
     }
@@ -649,11 +650,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                 ) || 0}
               </Text>
             </View>
-            <Text style={styles.footerButtonText}>View Cart</Text>
+            <Text style={styles.footerButtonText}>{getString('VIEW_CART')}</Text>
             <View style={styles.footerPriceRow}>
               <SvgRiyalIconWhite
-                width={scaleWithMax(16, 18)}
-                height={scaleWithMax(16, 18)}
+                width={scaleWithMax(12, 14)}
+                height={scaleWithMax(12, 14)}
               />
               <Text style={styles.footerPriceText}>
                 {cartApi.data?.TotalAmount || '0.00'}
@@ -730,17 +731,17 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   }}
                 />
 
-                <Text style={styles.modalTitle}>Already Claimed!</Text>
+                <Text style={styles.modalTitle}>{getString('ALREADY_CLAIMED')}</Text>
 
                 <Text style={styles.modalSubtitle}>
-                  Available once every 24 hours per store
+                  {getString('AVAILABLE_ONCE_EVERY_24_HOURS_PER_STORE')}
                 </Text>
                 <Text style={styles.modalSubtitle}>
-                  You can still claim from any other store
+                  {getString('YOU_CAN_STILL_CLAIM_FROM_ANY_OTHER_STORE')}
                 </Text>
 
                 <CustomButton
-                  title="Explore Other Catch"
+                  title={getString('EXPLORE_OTHER_CATCH')}
                   onPress={() => setShowErrorModal(false)}
                   buttonStyle={styles.modalButton}
                   labelStyle={{

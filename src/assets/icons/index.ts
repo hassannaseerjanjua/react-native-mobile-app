@@ -59,7 +59,8 @@ import SvgProfileWallet from './profile-wallet.svg';
 import SvgProfileCrossIcon from './profile-close.svg';
 import SvgProfileQrIcon from './profile-qrcode.svg';
 import SvgRiyalIcon from './riyal-icon.svg';
-import SvgRiyalIconWhite from './riyal-icon-white.svg';
+// import SvgRiyalIconWhite from './riyal-icon-white.svg';
+import SvgRiyalIconWhite from './Riyal_white.svg';
 import SvgWalletGifteeIcon from './wallet-giftee-icon.svg';
 import SvgBirthdayIcon from './birthday-icon.svg';
 import SvgItemFavouriteIcon from './item-fav-heart.svg';
@@ -114,6 +115,11 @@ import SvgPencilIcon from './pencil-icon.svg';
 import SvgSpecialPriceTag from './special-price-tag.svg'
 import SvgSpecialPricePercentage from './percentage-circle.svg'
 import SvgCatchTimeIcon from './catch-time-popup.svg';
+import MasterCardIcon from './mastercard.svg';
+import NoonIcon from './noon.svg';
+import CardsIcon from './cards.svg';
+import SvgRiyalPink from './Riyal_pink.svg';
+import SvgGifteeNotifyIcon from './giftee_notify.svg';
 
 export {
   SvgLogoBlue,
@@ -231,5 +237,10 @@ export {
   SvgPencilIcon,
   SvgSpecialPriceTag,
   SvgCatchTimeIcon,
-  SvgSpecialPricePercentage
+  SvgSpecialPricePercentage,
+  MasterCardIcon,
+  NoonIcon,
+  CardsIcon,
+  SvgRiyalPink,
+  SvgGifteeNotifyIcon,
 };

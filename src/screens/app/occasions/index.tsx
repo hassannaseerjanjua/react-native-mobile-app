@@ -134,9 +134,9 @@ const OccasionsScreen: React.FC = () => {
           ) : (
             <FlatList
               data={[
-                // Default Birthday entry - always at the top
+
                 {
-                  OccassionId: -1, // Special ID for default birthday
+                  OccassionId: -1,
                   NameEn: 'My Birthday',
                   NameAr: 'عيد الميلاد',
                   OccasionDate: null,

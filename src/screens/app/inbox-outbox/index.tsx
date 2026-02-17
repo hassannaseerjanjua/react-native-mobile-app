@@ -486,6 +486,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   onVideoPress,
   onShareGiftLink,
 }) => {
+  const { getString } = useLocaleStore();
   const { styles, theme } = useStyles();
   const { user } = useAuthStore();
   const isMerchant = user?.isMerchant === 1;
@@ -496,6 +497,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const profileImage = getProfileImage(order, isInbox);
   const userName = getUserName(order, isInbox);
   const storeName = getStoreName(order, isRtl);
+  const isRedeemed = order.Items && order.Items.every(item => item.Status === 10);
+  const showGiftLinkGeneric = !isInbox && order.SendType === 2 && !isRedeemed;
   const timeAgo = formatRelativeTime(order.OrderTime);
   const { createDebouceClick } = useDebounceClick();
 
@@ -536,7 +539,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
           alignItems: 'flex-start',
         }}
       >
-        {order.SendType === 2 ? (
+        {showGiftLinkGeneric ? (
           <View
             style={[
               styles.inboxProfile,
@@ -578,11 +581,12 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {order.SendType === 2 ? 'Gift Link' : order.CampaginType === 1 ? order.stores.NameEn : userName}
+                  {showGiftLinkGeneric ? 'Gift Link' : order.CampaginType === 1 ? order.stores.NameEn : userName}
                 </Text>
-                {(!isMerchant
-                  ? order?.users?.isVerified && order?.SendType !== 2
-                  : order?.MultiUsers?.[0]?.isVerified) && <SvgVerifiedIcon />}
+                {!showGiftLinkGeneric &&
+                  (!isMerchant
+                    ? order?.users?.isVerified
+                    : order?.MultiUsers?.[0]?.isVerified) && <SvgVerifiedIcon />}
               </View>
 
 
@@ -656,7 +660,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
           </View>
           {
             order.EhsaanAmount > 0 && (<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'relative', marginTop: scaleWithMax(3, 4) }}>
-              <Text style={{ ...theme.globalStyles.TEXT_STYLE, fontSize: theme.sizes.FONTSIZE_MEDIUM, color: theme.colors.PRIMARY_TEXT }}>This gift carries a good deed’s reward</Text>
+              <Text style={{ ...theme.globalStyles.TEXT_STYLE, fontSize: theme.sizes.FONTSIZE_MEDIUM, color: theme.colors.PRIMARY_TEXT }}>{getString('INBOX_GOOD_DEED_MESSAGE')}</Text>
               <SvgEhsanIcon style={{ position: 'absolute', end: -3 }} />
             </View>)
           }

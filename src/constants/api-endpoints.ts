@@ -106,6 +106,7 @@ const apiEndpoints = {
   CLEAR_CART: `/${version}/User/ClearCart`,
   INITIATE_CHECKOUT: `/${version}/User/InitOrderV2`,
   GET_CARDS: `/${version}/User/GetUserCards`,
+  DELETE_CARD: `/${version}/User/DeleteUserCard`,
 
   // ============================================
   // CATCH & CAMPAIGNS
@@ -130,6 +131,7 @@ const apiEndpoints = {
   GENERATE_QR_CODE: (orderId: number) =>
     `/${version}/User/generate-qr?orderId=${orderId}`,
   SEND_GIFT_FILTER: `/${version}/User/AddGiftMessageToOrder`,
+  NOTIFICATIONS_LISTING: `/${version}/Panel/NotificationsListingForUser`,
 };
 
 export default apiEndpoints;

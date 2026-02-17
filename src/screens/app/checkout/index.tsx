@@ -31,11 +31,14 @@ import {
   SvgLinkShareIcon,
   SvgRiyalIcon,
   SvgRiyalIconPrimary,
+  SvgRiyalPink,
   SvgRiyalIconWhite,
   SvgSelectedCheck,
   VisaIcon,
   SvgProfileFriends,
   SvgDeleteIcon,
+  MasterCardIcon,
+  NoonIcon,
 } from '../../../assets/icons';
 import {
   scaleWithMax,
@@ -52,7 +55,7 @@ import { StackActions, useNavigation } from '@react-navigation/native';
 import CustomFooter from '../../../components/global/CustomFooter';
 import { Text } from '../../../utils/elements';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
-import { AppStackScreen } from '../../../types/navigation.types';
+import { AppStackScreen, UserCard } from '../../../types/navigation.types';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -70,6 +73,7 @@ import SearchUserItem from '../../../components/app/SearchUserItem';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { FlatList } from 'react-native';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
@@ -92,12 +96,16 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [itemToRemove, setItemToRemove] = useState<(CartItem & { originalOrderItemIds?: number[] }) | null>(null);
   const [giftLink, setGiftLink] = useState<string | null>(null);
   const [activeDomationAmount, setActiveDomationAmount] = useState<number>();
+  const [originalEhsaanAmount, setOriginalEhsaanAmount] = useState<number>(0);
+  const [hasInitializedEhsaan, setHasInitializedEhsaan] = useState(false);
   const [showCustomDonationInput, setShowCustomDonationInput] = useState(false);
   const [customDonationAmount, setCustomDonationAmount] = useState<string>('');
   const [showEmployeesBottomSheet, setShowEmployeesBottomSheet] = useState(false);
   const [showPaymentWebView, setShowPaymentWebView] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [webViewLoading, setWebViewLoading] = useState(true);
+  const [userCards, setUserCards] = useState<UserCard[]>([]);
+  const [selectedCardFromParams, setSelectedCardFromParams] = useState<UserCard | null>(null);
   const isMerchant = user?.isMerchant === 1;
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => {
@@ -114,6 +122,28 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     cartItemsApi.data,
   );
   const loading = cartItemsApi.loading;
+
+  useEffect(() => {
+    if (cartData && !hasInitializedEhsaan) {
+      const amount = cartData.EhsaanAmount || 0;
+      console.log('[Ehsan Init] Setting originalEhsaanAmount to:', amount);
+      setOriginalEhsaanAmount(amount);
+      if (amount > 0) {
+        console.log('[Ehsan Init] Prefilling activeDomationAmount to:', amount);
+        setActiveDomationAmount(amount);
+        const presetValues = [3, 5, 10];
+        if (!presetValues.includes(amount)) {
+          setShowCustomDonationInput(true);
+          setCustomDonationAmount(amount.toString());
+        }
+        setCartData({
+          ...cartData,
+          TotalAmount: cartData.TotalAmount - amount,
+        });
+      }
+      setHasInitializedEhsaan(true);
+    }
+  }, [cartData, hasInitializedEhsaan]);
 
   // Merge items with the same ItemId and ItemVariantId
   const mergedCartItems = useMemo(() => {
@@ -147,6 +177,28 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
     return Array.from(itemsMap.values());
   }, [cartData?.Items]);
+
+  useEffect(() => {
+    fetchUserCards();
+  }, []);
+
+  useEffect(() => {
+    if (route.params?.selectedCard) {
+      setSelectedCardFromParams(route.params.selectedCard as UserCard);
+      setSelectedPaymentMethod('savedCard');
+    }
+  }, [route.params?.selectedCard]);
+
+  const fetchUserCards = async () => {
+    try {
+      const response = await api.get<{ Data: UserCard[] }>(apiEndpoints.GET_CARDS);
+      if (response.success && response.data?.Data) {
+        setUserCards(response.data.Data);
+      }
+    } catch (error: any) {
+      console.error('Error fetching cards:', error);
+    }
+  };
 
   // useEffect(() => {
   //   if (cartItemsApi.data) {
@@ -481,7 +533,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 { flexDirection: rtlFlexDirection(isRtl), gap: theme.sizes.WIDTH * 0.01 },
               ]}>
                 <View style={[styles.row, { flexDirection: rtlFlexDirection(isRtl), gap: theme.sizes.WIDTH * 0.008 }]}>
-                  <SvgRiyalIconPrimary
+                  <SvgRiyalPink
                     width={scaleWithMax(16, 16)}
                     height={scaleWithMax(16, 16)}
                     style={{
@@ -602,12 +654,24 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
       const payload: any = {
         orderid: cartData.OrderId,
-        orderPaymentType: selectedPaymentMethod === 'visa' ? 2 : 1,
+        orderPaymentType: selectedPaymentMethod === 'wallet' ? 1 : 2,
         IsRedeem: false,
-        EhsaanAmount: activeDomationAmount || 0,
       };
 
-      // For merchants, include FriendIds in payload if available
+      const currentEhsaanAmount = activeDomationAmount || 0;
+      console.log('[Checkout] Current:', currentEhsaanAmount, 'Original:', originalEhsaanAmount);
+      if (currentEhsaanAmount !== originalEhsaanAmount) {
+        console.log('[Checkout] Sending EhsaanAmount:', currentEhsaanAmount);
+        payload.EhsaanAmount = currentEhsaanAmount;
+      }
+
+      if (selectedPaymentMethod === 'savedCard') {
+        const cardToken = selectedCardFromParams?.Token || userCards[0]?.Token;
+        if (cardToken) {
+          payload.CardToken = cardToken;
+        }
+      }
+
       if (cartData.FriendIds && cartData.FriendIds.length > 0) {
         payload.FriendIds = cartData.FriendIds;
       }
@@ -626,6 +690,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       }>(apiEndpoints.INITIATE_CHECKOUT, payload);
 
       if (response.success) {
+        // Update originalEhsaanAmount after successful API call to prevent duplicate additions on retry
+        if (currentEhsaanAmount !== originalEhsaanAmount) {
+          console.log('[Checkout] Updating originalEhsaanAmount from', originalEhsaanAmount, 'to', currentEhsaanAmount);
+          setOriginalEhsaanAmount(currentEhsaanAmount);
+        }
+
         // Store the gift link if available (it might be available even before payment)
         if (response.data?.Data?.GiftLink) {
           setGiftLink(response.data?.Data?.GiftLink);
@@ -671,9 +741,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       const message = event.nativeEvent.data;
       console.log('WebView message received:', message);
 
+      if (!message) return;
+
       // Check if the body content indicates success
       const isSuccess = message.includes('SUCCESS') || message.includes('Order:True');
       const isFailure = message.includes('Payment Failed') || message.includes('FAILED');
+      const isCancel = message.includes('Payment Cancelled') || message.includes('CANCELLED') || message.includes('Payment Cancelled') || message.includes('cancelled') || message.includes('Cancelled');
+
 
       if (isSuccess) {
         // Payment successful - close webview and show success screen
@@ -685,11 +759,43 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         if (giftLink && cartData?.SendType !== 2) {
           handleShareGiftLink(giftLink);
         }
-      } else if (isFailure) {
+      } else if (isFailure || isCancel) {
         // Payment failed - close webview and show error
         setShowPaymentWebView(false);
         setPaymentUrl(null);
-        notify.error(getString('AU_ERROR_OCCURRED') || 'Payment failed. Please try again.');
+        //  notify.error(getString('PAYMENT_FAILED') || 'Payment failed. Pleas
+        // Don't show toast if payment was cancelled
+        if (isCancel) {
+          console.log('canecl');
+          return;
+        }
+        let errorToShow = getString('PAYMENT_FAILED') || 'Payment failed. Please try again.';
+
+        try {
+          // Attempt to extract structured error from the message
+          const jsonMatch = message.match(/\{.*\}/);
+          if (jsonMatch) {
+            const data = JSON.parse(jsonMatch[0]);
+            errorToShow = data.Message || data.message || data.Error || data.error || errorToShow;
+          } else {
+            // Try to extract message after keywords like FAILED: or Error:
+            const patterns = [/FAILED\s*[:|-]\s*(.*)/i, /Payment Failed\s*[:|-]\s*(.*)/i, /Error\s*[:|-]\s*(.*)/i];
+            for (const pattern of patterns) {
+              const match = message.match(pattern);
+              if (match && match[1] && match[1].trim()) {
+                const captured = match[1].trim();
+                if (captured.length < 250 && !captured.includes('<html')) {
+                  errorToShow = captured;
+                  break;
+                }
+              }
+            }
+          }
+        } catch (e) {
+          console.error('Error parsing WebView failure message:', e);
+        }
+
+        notify.error(errorToShow);
       }
     } catch (error) {
       console.error('Error handling WebView message:', error);
@@ -1017,7 +1123,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 <View
                   style={[
                     styles.sectionHeaderRow,
-                    { flexDirection: rtlFlexDirection(isRtl) },
+                    { ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }) }
+
                   ]}
                 >
                   <Text style={styles.heading}>
@@ -1027,14 +1134,16 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     onPress={() => navigation.navigate('AddCard' as never)}
                   >
                     <View
-                      style={[styles.row, { flexDirection: rtlFlexDirection(isRtl) }]}
+                      style={[styles.row,
+                      { ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }) }
+                      ]}
                     >
-                      <PlusIcon
+                      {/* <PlusIcon
                         height={scaleWithMax(15, 18)}
                         width={scaleWithMax(15, 18)}
-                      />
+                      /> */}
                       <Text style={styles.addCardAction}>
-                        {getString('CHECKOUT_ADD_CARD')}
+                        {getString('CHECKOUT_CHANGE_CARD')}
                       </Text>
                     </View>
                   </TouchableOpacity>
@@ -1050,7 +1159,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     style={[
                       styles.GiftContainer,
                       {
-                        flexDirection: rtlFlexDirection(isRtl),
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
                         marginBottom: theme.sizes.HEIGHT * 0.005,
                       },
                     ]}
@@ -1060,7 +1169,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         ...styles.row,
                         flex: 1,
                         gap: theme.sizes.WIDTH * 0.03,
-                        flexDirection: rtlFlexDirection(isRtl),
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
                       }}
                     >
                       <CheckBox
@@ -1088,18 +1197,22 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     />
                   </View>
                 </TouchableOpacity>}
+
                 <TouchableOpacity
-                  // disabled
                   onPress={() =>
                     setSelectedPaymentMethod(
-                      selectedPaymentMethod === 'visa' ? null : 'visa',
+                      selectedPaymentMethod === 'creditCard' ? null : 'creditCard',
                     )
                   }
                 >
                   <View
                     style={[
                       styles.GiftContainer,
-                      { flexDirection: rtlFlexDirection(isRtl) },
+                      {
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
+                        marginBottom: theme.sizes.HEIGHT * 0.005,
+                      },
                     ]}
                   >
                     <View
@@ -1107,33 +1220,103 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         ...styles.row,
                         flex: 1,
                         gap: theme.sizes.WIDTH * 0.03,
-                        flexDirection: rtlFlexDirection(isRtl),
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
                       }}
                     >
                       <CheckBox
-                        Selected={selectedPaymentMethod === 'visa'}
+                        Selected={selectedPaymentMethod === 'creditCard'}
                         onSelectionPress={() =>
                           setSelectedPaymentMethod(
-                            selectedPaymentMethod === 'visa' ? null : 'visa',
+                            selectedPaymentMethod === 'creditCard' ? null : 'creditCard',
                           )
                         }
                       />
-                      <VisaIcon
+                      <NoonIcon
                         height={scaleWithMax(32, 35)}
                         width={scaleWithMax(32, 35)}
                       />
                       <View>
-                        <Text style={styles.TextMedium}>424242XXXXXX4242</Text>
-                        <Text style={styles.TextMedium}>{getString('CHECKOUT_VISA')}</Text>
+                        <Text style={styles.TextMedium}>{getString('CHECKOUT_CREDIT_DEBIT_CARD')}</Text>
                       </View>
                     </View>
                     <SvgSelectedCheck
                       width={scaleWithMax(16, 18)}
                       height={scaleWithMax(16, 18)}
-                      style={{ opacity: selectedPaymentMethod === 'visa' ? 1 : 0 }}
+                      style={{ opacity: selectedPaymentMethod === 'creditCard' ? 1 : 0 }}
                     />
                   </View>
                 </TouchableOpacity>
+
+                {(selectedCardFromParams || userCards.length > 0) && (
+                  <TouchableOpacity
+                    onPress={() =>
+                      setSelectedPaymentMethod(
+                        selectedPaymentMethod === 'savedCard' ? null : 'savedCard',
+                      )
+                    }
+                  >
+                    <View
+                      style={[
+                        styles.GiftContainer,
+                        {
+                          ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+                          marginBottom: theme.sizes.HEIGHT * 0.005,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={{
+                          ...styles.row,
+                          flex: 1,
+                          gap: theme.sizes.WIDTH * 0.03,
+                          ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
+                        }}
+                      >
+                        <CheckBox
+                          Selected={selectedPaymentMethod === 'savedCard'}
+                          onSelectionPress={() =>
+                            setSelectedPaymentMethod(
+                              selectedPaymentMethod === 'savedCard' ? null : 'savedCard',
+                            )
+                          }
+                        />
+
+                        {(selectedCardFromParams?.Brand || userCards[0]?.Brand)?.toLowerCase().includes('master') ? (
+                          <MasterCardIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                        ) : (selectedCardFromParams?.Brand || userCards[0]?.Brand)?.toLowerCase().includes('noon') ? (
+                          <NoonIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                        ) : (
+                          <VisaIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                        )}
+                        <View>
+                          <Text style={styles.TextMedium}>
+                            {selectedCardFromParams?.CardNumber || userCards[0]?.CardNumber}
+                          </Text>
+                          <Text style={styles.TextMedium}>
+                            {selectedCardFromParams?.Brand || userCards[0]?.Brand}
+                          </Text>
+                        </View>
+                      </View>
+                      <SvgSelectedCheck
+                        width={scaleWithMax(16, 18)}
+                        height={scaleWithMax(16, 18)}
+                        style={{ opacity: selectedPaymentMethod === 'savedCard' ? 1 : 0 }}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                )}
+
                 <TouchableOpacity
                   onPress={() =>
                     setSelectedPaymentMethod(
@@ -1145,8 +1328,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     style={[
                       styles.GiftContainer,
                       {
-                        flexDirection: rtlFlexDirection(isRtl),
-                        marginTop: theme.sizes.HEIGHT * 0.005,
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
                       },
                     ]}
                   >
@@ -1155,7 +1338,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         ...styles.row,
                         flex: 1,
                         gap: theme.sizes.WIDTH * 0.03,
-                        flexDirection: rtlFlexDirection(isRtl),
+                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+
                       }}
                     >
                       <CheckBox
@@ -1283,7 +1467,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       >
                         <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
                           {amount.value === 'Custom' ? null : isActive ? (
-                            <SvgRiyalIconPrimary
+                            <SvgRiyalPink
                               width={scaleWithMax(12, 14)}
                               height={scaleWithMax(12, 14)}
                             />
@@ -1350,7 +1534,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}
                 >
                   <Text style={styles.TextMedium}>
-                    {'Order Amount'}
+                    {getString('CHECKOUT_ORDER_AMOUNT')}
                   </Text>
                   <PriceWithIcon Price={cartData?.TotalAmount || 0} />
                 </View>
@@ -1408,61 +1592,64 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               </View>
             </ScrollView>
           </KeyboardAvoidingView>
-          <View style={styles.footerContainer}>
-            <View style={{ position: 'relative' }}>
-              <CustomButton
-                title={
-                  selectedPaymentMethod === 'applePay'
-                    ? ''
-                    : getString('CHECKOUT_PROCEED_TO_CHECKOUT')
-                }
-                onPress={handleProceedToCheckout}
-                icon={
-                  selectedPaymentMethod === 'applePay' ? (
-                    <SvgApplePayText />
-                  ) : undefined
-                }
-                buttonStyle={{
-                  backgroundColor: !selectedPaymentMethod
-                    ? '#FFA5A5'
-                    : selectedPaymentMethod === 'applePay'
-                      ? '#000000'
-                      : theme.colors.PRIMARY,
-                  borderColor: !selectedPaymentMethod
-                    ? '#FFA5A5'
-                    : selectedPaymentMethod === 'applePay'
-                      ? '#000000'
-                      : theme.colors.PRIMARY,
-                }}
-                labelStyle={{
-                  color: theme.colors.WHITE,
-                }}
-                disabled={
-                  submitting || waitingForVideoUpload || !selectedPaymentMethod
-                }
-                loading={submitting || waitingForVideoUpload}
-              />
-              <View
-                style={[
-                  styles.footerPriceWrapper,
-                  rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.03),
-                ]}
-              >
-                <PriceWithIcon
-                  Price={(cartData?.TotalAmount || 0) + (activeDomationAmount || 0)}
-                  style={{
+          <View style={{ height: theme.sizes.HEIGHT * 0.11, backgroundColor: theme.colors.WHITE }} >
+            <View style={styles.footerContainer}>
+              <View style={{ position: 'relative' }}>
+                <CustomButton
+                  title={
+                    selectedPaymentMethod === 'applePay'
+                      ? ''
+                      : getString('CHECKOUT_PROCEED_TO_CHECKOUT')
+                  }
+                  onPress={handleProceedToCheckout}
+                  icon={
+                    selectedPaymentMethod === 'applePay' ? (
+                      <SvgApplePayText />
+                    ) : undefined
+                  }
+                  buttonStyle={{
+                    backgroundColor: !selectedPaymentMethod
+                      ? '#FFA5A5'
+                      : selectedPaymentMethod === 'applePay'
+                        ? '#000000'
+                        : theme.colors.PRIMARY,
+                    borderColor: !selectedPaymentMethod
+                      ? '#FFA5A5'
+                      : selectedPaymentMethod === 'applePay'
+                        ? '#000000'
+                        : theme.colors.PRIMARY,
+                  }}
+                  labelStyle={{
                     color: theme.colors.WHITE,
                   }}
-                  Icon={
-                    <SvgRiyalIconWhite
-                      width={scaleWithMax(12, 14)}
-                      height={scaleWithMax(12, 14)}
-                    />
+                  disabled={
+                    submitting || waitingForVideoUpload || !selectedPaymentMethod
                   }
+                  loading={submitting || waitingForVideoUpload}
                 />
+                <View
+                  style={[
+                    styles.footerPriceWrapper,
+                    rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.03),
+                  ]}
+                >
+                  <PriceWithIcon
+                    Price={(cartData?.TotalAmount || 0) + (activeDomationAmount || 0)}
+                    style={{
+                      color: theme.colors.WHITE,
+                    }}
+                    Icon={
+                      <SvgRiyalIconWhite
+                        width={scaleWithMax(12, 14)}
+                        height={scaleWithMax(12, 14)}
+                      />
+                    }
+                  />
+                </View>
               </View>
             </View>
-          </View></>
+          </View>
+        </>
       ) : (
 
         <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>

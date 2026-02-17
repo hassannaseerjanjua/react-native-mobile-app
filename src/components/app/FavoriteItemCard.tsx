@@ -36,11 +36,19 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
 
   const isStore = 'StoreId' in item && 'NameEn' in item;
   const storeName = isStore
-    ? isRtl ? (item as Store).NameAr : (item as Store).NameEn
-    : (item as FavStores).StoreNameEn;
+    ? isRtl
+      ? (item as Store).NameAr
+      : (item as Store).NameEn
+    : isRtl
+      ? (item as FavStores).StoreNameAr
+      : (item as FavStores).StoreNameEn;
   const businessType = isStore
-    ? (item as Store).BusinessTypeName
-    : (item as FavStores).BusinessTypeNameEn;
+    ? isRtl
+      ? (item as any).BusinessTypeNameAr || (item as Store).BusinessTypeName
+      : (item as Store).BusinessTypeName
+    : isRtl
+      ? (item as FavStores).BusinessTypeNameAr
+      : (item as FavStores).BusinessTypeNameEn;
 
   const placeholderImage = require('../../assets/images/img-placeholder.png');
   const backgroundImage = (item as Store | FavStores).ImageCover

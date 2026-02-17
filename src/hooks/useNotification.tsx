@@ -1,5 +1,6 @@
 import { useEffect, useRef, useCallback } from 'react';
 import { Linking, Platform } from 'react-native';
+import { CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
 import notifee, { EventType } from '@notifee/react-native';
@@ -16,6 +17,9 @@ import { useLocaleStore } from '../store/reducer/locale';
 import api from '../utils/api';
 import apiEndpoints from '../constants/api-endpoints';
 import { getTopicsForLanguage } from '../utils/firebaseTopics';
+import { navigationRef } from '../../App';
+import { NotificationType } from '../utils/notification_enums';
+
 
 const FCM_TOKEN_SENT_KEY = 'fcm_token_sent_to_backend';
 const USER_DEVICE_TOKEN_ID_KEY = 'user_device_token_id'; // must match notificationService
@@ -29,51 +33,188 @@ const useNotification = () => {
   const subscribedTopicsRef = useRef<string[]>([]);
   const previousLangCodeRef = useRef<string | null>(null);
   const { isAuthenticated, user } = useAuthStore();
-  const { langCode, langId } = useLocaleStore();
+  const { langCode, langId, getString } = useLocaleStore();
 
-  // Handle foreground notifications
-  const handleForegroundNotification = useCallback(
-    async (message: FirebaseMessagingTypes.RemoteMessage) => {
-      console.log('Foreground notification:', message.notification?.title);
-      await displayNotification(message);
-    },
-    [],
-  );
+  const handleNotificationNavigation = useCallback(
+    (data: any, notification?: { title?: string | null; body?: string | null }) => {
+      console.log('Handling notification navigation:');
+      console.log('- Data:', JSON.stringify(data || {}, null, 2));
+      console.log('- Notification:', JSON.stringify(notification || {}, null, 2));
 
-  // Handle notification taps - logs and opens action_url
-  const handleNotificationTap = useCallback(
-    (message: FirebaseMessagingTypes.RemoteMessage) => {
-      console.log('='.repeat(60));
-      console.log('NOTIFICATION CLICKED');
-      console.log('='.repeat(60));
-      console.log('Title:', message.notification?.title);
-      console.log('Body:', message.notification?.body);
-      console.log('Data:', JSON.stringify(message.data, null, 2));
-      console.log('Message ID:', message.messageId);
-      console.log('Sent Time:', message.sentTime);
-
-      // Handle action_url deep linking
-      if (message.data?.action_url) {
-        const url = String(message.data.action_url);
+      if (data?.action_url) {
+        const url = String(data.action_url);
         console.log('Opening action_url:', url);
-
         Linking.canOpenURL(url)
           .then(supported => {
             if (supported) {
               Linking.openURL(url);
-              console.log('✅ Opened:', url);
             } else {
               console.log('❌ Cannot open URL:', url);
             }
           })
           .catch(err => console.error('Deep link error:', err));
-      } else {
-        console.log('No action_url found');
+        return;
       }
+
+      let type = data?.NotificationType || data?.type || data?.notificationType;
+
+      // if (!type && notification) {
+      if (!type && notification) {
+
+        const content = `${notification.title || ''} ${notification.body || ''}`.toLowerCase();
+        console.log('No type in data, checking content fallback:', content);
+
+        if (content.includes('birthday')) {
+          console.log('Detected "birthday"');
+          type = NotificationType.BirthdayNotification;
+        } else if (content.includes('celebrate') || content.includes('special day') || content.includes('occasion')) {
+          console.log('Detected "occasion/celebration"');
+          type = NotificationType.OccasionNotification;
+        } else if (content.includes('received a gift') || content.includes('gift from') || content.includes('sent you a gift') || content.includes('you received')) {
+          console.log('Detected "incoming gift"');
+          type = NotificationType.GiftReceived;
+        } else if (content.includes('support') || content.includes('contact')) {
+          type = NotificationType.SupportRequest;
+        } else if (content.includes('wallet') || content.includes('redeem')) {
+          type = NotificationType.GiftRedeem;
+        } else if (content.includes('gift')) {
+          // Final fallback for any other mention of gift
+          type = NotificationType.GiftReceived;
+        }
+      }
+
+      if (type && navigationRef.current) {
+        const notificationType = Number(type);
+        console.log('Navigating based on NotificationType:', notificationType);
+
+        switch (notificationType) {
+          // case NotificationType.SupportRequest:
+          //   navigationRef.current.navigate('ContactUs');
+          //   break;
+          case NotificationType.AdminPanelNotification:
+            console.log('Redirecting to BottomTabs...');
+            navigationRef.current.dispatch(
+              CommonActions.navigate({
+                name: 'BottomTabs',
+                params: { screen: 'Home' },
+              }),
+            );
+            break;
+          case NotificationType.GiftReceived:
+            navigationRef.current.navigate('InboxOutbox', {
+              title: getString('HOME_INBOX'),
+              isInbox: true,
+            });
+            break;
+          case NotificationType.GiftRedeem:
+            navigationRef.current.navigate('InboxOutbox', {
+              title: getString('HOME_INBOX'),
+              isInbox: true,
+            });
+            break;
+          case NotificationType.SpecialPriceMenu:
+            navigationRef.current.navigate('InboxOutbox', {
+              title: getString('HOME_INBOX'),
+              isInbox: true,
+            });
+            break;
+          case NotificationType.AddFriend:
+            navigationRef.current.dispatch(
+              CommonActions.navigate({
+                name: 'BottomTabs',
+                params: { screen: 'Home' },
+              }),
+            );
+          case NotificationType.Catch:
+            navigationRef.current.navigate('InboxOutbox', {
+              title: getString('HOME_INBOX'),
+              isInbox: true,
+            });
+            break;
+            break;
+          case NotificationType.G1G1:
+            navigationRef.current.navigate('GiftOneGetOne');
+            break;
+          case NotificationType.BirthdayNotification:
+            console.log('Redirecting to Home tab...');
+            navigationRef.current.dispatch(
+              CommonActions.navigate({
+                name: 'BottomTabs',
+                params: { screen: 'Home' },
+              }),
+            );
+            break;
+          case NotificationType.OccasionNotification:
+            console.log('Redirecting to Home tab...');
+            navigationRef.current.dispatch(
+              CommonActions.navigate({
+                name: 'BottomTabs',
+                params: { screen: 'Home' },
+              }),
+            );
+            break;
+          default:
+            console.log('Unknown notification type:', notificationType);
+            break;
+        }
+      } else if (!navigationRef.current) {
+        console.log('Navigation Error: navigationRef.current is null');
+      } else {
+        console.log(' cmNavigation Error: No type found in data or content fallback');
+      }
+    },
+    [getString],
+  );
+
+  // Handle foreground notifications
+  const handleForegroundNotification = useCallback(
+    async (message: FirebaseMessagingTypes.RemoteMessage) => {
+      console.log('Foreground notification:', message.notification?.title);
+      console.log('Foreground data:', JSON.stringify(message.data, null, 2));
+      await displayNotification(message);
+    },
+    [],
+  );
+
+  const handleNotificationTap = useCallback(
+    (message: FirebaseMessagingTypes.RemoteMessage) => {
+      console.log('='.repeat(60));
+      console.log('NOTIFICATION CLICKED (FCM)');
+      console.log('='.repeat(60));
+      console.log('Title:', message.notification?.title);
+      console.log('Body:', message.notification?.body);
+      console.log('Data:', JSON.stringify(message.data, null, 2));
+
+      console.log('Message ID:', message.messageId);
+      console.log('Sent Time:', message.sentTime);
+
+      // // Handle action_url deep linking
+      // if (message.data?.action_url) {
+      //   const url = String(message.data.action_url);
+      //   console.log('Opening action_url:', url);
+
+      //   Linking.canOpenURL(url)
+      //     .then(supported => {
+      //       if (supported) {
+      //         Linking.openURL(url);
+      //         console.log('✅ Opened:', url);
+      //       } else {
+      //         console.log('❌ Cannot open URL:', url);
+      //       }
+      //     })
+      //     .catch(err => console.error('Deep link error:', err));
+      // } else {
+      //   console.log('No action_url found');
+      // }
+
+      handleNotificationNavigation(message.data, {
+        title: message.notification?.title,
+        body: message.notification?.body,
+      });
 
       console.log('='.repeat(60));
     },
-    [],
+    [handleNotificationNavigation],
   );
 
   // Handle FCM token updates - only call API when token doesn't exist or is different from last sent
@@ -84,12 +225,18 @@ const useNotification = () => {
 
       try {
         const lastSentToken = await AsyncStorage.getItem(FCM_TOKEN_SENT_KEY);
-        if (lastSentToken === token) {
-          return; // Already sent this token, skip
+        //       if (lastSentToken === token) {
+        // return; // Already sent this token, skip
+        const storedDeviceId = await AsyncStorage.getItem(USER_DEVICE_TOKEN_ID_KEY);
+
+        if (lastSentToken === token && storedDeviceId) {
+          return; // Already sent this token and have the ID, skip
         }
 
         const res = await api.post<{
-          data?: { Data?: { UserDeviceTokenId?: number } };
+          // data?: { Data?: { UserDeviceTokenId?: number } };
+
+          Data?: { UserDeviceTokenId?: number };
         }>(apiEndpoints.SAVE_TOKEN, {
           UserId: user.UserId,
           Token: token,
@@ -97,7 +244,8 @@ const useNotification = () => {
           DeviceType: Platform.OS === 'android' ? 2 : 1, // 1 = Android, 2 = iOS
         });
         await AsyncStorage.setItem(FCM_TOKEN_SENT_KEY, token);
-        const userDeviceTokenId = res?.data?.data?.Data?.UserDeviceTokenId;
+        // const userDeviceTokenId = res?.data?.data?.Data?.UserDeviceTokenId;
+        const userDeviceTokenId = res?.data?.Data?.UserDeviceTokenId;
         if (userDeviceTokenId != null) {
           await AsyncStorage.setItem(
             USER_DEVICE_TOKEN_ID_KEY,
@@ -162,23 +310,26 @@ const useNotification = () => {
         user?.UserId,
       );
 
-      unsubscribeRef.current = result.unsubscribe;
+      // unsubscribeRef.current = result.unsubscribe;
 
       // Subscribe to Firebase topics based on current language and city
       const currentLangCode = (langCode as 'en' | 'ar') || 'en';
       const cityId = user?.CityId || null;
       await subscribeToFirebaseTopics(currentLangCode, cityId);
 
-      // Handle initial notification (app opened from killed state)
-      if (result.initialNotification) {
-        setTimeout(() => {
-          handleNotificationTap(result.initialNotification!);
-        }, 500);
-      }
+      // // Handle initial notification (app opened from killed state)
+      // if (result.initialNotification) {
+      //   setTimeout(() => {
+      //     handleNotificationTap(result.initialNotification!);
+      //   }, 500);
+      // }
 
-      console.log('Notifications initialized');
+      // console.log('Notifications initialized');
+      console.log('Notifications initialization ');
+      return result;
     } catch (error) {
       console.error('Notification init error:', error);
+      return null;
     }
   }, [
     handleForegroundNotification,
@@ -213,30 +364,35 @@ const useNotification = () => {
         console.log('Body:', detail.notification.body);
         console.log('Data:', JSON.stringify(detail.notification.data, null, 2));
 
-        // Handle action_url from Notifee notification
-        const data = detail.notification.data as Record<string, any>;
-        if (data?.action_url) {
-          const url = String(data.action_url);
-          console.log('Opening action_url:', url);
+        //  // Handle action_url from Notifee notification
+        // const data = detail.notification.data as Record<string, any>;
+        // if (data?.action_url) {
+        //   const url = String(data.action_url);
+        //   console.log('Opening action_url:', url);
 
-          Linking.canOpenURL(url)
-            .then(supported => {
-              if (supported) {
-                Linking.openURL(url);
-                console.log('✅ Opened:', url);
-              } else {
-                console.log('❌ Cannot open URL:', url);
-              }
-            })
-            .catch(err => console.error('Deep link error:', err));
-        }
+        //   Linking.canOpenURL(url)
+        //     .then(supported => {
+        //       if (supported) {
+        //         Linking.openURL(url);
+        //         console.log('✅ Opened:', url);
+        //       } else {
+        //         console.log('❌ Cannot open URL:', url);
+        //       }
+        //     })
+        //     .catch(err => console.error('Deep link error:', err));
+        // }
+
+        handleNotificationNavigation(detail.notification.data, {
+          title: detail.notification.title,
+          body: detail.notification.body,
+        });
 
         console.log('='.repeat(60));
       }
     });
 
     return unsubscribe;
-  }, []);
+  }, [handleNotificationNavigation]);
 
   // Handle language changes - unsubscribe from old topics and subscribe to new ones
   useEffect(() => {
@@ -273,12 +429,38 @@ const useNotification = () => {
 
   // Initialize on mount
   useEffect(() => {
-    initNotifications();
+    let isCancelled = false;
+    let localUnsubscribe: (() => void) | null = null;
+
+    const runInit = async () => {
+      const result = await initNotifications();
+
+      if (isCancelled) {
+        // If effect was cleaned up while initializing, unsubscribe immediately
+        result?.unsubscribe?.();
+        console.log('Cleanup: Notification initialization cancelled during async execution');
+      } else if (result) {
+        localUnsubscribe = result.unsubscribe;
+
+        // Handle initial notification only once
+        if (result.initialNotification) {
+          console.log('Handling initial notification from quit state');
+          handleNotificationTap(result.initialNotification);
+        }
+      }
+    };
+
+    runInit();
 
     return () => {
-      unsubscribeRef.current?.();
+      isCancelled = true;
+      // unsubscribeRef.current?.();
+      if (localUnsubscribe) {
+        localUnsubscribe();
+        console.log('Cleanup: Notification listeners unsubscribed');
+      }
     };
-  }, [initNotifications]);
+  }, [initNotifications, handleNotificationTap]);
 
   // Cleanup on logout
   useEffect(() => {

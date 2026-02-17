@@ -44,7 +44,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation();
 
-  const { token } = useAuthStore();
+  const { token, user } = useAuthStore();
+  const isMerchant = user?.isMerchant === 1;
+
 
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
@@ -54,6 +56,10 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const businessTypeId = route.params?.businessTypeId ?? null;
   const sendType = route.params?.sendType ?? null;
   const isSendAGiftFlow = sendType !== null && sendType !== undefined;
+
+  const effectiveFriendUserId = friendUserId || (Array.isArray(friendIds) && friendIds.length === 1 ? friendIds[0] : null);
+  const isMultipleUsers = Array.isArray(friendIds) && friendIds.length > 1;
+
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
@@ -111,7 +117,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       },
       extraParams: {
         StoreId: storeId,
-        userId: friendUserId,
+        userId: effectiveFriendUserId,
       },
       idExtractor: (item: FaveItems) => item.ItemId,
     },
@@ -139,7 +145,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     const isLinkFlow = sendType === 2;
     const options = [allOption];
 
-    if (hasFavorites && !isLinkFlow) {
+    if (hasFavorites && !isLinkFlow && !isMultipleUsers) {
       options.push(favoritesOption);
     }
 
@@ -174,24 +180,17 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   }, [getFavoriteItems.data]);
 
   const handleProductPress = (item: StoreProduct | FaveItems) => {
-    if ('ItemId' in item && 'Thumbnail' in item) {
-      const product = item as StoreProduct;
-      (navigation as any).navigate('ProductDetails', {
-        itemId: product.ItemId,
-        storeId: product.StoreId ?? storeId,
-        friendUserId,
-        FriendIds: friendIds,
-        sendType: route.params.sendType,
-        campaignId: product?.Campaign?.CampaignId,
-      });
-    } else {
-      (navigation as any).navigate('ProductDetails', {
-        itemId: (item as any)?.ItemId ?? 0,
-        storeId: (item as any)?.StoreId ?? storeId ?? null,
-        friendUserId,
-        FriendIds: friendIds,
-      });
-    }
+    const productItem = item as any;
+    const itemCampaignId = productItem?.Campaign?.CampaignId || productItem?.CampaignId;
+
+    (navigation as any).navigate('ProductDetails', {
+      itemId: productItem?.ItemId ?? 0,
+      storeId: productItem?.StoreId ?? storeId ?? null,
+      friendUserId,
+      FriendIds: friendIds,
+      sendType: route.params.sendType,
+      campaignId: itemCampaignId,
+    });
   };
 
   const handleFavoritePress = async (payload: {
@@ -240,7 +239,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     if (selectedFilter === 'favorites') {
       getFavoriteItems.setExtraParams({
         StoreId: storeId,
-        userId: friendUserId,
+        userId: effectiveFriendUserId,
       });
     } else {
       getStoreProducts.setExtraParams({
@@ -249,7 +248,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         categoryId: selectedFilter === 'all' ? null : Number(selectedFilter),
       });
     }
-  }, [selectedFilter, storeId, friendUserId]);
+  }, [selectedFilter, storeId, effectiveFriendUserId]);
 
   const isCartFromCurrentStore = useMemo(() => {
     if (
@@ -282,7 +281,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     if (id === 'favorites') {
       getFavoriteItems.setExtraParams({
         StoreId: storeId,
-        userId: friendUserId,
+        userId: effectiveFriendUserId,
       });
     } else {
       getStoreProducts.setExtraParams({
@@ -306,13 +305,14 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         item={item}
         onPress={handleProductPress}
         isFavorite={isFavorite}
-        hasFavorite={true}
+        hasFavorite={!isMerchant}
         onFavoritePress={() => {
           handleFavoritePress({
             ItemId: item.ItemId,
             isFavorite: !isFavorite,
           });
         }}
+        isFavoriteTab={isFavoriteItem}
       />
     );
   };
@@ -368,7 +368,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             styles.content,
             {
               paddingBottom: isCartFromCurrentStore
-                ? theme.sizes.HEIGHT * 0.13
+                ? theme.sizes.HEIGHT * 0.18
                 : theme.sizes.HEIGHT * 0.086,
             },
           ]}
@@ -452,11 +452,11 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                 ) || 0}
               </Text>
             </View>
-            <Text style={styles.footerButtonText}>View Cart</Text>
+            <Text style={styles.footerButtonText}>{getString('VIEW_CART')}</Text>
             <View style={styles.footerPriceRow}>
               <SvgRiyalIconWhite
-                width={scaleWithMax(16, 18)}
-                height={scaleWithMax(16, 18)}
+                width={scaleWithMax(12, 14)}
+                height={scaleWithMax(12, 14)}
               />
               <Text style={styles.footerPriceText}>
                 {cartApi.data?.TotalAmount || '0.00'}

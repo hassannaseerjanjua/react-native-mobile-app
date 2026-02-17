@@ -177,6 +177,8 @@ const useDeepLinkHandler = () => {
               } as AppStackParamList['ScanQr']),
             );
           }
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'), 'bottom');
         }
       } catch (error) {
         console.error('Error handling redeem-gift deep link:', error);

@@ -13,7 +13,7 @@ const useStyles = () => {
       },
       scrollContent: {
         paddingHorizontal: 0,
-        paddingBottom: sizes.HEIGHT * 0.1,
+        paddingBottom: sizes.HEIGHT * 0.03,
         paddingTop: sizes.HEIGHT * 0.015,
         gap: sizes.HEIGHT * 0.02,
       },

@@ -108,7 +108,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const handleBackPress = () => {
     if (onBackPress) {
       onBackPress();
-    } else {
+    } else if (navigation.canGoBack()) {
       navigation.goBack();
     }
   };
@@ -135,7 +135,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             onPress={handleBackPress}
             activeOpacity={0.7}
           >
-            <SvgHomeBack 
+            <SvgHomeBack
               style={{ transform: rtlTransform(isRtl) }}
               fill={backButtonIconColor}
             />
