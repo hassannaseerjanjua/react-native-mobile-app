@@ -499,7 +499,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             {/* <Text style={styles.cartTitle}>{item.ItemName}</Text> */}
             <Text style={styles.cartTitle}>{langCode === 'ar' ? item.ItemName : item.ItemName}</Text>
             {item.Variant?.NameEn && (
-              <Text style={styles.TextMedium}>{langCode === 'ar' ? item.Variant.NameEn : item.Variant.NameAr}</Text>
+              <Text style={styles.TextMedium}>{langCode === 'ar' ? item.Variant.NameAr : item.Variant.NameEn}</Text>
             )}
           </View>
           {
