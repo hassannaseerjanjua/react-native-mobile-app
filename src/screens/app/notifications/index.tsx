@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo } from 'react';
-import { View, StatusBar, FlatList, ActivityIndicator } from 'react-native';
+import { View, StatusBar, FlatList, ActivityIndicator, DeviceEventEmitter } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -13,12 +13,14 @@ import { Notification, NotificationsApiResponse } from '../../../types/index.ts'
 import { formatRelativeTime } from '../inbox-outbox/actions.ts';
 import { useListingApi } from '../../../hooks/useListingApi.ts';
 import { useAuthStore } from '../../../store/reducer/auth.ts';
+import useGetApi from '../../../hooks/useGetApi.ts';
 
 const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation<any>();
   const { token } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
 
   const notificationsApi = useListingApi<Notification>(
     apiEndpoints.NOTIFICATIONS_LISTING,
@@ -38,10 +40,20 @@ const NotificationsScreen: React.FC = () => {
       await api.put(apiEndpoints.UPDATE_IS_SEEN_STATUS, {
         IsSeen: true,
       });
+      getNotificationCount.refetch();
+      DeviceEventEmitter.emit('REFRESH_NOTIFICATIONS_COUNT');
     } catch (e) {
       console.error("errror", e);
     }
   };
+
+  const getNotificationCount = useGetApi<any>(
+    isAuthenticated ? apiEndpoints.GET_UNSEEN_NOTIFICATION_COUNT : '',
+    {
+      transformData: data => data.Data,
+    },
+  );
+
 
   useFocusEffect(
     useCallback(() => {

@@ -548,6 +548,8 @@ export interface CartItem {
   OrderItemId: number;
   ItemId: number;
   ItemName: string;
+  ItemNameEn: string;
+  ItemNameAr: string;
   ThumbnailUrl: string | null;
   UnitPrice: number;
   Quantity: number;
