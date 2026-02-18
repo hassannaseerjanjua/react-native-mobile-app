@@ -14,7 +14,7 @@ import {
   SvgUser,
   SvgUsername,
 } from '../../../assets/icons';
-import { scaleWithMax, toOption } from '../../../utils';
+import { scaleWithMax, toOption, normalizePhoneNumber } from '../../../utils';
 import { City } from '../../../types';
 import DropdownField from '../../../components/global/DropdownField';
 import useGetApi from '../../../hooks/useGetApi';
@@ -101,7 +101,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
               apiEndpoints.VERIFY_EMAIL_PHONE,
               {
                 Email: formData.email,
-                PhoneNo: formData.phoneNumber,
+                PhoneNo: normalizePhoneNumber(formData.phoneNumber),
               },
             );
             if (verifyResponse.success && !verifyResponse.failed) {
@@ -125,7 +125,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         FullName: formData.fullName,
         UserName: formData.username,
         CityId: formData.city,
-        Phone: formData.phoneNumber,
+        Phone: normalizePhoneNumber(formData.phoneNumber),
         Email: formData.email,
       })
       .then(res => {
