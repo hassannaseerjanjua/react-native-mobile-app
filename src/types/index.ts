@@ -89,6 +89,7 @@ export interface GroupMember {
   FullName: string;
   ProfileUrl: string;
   RelationStatus: number;
+  IsVerified?: boolean;
 }
 
 export interface GroupData {
@@ -547,6 +548,8 @@ export interface CartItem {
   OrderItemId: number;
   ItemId: number;
   ItemName: string;
+  ItemNameEn: string;
+  ItemNameAr: string;
   ThumbnailUrl: string | null;
   UnitPrice: number;
   Quantity: number;
@@ -735,6 +738,7 @@ export interface Notification {
   JsonData: string;
   NotificationType: number;
   CreatedOn: string;
+  IsSeen: boolean;
 }
 
 export interface NotificationsApiResponse {

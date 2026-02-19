@@ -34,6 +34,9 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
     }
   }, [langCode, shimmerLoading]);
 
+  const keysLoaded = getString('AU_SIGN_IN') !== 'AU_SIGN_IN'
+  console.log(keysLoaded)
+
   return (
     <ParentView style={styles.container}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
@@ -70,17 +73,17 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
       <View style={styles.logoContainer}>
         <SvgLogoBlue width={theme.sizes.APP_LOGO} />
       </View>
-      {shimmerLoading ? (
+      {shimmerLoading || !keysLoaded ? (
         <SkeletonLoader screenType="landing" />
       ) : (
         <View style={styles.buttonContainer}>
           <CustomButton
-            title={getString('AU_SIGN_IN')}
+            title={getString('AU_SIGN_IN') === 'AU_SIGN_IN' ? 'Sign In' : getString('AU_SIGN_IN')}
             type="primary"
             onPress={() => navigation.navigate('SignIn')}
           />
           <CustomButton
-            title={getString('AU_SIGN_UP')}
+            title={getString('AU_SIGN_UP') === 'AU_SIGN_UP' ? 'Sign Up' : getString('AU_SIGN_UP')}
             type="secondary"
             onPress={() => navigation.navigate('SignUp')}
           />

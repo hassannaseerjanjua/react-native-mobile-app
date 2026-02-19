@@ -7,7 +7,7 @@ import InputField from '../../../components/global/InputField';
 import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { SvgEmail, SvgPhone, SvgPhoneIcon } from '../../../assets/icons';
-import { scaleWithMax } from '../../../utils';
+import { scaleWithMax, normalizePhoneNumber } from '../../../utils';
 import { createSignInSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
@@ -17,7 +17,7 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import notify from '../../../utils/notify';
 
-interface SignInProps extends AuthStackScreen<'SignIn'> {}
+interface SignInProps extends AuthStackScreen<'SignIn'> { }
 
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
@@ -38,6 +38,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     () => createSignInSchema(activeTab, getString as (key: any) => string),
     [activeTab, getString],
   );
+
   const handleSignIn = async (
     values: typeof currentFormValues,
     formik: any,
@@ -62,7 +63,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       try {
         const payload =
           activeTab === 'Phone'
-            ? { PhoneNo: values.phone }
+            ? { PhoneNo: normalizePhoneNumber(values.phone) }
             : { Email: values.email };
 
         const verifyResponse = await api.post(
@@ -90,7 +91,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     try {
       const payload =
         activeTab === 'Phone'
-          ? { PhoneNo: currentFormValues.phone }
+          ? { PhoneNo: normalizePhoneNumber(currentFormValues.phone) }
           : { Email: currentFormValues.email };
       const response = await api.post(apiEndpoints.SIGNIN, payload);
 
@@ -191,16 +192,14 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                       value: isPhone ? values.phone : values.email,
                       onChangeText: isPhone
                         ? value => {
-                            setApiError('');
-                            const cleanValue = value
-                              .replace('+966 ', '')
-                              .replace(/[^0-9]/g, '');
-                            setFieldValue('phone', cleanValue);
-                          }
+                          setApiError('');
+                          const cleanValue = value
+                          setFieldValue('phone', cleanValue);
+                        }
                         : value => {
-                            setApiError('');
-                            handleChange('email')(value);
-                          },
+                          setApiError('');
+                          handleChange('email')(value);
+                        },
                     }}
                   />
                 </View>

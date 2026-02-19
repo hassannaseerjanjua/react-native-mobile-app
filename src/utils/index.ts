@@ -38,6 +38,7 @@ export const dynamicArrayItem = (item: any, condition: boolean) => {
 };
 
 export * from './rtl';
+export * from './normalizeDigits';
 
 export const fileUriWrapper = (uri: string) => {
   if (isIOS) {

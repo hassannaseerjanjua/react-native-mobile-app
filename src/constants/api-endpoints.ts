@@ -132,6 +132,8 @@ const apiEndpoints = {
     `/${version}/User/generate-qr?orderId=${orderId}`,
   SEND_GIFT_FILTER: `/${version}/User/AddGiftMessageToOrder`,
   NOTIFICATIONS_LISTING: `/${version}/Panel/NotificationsListingForUser`,
+  GET_UNSEEN_NOTIFICATION_COUNT: `/${version}/Panel/GetUnSeenNotificationCount`,
+  UPDATE_IS_SEEN_STATUS: `/${version}/Panel/UpdateIsSeenStatus`,
 };
 
 export default apiEndpoints;

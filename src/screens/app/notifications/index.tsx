@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { View, StatusBar, FlatList } from 'react-native';
+import React, { useCallback, useMemo } from 'react';
+import { View, StatusBar, FlatList, ActivityIndicator, DeviceEventEmitter } from 'react-native';
 import useStyles from './style.ts';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import NotificationItem from '../../../components/global/NotificationItem.tsx';
@@ -11,29 +11,70 @@ import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { Notification, NotificationsApiResponse } from '../../../types/index.ts';
 import { formatRelativeTime } from '../inbox-outbox/actions.ts';
+import { useListingApi } from '../../../hooks/useListingApi.ts';
+import { useAuthStore } from '../../../store/reducer/auth.ts';
+import useGetApi from '../../../hooks/useGetApi.ts';
 
 const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
-  const { getString, isRtl } = useLocaleStore();
+  const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation<any>();
+  const { token } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
 
-  const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  const fetchNotifications = async () => {
-    setLoading(true);
-    const response = await api.get<NotificationsApiResponse>(
-      apiEndpoints.NOTIFICATIONS_LISTING,
-    );
-    if (response.success && response.data?.Data?.Items) {
-      setNotifications(response.data.Data.Items);
+  const notificationsApi = useListingApi<Notification>(
+    apiEndpoints.NOTIFICATIONS_LISTING,
+    token,
+    {
+      idExtractor: (item: Notification) => item.NotificationId,
+      transformData: (data: NotificationsApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
+      pageSize: 10,
     }
-    setLoading(false);
+  );
+
+  const markAllAsSeen = async () => {
+    try {
+      await api.put(apiEndpoints.UPDATE_IS_SEEN_STATUS, {
+        IsSeen: true,
+      });
+      getNotificationCount.refetch();
+      DeviceEventEmitter.emit('REFRESH_NOTIFICATIONS_COUNT');
+    } catch (e) {
+      console.error("errror", e);
+    }
   };
 
-  useEffect(() => {
-    fetchNotifications();
-  }, []);
+  const getNotificationCount = useGetApi<any>(
+    isAuthenticated ? apiEndpoints.GET_UNSEEN_NOTIFICATION_COUNT : '',
+    {
+      transformData: data => data.Data,
+    },
+  );
+
+
+  useFocusEffect(
+    useCallback(() => {
+      // useCallback(() => {
+      // 
+      // fetchNotifications();
+      notificationsApi.recall(false);
+      return () => {
+        // const markAllAsSeen = async () => {
+        //   try {
+        //     await api.put(apiEndpoints.UPDATE_IS_SEEN_STATUS, {
+        //       IsSeen: true,
+        //     });
+        //   } catch (e) {
+        //     console.error("errror", e);
+        //   }
+        // };
+        markAllAsSeen();
+      };
+    }, []),
+  );
 
 
   const renderItem = ({ item }: { item: Notification }) => {
@@ -65,9 +106,21 @@ const NotificationsScreen: React.FC = () => {
         isGroupImage={item.Image}
         time={formatRelativeTime(item.CreatedOn)}
         boldText={boldText}
+        isSeen={item.IsSeen}
       />
     );
   };
+
+  const ListFooterComponent = useMemo(() => {
+    if (notificationsApi.loadingMore) {
+      return (
+        <View style={{ paddingVertical: 20 }}>
+          <ActivityIndicator color={theme.colors.PRIMARY} />
+        </View>
+      );
+    }
+    return null;
+  }, [notificationsApi.loadingMore, theme.colors.PRIMARY]);
 
   return (
     <View style={styles.container}>
@@ -81,19 +134,25 @@ const NotificationsScreen: React.FC = () => {
         onBackPress={() => navigation.goBack()}
       />
 
-      {loading ? (
+      {notificationsApi.loading && !notificationsApi.loadingMore ? (
         <SkeletonLoader screenType="notifications" />
       ) : (
         <FlatList
-          data={notifications}
+          data={notificationsApi.data}
           keyExtractor={item => item.NotificationId.toString()}
-          contentContainerStyle={styles.content}
+          contentContainerStyle={[styles.content, { paddingBottom: 20 }]}
           ListEmptyComponent={
             <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
-              <PlaceholderLogoText text={'No notifications found'} />
+              <PlaceholderLogoText
+                text={getString('SEARCH_NO_RESULTS_FOUND')}
+              />
             </View>
           }
           renderItem={renderItem}
+          onEndReached={notificationsApi.loadMore}
+          onEndReachedThreshold={0.5}
+          ListFooterComponent={ListFooterComponent}
+          showsVerticalScrollIndicator={false}
         />
       )}
     </View>

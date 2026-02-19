@@ -489,15 +489,17 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <View
         style={[
           styles.CartContainer,
-          { flexDirection: rtlFlexDirection(isRtl) },
+          // { flexDirection: rtlFlexDirection(isRtl) },
+          { ...langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) } }
         ]}
       >
         <Image source={imageSource} style={styles.CartProductImage} />
         <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
           <View>
-            <Text style={styles.cartTitle}>{item.ItemName}</Text>
+            {/* <Text style={styles.cartTitle}>{item.ItemName}</Text> */}
+            <Text style={styles.cartTitle}>{langCode === 'ar' ? item.ItemName : item.ItemName}</Text>
             {item.Variant?.NameEn && (
-              <Text style={styles.TextMedium}>{item.Variant.NameEn}</Text>
+              <Text style={styles.TextMedium}>{langCode === 'ar' ? item.Variant.NameAr : item.Variant.NameEn}</Text>
             )}
           </View>
           {
@@ -523,7 +525,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             </View>) : (<View
               style={{
                 ...styles.row,
-                flexDirection: rtlFlexDirection(isRtl),
+                // flexDirection: rtlFlexDirection(isRtl),
+                ...langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) },
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}
@@ -924,7 +927,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 <View
                   style={[
                     styles.sectionHeaderRow,
-                    { flexDirection: rtlFlexDirection(isRtl) },
+                    // { flexDirection: rtlFlexDirection(isRtl) },
+                    { ...langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) } }
+
                   ]}
                 >
                   <Text style={styles.heading}>

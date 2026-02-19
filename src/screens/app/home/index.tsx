@@ -29,6 +29,7 @@ const HomeScreen: React.FC = () => {
   const navigation = useNavigation();
   const hasLoadedOnceRef = useRef(false);
   const isMerchant = user?.isMerchant === 1;
+  const keysLoaded = getString('HOME_WELCOME') !== 'HOME_WELCOME' && getString('HOME_WHAT_ARE_YOU') !== 'HOME_WHAT_ARE_YOU';
 
   const {
     data: sliderResponse,
@@ -42,7 +43,7 @@ const HomeScreen: React.FC = () => {
     hasLoadedOnceRef.current = true;
   }
 
-  const showShimmer = sliderLoading && !hasLoadedOnceRef.current;
+  const showShimmer = sliderLoading && !hasLoadedOnceRef.current && !keysLoaded;
 
   return (
     <View style={styles.container}>
@@ -90,9 +91,7 @@ const HomeScreen: React.FC = () => {
               numberOfLines={1}
               ellipsizeMode="tail"
             >
-              {getString('HOME_WELCOME') === 'HOME_WELCOME'
-                ? 'Welcome'
-                : getString('HOME_WELCOME')}
+              {getString('HOME_WELCOME')}
               {', '}
               <Text style={styles.userName}>{user?.FullNameEn}</Text>
             </Text>
@@ -106,9 +105,7 @@ const HomeScreen: React.FC = () => {
 
             <View style={{ flex: 1 }}>
               <Text style={styles.sectionTitle}>
-                {getString('HOME_WHAT_ARE_YOU') === 'HOME_WHAT_ARE_YOU'
-                  ? 'What are you looking for?'
-                  : getString('HOME_WHAT_ARE_YOU')}
+                {getString('HOME_WHAT_ARE_YOU')}
               </Text>
               <HomeScreenTabsContainer />
             </View>
@@ -134,23 +131,17 @@ const HomeScreenTabsContainer: React.FC = () => {
       id: 'gift-one-get-one',
       icon: <SvgHomeG1G1 />,
       title:
-        getString('HOME_GIFT_ONE_GET_ONE') === 'HOME_GIFT_ONE_GET_ONE'
-          ? 'Gift One'
-          : getString('HOME_GIFT_ONE_GET_ONE'),
+        getString('HOME_GIFT_ONE_GET_ONE'),
 
       description:
-        getString('HOME_GIFT_ONE_GET_ONE_DESC') === 'HOME_GIFT_ONE_GET_ONE_DESC'
-          ? 'Gift One Get One'
-          : getString('HOME_GIFT_ONE_GET_ONE_DESC'),
+        getString('HOME_GIFT_ONE_GET_ONE_DESC'),
       iconStyles: {
         marginRight: scaleWithMax(18, 20),
       },
       onPress: () =>
         isMerchant
           ? notify.error(
-            getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
-              ? 'Merchant not allowed'
-              : getString('MERCHANT_NOT_ALLOWED'),
+            getString('MERCHANT_NOT_ALLOWED'),
           )
           : (navigation as any).navigate('SendAGift' as never, {
             routeTo: 'GiftOneGetOne',
@@ -160,20 +151,13 @@ const HomeScreenTabsContainer: React.FC = () => {
       id: 'catch',
       image: require('../../../assets/catch-Group-Icon.png'),
       title:
-        getString('HOME_CATCH') === 'HOME_CATCH'
-          ? 'Catch'
-          : getString('HOME_CATCH'),
+        getString('HOME_CATCH'),
       description:
-        getString('HOME_CATCH_INSTANT_GIFT_DESC') ===
-          'HOME_CATCH_INSTANT_GIFT_DESC'
-          ? 'Catch instant gift'
-          : getString('HOME_CATCH_INSTANT_GIFT_DESC'),
+        getString('HOME_CATCH_INSTANT_GIFT_DESC'),
       onPress: () =>
         isMerchant
           ? notify.error(
-            getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
-              ? 'Merchant not allowed'
-              : getString('MERCHANT_NOT_ALLOWED'),
+            getString('MERCHANT_NOT_ALLOWED'),
           )
           : (navigation as any).navigate('CatchScreen', {
             type: 'catch',
@@ -183,13 +167,9 @@ const HomeScreenTabsContainer: React.FC = () => {
       id: 'send-a-gift',
       icon: <SvgHomeSendAGift />,
       title:
-        getString('HOME_SEND_A_GIFT') === 'HOME_SEND_A_GIFT'
-          ? 'Send a Gift'
-          : getString('HOME_SEND_A_GIFT'),
+        getString('HOME_SEND_A_GIFT'),
       description:
-        getString('HOME_SEND_A_GIFT_DESC') === 'HOME_SEND_A_GIFT_DESC'
-          ? 'Send a gift'
-          : getString('HOME_SEND_A_GIFT_DESC'),
+        getString('HOME_SEND_A_GIFT_DESC'),
       onPress: () =>
         (navigation as any).navigate('SendAGift' as never, {
           routeTo: 'SelectStore',
@@ -200,25 +180,17 @@ const HomeScreenTabsContainer: React.FC = () => {
       id: 'inbox',
       icon: <SvgHomeInbox />,
       title:
-        getString('HOME_INBOX') === 'HOME_INBOX'
-          ? 'Inbox'
-          : getString('HOME_INBOX'),
+        getString('HOME_INBOX'),
       description:
-        getString('HOME_INBOX_DESC') === 'HOME_INBOX_DESC'
-          ? 'Inbox'
-          : getString('HOME_INBOX_DESC'),
+        getString('HOME_INBOX_DESC'),
       onPress: () =>
         isMerchant
           ? notify.error(
-            getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
-              ? 'Merchant not allowed'
-              : getString('MERCHANT_NOT_ALLOWED'),
+            getString('MERCHANT_NOT_ALLOWED'),
           )
           : (navigation as any).navigate('InboxOutbox', {
             title:
-              getString('HOME_INBOX') === 'HOME_INBOX'
-                ? 'Inbox'
-                : getString('HOME_INBOX'),
+              getString('HOME_INBOX'),
             isInbox: true,
           }),
     },
@@ -226,19 +198,13 @@ const HomeScreenTabsContainer: React.FC = () => {
       id: 'outbox',
       icon: <SvgHomeOutbox />,
       title:
-        getString('HOME_OUTBOX') === 'HOME_OUTBOX'
-          ? 'Outbox'
-          : getString('HOME_OUTBOX'),
+        getString('HOME_OUTBOX'),
       description:
-        getString('HOME_OUTBOX_DESC') === 'HOME_OUTBOX_DESC'
-          ? 'Outbox'
-          : getString('HOME_OUTBOX_DESC'),
+        getString('HOME_OUTBOX_DESC'),
       onPress: () =>
         (navigation as any).navigate('InboxOutbox', {
           title:
-            getString('HOME_OUTBOX') === 'HOME_OUTBOX'
-              ? 'Outbox'
-              : getString('HOME_OUTBOX'),
+            getString('HOME_OUTBOX'),
           isInbox: false,
         }),
     },
@@ -287,10 +253,7 @@ const HomeScreenTabsContainer: React.FC = () => {
       </View>
 
       <Text style={styles.innerSectionTitle}>
-        {getString('HOME_RECEIVED_AND_SENT_GIFTS') ===
-          'HOME_RECEIVED_AND_SENT_GIFTS'
-          ? 'Received and Sent Gifts'
-          : getString('HOME_RECEIVED_AND_SENT_GIFTS')}
+        {getString('HOME_RECEIVED_AND_SENT_GIFTS')}
       </Text>
 
       <View style={styles.optionsWrapper}>

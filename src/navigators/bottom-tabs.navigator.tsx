@@ -22,12 +22,15 @@ import Occasions from '../screens/app/occasions/index';
 import Notifications from '../screens/app/notifications/index';
 import useTheme from '../styles/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TouchableOpacity, View } from 'react-native';
+import { TouchableOpacity, View, DeviceEventEmitter } from 'react-native';
 import { isAndroidThen, isIOSThen, scaleWithMax } from '../utils';
 import { useLocaleStore } from '../store/reducer/locale';
 import { Text } from '../utils/elements';
 import { useAuthStore } from '../store/reducer/auth';
 import notify from '../utils/notify';
+import useGetApi from '../hooks/useGetApi';
+import apiEndpoints from '../constants/api-endpoints';
+import fonts from '../assets/fonts';
 
 const Tab = createBottomTabNavigator();
 
@@ -107,9 +110,36 @@ export default BottomTabNavigator;
 
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const theme = useTheme();
-  const { user } = useAuthStore();
+  const { user, isAuthenticated } = useAuthStore();
   const { getString } = useLocaleStore();
   const isMerchant = user?.isMerchant === 1;
+
+  const getNotificationCount = useGetApi<any>(
+    isAuthenticated ? apiEndpoints.GET_UNSEEN_NOTIFICATION_COUNT : '',
+    {
+      transformData: data => data.Data,
+    },
+  );
+
+  React.useEffect(() => {
+    if (!isAuthenticated) return;
+    const interval = setInterval(() => {
+      getNotificationCount.refetch();
+    }, 15000);
+
+    const subscription = DeviceEventEmitter.addListener(
+      'REFRESH_NOTIFICATIONS_COUNT',
+      () => {
+        getNotificationCount.refetch();
+      },
+    );
+
+    return () => {
+      clearInterval(interval);
+      subscription.remove();
+    };
+  }, [isAuthenticated, getNotificationCount]);
+
   return (
     <View
       style={{
@@ -140,8 +170,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
           options.tabBarLabel !== undefined
             ? options.tabBarLabel
             : options.title !== undefined
-            ? options.title
-            : route.name;
+              ? options.title
+              : route.name;
 
         const isFocused = state.index === index;
 
@@ -163,6 +193,9 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                   : getString('MERCHANT_NOT_ALLOWED'),
               );
               return;
+            }
+            if (route.name === 'Notifications') {
+              getNotificationCount.refetch();
             }
             navigation.navigate(route.name);
           }
@@ -193,7 +226,38 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                 }}
               />
             )}
-            <View style={{}}>{getIcon(route.name, iconSize, isFocused)}</View>
+            <View style={{ position: 'relative' }}>
+              {getIcon(route.name, iconSize, isFocused)}
+              {route.name === 'Notifications' &&
+                getNotificationCount.data?.Count > 0 && (
+                  <View
+                    style={{
+                      position: 'absolute',
+                      top: -scaleWithMax(2, 3),
+                      right: -scaleWithMax(2, 3),
+                      backgroundColor: theme.colors.PRIMARY,
+                      borderRadius: 999,
+                      minWidth: scaleWithMax(16, 18),
+                      height: scaleWithMax(16, 18),
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      paddingHorizontal: 2,
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: theme.colors.WHITE,
+                        fontSize: scaleWithMax(9, 10),
+                        fontFamily: fonts.Quicksand.bold,
+                        lineHeight: scaleWithMax(14, 16),
+                        textAlign: 'center',
+                      }}
+                    >
+                      {getNotificationCount.data.Count}
+                    </Text>
+                  </View>
+                )}
+            </View>
             <Text
               style={{
                 ...theme.globalStyles.TEXT_STYLE_MEDIUM,

@@ -33,8 +33,8 @@ const getStatusText = (
     // 7: 'QR Generated',
     // 8: 'Approved',
     // 9: 'Declined',
-    // 10: getString('O_REDEEMED'),
-    10: 'Redeemed',
+    10: getString('O_REDEEMED'),
+    // 10: 'Redeemed',
   };
 
   return statusMap[status] ?? getString('O_PENDING');
