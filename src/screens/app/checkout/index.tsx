@@ -73,6 +73,7 @@ import SearchUserItem from '../../../components/app/SearchUserItem';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { FlatList } from 'react-native';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+import { useApplePay } from '../../../hooks/useApplePay';
 
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
@@ -107,6 +108,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [userCards, setUserCards] = useState<UserCard[]>([]);
   const [selectedCardFromParams, setSelectedCardFromParams] = useState<UserCard | null>(null);
   const isMerchant = user?.isMerchant === 1;
+  const { isApplePayAvailable, requestApplePayPayment } = useApplePay();
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => {
       setCartData(data?.Data);
@@ -629,6 +631,32 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
     try {
       setSubmitting(true);
+
+      // Apple Pay: present native sheet, get token, log it (no API call yet)
+      if (selectedPaymentMethod === 'applePay') {
+        const totalAmount =
+          (cartData.TotalAmount || 0) + (activeDomationAmount || 0);
+        if (totalAmount <= 0) {
+          notify.error(getString('AU_ERROR_OCCURRED'));
+          return;
+        }
+        try {
+          const token = await requestApplePayPayment(totalAmount, {
+            currencyCode: 'SAR',
+            label: 'Giftee Order',
+          });
+          if (token) {
+            console.log('[ApplePay] Payment token received:', token);
+            notify.success('Apple Pay token captured (dev mode)');
+          }
+        } catch (error: any) {
+          console.error('[ApplePay] Error:', error);
+          notify.error(error?.message || getString('AU_ERROR_OCCURRED'));
+        } finally {
+          setSubmitting(false);
+        }
+        return;
+      }
 
       // Wait for video upload if it's in progress
       if (isVideoUploading) {
@@ -1153,7 +1181,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     </View>
                   </TouchableOpacity>
                 </View>
-                {isIOS && <TouchableOpacity
+                {isApplePayAvailable && (
+                <TouchableOpacity
                   onPress={() =>
                     setSelectedPaymentMethod(
                       selectedPaymentMethod === 'applePay' ? null : 'applePay',
@@ -1201,7 +1230,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       }}
                     />
                   </View>
-                </TouchableOpacity>}
+                </TouchableOpacity>
+                )}
 
                 <TouchableOpacity
                   onPress={() =>
