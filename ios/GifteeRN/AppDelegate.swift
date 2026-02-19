@@ -5,6 +5,7 @@ import ReactAppDependencyProvider
 import RNBootSplash
 import Firebase
 import UserNotifications
+import PassKit
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterDelegate {
