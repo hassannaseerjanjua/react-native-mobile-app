@@ -40,11 +40,11 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
       <TouchableOpacity
         style={[
           styles.languageContainer,
-          rtlPosition(
-            displayLangCode.current === 'ar',
-            undefined,
-            sizes.PADDING,
-          ),
+          // rtlPosition(
+          //   displayLangCode.current === 'ar',
+          //   undefined,
+          //   sizes.PADDING,
+          // ),
         ]}
         onPress={() => {
           setShimmerLoading(true);

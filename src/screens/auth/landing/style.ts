@@ -34,11 +34,7 @@ const useStyles = () => {
       languageContainer: {
         position: 'absolute',
         top: isIOS ? sizes.HEIGHT * 0.08 : sizes.HEIGHT * 0.06,
-        display: 'flex',
-        flexDirection: 'row',
-        justifyContent: 'flex-end',
-        alignItems: 'center',
-        zIndex: 1,
+        end: sizes.PADDING,
       },
     });
   }, [theme]);
