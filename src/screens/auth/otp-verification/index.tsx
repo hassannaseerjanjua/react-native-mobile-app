@@ -14,11 +14,15 @@ import { login } from '../../../store/reducer/auth';
 import AuthLayout from '../../../components/app/AuthLayout.tsx';
 import api from '../../../utils/api.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
+import {
+  normalizeArabicDigits,
+  normalizePhoneNumber,
+} from '../../../utils/normalizeDigits';
 import { LoginApiResponse } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 
-interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
+interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> { }
 
 const OtpVerification: React.FC<OtpVerificationProps> = ({
   navigation,
@@ -121,7 +125,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       isComplete &&
       !isLoading &&
       !hasVerified &&
-      otpString !== lastVerifiedOtp
+      normalizeArabicDigits(otpString) !== lastVerifiedOtp
     ) {
       setTimeout(() => {
         Keyboard.dismiss();
@@ -136,7 +140,8 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       setLastVerifiedOtp('');
     }
 
-    const sanitizedValue = value.replace(/[^0-9]/g, '').slice(0, 1);
+    // Allow Western, Arabic, and Persian digits in the field; keep as-is for display
+    const sanitizedValue = value.replace(/[^0-9٠-٩۰-۹]/g, '').slice(0, 1);
 
     const newOtp = [...otp];
     newOtp[index] = sanitizedValue;
@@ -164,8 +169,9 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       return;
     }
 
+    const normalizedOtp = normalizeArabicDigits(otpString);
     setHasVerified(true);
-    setLastVerifiedOtp(otpString);
+    setLastVerifiedOtp(normalizedOtp);
     const endpoint = signIn
       ? apiEndpoints.VERIFY_OTP_SIGNIN
       : apiEndpoints.VERIFY_OTP;
@@ -173,9 +179,9 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     setIsLoading(true);
     try {
       const response = await api.post<LoginApiResponse>(endpoint, {
-        OTP: otpString,
+        OTP: normalizedOtp,
         Email: email,
-        PhoneNo: phone,
+        PhoneNo: normalizePhoneNumber(phone ?? ''),
       });
       if (response.success && response.data?.Data?.User) {
         dispatch(
@@ -190,6 +196,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
           setShowError(false);
         }, 3000);
         setHasVerified(false);
+        setLastVerifiedOtp('');
       }
     } catch (error) {
       setShowError(true);
@@ -197,6 +204,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         setShowError(false);
       }, 3000);
       setHasVerified(false);
+      setLastVerifiedOtp('');
     } finally {
       setTimeout(() => {
         setIsLoading(false);
@@ -214,11 +222,11 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     backgroundTimeRef.current = null;
     const endpoint = signIn ? apiEndpoints.SIGNIN : apiEndpoints.SIGNUP;
     try {
-      const response = await api.post(endpoint, {
+      await api.post(endpoint, {
         FullName: fullName,
         UserName: username,
         CityId: city,
-        Phone: phone,
+        Phone: normalizePhoneNumber(phone ?? ''),
         Email: email,
       });
     } catch (err) {
@@ -311,7 +319,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
           <CustomButton
             title={getString('API_INVALID_OR_EXPIRED_OTP')}
             type="error"
-            onPress={() => {}}
+            onPress={() => { }}
           />
         )}
       </AuthLayout>

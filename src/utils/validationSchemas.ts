@@ -1,16 +1,20 @@
 import * as Yup from 'yup';
 
 type GetString = (key: any) => string;
+export const phoneValidation = (getString: GetString) => {
+  const convertArabicToEnglish = (value: string = '') =>
+    value
+      // Arabic digits (٠١٢٣٤٥٦٧٨٩)
+      .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632))
+      // Persian digits (۰۱۲۳۴۵۶۷۸۹)
+      .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776));
 
-export const phoneValidation = (getString: GetString) =>
-  Yup.string()
+  return Yup.string()
+    .transform(value => convertArabicToEnglish(value || ''))
     .trim()
     .required(getString('AU_SI_PN_REQUIRED'))
-    .matches(/^5/, getString('AU_SI_PN_MUST_START'))
-    .matches(/^[0-9]+$/, getString('AU_SI_PN_MUST_CONTAIN'))
-    .length(9, getString('AU_SI_PN_MUST_DIGIT'))
-    .max(9, getString('AU_SI_PN_MUST_DIGIT'));
-
+    .matches(/^5\d{8}$/, getString('AU_SI_PN_MUST_DIGIT'));
+};
 export const emailValidation = (getString: GetString) =>
   Yup.string()
     .trim()
@@ -21,6 +25,7 @@ export const emailValidation = (getString: GetString) =>
     )
     .required(getString('AU_SI_EMAIL_REQUIRED'));
 
+// Unicode letter (\p{L}) and number (\p{N}) for Arabic + Latin support
 export const usernameValidation = (getString: GetString) =>
   Yup.string()
     .trim()
@@ -33,7 +38,7 @@ export const usernameValidation = (getString: GetString) =>
         'Username must contain at least one letter',
       value => {
         if (!value) return true;
-        return /[a-zA-Z]/.test(value);
+        return /\p{L}/u.test(value);
       },
     )
     .test(
@@ -41,7 +46,7 @@ export const usernameValidation = (getString: GetString) =>
       getString('AU_SU_USERNAME_INVALID') || 'Username cannot be only numbers',
       value => {
         if (!value) return true;
-        return !/^[0-9]+$/.test(value);
+        return !/^\p{N}+$/u.test(value);
       },
     )
     .test(
@@ -50,7 +55,7 @@ export const usernameValidation = (getString: GetString) =>
         'Username cannot have more special characters than letters and numbers',
       value => {
         if (!value) return true;
-        const alphanumericCount = (value.match(/[a-zA-Z0-9]/g) || []).length;
+        const alphanumericCount = (value.match(/[\p{L}\p{N}]/gu) || []).length;
         const specialCharsCount = value.length - alphanumericCount;
         return alphanumericCount >= specialCharsCount;
       },
@@ -61,8 +66,8 @@ export const usernameValidation = (getString: GetString) =>
         'Username cannot have more numbers than letters',
       value => {
         if (!value) return true;
-        const lettersCount = (value.match(/[a-zA-Z]/g) || []).length;
-        const numbersCount = (value.match(/[0-9]/g) || []).length;
+        const lettersCount = (value.match(/\p{L}/gu) || []).length;
+        const numbersCount = (value.match(/\p{N}/gu) || []).length;
         return lettersCount >= numbersCount;
       },
     )
@@ -78,6 +83,7 @@ export const usernameValidation = (getString: GetString) =>
       },
     );
 
+// \p{L} = any Unicode letter (Latin, Arabic, etc.)
 export const fullNameValidation = (getString: GetString) =>
   Yup.string()
     .trim()
@@ -85,7 +91,7 @@ export const fullNameValidation = (getString: GetString) =>
     .min(3, getString('AU_SU_FULLNAME_ATLEAST'))
     .max(50, getString('AU_SU_FULLNAME_LESS_THAN'))
     .matches(
-      /^[a-zA-Z\s'-]+$/,
+      /^[\p{L}\s'-]+$/u,
       getString('AU_SU_FULLNAME_INVALID') ||
         'Name can only contain letters, spaces, hyphens, and apostrophes',
     )
@@ -97,7 +103,7 @@ export const fullNameValidation = (getString: GetString) =>
         if (!value) return true;
         const emojiRegex =
           /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu;
-        const numberRegex = /\d/;
+        const numberRegex = /\p{N}/u;
         return !emojiRegex.test(value) && !numberRegex.test(value);
       },
     );

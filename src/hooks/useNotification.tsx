@@ -242,6 +242,7 @@ const useNotification = () => {
           Token: token,
           LanguageId: langId, // 1 = English, 2 = Arabic
           DeviceType: Platform.OS === 'android' ? 2 : 1, // 1 = Android, 2 = iOS
+          IsMerchant: user.isMerchant === 1,
         });
         await AsyncStorage.setItem(FCM_TOKEN_SENT_KEY, token);
         // const userDeviceTokenId = res?.data?.data?.Data?.UserDeviceTokenId;

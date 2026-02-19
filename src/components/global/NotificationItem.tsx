@@ -13,7 +13,7 @@ import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { I18nManager } from 'react-native';
-import { rtlTransform, scaleWithMax } from '../../utils';
+import { rtlFlexDirection, rtlTransform, scaleWithMax } from '../../utils';
 
 interface NotificationItemProps {
   title: string;
@@ -24,6 +24,7 @@ interface NotificationItemProps {
   icon?: React.ReactNode;
   time?: string;
   boldText?: string;
+  isSeen?: boolean;
 }
 
 const NotificationItem = ({
@@ -35,9 +36,10 @@ const NotificationItem = ({
   icon,
   time,
   boldText,
+  isSeen = true,
 }: NotificationItemProps) => {
   const { styles, theme } = useStyles();
-  const { isRtl } = useLocaleStore();
+  const { isRtl, langCode } = useLocaleStore();
 
   const renderTitle = () => {
     if (boldText && title.includes(boldText)) {
@@ -51,32 +53,36 @@ const NotificationItem = ({
       );
     }
     return (
-      <Text style={[styles.titleText, NotificationTextStyles]}>{title}</Text>
+      <Text style={[styles.titleText, NotificationTextStyles,]}>{title}</Text>
     );
   };
 
   return (
-    <View style={[styles.container, NotificationItemStyles]}>
+    <View style={[styles.container, NotificationItemStyles,
+    ]}>
       {time && (
-        <View style={styles.timeContainer}>
+        <View style={[styles.timeContainer]}>
           <Text style={[styles.timeText]}>{time}</Text>
         </View>
       )}
       <View style={styles.contentContainer}>
-        {isGroupImage ? (
-          <Image
-            source={
-              typeof isGroupImage === 'string'
-                ? { uri: isGroupImage }
-                : isGroupImage
-            }
-            style={styles.groupImage}
-          />
-        ) : (
-          <View style={styles.placeholderContainer}>
-            <SvgGifteeNotifyIcon width={scaleWithMax(50, 55)} height={scaleWithMax(50, 55)} />
-          </View>
-        )}
+        <View style={{ position: 'relative' }}>
+          {isGroupImage ? (
+            <Image
+              source={
+                typeof isGroupImage === 'string'
+                  ? { uri: isGroupImage }
+                  : isGroupImage
+              }
+              style={styles.groupImage}
+            />
+          ) : (
+            <View style={styles.placeholderContainer}>
+              <SvgGifteeNotifyIcon width={scaleWithMax(50, 55)} height={scaleWithMax(50, 55)} />
+            </View>
+          )}
+          {!isSeen && <View style={styles.unreadDot} />}
+        </View>
         {isLink && <SvgGiftLink />}
         {icon && icon}
         {renderTitle()}
@@ -87,7 +93,7 @@ const NotificationItem = ({
 
 const useStyles = () => {
   const theme = useTheme();
-  const { isRtl } = useLocaleStore();
+  const { isRtl, langCode } = useLocaleStore();
 
   const styles = useMemo(() => {
     const { colors, sizes } = theme;
@@ -107,7 +113,7 @@ const useStyles = () => {
         position: 'relative',
       },
       contentContainer: {
-        flexDirection: isRtl ? 'row-reverse' : 'row',
+        flexDirection: 'row',
         alignItems: 'center',
         gap: 10,
         flex: 1,
@@ -118,7 +124,7 @@ const useStyles = () => {
         fontSize: scaleWithMax(13, 14),
         color: colors.PRIMARY_TEXT,
         flex: 1,
-        textAlign: isRtl ? 'right' : 'left',
+        textAlign: "left",
       },
       boldText: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
@@ -138,15 +144,28 @@ const useStyles = () => {
       timeContainer: {
         position: 'absolute',
         top: theme.sizes.HEIGHT * 0.005,
-        ...(isRtl
-          ? { left: theme.sizes.PADDING * 0.5 }
-          : { right: theme.sizes.PADDING * 0.5 }),
+        // ...(langCode === 'ar'
+        //   ? { left: theme.sizes.PADDING * 0.5 }
+        //   : { right: theme.sizes.PADDING * 0.5 }),
         zIndex: 1,
+        end: theme.sizes.PADDING * 0.5,
       },
       timeText: {
         ...theme.globalStyles.TEXT_STYLE,
         fontSize: theme.sizes.FONTSIZE_SMALL,
         color: '#A0A0A0',
+      },
+      unreadDot: {
+        width: scaleWithMax(11, 13),
+        height: scaleWithMax(11, 13),
+        borderRadius: 999,
+        backgroundColor: colors.PRIMARY,
+        position: 'absolute',
+        top: scaleWithMax(1, 2),
+        right: scaleWithMax(1, 2),
+        borderWidth: 1.5,
+        borderColor: colors.WHITE,
+        zIndex: 2,
       },
     });
   }, [theme, isRtl]);
