@@ -1,5 +1,11 @@
-import React, { useState, useCallback } from 'react';
-import { View, StatusBar, FlatList, TouchableOpacity } from 'react-native';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import {
+  View,
+  StatusBar,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -41,6 +47,7 @@ const OccasionsScreen: React.FC = () => {
   const [expandedOccasionId, setExpandedOccasionId] = useState<number | null>(
     null,
   );
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const {
     loading,
     occasionsLoading,
@@ -79,19 +86,34 @@ const OccasionsScreen: React.FC = () => {
     }, [selectedOccasion.occasionType, selectedOccasion.id])
   );
 
+  useEffect(() => {
+    if (isRefreshing && !occasionsLoading) {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, occasionsLoading]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    fetchOccasions();
+  };
+
   const confirmDeleteOccasion = () => {
     if (!occasionToDelete) return;
 
     const occasion = occasionToDelete;
     setShowDeleteModal(false);
     handleDeleteOccasion(occasion.OccassionId);
-    setOccasionToDelete(null);
+    setTimeout(() => setOccasionToDelete(null), 300);
   };
 
-  const validationSchema = Yup.object().shape({
-    occasionName: Yup.string().required('required'),
-    occasionDate: Yup.date().required('required'),
-  });
+  const validationSchema = useMemo(
+    () =>
+      Yup.object().shape({
+        occasionName: Yup.string().required(getString('OCCASIONS_REQUIRED')),
+        occasionDate: Yup.date().required(getString('OCCASIONS_REQUIRED')),
+      }),
+    [getString],
+  );
 
   return (
     <View style={styles.container}>
@@ -127,7 +149,7 @@ const OccasionsScreen: React.FC = () => {
       />
       {selectedOccasion.occasionType === 'none' && (
         <>
-          {occasionsLoading ? (
+          {occasionsLoading && !isRefreshing ? (
             <View style={styles.content}>
               <SkeletonLoader screenType="occasionList" />
             </View>
@@ -151,9 +173,17 @@ const OccasionsScreen: React.FC = () => {
               keyExtractor={item => item.OccassionId.toString()}
               contentContainerStyle={styles.content}
               showsVerticalScrollIndicator={false}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                  tintColor={theme.colors.PRIMARY}
+                  colors={[theme.colors.PRIMARY]}
+                />
+              }
               ListEmptyComponent={
                 <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
-                  <PlaceholderLogoText text={'No occasions found'} />
+                  <PlaceholderLogoText text={getString('OCCASIONS_NO_OCCASIONS_FOUND')} />
                 </View>
               }
               renderItem={({ item }: { item: Occasion }) => {
@@ -425,14 +455,20 @@ const OccasionsScreen: React.FC = () => {
 
       <ConfirmationPopup
         visible={showDeleteModal}
-        title="Delete Occasion"
-        message={`Are you sure you want to delete "${occasionToDelete?.NameEn}"?`}
-        confirmText="Delete"
+        title={getString('OCCASIONS_DELETE_OCCASION')}
+        message={
+          occasionToDelete?.NameEn
+            ? `${getString('OCCASIONS_DELETE_CONFIRM_MESSAGE')} "${
+                occasionToDelete.NameEn
+              }"?`
+            : getString('OCCASIONS_DELETE_CONFIRM_MESSAGE')
+        }
+        confirmText={getString('OCCASIONS_DELETE')}
         cancelText={getString('NG_CANCEL') || 'Cancel'}
         onConfirm={confirmDeleteOccasion}
         onCancel={() => {
           setShowDeleteModal(false);
-          setOccasionToDelete(null);
+          setTimeout(() => setOccasionToDelete(null), 300);
         }}
       />
     </View>

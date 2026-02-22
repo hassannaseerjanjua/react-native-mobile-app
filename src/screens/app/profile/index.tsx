@@ -89,11 +89,11 @@ const ProfileScreen: React.FC = () => {
         },
         android: {
           message: shareMessage,
-          title: 'Gift link',
+          title: getString('PROFILE_GIFT_LINK_TITLE'),
         },
       }) || {
         message: shareMessage,
-        title: 'Gift link',
+        title: getString('PROFILE_GIFT_LINK_TITLE'),
       };
 
       const result = await Share.share(shareOptions);
@@ -219,11 +219,11 @@ const ProfileScreen: React.FC = () => {
     },
     {
       id: 'friends',
-      title: isMerchant ? 'My Employees' : getString('MF_MY_FRIENDS'),
+      title: isMerchant ? getString('PROFILE_MY_EMPLOYEES') : getString('MF_MY_FRIENDS'),
       icon: <SvgProfileFriends />,
       onPress: () => {
         (navigation as any).navigate('Search', {
-          title: isMerchant ? 'My Employees' : getString('MF_MY_FRIENDS'),
+          title: isMerchant ? getString('PROFILE_MY_EMPLOYEES') : getString('MF_MY_FRIENDS'),
           ...(isMerchant ? { showEmployeesOnly: true } : { showFriendsOnly: true }),
         });
       },
@@ -510,14 +510,14 @@ const ProfileScreen: React.FC = () => {
       >
         <View style={screenStyles.bottomSheet}>
           <CustomButton
-            title={user?.ProfileUrl ? 'Change Photo' : 'Add Photo'}
+            title={user?.ProfileUrl ? getString('PROFILE_CHANGE_PHOTO') : getString('PROFILE_ADD_PHOTO')}
             onPress={handleChangePhoto}
             disabled={isUploading}
             loading={isUploading}
           />
           {user?.ProfileUrl && (
             <CustomButton
-              title="Remove Photo"
+              title={getString('PROFILE_REMOVE_PHOTO')}
               type="secondary"
               onPress={handleRemovePhoto}
               disabled={isUploading}

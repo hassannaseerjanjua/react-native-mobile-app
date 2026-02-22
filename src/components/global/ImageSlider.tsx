@@ -13,6 +13,7 @@ import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
 import { SvgPlaceholderImage } from '../../assets/icons';
 import { isIOS, isIOSThen } from '../../utils';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface ImageSliderProps {
   sliders?: Slider[] | undefined;
@@ -26,6 +27,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
   error,
 }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const [currentIndex, setCurrentIndex] = useState(0);
   const flatListRef = useRef<FlatList>(null);
   const { colors } = useTheme();
@@ -94,7 +96,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
   if (error) {
     return (
       <View style={[styles.container, styles.stateContainer]}>
-        <Text style={styles.stateText}>Failed to load images</Text>
+        <Text style={styles.stateText}>{getString('COMP_IMAGE_LOAD_FAILED')}</Text>
       </View>
     );
   }
@@ -102,7 +104,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
   if (sliders?.length === 0) {
     return (
       <View style={[styles.container, styles.stateContainer]}>
-        <Text style={styles.stateText}>No images found</Text>
+        <Text style={styles.stateText}>{getString('COMP_NO_IMAGES_FOUND')}</Text>
       </View>
     );
   }
@@ -222,10 +224,11 @@ const useStyles = () => {
           backgroundColor: '#f0f0f0',
           justifyContent: 'center',
           alignItems: 'center',
-          width: '100%',
+          width: theme.sizes.PADDED_WIDTH,
           height: '100%',
           borderRadius: theme.sizes.BORDER_RADIUS_MID,
           overflow: 'hidden',
+          alignSelf: 'center',
         },
         placeholderOuter: {
           paddingHorizontal: theme.sizes.PADDING,

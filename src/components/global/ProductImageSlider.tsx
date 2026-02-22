@@ -15,6 +15,7 @@ import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
 import { SvgPlaceholderImage } from '../../assets/icons';
 import { isIOS, isIOSThen } from '../../utils';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface ImageSliderProps {
   sliders?: ImageSourcePropType[] | undefined;
@@ -30,6 +31,7 @@ const ProductImageSlider: React.FC<ImageSliderProps> = ({
   contentContainerStyle,
 }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollViewRef = useRef<ScrollView>(null);
   const { colors } = useTheme();
@@ -73,7 +75,7 @@ const ProductImageSlider: React.FC<ImageSliderProps> = ({
   if (error) {
     return (
       <View style={[styles.container, styles.stateContainer]}>
-        <Text style={styles.stateText}>Failed to load images</Text>
+        <Text style={styles.stateText}>{getString('COMP_IMAGE_LOAD_FAILED')}</Text>
       </View>
     );
   }
@@ -81,7 +83,7 @@ const ProductImageSlider: React.FC<ImageSliderProps> = ({
   if (sliders?.length === 0) {
     return (
       <View style={[styles.container, styles.stateContainer]}>
-        <Text style={styles.stateText}>No images found</Text>
+        <Text style={styles.stateText}>{getString('COMP_NO_IMAGES_FOUND')}</Text>
       </View>
     );
   }

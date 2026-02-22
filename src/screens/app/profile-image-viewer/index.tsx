@@ -211,7 +211,7 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
     <ParentView style={screenStyles.container}>
       <View style={{ zIndex: 10, elevation: 10 }}>
         <HomeHeader
-          title={title || 'Profile Picture'}
+          title={title || getString('PROFILE_IMAGE_VIEWER_TITLE')}
           showBackButton
           onBackPress={() => !isUploading && navigation.goBack()}
           rightSideView={
@@ -288,13 +288,13 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
 
       <ConfirmationPopup
         visible={showDeleteConfirmation}
-        title={isOccasionMode ? 'Delete Image' : 'Delete Photo'}
+        title={isOccasionMode ? getString('PROFILE_IMAGE_VIEWER_DELETE_IMAGE') : getString('PROFILE_IMAGE_VIEWER_DELETE_PHOTO')}
         message={
           isOccasionMode
-            ? 'Are you sure you want to delete this occasion image?'
-            : 'Are you sure you want to delete this photo?'
+            ? getString('PROFILE_IMAGE_VIEWER_DELETE_OCCASION_IMAGE_CONFIRM')
+            : getString('PROFILE_IMAGE_VIEWER_DELETE_PHOTO_CONFIRM')
         }
-        confirmText="Delete"
+        confirmText={getString('PROFILE_IMAGE_VIEWER_DELETE')}
         cancelText={getString('NG_CANCEL') || 'Cancel'}
         onConfirm={handleRemovePhoto}
         onCancel={() => setShowDeleteConfirmation(false)}

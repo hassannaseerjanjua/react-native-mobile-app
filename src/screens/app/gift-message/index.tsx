@@ -976,7 +976,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             >
               <ActivityIndicator size="large" color="#F72E50" />
               <Text style={{ color: '#FFF', marginTop: 16 }}>
-                Loading Camera...
+                {getString('GIFT_MESSAGE_LOADING_CAMERA')}
               </Text>
             </View>
           )}
@@ -1021,7 +1021,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             }
             confirmText={
               sendMessagePayload.VideoFile
-                ? 'Remove Video'
+                ? getString('GIFT_MESSAGE_REMOVE_VIDEO')
                 : getString('GIFT_MESSAGE_FROM_GALLERY')
             }
             cancelText={
@@ -1299,7 +1299,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           flex: 1,
                         }}
                       >
-                        <PlaceholderLogoText text="No filters available" />
+                        <PlaceholderLogoText text={getString('GIFT_MESSAGE_NO_FILTERS_AVAILABLE')} />
                       </View>
                     }
                     contentContainerStyle={styles.filtersScrollContent}
@@ -1328,7 +1328,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   }}
                   style={styles.doneButton}
                 >
-                  <Text style={styles.doneButtonText}>Done</Text>
+                  <Text style={styles.doneButtonText}>{getString('GIFT_MESSAGE_DONE')}</Text>
                 </TouchableOpacity>
               </View>
             </InputAccessoryView>

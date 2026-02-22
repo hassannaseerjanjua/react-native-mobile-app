@@ -6,6 +6,7 @@ import ParentView from './ParentView';
 import useTheme from '../../styles/theme';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Text } from '../../utils/elements';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 import useTrimmer from './Timmer';
 import { fileUriWrapper, scaleWithMax } from '../../utils';
@@ -24,6 +25,7 @@ const ViewTrimmer = ({
   onCancel = () => { },
 }: ViewTrimmerProps) => {
   const theme = useTheme();
+  const { getString } = useLocaleStore();
   const videoRef = useRef<VideoRef | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [duration, setDuration] = useState<null | number>(null);
@@ -220,7 +222,7 @@ const ViewTrimmer = ({
             alignItems: 'flex-start',
           }}
         >
-          <Text style={{ color: theme.colors.SECONDARY_TEXT }}>Cancel</Text>
+          <Text style={{ color: theme.colors.SECONDARY_TEXT }}>{getString('COMP_CANCEL')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -237,7 +239,7 @@ const ViewTrimmer = ({
             opacity: isSaving ? 0.5 : 1,
           }}
         >
-          <Text style={{ color: '#fff' }}>{isPlaying ? 'Pause' : 'Play'}</Text>
+          <Text style={{ color: '#fff' }}>{isPlaying ? getString('COMP_PAUSE') : getString('COMP_PLAY')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -252,7 +254,7 @@ const ViewTrimmer = ({
             alignItems: 'flex-end',
           }}
         >
-          <Text style={{ color: theme.colors.PRIMARY }}>Save</Text>
+          <Text style={{ color: theme.colors.PRIMARY }}>{getString('COMP_SAVE')}</Text>
         </TouchableOpacity>
       </View>
     </ParentView>

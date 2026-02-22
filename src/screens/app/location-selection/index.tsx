@@ -30,9 +30,13 @@ const LocationSelection: React.FC = () => {
   const [giftPlaced, setGiftPlaced] = useState(false);
   const navigation = useNavigation();
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const validationSchema = Yup.object().shape({
-    address: Yup.string().required('Address is required'),
-  });
+  const validationSchema = useMemo(
+    () =>
+      Yup.object().shape({
+        address: Yup.string().required(getString('LOCATION_ADDRESS_REQUIRED')),
+      }),
+    [getString],
+  );
 
   const snapPoints = useMemo(() => ['15%', '50%', '75%'], []);
 
@@ -73,7 +77,7 @@ const LocationSelection: React.FC = () => {
     <ParentView>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
-          <HomeHeader title="Select Location" showBackButton />
+          <HomeHeader title={getString('LOCATION_SELECT_LOCATION')} showBackButton />
           <View style={{ flex: 1, position: 'relative' }}>
             <DummyLocationSvg
               width={theme.sizes.WIDTH}
@@ -115,7 +119,7 @@ const LocationSelection: React.FC = () => {
                     <LocationArrowSvg />
                   </View>
                 </View>
-                <Text style={styles.bottomSheetHeading}>Delivery Location</Text>
+                <Text style={styles.bottomSheetHeading}>{getString('LOCATION_DELIVERY_LOCATION')}</Text>
                 <Text style={styles.bottomSheetDescription}>
                   1107.5 KM. Gulshan - e - Maymar 1107.5 KM. Gulshan - e -
                   Maymar
@@ -127,9 +131,9 @@ const LocationSelection: React.FC = () => {
                   }}
                 />
 
-                <Text style={styles.bottomSheetHeading}>Address Details</Text>
+                <Text style={styles.bottomSheetHeading}>{getString('LOCATION_ADDRESS_DETAILS')}</Text>
                 <Text style={styles.bottomSheetDescription}>
-                  Your Address details will be given to rider.
+                  {getString('LOCATION_ADDRESS_DETAILS_MESSAGE')}
                 </Text>
                 <Formik
                   initialValues={initialValues}
@@ -156,7 +160,7 @@ const LocationSelection: React.FC = () => {
                           backgroundColor: theme.colors.WHITE,
                         }}
                         fieldProps={{
-                          placeholder: 'Ex: villa - appartment number',
+                          placeholder: getString('LOCATION_ADDRESS_PLACEHOLDER'),
                           value: formik.values.address,
                           onChangeText: (value: string) => {
                             formik.setFieldValue('address', value);
@@ -165,7 +169,7 @@ const LocationSelection: React.FC = () => {
                         }}
                       />
                       <CustomButton
-                        title="Done"
+                        title={getString('LOCATION_DONE')}
                         onPress={() => formik.submitForm()}
                       />
                     </View>

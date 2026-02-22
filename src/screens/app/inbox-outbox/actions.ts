@@ -18,7 +18,10 @@ import {
 const defaultProfileImage = require('../../../assets/images/user.png');
 const defaultItemImage = require('../../../assets/images/img-placeholder.png');
 
-export const formatRelativeTime = (dateString: string): string => {
+export const formatRelativeTime = (
+  dateString: string,
+  getString: (key: any) => string,
+): string => {
   if (!dateString) return 'N/A';
 
   const date = new Date(dateString);
@@ -35,24 +38,24 @@ export const formatRelativeTime = (dateString: string): string => {
   const diffInYears = Math.floor(diffInDays / 365);
 
   if (diffInYears > 0) {
-    return `${diffInYears} ${diffInYears === 1 ? 'year' : 'years'} ago`;
+    return `${diffInYears} ${getString(diffInYears === 1 ? 'INBOX_TIME_YEAR_ONE' : 'INBOX_TIME_YEAR_OTHER')}`;
   }
   if (diffInMonths > 0) {
-    return `${diffInMonths} ${diffInMonths === 1 ? 'month' : 'months'} ago`;
+    return `${diffInMonths} ${getString(diffInMonths === 1 ? 'INBOX_TIME_MONTH_ONE' : 'INBOX_TIME_MONTH_OTHER')}`;
   }
   if (diffInWeeks > 0) {
-    return `${diffInWeeks} ${diffInWeeks === 1 ? 'week' : 'weeks'} ago`;
+    return `${diffInWeeks} ${getString(diffInWeeks === 1 ? 'INBOX_TIME_WEEK_ONE' : 'INBOX_TIME_WEEK_OTHER')}`;
   }
   if (diffInDays > 0) {
-    return `${diffInDays} ${diffInDays === 1 ? 'day' : 'days'} ago`;
+    return `${diffInDays} ${getString(diffInDays === 1 ? 'INBOX_TIME_DAY_ONE' : 'INBOX_TIME_DAY_OTHER')}`;
   }
   if (diffInHours > 0) {
-    return `${diffInHours} ${diffInHours === 1 ? 'hour' : 'hours'} ago`;
+    return `${diffInHours} ${getString(diffInHours === 1 ? 'INBOX_TIME_HOUR_ONE' : 'INBOX_TIME_HOUR_OTHER')}`;
   }
   if (diffInMinutes > 0) {
-    return `${diffInMinutes} ${diffInMinutes === 1 ? 'minute' : 'minutes'} ago`;
+    return `${diffInMinutes} ${getString(diffInMinutes === 1 ? 'INBOX_TIME_MINUTE_ONE' : 'INBOX_TIME_MINUTE_OTHER')}`;
   }
-  return 'Just now';
+  return getString('INBOX_TIME_JUST_NOW');
 };
 
 export const getProfileImage = (
@@ -329,7 +332,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
     const currentSelectedOrder = overrideSelectedOrder ?? selectedOrder;
 
     if (!currentSelectedOrder || !currentOrderId) {
-      notify.error('Order information is missing');
+      notify.error(getString('INBOX_ORDER_INFO_MISSING'));
       return;
     }
 
@@ -390,7 +393,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
     }
 
     if (items.length === 0) {
-      notify.error('Please select at least one item');
+      notify.error(getString('INBOX_SELECT_AT_LEAST_ONE_ITEM'));
       return;
     }
 
@@ -546,7 +549,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
   const handleVideoPress = (order: InboxOrder) => {
     const profileImage = getProfileImage(order, isInbox);
     const userName = getUserName(order, isInbox);
-    const timeAgo = formatRelativeTime(order.OrderTime);
+    const timeAgo = formatRelativeTime(order.OrderTime, getString);
 
     const filterImageUrl =
       order.OrderFilterId && filterMap.has(order.OrderFilterId)
@@ -636,11 +639,11 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
         },
         android: {
           message: shareMessage,
-          title: 'Gift link',
+          title: getString('INBOX_GIFT_LINK_TITLE'),
         },
       }) || {
         message: shareMessage,
-        title: 'Gift link',
+        title: getString('INBOX_GIFT_LINK_TITLE'),
       };
 
       await Share.share(shareOptions);

@@ -28,6 +28,7 @@ import { scaleWithMax } from '../../utils';
 import { getCachedVideoPath } from '../../utils/videoCache';
 import { isVideoPreloaded } from '../../utils/videoPreloader';
 import useTheme from '../../styles/theme';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window');
 
@@ -67,6 +68,7 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
     ref,
   ) => {
     const { styles } = useStyles();
+    const { getString } = useLocaleStore();
     const videoRef = useRef<any>(null);
     const preloadVideoRef = useRef<any>(null);
     const progressAnim = useRef(new Animated.Value(0)).current;
@@ -571,7 +573,7 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
                       <Text style={styles.userName}>{userName}</Text>
                       {
                         <Text style={styles.timeAgo} onPress={onRemove}>
-                          Remove
+                          {getString('COMP_REMOVE')}
                         </Text>
                       }
                     </View>

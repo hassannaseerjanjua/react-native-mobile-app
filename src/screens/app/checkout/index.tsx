@@ -520,7 +520,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     const isLastItem = remainingItemsCount <= 0;
 
     if (!itemParam) {
-      setItemToRemove(null);
+      setTimeout(() => setItemToRemove(null), 300);
     }
 
     // If it's the last item(s), use clear cart API instead of remove item API
@@ -1942,13 +1942,17 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <ConfirmationPopup
         visible={!!itemToRemove}
         title={getString('CHECKOUT_REMOVE_ITEM')}
-        message={`${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${
+        message={
           itemToRemove?.ItemName
-        }" ${getString('CHECKOUT_FROM_CART')}`}
+            ? `${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${
+                itemToRemove.ItemName
+              }" ${getString('CHECKOUT_FROM_CART')}`
+            : getString('CHECKOUT_REMOVE_ITEM_CONFIRM')
+        }
         confirmText={getString('CHECKOUT_REMOVE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={() => handleRemoveItem()}
-        onCancel={() => setItemToRemove(null)}
+        onCancel={() => setTimeout(() => setItemToRemove(null), 300)}
       />
 
       {/* Payment WebView Modal */}

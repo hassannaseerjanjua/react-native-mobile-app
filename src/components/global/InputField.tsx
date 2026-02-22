@@ -32,7 +32,7 @@ const InputField = ({
   isOccasion,
 }: Props) => {
   const { theme, styles } = useStyles();
-  const { isRtl } = useLocaleStore();
+  const { isRtl, getString } = useLocaleStore();
   const isMultiline = fieldProps.multiline;
 
   return (
@@ -78,7 +78,7 @@ const InputField = ({
             width={scaleWithMax(15, 18)}
             height={scaleWithMax(15, 18)}
           />
-          <Text style={styles.galleryUploadText}>{'Upload'}</Text>
+          <Text style={styles.galleryUploadText}>{getString('COMP_UPLOAD')}</Text>
         </View>
       )}
       {!!error && (

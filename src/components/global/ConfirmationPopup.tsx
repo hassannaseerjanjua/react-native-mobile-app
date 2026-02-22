@@ -8,6 +8,7 @@ import {
 import useTheme from '../../styles/theme';
 import CustomButton from './Custombutton';
 import { Text } from '../../utils/elements';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface ConfirmationPopupProps {
   visible: boolean;
@@ -24,13 +25,14 @@ const ConfirmationPopup: React.FC<ConfirmationPopupProps> = ({
   visible,
   title,
   message,
-  confirmText = 'Confirm',
-  cancelText = 'Cancel',
+  confirmText = '',
+  cancelText = '',
   onConfirm,
   onCancel,
   loading = false,
 }) => {
   const { styles, theme } = useStyles();
+  const { getString } = useLocaleStore();
 
   const handleCancel = () => {
     if (!loading) {
@@ -59,14 +61,14 @@ const ConfirmationPopup: React.FC<ConfirmationPopupProps> = ({
               <Text style={styles.message}>{message}</Text>
               <View style={styles.buttonContainer}>
                 <CustomButton
-                  title={cancelText}
+                  title={cancelText || getString('COMP_CANCEL')}
                   type="secondary"
                   onPress={handleCancel}
                   disabled={loading}
                   buttonStyle={styles.cancelButton}
                 />
                 <CustomButton
-                  title={confirmText}
+                  title={confirmText || getString('COMP_CONFIRM')}
                   onPress={onConfirm}
                   loading={loading}
                   disabled={loading}

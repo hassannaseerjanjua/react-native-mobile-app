@@ -1,5 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, StatusBar, FlatList, TouchableOpacity } from 'react-native';
+import {
+  View,
+  StatusBar,
+  FlatList,
+  TouchableOpacity,
+  RefreshControl,
+} from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
@@ -53,6 +59,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     {},
   );
   const [showCityPicker, setShowCityPicker] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Log received route parameters
   useEffect(() => {
@@ -167,6 +174,19 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       },
     },
   );
+
+  useEffect(() => {
+    if (isRefreshing && !storeListApi.loading && !businessTypeApi.loading) {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, storeListApi.loading, businessTypeApi.loading]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    storeListApi.recall();
+    businessTypeApi.refetch?.();
+    citiesApi.refetch?.();
+  };
 
   useEffect(() => {
     if (storeListApi.data) {
@@ -297,7 +317,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         />
 
         <View style={styles.content}>
-          {storeListApi.loading || businessTypeApi.loading ? (
+          {(storeListApi.loading || businessTypeApi.loading) && !isRefreshing ? (
             <View
               style={{
                 paddingHorizontal: theme.sizes.PADDING,
@@ -313,6 +333,14 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                   paddingBottom: theme.sizes.HEIGHT * 0.16,
                   paddingHorizontal: theme.sizes.PADDING,
                 }}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                    tintColor={theme.colors.PRIMARY}
+                    colors={[theme.colors.PRIMARY]}
+                  />
+                }
                 ListHeaderComponent={() => (
                   <View style={styles.tabsContainer}>
                     <GroupTabs

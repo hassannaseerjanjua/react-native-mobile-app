@@ -6,6 +6,7 @@ import {
   Share,
   Platform,
   TouchableOpacity,
+  RefreshControl,
 } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -57,6 +58,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     visible: false,
     loading: false,
     userId: null as number | null,
+    userName: null as string | null,
     isLinkedToGroup: false,
   });
   const [tempAddedUserIds, setTempAddedUserIds] = useState<Set<number>>(
@@ -69,6 +71,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     Record<string, VerifiedUser>
   >({});
   const [verifyingContacts, setVerifyingContacts] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const activeUsersApi = useListingApi<ActiveUser>(
     showEmployeesOnly ? '' : apiEndpoints.GET_ACTIVE_USERS,
@@ -115,6 +118,44 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       setMobileContacts([]);
     }
   }, [showConnectOnly]);
+
+  useEffect(() => {
+    if (!isRefreshing) return;
+    if (showConnectOnly) {
+      if (!loadingContacts && !verifyingContacts) {
+        setIsRefreshing(false);
+      }
+      return;
+    }
+    if (showEmployeesOnly) {
+      if (!employeesApi.loading) {
+        setIsRefreshing(false);
+      }
+      return;
+    }
+    if (!activeUsersApi.loading) {
+      setIsRefreshing(false);
+    }
+  }, [
+    isRefreshing,
+    showConnectOnly,
+    showEmployeesOnly,
+    loadingContacts,
+    verifyingContacts,
+    employeesApi.loading,
+    activeUsersApi.loading,
+  ]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    if (showConnectOnly) {
+      loadMobileContacts();
+    } else if (showEmployeesOnly) {
+      employeesApi.recall();
+    } else {
+      activeUsersApi.recall();
+    }
+  };
 
   // Format phone number with + prefix
   const formatPhoneNumber = (phone: string): string => {
@@ -192,9 +233,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       const formattedPhone = phoneNumber.replace(/[^\d]/g, ''); // Remove + and other chars
 
       // Generate invite message
-      const inviteMessage = `🎁 Join me on Giftee! Download the app and let's exchange gifts.\n\nhttps://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId=${
-        user?.UserId || ''
-      }&CityId=${user?.CityId || ''}&sendType=1`;
+      const inviteMessage = getString('SEARCH_INVITE_MESSAGE');
 
       // Use Share API to show bottom sheet with all sharing options
       const shareOptions = Platform.select({
@@ -204,13 +243,13 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         android: {
           message: inviteMessage,
           title: contactName
-            ? `Invite ${contactName} to Giftee`
+            ? `${contactName} - ${getString('SEARCH_INVITE_TITLE')}`
             : getString('C_INVITE') || 'Invite to Giftee',
         },
       }) || {
         message: inviteMessage,
         title: contactName
-          ? `Invite ${contactName} to Giftee`
+          ? `${contactName} - ${getString('SEARCH_INVITE_TITLE')}`
           : getString('C_INVITE') || 'Invite to Giftee',
       };
 
@@ -301,11 +340,15 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         apiEndpoints.CHECK_USER_LINKED_WITH_GROUP(userId),
       );
       const isLinked = (res.data as any)?.Data || false;
+      const userName =
+        activeUsersApi.data?.find((u: any) => u.UserId === userId)?.FullName ||
+        null;
 
       setUnfriendModal({
         visible: true,
         loading: false,
         userId,
+        userName,
         isLinkedToGroup: isLinked,
       });
     } catch (err: any) {
@@ -321,12 +364,18 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
 
     try {
       await api.put(apiEndpoints.UNFRIEND_USER(user?.UserId, userId));
-      setUnfriendModal({
-        visible: false,
-        loading: false,
-        userId: null,
-        isLinkedToGroup: false,
-      });
+      setUnfriendModal(prev => ({ ...prev, visible: false, loading: false }));
+      setTimeout(
+        () =>
+          setUnfriendModal({
+            visible: false,
+            loading: false,
+            userId: null,
+            userName: null,
+            isLinkedToGroup: false,
+          }),
+        300,
+      );
 
       activeUsersApi.recall();
     } catch (err: any) {
@@ -437,13 +486,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               const isEmpty = filteredContacts.length === 0;
 
               return (
-                <View
+                <FlatList
                   style={[styles.listCard, isEmpty && styles.listCardEmpty]}
-                >
-                  <FlatList
-                    data={filteredContacts}
-                    keyExtractor={item => item.UserId.toString()}
-                    renderItem={({ item, index }) => {
+                  data={filteredContacts}
+                  keyExtractor={item => item.UserId.toString()}
+                  renderItem={({ item, index }) => {
                       const phoneNo = item.PhoneNo || '';
                       const formattedPhone = formatPhoneNumber(phoneNo);
                       const verified = verifiedUsers[formattedPhone];
@@ -465,7 +512,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                           tempAddedUserIds={tempAddedUserIds}
                           isGeneralSearchScreen={false}
                           // Pass custom button text for invite
-                          customButtonText={!isAppUser ? 'Invite' : undefined}
+                          customButtonText={!isAppUser ? getString('SEARCH_INVITE') : undefined}
                           onCustomButtonPress={
                             !isAppUser
                               ? () => handleContactAction(item)
@@ -473,29 +520,36 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                           }
                         />
                       );
-                    }}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                      <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
-                        <PlaceholderLogoText
-                          text={getString('SEARCH_NO_USERS_FOUND')}
-                        />
+                  }}
+                  showsVerticalScrollIndicator={false}
+                  ListEmptyComponent={
+                    <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
+                      <PlaceholderLogoText
+                        text={getString('SEARCH_NO_USERS_FOUND')}
+                      />
+                    </View>
+                  }
+                  contentContainerStyle={styles.listContainer}
+                  ListFooterComponent={
+                    loadingContacts || verifyingContacts ? (
+                      <View style={{ padding: 20, alignItems: 'center' }}>
+                        <Text>
+                          {verifyingContacts
+                            ? getString('SEARCH_VERIFYING_CONTACTS')
+                            : getString('SEARCH_LOADING_CONTACTS')}
+                        </Text>
                       </View>
-                    }
-                    contentContainerStyle={styles.listContainer}
-                    ListFooterComponent={
-                      loadingContacts || verifyingContacts ? (
-                        <View style={{ padding: 20, alignItems: 'center' }}>
-                          <Text>
-                            {verifyingContacts
-                              ? 'Verifying contacts...'
-                              : 'Loading contacts...'}
-                          </Text>
-                        </View>
-                      ) : null
-                    }
-                  />
-                </View>
+                    ) : null
+                  }
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={isRefreshing}
+                      onRefresh={handleRefresh}
+                      tintColor={theme.colors.PRIMARY}
+                      colors={[theme.colors.PRIMARY]}
+                    />
+                  }
+                />
               );
             }
 
@@ -506,44 +560,51 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
             const isEmpty = !filteredData || filteredData.length === 0;
 
             return (
-              <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
-                <FlatList
-                  data={filteredData}
-                  keyExtractor={item => item.UserId.toString()}
-                  renderItem={({ item, index }) => (
-                    <SearchUserItem
-                      item={item}
-                      index={index}
-                      isLast={index === (filteredData?.length ?? 0) - 1}
-                      updatedUsers={updatedUsers}
-                      loadingUsers={loadingUsers}
-                      handleAddUser={showEmployeesOnly ? undefined : handleAddUser}
-                      showAddButton={!showEmployeesOnly}
-                      tempAddedUserIds={tempAddedUserIds}
-                      isGeneralSearchScreen={
-                        !showFriendsOnly &&
-                        !showConnectOnly &&
-                        !showEmployeesOnly
-                      }
+              <FlatList
+                style={[styles.listCard, isEmpty && styles.listCardEmpty]}
+                data={filteredData}
+                keyExtractor={item => item.UserId.toString()}
+                renderItem={({ item, index }) => (
+                  <SearchUserItem
+                    item={item}
+                    index={index}
+                    isLast={index === (filteredData?.length ?? 0) - 1}
+                    updatedUsers={updatedUsers}
+                    loadingUsers={loadingUsers}
+                    handleAddUser={showEmployeesOnly ? undefined : handleAddUser}
+                    showAddButton={!showEmployeesOnly}
+                    tempAddedUserIds={tempAddedUserIds}
+                    isGeneralSearchScreen={
+                      !showFriendsOnly &&
+                      !showConnectOnly &&
+                      !showEmployeesOnly
+                    }
+                  />
+                )}
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.listContainer}
+                ListEmptyComponent={
+                  <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
+                    <PlaceholderLogoText
+                      text={getString('SEARCH_NO_USERS_FOUND')}
                     />
-                  )}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.listContainer}
-                  ListEmptyComponent={
-                    <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
-                      <PlaceholderLogoText
-                        text={getString('SEARCH_NO_USERS_FOUND')}
-                      />
-                    </View>
-                  }
-                  onEndReached={
-                    showEmployeesOnly
-                      ? employeesApi.loadMore
-                      : activeUsersApi.loadMore
-                  }
-                  onEndReachedThreshold={0.5}
-                />
-              </View>
+                  </View>
+                }
+                onEndReached={
+                  showEmployeesOnly
+                    ? employeesApi.loadMore
+                    : activeUsersApi.loadMore
+                }
+                onEndReachedThreshold={0.5}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                    tintColor={theme.colors.PRIMARY}
+                    colors={[theme.colors.PRIMARY]}
+                  />
+                }
+              />
             );
           })()
         )}
@@ -555,6 +616,10 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         message={
           unfriendModal.isLinkedToGroup
             ? getString('SEARCH_USER_LINKED_TO_GROUPS_MESSAGE')
+            : unfriendModal.userName
+            ? `${getString('SEARCH_ARE_YOU_SURE_UNFRIEND')} "${
+                unfriendModal.userName
+              }"?`
             : getString('SEARCH_ARE_YOU_SURE_UNFRIEND')
         }
         confirmText={getString('SEARCH_YES')}
@@ -562,14 +627,20 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         onConfirm={() =>
           unfriendModal.userId && unfriendUser(unfriendModal.userId)
         }
-        onCancel={() =>
-          setUnfriendModal({
-            visible: false,
-            loading: false,
-            userId: null,
-            isLinkedToGroup: false,
-          })
-        }
+        onCancel={() => {
+          setUnfriendModal(prev => ({ ...prev, visible: false }));
+          setTimeout(
+            () =>
+              setUnfriendModal({
+                visible: false,
+                loading: false,
+                userId: null,
+                userName: null,
+                isLinkedToGroup: false,
+              }),
+            300,
+          );
+        }}
         loading={unfriendModal.loading}
       />
     </ParentView>

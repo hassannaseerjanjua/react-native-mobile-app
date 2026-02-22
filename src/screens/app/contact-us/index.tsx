@@ -67,13 +67,13 @@ const ContactUsScreen: React.FC = () => {
       } else {
         Alert.alert(
           getString('CU_CONTACT_US') || 'Contact Us',
-          'WhatsApp is not installed on your device.',
+          getString('CONTACT_US_WHATSAPP_NOT_INSTALLED'),
         );
       }
     } catch (error) {
       Alert.alert(
         getString('AU_ERROR_OCCURRED') || 'Error',
-        'Unable to open WhatsApp. Please try again.',
+          getString('CONTACT_US_UNABLE_OPEN_WHATSAPP'),
       );
     }
   };

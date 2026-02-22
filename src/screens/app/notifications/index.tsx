@@ -1,5 +1,12 @@
-import React, { useCallback, useMemo } from 'react';
-import { View, StatusBar, FlatList, ActivityIndicator, DeviceEventEmitter } from 'react-native';
+import React, { useCallback, useMemo, useState, useEffect } from 'react';
+import {
+  View,
+  StatusBar,
+  FlatList,
+  ActivityIndicator,
+  DeviceEventEmitter,
+  RefreshControl,
+} from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -54,6 +61,19 @@ const NotificationsScreen: React.FC = () => {
     },
   );
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (isRefreshing && !notificationsApi.loading) {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, notificationsApi.loading]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    notificationsApi.recall(false);
+    markAllAsSeen();
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -90,7 +110,7 @@ const NotificationsScreen: React.FC = () => {
         // onPress={() => { }}
         NotificationItemStyles={styles.NotificationItem}
         isGroupImage={item.Image}
-        time={formatRelativeTime(item.CreatedOn)}
+        time={formatRelativeTime(item.CreatedOn, getString)}
         boldText={boldText}
         isSeen={item.IsSeen}
       />
@@ -120,13 +140,21 @@ const NotificationsScreen: React.FC = () => {
         onBackPress={() => navigation.goBack()}
       />
 
-      {notificationsApi.loading && !notificationsApi.loadingMore ? (
+      {notificationsApi.loading && !notificationsApi.loadingMore && !isRefreshing ? (
         <SkeletonLoader screenType="notifications" />
       ) : (
         <FlatList
           data={notificationsApi.data}
           keyExtractor={item => item.NotificationId.toString()}
           contentContainerStyle={[styles.content, { paddingBottom: 20 }]}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={theme.colors.PRIMARY}
+              colors={[theme.colors.PRIMARY]}
+            />
+          }
           ListEmptyComponent={
             <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
               <PlaceholderLogoText

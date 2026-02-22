@@ -36,7 +36,7 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_LESS_HIGH,
         marginBottom: sizes.PADDING * 0.2,
-        marginStart: sizes.WIDTH * 0.038,
+        // marginStart: sizes.WIDTH * 0.038,
       },
       languageContainer: {
         paddingVertical: sizes.PADDING * 0.1,

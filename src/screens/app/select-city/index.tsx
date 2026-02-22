@@ -1,5 +1,11 @@
-import { FlatList, StyleSheet, TouchableOpacity, View } from 'react-native';
-import React from 'react';
+import {
+  FlatList,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  RefreshControl,
+} from 'react-native';
+import React, { useState, useEffect } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import { Text } from '../../../utils/elements';
@@ -21,6 +27,7 @@ interface SelectCityProps extends AppStackScreen<'SelectCity'> { }
 const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const citiesApi = useListingApi<City>(apiEndpoints.GET_CITY_LISTING, '', {
     transformData(data) {
@@ -38,17 +45,28 @@ const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
     });
   };
 
+  useEffect(() => {
+    if (isRefreshing && !citiesApi.loading) {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, citiesApi.loading]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    citiesApi.recall();
+  };
+
   return (
     <ParentView>
       <HomeHeader
-        title="Select City"
+        title={getString('SELECT_CITY_TITLE')}
         showBackButton
         searchValue={citiesApi.search}
         showSearchBar
         onSearchChange={search => citiesApi.setSearch(search)}
       />
 
-      {citiesApi.loading ? (
+      {citiesApi.loading && !isRefreshing ? (
         <View style={{ flex: 1, paddingVertical: scaleWithMax(10, 12) }}>
           <SkeletonLoader screenType="tabItemCity" />
         </View>
@@ -57,6 +75,14 @@ const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
           data={citiesApi.data}
           keyExtractor={item => item.CityID.toString()}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={theme.colors.PRIMARY}
+              colors={[theme.colors.PRIMARY]}
+            />
+          }
           contentContainerStyle={{
             paddingHorizontal: scaleWithMax(14, 16),
             paddingTop: scaleWithMax(10, 12),
@@ -66,7 +92,7 @@ const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
           }}
           ListEmptyComponent={
             <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
-              <PlaceholderLogoText text={'No cities found'} />
+              <PlaceholderLogoText text={getString('SELECT_CITY_NO_CITIES_FOUND')} />
             </View>
           }
           renderItem={({ item }) => (

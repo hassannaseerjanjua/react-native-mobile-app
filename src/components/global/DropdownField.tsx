@@ -41,12 +41,12 @@ const DropdownField = ({
   icon = null,
   error,
   style,
-  placeholder = 'Select an option',
+  placeholder = '',
   options,
   selectedValue,
   onSelect,
   disabled = false,
-  label = 'Select Option',
+  label = '',
   searchValue = '',
   onSearchChange,
   isLoading = false,
@@ -113,7 +113,7 @@ const DropdownField = ({
               },
             ]}
           >
-            {selectedOption ? selectedOption.label : placeholder}
+            {selectedOption ? selectedOption.label : placeholder || getString('COMP_SELECT_OPTION')}
           </Text>
         </View>
         <Text style={styles.chevron}>
@@ -143,7 +143,7 @@ const DropdownField = ({
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
               <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{label}</Text>
+                <Text style={styles.modalTitle}>{label || getString('COMP_SELECT_OPTION_LABEL')}</Text>
                 <TouchableOpacity
                   onPress={() => {
                     setIsVisible(false);
@@ -159,7 +159,7 @@ const DropdownField = ({
                   <View style={styles.searchInputContainer}>
                     <InputField
                       fieldProps={{
-                        placeholder: 'Search...',
+                        placeholder: getString('COMP_SEARCH_PLACEHOLDER'),
                         value: searchValue,
                         onChangeText: onSearchChange,
                         autoCapitalize: 'none',

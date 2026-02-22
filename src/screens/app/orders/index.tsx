@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   StatusBar,
@@ -6,6 +6,7 @@ import {
   Image,
   FlatList,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
@@ -39,30 +40,50 @@ const getStatusText = (
 
   return statusMap[status] ?? getString('O_PENDING');
 };
-const formatDate = (dateString: string): string => {
+const formatDate = (
+  dateString: string,
+  getString: (
+    key:
+      | 'ORDERS_MONTH_JANUARY'
+      | 'ORDERS_MONTH_FEBRUARY'
+      | 'ORDERS_MONTH_MARCH'
+      | 'ORDERS_MONTH_APRIL'
+      | 'ORDERS_MONTH_MAY'
+      | 'ORDERS_MONTH_JUNE'
+      | 'ORDERS_MONTH_JULY'
+      | 'ORDERS_MONTH_AUGUST'
+      | 'ORDERS_MONTH_SEPTEMBER'
+      | 'ORDERS_MONTH_OCTOBER'
+      | 'ORDERS_MONTH_NOVEMBER'
+      | 'ORDERS_MONTH_DECEMBER'
+      | 'ORDERS_TIME_AM'
+      | 'ORDERS_TIME_PM'
+      | 'ORDERS_DATE_AT',
+  ) => string,
+): string => {
   const date = new Date(dateString);
   const months = [
-    'January',
-    'February',
-    'March',
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
+    getString('ORDERS_MONTH_JANUARY'),
+    getString('ORDERS_MONTH_FEBRUARY'),
+    getString('ORDERS_MONTH_MARCH'),
+    getString('ORDERS_MONTH_APRIL'),
+    getString('ORDERS_MONTH_MAY'),
+    getString('ORDERS_MONTH_JUNE'),
+    getString('ORDERS_MONTH_JULY'),
+    getString('ORDERS_MONTH_AUGUST'),
+    getString('ORDERS_MONTH_SEPTEMBER'),
+    getString('ORDERS_MONTH_OCTOBER'),
+    getString('ORDERS_MONTH_NOVEMBER'),
+    getString('ORDERS_MONTH_DECEMBER'),
   ];
   const day = date.getDate();
   const month = months[date.getMonth()];
   const hours = date.getHours();
   const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? 'PM' : 'AM';
+  const ampm = hours >= 12 ? getString('ORDERS_TIME_PM') : getString('ORDERS_TIME_AM');
   const formattedHours = hours % 12 || 12;
   const formattedMinutes = minutes.toString().padStart(2, '0');
-  return `${day}-${month} at ${formattedHours}:${formattedMinutes}${ampm}`;
+  return `${day}-${month} ${getString('ORDERS_DATE_AT')} ${formattedHours}:${formattedMinutes}${ampm}`;
 };
 
 const OrdersScreen: React.FC = () => {
@@ -85,6 +106,18 @@ const OrdersScreen: React.FC = () => {
 
   const orders = ordersListing.data ?? [];
   const isLoading = ordersListing.loading;
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
+  useEffect(() => {
+    if (isRefreshing && !isLoading) {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, isLoading]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    ordersListing.recall();
+  };
 
   return (
     <ParentView style={styles.container}>
@@ -103,7 +136,7 @@ const OrdersScreen: React.FC = () => {
         onSearchChange={ordersListing.setSearch}
       />
 
-      {isLoading ? (
+      {isLoading && !isRefreshing ? (
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
@@ -122,6 +155,14 @@ const OrdersScreen: React.FC = () => {
             styles.contentContainer,
           ]}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={theme.colors.PRIMARY}
+              colors={[theme.colors.PRIMARY]}
+            />
+          }
           onEndReached={() => {
             if (ordersListing.hasMore && !ordersListing.loadingMore) {
               ordersListing.loadMore();
@@ -215,7 +256,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
 
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>{getString('O_ORDER_TIME')}:</Text>
-          <Text style={styles.detailValue}>{formatDate(orderDate)}</Text>
+          <Text style={styles.detailValue}>{formatDate(orderDate, getString)}</Text>
         </View>
 
         {order.Items?.map(item => {

@@ -1,5 +1,11 @@
-import React, { useState } from 'react';
-import { View, StatusBar, FlatList, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  StatusBar,
+  FlatList,
+  ActivityIndicator,
+  RefreshControl,
+} from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import useStyles from './style';
 import ParentView from '../../../components/app/ParentView';
@@ -39,6 +45,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
   const [selectedGroup, setSelectedGroup] = useState<GroupData | null>(null);
   const [groupToDelete, setGroupToDelete] = useState<GroupData | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   const { user, token } = useAuthStore();
 
@@ -123,6 +130,17 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
       .catch(error => {
         notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
       });
+  };
+
+  useEffect(() => {
+    if (isRefreshing && !getGroupsData.loading) {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, getGroupsData.loading]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    getGroupsData.recall();
   };
 
   const handleCreateGroup = (
@@ -230,7 +248,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
         onSearchChange={getGroupsData.setSearch}
         searchPlaceholder={getString('STG_SEARCH_GROUP')}
       />
-      {getGroupsData.loading ? (
+      {getGroupsData.loading && !isRefreshing ? (
         <View style={styles.content}>
           <SkeletonLoader screenType="sendToGroup" />
         </View>
@@ -238,6 +256,14 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
         <FlatList
           data={getGroupsData.data || []}
           keyExtractor={item => item.UserGroupId.toString()}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={theme.colors.PRIMARY}
+              colors={[theme.colors.PRIMARY]}
+            />
+          }
           renderItem={({ item: group }) => (
             <TabItem
               isGroupImage={
@@ -350,14 +376,19 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
       <ConfirmationPopup
         visible={showDeleteModal}
         title={getString('STG_DELETE_GROUP')}
-        message={`${getString('STG_DELETE_GROUP_CONFIRM')} "${groupToDelete?.GroupName
-          }"?`}
+        message={
+          groupToDelete?.GroupName
+            ? `${getString('STG_DELETE_GROUP_CONFIRM')} "${
+                groupToDelete.GroupName
+              }"?`
+            : getString('STG_DELETE_GROUP_CONFIRM')
+        }
         confirmText={getString('STG_DELETE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={confirmDeleteGroup}
         onCancel={() => {
           setShowDeleteModal(false);
-          setGroupToDelete(null);
+          setTimeout(() => setGroupToDelete(null), 300);
         }}
       />
     </ParentView>

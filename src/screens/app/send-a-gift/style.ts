@@ -22,8 +22,19 @@ const useStyles = () => {
         // marginBottom: sizes.HEIGHT * 0.24,
         ...theme.globalStyles.SHADOW_STYLE,
       },
+      tabSpacing: {
+        height: sizes.HEIGHT * 0.016,
+      },
       listContainer: {
         paddingVertical: 0,
+      },
+      TabItem: {
+        height: sizes.HEIGHT * 0.075,
+        shadowColor: '#000000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.04,
+        shadowRadius: 17,
+        elevation: 4,
       },
       sectionTitle: {
         fontFamily: fonts.Quicksand.semibold,

@@ -32,7 +32,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
 }) => {
   const { theme } = useStyles();
   const { styles } = useStyles();
-  const { isRtl } = useLocaleStore();
+  const { isRtl, getString } = useLocaleStore();
   const isStoreProduct = 'ItemId' in item && 'Thumbnail' in item;
   const isFaveItems = 'FavItemId' in item && 'ItemImage' in item;
 
@@ -146,7 +146,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
           )}
           {!isFavoriteTab && (
             <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>
-              {(isFavoriteTab ? cutPrice : price) || 'N/A'}
+              {(isFavoriteTab ? cutPrice : price) || getString('COMP_NOT_AVAILABLE')}
             </Text>
           )}
 

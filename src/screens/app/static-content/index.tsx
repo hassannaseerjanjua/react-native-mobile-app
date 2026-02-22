@@ -67,6 +67,8 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
                 marginTop: 8,
                 marginBottom: 4,
                 padding: 0,
+                textAlign: 'left',
+                writingDirection: 'ltr',
               },
               h2: {
                 fontSize: 18,
@@ -74,6 +76,8 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
                 marginTop: 12,
                 marginBottom: 4,
                 padding: 0,
+                textAlign: 'left',
+                writingDirection: 'ltr',
               },
               p: {
                 fontSize: 14,
@@ -81,6 +85,8 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
                 marginTop: 0,
                 marginBottom: 8,
                 padding: 0,
+                textAlign: 'left',
+                writingDirection: 'ltr',
               },
               strong: {
                 fontWeight: 'bold',
@@ -89,11 +95,15 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
                 marginTop: 0,
                 marginBottom: 8,
                 paddingLeft: 20,
+                textAlign: 'left',
+                writingDirection: 'ltr',
               },
               li: {
                 fontSize: 14,
                 lineHeight: 20,
                 marginBottom: 4,
+                textAlign: 'left',
+                writingDirection: 'ltr',
               },
               br: {
                 height: 0,
@@ -103,6 +113,8 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
             }}
             baseStyle={{
               fontSize: 14,
+              textAlign: 'left',
+              writingDirection: 'ltr',
               // lineHeight: 20,
             }}
             source={source}

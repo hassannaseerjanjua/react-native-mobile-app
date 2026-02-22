@@ -2,6 +2,7 @@ import {
   FlatList,
   Image,
   ScrollView,
+  RefreshControl,
   TouchableOpacity,
   View,
   NativeScrollEvent,
@@ -11,7 +12,7 @@ import {
   Linking,
 } from 'react-native';
 import { Text } from '../../../utils/elements';
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
@@ -64,7 +65,7 @@ const InboxOutbox: React.FC = () => {
     }
     | undefined;
   const isInbox = params?.isInbox ?? true;
-  const title = params?.title ?? (isInbox ? 'Inbox' : 'Outbox');
+  const title = params?.title ?? (isInbox ? getString('INBOX_TITLE') : getString('OUTBOX_TITLE'));
   const { styles, theme } = useStyles();
   const {
     orders,
@@ -91,9 +92,23 @@ const InboxOutbox: React.FC = () => {
     handleVideoPress,
     handleCloseVideoViewer,
     handleShareGiftLink,
+    refetch,
   } = useInboxOutboxActions(isInbox);
 
+  const [isRefreshing, setIsRefreshing] = useState(false);
+
   const { createDebouceClick } = useDebounceClick();
+
+  useEffect(() => {
+    if (isRefreshing && !isLoading) {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, isLoading]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    refetch();
+  };
 
   return (
     <ParentView>
@@ -133,12 +148,20 @@ const InboxOutbox: React.FC = () => {
           }}
         />
       </View>
-      {isLoading ? (
+      {isLoading && !isRefreshing ? (
         <SkeletonLoader screenType="inbox" />
       ) : (
         <FlatList
           showsVerticalScrollIndicator={false}
           data={orders}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={handleRefresh}
+              tintColor={theme.colors.PRIMARY}
+              colors={[theme.colors.PRIMARY]}
+            />
+          }
           renderItem={({ item, index }) => (
             <InboxItem
               isLast={index === orders.length - 1}
@@ -402,7 +425,7 @@ const InboxOutbox: React.FC = () => {
                 });
               })()}
             <CustomButton
-              title={'Continue'}
+              title={getString('INBOX_CONTINUE')}
               onPress={() => handlePickUpPress()}
               buttonStyle={{
                 backgroundColor: !Array.from(selectedItems.values()).some(
@@ -422,7 +445,7 @@ const InboxOutbox: React.FC = () => {
             />
             {selectedOrder?.stores?.IsDeliveryEnabled && (
               <CustomButton
-                title="Delivery"
+                title={getString('INBOX_DELIVERY')}
                 type="secondary"
                 onPress={handleDeliveryPress}
                 buttonStyle={{ backgroundColor: theme.colors.WHITE }}
@@ -461,9 +484,9 @@ interface InboxItemProps {
 }
 
 
-const openMap = (lat: number, lng: number, label: string) => {
+const openMap = (lat: number, lng: number, label: string, getString: (key: any) => string) => {
   if (!lat || !lng) {
-    notify.error('Store location not available');
+    notify.error(getString('INBOX_STORE_LOCATION_NOT_AVAILABLE'));
     return;
   }
   const scheme = Platform.select({
@@ -502,7 +525,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const storeName = getStoreName(order, isRtl);
   const isRedeemed = order.Items && order.Items.every(item => item.Status === 10);
   const showGiftLinkGeneric = !isInbox && order.SendType === 2 && !isRedeemed;
-  const timeAgo = formatRelativeTime(order.OrderTime);
+  const timeAgo = formatRelativeTime(order.OrderTime, getString);
   const { createDebouceClick } = useDebounceClick();
 
   const hasMultiUsers = isMerchant && order.MultiUsers && order.MultiUsers.length > 0;
@@ -584,7 +607,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {showGiftLinkGeneric ? 'Gift Link' : order.CampaginType === 1 ? order.stores.NameEn : userName}
+                  {showGiftLinkGeneric ? getString('INBOX_GIFT_LINK_LABEL') : order.CampaginType === 1 ? order.stores.NameEn : userName}
                 </Text>
                 {!showGiftLinkGeneric &&
                   (!isMerchant
@@ -611,7 +634,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 </View>
                 <Text style={styles.storeNameText}>{storeName}</Text>
                 <TouchableOpacity style={styles.backIconContainer} hitSlop={8} onPress={() => {
-                  openMap(order.stores.Lat, order.stores.Long, storeName);
+                  openMap(order.stores.Lat, order.stores.Long, storeName, getString);
                 }}>
                   <RoundedBackIcon
                     height={scaleWithMax(8, 8)}
@@ -644,7 +667,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     onPress={() => {
 
                       if (order.Status === 10) {
-                        notify.error('Gift already redeemed');
+                        notify.error(getString('INBOX_GIFT_ALREADY_REDEEMED'));
                         return;
                       }
                       createDebouceClick('share-gift', () =>
@@ -720,7 +743,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                             fontSize: theme.sizes.FONTSIZE_MEDIUM,
                           }}
                         >
-                          Redeemed
+                          {getString('INBOX_REDEEMED')}
                         </Text>
                       </View>
                     )}
@@ -795,7 +818,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 paddingBottom: theme.sizes.HEIGHT * 0.008,
               }}
             >
-              My Employees
+              {getString('INBOX_MY_EMPLOYEES')}
             </Text>
             <View
               style={{

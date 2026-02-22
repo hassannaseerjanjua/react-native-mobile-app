@@ -495,7 +495,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             isInbox: true,
           });
         }}
-        secondaryButtonTitle="Continue"
+        secondaryButtonTitle={getString('CATCH_CONTINUE')}
         onSecondaryPress={handleModalClose}
       />
     );

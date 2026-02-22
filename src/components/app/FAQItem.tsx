@@ -52,11 +52,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
       >
         <View style={styles.contentContainer}>
           <Text
-            style={[
-              styles.titleText,
-              { textAlign: 'left' },
-              textStyle,
-            ]}
+            style={[styles.titleText, textStyle]}
             numberOfLines={isExpanded ? undefined : 1}
             ellipsizeMode="tail"
           >
@@ -78,9 +74,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
 
       {isExpanded && (
         <View style={styles.answerContainer}>
-          <Text
-            style={[styles.answerText, { textAlign: isRtl ? 'right' : 'left' }]}
-          >
+          <Text style={styles.answerText}>
             {answerText}
           </Text>
         </View>
@@ -121,6 +115,8 @@ const useStyles = () => {
         color: colors.PRIMARY_TEXT,
         flex: 1,
         flexShrink: 1,
+        textAlign: 'left',
+        writingDirection: 'ltr',
       },
       arrowIcon: {
       },
@@ -135,6 +131,8 @@ const useStyles = () => {
         fontFamily: 'Quicksand-Regular',
         fontSize: theme.sizes.FONTSIZE,
         color: colors.PRIMARY_TEXT,
+        textAlign: 'left',
+        writingDirection: 'ltr',
       },
     });
   }, [theme]);

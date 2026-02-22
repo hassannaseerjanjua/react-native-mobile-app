@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useMemo } from 'react';
-import { View, StatusBar, FlatList } from 'react-native';
+import { View, StatusBar, FlatList, RefreshControl } from 'react-native';
 import { Text } from '../../../utils/elements';
 import useStyles from './style.ts';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
@@ -48,6 +48,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
     {},
   );
+  const [isRefreshing, setIsRefreshing] = useState(false);
   useEffect(() => {
     if (FavStoreListing.data) {
       const initialState: Record<number, boolean> = {};
@@ -90,6 +91,22 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
       setCameFromProfile(false);
     }
   }, [route.params]);
+
+  useEffect(() => {
+    if (
+      isRefreshing &&
+      !FavStoreListing.loading &&
+      !businessTypeApi.loading
+    ) {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, FavStoreListing.loading, businessTypeApi.loading]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    FavStoreListing.recall();
+    businessTypeApi.refetch?.();
+  };
 
   const handleStepPress = (item: FavStores | any) => {
     if ('StoreNameEn' in item && 'StoreBranchID' in item) {
@@ -166,7 +183,8 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
       />
 
       <View style={styles.content}>
-        {FavStoreListing.loading || businessTypeApi.loading ? (
+        {(FavStoreListing.loading || businessTypeApi.loading) &&
+        !isRefreshing ? (
           <View style={styles.favoritesContainer}>
             <SkeletonLoader screenType="storeCard" />
           </View>
@@ -186,6 +204,14 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
               </View>
             )}
             contentContainerStyle={styles.favoritesContainer}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                tintColor={theme.colors.PRIMARY}
+                colors={[theme.colors.PRIMARY]}
+              />
+            }
             renderItem={({ item }) => (
               <View style={styles.favoriteItemContainer}>
                 <FavoriteItemCard

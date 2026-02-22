@@ -42,7 +42,7 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   const [loading, setLoading] = useState(true);
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [deletingCard, setDeletingCard] = useState<string | null>(null);
-  const [cardToDelete, setCardToDelete] = useState<string | null>(null);
+  const [cardToDelete, setCardToDelete] = useState<UserCard | null>(null);
 
   const fromProfile = (route.params as any)?.fromProfile || false;
 
@@ -179,8 +179,8 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
 
       {fromProfile ? (
         <TouchableOpacity
-          onPress={() => setCardToDelete(item.Token)}
-          disabled={deletingCard === item.Token}
+          onPress={() => setCardToDelete(item)}
+          disabled={deletingCard === item.Token || cardToDelete?.Token === item.Token}
           style={{ padding: theme.sizes.PADDING * 0.2 }}
         >
           {deletingCard === item.Token ? (
@@ -245,16 +245,22 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
       <ConfirmationPopup
         visible={cardToDelete !== null}
         title={getString('P_DELETE_CARD')}
-        message={getString('P_DELETE_CARD_MESSAGE')}
+        message={
+          cardToDelete?.CardNumber
+            ? `${getString('P_DELETE_CARD_MESSAGE')} "${
+                cardToDelete.CardNumber
+              }"?`
+            : getString('P_DELETE_CARD_MESSAGE')
+        }
         confirmText={getString('P_DELETE_CARD_CONFIRM')}
         cancelText={getString('NG_CANCEL') || 'Cancel'}
         onConfirm={async () => {
           if (cardToDelete) {
-            await handleDeleteCard(cardToDelete);
-            setCardToDelete(null);
+            await handleDeleteCard(cardToDelete.Token);
+            setTimeout(() => setCardToDelete(null), 300);
           }
         }}
-        onCancel={() => setCardToDelete(null)}
+        onCancel={() => setTimeout(() => setCardToDelete(null), 300)}
       />
     </ParentView>
   );

@@ -7,6 +7,7 @@ import {
   Platform,
   Share,
   TouchableOpacity,
+  ActivityIndicator,
 } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -18,9 +19,16 @@ import SearchUserItem from '../../../components/app/SearchUserItem';
 import MemberSelectionModal from '../../../components/global/MemberSelectionModal';
 import GroupTabs from '../../../components/global/GroupTabs';
 import TabItem from '../../../components/global/TabItem';
-import { ActiveUser, ActiveUsersApiResponse, City } from '../../../types';
+import {
+  ActiveUser,
+  ActiveUsersApiResponse,
+  City,
+  getGroupsDataApiResponse,
+  GroupData,
+} from '../../../types';
 import {
   SvgAddGroup,
+  SvgEditGroup,
   SvgFindFriendsIcon,
   SvgSearchFindFriendsIcon,
   ArrowDownIcon,
@@ -40,6 +48,7 @@ import api from '../../../utils/api';
 import useGetApi from '../../../hooks/useGetApi';
 import { CartResponse } from '../../../types';
 import notify from '../../../utils/notify';
+import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 
 interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 
@@ -61,6 +70,18 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const [selectedUserIds, setSelectedUserIds] = useState<Set<number>>(
     new Set(),
   );
+  const [selectedGroupMembers, setSelectedGroupMembers] = useState<
+    ActiveUser[]
+  >([]);
+  const [selectedGroupName, setSelectedGroupName] = useState<string | null>(
+    null,
+  );
+  const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
+  const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
+  const [isViewMembersOpen, setIsViewMembersOpen] = useState(false);
+  const [selectedGroup, setSelectedGroup] = useState<GroupData | null>(null);
+  const [groupToDelete, setGroupToDelete] = useState<GroupData | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   // Fetch cart to check if there's an existing cart for a different user
   const cartApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
@@ -98,6 +119,18 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         // userId: user?.UserId,
         friends: true,
       },
+    },
+  );
+
+  const getGroupsData = useListingApi<GroupData>(
+    apiEndpoints.GET_GROUPS,
+    token,
+    {
+      transformData: (data: getGroupsDataApiResponse) => ({
+        data: data.Data?.Items || [],
+        totalCount: data.Data?.TotalCount || 0,
+      }),
+      idExtractor: (item: GroupData) => item.UserGroupId,
     },
   );
 
@@ -166,27 +199,132 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     }
   }, [selectedCityId, isMerchant, activeTab]);
 
-  useFocusEffect(
-    useCallback(() => {
-      // Reset to appropriate tab when screen comes into focus
-      setActiveTab(isMerchant ? 'employees' : 'friends');
-
-      // Cleanup: Reset to appropriate tab when screen loses focus (navigating away)
-      return () => {
-        setActiveTab(isMerchant ? 'employees' : 'friends');
-      };
-    }, [isMerchant]),
-  );
-
   const handleTabChange = (tabId: string) => {
     // Clear search when switching tabs to ensure fresh data
     if (activeUsersApi.search) {
       activeUsersApi.setSearch('');
     }
+    if (tabId !== 'group') {
+      setSelectedGroupMembers([]);
+      setSelectedGroupName(null);
+      setSelectedGroup(null);
+      setIsEditGroupOpen(false);
+    }
     setActiveTab(tabId);
     // Reset selection mode when switching tabs
     setIsSelectionMode(false);
     setSelectedUserIds(new Set());
+  };
+
+  const getGroupMembersData = (): ActiveUser[] => {
+    if (!selectedGroup) return [];
+    return selectedGroup.UserGroupMembersList.map(member => ({
+      UserId: member.UserId,
+      FullName: member.FullName,
+      Email: '',
+      PhoneNo: '',
+      ProfileUrl: member.ProfileUrl,
+      RelationStatus: member.RelationStatus,
+      IsVerified: member.IsVerified || false,
+    }));
+  };
+
+  const handleEditGroup = (group: GroupData) => {
+    setSelectedGroup(group);
+    friendsForGroupApi.recall();
+    setIsMemberSelectionOpen(true);
+  };
+
+  const handleDeleteGroup = (group: GroupData) => {
+    setGroupToDelete(group);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteGroup = () => {
+    if (!groupToDelete) return;
+    const group = groupToDelete;
+    setShowDeleteModal(false);
+    api
+      .delete(apiEndpoints.DELETE_GROUP, {
+        params: {
+          groupId: group.UserGroupId,
+        },
+      })
+      .then(async response => {
+        if (response.success) {
+          setGroupToDelete(null);
+          setIsEditGroupOpen(false);
+          getGroupsData.setData([]);
+          getGroupsData.recall();
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
+      })
+      .catch(error => {
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+      });
+  };
+
+  const handleCreateGroup = (
+    selectedMembers: ActiveUser[],
+    groupName?: string,
+    groupImage?: { uri: string; type: string; name: string } | null,
+  ) => {
+    getGroupsData.recall();
+  };
+
+  const handleSaveGroupMembers = (
+    selectedMembers: ActiveUser[],
+    groupName?: string,
+    groupImage?: { uri: string; type: string; name: string } | null,
+  ) => {
+    if (!selectedGroup) return;
+
+    const originalMemberIds = getGroupMembersData().map(m => m.UserId);
+    const newMemberIds = selectedMembers.map(m => m.UserId);
+    const addedMemberIds = newMemberIds.filter(
+      id => !originalMemberIds.includes(id),
+    );
+    const removedMemberIds = originalMemberIds.filter(
+      id => !newMemberIds.includes(id),
+    );
+
+    const formData = new FormData();
+    formData.append('UserGroupId', selectedGroup.UserGroupId.toString());
+    formData.append('NameEn', groupName || selectedGroup.GroupName);
+
+    if (groupImage) {
+      formData.append('File', {
+        uri: groupImage.uri,
+        type: groupImage.type,
+        name: groupImage.name,
+      } as any);
+    }
+
+    addedMemberIds.forEach(id => {
+      formData.append('MemberUserIds', id.toString());
+    });
+
+    removedMemberIds.forEach(id => {
+      formData.append('RemovedMemberUserIds', id.toString());
+    });
+
+    api
+      .put(apiEndpoints.EDIT_GROUP_MEMBERS, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      .then(response => {
+        if (response.success) {
+          getGroupsData.recall();
+          setIsEditGroupOpen(false);
+          setIsMemberSelectionOpen(false);
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
+      })
+      .catch(error => {
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+      });
   };
 
   const navigateWithSelectedUsers = (friendIds: number[]) => {
@@ -282,7 +420,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     ? [
         {
           id: 'employees',
-          title: 'My Employees',
+          title: getString('SEND_GIFT_MY_EMPLOYEES'),
           onPress: () => {
             handleTabChange('employees');
           },
@@ -306,10 +444,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         {
           id: 'group',
           title: getString('SG_GROUP'),
-          onPress: () =>
-            navigation.navigate('SendToGroup' as any, {
-              routeTo: route.params?.routeTo || 'SelectStore',
-            }),
+          onPress: () => {
+            handleTabChange('group');
+          },
         },
         {
           id: 'others',
@@ -320,13 +457,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         },
       ];
 
-  // Get frequently sent friends (first 3 from response with OrdersCount >= 1, in API order)
-  // Only for friends tab with no search
-  const getFrequentlySentFriends = useCallback(() => {
-    if (activeTab !== 'friends' || activeUsersApi.search) {
-      return [];
-    }
-    const baseData = activeUsersApi.data || [];
+  // Get frequently sent friends (first 3 with OrdersCount >= 1, in API order)
+  const filterFrequentlySentFriends = useCallback((baseData: ActiveUser[]) => {
     return baseData
       .filter(
         (friend: ActiveUser) =>
@@ -335,11 +467,21 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           friend.OrdersCount >= 1,
       )
       .slice(0, 3);
-  }, [activeTab, activeUsersApi.data, activeUsersApi.search]);
+  }, []);
 
-  const frequentlySentFriends = getFrequentlySentFriends();
+  const frequentlySentFriends =
+    activeTab === 'friends' && !activeUsersApi.search
+      ? filterFrequentlySentFriends(activeUsersApi.data || [])
+      : [];
+
+  const frequentlySentFriendsForGroupModal = filterFrequentlySentFriends(
+    friendsForGroupApi.data || [],
+  );
 
   const getDisplayData = () => {
+    if (!isMerchant && activeTab === 'group') {
+      return [];
+    }
     if (isMerchant && activeTab === 'employees') {
       return employeesApi.data || [];
     }
@@ -382,15 +524,21 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const displayData = getDisplayData();
 
   const isLoading =
-    isMerchant && activeTab === 'employees'
+    activeTab === 'group'
+      ? getGroupsData.loading
+      : isMerchant && activeTab === 'employees'
       ? employeesApi.loading
       : activeUsersApi.loading;
   const searchQuery =
-    isMerchant && activeTab === 'employees'
+    activeTab === 'group'
+      ? getGroupsData.search
+      : isMerchant && activeTab === 'employees'
       ? employeesApi.search
       : activeUsersApi.search;
   const setSearchQuery =
-    isMerchant && activeTab === 'employees'
+    activeTab === 'group'
+      ? getGroupsData.setSearch
+      : isMerchant && activeTab === 'employees'
       ? employeesApi.setSearch
       : activeUsersApi.setSearch;
 
@@ -408,7 +556,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       : (activeUsersApi.data || []).length;
 
   // Check if we should show the list (has friends OR "me" is shown)
-  const shouldShowList = displayData.length > 0;
+  const shouldShowList = activeTab !== 'group' && displayData.length > 0;
 
   // Check if we should show empty state
   // Show empty state when: not merchant, not loading, no data to display, and on friends tab
@@ -420,6 +568,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       setSearchQuery('');
       activeUsersApi.recall();
       employeesApi.recall();
+      getGroupsData.recall();
     }, []),
   );
 
@@ -441,20 +590,29 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         showSearchBar
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
-        searchPlaceholder={getString('HOME_SEARCH')}
+        searchPlaceholder={
+          activeTab === 'group'
+            ? getString('STG_SEARCH_GROUP')
+            : getString('HOME_SEARCH')
+        }
         rightSideTitle={
-          !isMerchant && activeTab === 'friends'
+          !isMerchant && (activeTab === 'friends' || activeTab === 'group')
             ? getString('SG_NEW_GROUP')
             : ''
         }
         rightSideTitlePress={() => {
-          if (!isMerchant && activeTab === 'friends') {
+          if (
+            !isMerchant &&
+            (activeTab === 'friends' || activeTab === 'group')
+          ) {
             friendsForGroupApi.recall();
-            setIsMemberSelectionOpen(true);
+            setIsCreateGroupOpen(true);
           }
         }}
         rightSideIcon={
-          !isMerchant && activeTab === 'friends' ? <SvgAddGroup /> : undefined
+          !isMerchant && (activeTab === 'friends' || activeTab === 'group') ? (
+            <SvgAddGroup />
+          ) : undefined
         }
         rightSideView={
           isMerchant ? (
@@ -514,24 +672,134 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
               tab?.onPress?.();
             }}
           />
-          {(route.params?.routeTo === 'SelectStore' ||
-            !route.params?.routeTo) && (
-            <View style={[styles.tabContainer]}>
-              <TabItem
-                title={getString('SG_SEND_THROUGH_LINK')}
-                TabTextStyles={{
-                  color: theme.colors.PRIMARY,
-                  maxWidth: '90%',
+          {!isMerchant && activeTab === 'group' && (
+            <View style={{ marginHorizontal: -theme.sizes.PADDING }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                  paddingHorizontal: theme.sizes.PADDING,
                 }}
-                onPress={() => {
-                  navigation.navigate('SelectCity', {
-                    sendType: 2,
-                  });
-                }}
-                isLink={true}
-              />
+              >
+                <Text style={styles.sectionTitle}>{getString('SG_GROUP')}</Text>
+                {(getGroupsData.data || []).length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => setIsEditGroupOpen(prev => !prev)}
+                    activeOpacity={0.7}
+                    style={{
+                      flexDirection: 'row',
+                      alignItems: 'center',
+                      gap: theme.sizes.PADDING * 0.1,
+                    }}
+                  >
+                    {!isEditGroupOpen && <SvgEditGroup />}
+                    <Text
+                      style={{
+                        fontFamily: fonts.Quicksand.semibold,
+                        fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                        color: theme.colors.PRIMARY,
+                        marginStart: theme.sizes.PADDING * 0.1,
+                      }}
+                    >
+                      {isEditGroupOpen
+                        ? getString('NG_CANCEL')
+                        : getString('STG_EDIT_GROUP')}
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              {getGroupsData.loading ? (
+                <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
+                  <SkeletonLoader screenType="sendToGroup" />
+                </View>
+              ) : (
+                <FlatList
+                  data={getGroupsData.data || []}
+                  keyExtractor={item => item.UserGroupId.toString()}
+                  renderItem={({ item: group }) => (
+                    <TabItem
+                      isGroupImage={
+                        group.ImageUrl ||
+                        require('../../../assets/images/img-placeholder.png')
+                      }
+                      title={group.GroupName}
+                      onPress={
+                        isEditGroupOpen
+                          ? () => handleEditGroup(group)
+                          : () => {
+                              setSelectedGroup(group);
+                              setSelectedGroupName(group.GroupName);
+                              setIsViewMembersOpen(true);
+                            }
+                      }
+                      isEditGroup={isEditGroupOpen}
+                      TabItemStyles={styles.TabItem}
+                      onDeletePress={() => handleDeleteGroup(group)}
+                      onEditPress={() => handleEditGroup(group)}
+                    />
+                  )}
+                  ItemSeparatorComponent={() => (
+                    <View style={styles.tabSpacing} />
+                  )}
+                  onEndReached={
+                    getGroupsData.hasMore ? getGroupsData.loadMore : undefined
+                  }
+                  onEndReachedThreshold={0.5}
+                  ListEmptyComponent={
+                    <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
+                      <PlaceholderLogoText
+                        text={getString('STG_NO_GROUP_FOUND')}
+                      />
+                    </View>
+                  }
+                  ListFooterComponent={
+                    getGroupsData.loadingMore ? (
+                      <View
+                        style={{
+                          paddingVertical: theme.sizes.HEIGHT * 0.02,
+                          alignItems: 'center',
+                        }}
+                      >
+                        <ActivityIndicator
+                          size="small"
+                          color={theme.colors.PRIMARY}
+                        />
+                      </View>
+                    ) : null
+                  }
+                  scrollEnabled={false}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={{
+                    paddingHorizontal: theme.sizes.PADDING,
+                    flex: 1,
+                    height: theme.sizes.HEIGHT * 0.6,
+                    paddingVertical: theme.sizes.HEIGHT * 0.001,
+                  }}
+                />
+              )}
             </View>
           )}
+          {(route.params?.routeTo === 'SelectStore' ||
+            !route.params?.routeTo) &&
+            activeTab !== 'group' && (
+              <View style={[styles.tabContainer]}>
+                <TabItem
+                  title={getString('SG_SEND_THROUGH_LINK')}
+                  TabTextStyles={{
+                    color: theme.colors.PRIMARY,
+                    maxWidth: '90%',
+                  }}
+                  onPress={() => {
+                    navigation.navigate('SelectCity', {
+                      sendType: 2,
+                    });
+                  }}
+                  isLink={true}
+                />
+              </View>
+            )}
 
           {/* Frequently Sent Section - Only show for friends tab with no search */}
           {frequentlySentFriends.length > 0 &&
@@ -573,11 +841,11 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             >
               <Text style={styles.sectionTitle}>
                 {isMerchant && activeTab === 'employees'
-                  ? 'My Employees'
+                  ? getString('SEND_GIFT_MY_EMPLOYEES')
                   : activeTab === 'friends'
                   ? getString('SG_FRIENDS')
                   : activeTab === 'group'
-                  ? getString('SG_GROUP')
+                  ? selectedGroupName || getString('SG_GROUP')
                   : getString('SG_OTHERS')}
               </Text>
               {isMerchant && (
@@ -599,23 +867,23 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                       fontFamily: fonts.Quicksand.bold,
                     }}
                   >
-                    {isSelectionMode ? 'Cancel' : 'Select'}
+                    {isSelectionMode ? getString('SEND_GIFT_CANCEL') : getString('SEND_GIFT_SELECT')}
                   </Text>
                 </TouchableOpacity>
               )}
             </View>
           )}
-          {isLoading ? (
+          {activeTab !== 'group' && isLoading ? (
             <View
               style={[
                 styles.listCard,
                 {
-                  marginTop:
-                    route.params?.routeTo === 'SelectStore' ||
-                    !route.params?.routeTo ||
-                    isMerchant
-                      ? theme.sizes.HEIGHT * 0.014
-                      : 0,
+                  // marginTop:
+                  //   route.params?.routeTo === 'SelectStore' ||
+                  //   !route.params?.routeTo ||
+                  //   isMerchant
+                  //     ? theme.sizes.HEIGHT * 0.014
+                  //     : 0,
                 },
               ]}
             >
@@ -658,7 +926,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContainer}
                 onEndReached={
-                  isMerchant && activeTab === 'employees'
+                  activeTab === 'group'
+                    ? undefined
+                    : isMerchant && activeTab === 'employees'
                     ? employeesApi.loadMore
                     : activeUsersApi.loadMore
                 }
@@ -667,7 +937,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             </View>
           ) : isMerchant ? (
             <View style={{ height: theme.sizes.HEIGHT * 0.6 }}>
-              <PlaceholderLogoText text="No Users Found" />
+              <PlaceholderLogoText text={getString('SEND_GIFT_NO_USERS_FOUND')} />
             </View>
           ) : shouldShowEmptyState ? (
             <View style={styles.noFriendsContainer}>
@@ -697,16 +967,50 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
       <MemberSelectionModal
         visible={isMemberSelectionOpen}
-        onClose={() => {
-          setIsMemberSelectionOpen(false);
-        }}
-        existingMembers={[]}
+        onClose={() => setIsMemberSelectionOpen(false)}
+        existingMembers={getGroupMembersData()}
+        onSave={handleSaveGroupMembers}
+        title={getString('STG_EDIT_GROUP_MEMBERS')}
+        existingGroupImage={selectedGroup?.ImageUrl}
+        existingGroupName={selectedGroup?.GroupName}
+        listings={[
+          {
+            users: [
+              ...getGroupMembersData(),
+              ...(friendsForGroupApi?.data || []),
+            ].filter(
+              (user, index, self) =>
+                index === self.findIndex(u => u.UserId === user.UserId),
+            ),
+          },
+        ]}
+      />
+
+      <MemberSelectionModal
+        visible={isViewMembersOpen}
+        onClose={() => setIsViewMembersOpen(false)}
+        existingMembers={getGroupMembersData()}
         onSave={() => {}}
+        title={selectedGroup?.GroupName || getString('STG_GROUP_MEMBERS')}
+        listings={[
+          {
+            users: getGroupMembersData(),
+          },
+        ]}
+        viewOnly={true}
+        routeTo={route.params?.routeTo}
+      />
+
+      <MemberSelectionModal
+        visible={isCreateGroupOpen}
+        onClose={() => setIsCreateGroupOpen(false)}
+        existingMembers={[]}
+        onSave={handleCreateGroup}
         title={getString('NG_ADD_MEMBERS')}
         listings={[
           {
             title: getString('SG_FREQUENTLY_GIFTED'),
-            users: frequentlySentFriends,
+            users: frequentlySentFriendsForGroupModal,
           },
           {
             title: getString('NG_TITLE_FRIENDS'),
@@ -714,6 +1018,25 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           },
         ]}
         isSendAGift={true}
+      />
+
+      <ConfirmationPopup
+        visible={showDeleteModal}
+        title={getString('STG_DELETE_GROUP')}
+        message={
+          groupToDelete?.GroupName
+            ? `${getString('STG_DELETE_GROUP_CONFIRM')} "${
+                groupToDelete.GroupName
+              }"?`
+            : getString('STG_DELETE_GROUP_CONFIRM')
+        }
+        confirmText={getString('STG_DELETE')}
+        cancelText={getString('NG_CANCEL')}
+        onConfirm={confirmDeleteGroup}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setTimeout(() => setGroupToDelete(null), 300);
+        }}
       />
 
       <CityPickerModal
@@ -766,7 +1089,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   navigateWithSelectedUsers(friendIds);
                 }
               } else {
-                notify.error('Please select at least one user');
+                notify.error(getString('SEND_GIFT_SELECT_AT_LEAST_ONE_USER'));
               }
             }}
             type="primary"

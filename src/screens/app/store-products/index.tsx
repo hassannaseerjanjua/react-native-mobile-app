@@ -7,6 +7,7 @@ import {
   Text,
   TouchableOpacity,
   ActivityIndicator,
+  RefreshControl,
 } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
@@ -75,6 +76,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const isVerified = store?.isVerified ?? false;
 
   const [selectedFilter, setSelectedFilter] = useState('all');
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
 
   const categoriesApi = useGetApi<Category[]>(
@@ -275,6 +277,18 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       : getStoreProducts.data || [];
   }, [selectedFilter, getFavoriteItems.data, getStoreProducts.data]);
 
+  useEffect(() => {
+    if (isRefreshing && !currentListingApi.loading && !categoriesApi.loading) {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, currentListingApi.loading, categoriesApi.loading]);
+
+  const handleRefresh = () => {
+    setIsRefreshing(true);
+    currentListingApi.recall();
+    categoriesApi.refetch?.();
+  };
+
   // Handle tab press
   const handleTabPress = (id: string) => {
     setSelectedFilter(id);
@@ -373,7 +387,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             },
           ]}
         >
-          {currentListingApi.loading || categoriesApi.loading ? (
+          {(currentListingApi.loading || categoriesApi.loading) &&
+          !isRefreshing ? (
             <SkeletonLoader screenType="productListing" />
           ) : (
             <>
@@ -390,6 +405,14 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                 numColumns={2}
                 keyExtractor={item => item.ItemId.toString()}
                 extraData={favoriteStates}
+                refreshControl={
+                  <RefreshControl
+                    refreshing={isRefreshing}
+                    onRefresh={handleRefresh}
+                    tintColor={theme.colors.PRIMARY}
+                    colors={[theme.colors.PRIMARY]}
+                  />
+                }
                 ListEmptyComponent={() => (
                   <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
                     <PlaceholderLogoText

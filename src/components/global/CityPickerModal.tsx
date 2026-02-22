@@ -17,6 +17,7 @@ import { LinearGradient } from 'react-native-linear-gradient';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import fonts from '../../assets/fonts';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface CityPickerOption {
   label: string;
@@ -46,6 +47,7 @@ const CityPickerModal: React.FC<CityPickerModalProps> = ({
   title,
 }) => {
   const theme = useTheme();
+  const { getString } = useLocaleStore();
   const flatListRef = useRef<FlatList>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
   const slideAnim = useRef(new Animated.Value(0)).current;
@@ -221,11 +223,11 @@ const CityPickerModal: React.FC<CityPickerModalProps> = ({
           <View style={styles.container}>
             <View style={styles.header}>
               <TouchableOpacity onPress={onClose} style={styles.button}>
-                <Text style={styles.cancelText}>Cancel</Text>
+                <Text style={styles.cancelText}>{getString('COMP_CANCEL')}</Text>
               </TouchableOpacity>
               {title && <Text style={styles.title}>{title}</Text>}
               <TouchableOpacity onPress={handleConfirm} style={styles.button}>
-                <Text style={styles.doneText}>Done</Text>
+                <Text style={styles.doneText}>{getString('COMP_DONE')}</Text>
               </TouchableOpacity>
             </View>
 
