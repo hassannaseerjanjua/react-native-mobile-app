@@ -491,39 +491,41 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   data={filteredContacts}
                   keyExtractor={item => item.UserId.toString()}
                   renderItem={({ item, index }) => {
-                      const phoneNo = item.PhoneNo || '';
-                      const formattedPhone = formatPhoneNumber(phoneNo);
-                      const verified = verifiedUsers[formattedPhone];
-                      const isAppUser = verified?.IsAppUser || false;
+                    const phoneNo = item.PhoneNo || '';
+                    const formattedPhone = formatPhoneNumber(phoneNo);
+                    const verified = verifiedUsers[formattedPhone];
+                    const isAppUser = verified?.IsAppUser || false;
 
-                      return (
-                        <SearchUserItem
-                          item={item}
-                          index={index}
-                          isLast={index === (filteredContacts?.length ?? 0) - 1}
-                          updatedUsers={updatedUsers}
-                          loadingUsers={loadingUsers}
-                          handleAddUser={
-                            isAppUser
-                              ? () => handleContactAction(item)
-                              : undefined
-                          }
-                          showAddButton={true}
-                          tempAddedUserIds={tempAddedUserIds}
-                          isGeneralSearchScreen={false}
-                          // Pass custom button text for invite
-                          customButtonText={!isAppUser ? getString('SEARCH_INVITE') : undefined}
-                          onCustomButtonPress={
-                            !isAppUser
-                              ? () => handleContactAction(item)
-                              : undefined
-                          }
-                        />
-                      );
+                    return (
+                      <SearchUserItem
+                        item={item}
+                        index={index}
+                        isLast={index === (filteredContacts?.length ?? 0) - 1}
+                        updatedUsers={updatedUsers}
+                        loadingUsers={loadingUsers}
+                        handleAddUser={
+                          isAppUser
+                            ? () => handleContactAction(item)
+                            : undefined
+                        }
+                        showAddButton={true}
+                        tempAddedUserIds={tempAddedUserIds}
+                        isGeneralSearchScreen={false}
+                        // Pass custom button text for invite
+                        customButtonText={
+                          !isAppUser ? getString('SEARCH_INVITE') : undefined
+                        }
+                        onCustomButtonPress={
+                          !isAppUser
+                            ? () => handleContactAction(item)
+                            : undefined
+                        }
+                      />
+                    );
                   }}
                   showsVerticalScrollIndicator={false}
                   ListEmptyComponent={
-                    <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
+                    <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
                       <PlaceholderLogoText
                         text={getString('SEARCH_NO_USERS_FOUND')}
                       />
@@ -571,20 +573,20 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                     isLast={index === (filteredData?.length ?? 0) - 1}
                     updatedUsers={updatedUsers}
                     loadingUsers={loadingUsers}
-                    handleAddUser={showEmployeesOnly ? undefined : handleAddUser}
+                    handleAddUser={
+                      showEmployeesOnly ? undefined : handleAddUser
+                    }
                     showAddButton={!showEmployeesOnly}
                     tempAddedUserIds={tempAddedUserIds}
                     isGeneralSearchScreen={
-                      !showFriendsOnly &&
-                      !showConnectOnly &&
-                      !showEmployeesOnly
+                      !showFriendsOnly && !showConnectOnly && !showEmployeesOnly
                     }
                   />
                 )}
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.listContainer}
                 ListEmptyComponent={
-                  <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
+                  <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
                     <PlaceholderLogoText
                       text={getString('SEARCH_NO_USERS_FOUND')}
                     />
