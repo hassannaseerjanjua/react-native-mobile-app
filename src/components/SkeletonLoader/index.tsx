@@ -32,6 +32,7 @@ type SkeletonLoaderProps = {
   | 'tabItem'
   | 'tabItemCity'
   | 'groupTabs'
+  | 'cards'
   | 'notifications';
 };
 
@@ -1681,6 +1682,56 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                       borderRadius={4}
                     />
                   </SkeletonPlaceholder.Item>
+                </SkeletonPlaceholder.Item>
+              ))}
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
+        );
+      case 'cards':
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item paddingHorizontal={theme.sizes.PADDING}>
+              {[...Array(6)].map((_, index) => (
+                <SkeletonPlaceholder.Item
+                  key={index}
+                  flexDirection="row"
+                  alignItems="center"
+                  width="100%"
+                  paddingVertical={theme.sizes.PADDING * 0.6}
+                  paddingHorizontal={theme.sizes.PADDING * 0.75}
+                  borderRadius={theme.sizes.BORDER_RADIUS}
+                  marginBottom={screenHeight * 0.008}
+                >
+                  <SkeletonPlaceholder.Item
+                    width={scaleWithMax(20, 22)}
+                    height={scaleWithMax(20, 22)}
+                    borderRadius={999}
+                    marginRight={theme.sizes.WIDTH * 0.03}
+                  />
+                  <SkeletonPlaceholder.Item
+                    width={scaleWithMax(32, 35)}
+                    height={scaleWithMax(32, 35)}
+                    borderRadius={8}
+                    marginRight={theme.sizes.WIDTH * 0.03}
+                  />
+                  <SkeletonPlaceholder.Item flex={1} gap={6}>
+                    <SkeletonPlaceholder.Item
+                      width="65%"
+                      height={12}
+                      borderRadius={4}
+                    />
+                    <SkeletonPlaceholder.Item
+                      width="40%"
+                      height={10}
+                      borderRadius={4}
+                    />
+                  </SkeletonPlaceholder.Item>
+                  <SkeletonPlaceholder.Item
+                    width={scaleWithMax(18, 20)}
+                    height={scaleWithMax(18, 20)}
+                    borderRadius={4}
+                    marginLeft={theme.sizes.WIDTH * 0.03}
+                  />
                 </SkeletonPlaceholder.Item>
               ))}
             </SkeletonPlaceholder.Item>

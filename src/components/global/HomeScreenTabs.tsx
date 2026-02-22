@@ -136,7 +136,12 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
             <Text style={cardStyles.titlePrimary}> {titlePrimary}</Text>
           )}
         </Text>
-        <Text style={[cardStyles.description, descriptionStyles]}>
+        <Text
+          numberOfLines={2}
+          adjustsFontSizeToFit
+          minimumFontScale={0.8}
+          style={[cardStyles.description, descriptionStyles]}
+        >
           {description}
         </Text>
       </View>

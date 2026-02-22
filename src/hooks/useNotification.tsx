@@ -1,5 +1,5 @@
 import { useEffect, useRef, useCallback } from 'react';
-import { Linking, Platform } from 'react-native';
+import { Linking, Platform, DeviceEventEmitter } from 'react-native';
 import { CommonActions } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { FirebaseMessagingTypes } from '@react-native-firebase/messaging';
@@ -172,6 +172,7 @@ const useNotification = () => {
       console.log('Foreground notification:', message.notification?.title);
       console.log('Foreground data:', JSON.stringify(message.data, null, 2));
       await displayNotification(message);
+      DeviceEventEmitter.emit('REFRESH_NOTIFICATIONS_COUNT');
     },
     [],
   );

@@ -80,7 +80,13 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
     const placeholderImage = require('../../assets/images/img-placeholder.png');
     return (
       <View style={[styles.container, styles.stateContainer]}>
-        <Image source={placeholderImage} style={styles.image} />
+        <View style={styles.placeholderOuter}>
+          <View style={styles.placeholderSlide}>
+            <View style={styles.imageWrapper}>
+              <Image source={placeholderImage} style={styles.image} />
+            </View>
+          </View>
+        </View>
       </View>
     );
   }
@@ -216,8 +222,20 @@ const useStyles = () => {
           backgroundColor: '#f0f0f0',
           justifyContent: 'center',
           alignItems: 'center',
+          width: '100%',
+          height: '100%',
           borderRadius: theme.sizes.BORDER_RADIUS_MID,
           overflow: 'hidden',
+        },
+        placeholderOuter: {
+          paddingHorizontal: theme.sizes.PADDING,
+          width: '100%',
+          height: '100%',
+        },
+        placeholderSlide: {
+          width: theme.sizes.PADDED_WIDTH,
+          height: '100%',
+          alignSelf: 'center',
         },
         stateText: {
           color: '#666',

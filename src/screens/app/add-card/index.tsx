@@ -1,4 +1,10 @@
-import { StyleSheet, TouchableOpacity, View, FlatList, ActivityIndicator } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  View,
+  FlatList,
+  ActivityIndicator,
+} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -11,12 +17,20 @@ import { useNavigation } from '@react-navigation/native';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import notify from '../../../utils/notify';
-import { VisaIcon, SvgSelectedCheck, SvgDeleteIcon, MasterCardIcon, NoonIcon } from '../../../assets/icons';
+import {
+  VisaIcon,
+  SvgSelectedCheck,
+  SvgDeleteIcon,
+  MasterCardIcon,
+  NoonIcon,
+} from '../../../assets/icons';
 import CheckBox from '../../../components/global/CheckBox';
 import CustomButton from '../../../components/global/Custombutton';
 import CustomFooter from '../../../components/global/CustomFooter';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import SkeletonLoader from '../../../components/SkeletonLoader';
 import { UserCard, AppStackScreen } from '../../../types/navigation.types';
+import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 // import { UserCard, AppStackScreen } from '../../../types/navigation.types';
 
 const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
@@ -39,7 +53,9 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   const fetchUserCards = async () => {
     try {
       setLoading(true);
-      const response = await api.get<{ Data: UserCard[] }>(apiEndpoints.GET_CARDS);
+      const response = await api.get<{ Data: UserCard[] }>(
+        apiEndpoints.GET_CARDS,
+      );
 
       if (response.success && response.data?.Data) {
         setCards(response.data.Data);
@@ -64,7 +80,9 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
       if (response.success) {
         notify.success(getString('P_CARD_DELETED_SUCCESS'));
         // Remove card from local state
-        setCards(prevCards => prevCards.filter(card => card.Token !== cardToken));
+        setCards(prevCards =>
+          prevCards.filter(card => card.Token !== cardToken),
+        );
       } else {
         notify.error(response.error || getString('P_CARD_DELETE_FAILED'));
       }
@@ -102,17 +120,21 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   };
 
   const renderCardItem = ({ item }: { item: UserCard }) => (
-
     <TouchableOpacity
       style={[
         styles.cardContainer,
         {
-          ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+          ...(langCode === 'ar'
+            ? { flexDirection: rtlFlexDirection(!isRtl) }
+            : { flexDirection: rtlFlexDirection(isRtl) }),
           marginBottom: theme.sizes.HEIGHT * 0.005,
         },
       ]}
       activeOpacity={0.7}
-      onPress={() => !fromProfile && setSelectedCard(selectedCard === item.Token ? null : item.Token)}
+      onPress={() =>
+        !fromProfile &&
+        setSelectedCard(selectedCard === item.Token ? null : item.Token)
+      }
       disabled={fromProfile}
     >
       <View
@@ -120,8 +142,9 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
           ...styles.row,
           flex: 1,
           gap: theme.sizes.WIDTH * 0.03,
-          ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
-
+          ...(langCode === 'ar'
+            ? { flexDirection: rtlFlexDirection(!isRtl) }
+            : { flexDirection: rtlFlexDirection(isRtl) }),
         }}
       >
         {!fromProfile && (
@@ -181,28 +204,28 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Text style={styles.emptyText}>
-        {getString('NO_CARDS_FOUND')}
-      </Text>
+      <PlaceholderLogoText text={getString('NO_CARDS_FOUND')} />
     </View>
   );
 
   return (
     <ParentView>
       <HomeHeader
-        title={fromProfile ? getString('P_MANAGE_CARDS') : getString('CHECKOUT_CHANGE_CARD')}
+        title={
+          fromProfile
+            ? getString('P_MANAGE_CARDS')
+            : getString('CHECKOUT_CHANGE_CARD')
+        }
         showBackButton
       />
-      <View style={{ flex: 1, paddingHorizontal: theme.sizes.PADDING }}>
+      <View style={{ flex: 1 }}>
         {loading ? (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color={theme.colors.PRIMARY} />
-          </View>
+          <SkeletonLoader screenType="cards" />
         ) : (
           <FlatList
             data={cards}
             renderItem={renderCardItem}
-            keyExtractor={(item) => item.Token}
+            keyExtractor={item => item.Token}
             contentContainerStyle={styles.listContainer}
             ListEmptyComponent={renderEmptyState}
             showsVerticalScrollIndicator={false}

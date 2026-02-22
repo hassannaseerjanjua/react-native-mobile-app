@@ -67,8 +67,8 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
             <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
           ) : (
             <SvgCatchAddIcon
-              width={scaleWithMax(17, 18)}
-              height={scaleWithMax(17, 18)}
+              width={scaleWithMax(14, 16)}
+              height={scaleWithMax(14, 16)}
             />
           )}
         </TouchableOpacity>
@@ -136,14 +136,15 @@ const useStyles = () => {
         position: 'relative',
         height: sizes.HEIGHT * 0.21,
         width: '100%',
+        ...theme.globalStyles.SHADOW_STYLE_INPUT,
       },
       AddContainer: {
-        ...theme.globalStyles.SHADOW_STYLE_MEDIUM,
+        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
         overflow: 'visible',
         backgroundColor: colors.WHITE,
         borderRadius: 9999,
-        width: scaleWithMax(30, 34),
-        height: scaleWithMax(30, 34),
+        width: scaleWithMax(30, 32),
+        height: scaleWithMax(30, 32),
         position: 'absolute',
         bottom: -scaleWithMax(14, 14),
         end: 0,

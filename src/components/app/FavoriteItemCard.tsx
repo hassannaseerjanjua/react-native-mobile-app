@@ -40,15 +40,15 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
       ? (item as Store).NameAr
       : (item as Store).NameEn
     : isRtl
-      ? (item as FavStores).StoreNameAr
-      : (item as FavStores).StoreNameEn;
+    ? (item as FavStores).StoreNameAr
+    : (item as FavStores).StoreNameEn;
   const businessType = isStore
     ? isRtl
       ? (item as any).BusinessTypeNameAr || (item as Store).BusinessTypeName
       : (item as Store).BusinessTypeName
     : isRtl
-      ? (item as FavStores).BusinessTypeNameAr
-      : (item as FavStores).BusinessTypeNameEn;
+    ? (item as FavStores).BusinessTypeNameAr
+    : (item as FavStores).BusinessTypeNameEn;
 
   const placeholderImage = require('../../assets/images/img-placeholder.png');
   const backgroundImage = (item as Store | FavStores).ImageCover
@@ -66,27 +66,27 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
       >
         <View style={styles.imageWrapper}>
           <Image source={backgroundImage} style={styles.backgroundImage} />
-          {
-            item.SpecialPriceMenuApplied && (<>
-              <SvgSpecialPriceTag style={{
-                position: 'absolute',
-                top: 0,
-                right: isRtl ? -2 : 0,
-                zIndex: 10,
-                transform: [
-                  { rotate: isRtl ? '270deg' : '0deg' },
-                ],
-
-              }} />
-              <SvgSpecialPricePercentage style={{
-                position: 'absolute',
-                top: scaleWithMax(6, 7),
-                end: scaleWithMax(4, 4),
-                zIndex: 10,
-              }} />
-
-            </>)
-          }
+          {item.SpecialPriceMenuApplied && (
+            <>
+              <SvgSpecialPriceTag
+                style={{
+                  position: 'absolute',
+                  top: 0,
+                  right: isRtl ? -2 : 0,
+                  zIndex: 10,
+                  transform: [{ rotate: isRtl ? '270deg' : '0deg' }],
+                }}
+              />
+              <SvgSpecialPricePercentage
+                style={{
+                  position: 'absolute',
+                  top: scaleWithMax(6, 7),
+                  end: scaleWithMax(4, 4),
+                  zIndex: 10,
+                }}
+              />
+            </>
+          )}
 
           {/* {showFavorite && onFavoritePress && (
             <TouchableOpacity
@@ -117,11 +117,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
           <View style={styles.textContainer}>
             <View style={styles.titleContainer}>
               <Text style={styles.title}>{storeName}</Text>
-              {
-                (item as Store | FavStores).isVerified && (
-                  <SvgVerifiedIcon />
-                )
-              }
+              {(item as Store | FavStores).isVerified && <SvgVerifiedIcon />}
             </View>
 
             <Text style={styles.subtitle}>{businessType}</Text>

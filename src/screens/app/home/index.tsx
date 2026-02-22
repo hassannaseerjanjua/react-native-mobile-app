@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useCallback, useEffect, useRef } from 'react';
 import { View, StatusBar } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'react-native-linear-gradient';
 import HomeHeader from '../../../components/global/HomeHeader';
 import HomeScreenTabs from '../../../components/global/HomeScreenTabs';
@@ -24,20 +24,36 @@ import notify from '../../../utils/notify';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const { user } = useAuthStore();
   const navigation = useNavigation();
   const hasLoadedOnceRef = useRef(false);
   const isMerchant = user?.isMerchant === 1;
-  const keysLoaded = getString('HOME_WELCOME') !== 'HOME_WELCOME' && getString('HOME_WHAT_ARE_YOU') !== 'HOME_WHAT_ARE_YOU';
+  const keysLoaded =
+    getString('HOME_WELCOME') !== 'HOME_WELCOME' &&
+    getString('HOME_WHAT_ARE_YOU') !== 'HOME_WHAT_ARE_YOU';
 
   const {
     data: sliderResponse,
     loading: sliderLoading,
     error: sliderError,
+    refetch: refetchSlider,
   } = useGetApi<Slider[]>(apiEndpoints.GET_HOME_SLIDER, {
     transformData: (data: SliderApiResponse) => data?.Data || [],
   });
+
+  const refetchSliderRef = useRef(refetchSlider);
+
+  useEffect(() => {
+    refetchSliderRef.current = refetchSlider;
+  }, [refetchSlider]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!hasLoadedOnceRef.current) return;
+      refetchSliderRef.current();
+    }, []),
+  );
 
   if (sliderResponse && !hasLoadedOnceRef.current) {
     hasLoadedOnceRef.current = true;
@@ -92,7 +108,7 @@ const HomeScreen: React.FC = () => {
               ellipsizeMode="tail"
             >
               {getString('HOME_WELCOME')}
-              {', '}
+              {isRtl ? '، ' : ', '}
               <Text style={styles.userName}>{user?.FullNameEn}</Text>
             </Text>
             <View style={styles.heroImage}>
@@ -130,46 +146,36 @@ const HomeScreenTabsContainer: React.FC = () => {
     {
       id: 'gift-one-get-one',
       icon: <SvgHomeG1G1 />,
-      title:
-        getString('HOME_GIFT_ONE_GET_ONE'),
+      title: getString('HOME_GIFT_ONE_GET_ONE'),
 
-      description:
-        getString('HOME_GIFT_ONE_GET_ONE_DESC'),
+      description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
       iconStyles: {
         marginRight: scaleWithMax(18, 20),
       },
       onPress: () =>
         isMerchant
-          ? notify.error(
-            getString('MERCHANT_NOT_ALLOWED'),
-          )
+          ? notify.error(getString('MERCHANT_NOT_ALLOWED'))
           : (navigation as any).navigate('SendAGift' as never, {
-            routeTo: 'GiftOneGetOne',
-          }),
+              routeTo: 'GiftOneGetOne',
+            }),
     },
     {
       id: 'catch',
       image: require('../../../assets/catch-Group-Icon.png'),
-      title:
-        getString('HOME_CATCH'),
-      description:
-        getString('HOME_CATCH_INSTANT_GIFT_DESC'),
+      title: getString('HOME_CATCH'),
+      description: getString('HOME_CATCH_INSTANT_GIFT_DESC'),
       onPress: () =>
         isMerchant
-          ? notify.error(
-            getString('MERCHANT_NOT_ALLOWED'),
-          )
+          ? notify.error(getString('MERCHANT_NOT_ALLOWED'))
           : (navigation as any).navigate('CatchScreen', {
-            type: 'catch',
-          }),
+              type: 'catch',
+            }),
     },
     {
       id: 'send-a-gift',
       icon: <SvgHomeSendAGift />,
-      title:
-        getString('HOME_SEND_A_GIFT'),
-      description:
-        getString('HOME_SEND_A_GIFT_DESC'),
+      title: getString('HOME_SEND_A_GIFT'),
+      description: getString('HOME_SEND_A_GIFT_DESC'),
       onPress: () =>
         (navigation as any).navigate('SendAGift' as never, {
           routeTo: 'SelectStore',
@@ -179,32 +185,24 @@ const HomeScreenTabsContainer: React.FC = () => {
     {
       id: 'inbox',
       icon: <SvgHomeInbox />,
-      title:
-        getString('HOME_INBOX'),
-      description:
-        getString('HOME_INBOX_DESC'),
+      title: getString('HOME_INBOX'),
+      description: getString('HOME_INBOX_DESC'),
       onPress: () =>
         isMerchant
-          ? notify.error(
-            getString('MERCHANT_NOT_ALLOWED'),
-          )
+          ? notify.error(getString('MERCHANT_NOT_ALLOWED'))
           : (navigation as any).navigate('InboxOutbox', {
-            title:
-              getString('HOME_INBOX'),
-            isInbox: true,
-          }),
+              title: getString('HOME_INBOX'),
+              isInbox: true,
+            }),
     },
     {
       id: 'outbox',
       icon: <SvgHomeOutbox />,
-      title:
-        getString('HOME_OUTBOX'),
-      description:
-        getString('HOME_OUTBOX_DESC'),
+      title: getString('HOME_OUTBOX'),
+      description: getString('HOME_OUTBOX_DESC'),
       onPress: () =>
         (navigation as any).navigate('InboxOutbox', {
-          title:
-            getString('HOME_OUTBOX'),
+          title: getString('HOME_OUTBOX'),
           isInbox: false,
         }),
     },
@@ -227,8 +225,8 @@ const HomeScreenTabsContainer: React.FC = () => {
             minHeight: isProMax
               ? scaleWithMax(95, 110)
               : isLargeAndroid
-                ? scaleWithMax(88, 93)
-                : scaleWithMax(95, 95),
+              ? scaleWithMax(88, 93)
+              : scaleWithMax(95, 95),
           }}
         />
       </View>
@@ -245,8 +243,8 @@ const HomeScreenTabsContainer: React.FC = () => {
               minHeight: isProMax
                 ? scaleWithMax(85, 100)
                 : isLargeAndroid
-                  ? scaleWithMax(78, 83)
-                  : scaleWithMax(85, 85),
+                ? scaleWithMax(78, 83)
+                : scaleWithMax(85, 85),
             }}
           />
         ))}
@@ -268,8 +266,8 @@ const HomeScreenTabsContainer: React.FC = () => {
               minHeight: isProMax
                 ? scaleWithMax(75, 90)
                 : isLargeAndroid
-                  ? scaleWithMax(73, 78)
-                  : scaleWithMax(78, 80),
+                ? scaleWithMax(73, 78)
+                : scaleWithMax(78, 80),
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 0.08,

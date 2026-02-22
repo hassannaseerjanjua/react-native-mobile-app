@@ -258,143 +258,146 @@ const InboxOutbox: React.FC = () => {
                 );
                 const hasMultipleItems = availableItems.length > 1;
 
-                return availableItems.map(item => {
+                return availableItems.map((item, index) => {
                   const availableQuantity = item.Quantity - item.UsedQuantity;
                   const selectedQty = selectedItems.get(item.OrderItemId) || 0;
                   const isSelected = selectedQty > 0;
                   const hasMultipleQuantity = availableQuantity > 1;
 
                   return (
-                    <View
-                      key={item.OrderItemId}
-                      style={[
-                        styles.itemRow,
-                        { marginBottom: theme.sizes.PADDING * 0.5 },
-                      ]}
-                    >
-                      <TouchableOpacity
-                        style={styles.itemCheckboxRow}
-                        onPress={() =>
-                          hasMultipleItems &&
-                          handleItemToggle(item.OrderItemId, availableQuantity)
-                        }
-                        disabled={!hasMultipleItems}
+                    <>
+                      <View
+                        key={item.OrderItemId}
+                        style={[
+                          styles.itemRow,
+                        ]}
                       >
-                        {hasMultipleItems && (
-                          <CheckBox
-                            Selected={isSelected}
-                            onSelectionPress={() =>
-                              handleItemToggle(
-                                item.OrderItemId,
-                                availableQuantity,
-                              )
-                            }
+                        <TouchableOpacity
+                          style={styles.itemCheckboxRow}
+                          onPress={() =>
+                            hasMultipleItems &&
+                            handleItemToggle(item.OrderItemId, availableQuantity)
+                          }
+                          disabled={!hasMultipleItems}
+                        >
+                          {hasMultipleItems && (
+                            <CheckBox
+                              Selected={isSelected}
+                              onSelectionPress={() =>
+                                handleItemToggle(
+                                  item.OrderItemId,
+                                  availableQuantity,
+                                )
+                              }
+                            />
+                          )}
+                          <Image
+                            source={getMainImage(item)}
+                            style={{
+                              width: scaleWithMax(65, 70),
+                              height: scaleWithMax(65, 70),
+                              borderRadius: theme.sizes.BORDER_RADIUS,
+                              marginLeft: hasMultipleItems
+                                ? theme.sizes.WIDTH * 0.025
+                                : 0,
+                            }}
                           />
-                        )}
-                        <Image
-                          source={getMainImage(item)}
-                          style={{
-                            width: scaleWithMax(65, 70),
-                            height: scaleWithMax(65, 70),
-                            borderRadius: theme.sizes.BORDER_RADIUS,
-                            marginLeft: hasMultipleItems
-                              ? theme.sizes.WIDTH * 0.025
-                              : 0,
-                          }}
-                        />
+                          <View
+                            style={{
+                              flex: 1,
+                              marginLeft: theme.sizes.WIDTH * 0.025,
+                              // gap: scaleWithMax(10, 12),
+                            }}
+                          >
+                            <Text
+                              style={[styles.itemNameText]}
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
+                            >
+                              {item.ItemName}
+                            </Text>
+                          </View>
+                        </TouchableOpacity>
                         <View
                           style={{
-                            flex: 1,
-                            marginLeft: theme.sizes.WIDTH * 0.025,
-                            // gap: scaleWithMax(10, 12),
+                            flexDirection: 'row',
+                            position: 'relative',
                           }}
                         >
-                          <Text
-                            style={[styles.itemNameText]}
-                            numberOfLines={1}
-                            ellipsizeMode="tail"
-                          >
-                            {item.ItemName}
-                          </Text>
+                          {isSelected && (
+                            <View style={styles.quantitySelector}>
+                              <TouchableOpacity
+                                onPress={() =>
+                                  handleQuantityChange(
+                                    item.OrderItemId,
+                                    'decrement',
+                                    availableQuantity,
+                                  )
+                                }
+                                disabled={selectedQty <= 1}
+                                style={[
+                                  styles.quantityButton,
+                                  selectedQty <= 1 &&
+                                  styles.quantityButtonDisabled,
+                                ]}
+                                hitSlop={{
+                                  top: 10,
+                                  bottom: 10,
+                                  left: 10,
+                                  right: 10,
+                                }}
+                              >
+                                <MinusIcon
+                                  width={scaleWithMax(14, 16)}
+                                  height={scaleWithMax(14, 16)}
+                                  fill={
+                                    selectedQty <= 1
+                                      ? '#ccc'
+                                      : theme.colors.PRIMARY
+                                  }
+                                />
+                              </TouchableOpacity>
+                              <Text style={styles.quantityText}>
+                                {selectedQty}
+                              </Text>
+                              <TouchableOpacity
+                                onPress={() =>
+                                  handleQuantityChange(
+                                    item.OrderItemId,
+                                    'increment',
+                                    availableQuantity,
+                                  )
+                                }
+                                disabled={selectedQty >= availableQuantity}
+                                style={[
+                                  styles.quantityButton,
+                                  selectedQty >= availableQuantity &&
+                                  styles.quantityButtonDisabled,
+                                ]}
+                                hitSlop={{
+                                  top: 10,
+                                  bottom: 10,
+                                  left: 10,
+                                  right: 10,
+                                }}
+                              >
+                                <PlusIcon
+                                  width={scaleWithMax(14, 16)}
+                                  height={scaleWithMax(14, 16)}
+                                  fill={
+                                    selectedQty >= availableQuantity
+                                      ? '#ccc'
+                                      : theme.colors.PRIMARY
+                                  }
+                                />
+                              </TouchableOpacity>
+                            </View>
+                          )}
                         </View>
-                      </TouchableOpacity>
-                      <View
-                        style={{
-                          flexDirection: 'row',
-                          position: 'relative',
-                        }}
-                      >
-                        {isSelected && (
-                          <View style={styles.quantitySelector}>
-                            <TouchableOpacity
-                              onPress={() =>
-                                handleQuantityChange(
-                                  item.OrderItemId,
-                                  'decrement',
-                                  availableQuantity,
-                                )
-                              }
-                              disabled={selectedQty <= 1}
-                              style={[
-                                styles.quantityButton,
-                                selectedQty <= 1 &&
-                                styles.quantityButtonDisabled,
-                              ]}
-                              hitSlop={{
-                                top: 10,
-                                bottom: 10,
-                                left: 10,
-                                right: 10,
-                              }}
-                            >
-                              <MinusIcon
-                                width={scaleWithMax(14, 16)}
-                                height={scaleWithMax(14, 16)}
-                                fill={
-                                  selectedQty <= 1
-                                    ? '#ccc'
-                                    : theme.colors.PRIMARY
-                                }
-                              />
-                            </TouchableOpacity>
-                            <Text style={styles.quantityText}>
-                              {selectedQty}
-                            </Text>
-                            <TouchableOpacity
-                              onPress={() =>
-                                handleQuantityChange(
-                                  item.OrderItemId,
-                                  'increment',
-                                  availableQuantity,
-                                )
-                              }
-                              disabled={selectedQty >= availableQuantity}
-                              style={[
-                                styles.quantityButton,
-                                selectedQty >= availableQuantity &&
-                                styles.quantityButtonDisabled,
-                              ]}
-                              hitSlop={{
-                                top: 10,
-                                bottom: 10,
-                                left: 10,
-                                right: 10,
-                              }}
-                            >
-                              <PlusIcon
-                                width={scaleWithMax(14, 16)}
-                                height={scaleWithMax(14, 16)}
-                                fill={
-                                  selectedQty >= availableQuantity
-                                    ? '#ccc'
-                                    : theme.colors.PRIMARY
-                                }
-                              />
-                            </TouchableOpacity>
-                          </View>
-                        )}
+
                       </View>
-                    </View>
+                      {index !== availableItems.length - 1 && <View style={styles.itemSeparator} />}
+                    </>
                   );
                 });
               })()}

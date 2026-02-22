@@ -334,7 +334,7 @@ const SettingsScreen: React.FC = () => {
                         isPhone={true}
                         error={
                           formik.touched.phoneNumber &&
-                            formik.errors.phoneNumber
+                          formik.errors.phoneNumber
                             ? formik.errors.phoneNumber
                             : undefined
                         }

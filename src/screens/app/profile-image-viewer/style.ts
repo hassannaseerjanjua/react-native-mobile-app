@@ -18,18 +18,18 @@ const useStyles = () => {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        // paddingHorizontal: sizes.PADDING,
+        overflow: 'hidden',
         backgroundColor: theme.colors.HOME_BACKGROUND,
       },
       imageTouchable: {
+        flex: 1,
         width: '100%',
         justifyContent: 'center',
         alignItems: 'center',
       },
       image: {
         width: '100%',
-        height: sizes.HEIGHT * 1,
-        maxHeight: sizes.HEIGHT *1,
+        flex: 1,
       },
       rightIconsContainer: {
         flexDirection: 'row',

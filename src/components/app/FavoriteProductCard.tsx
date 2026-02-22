@@ -39,40 +39,39 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
   const itemImage = isStoreProduct
     ? (item as StoreProduct).Thumbnail
     : isFaveItems
-      ? (item as FaveItems).ItemImage
-      : null;
+    ? (item as FaveItems).ItemImage
+    : null;
   const itemName = isStoreProduct
     ? isRtl
       ? (item as StoreProduct).NameAr
       : (item as StoreProduct).NameEn
     : isFaveItems
-      ? isRtl
-        ? (item as FaveItems).ItemNameAr
-        : (item as FaveItems).ItemNameEn
-      : '';
+    ? isRtl
+      ? (item as FaveItems).ItemNameAr
+      : (item as FaveItems).ItemNameEn
+    : '';
   const categoryName = isStoreProduct
     ? isRtl
       ? (item as StoreProduct).CategoryNameAr
       : (item as StoreProduct).CategoryNameEn
     : isFaveItems
-      ? isRtl
-        ? (item as FaveItems).CategoryNameAr
-        : (item as FaveItems).CategoryNameEn
-      : '';
+    ? isRtl
+      ? (item as FaveItems).CategoryNameAr
+      : (item as FaveItems).CategoryNameEn
+    : '';
   const price =
     (item as StoreProduct).Variants?.length > 0
       ? (item as StoreProduct).Variants.find(v => v.IsDefault)?.FinalPrice ||
-      (item as StoreProduct).Price
+        (item as StoreProduct).Price
       : 0;
-
 
   const defaultVariant = (item as StoreProduct).Variants?.find(
     v => v.IsDefault,
   );
   const cutPrice =
     (item as StoreProduct).Variants?.length > 0 && defaultVariant
-      ? (defaultVariant.FinalPrice ?? 0) - (defaultVariant.DiscountedPrice ?? 0) ||
-      (item as StoreProduct).Price
+      ? (defaultVariant.FinalPrice ?? 0) -
+          (defaultVariant.DiscountedPrice ?? 0) || (item as StoreProduct).Price
       : 0;
 
   const isSpecialPrice = item.Campaign !== null;
@@ -135,20 +134,25 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
           {!isFavoriteTab && (
             <>
               <SvgRiyalIcon
-                width={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
-                height={isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
+                width={
+                  isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
+                }
+                height={
+                  isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
+                }
                 opacity={isSpecialPrice ? 0.32 : 1}
               />
             </>
           )}
           {!isFavoriteTab && (
-            <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>{(isFavoriteTab ? cutPrice : price) || 'N/A'}</Text>
+            <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>
+              {(isFavoriteTab ? cutPrice : price) || 'N/A'}
+            </Text>
           )}
 
           {isFavoriteTab && (
             <>
               <View style={styles.priceContainer}>
-
                 <SvgRiyalPink
                   width={scaleWithMax(11, 13)}
                   height={scaleWithMax(11, 13)}
@@ -158,7 +162,6 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
                 />
                 <Text style={styles.discountedPrice}>{cutPrice}</Text>
                 <Text style={styles.cutPrice}>{price}</Text>
-
               </View>
             </>
           )}

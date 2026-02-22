@@ -20,7 +20,7 @@ const useStyles = () => {
       },
       scrollContent: {
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.PADDING * 0,
+        paddingVertical: sizes.HEIGHT * 0.014,
         paddingBottom: sizes.HEIGHT * 0.02,
       },
       formContainer: {
@@ -36,9 +36,11 @@ const useStyles = () => {
         fontFamily: fonts.Quicksand.semibold,
         fontSize: sizes.FONTSIZE_LESS_HIGH,
         marginBottom: sizes.PADDING * 0.2,
+        marginStart: sizes.WIDTH * 0.038,
       },
       languageContainer: {
         paddingVertical: sizes.PADDING * 0.1,
+        marginStart: sizes.WIDTH * 0.038,
       },
       languageOption: {
         flexDirection: 'row',

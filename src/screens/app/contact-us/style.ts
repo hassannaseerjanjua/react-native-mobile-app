@@ -30,11 +30,11 @@ const useStyles = () => {
         marginBottom: 20,
       },
       buttonContainer: {
-        marginTop: sizes.PADDING,
+        // marginTop: sizes.PADDING,
       },
       whatsappContainer: {
         position: 'absolute',
-        bottom: sizes.HEIGHT * 0.02,
+        bottom: sizes.HEIGHT * 0.05,
         right: sizes.PADDING,
       },
     });

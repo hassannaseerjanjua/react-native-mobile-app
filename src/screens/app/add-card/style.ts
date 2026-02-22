@@ -33,7 +33,6 @@ const useStyles = () => {
         alignItems: 'center',
         gap: sizes.WIDTH * 0.013,
         // ...theme.globalStyles.SHADOW_STYLE,
-
       },
       cardNumber: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
@@ -49,12 +48,7 @@ const useStyles = () => {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
-        paddingTop: sizes.HEIGHT * 0.2,
-      },
-      emptyText: {
-        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-        fontSize: sizes.FONTSIZE_MEDIUM,
-        color: theme.colors.SECONDARY_TEXT,
+        height: sizes.HEIGHT * 0.78,
       },
     }),
     theme,

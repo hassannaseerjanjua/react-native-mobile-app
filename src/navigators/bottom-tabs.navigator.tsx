@@ -123,21 +123,11 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
 
   React.useEffect(() => {
     if (!isAuthenticated) return;
-    const interval = setInterval(() => {
-      getNotificationCount.refetch();
-    }, 15000);
-
     const subscription = DeviceEventEmitter.addListener(
       'REFRESH_NOTIFICATIONS_COUNT',
-      () => {
-        getNotificationCount.refetch();
-      },
+      () => getNotificationCount.refetch(),
     );
-
-    return () => {
-      clearInterval(interval);
-      subscription.remove();
-    };
+    return () => subscription.remove();
   }, [isAuthenticated, getNotificationCount]);
 
   return (
@@ -193,9 +183,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                   : getString('MERCHANT_NOT_ALLOWED'),
               );
               return;
-            }
-            if (route.name === 'Notifications') {
-              getNotificationCount.refetch();
             }
             navigation.navigate(route.name);
           }

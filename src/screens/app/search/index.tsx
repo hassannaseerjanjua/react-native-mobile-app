@@ -37,7 +37,7 @@ interface VerifiedUser {
   UserID: number | null;
 }
 
-interface SearchProps extends AppStackScreen<'Search'> { }
+interface SearchProps extends AppStackScreen<'Search'> {}
 
 const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
@@ -192,8 +192,9 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       const formattedPhone = phoneNumber.replace(/[^\d]/g, ''); // Remove + and other chars
 
       // Generate invite message
-      const inviteMessage = `🎁 Join me on Giftee! Download the app and let's exchange gifts.\n\nhttps://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId=${user?.UserId || ''
-        }&CityId=${user?.CityId || ''}&sendType=1`;
+      const inviteMessage = `🎁 Join me on Giftee! Download the app and let's exchange gifts.\n\nhttps://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId=${
+        user?.UserId || ''
+      }&CityId=${user?.CityId || ''}&sendType=1`;
 
       // Use Share API to show bottom sheet with all sharing options
       const shareOptions = Platform.select({
@@ -219,7 +220,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       if (error.message !== 'User did not share') {
         notify.error(
           getString('O_UNABLE_TO_OPEN_WHATSAPP') ||
-          'Unable to share. Please try again.',
+            'Unable to share. Please try again.',
         );
       }
     }
@@ -356,13 +357,13 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         title={title || getString('FIND_PEOPLE')}
         showBackButton
         onBackPress={() => navigation.goBack()}
-        showSearch={false}
         showSearchBar
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
         rightSideView={
-          showFriendsOnly && (
+          !showFriendsOnly &&
+          !showConnectOnly && (
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('Search', {
@@ -390,62 +391,55 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       />
 
       <View style={[styles.content, styles.contentContainer]}>
-        <View style={styles.listCard}>
-          {activeUsersApi.loading ||
-            employeesApi.loading ||
-            (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
+        {activeUsersApi.loading ||
+        employeesApi.loading ||
+        (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
+          <View style={styles.listCard}>
             <SkeletonLoader screenType="search" />
-          ) : (
-            (() => {
-              // In connect mode, only show mobile contacts
-              if (showConnectOnly) {
-                // Map mobile contacts to ActiveUser format for display
-                const mappedContacts: ActiveUser[] = mobileContacts.map(
-                  (contact, index) => {
-                    const phoneNo = contact.phoneNumbers[0] || '';
-                    const formattedPhone = formatPhoneNumber(phoneNo);
-                    const verified = verifiedUsers[formattedPhone];
+          </View>
+        ) : (
+          (() => {
+            // In connect mode, only show mobile contacts
+            if (showConnectOnly) {
+              // Map mobile contacts to ActiveUser format for display
+              const mappedContacts: ActiveUser[] = mobileContacts.map(
+                (contact, index) => {
+                  const phoneNo = contact.phoneNumbers[0] || '';
+                  const formattedPhone = formatPhoneNumber(phoneNo);
+                  const verified = verifiedUsers[formattedPhone];
 
-                    return {
-                      UserId:
-                        verified?.IsAppUser && verified.UserID
-                          ? verified.UserID
-                          : -(index + 1), // Negative IDs for non-app users
-                      FullName: contact.name,
-                      PhoneNo: phoneNo,
-                      Email: contact.emails[0] || '',
-                      ProfileUrl: contact.thumbnail || null,
-                      RelationStatus: verified?.IsAppUser ? 2 : 0, // 2 = not friend, 0 = not a user
-                      IsVerified: verified?.IsAppUser ? true : false,
-                    };
-                  },
-                );
+                  return {
+                    UserId:
+                      verified?.IsAppUser && verified.UserID
+                        ? verified.UserID
+                        : -(index + 1), // Negative IDs for non-app users
+                    FullName: contact.name,
+                    PhoneNo: phoneNo,
+                    Email: contact.emails[0] || '',
+                    ProfileUrl: contact.thumbnail || null,
+                    RelationStatus: verified?.IsAppUser ? 2 : 0, // 2 = not friend, 0 = not a user
+                    IsVerified: verified?.IsAppUser ? true : false,
+                  };
+                },
+              );
 
-                // Filter contacts by search query if needed
-                const filteredContacts = mappedContacts.filter(contact => {
-                  if (!searchQuery) return true;
-                  const query = searchQuery.toLowerCase();
-                  return (
-                    contact.FullName?.toLowerCase().includes(query) ||
-                    contact.PhoneNo?.includes(query) ||
-                    contact.Email?.toLowerCase().includes(query)
-                  );
-                });
-
-                // const isEmpty =
-                //   !filteredContacts || filteredContacts.length === 0;
-
-                // if (isEmpty) {
-                //   return (
-                //     <View style={styles.loadingContainer}>
-                //       <Text style={styles.loadingText}>
-                //         {getString('SEARCH_NO_USERS_FOUND_TO_CONNECT')}
-                //       </Text>
-                //     </View>
-                //   );
-                // }
-
+              // Filter contacts by search query if needed
+              const filteredContacts = mappedContacts.filter(contact => {
+                if (!searchQuery) return true;
+                const query = searchQuery.toLowerCase();
                 return (
+                  contact.FullName?.toLowerCase().includes(query) ||
+                  contact.PhoneNo?.includes(query) ||
+                  contact.Email?.toLowerCase().includes(query)
+                );
+              });
+
+              const isEmpty = filteredContacts.length === 0;
+
+              return (
+                <View
+                  style={[styles.listCard, isEmpty && styles.listCardEmpty]}
+                >
                   <FlatList
                     data={filteredContacts}
                     keyExtractor={item => item.UserId.toString()}
@@ -482,8 +476,10 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                     }}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
-                      <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
-                        <PlaceholderLogoText text={getString('SEARCH_NO_USERS_FOUND')} />
+                      <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
+                        <PlaceholderLogoText
+                          text={getString('SEARCH_NO_USERS_FOUND')}
+                        />
                       </View>
                     }
                     contentContainerStyle={styles.listContainer}
@@ -499,28 +495,18 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       ) : null
                     }
                   />
-                );
-              }
+                </View>
+              );
+            }
 
-              // For other modes, show API users (employees or active users)
-              const filteredData = showEmployeesOnly
-                ? employeesApi?.data
-                : activeUsersApi?.data;
-              // const isEmpty = !filteredData || filteredData.length === 0;
+            // For other modes, show API users (employees or active users)
+            const filteredData = showEmployeesOnly
+              ? employeesApi?.data
+              : activeUsersApi?.data;
+            const isEmpty = !filteredData || filteredData.length === 0;
 
-              // if (isEmpty) {
-              //   return (
-              //     <View style={styles.loadingContainer}>
-              //       <Text style={styles.loadingText}>
-              //         {searchQuery
-              //           ? getString('SEARCH_NO_RESULTS_FOUND')
-              //           : getString('SEARCH_NO_USERS_FOUND')}
-              //       </Text>
-              //     </View>
-              //   );
-              // }
-
-              return (
+            return (
+              <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
                 <FlatList
                   data={filteredData}
                   keyExtractor={item => item.UserId.toString()}
@@ -535,15 +521,19 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       showAddButton={!showEmployeesOnly}
                       tempAddedUserIds={tempAddedUserIds}
                       isGeneralSearchScreen={
-                        !showFriendsOnly && !showConnectOnly && !showEmployeesOnly
+                        !showFriendsOnly &&
+                        !showConnectOnly &&
+                        !showEmployeesOnly
                       }
                     />
                   )}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContainer}
                   ListEmptyComponent={
-                    <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
-                      <PlaceholderLogoText text={getString('SEARCH_NO_USERS_FOUND')} />
+                    <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
+                      <PlaceholderLogoText
+                        text={getString('SEARCH_NO_USERS_FOUND')}
+                      />
                     </View>
                   }
                   onEndReached={
@@ -553,10 +543,10 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   }
                   onEndReachedThreshold={0.5}
                 />
-              );
-            })()
-          )}
-        </View>
+              </View>
+            );
+          })()
+        )}
       </View>
 
       <ConfirmationPopup

@@ -137,8 +137,8 @@ const OccasionsScreen: React.FC = () => {
 
                 {
                   OccassionId: -1,
-                  NameEn: 'My Birthday',
-                  NameAr: 'عيد الميلاد',
+                  NameEn: getString('OCCASSIONS_MY_BIRTHDAY'),
+                  NameAr: getString('OCCASSIONS_MY_BIRTHDAY'),
                   OccasionDate: null,
                   Type: null,
                   ImageUrl: '',
@@ -329,7 +329,7 @@ const OccasionsScreen: React.FC = () => {
                             </TouchableOpacity>
                           }
                           fieldProps={{
-                            placeholder: 'Event Name',
+                            placeholder: getString('OCC_EVENT_NAME'),
                             value: formik.values.occasionName,
                             editable: true,
                             onChangeText: (text: string) => {

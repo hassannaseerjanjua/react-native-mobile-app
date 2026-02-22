@@ -116,10 +116,19 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     () => listings?.flatMap(listing => listing.users || []) || [],
     [listings],
   );
+  const uniqueUsers = useMemo(() => {
+    const usersMap = new Map<number, ActiveUser>();
+    allUsers.forEach(user => {
+      if (!usersMap.has(user.UserId)) {
+        usersMap.set(user.UserId, user);
+      }
+    });
+    return Array.from(usersMap.values());
+  }, [allUsers]);
 
   const selectedUsersData = useMemo(
-    () => allUsers.filter(user => selectedUsers.has(user.UserId)),
-    [allUsers, selectedUsers],
+    () => uniqueUsers.filter(user => selectedUsers.has(user.UserId)),
+    [uniqueUsers, selectedUsers],
   );
 
   const resetModalState = useCallback(
@@ -585,8 +594,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   }
                   subTitle={
                     viewOnly
-                      ? `${allUsers.length} ${getString('NG_MEMBERS')}`
-                      : `${selectedUsers.size}/${allUsers.length}`
+                      ? `${uniqueUsers.length} ${getString('NG_MEMBERS')}`
+                      : `${selectedUsers.size}/${uniqueUsers.length}`
                   }
                   rightSideTitle={viewOnly ? '' : getString('NG_NEXT')}
                   showSearchBar={true}
@@ -688,7 +697,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                     ) : null}
                     <Text style={styles.membersHeading}>
                       {getString('NG_MEMBERS')}: {selectedUsers.size}{' '}
-                      {getString('NG_OUT_OF')} {allUsers.length}
+                      {getString('NG_OUT_OF')} {uniqueUsers.length}
                     </Text>
                     <SelectedMembersGrid />
                   </View>

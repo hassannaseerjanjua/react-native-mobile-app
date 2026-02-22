@@ -27,6 +27,13 @@ const useStyles = () => {
         borderRadius: 16,
         ...theme.globalStyles.SHADOW_STYLE,
       },
+      listCardEmpty: {
+        backgroundColor: 'transparent',
+        shadowColor: 'transparent',
+        shadowOpacity: 0,
+        shadowRadius: 0,
+        elevation: 0,
+      },
       listContainer: {
         paddingVertical: 2,
       },

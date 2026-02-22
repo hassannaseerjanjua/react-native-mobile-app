@@ -41,16 +41,17 @@ import useGetApi from '../../../hooks/useGetApi';
 import { CartResponse } from '../../../types';
 import notify from '../../../utils/notify';
 
-interface SendAGiftProps extends AppStackScreen<'SendAGift'> { }
+interface SendAGiftProps extends AppStackScreen<'SendAGift'> {}
 
 const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
-
   const isGiftOneGetOne = route.params?.routeTo === 'GiftOneGetOne';
   const { styles, theme } = useStyles();
   const { getString, langCode } = useLocaleStore();
   const { user, token } = useAuthStore();
   const isMerchant = user?.isMerchant === 1;
-  const [activeTab, setActiveTab] = useState(isMerchant ? 'employees' : 'friends');
+  const [activeTab, setActiveTab] = useState(
+    isMerchant ? 'employees' : 'friends',
+  );
   const [isMemberSelectionOpen, setIsMemberSelectionOpen] = useState(false);
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
     user?.CityId || null,
@@ -78,11 +79,11 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       extraParams: {
         // userId: user?.UserId,
         friends: activeTab === 'friends',
-        cityid: isMerchant && activeTab === 'others' ? selectedCityId : undefined,
+        cityid:
+          isMerchant && activeTab === 'others' ? selectedCityId : undefined,
       },
     },
   );
-
 
   const friendsForGroupApi = useListingApi<ActiveUser>(
     apiEndpoints.GET_ACTIVE_USERS,
@@ -152,7 +153,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       activeUsersApi.setExtraParams({
         cityid: selectedCityId,
         friends: false,
-
       });
     }
   }, [activeTab, user?.UserId, isMerchant, selectedCityId]);
@@ -193,10 +193,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     if (friendIds.length === 0) return;
 
     // Navigate to the next screen
-    if (
-      route.params?.routeTo === 'SelectStore' ||
-      !route.params?.routeTo
-    ) {
+    if (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo) {
       navigation.navigate('SelectStore', {
         friendUserId: isMerchant ? null : friendIds[0],
         FriendIds: isMerchant ? friendIds : undefined,
@@ -227,7 +224,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       } else {
         // Selecting - check limit
         if (newSet.size >= MAX_SELECTION_LIMIT) {
-          notify.error(`You can select a maximum of ${MAX_SELECTION_LIMIT} users`);
+          notify.error(
+            `You can select a maximum of ${MAX_SELECTION_LIMIT} users`,
+          );
           return prev;
         }
         newSet.add(userId);
@@ -241,8 +240,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       handleUserSelection(item.UserId);
       return;
     }
-
-
 
     const selectedFriendUserId = item.UserId;
 
@@ -265,10 +262,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     }
 
     // Navigate to the next screen
-    if (
-      route.params?.routeTo === 'SelectStore' ||
-      !route.params?.routeTo
-    ) {
+    if (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo) {
       navigation.navigate('SelectStore', {
         friendUserId: selectedFriendUserId,
         friendName: item.FullName.replace(getString('SG_ME'), '') || null,
@@ -286,45 +280,45 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
   const tabs = isMerchant
     ? [
-      {
-        id: 'employees',
-        title: 'My Employees',
-        onPress: () => {
-          handleTabChange('employees');
+        {
+          id: 'employees',
+          title: 'My Employees',
+          onPress: () => {
+            handleTabChange('employees');
+          },
         },
-      },
-      {
-        id: 'others',
-        title: getString('SG_OTHERS'),
-        onPress: () => {
-          handleTabChange('others');
+        {
+          id: 'others',
+          title: getString('SG_OTHERS'),
+          onPress: () => {
+            handleTabChange('others');
+          },
         },
-      },
-    ]
+      ]
     : [
-      {
-        id: 'friends',
-        title: getString('SG_FRIENDS'),
-        onPress: () => {
-          handleTabChange('friends');
+        {
+          id: 'friends',
+          title: getString('SG_FRIENDS'),
+          onPress: () => {
+            handleTabChange('friends');
+          },
         },
-      },
-      {
-        id: 'group',
-        title: getString('SG_GROUP'),
-        onPress: () =>
-          navigation.navigate('SendToGroup' as any, {
-            routeTo: route.params?.routeTo || 'SelectStore',
-          }),
-      },
-      {
-        id: 'others',
-        title: getString('SG_OTHERS'),
-        onPress: () => {
-          handleTabChange('others');
+        {
+          id: 'group',
+          title: getString('SG_GROUP'),
+          onPress: () =>
+            navigation.navigate('SendToGroup' as any, {
+              routeTo: route.params?.routeTo || 'SelectStore',
+            }),
         },
-      },
-    ];
+        {
+          id: 'others',
+          title: getString('SG_OTHERS'),
+          onPress: () => {
+            handleTabChange('others');
+          },
+        },
+      ];
 
   // Get frequently sent friends (first 3 from response with OrdersCount >= 1, in API order)
   // Only for friends tab with no search
@@ -366,8 +360,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     if (shouldShowMe) {
       const currentUser: ActiveUser = {
         UserId: user.UserId,
-        FullName: `${user.FullNameEn || user.FullNameAr || getString('SG_USER_ME')
-          }${getString('SG_ME')}`,
+        FullName: `${
+          user.FullNameEn || user.FullNameAr || getString('SG_USER_ME')
+        }${getString('SG_ME')}`,
         Email: user.Email,
         PhoneNo: user.PhoneNo,
         ProfileUrl: user.ProfileUrl,
@@ -385,39 +380,40 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   };
 
   const displayData = getDisplayData();
-  
-  const isLoading = isMerchant && activeTab === 'employees'
-    ? employeesApi.loading
-    : activeUsersApi.loading;
-  const searchQuery = isMerchant && activeTab === 'employees'
-    ? employeesApi.search
-    : activeUsersApi.search;
-  const setSearchQuery = isMerchant && activeTab === 'employees'
-    ? employeesApi.setSearch
-    : activeUsersApi.setSearch;
-  
+
+  const isLoading =
+    isMerchant && activeTab === 'employees'
+      ? employeesApi.loading
+      : activeUsersApi.loading;
+  const searchQuery =
+    isMerchant && activeTab === 'employees'
+      ? employeesApi.search
+      : activeUsersApi.search;
+  const setSearchQuery =
+    isMerchant && activeTab === 'employees'
+      ? employeesApi.setSearch
+      : activeUsersApi.setSearch;
+
   // Determine if "me" should be shown (same logic as in getDisplayData)
   const shouldShowMe =
     !activeUsersApi.search &&
     activeTab === 'friends' &&
     user &&
     (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo);
-  
+
   // Get base friends count (excluding "me")
-  const baseFriendsCount = isMerchant && activeTab === 'employees'
-    ? (employeesApi.data || []).length
-    : (activeUsersApi.data || []).length;
-  
+  const baseFriendsCount =
+    isMerchant && activeTab === 'employees'
+      ? (employeesApi.data || []).length
+      : (activeUsersApi.data || []).length;
+
   // Check if we should show the list (has friends OR "me" is shown)
   const shouldShowList = displayData.length > 0;
-  
+
   // Check if we should show empty state
   // Show empty state when: not merchant, not loading, no data to display, and on friends tab
-  const shouldShowEmptyState = !isMerchant && 
-    !isLoading && 
-    !shouldShowList && 
-    activeTab === 'friends';
-
+  const shouldShowEmptyState =
+    !isMerchant && !isLoading && !shouldShowList && activeTab === 'friends';
 
   useFocusEffect(
     useCallback(() => {
@@ -425,7 +421,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       activeUsersApi.recall();
       employeesApi.recall();
     }, []),
-
   );
 
   return (
@@ -448,7 +443,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
         rightSideTitle={
-          !isMerchant && activeTab === 'friends' ? getString('SG_NEW_GROUP') : ''
+          !isMerchant && activeTab === 'friends'
+            ? getString('SG_NEW_GROUP')
+            : ''
         }
         rightSideTitlePress={() => {
           if (!isMerchant && activeTab === 'friends') {
@@ -519,22 +516,22 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           />
           {(route.params?.routeTo === 'SelectStore' ||
             !route.params?.routeTo) && (
-              <View style={[styles.tabContainer]}>
-                <TabItem
-                  title={getString('SG_SEND_THROUGH_LINK')}
-                  TabTextStyles={{
-                    color: theme.colors.PRIMARY,
-                    maxWidth: '90%',
-                  }}
-                  onPress={() => {
-                    navigation.navigate('SelectCity', {
-                      sendType: 2,
-                    });
-                  }}
-                  isLink={true}
-                />
-              </View>
-            )}
+            <View style={[styles.tabContainer]}>
+              <TabItem
+                title={getString('SG_SEND_THROUGH_LINK')}
+                TabTextStyles={{
+                  color: theme.colors.PRIMARY,
+                  maxWidth: '90%',
+                }}
+                onPress={() => {
+                  navigation.navigate('SelectCity', {
+                    sendType: 2,
+                  });
+                }}
+                isLink={true}
+              />
+            </View>
+          )}
 
           {/* Frequently Sent Section - Only show for friends tab with no search */}
           {frequentlySentFriends.length > 0 &&
@@ -578,10 +575,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 {isMerchant && activeTab === 'employees'
                   ? 'My Employees'
                   : activeTab === 'friends'
-                    ? getString('SG_FRIENDS')
-                    : activeTab === 'group'
-                      ? getString('SG_GROUP')
-                      : getString('SG_OTHERS')}
+                  ? getString('SG_FRIENDS')
+                  : activeTab === 'group'
+                  ? getString('SG_GROUP')
+                  : getString('SG_OTHERS')}
               </Text>
               {isMerchant && (
                 <TouchableOpacity
@@ -614,9 +611,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 styles.listCard,
                 {
                   marginTop:
-                    (route.params?.routeTo === 'SelectStore' ||
-                      !route.params?.routeTo) ||
-                      isMerchant
+                    route.params?.routeTo === 'SelectStore' ||
+                    !route.params?.routeTo ||
+                    isMerchant
                       ? theme.sizes.HEIGHT * 0.014
                       : 0,
                 },
@@ -631,7 +628,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 {
                   marginBottom:
                     route.params?.routeTo === 'SelectStore' ||
-                      !route.params?.routeTo
+                    !route.params?.routeTo
                       ? theme.sizes.HEIGHT * 0.04
                       : theme.sizes.HEIGHT * 0.04,
                 },
@@ -704,7 +701,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           setIsMemberSelectionOpen(false);
         }}
         existingMembers={[]}
-        onSave={() => { }}
+        onSave={() => {}}
         title={getString('NG_ADD_MEMBERS')}
         listings={[
           {
@@ -724,7 +721,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         onClose={() => setShowCityPicker(false)}
         options={cityOptions}
         selectedValue={selectedCityId}
-        onSelect={(value) => {
+        onSelect={value => {
           setSelectedCityId(value as number | null);
           setShowCityPicker(false);
         }}
@@ -741,7 +738,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           }}
         >
           <CustomButton
-            title={`${getString("NG_NEXT")} (${selectedUserIds.size}/${MAX_SELECTION_LIMIT})`}
+            title={`${getString('NG_NEXT')} (${
+              selectedUserIds.size
+            }/${MAX_SELECTION_LIMIT})`}
             onPress={() => {
               const friendIds = Array.from(selectedUserIds);
               if (friendIds.length > 0) {
@@ -754,18 +753,15 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   existingCart.Items.length > 0
                 ) {
                   // Clear the cart for the previous user to start fresh flow
-                  api.put(apiEndpoints.CLEAR_CART, {}).then(
-                    response => {
-                      if (response.success) {
-                        navigateWithSelectedUsers(friendIds);
-                      } else {
-                        notify.error(
-                          response.error ||
-                          getString('AU_ERROR_OCCURRED'),
-                        );
-                      }
-                    },
-                  );
+                  api.put(apiEndpoints.CLEAR_CART, {}).then(response => {
+                    if (response.success) {
+                      navigateWithSelectedUsers(friendIds);
+                    } else {
+                      notify.error(
+                        response.error || getString('AU_ERROR_OCCURRED'),
+                      );
+                    }
+                  });
                 } else {
                   navigateWithSelectedUsers(friendIds);
                 }

@@ -57,22 +57,8 @@ const NotificationsScreen: React.FC = () => {
 
   useFocusEffect(
     useCallback(() => {
-      // useCallback(() => {
-      // 
-      // fetchNotifications();
       notificationsApi.recall(false);
-      return () => {
-        // const markAllAsSeen = async () => {
-        //   try {
-        //     await api.put(apiEndpoints.UPDATE_IS_SEEN_STATUS, {
-        //       IsSeen: true,
-        //     });
-        //   } catch (e) {
-        //     console.error("errror", e);
-        //   }
-        // };
-        markAllAsSeen();
-      };
+      markAllAsSeen();
     }, []),
   );
 
