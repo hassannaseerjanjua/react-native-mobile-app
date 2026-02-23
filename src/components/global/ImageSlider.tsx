@@ -78,7 +78,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
     );
   };
 
-  if (loading) {
+  if (loading || error || sliders?.length === 0) {
     const placeholderImage = require('../../assets/images/img-placeholder.png');
     return (
       <View style={[styles.container, styles.stateContainer]}>
@@ -93,21 +93,21 @@ const ImageSlider: React.FC<ImageSliderProps> = ({
     );
   }
 
-  if (error) {
-    return (
-      <View style={[styles.container, styles.stateContainer]}>
-        <Text style={styles.stateText}>{getString('COMP_IMAGE_LOAD_FAILED')}</Text>
-      </View>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <View style={[styles.container, styles.stateContainer]}>
+  //       <Text style={styles.stateText}>{getString('COMP_IMAGE_LOAD_FAILED')}</Text>
+  //     </View>
+  //   );
+  // }
 
-  if (sliders?.length === 0) {
-    return (
-      <View style={[styles.container, styles.stateContainer]}>
-        <Text style={styles.stateText}>{getString('COMP_NO_IMAGES_FOUND')}</Text>
-      </View>
-    );
-  }
+  // if (sliders?.length === 0) {
+  //   return (
+  //     <View style={[styles.container, styles.stateContainer]}>
+  //       <Text style={styles.stateText}>{getString('COMP_NO_IMAGES_FOUND')}</Text>
+  //     </View>
+  //   );
+  // }
 
   return (
     <View style={[styles.container]}>

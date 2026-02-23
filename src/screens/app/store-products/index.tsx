@@ -382,7 +382,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             styles.content,
             {
               paddingBottom: isCartFromCurrentStore
-                ? theme.sizes.HEIGHT * 0.18
+              ? theme.sizes.HEIGHT * 0.18
                 : theme.sizes.HEIGHT * 0.086,
             },
           ]}

@@ -22,7 +22,7 @@ import { LoginApiResponse } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 
-interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> { }
+interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
 const OtpVerification: React.FC<OtpVerificationProps> = ({
   navigation,
@@ -196,7 +196,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
           setShowError(false);
         }, 3000);
         setHasVerified(false);
-        setLastVerifiedOtp('');
+        setIsLoading(false);
       }
     } catch (error) {
       setShowError(true);
@@ -204,7 +204,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         setShowError(false);
       }, 3000);
       setHasVerified(false);
-      setLastVerifiedOtp('');
     } finally {
       setTimeout(() => {
         setIsLoading(false);
@@ -319,7 +318,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
           <CustomButton
             title={getString('API_INVALID_OR_EXPIRED_OTP')}
             type="error"
-            onPress={() => { }}
+            onPress={() => {}}
           />
         )}
       </AuthLayout>

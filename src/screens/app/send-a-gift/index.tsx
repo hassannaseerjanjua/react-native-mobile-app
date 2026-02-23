@@ -831,7 +831,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
               </View>
             )}
 
-          {shouldShowList && (
+          {activeTab !== 'group' && (
             <View
               style={{
                 flexDirection: 'row',
@@ -845,8 +845,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   : activeTab === 'friends'
                   ? getString('SG_FRIENDS')
                   : activeTab === 'group'
-                  ? selectedGroupName || getString('SG_GROUP')
-                  : getString('SG_OTHERS')}
+                  ? getString('SG_GROUP')
+                  : activeTab === 'others'
+                  ? getString('SG_OTHERS')
+                  : ''}
               </Text>
               {isMerchant && (
                 <TouchableOpacity
@@ -867,7 +869,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                       fontFamily: fonts.Quicksand.bold,
                     }}
                   >
-                    {isSelectionMode ? getString('SEND_GIFT_CANCEL') : getString('SEND_GIFT_SELECT')}
+                    {isSelectionMode
+                      ? getString('SEND_GIFT_CANCEL')
+                      : getString('SEND_GIFT_SELECT')}
                   </Text>
                 </TouchableOpacity>
               )}
@@ -937,7 +941,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             </View>
           ) : isMerchant ? (
             <View style={{ height: theme.sizes.HEIGHT * 0.6 }}>
-              <PlaceholderLogoText text={getString('SEND_GIFT_NO_USERS_FOUND')} />
+              <PlaceholderLogoText
+                text={getString('SEND_GIFT_NO_USERS_FOUND')}
+              />
             </View>
           ) : shouldShowEmptyState ? (
             <View style={styles.noFriendsContainer}>

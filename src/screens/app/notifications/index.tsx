@@ -16,11 +16,15 @@ import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
-import { Notification, NotificationsApiResponse } from '../../../types/index.ts';
+import {
+  Notification,
+  NotificationsApiResponse,
+} from '../../../types/index.ts';
 import { formatRelativeTime } from '../inbox-outbox/actions.ts';
 import { useListingApi } from '../../../hooks/useListingApi.ts';
 import { useAuthStore } from '../../../store/reducer/auth.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
+import notify from '../../../utils/notify.ts';
 
 const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -38,9 +42,10 @@ const NotificationsScreen: React.FC = () => {
         data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
-      pageSize: 10,
-    }
+    },
   );
+
+  console.log('notificationsApi', notificationsApi.data);
 
   const markAllAsSeen = async () => {
     try {
@@ -50,7 +55,7 @@ const NotificationsScreen: React.FC = () => {
       getNotificationCount.refetch();
       DeviceEventEmitter.emit('REFRESH_NOTIFICATIONS_COUNT');
     } catch (e) {
-      console.error("errror", e);
+      console.error('errror', e);
     }
   };
 
@@ -82,7 +87,6 @@ const NotificationsScreen: React.FC = () => {
     }, []),
   );
 
-
   const renderItem = ({ item }: { item: Notification }) => {
     const title = isRtl ? item.DescriptionAr : item.DescriptionEn;
 
@@ -90,7 +94,11 @@ const NotificationsScreen: React.FC = () => {
     try {
       if (item.JsonData) {
         const jsonData = JSON.parse(item.JsonData);
-        boldText = jsonData.StoreName || jsonData.OccasionUserName || jsonData.FullName || '';
+        boldText =
+          jsonData.StoreName ||
+          jsonData.OccasionUserName ||
+          jsonData.FullName ||
+          '';
       }
     } catch (e) {
       console.error(e);
@@ -140,7 +148,9 @@ const NotificationsScreen: React.FC = () => {
         onBackPress={() => navigation.goBack()}
       />
 
-      {notificationsApi.loading && !notificationsApi.loadingMore && !isRefreshing ? (
+      {notificationsApi.loading &&
+      !notificationsApi.loadingMore &&
+      !isRefreshing ? (
         <SkeletonLoader screenType="notifications" />
       ) : (
         <FlatList

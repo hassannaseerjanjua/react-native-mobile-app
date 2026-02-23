@@ -53,13 +53,12 @@ const NotificationItem = ({
       );
     }
     return (
-      <Text style={[styles.titleText, NotificationTextStyles,]}>{title}</Text>
+      <Text style={[styles.titleText, NotificationTextStyles]}>{title}</Text>
     );
   };
 
   return (
-    <View style={[styles.container, NotificationItemStyles,
-    ]}>
+    <View style={[styles.container, NotificationItemStyles]}>
       {time && (
         <View style={[styles.timeContainer]}>
           <Text style={[styles.timeText]}>{time}</Text>
@@ -78,7 +77,10 @@ const NotificationItem = ({
             />
           ) : (
             <View style={styles.placeholderContainer}>
-              <SvgGifteeNotifyIcon width={scaleWithMax(50, 55)} height={scaleWithMax(50, 55)} />
+              <SvgGifteeNotifyIcon
+                width={scaleWithMax(50, 55)}
+                height={scaleWithMax(50, 55)}
+              />
             </View>
           )}
           {!isSeen && <View style={styles.unreadDot} />}
@@ -107,7 +109,7 @@ const useStyles = () => {
         gap: 10,
         width: '100%',
         paddingHorizontal: theme.sizes.PADDING * 0.85,
-        paddingVertical: theme.sizes.HEIGHT * 0.014,
+        // paddingVertical: theme.sizes.HEIGHT * 0.014,
         ...theme.globalStyles.SHADOW_STYLE,
         borderRadius: theme.sizes.BORDER_RADIUS_MID,
         position: 'relative',
@@ -124,7 +126,7 @@ const useStyles = () => {
         fontSize: scaleWithMax(13, 14),
         color: colors.PRIMARY_TEXT,
         flex: 1,
-        textAlign: "left",
+        textAlign: 'left',
       },
       boldText: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
