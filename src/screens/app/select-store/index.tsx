@@ -102,7 +102,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     const businessTypeOptions = businessTypeApi.data.map(businessType => ({
       id: String(businessType.BusinessTypeId),
       title: langCode === 'ar' ? businessType.NameAr : businessType.NameEn,
-    })); ``
+    }));
     return [allOption, ...businessTypeOptions];
   }, [businessTypeApi.data, getString, langCode]);
 
@@ -143,8 +143,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         title: isRtl ? store.NameAr : store.NameEn,
         subtitle: isRtl
           ? businessTypeMap[store.BusinessTypeID] ||
-          (store as any).BusinessTypeNameAr ||
-          store.BusinessTypeName
+            (store as any).BusinessTypeNameAr ||
+            store.BusinessTypeName
           : store.BusinessTypeName,
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,
@@ -198,10 +198,9 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     }
   }, [storeListApi.data]);
 
-  // Clearing the cart before proceeding with another user 
+  // Clearing the cart before proceeding with another user
   useEffect(() => {
     const response = api.put(apiEndpoints.CLEAR_CART, {});
-
   }, []);
 
   useEffect(() => {
@@ -317,83 +316,82 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         />
 
         <View style={styles.content}>
-          {(storeListApi.loading || businessTypeApi.loading) && !isRefreshing ? (
-            <View
-              style={{
-                paddingHorizontal: theme.sizes.PADDING,
-              }}
-            >
+          <View>
+            {businessTypeApi.loading && !isRefreshing ? (
+              <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
+                <SkeletonLoader screenType="groupTabs" />
+              </View>
+            ) : (
+              <GroupTabs
+                tabs={filterOptions}
+                activeTab={selectedFilter}
+                onTabPress={setSelectedFilter}
+                tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
+              />
+            )}
+          </View>
+
+          {storeListApi.loading && !isRefreshing ? (
+            <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
               <SkeletonLoader screenType="storeCard" />
             </View>
           ) : (
-            <>
-              <FlatList
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={{
-                  paddingBottom: theme.sizes.HEIGHT * 0.16,
-                  paddingHorizontal: theme.sizes.PADDING,
-                }}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={isRefreshing}
-                    onRefresh={handleRefresh}
-                    tintColor={theme.colors.PRIMARY}
-                    colors={[theme.colors.PRIMARY]}
+            <FlatList
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{
+                paddingBottom: theme.sizes.HEIGHT * 0.16,
+                paddingHorizontal: theme.sizes.PADDING,
+              }}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                  tintColor={theme.colors.PRIMARY}
+                  colors={[theme.colors.PRIMARY]}
+                />
+              }
+              data={storeListApi.data}
+              extraData={favoriteStates}
+              ListEmptyComponent={() => (
+                <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
+                  <PlaceholderLogoText
+                    text={
+                      searchQuery
+                        ? getString('SEARCH_NO_RESULTS_FOUND')
+                        : getString('SELECT_STORE_NO_STORES_FOUND')
+                    }
                   />
-                }
-                ListHeaderComponent={() => (
-                  <View style={styles.tabsContainer}>
-                    <GroupTabs
-                      tabs={filterOptions}
-                      activeTab={selectedFilter}
-                      onTabPress={setSelectedFilter}
-                    />
-                  </View>
-                )}
-                data={storeListApi.data}
-                extraData={favoriteStates}
-                ListEmptyComponent={() => (
-                  <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
-                    <PlaceholderLogoText
-                      text={
-                        searchQuery
-                          ? getString('SEARCH_NO_RESULTS_FOUND')
-                          : getString('SELECT_STORE_NO_STORES_FOUND')
-                      }
-                    />
-                  </View>
-                )}
-                keyExtractor={item => item.StoreId.toString()}
-                renderItem={({ item }) => (
-                  <>
-                    <View
-                      style={styles.favoriteItemContainer}
+                </View>
+              )}
+              keyExtractor={item => item.StoreId.toString()}
+              renderItem={({ item }) => (
+                <>
+                  <View style={styles.favoriteItemContainer} key={item.StoreId}>
+                    <FavoriteItemCard
                       key={item.StoreId}
-                    >
-                      <FavoriteItemCard
-                        key={item.StoreId}
-                        item={{
+                      item={
+                        {
                           ...item,
                           BusinessTypeNameAr:
                             businessTypeMap[item.BusinessTypeID] ||
                             (item as any).BusinessTypeNameAr,
-                        } as any}
-                        onPress={handleStoreSelect}
-                        showFavorite={true}
-                        isFavorite={
-                          favoriteStates[item.StoreId] ??
-                          item.isFavourite ??
-                          false
-                        }
-                        onFavoritePress={() => handleFavoritePress(item)}
-                      />
-                    </View>
-                  </>
-                )}
-                onEndReached={storeListApi.loadMore}
-                onEndReachedThreshold={0.5}
-              />
-            </>
+                        } as any
+                      }
+                      onPress={handleStoreSelect}
+                      showFavorite={true}
+                      isFavorite={
+                        favoriteStates[item.StoreId] ??
+                        item.isFavourite ??
+                        false
+                      }
+                      onFavoritePress={() => handleFavoritePress(item)}
+                    />
+                  </View>
+                </>
+              )}
+              onEndReached={storeListApi.loadMore}
+              onEndReachedThreshold={0.5}
+            />
           )}
         </View>
       </View>

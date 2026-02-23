@@ -93,11 +93,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   }, [route.params]);
 
   useEffect(() => {
-    if (
-      isRefreshing &&
-      !FavStoreListing.loading &&
-      !businessTypeApi.loading
-    ) {
+    if (isRefreshing && !FavStoreListing.loading && !businessTypeApi.loading) {
       setIsRefreshing(false);
     }
   }, [isRefreshing, FavStoreListing.loading, businessTypeApi.loading]);
@@ -183,9 +179,23 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
       />
 
       <View style={styles.content}>
-        {(FavStoreListing.loading || businessTypeApi.loading) &&
-        !isRefreshing ? (
-          <View style={styles.favoritesContainer}>
+        <View>
+          {businessTypeApi.loading && !isRefreshing ? (
+            <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
+              <SkeletonLoader screenType="groupTabs" />
+            </View>
+          ) : (
+            <GroupTabs
+              tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
+              tabs={filterOptions}
+              activeTab={selectedFilter}
+              onTabPress={setSelectedFilter}
+            />
+          )}
+        </View>
+
+        {FavStoreListing.loading && !isRefreshing ? (
+          <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
             <SkeletonLoader screenType="storeCard" />
           </View>
         ) : (
@@ -194,16 +204,10 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
             data={filteredFavorites}
             keyExtractor={item => item.StoreId.toString()}
             showsVerticalScrollIndicator={false}
-            ListHeaderComponent={() => (
-              <View style={styles.tabsContainer}>
-                <GroupTabs
-                  tabs={filterOptions}
-                  activeTab={selectedFilter}
-                  onTabPress={setSelectedFilter}
-                />
-              </View>
-            )}
-            contentContainerStyle={styles.favoritesContainer}
+            contentContainerStyle={{
+              paddingBottom: theme.sizes.HEIGHT * 0.16,
+              paddingHorizontal: theme.sizes.PADDING,
+            }}
             refreshControl={
               <RefreshControl
                 refreshing={isRefreshing}

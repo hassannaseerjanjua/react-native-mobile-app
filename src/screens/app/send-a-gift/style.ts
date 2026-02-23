@@ -29,7 +29,7 @@ const useStyles = () => {
         paddingVertical: 0,
       },
       TabItem: {
-        height: sizes.HEIGHT * 0.075,
+        // height: sizes.HEIGHT * 0.075,
         shadowColor: '#000000',
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.04,

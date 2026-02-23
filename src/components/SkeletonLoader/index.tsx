@@ -10,30 +10,30 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 type SkeletonLoaderProps = {
   screenType:
-  | 'home'
-  | 'wallet'
-  | 'search'
-  | 'sendAGift'
-  | 'sendToGroup'
-  | 'staticContent'
-  | 'faq'
-  | 'storeCard'
-  | 'productListing'
-  | 'orderListing'
-  | 'settings'
-  | 'landing'
-  | 'productDetails'
-  | 'tabItem'
-  | 'checkout'
-  | 'occasionView'
-  | 'occasionList'
-  | 'inbox'
-  | 'giftFilters'
-  | 'tabItem'
-  | 'tabItemCity'
-  | 'groupTabs'
-  | 'cards'
-  | 'notifications';
+    | 'home'
+    | 'wallet'
+    | 'search'
+    | 'sendAGift'
+    | 'sendToGroup'
+    | 'staticContent'
+    | 'faq'
+    | 'storeCard'
+    | 'productListing'
+    | 'orderListing'
+    | 'settings'
+    | 'landing'
+    | 'productDetails'
+    | 'tabItem'
+    | 'checkout'
+    | 'occasionView'
+    | 'occasionList'
+    | 'inbox'
+    | 'giftFilters'
+    | 'tabItem'
+    | 'tabItemCity'
+    | 'groupTabs'
+    | 'cards'
+    | 'notifications';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -57,22 +57,22 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
         return isProMax
           ? scaleWithMax(95, 110)
           : isLargeAndroid
-            ? scaleWithMax(95, 103)
-            : scaleWithMax(95, 95);
+          ? scaleWithMax(95, 103)
+          : scaleWithMax(95, 95);
       } else if (row === 2) {
         // Second row: Catch, Send a Gift
         return isProMax
           ? scaleWithMax(85, 100)
           : isLargeAndroid
-            ? scaleWithMax(85, 93)
-            : scaleWithMax(85, 85);
+          ? scaleWithMax(85, 93)
+          : scaleWithMax(85, 85);
       } else {
         // Third row: Inbox, Outbox
         return isProMax
           ? scaleWithMax(75, 90)
           : isLargeAndroid
-            ? scaleWithMax(75, 83)
-            : scaleWithMax(78, 80);
+          ? scaleWithMax(75, 83)
+          : scaleWithMax(78, 80);
       }
     }
     return screenHeight * 0.1;
@@ -236,8 +236,6 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
             <SkeletonPlaceholder.Item>
               {/* Frequently Gifted Section */}
 
-
-
               {/* Main Friends List */}
               {[...Array(6)].map((_, index) => (
                 <SkeletonPlaceholder.Item
@@ -327,7 +325,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       case 'storeCard':
         return (
           <View>
-            <SkeletonPlaceholder>
+            {/* <SkeletonPlaceholder>
               <SkeletonPlaceholder.Item
                 flexDirection="row"
                 marginVertical={screenHeight * 0.016}
@@ -342,7 +340,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                   />
                 ))}
               </SkeletonPlaceholder.Item>
-            </SkeletonPlaceholder>
+            </SkeletonPlaceholder> */}
             {[...Array(3)].map((_, index) => (
               <View
                 key={index}
@@ -435,7 +433,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       case 'productListing':
         return (
           <SkeletonPlaceholder>
-            <SkeletonPlaceholder>
+            {/* <SkeletonPlaceholder>
               <SkeletonPlaceholder.Item
                 flexDirection="row"
                 marginTop={screenHeight * 0.016}
@@ -451,9 +449,9 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                   />
                 ))}
               </SkeletonPlaceholder.Item>
-            </SkeletonPlaceholder>
+            </SkeletonPlaceholder> */}
             <SkeletonPlaceholder.Item>
-              <View style={{ marginVertical: screenHeight * 0.006 }} />
+              <View />
 
               {[...Array(5)].map((_, index) => (
                 <>
@@ -462,14 +460,14 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                     flexDirection="row"
                     alignItems="flex-start"
                     justifyContent="space-between"
-                    gap={screenWidth * 0.035}
+                    gap={screenWidth * 0.045}
                   >
                     {/* Left Product Card */}
-                    <SkeletonPlaceholder.Item width={screenWidth * 0.43}>
+                    <SkeletonPlaceholder.Item width={screenWidth * 0.44}>
                       {/* Product Image */}
                       <SkeletonPlaceholder.Item
-                        width={screenWidth * 0.43}
-                        height={screenHeight * 0.2}
+                        width={screenWidth * 0.44}
+                        height={screenHeight * 0.21}
                         borderRadius={screenWidth * 0.0375}
                       />
 
@@ -499,11 +497,11 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                     </SkeletonPlaceholder.Item>
 
                     {/* Right Product Card */}
-                    <SkeletonPlaceholder.Item width={screenWidth * 0.43}>
+                    <SkeletonPlaceholder.Item width={screenWidth * 0.44}>
                       {/* Product Image */}
                       <SkeletonPlaceholder.Item
-                        width={screenWidth * 0.43}
-                        height={screenHeight * 0.2}
+                        width={screenWidth * 0.44}
+                        height={screenHeight * 0.21}
                         borderRadius={screenWidth * 0.0375}
                       />
 
@@ -937,7 +935,11 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
         return (
           <SkeletonPlaceholder>
             <SkeletonPlaceholder.Item>
-              <SkeletonPlaceholder.Item gap={16} alignItems="center" marginBottom={screenHeight * 0.016}>
+              <SkeletonPlaceholder.Item
+                gap={16}
+                alignItems="center"
+                marginBottom={screenHeight * 0.016}
+              >
                 <SkeletonPlaceholder.Item
                   width="100%"
                   height={screenHeight * 0.062}
@@ -1033,6 +1035,61 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                     width={screenWidth * 0.25}
                     height={screenHeight * 0.04}
                     borderRadius={screenWidth * 0.02}
+                  />
+                ))}
+              </SkeletonPlaceholder.Item>
+            </SkeletonPlaceholder.Item>
+          </SkeletonPlaceholder>
+        );
+
+        return (
+          <SkeletonPlaceholder>
+            <SkeletonPlaceholder.Item>
+              {/* Product Title and Price Row */}
+              <SkeletonPlaceholder.Item
+                flexDirection="row"
+                justifyContent="space-between"
+                alignItems="flex-start"
+                marginTop={screenHeight * 0.02}
+                marginBottom={screenHeight * 0.01}
+              >
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.55}
+                  height={screenHeight * 0.028}
+                  borderRadius={screenWidth * 0.01}
+                />
+                <SkeletonPlaceholder.Item
+                  flexDirection="row"
+                  alignItems="center"
+                  gap={screenWidth * 0.01}
+                >
+                  <SkeletonPlaceholder.Item
+                    width={screenWidth * 0.15}
+                    height={screenHeight * 0.024}
+                    borderRadius={screenWidth * 0.01}
+                  />
+                </SkeletonPlaceholder.Item>
+              </SkeletonPlaceholder.Item>
+              <SkeletonPlaceholder.Item
+                width={screenWidth * 0.5}
+                height={screenHeight * 0.018}
+                borderRadius={screenWidth * 0.01}
+                marginBottom={screenHeight * 0.025}
+              />
+              <SkeletonPlaceholder.Item marginBottom={screenHeight * 0.02}>
+                <SkeletonPlaceholder.Item
+                  width={screenWidth * 0.35}
+                  height={screenHeight * 0.022}
+                  borderRadius={screenWidth * 0.01}
+                  marginBottom={screenHeight * 0.012}
+                />
+                {[...Array(4)].map((_, index) => (
+                  <SkeletonPlaceholder.Item
+                    key={index}
+                    width={index === 3 ? screenWidth * 0.7 : screenWidth * 0.95}
+                    height={screenHeight * 0.018}
+                    borderRadius={screenWidth * 0.01}
+                    marginBottom={screenHeight * 0.008}
                   />
                 ))}
               </SkeletonPlaceholder.Item>
@@ -1552,7 +1609,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                       >
                         <SkeletonPlaceholder.Item
                           width="100%"
-                          height={theme.sizes.WIDTH * 0.50}
+                          height={theme.sizes.WIDTH * 0.5}
                           borderRadius={12}
                         />
                         {/* Bottom Section with Item Name */}
@@ -1636,7 +1693,8 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
           <SkeletonPlaceholder>
             <SkeletonPlaceholder.Item
               flexDirection="row"
-              paddingLeft={theme.sizes.PADDING}
+              // paddingHorizontal={theme.sizes.PADDING}
+              paddingVertical={theme.sizes.HEIGHT * 0.016}
               gap={10}
             >
               {[...Array(4)].map((_, index) => (
@@ -1670,7 +1728,11 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                     borderRadius={999}
                     marginRight={12}
                   />
-                  <SkeletonPlaceholder.Item flex={1} justifyContent="center" gap={6}>
+                  <SkeletonPlaceholder.Item
+                    flex={1}
+                    justifyContent="center"
+                    gap={6}
+                  >
                     <SkeletonPlaceholder.Item
                       width="75%"
                       height={14}

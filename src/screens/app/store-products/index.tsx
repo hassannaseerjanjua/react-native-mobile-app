@@ -48,7 +48,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const { token, user } = useAuthStore();
   const isMerchant = user?.isMerchant === 1;
 
-
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
   const friendIds = route.params?.FriendIds ?? undefined;
@@ -58,7 +57,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const sendType = route.params?.sendType ?? null;
   const isSendAGiftFlow = sendType !== null && sendType !== undefined;
 
-  const effectiveFriendUserId = friendUserId || (Array.isArray(friendIds) && friendIds.length === 1 ? friendIds[0] : null);
+  const effectiveFriendUserId =
+    friendUserId ||
+    (Array.isArray(friendIds) && friendIds.length === 1 ? friendIds[0] : null);
   const isMultipleUsers = Array.isArray(friendIds) && friendIds.length > 1;
 
   const [favoriteStates, setFavoriteStates] = useState<Record<number, boolean>>(
@@ -77,7 +78,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
-
 
   const categoriesApi = useGetApi<Category[]>(
     apiEndpoints.GET_CATEGORIES(businessTypeId, storeId),
@@ -138,12 +138,15 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
     const favoritesTabTitle =
-      friendUserId && friendName ? getString('FAV_FAVORITES') : getString('FAV_FAVORITES');
+      friendUserId && friendName
+        ? getString('FAV_FAVORITES')
+        : getString('FAV_FAVORITES');
     const favoritesOption = { id: 'favorites', title: favoritesTabTitle };
 
     // Only include favorites option if there are favorite items and not in send gift flow
     // Also hide it when coming from send through link flow (sendType === 2)
-    const hasFavorites = getFavoriteItems.data && getFavoriteItems.data.length > 0;
+    const hasFavorites =
+      getFavoriteItems.data && getFavoriteItems.data.length > 0;
     const isLinkFlow = sendType === 2;
     const options = [allOption];
 
@@ -159,7 +162,16 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       title: langCode === 'ar' ? category.NameAr : category.NameEn,
     }));
     return [...options, ...categoryOptions];
-  }, [categoriesApi.data, getFavoriteItems.data, getString, langCode, friendUserId, friendName, isSendAGiftFlow, sendType]);
+  }, [
+    categoriesApi.data,
+    getFavoriteItems.data,
+    getString,
+    langCode,
+    friendUserId,
+    friendName,
+    isSendAGiftFlow,
+    sendType,
+  ]);
 
   useEffect(() => {
     if (getStoreProducts.data && getStoreProducts.data.length > 0) {
@@ -183,7 +195,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
   const handleProductPress = (item: StoreProduct | FaveItems) => {
     const productItem = item as any;
-    const itemCampaignId = productItem?.Campaign?.CampaignId || productItem?.CampaignId;
+    const itemCampaignId =
+      productItem?.Campaign?.CampaignId || productItem?.CampaignId;
 
     (navigation as any).navigate('ProductDetails', {
       itemId: productItem?.ItemId ?? 0,
@@ -361,16 +374,12 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
       <View style={styles.container}>
         <View style={styles.headingContainer}>
-
           <View style={styles.verifiedContainer}>
             <Text style={styles.textLarge}>{store?.title}</Text>
-            {isVerified && (
-              <SvgVerifiedIcon />
-            )}
+            {isVerified && <SvgVerifiedIcon />}
           </View>
 
           <Text style={styles.textMedium}>{store?.subtitle}</Text>
-
         </View>
         <StatusBar
           backgroundColor={theme.colors.BACKGROUND}
@@ -382,71 +391,78 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             styles.content,
             {
               paddingBottom: isCartFromCurrentStore
-              ? theme.sizes.HEIGHT * 0.18
+                ? theme.sizes.HEIGHT * 0.18
                 : theme.sizes.HEIGHT * 0.086,
             },
           ]}
         >
-          {(currentListingApi.loading || categoriesApi.loading) &&
-          !isRefreshing ? (
+          <View>
+            {categoriesApi.loading && !isRefreshing ? (
+              <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
+                <SkeletonLoader screenType="groupTabs" />
+              </View>
+            ) : (
+              <GroupTabs
+                tabs={filterOptions}
+                activeTab={selectedFilter}
+                onTabPress={handleTabPress}
+                tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
+              />
+            )}
+          </View>
+          {currentListingApi.loading && !isRefreshing ? (
             <SkeletonLoader screenType="productListing" />
           ) : (
-            <>
-              <View style={styles.tabsContainer}>
-                <GroupTabs
-                  tabs={filterOptions}
-                  activeTab={selectedFilter}
-                  onTabPress={handleTabPress}
+            <FlatList
+              columnWrapperStyle={{ gap: 16 }}
+              data={currentData}
+              numColumns={2}
+              keyExtractor={item => item.ItemId.toString()}
+              extraData={favoriteStates}
+              refreshControl={
+                <RefreshControl
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                  tintColor={theme.colors.PRIMARY}
+                  colors={[theme.colors.PRIMARY]}
                 />
-              </View>
-              <FlatList
-                columnWrapperStyle={{ gap: 16 }}
-                data={currentData}
-                numColumns={2}
-                keyExtractor={item => item.ItemId.toString()}
-                extraData={favoriteStates}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={isRefreshing}
-                    onRefresh={handleRefresh}
-                    tintColor={theme.colors.PRIMARY}
-                    colors={[theme.colors.PRIMARY]}
+              }
+              ListEmptyComponent={() => (
+                <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
+                  <PlaceholderLogoText
+                    text={getString('EMPTY_NO_PRODUCTS_FOUND')}
                   />
-                }
-                ListEmptyComponent={() => (
-                  <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
-                    <PlaceholderLogoText
-                      text={getString('EMPTY_NO_PRODUCTS_FOUND')}
+                </View>
+              )}
+              contentContainerStyle={[
+                styles.content,
+                {
+                  paddingHorizontal: theme.sizes.PADDING,
+                  paddingBottom: isCartFromCurrentStore
+                    ? theme.sizes.HEIGHT * 0.12
+                    : theme.sizes.HEIGHT * 0.086,
+                },
+              ]}
+              showsVerticalScrollIndicator={false}
+              onEndReached={currentListingApi.loadMore}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={
+                currentListingApi.loadingMore ? (
+                  <View
+                    style={{
+                      paddingVertical: theme.sizes.HEIGHT * 0.02,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <ActivityIndicator
+                      size="small"
+                      color={theme.colors.PRIMARY}
                     />
                   </View>
-                )}
-                contentContainerStyle={[
-                  styles.content,
-                  isCartFromCurrentStore && {
-                    paddingBottom: theme.sizes.HEIGHT * 0.12,
-                  },
-                ]}
-                showsVerticalScrollIndicator={false}
-                onEndReached={currentListingApi.loadMore}
-                onEndReachedThreshold={0.5}
-                ListFooterComponent={
-                  currentListingApi.loadingMore ? (
-                    <View
-                      style={{
-                        paddingVertical: theme.sizes.HEIGHT * 0.02,
-                        alignItems: 'center',
-                      }}
-                    >
-                      <ActivityIndicator
-                        size="small"
-                        color={theme.colors.PRIMARY}
-                      />
-                    </View>
-                  ) : null
-                }
-                renderItem={renderProductItem}
-              />
-            </>
+                ) : null
+              }
+              renderItem={renderProductItem}
+            />
           )}
         </View>
       </View>
@@ -475,7 +491,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                 ) || 0}
               </Text>
             </View>
-            <Text style={styles.footerButtonText}>{getString('VIEW_CART')}</Text>
+            <Text style={styles.footerButtonText}>
+              {getString('VIEW_CART')}
+            </Text>
             <View style={styles.footerPriceRow}>
               <SvgRiyalIconWhite
                 width={scaleWithMax(12, 14)}

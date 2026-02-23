@@ -1,4 +1,9 @@
-import { StyleSheet, TouchableOpacity, ScrollView } from 'react-native';
+import {
+  StyleSheet,
+  TouchableOpacity,
+  ScrollView,
+  ViewStyle,
+} from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
@@ -13,15 +18,21 @@ interface GroupTabsProps {
   tabs: TabItem[];
   activeTab: string;
   onTabPress: (tabId: string) => void;
+  tabStyle?: ViewStyle;
 }
 
-const GroupTabs = ({ tabs, activeTab, onTabPress }: GroupTabsProps) => {
+const GroupTabs = ({
+  tabs,
+  activeTab,
+  onTabPress,
+  tabStyle,
+}: GroupTabsProps) => {
   const { styles, theme } = useStyles();
   return (
     <ScrollView
       horizontal
       showsHorizontalScrollIndicator={false}
-      contentContainerStyle={styles.scrollContainer}
+      contentContainerStyle={[styles.scrollContainer, tabStyle]}
     >
       {tabs.map(tab => (
         <TouchableOpacity
@@ -53,7 +64,7 @@ const useStyles = () => {
       scrollContainer: {
         flexDirection: 'row',
         gap: 10,
-        // paddingLeft: theme.sizes.PADDING,
+        paddingVertical: theme.sizes.HEIGHT * 0.016,
       },
       tab: {
         backgroundColor: colors.LIGHT_GRAY,

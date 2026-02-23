@@ -68,7 +68,6 @@ import { getVideoUploadPromise } from '../../../utils/videoUploadState';
 import { useAuthStore } from '../../../store/reducer/auth';
 import SuccessMessage from '../../../components/global/SuccessComponent';
 import TabItem from '../../../components/global/TabItem';
-import GroupTabs from '../../../components/global/GroupTabs';
 import SearchUserItem from '../../../components/app/SearchUserItem';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { FlatList } from 'react-native';
@@ -153,7 +152,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
     navigation.setOptions({ gestureEnabled: false });
 
-    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+    const unsubscribe = navigation.addListener('beforeRemove', e => {
       if (e.data.action.type === 'GO_BACK' || e.data.action.type === 'POP') {
         e.preventDefault();
       }

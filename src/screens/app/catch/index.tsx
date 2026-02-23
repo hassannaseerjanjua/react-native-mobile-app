@@ -110,9 +110,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     screenType === 'favorite'
       ? apiEndpoints.GET_CATEGORIES(storeID, businessTypeId)
       : apiEndpoints.GET_CAMPAIGN_CATEGORIES(
-        screenType === 'GiftOneGetOne' ? 3 : 1,
-        selectedCityId || user?.CityId,
-      ),
+          screenType === 'GiftOneGetOne' ? 3 : 1,
+          selectedCityId || user?.CityId,
+        ),
     {
       transformData: transformCategoriesData,
     },
@@ -306,7 +306,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     }
   };
 
-
   const handleProductPress = (item: any) => {
     if (screenType === 'favorite') {
       const favItem = item as FaveItems;
@@ -438,7 +437,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           isFavorite={getFavoriteState(item)}
           hasFavorite={true}
           onFavoritePress={createFavoritePressHandler(item)}
-        // isFavoriteTab={true}
+          // isFavoriteTab={true}
         />
       );
     }
@@ -541,7 +540,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               >
                 {selectedCityId
                   ? citiesApi.data?.find(city => city.CityID === selectedCityId)
-                    ?.CityName ?? ''
+                      ?.CityName ?? ''
                   : getString('SELECT_STORE_SELECT_CITY')}
               </Text>
               <ArrowDownIcon
@@ -555,8 +554,27 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       />
 
       <View style={styles.listWrapper}>
-        {listingApi?.loading || categoriesApi.loading ? (
-          <View style={styles.listContent}>
+        <View>
+          {categoriesApi.loading ? (
+            <View
+              style={{
+                paddingHorizontal: theme.sizes.PADDING,
+              }}
+            >
+              <SkeletonLoader screenType="groupTabs" />
+            </View>
+          ) : (
+            <GroupTabs
+              tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
+              tabs={filterOptions}
+              activeTab={selectedFilter}
+              onTabPress={handleTabPress}
+            />
+          )}
+        </View>
+
+        {listingApi?.loading ? (
+          <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
             <SkeletonLoader screenType="productListing" />
           </View>
         ) : (
@@ -573,17 +591,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                 />
               </View>
             )}
-            ListHeaderComponent={() => {
-              return (
-                <View style={[styles.tabContainer]}>
-                  <GroupTabs
-                    tabs={filterOptions}
-                    activeTab={selectedFilter}
-                    onTabPress={handleTabPress}
-                  />
-                </View>
-              );
-            }}
             contentContainerStyle={[
               styles.listContent,
               styles.listContainer,
@@ -650,7 +657,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                 ) || 0}
               </Text>
             </View>
-            <Text style={styles.footerButtonText}>{getString('VIEW_CART')}</Text>
+            <Text style={styles.footerButtonText}>
+              {getString('VIEW_CART')}
+            </Text>
             <View style={styles.footerPriceRow}>
               <SvgRiyalIconWhite
                 width={scaleWithMax(12, 14)}
@@ -717,11 +726,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                     zIndex: 199999
                   }}
                 /> */}
-                <Image source={require('../../../assets/images/catch-time-icon.png')}
-
+                <Image
+                  source={require('../../../assets/images/catch-time-icon.png')}
                   width={scaleWithMax(120, 140)}
                   height={scaleWithMax(120, 140)}
-                  resizeMode='contain'
+                  resizeMode="contain"
                   style={{
                     position: 'absolute',
                     top: -scaleWithMax(60, 62),
@@ -731,7 +740,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   }}
                 />
 
-                <Text style={styles.modalTitle}>{getString('ALREADY_CLAIMED')}</Text>
+                <Text style={styles.modalTitle}>
+                  {getString('ALREADY_CLAIMED')}
+                </Text>
 
                 <Text style={styles.modalSubtitle}>
                   {getString('AVAILABLE_ONCE_EVERY_24_HOURS_PER_STORE')}
@@ -755,7 +766,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           </View>
         </View>
       </Modal>
-
     </ParentView>
   );
 };

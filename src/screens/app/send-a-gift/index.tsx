@@ -664,14 +664,18 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           ]}
           showsVerticalScrollIndicator={false}
         >
-          <GroupTabs
-            tabs={tabs}
-            activeTab={activeTab}
-            onTabPress={(tabId: string) => {
-              const tab = tabs.find(t => t.id === tabId);
-              tab?.onPress?.();
-            }}
-          />
+          <View>
+            <GroupTabs
+              tabStyle={{ paddingVertical: 0 }}
+              tabs={tabs}
+              activeTab={activeTab}
+              onTabPress={(tabId: string) => {
+                const tab = tabs.find(t => t.id === tabId);
+                tab?.onPress?.();
+              }}
+            />
+          </View>
+
           {!isMerchant && activeTab === 'group' && (
             <View style={{ marginHorizontal: -theme.sizes.PADDING }}>
               <View

@@ -10,6 +10,7 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         flex: 1,
+        paddingHorizontal: 0,
       },
       content: {
         paddingBottom: sizes.HEIGHT * 0.086,
@@ -57,11 +58,12 @@ const useStyles = () => {
       textMedium: {
         fontSize: sizes.FONTSIZE_BUTTON,
         color: theme.colors.GRAY,
-        textAlign: 'left'
+        textAlign: 'left',
       },
       headingContainer: {
         paddingTop: sizes.HEIGHT * 0.038,
         gap: scaleWithMax(2, 4),
+        paddingHorizontal: sizes.PADDING,
       },
       verifiedContainer: {
         flexDirection: 'row',

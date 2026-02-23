@@ -28,7 +28,8 @@ import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import { useAuthStore } from '../../../store/reducer/auth';
 
 const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
-  route, navigation,
+  route,
+  navigation,
 }) => {
   const { styles, theme } = useStyles();
   const { getString, isRtl } = useLocaleStore();
@@ -51,19 +52,16 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [isVariantChange, setIsVariantChange] = useState(false);
   const [samestoreg1g1, setsamestoreg1g1] = useState(false);
 
-  const cartApi = useGetApi<CartResponse>(
-    apiEndpoints.GET_CART_ITEMS,
-    {
-      transformData: (data: any) => (data?.Data || data) as CartResponse,
-    },
-  );
+  const cartApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
+    transformData: (data: any) => (data?.Data || data) as CartResponse,
+  });
   const itemApi = useGetApi<StoreProduct>(
     isSendAGiftFlow
       ? apiEndpoints.GET_SEND_A_GIFT_ITEM_BY_ID(itemId, !!campaignId)
       : apiEndpoints.GET_STORE_ITEM_BY_ID(
-        itemId,
-        route.params.type === 'GiftOneGetOne',
-      ),
+          itemId,
+          route.params.type === 'GiftOneGetOne',
+        ),
     {
       transformData: (data: any) => data?.Data ?? null,
     },
@@ -163,9 +161,11 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       const payload = {
         ItemId: item.ItemId,
         ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
-        ...(!isMerchant ? { Quantity: newQuantity } : {
-          Quantity: quantity,
-        }),
+        ...(!isMerchant
+          ? { Quantity: newQuantity }
+          : {
+              Quantity: quantity,
+            }),
       };
 
       const response = await api.put(
@@ -196,7 +196,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       if (isMerchant) {
         // Always use array format for merchants
         if (friendIds) {
-          payload.FriendIds = Array.isArray(friendIds) ? friendIds : [friendIds];
+          payload.FriendIds = Array.isArray(friendIds)
+            ? friendIds
+            : [friendIds];
         } else if (friendUserId) {
           payload.FriendIds = [friendUserId];
         }
@@ -254,8 +256,11 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
         if (currentItemInCart) {
           // Item is in cart, check if it's a different variant
-          const selectedVariantId = selectedFilter ? Number(selectedFilter) : null;
-          const cartVariantId = currentItemInCart.Variant?.ItemVariantId || null;
+          const selectedVariantId = selectedFilter
+            ? Number(selectedFilter)
+            : null;
+          const cartVariantId =
+            currentItemInCart.Variant?.ItemVariantId || null;
 
           // If variants are different, show confirmation
           if (selectedVariantId !== cartVariantId) {
@@ -291,38 +296,45 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   };
 
   // Updated price calculation to use FinalPrice directly
-  const { originalPrice, finalPrice, discountAmount, hasDiscount } = useMemo(() => {
-    if (!itemApi.data)
+  const { originalPrice, finalPrice, discountAmount, hasDiscount } =
+    useMemo(() => {
+      if (!itemApi.data)
+        return {
+          originalPrice: 0,
+          finalPrice: 0,
+          discountAmount: 0,
+          hasDiscount: false,
+        };
+
+      const selectedVariant = selectedFilter
+        ? itemApi.data.Variants?.find(
+            (v: any) => v.ItemVariantId === Number(selectedFilter),
+          )
+        : itemApi.data.Variants?.find((v: any) => v.IsDefault);
+
+      // Get values from the selected variant or fallback to item level
+      const basePrice = selectedVariant
+        ? selectedVariant.Price
+        : itemApi.data.Price;
+      const feelingFee = selectedVariant ? selectedVariant.FeelingFee : 0;
+      const finalPrice = selectedVariant
+        ? selectedVariant.FinalPrice
+        : itemApi.data.FinalPrice;
+      const discountAmount = selectedVariant
+        ? selectedVariant.DiscountedPrice
+        : itemApi.data.DiscountedPrice;
+
+      const originalPrice = (basePrice ?? 0) + (feelingFee ?? 0);
+
+      const hasDiscount = finalPrice < originalPrice;
+
       return {
-        originalPrice: 0,
-        finalPrice: 0,
-        discountAmount: 0,
-        hasDiscount: false
+        originalPrice,
+        finalPrice: finalPrice ?? 0,
+        discountAmount: discountAmount ?? 0,
+        hasDiscount,
       };
-
-    const selectedVariant = selectedFilter
-      ? itemApi.data.Variants?.find(
-        (v: any) => v.ItemVariantId === Number(selectedFilter),
-      )
-      : itemApi.data.Variants?.find((v: any) => v.IsDefault);
-
-    // Get values from the selected variant or fallback to item level
-    const basePrice = selectedVariant ? selectedVariant.Price : itemApi.data.Price;
-    const feelingFee = selectedVariant ? selectedVariant.FeelingFee : 0;
-    const finalPrice = selectedVariant ? selectedVariant.FinalPrice : itemApi.data.FinalPrice;
-    const discountAmount = selectedVariant ? selectedVariant.DiscountedPrice : itemApi.data.DiscountedPrice;
-
-    const originalPrice = (basePrice ?? 0) + (feelingFee ?? 0);
-
-    const hasDiscount = finalPrice < originalPrice;
-
-    return {
-      originalPrice,
-      finalPrice: finalPrice ?? 0,
-      discountAmount: discountAmount ?? 0,
-      hasDiscount,
-    };
-  }, [itemApi.data, selectedFilter]);
+    }, [itemApi.data, selectedFilter]);
 
   const isItemInCart = useMemo(() => {
     if (!cartApi.data || !item) return false;
@@ -430,16 +442,18 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                           marginTop: 3.5,
                         }}
                       />
-                      <Text style={styles.discountedPrice}>
-                        {finalPrice}
-                      </Text>
+                      <Text style={styles.discountedPrice}>{finalPrice}</Text>
                     </>
                   )}
 
                   {/* Original Price - Strikethrough when discounted */}
                   <SvgRiyalIcon
-                    width={hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)}
-                    height={hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)}
+                    width={
+                      hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)
+                    }
+                    height={
+                      hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)
+                    }
                     opacity={hasDiscount ? 0.32 : 1}
                     style={{
                       marginTop: 3.5,
@@ -448,8 +462,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                   <Text style={hasDiscount ? styles.cutPrice : styles.price}>
                     {originalPrice}
                   </Text>
-
-
                 </View>
               </View>
               <Text style={styles.TaxIncludeText}>
@@ -547,8 +559,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           isVariantChange
             ? getString('PRODUCT_CLEAR_CART_VARIANT_MESSAGE')
             : samestoreg1g1
-              ? getString('PRODUCT_CLEAR_CART_MESSAGE_SAME')
-              : getString('PRODUCT_CLEAR_CART_MESSAGE')
+            ? getString('PRODUCT_CLEAR_CART_MESSAGE_SAME')
+            : getString('PRODUCT_CLEAR_CART_MESSAGE')
         }
         confirmText={getString('PRODUCT_CONFIRM')}
         cancelText={getString('NG_CANCEL')}

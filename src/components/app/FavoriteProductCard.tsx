@@ -146,7 +146,8 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
           )}
           {!isFavoriteTab && (
             <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>
-              {(isFavoriteTab ? cutPrice : price) || getString('COMP_NOT_AVAILABLE')}
+              {(isFavoriteTab ? cutPrice : price) ||
+                getString('COMP_NOT_AVAILABLE')}
             </Text>
           )}
 
