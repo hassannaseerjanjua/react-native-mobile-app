@@ -43,7 +43,7 @@ const useStyles = () => {
       pencilIconContainer: {
         position: 'absolute',
         bottom: 0,
-        right: 0,
+        end: 0,
         backgroundColor: colors.WHITE,
         borderRadius: scaleWithMax(10, 12),
         padding: scaleWithMax(3, 4),
@@ -51,6 +51,7 @@ const useStyles = () => {
         height: scaleWithMax(16, 18),
         justifyContent: 'center',
         alignItems: 'center',
+        ...theme.globalStyles.SHADOW_STYLE,
       },
       profileInfo: {
         flex: 1,

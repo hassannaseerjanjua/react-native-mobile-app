@@ -31,6 +31,7 @@ const useStyles = () => {
       },
       buttonContainer: {
         marginTop: sizes.PADDING * 0.2,
+        gap: sizes.HEIGHT * 0.016,
       },
       title: {
         fontFamily: fonts.Quicksand.semibold,

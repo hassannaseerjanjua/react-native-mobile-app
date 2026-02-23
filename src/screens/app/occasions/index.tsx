@@ -22,6 +22,7 @@ import {
   SvgGalleryIcon,
   SvgBirthdayIcon,
   SvgOccasionIcon,
+  SvgPencilIcon,
 } from '../../../assets/icons';
 import InputField from '../../../components/global/InputField.tsx';
 import { Formik } from 'formik';
@@ -326,36 +327,44 @@ const OccasionsScreen: React.FC = () => {
                                 marginRight: -scaleWithMax(2, 3),
                               }}
                             >
-                              {formik.values.image &&
-                                typeof formik.values.image === 'object' &&
-                                formik.values.image.uri ? (
-                                <Image
-                                  source={{ uri: formik.values.image.uri }}
-                                  style={{
-                                    width: scaleWithMax(30, 34),
-                                    height: scaleWithMax(30, 34),
-                                    borderRadius: scaleWithMax(14, 16),
-                                  }}
-                                  resizeMode="cover"
-                                />
-                              ) : formik.values.image &&
-                                typeof formik.values.image === 'string' &&
-                                formik.values.image ? (
-                                <Image
-                                  source={{ uri: formik.values.image }}
-                                  style={{
-                                    width: scaleWithMax(30, 34),
-                                    height: scaleWithMax(30, 34),
-                                    borderRadius: scaleWithMax(14, 16),
-                                  }}
-                                  resizeMode="cover"
-                                />
-                              ) : (
-                                <SvgOccasionIcon
-                                  width={scaleWithMax(30, 34)}
-                                  height={scaleWithMax(30, 34)}
-                                />
-                              )}
+                              <View style={{ position: 'relative' }}>
+                                {formik.values.image &&
+                                  typeof formik.values.image === 'object' &&
+                                  formik.values.image.uri ? (
+                                  <Image
+                                    source={{ uri: formik.values.image.uri }}
+                                    style={{
+                                      width: scaleWithMax(30, 34),
+                                      height: scaleWithMax(30, 34),
+                                      borderRadius: scaleWithMax(14, 16),
+                                    }}
+                                    resizeMode="cover"
+                                  />
+                                ) : formik.values.image &&
+                                  typeof formik.values.image === 'string' &&
+                                  formik.values.image ? (
+                                  <Image
+                                    source={{ uri: formik.values.image }}
+                                    style={{
+                                      width: scaleWithMax(30, 34),
+                                      height: scaleWithMax(30, 34),
+                                      borderRadius: scaleWithMax(14, 16),
+                                    }}
+                                    resizeMode="cover"
+                                  />
+                                ) : (
+                                  <SvgOccasionIcon
+                                    width={scaleWithMax(30, 34)}
+                                    height={scaleWithMax(30, 34)}
+                                  />
+                                )}
+                                <View style={styles.pencilIconContainer}>
+                                  <SvgPencilIcon
+                                    width={scaleWithMax(8, 10)}
+                                    height={scaleWithMax(8, 10)}
+                                  />
+                                </View>
+                              </View>
                             </TouchableOpacity>
                           }
                           fieldProps={{

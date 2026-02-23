@@ -8,7 +8,7 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import InputField from '../../../components/global/InputField';
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
-import { login, useAuthStore } from '../../../store/reducer/auth';
+import { login, logout, useAuthStore } from '../../../store/reducer/auth';
 import {
   useLanguageShifter,
   useLocaleStore,
@@ -159,6 +159,25 @@ const SettingsScreen: React.FC = () => {
       });
   };
 
+  const handleDeleteUser = () => {
+    api
+      .post(apiEndpoints.DELETE_USER, {})
+      .then(response => {
+        if (response.success) {
+          notify.success(getString('S_ACCOUNT_DELETED_SUCCESSFULLY'));
+          dispatch(logout());
+          navigation.reset({
+            index: 1,
+            routes: [{ name: 'Login' as never }],
+          });
+        } else {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+        }
+      })
+      .catch(error => {
+        notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+      });
+  };
   return (
     <ParentView style={styles.container}>
       <StatusBar
@@ -408,6 +427,13 @@ const SettingsScreen: React.FC = () => {
                         title={getString('S_UPDATE')}
                         type="primary"
                         onPress={() => formik.handleSubmit()}
+                        loading={loading}
+                        disabled={loading}
+                      />
+                      <CustomButton
+                        title={getString('S_DELETE_ACCOUNT')}
+                        type="secondary"
+                        onPress={() => handleDeleteUser()}
                         loading={loading}
                         disabled={loading}
                       />
