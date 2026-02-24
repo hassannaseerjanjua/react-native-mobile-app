@@ -75,7 +75,6 @@ import { FlatList } from 'react-native';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import { useApplePay } from '../../../hooks/useApplePay';
 
-
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
   const { getString, isRtl, langCode } = useLocaleStore();
@@ -94,19 +93,23 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     Record<number, 'increment' | 'decrement' | null>
   >({});
   const [showRemoveConfirmation, setShowRemoveConfirmation] = useState(false);
-  const [itemToRemove, setItemToRemove] = useState<(CartItem & { originalOrderItemIds?: number[] }) | null>(null);
+  const [itemToRemove, setItemToRemove] = useState<
+    (CartItem & { originalOrderItemIds?: number[] }) | null
+  >(null);
   const [giftLink, setGiftLink] = useState<string | null>(null);
   const [activeDomationAmount, setActiveDomationAmount] = useState<number>();
   const [originalEhsaanAmount, setOriginalEhsaanAmount] = useState<number>(0);
   const [hasInitializedEhsaan, setHasInitializedEhsaan] = useState(false);
   const [showCustomDonationInput, setShowCustomDonationInput] = useState(false);
   const [customDonationAmount, setCustomDonationAmount] = useState<string>('');
-  const [showEmployeesBottomSheet, setShowEmployeesBottomSheet] = useState(false);
+  const [showEmployeesBottomSheet, setShowEmployeesBottomSheet] =
+    useState(false);
   const [showPaymentWebView, setShowPaymentWebView] = useState(false);
   const [paymentUrl, setPaymentUrl] = useState<string | null>(null);
   const [webViewLoading, setWebViewLoading] = useState(true);
   const [userCards, setUserCards] = useState<UserCard[]>([]);
-  const [selectedCardFromParams, setSelectedCardFromParams] = useState<UserCard | null>(null);
+  const [selectedCardFromParams, setSelectedCardFromParams] =
+    useState<UserCard | null>(null);
   const isMerchant = user?.isMerchant === 1;
   const { isApplePayAvailable, requestApplePayPayment } = useApplePay();
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
@@ -119,6 +122,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const walletBalance = useGetApi<any>(apiEndpoints.GET_WALLET_BALANCE, {
     transformData: data => data.Data,
   });
+
+  console.log('isApplePayAvailable', isApplePayAvailable);
 
   const [cartData, setCartData] = useState<CartResponse | null>(
     cartItemsApi.data,
@@ -151,7 +156,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const mergedCartItems = useMemo(() => {
     if (!cartData?.Items) return [];
 
-    const itemsMap = new Map<string, CartItem & { originalOrderItemIds: number[] }>();
+    const itemsMap = new Map<
+      string,
+      CartItem & { originalOrderItemIds: number[] }
+    >();
 
     cartData.Items.forEach(item => {
       // Create a unique key combining ItemId and ItemVariantId
@@ -193,7 +201,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   const fetchUserCards = async () => {
     try {
-      const response = await api.get<{ Data: UserCard[] }>(apiEndpoints.GET_CARDS);
+      const response = await api.get<{ Data: UserCard[] }>(
+        apiEndpoints.GET_CARDS,
+      );
       if (response.success && response.data?.Data) {
         setUserCards(response.data.Data);
       }
@@ -217,8 +227,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       : null;
 
     // Check if this is a merged item (has multiple OrderItemIds)
-    const isMergedItem = item.originalOrderItemIds && item.originalOrderItemIds.length > 1;
-    const orderItemIdsToRemove = isMergedItem ? item.originalOrderItemIds! : [item.OrderItemId];
+    const isMergedItem =
+      item.originalOrderItemIds && item.originalOrderItemIds.length > 1;
+    const orderItemIdsToRemove = isMergedItem
+      ? item.originalOrderItemIds!
+      : [item.OrderItemId];
 
     if (cartData && !skipStateUpdate) {
       // Remove all items that are part of the merged item
@@ -303,8 +316,11 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       type === 'increment' ? item.Quantity + 1 : item.Quantity - 1;
 
     // Check if this is a merged item (has multiple OrderItemIds)
-    const isMergedItem = item.originalOrderItemIds && item.originalOrderItemIds.length > 1;
-    const itemIdsToUpdate = isMergedItem ? item.originalOrderItemIds! : [item.OrderItemId];
+    const isMergedItem =
+      item.originalOrderItemIds && item.originalOrderItemIds.length > 1;
+    const itemIdsToUpdate = isMergedItem
+      ? item.originalOrderItemIds!
+      : [item.OrderItemId];
     const primaryOrderItemId = item.OrderItemId;
 
     if (updatingQuantities[primaryOrderItemId]) {
@@ -331,23 +347,36 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       let quantityPerItem = newQuantity;
       let remainder = 0;
       if (isMergedItem && item.originalOrderItemIds) {
-        quantityPerItem = Math.floor(newQuantity / item.originalOrderItemIds.length);
+        quantityPerItem = Math.floor(
+          newQuantity / item.originalOrderItemIds.length,
+        );
         remainder = newQuantity % item.originalOrderItemIds.length;
       }
 
       const updatedItems = cartData.Items.map(cartItem => {
-        if (isMergedItem && item.originalOrderItemIds?.includes(cartItem.OrderItemId)) {
+        if (
+          isMergedItem &&
+          item.originalOrderItemIds?.includes(cartItem.OrderItemId)
+        ) {
           // For merged items, distribute quantity evenly with remainder in first item
-          const isFirstItem = cartItem.OrderItemId === item.originalOrderItemIds[0];
+          const isFirstItem =
+            cartItem.OrderItemId === item.originalOrderItemIds[0];
           const itemQuantity = quantityPerItem + (isFirstItem ? remainder : 0);
           const newOrderAmount = cartItem.UnitPrice * itemQuantity;
           // Recalculate discount proportionally based on quantity change
-          const discountPerUnit = cartItem.Quantity > 0 ? cartItem.DiscountAmount / cartItem.Quantity : 0;
+          const discountPerUnit =
+            cartItem.Quantity > 0
+              ? cartItem.DiscountAmount / cartItem.Quantity
+              : 0;
           const newDiscountAmount = discountPerUnit * itemQuantity;
           // Recalculate VAT proportionally based on quantity change
-          const vatPerUnit = cartItem.Quantity > 0 ? (cartItem.VatAmount || 0) / cartItem.Quantity : 0;
+          const vatPerUnit =
+            cartItem.Quantity > 0
+              ? (cartItem.VatAmount || 0) / cartItem.Quantity
+              : 0;
           const newVatAmount = vatPerUnit * itemQuantity;
-          const newTotalAmount = newOrderAmount - newDiscountAmount + newVatAmount;
+          const newTotalAmount =
+            newOrderAmount - newDiscountAmount + newVatAmount;
           return {
             ...cartItem,
             Quantity: itemQuantity,
@@ -360,12 +389,19 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           // Single item update
           const newOrderAmount = cartItem.UnitPrice * newQuantity;
           // Recalculate discount proportionally based on quantity change
-          const discountPerUnit = cartItem.Quantity > 0 ? cartItem.DiscountAmount / cartItem.Quantity : 0;
+          const discountPerUnit =
+            cartItem.Quantity > 0
+              ? cartItem.DiscountAmount / cartItem.Quantity
+              : 0;
           const newDiscountAmount = discountPerUnit * newQuantity;
           // Recalculate VAT proportionally based on quantity change
-          const vatPerUnit = cartItem.Quantity > 0 ? (cartItem.VatAmount || 0) / cartItem.Quantity : 0;
+          const vatPerUnit =
+            cartItem.Quantity > 0
+              ? (cartItem.VatAmount || 0) / cartItem.Quantity
+              : 0;
           const newVatAmount = vatPerUnit * newQuantity;
-          const newTotalAmount = newOrderAmount - newDiscountAmount + newVatAmount;
+          const newTotalAmount =
+            newOrderAmount - newDiscountAmount + newVatAmount;
           return {
             ...cartItem,
             Quantity: newQuantity,
@@ -455,16 +491,22 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
   };
 
-  const handleRemoveItem = async (itemParam?: CartItem & { originalOrderItemIds?: number[] }) => {
+  const handleRemoveItem = async (
+    itemParam?: CartItem & { originalOrderItemIds?: number[] },
+  ) => {
     const item = itemParam || itemToRemove;
     if (!item) return;
 
     // Check if this is a merged item (has multiple OrderItemIds)
-    const isMergedItem = item.originalOrderItemIds && item.originalOrderItemIds.length > 1;
-    const orderItemIdsToRemove = isMergedItem ? item.originalOrderItemIds! : [item.OrderItemId];
+    const isMergedItem =
+      item.originalOrderItemIds && item.originalOrderItemIds.length > 1;
+    const orderItemIdsToRemove = isMergedItem
+      ? item.originalOrderItemIds!
+      : [item.OrderItemId];
 
     // Check if removing these items would leave the cart empty
-    const remainingItemsCount = (cartData?.Items?.length || 0) - orderItemIdsToRemove.length;
+    const remainingItemsCount =
+      (cartData?.Items?.length || 0) - orderItemIdsToRemove.length;
     const isLastItem = remainingItemsCount <= 0;
 
     if (!itemParam) {
@@ -479,41 +521,47 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
   };
 
-  const renderCartItem = (item: CartItem & { originalOrderItemIds?: number[] }) => {
+  const renderCartItem = (
+    item: CartItem & { originalOrderItemIds?: number[] },
+  ) => {
     const itemImage = item.Images?.[0]?.ImageUrls || item.ThumbnailUrl;
     const imageSource = itemImage
       ? { uri: itemImage }
       : require('../../../assets/images/img-placeholder.png');
-
-    console.log('item', item);
 
     return (
       <View
         style={[
           styles.CartContainer,
           // { flexDirection: rtlFlexDirection(isRtl) },
-          { ...langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) } }
+          {
+            ...(langCode === 'ar'
+              ? { flexDirection: rtlFlexDirection(!isRtl) }
+              : { flexDirection: rtlFlexDirection(isRtl) }),
+          },
         ]}
       >
         <Image source={imageSource} style={styles.CartProductImage} />
         <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
           <View>
             {/* <Text style={styles.cartTitle}>{item.ItemName}</Text> */}
-            <Text style={styles.cartTitle}>{langCode === 'ar' ? item.ItemName : item.ItemName}</Text>
+            <Text style={styles.cartTitle}>
+              {langCode === 'ar' ? item.ItemName : item.ItemName}
+            </Text>
             {item.Variant?.NameEn && (
-              <Text style={styles.TextMedium}>{langCode === 'ar' ? item.Variant.NameAr : item.Variant.NameEn}</Text>
+              <Text style={styles.TextMedium}>
+                {langCode === 'ar' ? item.Variant.NameAr : item.Variant.NameEn}
+              </Text>
             )}
           </View>
-          {
-            isMerchant || cartData?.CampaginType === 3 ? (<View
+          {isMerchant || cartData?.CampaginType === 3 ? (
+            <View
               style={{
                 ...styles.row,
                 flexDirection: rtlFlexDirection(isRtl),
                 justifyContent: 'space-between',
               }}
             >
-
-
               <PriceWithIcon
                 Price={item.TotalAmount}
                 style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
@@ -521,44 +569,74 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               <TouchableOpacity onPress={() => setItemToRemove(item)}>
                 <SvgDeleteIcon />
               </TouchableOpacity>
-
-
-
-            </View>) : (<View
+            </View>
+          ) : (
+            <View
               style={{
                 ...styles.row,
                 // flexDirection: rtlFlexDirection(isRtl),
-                ...langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) },
+                ...(langCode === 'ar'
+                  ? { flexDirection: rtlFlexDirection(!isRtl) }
+                  : { flexDirection: rtlFlexDirection(isRtl) }),
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
-              {item.DiscountAmount > 0 ? <View style={[
-                styles.row,
-                { flexDirection: rtlFlexDirection(isRtl), gap: theme.sizes.WIDTH * 0.01 },
-              ]}>
-                <View style={[styles.row, { flexDirection: rtlFlexDirection(isRtl), gap: theme.sizes.WIDTH * 0.008 }]}>
-                  <SvgRiyalPink
-                    width={scaleWithMax(16, 16)}
-                    height={scaleWithMax(16, 16)}
-                    style={{
-                      marginTop: scaleWithMax(2, 2),
-                    }}
-                  />
-                  <Text style={styles.discountedPrice}>{item.TotalAmount}</Text>
+              {item.DiscountAmount > 0 ? (
+                <View
+                  style={[
+                    styles.row,
+                    {
+                      flexDirection: rtlFlexDirection(isRtl),
+                      gap: theme.sizes.WIDTH * 0.01,
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.row,
+                      {
+                        flexDirection: rtlFlexDirection(isRtl),
+                        gap: theme.sizes.WIDTH * 0.008,
+                      },
+                    ]}
+                  >
+                    <SvgRiyalPink
+                      width={scaleWithMax(16, 16)}
+                      height={scaleWithMax(16, 16)}
+                      style={{
+                        marginTop: scaleWithMax(2, 2),
+                      }}
+                    />
+                    <Text style={styles.discountedPrice}>
+                      {item.TotalAmount}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.row,
+                      {
+                        flexDirection: rtlFlexDirection(isRtl),
+                        gap: theme.sizes.WIDTH * 0.008,
+                      },
+                    ]}
+                  >
+                    <SvgRiyalIcon
+                      width={scaleWithMax(11, 11)}
+                      height={scaleWithMax(11, 11)}
+                      opacity={0.32}
+                    />
+                    <Text style={styles.cutPrice}>
+                      {item.OrderAmount || 'N/A'}
+                    </Text>
+                  </View>
                 </View>
-                <View style={[styles.row, { flexDirection: rtlFlexDirection(isRtl), gap: theme.sizes.WIDTH * 0.008 }]}>
-                  <SvgRiyalIcon
-                    width={scaleWithMax(11, 11)}
-                    height={scaleWithMax(11, 11)}
-                    opacity={0.32}
-                  />
-                  <Text style={styles.cutPrice}>{item.OrderAmount || 'N/A'}</Text>
-                </View>
-              </View> : <PriceWithIcon
-                Price={item.TotalAmount}
-                style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
-              />}
+              ) : (
+                <PriceWithIcon
+                  Price={item.TotalAmount}
+                  style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+                />
+              )}
 
               <View
                 style={[
@@ -594,16 +672,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   <IncrementIcon />
                 </TouchableOpacity>
               </View>
-            </View>)
-          }
-
+            </View>
+          )}
         </View>
       </View>
     );
   };
   const handleShareGiftLink = async (giftLink: string) => {
     try {
-
       // const shareMessage = `💝 You have received a gift. Click on the link below to redeem the gift.\n\n${giftLink}`;
       const shareMessage = `${getString('GIFT_VIA_LINK')}.\n\n${giftLink}`;
       const shareOptions = Platform.select({
@@ -624,7 +700,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) { }
+    } catch (error) {}
   };
   const handleProceedToCheckout = async () => {
     if (!cartData || submitting || waitingForVideoUpload) return;
@@ -690,7 +766,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       };
 
       const currentEhsaanAmount = activeDomationAmount || 0;
-      console.log('[Checkout] Current:', currentEhsaanAmount, 'Original:', originalEhsaanAmount);
+      console.log(
+        '[Checkout] Current:',
+        currentEhsaanAmount,
+        'Original:',
+        originalEhsaanAmount,
+      );
       if (currentEhsaanAmount !== originalEhsaanAmount) {
         console.log('[Checkout] Sending EhsaanAmount:', currentEhsaanAmount);
         payload.EhsaanAmount = currentEhsaanAmount;
@@ -723,7 +804,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       if (response.success) {
         // Update originalEhsaanAmount after successful API call to prevent duplicate additions on retry
         if (currentEhsaanAmount !== originalEhsaanAmount) {
-          console.log('[Checkout] Updating originalEhsaanAmount from', originalEhsaanAmount, 'to', currentEhsaanAmount);
+          console.log(
+            '[Checkout] Updating originalEhsaanAmount from',
+            originalEhsaanAmount,
+            'to',
+            currentEhsaanAmount,
+          );
           setOriginalEhsaanAmount(currentEhsaanAmount);
         }
 
@@ -775,10 +861,16 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       if (!message) return;
 
       // Check if the body content indicates success
-      const isSuccess = message.includes('SUCCESS') || message.includes('Order:True');
-      const isFailure = message.includes('Payment Failed') || message.includes('FAILED');
-      const isCancel = message.includes('Payment Cancelled') || message.includes('CANCELLED') || message.includes('Payment Cancelled') || message.includes('cancelled') || message.includes('Cancelled');
-
+      const isSuccess =
+        message.includes('SUCCESS') || message.includes('Order:True');
+      const isFailure =
+        message.includes('Payment Failed') || message.includes('FAILED');
+      const isCancel =
+        message.includes('Payment Cancelled') ||
+        message.includes('CANCELLED') ||
+        message.includes('Payment Cancelled') ||
+        message.includes('cancelled') ||
+        message.includes('Cancelled');
 
       if (isSuccess) {
         // Payment successful - close webview and show success screen
@@ -800,17 +892,27 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           console.log('canecl');
           return;
         }
-        let errorToShow = getString('PAYMENT_FAILED') || 'Payment failed. Please try again.';
+        let errorToShow =
+          getString('PAYMENT_FAILED') || 'Payment failed. Please try again.';
 
         try {
           // Attempt to extract structured error from the message
           const jsonMatch = message.match(/\{.*\}/);
           if (jsonMatch) {
             const data = JSON.parse(jsonMatch[0]);
-            errorToShow = data.Message || data.message || data.Error || data.error || errorToShow;
+            errorToShow =
+              data.Message ||
+              data.message ||
+              data.Error ||
+              data.error ||
+              errorToShow;
           } else {
             // Try to extract message after keywords like FAILED: or Error:
-            const patterns = [/FAILED\s*[:|-]\s*(.*)/i, /Payment Failed\s*[:|-]\s*(.*)/i, /Error\s*[:|-]\s*(.*)/i];
+            const patterns = [
+              /FAILED\s*[:|-]\s*(.*)/i,
+              /Payment Failed\s*[:|-]\s*(.*)/i,
+              /Error\s*[:|-]\s*(.*)/i,
+            ];
             for (const pattern of patterns) {
               const match = message.match(pattern);
               if (match && match[1] && match[1].trim()) {
@@ -870,10 +972,20 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <>
         <SuccessMessage
           SuccessLogo={isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
-          SuccessMessage={isSendType2 ? getString('CHECKOUT_GIFT_LINK_CREATED') : getString('CHECKOUT_GIFT_DELIVERED')}
-          SuccessSubMessage={!isSendType2 ? getString('CHECKOUT_YOUR_SURPRISE_HAS_BEEN_SENT') : ''}
+          SuccessMessage={
+            isSendType2
+              ? getString('CHECKOUT_GIFT_LINK_CREATED')
+              : getString('CHECKOUT_GIFT_DELIVERED')
+          }
+          SuccessSubMessage={
+            !isSendType2
+              ? getString('CHECKOUT_YOUR_SURPRISE_HAS_BEEN_SENT')
+              : ''
+          }
           primaryButtonTitle={
-            isSendType2 ? getString('CHECKOUT_SHARE_LINK') : getString('CHECKOUT_HOME')
+            isSendType2
+              ? getString('CHECKOUT_SHARE_LINK')
+              : getString('CHECKOUT_HOME')
           }
           onSecondaryPress={() => {
             // Navigate to home after gift is sent
@@ -924,8 +1036,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         ? { uri: cartData?.users.ProfileUrl }
         : require('../../../assets/images/img-placeholder.png')
       : cartData?.FriendImageUrl
-        ? { uri: cartData?.FriendImageUrl }
-        : require('../../../assets/images/img-placeholder.png');
+      ? { uri: cartData?.FriendImageUrl }
+      : require('../../../assets/images/img-placeholder.png');
 
   const DomationAmounts = [
     { value: '3', title: '3' },
@@ -942,28 +1054,33 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           <KeyboardAvoidingView
             style={{ flex: 1 }}
             // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            behavior='padding'
-          // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+            behavior="padding"
+            // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
           >
             <ScrollView
               showsVerticalScrollIndicator={false}
               contentContainerStyle={[styles.scrollContent]}
               keyboardShouldPersistTaps="handled"
-            // keyboardDismissMode="on-drag"
+              // keyboardDismissMode="on-drag"
             >
               <View style={styles.section}>
                 <View
                   style={[
                     styles.sectionHeaderRow,
                     // { flexDirection: rtlFlexDirection(isRtl) },
-                    { ...langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) } }
-
+                    {
+                      ...(langCode === 'ar'
+                        ? { flexDirection: rtlFlexDirection(!isRtl) }
+                        : { flexDirection: rtlFlexDirection(isRtl) }),
+                    },
                   ]}
                 >
                   <Text style={styles.heading}>
                     {getString('CHECKOUT_ORDER_DETAILS')}
                   </Text>
-                  <TouchableOpacity onPress={() => setShowRemoveConfirmation(true)}>
+                  <TouchableOpacity
+                    onPress={() => setShowRemoveConfirmation(true)}
+                  >
                     <Text
                       style={[
                         styles.TextMedium,
@@ -995,34 +1112,54 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 <View style={[styles.tabContainer]}>
                   <TabItem
                     activeOpacity={0}
-                    disabled={!(isMerchant && cartData?.MultiUsers && cartData.MultiUsers.length > 1)}
+                    disabled={
+                      !(
+                        isMerchant &&
+                        cartData?.MultiUsers &&
+                        cartData.MultiUsers.length > 1
+                      )
+                    }
                     isGroupImage={
                       cartData?.SendType === 2
                         ? null
-                        : isMerchant && cartData?.MultiUsers && cartData?.MultiUsers.length === 1
-                          ? cartData?.MultiUsers[0].ProfileUrl ||
+                        : isMerchant &&
+                          cartData?.MultiUsers &&
+                          cartData?.MultiUsers.length === 1
+                        ? cartData?.MultiUsers[0].ProfileUrl ||
                           require('../../../assets/images/img-placeholder.png')
-                          : isMerchant && cartData?.MultiUsers && cartData?.MultiUsers.length > 1
-                            ? null
-                            : cartData?.CampaginType === 3
-                              ? cartData?.users.ProfileUrl ||
-                              require('../../../assets/images/img-placeholder.png')
-                              : cartData?.FriendImageUrl ||
-                              require('../../../assets/images/img-placeholder.png')
+                        : isMerchant &&
+                          cartData?.MultiUsers &&
+                          cartData?.MultiUsers.length > 1
+                        ? null
+                        : cartData?.CampaginType === 3
+                        ? cartData?.users.ProfileUrl ||
+                          require('../../../assets/images/img-placeholder.png')
+                        : cartData?.FriendImageUrl ||
+                          require('../../../assets/images/img-placeholder.png')
                     }
                     title={
-                      isMerchant && cartData?.MultiUsers && cartData?.MultiUsers.length > 1
-                        ? getString('CHECKOUT_MY_EMPLOYEES') : cartData?.MultiUsers && cartData?.MultiUsers.length === 1 ? cartData?.MultiUsers[0].FullName
-                          : cartData?.CampaginType === 3
-                            ? cartData?.users.FullName
-                            : cartData?.FriendName || getString('SG_SEND_THROUGH_LINK')
+                      isMerchant &&
+                      cartData?.MultiUsers &&
+                      cartData?.MultiUsers.length > 1
+                        ? getString('CHECKOUT_MY_EMPLOYEES')
+                        : cartData?.MultiUsers &&
+                          cartData?.MultiUsers.length === 1
+                        ? cartData?.MultiUsers[0].FullName
+                        : cartData?.CampaginType === 3
+                        ? cartData?.users.FullName
+                        : cartData?.FriendName ||
+                          getString('SG_SEND_THROUGH_LINK')
                     }
                     TabTextStyles={{
                       ...styles.TextMedium,
                       maxWidth: '90%',
                     }}
                     onPress={() => {
-                      if (isMerchant && cartData?.MultiUsers && cartData?.MultiUsers.length > 1) {
+                      if (
+                        isMerchant &&
+                        cartData?.MultiUsers &&
+                        cartData?.MultiUsers.length > 1
+                      ) {
                         setShowEmployeesBottomSheet(true);
                       }
                     }}
@@ -1050,20 +1187,24 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         >
                           <GiftIcon />
                         </TouchableOpacity>
-                        {isMerchant && cartData?.MultiUsers && cartData?.MultiUsers.length > 1 && (
-
-                          <TouchableOpacity
-                            hitSlop={15}
-                            onPress={() => setShowEmployeesBottomSheet(true)}
-                          >
-                            <ArrowDownIcon style={{ transform: rtlTransform(isRtl) }} />
-                          </TouchableOpacity>
-
-                        )}
+                        {isMerchant &&
+                          cartData?.MultiUsers &&
+                          cartData?.MultiUsers.length > 1 && (
+                            <TouchableOpacity
+                              hitSlop={15}
+                              onPress={() => setShowEmployeesBottomSheet(true)}
+                            >
+                              <ArrowDownIcon
+                                style={{ transform: rtlTransform(isRtl) }}
+                              />
+                            </TouchableOpacity>
+                          )}
                       </View>
                     }
                     icon={
-                      isMerchant && cartData?.MultiUsers && cartData?.MultiUsers.length > 1 ? (
+                      isMerchant &&
+                      cartData?.MultiUsers &&
+                      cartData?.MultiUsers.length > 1 ? (
                         <View
                           style={{
                             width: scaleWithMax(40, 45),
@@ -1088,76 +1229,84 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 </View>
 
                 {/* Employees Bottom Sheet */}
-                {isMerchant && cartData?.MultiUsers && cartData.MultiUsers.length > 0 && (
-                  <AppBottomSheet
-                    isOpen={showEmployeesBottomSheet}
-                    onClose={() => setShowEmployeesBottomSheet(false)}
-                    height={Math.min(
-                      theme.sizes.HEIGHT * 0.7,
-                      100 + (cartData.MultiUsers?.length || 0) * 60,
-                    )}
-                    snapPoints={['70%']}
-                  >
-                    <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
-                      <Text
-                        style={{
-                          ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-                          fontSize: theme.sizes.FONTSIZE_MED_HIGH,
-                          paddingTop: theme.sizes.HEIGHT * 0.014,
-                          paddingBottom: theme.sizes.HEIGHT * 0.008,
-                        }}
-                      >
-                        {getString('CHECKOUT_MY_EMPLOYEES')}
-                      </Text>
-                      <View
-                        style={{
-                          backgroundColor: theme.colors.WHITE,
-                          borderRadius: 16,
-                          ...theme.globalStyles.SHADOW_STYLE,
-                          marginTop: theme.sizes.HEIGHT * 0.01,
-                          marginBottom: theme.sizes.HEIGHT * 0.024,
-                        }}
-                      >
-                        <FlatList
-                          data={cartData.MultiUsers || []}
-                          keyExtractor={item => item.UserId.toString()}
-                          renderItem={({ item, index }) => (
-                            <SearchUserItem
-                              item={{
-                                UserId: item.UserId,
-                                FullName: item.FullName || '',
-                                Email: undefined,
-                                PhoneNo: item.PhoneNo || '',
-                                ProfileUrl: item.ProfileUrl || null,
-                                RelationStatus: 1,
-                                CityId: item.CityId || undefined,
-                                IsVerified: item.isVerified === true,
-                              }}
-                              index={index}
-                              isLast={index === (cartData.MultiUsers?.length || 0) - 1}
-                              showAddButton={false}
-                              showSelection={false}
-                              isGeneralSearchScreen={false}
-                              onPress={() => { }}
-                            />
-                          )}
-                          showsVerticalScrollIndicator={false}
-                          contentContainerStyle={{
-                            paddingVertical: 0,
+                {isMerchant &&
+                  cartData?.MultiUsers &&
+                  cartData.MultiUsers.length > 0 && (
+                    <AppBottomSheet
+                      isOpen={showEmployeesBottomSheet}
+                      onClose={() => setShowEmployeesBottomSheet(false)}
+                      height={Math.min(
+                        theme.sizes.HEIGHT * 0.7,
+                        100 + (cartData.MultiUsers?.length || 0) * 60,
+                      )}
+                      snapPoints={['70%']}
+                    >
+                      <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
+                        <Text
+                          style={{
+                            ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                            fontSize: theme.sizes.FONTSIZE_MED_HIGH,
+                            paddingTop: theme.sizes.HEIGHT * 0.014,
+                            paddingBottom: theme.sizes.HEIGHT * 0.008,
                           }}
-                        />
+                        >
+                          {getString('CHECKOUT_MY_EMPLOYEES')}
+                        </Text>
+                        <View
+                          style={{
+                            backgroundColor: theme.colors.WHITE,
+                            borderRadius: 16,
+                            ...theme.globalStyles.SHADOW_STYLE,
+                            marginTop: theme.sizes.HEIGHT * 0.01,
+                            marginBottom: theme.sizes.HEIGHT * 0.024,
+                          }}
+                        >
+                          <FlatList
+                            data={cartData.MultiUsers || []}
+                            keyExtractor={item => item.UserId.toString()}
+                            renderItem={({ item, index }) => (
+                              <SearchUserItem
+                                item={{
+                                  UserId: item.UserId,
+                                  FullName: item.FullName || '',
+                                  Email: undefined,
+                                  PhoneNo: item.PhoneNo || '',
+                                  ProfileUrl: item.ProfileUrl || null,
+                                  RelationStatus: 1,
+                                  CityId: item.CityId || undefined,
+                                  IsVerified: item.isVerified === true,
+                                }}
+                                index={index}
+                                isLast={
+                                  index ===
+                                  (cartData.MultiUsers?.length || 0) - 1
+                                }
+                                showAddButton={false}
+                                showSelection={false}
+                                isGeneralSearchScreen={false}
+                                onPress={() => {}}
+                              />
+                            )}
+                            showsVerticalScrollIndicator={false}
+                            contentContainerStyle={{
+                              paddingVertical: 0,
+                            }}
+                          />
+                        </View>
                       </View>
-                    </View>
-                  </AppBottomSheet>
-                )}
+                    </AppBottomSheet>
+                  )}
               </View>
 
               <View style={styles.section}>
                 <View
                   style={[
                     styles.sectionHeaderRow,
-                    { ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }) }
-
+                    {
+                      ...(langCode === 'ar'
+                        ? { flexDirection: rtlFlexDirection(!isRtl) }
+                        : { flexDirection: rtlFlexDirection(isRtl) }),
+                    },
                   ]}
                 >
                   <Text style={styles.heading}>
@@ -1167,8 +1316,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     onPress={() => navigation.navigate('AddCard' as never)}
                   >
                     <View
-                      style={[styles.row,
-                      { ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }) }
+                      style={[
+                        styles.row,
+                        {
+                          ...(langCode === 'ar'
+                            ? { flexDirection: rtlFlexDirection(!isRtl) }
+                            : { flexDirection: rtlFlexDirection(isRtl) }),
+                        },
                       ]}
                     >
                       {/* <PlusIcon
@@ -1182,112 +1336,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   </TouchableOpacity>
                 </View>
                 {isApplePayAvailable && (
-                <TouchableOpacity
-                  onPress={() =>
-                    setSelectedPaymentMethod(
-                      selectedPaymentMethod === 'applePay' ? null : 'applePay',
-                    )
-                  }
-                >
-                  <View
-                    style={[
-                      styles.GiftContainer,
-                      {
-                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
-                        marginBottom: theme.sizes.HEIGHT * 0.005,
-                      },
-                    ]}
-                  >
-                    <View
-                      style={{
-                        ...styles.row,
-                        flex: 1,
-                        gap: theme.sizes.WIDTH * 0.03,
-                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
-                      }}
-                    >
-                      <CheckBox
-                        Selected={selectedPaymentMethod === 'applePay'}
-                        onSelectionPress={() =>
-                          setSelectedPaymentMethod(
-                            selectedPaymentMethod === 'applePay' ? null : 'applePay',
-                          )
-                        }
-                      />
-                      <SvgApplePayIcon
-                        height={scaleWithMax(32, 35)}
-                        width={scaleWithMax(32, 35)}
-                      />
-                      <View>
-                        <Text style={styles.TextMedium}>{getString('CHECKOUT_APPLE_PAY')}</Text>
-                      </View>
-                    </View>
-                    <SvgSelectedCheck
-                      width={scaleWithMax(16, 18)}
-                      height={scaleWithMax(16, 18)}
-                      style={{
-                        opacity: selectedPaymentMethod === 'applePay' ? 1 : 0,
-                      }}
-                    />
-                  </View>
-                </TouchableOpacity>
-                )}
-
-                <TouchableOpacity
-                  onPress={() =>
-                    setSelectedPaymentMethod(
-                      selectedPaymentMethod === 'creditCard' ? null : 'creditCard',
-                    )
-                  }
-                >
-                  <View
-                    style={[
-                      styles.GiftContainer,
-                      {
-                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
-
-                        marginBottom: theme.sizes.HEIGHT * 0.005,
-                      },
-                    ]}
-                  >
-                    <View
-                      style={{
-                        ...styles.row,
-                        flex: 1,
-                        gap: theme.sizes.WIDTH * 0.03,
-                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
-
-                      }}
-                    >
-                      <CheckBox
-                        Selected={selectedPaymentMethod === 'creditCard'}
-                        onSelectionPress={() =>
-                          setSelectedPaymentMethod(
-                            selectedPaymentMethod === 'creditCard' ? null : 'creditCard',
-                          )
-                        }
-                      />
-                      <NoonIcon
-                        height={scaleWithMax(32, 35)}
-                        width={scaleWithMax(32, 35)}
-                      />
-                      <View>
-                        <Text style={styles.TextMedium}>{getString('CHECKOUT_CREDIT_DEBIT_CARD')}</Text>
-                      </View>
-                    </View>
-                    <SvgSelectedCheck
-                      width={scaleWithMax(16, 18)}
-                      height={scaleWithMax(16, 18)}
-                      style={{ opacity: selectedPaymentMethod === 'creditCard' ? 1 : 0 }}
-                    />
-                  </View>
-                </TouchableOpacity>
-
-                {(selectedCardFromParams || userCards.length > 0) && (
                   <TouchableOpacity
                     onPress={() =>
                       setSelectedPaymentMethod(
-                        selectedPaymentMethod === 'savedCard' ? null : 'savedCard',
+                        selectedPaymentMethod === 'applePay'
+                          ? null
+                          : 'applePay',
                       )
                     }
                   >
@@ -1295,7 +1349,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       style={[
                         styles.GiftContainer,
                         {
-                          ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+                          ...(langCode === 'ar'
+                            ? { flexDirection: rtlFlexDirection(!isRtl) }
+                            : { flexDirection: rtlFlexDirection(isRtl) }),
                           marginBottom: theme.sizes.HEIGHT * 0.005,
                         },
                       ]}
@@ -1305,25 +1361,157 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           ...styles.row,
                           flex: 1,
                           gap: theme.sizes.WIDTH * 0.03,
-                          ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
+                          ...(langCode === 'ar'
+                            ? { flexDirection: rtlFlexDirection(!isRtl) }
+                            : { flexDirection: rtlFlexDirection(isRtl) }),
+                        }}
+                      >
+                        <CheckBox
+                          Selected={selectedPaymentMethod === 'applePay'}
+                          onSelectionPress={() =>
+                            setSelectedPaymentMethod(
+                              selectedPaymentMethod === 'applePay'
+                                ? null
+                                : 'applePay',
+                            )
+                          }
+                        />
+                        <SvgApplePayIcon
+                          height={scaleWithMax(32, 35)}
+                          width={scaleWithMax(32, 35)}
+                        />
+                        <View>
+                          <Text style={styles.TextMedium}>
+                            {getString('CHECKOUT_APPLE_PAY')}
+                          </Text>
+                        </View>
+                      </View>
+                      <SvgSelectedCheck
+                        width={scaleWithMax(16, 18)}
+                        height={scaleWithMax(16, 18)}
+                        style={{
+                          opacity: selectedPaymentMethod === 'applePay' ? 1 : 0,
+                        }}
+                      />
+                    </View>
+                  </TouchableOpacity>
+                )}
 
+                <TouchableOpacity
+                  onPress={() =>
+                    setSelectedPaymentMethod(
+                      selectedPaymentMethod === 'creditCard'
+                        ? null
+                        : 'creditCard',
+                    )
+                  }
+                >
+                  <View
+                    style={[
+                      styles.GiftContainer,
+                      {
+                        ...(langCode === 'ar'
+                          ? { flexDirection: rtlFlexDirection(!isRtl) }
+                          : { flexDirection: rtlFlexDirection(isRtl) }),
+
+                        marginBottom: theme.sizes.HEIGHT * 0.005,
+                      },
+                    ]}
+                  >
+                    <View
+                      style={{
+                        ...styles.row,
+                        flex: 1,
+                        gap: theme.sizes.WIDTH * 0.03,
+                        ...(langCode === 'ar'
+                          ? { flexDirection: rtlFlexDirection(!isRtl) }
+                          : { flexDirection: rtlFlexDirection(isRtl) }),
+                      }}
+                    >
+                      <CheckBox
+                        Selected={selectedPaymentMethod === 'creditCard'}
+                        onSelectionPress={() =>
+                          setSelectedPaymentMethod(
+                            selectedPaymentMethod === 'creditCard'
+                              ? null
+                              : 'creditCard',
+                          )
+                        }
+                      />
+                      <NoonIcon
+                        height={scaleWithMax(32, 35)}
+                        width={scaleWithMax(32, 35)}
+                      />
+                      <View>
+                        <Text style={styles.TextMedium}>
+                          {getString('CHECKOUT_CREDIT_DEBIT_CARD')}
+                        </Text>
+                      </View>
+                    </View>
+                    <SvgSelectedCheck
+                      width={scaleWithMax(16, 18)}
+                      height={scaleWithMax(16, 18)}
+                      style={{
+                        opacity: selectedPaymentMethod === 'creditCard' ? 1 : 0,
+                      }}
+                    />
+                  </View>
+                </TouchableOpacity>
+
+                {(selectedCardFromParams || userCards.length > 0) && (
+                  <TouchableOpacity
+                    onPress={() =>
+                      setSelectedPaymentMethod(
+                        selectedPaymentMethod === 'savedCard'
+                          ? null
+                          : 'savedCard',
+                      )
+                    }
+                  >
+                    <View
+                      style={[
+                        styles.GiftContainer,
+                        {
+                          ...(langCode === 'ar'
+                            ? { flexDirection: rtlFlexDirection(!isRtl) }
+                            : { flexDirection: rtlFlexDirection(isRtl) }),
+                          marginBottom: theme.sizes.HEIGHT * 0.005,
+                        },
+                      ]}
+                    >
+                      <View
+                        style={{
+                          ...styles.row,
+                          flex: 1,
+                          gap: theme.sizes.WIDTH * 0.03,
+                          ...(langCode === 'ar'
+                            ? { flexDirection: rtlFlexDirection(!isRtl) }
+                            : { flexDirection: rtlFlexDirection(isRtl) }),
                         }}
                       >
                         <CheckBox
                           Selected={selectedPaymentMethod === 'savedCard'}
                           onSelectionPress={() =>
                             setSelectedPaymentMethod(
-                              selectedPaymentMethod === 'savedCard' ? null : 'savedCard',
+                              selectedPaymentMethod === 'savedCard'
+                                ? null
+                                : 'savedCard',
                             )
                           }
                         />
 
-                        {(selectedCardFromParams?.Brand || userCards[0]?.Brand)?.toLowerCase().includes('master') ? (
+                        {(selectedCardFromParams?.Brand || userCards[0]?.Brand)
+                          ?.toLowerCase()
+                          .includes('master') ? (
                           <MasterCardIcon
                             height={scaleWithMax(32, 35)}
                             width={scaleWithMax(32, 35)}
                           />
-                        ) : (selectedCardFromParams?.Brand || userCards[0]?.Brand)?.toLowerCase().includes('noon') ? (
+                        ) : (
+                            selectedCardFromParams?.Brand || userCards[0]?.Brand
+                          )
+                            ?.toLowerCase()
+                            .includes('noon') ? (
                           <NoonIcon
                             height={scaleWithMax(32, 35)}
                             width={scaleWithMax(32, 35)}
@@ -1336,17 +1524,22 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         )}
                         <View>
                           <Text style={styles.TextMedium}>
-                            {selectedCardFromParams?.CardNumber || userCards[0]?.CardNumber}
+                            {selectedCardFromParams?.CardNumber ||
+                              userCards[0]?.CardNumber}
                           </Text>
                           <Text style={styles.TextMedium}>
-                            {selectedCardFromParams?.Brand || userCards[0]?.Brand}
+                            {selectedCardFromParams?.Brand ||
+                              userCards[0]?.Brand}
                           </Text>
                         </View>
                       </View>
                       <SvgSelectedCheck
                         width={scaleWithMax(16, 18)}
                         height={scaleWithMax(16, 18)}
-                        style={{ opacity: selectedPaymentMethod === 'savedCard' ? 1 : 0 }}
+                        style={{
+                          opacity:
+                            selectedPaymentMethod === 'savedCard' ? 1 : 0,
+                        }}
                       />
                     </View>
                   </TouchableOpacity>
@@ -1363,8 +1556,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     style={[
                       styles.GiftContainer,
                       {
-                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
-
+                        ...(langCode === 'ar'
+                          ? { flexDirection: rtlFlexDirection(!isRtl) }
+                          : { flexDirection: rtlFlexDirection(isRtl) }),
                       },
                     ]}
                   >
@@ -1373,15 +1567,18 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         ...styles.row,
                         flex: 1,
                         gap: theme.sizes.WIDTH * 0.03,
-                        ...(langCode === 'ar' ? { flexDirection: rtlFlexDirection(!isRtl) } : { flexDirection: rtlFlexDirection(isRtl) }),
-
+                        ...(langCode === 'ar'
+                          ? { flexDirection: rtlFlexDirection(!isRtl) }
+                          : { flexDirection: rtlFlexDirection(isRtl) }),
                       }}
                     >
                       <CheckBox
                         Selected={selectedPaymentMethod === 'wallet'}
                         onSelectionPress={() =>
                           setSelectedPaymentMethod(
-                            selectedPaymentMethod === 'wallet' ? null : 'wallet',
+                            selectedPaymentMethod === 'wallet'
+                              ? null
+                              : 'wallet',
                           )
                         }
                       />
@@ -1390,7 +1587,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         width={scaleWithMax(32, 35)}
                       />
                       <View>
-                        <Text style={styles.TextMedium}>{getString('W_GIFTEE_WALLET')}</Text>
+                        <Text style={styles.TextMedium}>
+                          {getString('W_GIFTEE_WALLET')}
+                        </Text>
                         <View style={styles.row}>
                           <SvgRiyalIcon
                             width={scaleWithMax(12, 14)}
@@ -1398,7 +1597,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           />
                           <Text style={styles.TextMedium}>
                             {walletBalance?.data?.WalletBalance
-                              ? Number(walletBalance.data.WalletBalance).toFixed(2)
+                              ? Number(
+                                  walletBalance.data.WalletBalance,
+                                ).toFixed(2)
                               : '0.00'}
                           </Text>
                         </View>
@@ -1407,7 +1608,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     <SvgSelectedCheck
                       width={scaleWithMax(16, 18)}
                       height={scaleWithMax(16, 18)}
-                      style={{ opacity: selectedPaymentMethod === 'wallet' ? 1 : 0 }}
+                      style={{
+                        opacity: selectedPaymentMethod === 'wallet' ? 1 : 0,
+                      }}
                     />
                   </View>
                 </TouchableOpacity>
@@ -1421,19 +1624,26 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     justifyContent: 'space-between',
                   }}
                 >
-                  <Text style={{
-                    ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-                    fontSize: theme.sizes.FONTSIZE_SMALL_HEADING,
-                    color: theme.colors.BLACK,
-                  }}>{getString('CHECKOUT_SEND_GIFT_WITH_EHSAN')}</Text>
-                  <SvgEhsanIcon width={scaleWithMax(26, 28)} height={scaleWithMax(26, 28)} />
+                  <Text
+                    style={{
+                      ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                      fontSize: theme.sizes.FONTSIZE_SMALL_HEADING,
+                      color: theme.colors.BLACK,
+                    }}
+                  >
+                    {getString('CHECKOUT_SEND_GIFT_WITH_EHSAN')}
+                  </Text>
+                  <SvgEhsanIcon
+                    width={scaleWithMax(26, 28)}
+                    height={scaleWithMax(26, 28)}
+                  />
                 </View>
                 <Text
                   style={{
                     ...theme.globalStyles.TEXT_STYLE_MEDIUM,
                     color: '#1B917B',
                     fontSize: scaleWithMax(10, 11),
-                    marginTop: theme.sizes.HEIGHT * -0.00,
+                    marginTop: theme.sizes.HEIGHT * -0.0,
                   }}
                 >
                   {getString('CHECKOUT_EHSAN_MESSAGE')}
@@ -1456,7 +1666,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     const isActive =
                       amount.value === 'Custom'
                         ? showCustomDonationInput
-                        : activeDomationAmount === Number(amount.value) && !customMatchesPreset;
+                        : activeDomationAmount === Number(amount.value) &&
+                          !customMatchesPreset;
 
                     return (
                       <TouchableOpacity
@@ -1500,7 +1711,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           }
                         }}
                       >
-                        <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+                        <View
+                          style={[
+                            styles.row,
+                            { gap: theme.sizes.WIDTH * 0.01 },
+                          ]}
+                        >
                           {amount.value === 'Custom' ? null : isActive ? (
                             <SvgRiyalPink
                               width={scaleWithMax(12, 14)}
@@ -1562,11 +1778,21 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     />
                   </View>
                 )}
-                <Text style={[styles.heading, {
-                  marginTop: theme.sizes.HEIGHT * 0.01,
-                }]}>{getString('CHECKOUT_ORDER_INFO')}</Text>
+                <Text
+                  style={[
+                    styles.heading,
+                    {
+                      marginTop: theme.sizes.HEIGHT * 0.01,
+                    },
+                  ]}
+                >
+                  {getString('CHECKOUT_ORDER_INFO')}
+                </Text>
                 <View
-                  style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}
+                  style={[
+                    styles.Prices,
+                    { flexDirection: rtlFlexDirection(isRtl) },
+                  ]}
                 >
                   <Text style={styles.TextMedium}>
                     {getString('CHECKOUT_ORDER_AMOUNT')}
@@ -1591,7 +1817,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       { flexDirection: rtlFlexDirection(isRtl) },
                     ]}
                   >
-                    <Text style={styles.TextMedium}>{getString('CHECKOUT_VAT')}</Text>
+                    <Text style={styles.TextMedium}>
+                      {getString('CHECKOUT_VAT')}
+                    </Text>
                     <PriceWithIcon Price={cartData?.TotalVat || 0} />
                   </View>
                 )}
@@ -1602,32 +1830,51 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       { flexDirection: rtlFlexDirection(isRtl) },
                     ]}
                   >
-                    <Text style={styles.TextMedium}>{getString('CHECKOUT_DELIVERY_CHARGES')}</Text>
+                    <Text style={styles.TextMedium}>
+                      {getString('CHECKOUT_DELIVERY_CHARGES')}
+                    </Text>
                     <PriceWithIcon Price={cartData?.DeliveryCharges || 0} />
                   </View>
                 )}
-                {
-                  activeDomationAmount && (
-                    <View style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}>
-                      <Text style={styles.TextMedium}>{'Ehsan'}</Text>
-                      <PriceWithIcon Price={activeDomationAmount} />
-                    </View>
-                  )
-                }
+                {activeDomationAmount && (
+                  <View
+                    style={[
+                      styles.Prices,
+                      { flexDirection: rtlFlexDirection(isRtl) },
+                    ]}
+                  >
+                    <Text style={styles.TextMedium}>{'Ehsan'}</Text>
+                    <PriceWithIcon Price={activeDomationAmount} />
+                  </View>
+                )}
                 <View
-                  style={[styles.Prices, { flexDirection: rtlFlexDirection(isRtl) }]}
+                  style={[
+                    styles.Prices,
+                    { flexDirection: rtlFlexDirection(isRtl) },
+                  ]}
                 >
                   <Text style={styles.TextMedium}>
                     {getString('CHECKOUT_TOTAL_AMOUNT')}
                   </Text>
-                  <PriceWithIcon Price={(cartData?.TotalAmount || 0) + (activeDomationAmount || 0)} />
+                  <PriceWithIcon
+                    Price={
+                      (cartData?.TotalAmount || 0) + (activeDomationAmount || 0)
+                    }
+                  />
                 </View>
 
-                <Text style={styles.vatNote}>{getString('CHECKOUT_VAT_NOTE')}</Text>
+                <Text style={styles.vatNote}>
+                  {getString('CHECKOUT_VAT_NOTE')}
+                </Text>
               </View>
             </ScrollView>
           </KeyboardAvoidingView>
-          <View style={{ height: theme.sizes.HEIGHT * 0.11, backgroundColor: theme.colors.WHITE }} >
+          <View
+            style={{
+              height: theme.sizes.HEIGHT * 0.11,
+              backgroundColor: theme.colors.WHITE,
+            }}
+          >
             <View style={styles.footerContainer}>
               <View style={{ position: 'relative' }}>
                 <CustomButton
@@ -1646,19 +1893,21 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     backgroundColor: !selectedPaymentMethod
                       ? '#FFA5A5'
                       : selectedPaymentMethod === 'applePay'
-                        ? '#000000'
-                        : theme.colors.PRIMARY,
+                      ? '#000000'
+                      : theme.colors.PRIMARY,
                     borderColor: !selectedPaymentMethod
                       ? '#FFA5A5'
                       : selectedPaymentMethod === 'applePay'
-                        ? '#000000'
-                        : theme.colors.PRIMARY,
+                      ? '#000000'
+                      : theme.colors.PRIMARY,
                   }}
                   labelStyle={{
                     color: theme.colors.WHITE,
                   }}
                   disabled={
-                    submitting || waitingForVideoUpload || !selectedPaymentMethod
+                    submitting ||
+                    waitingForVideoUpload ||
+                    !selectedPaymentMethod
                   }
                   loading={submitting || waitingForVideoUpload}
                 />
@@ -1669,7 +1918,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   ]}
                 >
                   <PriceWithIcon
-                    Price={(cartData?.TotalAmount || 0) + (activeDomationAmount || 0)}
+                    Price={
+                      (cartData?.TotalAmount || 0) + (activeDomationAmount || 0)
+                    }
                     style={{
                       color: theme.colors.WHITE,
                     }}
@@ -1686,13 +1937,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           </View>
         </>
       ) : (
-
         <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
-          <PlaceholderLogoText text={getString('CHECKOUT_YOUR_CART_IS_EMPTY')} />
+          <PlaceholderLogoText
+            text={getString('CHECKOUT_YOUR_CART_IS_EMPTY')}
+          />
         </View>
-
-      )
-      }
+      )}
 
       <ConfirmationPopup
         visible={showRemoveConfirmation}
@@ -1706,8 +1956,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <ConfirmationPopup
         visible={!!itemToRemove}
         title={getString('CHECKOUT_REMOVE_ITEM')}
-        message={`${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${itemToRemove?.ItemName
-          }" ${getString('CHECKOUT_FROM_CART')}`}
+        message={`${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${
+          itemToRemove?.ItemName
+        }" ${getString('CHECKOUT_FROM_CART')}`}
         confirmText={getString('CHECKOUT_REMOVE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={() => handleRemoveItem()}
@@ -1743,7 +1994,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               }),
             }}
           >
-            <Text style={styles.heading}>{getString('CHECKOUT_PAYMENT_MANAGEMENT')}</Text>
+            <Text style={styles.heading}>
+              {getString('CHECKOUT_PAYMENT_MANAGEMENT')}
+            </Text>
             <TouchableOpacity
               onPress={() => {
                 setShowPaymentWebView(false);
@@ -1753,7 +2006,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 padding: 8,
               }}
             >
-              <Text style={{ ...styles.TextMedium, color: theme.colors.PRIMARY }}>
+              <Text
+                style={{ ...styles.TextMedium, color: theme.colors.PRIMARY }}
+              >
                 {getString('NG_CANCEL')}
               </Text>
             </TouchableOpacity>
@@ -1768,7 +2023,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               injectedJavaScript={injectedJavaScript}
               onLoadStart={() => setWebViewLoading(true)}
               onLoadEnd={() => setWebViewLoading(false)}
-              onError={(syntheticEvent) => {
+              onError={syntheticEvent => {
                 const { nativeEvent } = syntheticEvent;
                 console.error('WebView error: ', nativeEvent);
                 notify.error(getString('AU_ERROR_OCCURRED'));
@@ -1790,7 +2045,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     backgroundColor: theme.colors.WHITE,
                   }}
                 >
-                  <ActivityIndicator size="large" color={theme.colors.PRIMARY} />
+                  <ActivityIndicator
+                    size="large"
+                    color={theme.colors.PRIMARY}
+                  />
                 </View>
               )}
             />

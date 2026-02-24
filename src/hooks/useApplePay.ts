@@ -52,8 +52,8 @@ export function useApplePay() {
 
     const check = async () => {
       try {
-        const methodData = createMethodData(0, 'SAR', 'Check');
-        const paymentDetails = createPaymentDetails(0, 'SAR', 'Check');
+        const methodData = createMethodData(0.01, 'SAR', 'Check');
+        const paymentDetails = createPaymentDetails(0.01, 'SAR', 'Check');
         const request = new PaymentRequest(methodData, paymentDetails);
         const canPay = await request.canMakePayment();
         setIsApplePayAvailable(canPay);
@@ -84,11 +84,10 @@ export function useApplePay() {
 
         const paymentResponse = await request.show();
 
-        const applePayToken =
-          'applePayToken' in paymentResponse
-            ? paymentResponse.applePayToken
-            : null;
+        const applePayToken = paymentResponse.details?.applePayToken ?? null;
+
         if (!applePayToken) {
+          await paymentResponse.complete(PaymentComplete.FAIL);
           return null;
         }
 
@@ -96,6 +95,7 @@ export function useApplePay() {
         await paymentResponse.complete(PaymentComplete.SUCCESS);
         return tokenString;
       } catch (error) {
+        // NotAllowedError means user cancelled -- not an error
         if ((error as Error)?.name === 'NotAllowedError') {
           return null;
         }
