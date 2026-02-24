@@ -5,7 +5,7 @@ import {
   ViewStyle,
   Image,
   TextStyle,
-  Platform,
+  TouchableOpacity,
 } from 'react-native';
 import React, { useMemo } from 'react';
 import { SvgGiftLink, SvgGifteeNotifyIcon } from '../../assets/icons';
@@ -25,6 +25,7 @@ interface NotificationItemProps {
   time?: string;
   boldText?: string;
   isSeen?: boolean;
+  onPress?: () => void;
 }
 
 const NotificationItem = ({
@@ -37,6 +38,7 @@ const NotificationItem = ({
   time,
   boldText,
   isSeen = true,
+  onPress,
 }: NotificationItemProps) => {
   const { styles, theme } = useStyles();
   const { isRtl, langCode } = useLocaleStore();
@@ -57,8 +59,8 @@ const NotificationItem = ({
     );
   };
 
-  return (
-    <View style={[styles.container, NotificationItemStyles]}>
+  const content = (
+    <>
       {time && (
         <View style={[styles.timeContainer]}>
           <Text style={[styles.timeText]}>{time}</Text>
@@ -89,7 +91,16 @@ const NotificationItem = ({
         {icon && icon}
         {renderTitle()}
       </View>
-    </View>
+    </>
+  );
+
+  const Wrapper = onPress ? TouchableOpacity : View;
+  const wrapperProps = onPress ? { onPress, activeOpacity: 0.7 } : {};
+
+  return (
+    <Wrapper style={[styles.container, NotificationItemStyles]} {...wrapperProps}>
+      {content}
+    </Wrapper>
   );
 };
 

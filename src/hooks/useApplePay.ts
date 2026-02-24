@@ -9,7 +9,11 @@ import {
 
 const APPLE_PAY_MERCHANT_ID = 'merchant.com.giftee.app';
 
-const createMethodData = (amount: number, currencyCode: string, label: string) => [
+const createMethodData = (
+  amount: number,
+  currencyCode: string,
+  label: string,
+) => [
   {
     supportedMethods: PaymentMethodNameEnum.ApplePay as const,
     data: {
@@ -29,7 +33,11 @@ const createMethodData = (amount: number, currencyCode: string, label: string) =
   },
 ];
 
-const createPaymentDetails = (amount: number, currencyCode: string, label: string) => ({
+const createPaymentDetails = (
+  amount: number,
+  currencyCode: string,
+  label: string,
+) => ({
   id: `order-${Date.now()}`,
   total: {
     label: label || 'Giftee Order',
@@ -70,7 +78,7 @@ export function useApplePay() {
   const requestApplePayPayment = useCallback(
     async (
       amount: number,
-      options?: { currencyCode?: string; label?: string }
+      options?: { currencyCode?: string; label?: string },
     ): Promise<string | null> => {
       if (Platform.OS !== 'ios') return null;
 
@@ -79,10 +87,19 @@ export function useApplePay() {
 
       try {
         const methodData = createMethodData(amount, currencyCode, label);
-        const paymentDetails = createPaymentDetails(amount, currencyCode, label);
+        const paymentDetails = createPaymentDetails(
+          amount,
+          currencyCode,
+          label,
+        );
         const request = new PaymentRequest(methodData, paymentDetails);
 
         const paymentResponse = await request.show();
+
+        console.log(
+          'paymentResponse',
+          paymentResponse.details?.applePayToken?.paymentData,
+        );
 
         const applePayToken = paymentResponse.details?.applePayToken ?? null;
 
@@ -91,7 +108,7 @@ export function useApplePay() {
           return null;
         }
 
-        const tokenString = JSON.stringify(applePayToken);
+        const tokenString = JSON.stringify(applePayToken.paymentData);
         await paymentResponse.complete(PaymentComplete.SUCCESS);
         return tokenString;
       } catch (error) {
@@ -102,7 +119,7 @@ export function useApplePay() {
         throw error;
       }
     },
-    []
+    [],
   );
 
   return {

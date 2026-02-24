@@ -7,6 +7,7 @@ import CustomButton from './Custombutton';
 import { Text } from '../../utils/elements';
 
 type SuccessMessageProps = {
+  subTitle?: string;
   SuccessLogo: React.ReactNode;
   MediaLogo?: React.ReactNode;
   SuccessMessage: string;
@@ -22,6 +23,7 @@ type SuccessMessageProps = {
 };
 
 const SuccessMessage: React.FC<SuccessMessageProps> = ({
+  subTitle,
   SuccessLogo,
   MediaLogo,
   SuccessMessage,
@@ -44,27 +46,31 @@ const SuccessMessage: React.FC<SuccessMessageProps> = ({
         <Text style={styles.TextMed}>{SuccessSubMessage}</Text>
       )}
       {showFooter && (
-        <CustomFooter>
-          <View style={styles.buttonsRow}>
-            {!!primaryButtonTitle && (
-              <View style={styles.buttonWrapper}>
-                <CustomButton
-                  title={primaryButtonTitle}
-                  onPress={onPrimaryPress}
-                />
-              </View>
-            )}
-            {!!secondaryButtonTitle && (
-              <View style={styles.buttonWrapper}>
-                <CustomButton
-                  type="secondary"
-                  title={secondaryButtonTitle}
-                  onPress={onSecondaryPress}
-                />
-              </View>
-            )}
-          </View>
-        </CustomFooter>
+        <>
+          <CustomFooter>
+            {' '}
+            <Text style={styles.subTitle}>{subTitle}</Text>
+            <View style={styles.buttonsRow}>
+              {!!primaryButtonTitle && (
+                <View style={styles.buttonWrapper}>
+                  <CustomButton
+                    title={primaryButtonTitle}
+                    onPress={onPrimaryPress}
+                  />
+                </View>
+              )}
+              {!!secondaryButtonTitle && (
+                <View style={styles.buttonWrapper}>
+                  <CustomButton
+                    type="secondary"
+                    title={secondaryButtonTitle}
+                    onPress={onSecondaryPress}
+                  />
+                </View>
+              )}
+            </View>
+          </CustomFooter>
+        </>
       )}
     </View>
   );
@@ -98,6 +104,13 @@ const useStyles = () => {
           fontSize: theme.sizes.FONTSIZE_BUTTON,
           color: theme.colors.BLACK,
           textAlign: 'center',
+        },
+        subTitle: {
+          ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+          fontSize: theme.sizes.FONTSIZE_SMALL_HEADING,
+          color: theme.colors.PRIMARY_TEXT,
+          textAlign: 'center',
+          marginBottom: theme.sizes.HEIGHT * 0.01,
         },
         buttonsRow: {
           flexDirection: 'column',

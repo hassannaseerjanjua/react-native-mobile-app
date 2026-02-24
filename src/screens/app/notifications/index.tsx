@@ -6,7 +6,12 @@ import {
   ActivityIndicator,
   DeviceEventEmitter,
   RefreshControl,
+  Modal,
+  TouchableOpacity,
+  Text,
+  Platform,
 } from 'react-native';
+import WebView from 'react-native-webview';
 import useStyles from './style.ts';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -25,6 +30,7 @@ import { useListingApi } from '../../../hooks/useListingApi.ts';
 import { useAuthStore } from '../../../store/reducer/auth.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import notify from '../../../utils/notify.ts';
+import { rtlFlexDirection } from '../../../utils';
 
 const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -45,7 +51,10 @@ const NotificationsScreen: React.FC = () => {
     },
   );
 
-  console.log('notificationsApi', notificationsApi.data);
+  const [showWelcomeWebView, setShowWelcomeWebView] = useState(false);
+  const [welcomeHtml, setWelcomeHtml] = useState<string>('');
+  const [welcomeTitle, setWelcomeTitle] = useState<string>('');
+  const [loadingWelcome, setLoadingWelcome] = useState(false);
 
   const markAllAsSeen = async () => {
     try {
@@ -87,10 +96,32 @@ const NotificationsScreen: React.FC = () => {
     }, []),
   );
 
-  const welcomeMessage = useGetApi<any>(apiEndpoints.WELCOME_MESSAGE, {
-    transformData: data => data.Data,
-  });
-  console.log('welcomeMessage', welcomeMessage.data);
+  const handleNotificationPress = async (item: Notification) => {
+    if (item.NotificationType !== 12) return;
+    const title = isRtl ? item.TitleAr : item.TitleEn;
+    setWelcomeTitle(title);
+    setShowWelcomeWebView(true);
+    setLoadingWelcome(true);
+    setWelcomeHtml('');
+    try {
+      const res = await api.get<{ data?: string; Data?: string }>(
+        apiEndpoints.WELCOME_MESSAGE,
+      );
+      if (res.success && res.data) {
+        const raw = res.data;
+        const html =
+          typeof raw === 'string'
+            ? raw
+            : ((raw?.Data ?? raw?.data ?? '') as string);
+        setWelcomeHtml(html);
+      }
+    } catch (e) {
+      notify.error(getString('AU_ERROR_OCCURRED'));
+      setShowWelcomeWebView(false);
+    } finally {
+      setLoadingWelcome(false);
+    }
+  };
 
   const renderItem = ({ item }: { item: Notification }) => {
     const title = isRtl ? item.DescriptionAr : item.DescriptionEn;
@@ -120,7 +151,13 @@ const NotificationsScreen: React.FC = () => {
     return (
       <NotificationItem
         title={finalTitle}
-        // onPress={() => { }}
+        onPress={
+          item.NotificationType === 12
+            ? () => {
+                void handleNotificationPress(item);
+              }
+            : undefined
+        }
         NotificationItemStyles={styles.NotificationItem}
         isGroupImage={item.Image}
         time={formatRelativeTime(item.CreatedOn, getString)}
@@ -184,6 +221,90 @@ const NotificationsScreen: React.FC = () => {
           showsVerticalScrollIndicator={false}
         />
       )}
+
+      {/* Welcome message WebView modal (type 12) */}
+      <Modal
+        visible={showWelcomeWebView}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => {
+          setShowWelcomeWebView(false);
+          setWelcomeHtml('');
+        }}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: theme.colors.WHITE,
+            paddingBottom: theme.sizes.HEIGHT * 0.01,
+          }}
+        >
+          <View
+            style={{
+              flexDirection: rtlFlexDirection(isRtl),
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              paddingHorizontal: theme.sizes.PADDING,
+              paddingVertical: theme.sizes.HEIGHT * 0.006,
+              backgroundColor: theme.colors.WHITE,
+              borderBottomWidth: 1,
+              borderBottomColor: theme.colors.DIVIDER_COLOR ?? '#eee',
+              ...(Platform.OS === 'ios' && {
+                paddingTop: theme.sizes.HEIGHT * 0.02,
+              }),
+            }}
+          >
+            <Text
+              style={{
+                ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                fontSize: theme.sizes.FONTSIZE_LESS_HIGH,
+                color: theme.colors.PRIMARY_TEXT,
+              }}
+              numberOfLines={1}
+            >
+              {welcomeTitle}
+            </Text>
+            <TouchableOpacity
+              onPress={() => {
+                setShowWelcomeWebView(false);
+                setWelcomeHtml('');
+              }}
+              style={{ padding: 8 }}
+            >
+              <Text
+                style={{
+                  ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+                  color: theme.colors.PRIMARY,
+                }}
+              >
+                {getString('COMP_CLOSE')}
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          {loadingWelcome ? (
+            <View
+              style={{
+                flex: 1,
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <ActivityIndicator size="large" color={theme.colors.PRIMARY} />
+            </View>
+          ) : welcomeHtml ? (
+            <WebView
+              source={{ html: welcomeHtml }}
+              style={{ flex: 1 }}
+              originWhitelist={['*']}
+              scrollEnabled={true}
+              onError={() => {
+                notify.error(getString('AU_ERROR_OCCURRED'));
+              }}
+            />
+          ) : null}
+        </View>
+      </Modal>
     </View>
   );
 };

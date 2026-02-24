@@ -721,30 +721,31 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     try {
       setSubmitting(true);
 
-      // Apple Pay: present native sheet, get token, log it (no API call yet)
+      // Apple Pay: present native sheet first, get token before API call
+      let applePayToken: string | null = null;
       if (selectedPaymentMethod === 'applePay') {
         const totalAmount =
           (cartData.TotalAmount || 0) + (activeDomationAmount || 0);
         if (totalAmount <= 0) {
           notify.error(getString('AU_ERROR_OCCURRED'));
+          setSubmitting(false);
           return;
         }
         try {
-          const token = await requestApplePayPayment(totalAmount, {
+          applePayToken = await requestApplePayPayment(totalAmount, {
             currencyCode: 'SAR',
             label: 'Giftee Order',
           });
-          if (token) {
-            console.log('[ApplePay] Payment token received:', token);
-            notify.success('Apple Pay token captured (dev mode)');
+          if (!applePayToken) {
+            setSubmitting(false);
+            return;
           }
         } catch (error: any) {
           console.error('[ApplePay] Error:', error);
           notify.error(error?.message || getString('AU_ERROR_OCCURRED'));
-        } finally {
           setSubmitting(false);
+          return;
         }
-        return;
       }
 
       // Wait for video upload if it's in progress
@@ -774,7 +775,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
       const payload: any = {
         orderid: cartData.OrderId,
-        orderPaymentType: selectedPaymentMethod === 'wallet' ? 1 : 2,
+        orderPaymentType:
+          selectedPaymentMethod === 'wallet'
+            ? 1
+            : selectedPaymentMethod === 'applePay'
+            ? 3
+            : 2,
         IsRedeem: false,
       };
 
@@ -795,6 +801,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         if (cardToken) {
           payload.CardToken = cardToken;
         }
+      }
+
+      if (selectedPaymentMethod === 'applePay' && applePayToken) {
+        const cardToken = JSON.parse(applePayToken).token;
+        console.log('cardToken', cardToken);
+        console.log('applePayToken', applePayToken);
+        payload.CardToken = applePayToken;
+        notify.success(applePayToken);
       }
 
       if (cartData.FriendIds && cartData.FriendIds.length > 0) {
@@ -984,6 +998,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     return (
       <>
         <SuccessMessage
+          subTitle={
+            isSendType2 ? getString('INBOX_GIFT_LINK_OUTBOX_MESSAGE') : ''
+          }
           SuccessLogo={isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
           SuccessMessage={
             isSendType2
@@ -1094,7 +1111,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   <TouchableOpacity
                     onPress={() => setShowRemoveConfirmation(true)}
                   >
-                    <Text
+                    {/* <Text
                       style={[
                         styles.TextMedium,
                         {
@@ -1103,6 +1120,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         },
                       ]}
                     >
+                      {getString('CHECKOUT_REMOVE')}
+                    </Text> */}
+                    <Text style={styles.addCardAction}>
                       {getString('CHECKOUT_REMOVE')}
                     </Text>
                   </TouchableOpacity>
@@ -1656,7 +1676,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     ...theme.globalStyles.TEXT_STYLE_MEDIUM,
                     color: '#1B917B',
                     fontSize: scaleWithMax(10, 11),
-                    marginTop: theme.sizes.HEIGHT * -0.0,
+                    marginTop: theme.sizes.HEIGHT * -0.008,
                   }}
                 >
                   {getString('CHECKOUT_EHSAN_MESSAGE')}
