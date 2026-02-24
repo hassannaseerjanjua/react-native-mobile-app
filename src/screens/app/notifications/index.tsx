@@ -97,30 +97,74 @@ const NotificationsScreen: React.FC = () => {
   );
 
   const handleNotificationPress = async (item: Notification) => {
-    if (item.NotificationType !== 12) return;
-    const title = isRtl ? item.TitleAr : item.TitleEn;
-    setWelcomeTitle(title);
-    setShowWelcomeWebView(true);
-    setLoadingWelcome(true);
-    setWelcomeHtml('');
-    try {
-      const res = await api.get<{ data?: string; Data?: string }>(
-        apiEndpoints.WELCOME_MESSAGE,
-      );
-      if (res.success && res.data) {
-        const raw = res.data;
-        const html =
-          typeof raw === 'string'
-            ? raw
-            : ((raw?.Data ?? raw?.data ?? '') as string);
-        setWelcomeHtml(html);
+    const type = item.NotificationType;
+
+    // WelcomeNotification = 12: open WebView modal
+    if (type === 12) {
+      const title = isRtl ? item.TitleAr : item.TitleEn;
+      setWelcomeTitle(title);
+      setShowWelcomeWebView(true);
+      setLoadingWelcome(true);
+      setWelcomeHtml('');
+      try {
+        const res = await api.get<{ data?: string; Data?: string }>(
+          apiEndpoints.WELCOME_MESSAGE,
+        );
+        if (res.success && res.data) {
+          const raw = res.data;
+          const html =
+            typeof raw === 'string'
+              ? raw
+              : ((raw?.Data ?? raw?.data ?? '') as string);
+          setWelcomeHtml(html);
+        }
+      } catch (e) {
+        notify.error(getString('AU_ERROR_OCCURRED'));
+        setShowWelcomeWebView(false);
+      } finally {
+        setLoadingWelcome(false);
       }
-    } catch (e) {
-      notify.error(getString('AU_ERROR_OCCURRED'));
-      setShowWelcomeWebView(false);
-    } finally {
-      setLoadingWelcome(false);
+      return;
     }
+
+    // GiftReceived = 3, GiftRejected = 11 → Inbox
+    if (type === 3 || type === 11) {
+      navigation.navigate('InboxOutbox', {
+        title: getString('HOME_INBOX'),
+        isInbox: true,
+      });
+      return;
+    }
+
+    // GiftRedeem = 4 → Outbox
+    if (type === 4) {
+      navigation.navigate('InboxOutbox', {
+        title: getString('HOME_OUTBOX'),
+        isInbox: false,
+      });
+      return;
+    }
+
+    // SpecialPriceMenu = 5 → Send a gift
+    if (type === 5) {
+      navigation.navigate('SendAGift', { routeTo: 'SelectStore' });
+      return;
+    }
+
+    // Catch = 7 → Catch screen
+    if (type === 7) {
+      navigation.navigate('CatchScreen', { type: 'catch' });
+      return;
+    }
+
+    // G1G1 = 8 → Gift one get one
+    if (type === 8) {
+      navigation.navigate('CatchScreen', { type: 'GiftOneGetOne' });
+      return;
+    }
+
+    // Rest (1, 2, 6, 9, 10) → Home
+    navigation.navigate('BottomTabs');
   };
 
   const renderItem = ({ item }: { item: Notification }) => {
@@ -151,13 +195,9 @@ const NotificationsScreen: React.FC = () => {
     return (
       <NotificationItem
         title={finalTitle}
-        onPress={
-          item.NotificationType === 12
-            ? () => {
-                void handleNotificationPress(item);
-              }
-            : undefined
-        }
+        onPress={() => {
+          void handleNotificationPress(item);
+        }}
         NotificationItemStyles={styles.NotificationItem}
         isGroupImage={item.Image}
         time={formatRelativeTime(item.CreatedOn, getString)}

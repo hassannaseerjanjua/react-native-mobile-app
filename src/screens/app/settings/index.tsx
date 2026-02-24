@@ -50,6 +50,7 @@ const SettingsScreen: React.FC = () => {
     'English' | 'Arabic'
   >(langCode === 'en' ? 'English' : 'Arabic');
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [shimmerLoading, setShimmerLoading] = useState(false);
   const { shiftLanguage } = useLanguageShifter();
   const [date, setDate] = useState(() => {
@@ -163,6 +164,7 @@ const SettingsScreen: React.FC = () => {
 
   const handleDeleteUser = () => {
     setShowDeleteConfirmation(false);
+    setDeleteLoading(true);
     api
       .post(apiEndpoints.DELETE_USER, {})
       .then(response => {
@@ -179,6 +181,9 @@ const SettingsScreen: React.FC = () => {
       })
       .catch(error => {
         notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+      })
+      .finally(() => {
+        setDeleteLoading(false);
       });
   };
   return (
@@ -431,14 +436,14 @@ const SettingsScreen: React.FC = () => {
                         type="primary"
                         onPress={() => formik.handleSubmit()}
                         loading={loading}
-                        disabled={loading}
+                        disabled={loading || deleteLoading}
                       />
                       <CustomButton
                         title={getString('S_DELETE_ACCOUNT')}
                         type="secondary"
                         onPress={() => setShowDeleteConfirmation(true)}
-                        loading={loading}
-                        disabled={loading}
+                        loading={deleteLoading}
+                        disabled={loading || deleteLoading}
                       />
                     </View>
                   </View>
