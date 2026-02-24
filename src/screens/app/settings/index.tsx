@@ -39,6 +39,7 @@ import notify from '../../../utils/notify';
 import { useDispatch } from 'react-redux';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import { saveTokenWithLanguage } from '../../../utils/notificationService';
 
 const SettingsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -218,9 +219,11 @@ const SettingsScreen: React.FC = () => {
                 <TouchableOpacity
                   key={language}
                   style={styles.languageOption}
-                  onPress={() => {
+                  onPress={async () => {
                     setSelectedLanguage(language as 'English' | 'Arabic');
                     setShimmerLoading(true);
+                    const newLangId = language === 'English' ? 1 : 2;
+                    await saveTokenWithLanguage(newLangId);
                     shiftLanguage(language === 'English' ? 'en' : 'ar');
 
                     setTimeout(() => {

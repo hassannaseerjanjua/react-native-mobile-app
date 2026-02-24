@@ -17,7 +17,7 @@ const useStyles = () => {
       },
       NotificationItem: {
         height: sizes.HEIGHT * 0.08,
-        marginBottom: sizes.HEIGHT * 0.016,
+        marginBottom: sizes.HEIGHT * 0.014,
         borderRadius: sizes.BORDER_RADIUS,
         ...theme.globalStyles.SHADOW_STYLE,
       },
