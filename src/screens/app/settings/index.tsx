@@ -38,6 +38,7 @@ import api from '../../../utils/api';
 import notify from '../../../utils/notify';
 import { useDispatch } from 'react-redux';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 
 const SettingsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -61,6 +62,7 @@ const SettingsScreen: React.FC = () => {
   });
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [showCityPicker, setShowCityPicker] = useState(false);
+  const [showDeleteConfirmation, setShowDeleteConfirmation] = useState(false);
 
   const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
     transformData: data => data.Data.cities,
@@ -160,6 +162,7 @@ const SettingsScreen: React.FC = () => {
   };
 
   const handleDeleteUser = () => {
+    setShowDeleteConfirmation(false);
     api
       .post(apiEndpoints.DELETE_USER, {})
       .then(response => {
@@ -433,7 +436,7 @@ const SettingsScreen: React.FC = () => {
                       <CustomButton
                         title={getString('S_DELETE_ACCOUNT')}
                         type="secondary"
-                        onPress={() => handleDeleteUser()}
+                        onPress={() => setShowDeleteConfirmation(true)}
                         loading={loading}
                         disabled={loading}
                       />
@@ -479,6 +482,14 @@ const SettingsScreen: React.FC = () => {
                       setShowCityPicker(false);
                     }}
                     title={getString('AU_PL_CITY')}
+                  />
+
+                  <ConfirmationPopup
+                    visible={showDeleteConfirmation}
+                    title={getString('S_DELETE_ACCOUNT')}
+                    message={getString('S_DELETE_ACCOUNT_CONFIRM_MESSAGE')}
+                    onConfirm={handleDeleteUser}
+                    onCancel={() => setShowDeleteConfirmation(false)}
                   />
                 </>
               )}
