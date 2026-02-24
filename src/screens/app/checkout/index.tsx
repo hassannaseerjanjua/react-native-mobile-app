@@ -1632,7 +1632,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               <View style={styles.section}>
                 <View
                   style={{
-                    flexDirection: rtlFlexDirection(isRtl),
+                    flexDirection: 'row',
                     alignItems: 'center',
                     justifyContent: 'space-between',
                   }}

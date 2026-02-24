@@ -180,7 +180,9 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
       {fromProfile ? (
         <TouchableOpacity
           onPress={() => setCardToDelete(item)}
-          disabled={deletingCard === item.Token || cardToDelete?.Token === item.Token}
+          disabled={
+            deletingCard === item.Token || cardToDelete?.Token === item.Token
+          }
           style={{ padding: theme.sizes.PADDING * 0.2 }}
         >
           {deletingCard === item.Token ? (
@@ -209,7 +211,7 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   );
 
   return (
-    <ParentView>
+    <ParentView style={styles.container}>
       <HomeHeader
         title={
           fromProfile

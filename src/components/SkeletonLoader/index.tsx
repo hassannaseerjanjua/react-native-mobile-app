@@ -1788,12 +1788,12 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                       borderRadius={4}
                     />
                   </SkeletonPlaceholder.Item>
-                  <SkeletonPlaceholder.Item
+                  {/* <SkeletonPlaceholder.Item
                     width={scaleWithMax(18, 20)}
                     height={scaleWithMax(18, 20)}
                     borderRadius={4}
                     marginLeft={theme.sizes.WIDTH * 0.03}
-                  />
+                  /> */}
                 </SkeletonPlaceholder.Item>
               ))}
             </SkeletonPlaceholder.Item>

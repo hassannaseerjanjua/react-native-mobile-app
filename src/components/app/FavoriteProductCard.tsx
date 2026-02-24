@@ -114,9 +114,9 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
         <Text style={styles.title} numberOfLines={1}>
           {itemName}
         </Text>
-        <Text style={styles.subtitle} numberOfLines={1}>
+        {/* <Text style={styles.subtitle} numberOfLines={1}>
           {categoryName}
-        </Text>
+        </Text> */}
         <View style={styles.priceContainer}>
           {isSpecialPrice && (
             <>
@@ -189,6 +189,7 @@ const useStyles = () => {
         position: 'relative',
         height: sizes.HEIGHT * 0.21,
         width: '100%',
+        ...theme.globalStyles.SHADOW_STYLE_INPUT,
       },
 
       image: {

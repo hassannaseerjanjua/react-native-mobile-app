@@ -7,6 +7,10 @@ const useStyles = () => {
   const { sizes } = theme;
   return {
     styles: StyleSheet.create({
+      container: {
+        ...theme.globalStyles.CONTAINER_STYLE,
+        paddingHorizontal: 0,
+      },
       loadingContainer: {
         flex: 1,
         justifyContent: 'center',
@@ -15,6 +19,7 @@ const useStyles = () => {
       },
       listContainer: {
         paddingVertical: sizes.PADDING,
+        paddingHorizontal: sizes.PADDING,
         gap: sizes.HEIGHT * 0.005,
       },
       cardContainer: {

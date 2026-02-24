@@ -1202,6 +1202,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           height: scaleWithMax(36, 38),
                           borderRadius: 8,
                           backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                          ...theme.globalStyles.SHADOW_STYLE,
                         }}
                       />
                       <SvgAddGiftMessageIcon />
@@ -1299,7 +1300,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           flex: 1,
                         }}
                       >
-                        <PlaceholderLogoText text={getString('GIFT_MESSAGE_NO_FILTERS_AVAILABLE')} />
+                        <PlaceholderLogoText
+                          text={getString('GIFT_MESSAGE_NO_FILTERS_AVAILABLE')}
+                        />
                       </View>
                     }
                     contentContainerStyle={styles.filtersScrollContent}
@@ -1328,7 +1331,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   }}
                   style={styles.doneButton}
                 >
-                  <Text style={styles.doneButtonText}>{getString('GIFT_MESSAGE_DONE')}</Text>
+                  <Text style={styles.doneButtonText}>
+                    {getString('GIFT_MESSAGE_DONE')}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </InputAccessoryView>
