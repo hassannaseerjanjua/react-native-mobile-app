@@ -122,6 +122,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     transformData: data => data.Data,
   });
 
+  console.log('isApplePayAvailable', isApplePayAvailable);
+
   const [cartData, setCartData] = useState<CartResponse | null>(
     cartItemsApi.data,
   );
@@ -539,8 +541,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     const imageSource = itemImage
       ? { uri: itemImage }
       : require('../../../assets/images/img-placeholder.png');
-
-    console.log('item', item);
 
     return (
       <View
