@@ -131,11 +131,13 @@ const useStyles = () => {
         marginBottom: sizes.HEIGHT * 0.018,
         flex: 1,
         maxWidth: '48%',
+        overflow: 'visible',
       },
       imageContainer: {
         position: 'relative',
         height: sizes.HEIGHT * 0.21,
         width: '100%',
+        overflow: 'visible',
         ...theme.globalStyles.SHADOW_STYLE_INPUT,
       },
       AddContainer: {
@@ -173,19 +175,21 @@ const useStyles = () => {
         paddingTop: sizes.HEIGHT * 0.006,
       },
       title: {
-        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         color: theme.colors.DARK_GRAY,
-        fontSize: scaleWithMax(12, 13),
+        fontSize: scaleWithMax(13, 13),
       },
       subtitle: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: theme.colors.GRAY,
         fontSize: sizes.FONTSIZE_MEDIUM,
+        marginTop: sizes.HEIGHT * 0.0005,
       },
       subTitle2: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: theme.colors.GRAY,
         fontSize: sizes.FONTSIZE_MEDIUM,
+        marginTop: sizes.HEIGHT * 0.0005,
       },
       priceContainer: {
         flexDirection: 'row',

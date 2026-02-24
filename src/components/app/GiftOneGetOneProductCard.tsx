@@ -203,9 +203,9 @@ const useStyles = () => {
         paddingTop: sizes.HEIGHT * 0.006,
       },
       title: {
-        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         color: theme.colors.DARK_GRAY,
-        fontSize: scaleWithMax(12, 13),
+        fontSize: scaleWithMax(13, 13),
       },
       subtitle: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,

@@ -134,6 +134,7 @@ const apiEndpoints = {
   NOTIFICATIONS_LISTING: `/${version}/Panel/NotificationsListingForUser`,
   GET_UNSEEN_NOTIFICATION_COUNT: `/${version}/Panel/GetUnSeenNotificationCount`,
   UPDATE_IS_SEEN_STATUS: `/${version}/Panel/UpdateIsSeenStatus`,
+  WELCOME_MESSAGE: `/${version}/User/ViewWelcomeNotificationHTML`,
 };
 
 export default apiEndpoints;

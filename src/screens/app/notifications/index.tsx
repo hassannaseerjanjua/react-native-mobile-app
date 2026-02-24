@@ -87,6 +87,11 @@ const NotificationsScreen: React.FC = () => {
     }, []),
   );
 
+  const welcomeMessage = useGetApi<any>(apiEndpoints.WELCOME_MESSAGE, {
+    transformData: data => data.Data,
+  });
+  console.log('welcomeMessage', welcomeMessage.data);
+
   const renderItem = ({ item }: { item: Notification }) => {
     const title = isRtl ? item.DescriptionAr : item.DescriptionEn;
 
