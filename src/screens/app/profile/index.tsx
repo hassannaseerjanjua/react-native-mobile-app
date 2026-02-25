@@ -84,7 +84,7 @@ const ProfileScreen: React.FC = () => {
         CityId: user.CityId,
         sendType: 1,
       });
-      const giftLink = `https://admin.giftee.hostinger.bitscollision.net/select-store?t=${encodeURIComponent(token)}`;
+      const giftLink = `https://admin.giftee.hostinger.bitscollision.net/gift-me?t=${encodeURIComponent(token)}`;
 
       // const shareMessage = `🎁 Want to send me a gift? Click the link below.\n\n${giftLink}`;
       const shareMessage = `${getString('LINK_MY_GIFT_LINK')}.\n\n${giftLink}`;
