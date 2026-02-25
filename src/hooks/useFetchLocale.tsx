@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import apiEndpoints from '../constants/api-endpoints';
 import api from '../utils/api';
 import { useDispatch } from 'react-redux';
-import { setLocale, useLocaleStore } from '../store/reducer/locale';
+import { setLocale, setLocaleFetching, useLocaleStore } from '../store/reducer/locale';
 
 const useFetchLocale = () => {
   const [error, setError] = useState<string | null>(null);
@@ -14,6 +14,7 @@ const useFetchLocale = () => {
   const fetchLocale = async (langId: number) => {
     if (loading === true) return;
     setLoading(true);
+    dispatch(setLocaleFetching({ isFetching: true }));
     const response = await api.get<{
       Data: {
         ResourceDictionary: Record<string, string>;
@@ -25,6 +26,7 @@ const useFetchLocale = () => {
         setDoKeysExist(true);
       }
       setLoading(false);
+      dispatch(setLocaleFetching({ isFetching: false }));
       setError(response.error);
       return;
     }
@@ -38,6 +40,7 @@ const useFetchLocale = () => {
 
     setDoKeysExist(true);
     setLoading(false);
+    dispatch(setLocaleFetching({ isFetching: false }));
   };
 
   useEffect(() => {

@@ -3,6 +3,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import RNRestart from 'react-native-restart';
 
+const resourceKeys: Record<string, string> =
+  require('../../resource_keys.json') as Record<string, string>;
+
 export interface LocaleState {
   localeData: {
     langId: number;
@@ -10,6 +13,7 @@ export interface LocaleState {
     isRtl: boolean;
     strings: Record<LocaleString, string> | null;
     stringsLangId: number | null;
+    isFetching: boolean;
   };
 }
 
@@ -21,6 +25,7 @@ const initState: LocaleState = {
     isRtl: false,
     strings: null,
     stringsLangId: null,
+    isFetching: true,
   },
 };
 
@@ -40,10 +45,16 @@ const locale = createSlice({
       );
       state.localeData = { ...state.localeData, ...action.payload };
     },
+    setLocaleFetching(
+      state,
+      action: PayloadAction<{ isFetching: boolean }>,
+    ) {
+      state.localeData.isFetching = action.payload.isFetching;
+    },
   },
 });
 
-export const { setLocale } = locale.actions;
+export const { setLocale, setLocaleFetching } = locale.actions;
 export default locale.reducer;
 
 export const useLanguageShifter = () => {
@@ -76,10 +87,15 @@ export const useLocaleStore = () => {
   return {
     ...locale,
     getString: (key: LocaleString) => {
-      if (locale?.stringsLangId !== locale?.langId) {
-        return key;
+      const fetchedValue = locale?.strings?.[key];
+      if (fetchedValue) {
+        return fetchedValue;
       }
-      return locale?.strings?.[key] || key;
+      const fallbackValue = resourceKeys[key];
+      if (fallbackValue) {
+        return fallbackValue;
+      }
+      return key;
     },
   };
 };
@@ -558,4 +574,5 @@ type LocaleString =
   | 'S_DELETE_ACCOUNT'
   | 'S_DELETE_ACCOUNT_CONFIRM_MESSAGE'
   | 'S_ACCOUNT_DELETED_SUCCESSFULLY'
-  | 'INBOX_GIFT_LINK_OUTBOX_MESSAGE';
+  | 'INBOX_GIFT_LINK_OUTBOX_MESSAGE'
+  | 'STATUS_CHECK';

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, StatusBar } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'react-native-linear-gradient';
@@ -24,14 +24,27 @@ import notify from '../../../utils/notify';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
-  const { getString, isRtl } = useLocaleStore();
+  const { getString, isRtl, isFetching } = useLocaleStore();
   const { user } = useAuthStore();
   const navigation = useNavigation();
   const hasLoadedOnceRef = useRef(false);
   const isMerchant = user?.isMerchant === 1;
+  // const keysLoaded =
+  //   getString('HOME_WELCOME') !== 'HOME_WELCOME' &&
+  //   getString('HOME_WHAT_ARE_YOU') !== 'HOME_WHAT_ARE_YOU';
+
+  const [fallbackKeysLoaded, setFallbackKeysLoaded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setFallbackKeysLoaded(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const keysLoaded =
-    getString('HOME_WELCOME') !== 'HOME_WELCOME' &&
-    getString('HOME_WHAT_ARE_YOU') !== 'HOME_WHAT_ARE_YOU';
+    fallbackKeysLoaded ||
+    (!isFetching &&
+      getString('HOME_WELCOME') !== 'HOME_WELCOME' &&
+      getString('HOME_WHAT_ARE_YOU') !== 'HOME_WHAT_ARE_YOU');
 
   const {
     data: sliderResponse,
@@ -61,7 +74,9 @@ const HomeScreen: React.FC = () => {
 
   const showShimmer =
     !keysLoaded ||
-    (!hasLoadedOnceRef.current && (sliderLoading || !sliderResponse));
+    (!fallbackKeysLoaded &&
+      !hasLoadedOnceRef.current &&
+      (sliderLoading || !sliderResponse));
 
   return (
     <View style={styles.container}>

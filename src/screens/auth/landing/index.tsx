@@ -17,11 +17,11 @@ import useTheme from '../../../styles/theme';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { rtlPosition } from '../../../utils/rtl';
 
-interface LandingProps extends AuthStackScreen<'Landing'> { }
+interface LandingProps extends AuthStackScreen<'Landing'> {}
 
 const Landing: React.FC<LandingProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
-  const { getString, langCode } = useLocaleStore();
+  const { getString, langCode, isFetching } = useLocaleStore();
   const { shiftLanguage } = useLanguageShifter();
   const { sizes } = useTheme();
 
@@ -34,8 +34,16 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
     }
   }, [langCode, shimmerLoading]);
 
-  const keysLoaded = getString('AU_SIGN_IN') !== 'AU_SIGN_IN'
-  console.log(keysLoaded)
+  const [fallbackKeysLoaded, setFallbackKeysLoaded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setFallbackKeysLoaded(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  const keysLoaded =
+    fallbackKeysLoaded ||
+    (!isFetching && getString('AU_SIGN_IN') !== 'AU_SIGN_IN');
 
   return (
     <ParentView style={styles.container}>
@@ -78,12 +86,20 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
       ) : (
         <View style={styles.buttonContainer}>
           <CustomButton
-            title={getString('AU_SIGN_IN') === 'AU_SIGN_IN' ? 'Sign In' : getString('AU_SIGN_IN')}
+            title={
+              getString('AU_SIGN_IN') === 'AU_SIGN_IN'
+                ? 'Sign In'
+                : getString('AU_SIGN_IN')
+            }
             type="primary"
             onPress={() => navigation.navigate('SignIn')}
           />
           <CustomButton
-            title={getString('AU_SIGN_UP') === 'AU_SIGN_UP' ? 'Sign Up' : getString('AU_SIGN_UP')}
+            title={
+              getString('AU_SIGN_UP') === 'AU_SIGN_UP'
+                ? 'Sign Up'
+                : getString('AU_SIGN_UP')
+            }
             type="secondary"
             onPress={() => navigation.navigate('SignUp')}
           />
