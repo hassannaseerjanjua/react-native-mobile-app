@@ -16,6 +16,7 @@ import {
   SvgGiftClaimIcon,
   SvgRiyalIcon,
 } from '../../assets/icons';
+import { useLocaleStore } from '../../store/reducer/locale';
 
 interface FavoriteProductCardProps {
   item: {
@@ -122,6 +123,7 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
 const useStyles = () => {
   const theme = useTheme();
   const { colors, sizes } = theme;
+  const { isRtl } = useLocaleStore();
 
   return {
     styles: StyleSheet.create({
@@ -173,6 +175,7 @@ const useStyles = () => {
       contentContainer: {
         padding: sizes.WIDTH * 0.004,
         paddingTop: sizes.HEIGHT * 0.006,
+        ...(isRtl && { gap: scaleWithMax(6, 8) }),
       },
       title: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
