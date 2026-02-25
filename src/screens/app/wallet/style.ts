@@ -1,14 +1,13 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
 import { scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       container: {
@@ -30,7 +29,7 @@ const useStyles = () => {
         flex: 1,
       },
       sectionTitle: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
         marginBottom: sizes.PADDING,

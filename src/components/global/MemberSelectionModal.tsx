@@ -32,7 +32,6 @@ import {
 } from '../../assets/icons';
 import { ActiveUser, fetchApiResponse } from '../../types';
 import useTheme from '../../styles/theme';
-import fonts from '../../assets/fonts';
 import api, { getAuthHeader, getAuthHeaderWithFormData } from '../../utils/api';
 import apiEndpoints from '../../constants/api-endpoints';
 import { useNavigation } from '@react-navigation/native';
@@ -784,7 +783,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
 const useStyles = () => {
   const theme = useTheme();
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     const shadowStyle = {
       shadowColor: colors.BLACK,
@@ -874,7 +873,7 @@ const useStyles = () => {
         borderWidth: 1,
       },
       errorText: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.RED,
         marginTop: scaleWithMax(4, 4),
@@ -888,7 +887,7 @@ const useStyles = () => {
         borderColor: colors.RED + '40',
       },
       generalErrorText: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.RED,
         textAlign: 'center',
@@ -896,13 +895,13 @@ const useStyles = () => {
       groupNameInput: {
         flex: 1,
         fontSize: 14,
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         color: colors.PRIMARY_TEXT,
         marginLeft: sizes.PADDING * 0.6,
         padding: 0,
       },
       membersHeading: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_LESS_HIGH,
         color: colors.PRIMARY_TEXT,
         marginTop: sizes.HEIGHT * 0.02,
@@ -944,7 +943,7 @@ const useStyles = () => {
         marginBottom: scaleWithMax(6, 6),
       },
       memberGridName: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
@@ -990,7 +989,7 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       selectedUserName: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
@@ -1004,7 +1003,7 @@ const useStyles = () => {
         marginBottom: sizes.HEIGHT * 0.018,
       },
       sectionTitle: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.PRIMARY_TEXT,
         paddingBottom: sizes.HEIGHT * 0.01,
@@ -1030,7 +1029,7 @@ const useStyles = () => {
         textAlign: 'center',
       },
       emptyStateText: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.SECONDARY_GRAY,
         textAlign: 'center',

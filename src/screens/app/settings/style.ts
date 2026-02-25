@@ -1,14 +1,13 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
 import { scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       container: {
@@ -34,7 +33,7 @@ const useStyles = () => {
         gap: sizes.HEIGHT * 0.016,
       },
       title: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_LESS_HIGH,
         marginBottom: sizes.PADDING * 0.2,
         // marginStart: sizes.WIDTH * 0.038,
@@ -67,7 +66,7 @@ const useStyles = () => {
         backgroundColor: colors.PRIMARY,
       },
       languageText: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.BLACK,
       },
@@ -82,7 +81,7 @@ const useStyles = () => {
         ...theme.globalStyles.SHADOW_STYLE,
       },
       genderTitle: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.PRIMARY_TEXT,
         marginBottom: sizes.PADDING * 0.5,
@@ -97,7 +96,7 @@ const useStyles = () => {
         width: theme.sizes.WIDTH * 0.38,
       },
       genderText: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.BLACK,
       },

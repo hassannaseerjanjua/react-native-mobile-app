@@ -14,7 +14,6 @@ import {
 import { ActiveUser } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
 import useTheme from '../../styles/theme';
-import fonts from '../../assets/fonts';
 import { Text } from '../../utils/elements';
 import { scaleWithMax } from '../../utils';
 
@@ -162,7 +161,7 @@ const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       userRow: {
@@ -195,7 +194,7 @@ const useStyles = () => {
       },
 
       userName: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_BUTTON,
         letterSpacing: 0.15,
         color: colors.PRIMARY_TEXT,
@@ -211,7 +210,7 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       addButtonText: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.PRIMARY,
       },

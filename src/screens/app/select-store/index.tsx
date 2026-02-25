@@ -18,7 +18,6 @@ import DropdownField, {
   DropdownOption,
 } from '../../../components/global/DropdownField.tsx';
 import CityPickerModal from '../../../components/global/CityPickerModal.tsx';
-import fonts from '../../../assets/fonts';
 import {
   AppStackScreen,
   AppStackParamList,
@@ -296,8 +295,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                     fontSize: theme.sizes.FONTSIZE,
                     color: theme.colors.PRIMARY,
                     fontFamily: selectedCityOption
-                      ? fonts.Quicksand.medium
-                      : fonts.Quicksand.regular,
+                      ? theme.fonts.medium
+                      : theme.fonts.regular,
                   }}
                   numberOfLines={1}
                 >

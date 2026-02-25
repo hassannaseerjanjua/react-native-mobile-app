@@ -18,7 +18,6 @@ import {
   SvgCartIcon,
 } from '../../assets/icons';
 import { isAndroidThen, scaleWithMax, rtlTransform } from '../../utils';
-import fonts from '../../assets/fonts';
 import { useAuthStore } from '../../store/reducer/auth';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Text } from '../../utils/elements';
@@ -260,7 +259,7 @@ export default HomeHeader;
 const useStyles = () => {
   const theme = useTheme();
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
     return StyleSheet.create({
       container: {
         flexDirection: 'row',
@@ -299,7 +298,7 @@ const useStyles = () => {
         alignItems: 'center',
       },
       cartCountText: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.WHITE,
         textAlign: 'center',
@@ -321,7 +320,7 @@ const useStyles = () => {
         alignSelf: 'flex-start',
       },
       title: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
         fontSize: sizes.FONTSIZE_HEADING,
         // lineHeight: sizes.FONTSIZE_HEADING * 1.6,
         color: colors.PRIMARY_TEXT,
@@ -339,7 +338,7 @@ const useStyles = () => {
         borderRadius: scaleWithMax(35, 38) / 2,
       },
       rightSideTitle: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.PRIMARY,
         marginStart: sizes.PADDING * 0.1,

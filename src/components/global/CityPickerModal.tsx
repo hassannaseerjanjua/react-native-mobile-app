@@ -16,7 +16,6 @@ import {
 import { LinearGradient } from 'react-native-linear-gradient';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
-import fonts from '../../assets/fonts';
 import { useLocaleStore } from '../../store/reducer/locale';
 
 interface CityPickerOption {
@@ -283,7 +282,7 @@ const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       modalContainer: {
@@ -318,17 +317,17 @@ const useStyles = () => {
         paddingHorizontal: scaleWithMax(12, 16),
       },
       cancelText: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.PRIMARY || '#007AFF',
       },
       title: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.PRIMARY_TEXT,
       },
       doneText: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE,
         color: colors.PRIMARY || '#007AFF',
       },
@@ -387,7 +386,7 @@ const useStyles = () => {
           : 'rgba(0, 122, 255, 0.08)',
       },
       itemText: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE,
         color:
           Platform.OS === 'ios'
@@ -395,7 +394,7 @@ const useStyles = () => {
             : colors.SECONDARY_TEXT || '#999999',
       },
       selectedItemText: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
         color:
           Platform.OS === 'ios'

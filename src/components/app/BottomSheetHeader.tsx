@@ -8,7 +8,6 @@ import {
 } from 'react-native';
 import useTheme from '../../styles/theme';
 import { SvgImageIcon, SvgSearchIcon } from '../../assets/icons';
-import fonts from '../../assets/fonts';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Text } from '../../utils/elements';
 import { rtlTextAlign } from '../../utils';
@@ -104,7 +103,7 @@ export default BottomSheetHeader;
 const useStyles = () => {
   const theme = useTheme();
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       wrapper: {
@@ -128,25 +127,25 @@ const useStyles = () => {
       },
       backText: {
         fontSize: 16,
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         color: colors.PRIMARY_TEXT,
         zIndex: 1,
       },
       title: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
       },
       subTitle: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: 12,
         color: colors.SECONDARY_TEXT,
         textAlign: 'center',
       },
       rightSideTitle: {
         fontSize: 16,
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         color: colors.PRIMARY,
         zIndex: 1,
       },
@@ -169,7 +168,7 @@ const useStyles = () => {
       searchInput: {
         flex: 1,
         fontSize: 14,
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         color: colors.PRIMARY_TEXT,
         marginLeft: sizes.PADDING * 0.6,
         padding: 0,

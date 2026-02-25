@@ -21,6 +21,13 @@
 		D24A483EC224489E8EAACBBE /* Quicksand-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E89A4AEC278248EEA6923F8C /* Quicksand-Bold.ttf */; };
 		EB3C0B97AE51494BB3D9CACE /* Quicksand-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = AF20C09F9E5149CBA8A8EEA2 /* Quicksand-Medium.ttf */; };
 		F9A7A7F653B745A49BD19885 /* BootSplash.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 19F2185BE7994E128923A060 /* BootSplash.storyboard */; };
+		TAJ001A1B2C3D4E5F67890123 /* Tajawal-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = TAJREF1A1B2C3D4E5F67890123 /* Tajawal-Black.ttf */; };
+		TAJ002A1B2C3D4E5F67890123 /* Tajawal-Bold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = TAJREF2A1B2C3D4E5F67890123 /* Tajawal-Bold.ttf */; };
+		TAJ003A1B2C3D4E5F67890123 /* Tajawal-ExtraBold.ttf in Resources */ = {isa = PBXBuildFile; fileRef = TAJREF3A1B2C3D4E5F67890123 /* Tajawal-ExtraBold.ttf */; };
+		TAJ004A1B2C3D4E5F67890123 /* Tajawal-ExtraLight.ttf in Resources */ = {isa = PBXBuildFile; fileRef = TAJREF4A1B2C3D4E5F67890123 /* Tajawal-ExtraLight.ttf */; };
+		TAJ005A1B2C3D4E5F67890123 /* Tajawal-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = TAJREF5A1B2C3D4E5F67890123 /* Tajawal-Light.ttf */; };
+		TAJ006A1B2C3D4E5F67890123 /* Tajawal-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = TAJREF6A1B2C3D4E5F67890123 /* Tajawal-Medium.ttf */; };
+		TAJ007A1B2C3D4E5F67890123 /* Tajawal-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = TAJREF7A1B2C3D4E5F67890123 /* Tajawal-Regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -44,6 +51,13 @@
 		C7A1CEB1FDD844E59BE3157E /* Quicksand-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Quicksand-Light.ttf"; path = "../src/assets/fonts/Quicksand-Light.ttf"; sourceTree = "<group>"; };
 		E89A4AEC278248EEA6923F8C /* Quicksand-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Quicksand-Bold.ttf"; path = "../src/assets/fonts/Quicksand-Bold.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
+		TAJREF1A1B2C3D4E5F67890123 /* Tajawal-Black.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Tajawal-Black.ttf"; path = "../src/assets/fonts/Tajawal-Black.ttf"; sourceTree = "<group>"; };
+		TAJREF2A1B2C3D4E5F67890123 /* Tajawal-Bold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Tajawal-Bold.ttf"; path = "../src/assets/fonts/Tajawal-Bold.ttf"; sourceTree = "<group>"; };
+		TAJREF3A1B2C3D4E5F67890123 /* Tajawal-ExtraBold.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Tajawal-ExtraBold.ttf"; path = "../src/assets/fonts/Tajawal-ExtraBold.ttf"; sourceTree = "<group>"; };
+		TAJREF4A1B2C3D4E5F67890123 /* Tajawal-ExtraLight.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Tajawal-ExtraLight.ttf"; path = "../src/assets/fonts/Tajawal-ExtraLight.ttf"; sourceTree = "<group>"; };
+		TAJREF5A1B2C3D4E5F67890123 /* Tajawal-Light.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Tajawal-Light.ttf"; path = "../src/assets/fonts/Tajawal-Light.ttf"; sourceTree = "<group>"; };
+		TAJREF6A1B2C3D4E5F67890123 /* Tajawal-Medium.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Tajawal-Medium.ttf"; path = "../src/assets/fonts/Tajawal-Medium.ttf"; sourceTree = "<group>"; };
+		TAJREF7A1B2C3D4E5F67890123 /* Tajawal-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; name = "Tajawal-Regular.ttf"; path = "../src/assets/fonts/Tajawal-Regular.ttf"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +80,13 @@
 				AF20C09F9E5149CBA8A8EEA2 /* Quicksand-Medium.ttf */,
 				A17F3CE078FE41D29AF79DE0 /* Quicksand-Regular.ttf */,
 				6192BC80891F4B14992F03A2 /* Quicksand-SemiBold.ttf */,
+				TAJREF1A1B2C3D4E5F67890123 /* Tajawal-Black.ttf */,
+				TAJREF2A1B2C3D4E5F67890123 /* Tajawal-Bold.ttf */,
+				TAJREF3A1B2C3D4E5F67890123 /* Tajawal-ExtraBold.ttf */,
+				TAJREF4A1B2C3D4E5F67890123 /* Tajawal-ExtraLight.ttf */,
+				TAJREF5A1B2C3D4E5F67890123 /* Tajawal-Light.ttf */,
+				TAJREF6A1B2C3D4E5F67890123 /* Tajawal-Medium.ttf */,
+				TAJREF7A1B2C3D4E5F67890123 /* Tajawal-Regular.ttf */,
 				79564C3B260A4D0681A56C13 /* index.ts */,
 			);
 			name = Resources;
@@ -205,6 +226,13 @@
 				EB3C0B97AE51494BB3D9CACE /* Quicksand-Medium.ttf in Resources */,
 				96BFDB4397794DBC8BE2C336 /* Quicksand-Regular.ttf in Resources */,
 				591F0F9979A341B196386C31 /* Quicksand-SemiBold.ttf in Resources */,
+				TAJ001A1B2C3D4E5F67890123 /* Tajawal-Black.ttf in Resources */,
+				TAJ002A1B2C3D4E5F67890123 /* Tajawal-Bold.ttf in Resources */,
+				TAJ003A1B2C3D4E5F67890123 /* Tajawal-ExtraBold.ttf in Resources */,
+				TAJ004A1B2C3D4E5F67890123 /* Tajawal-ExtraLight.ttf in Resources */,
+				TAJ005A1B2C3D4E5F67890123 /* Tajawal-Light.ttf in Resources */,
+				TAJ006A1B2C3D4E5F67890123 /* Tajawal-Medium.ttf in Resources */,
+				TAJ007A1B2C3D4E5F67890123 /* Tajawal-Regular.ttf in Resources */,
 				8E802B9534C5463E8E9D09F9 /* index.ts in Resources */,
 				F9A7A7F653B745A49BD19885 /* BootSplash.storyboard in Resources */,
 				2B2E365D054D4937ACEAA526 /* Colors.xcassets in Resources */,

@@ -4,7 +4,6 @@ import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
 import { SvgBackIcon } from '../../assets/icons';
 import { scaleWithMax, rtlTransform } from '../../utils';
-import fonts from '../../assets/fonts';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 
@@ -75,7 +74,7 @@ export default AuthHeader;
 const useStyles = () => {
   const theme = useTheme();
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
     return StyleSheet.create({
       container: {
         flexDirection: 'row',
@@ -88,7 +87,7 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       title: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
         fontSize: 20,
         lineHeight: 32,
         color: colors.PRIMARY_TEXT,

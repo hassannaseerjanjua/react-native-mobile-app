@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
 
 const useStyles = () => {
   const theme = useTheme();
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
@@ -37,14 +36,14 @@ const useStyles = () => {
         elevation: 4,
       },
       sectionTitle: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.PRIMARY_TEXT,
         paddingTop: sizes.HEIGHT * 0.014,
         paddingBottom: sizes.HEIGHT * 0.008,
       },
       errorText: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: 14,
         color: colors.PRIMARY_TEXT,
         padding: 20,
@@ -135,7 +134,7 @@ const useStyles = () => {
         marginBottom: 6,
       },
       selectedUserName: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: 12,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
@@ -181,7 +180,7 @@ const useStyles = () => {
         paddingVertical: sizes.HEIGHT * 0.02,
       },
       membersHeading: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         marginBottom: sizes.HEIGHT * 0.015,
@@ -222,7 +221,7 @@ const useStyles = () => {
         marginBottom: 6,
       },
       memberGridName: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: 12,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',

@@ -1,14 +1,13 @@
 import { StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
 import { isIOS, isIOSThen, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       container: {
@@ -38,20 +37,20 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
       },
       welcomeText: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
         paddingHorizontal: sizes.PADDING,
       },
       userName: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
       },
       heroImage: {
         borderRadius: sizes.BORDER_RADIUS_MID,
         height: sizes.HEIGHT * (sizes.HEIGHT > 850 ? 0.3 : 0.29),
       },
       sectionTitle: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
         fontSize:
           sizes.WIDTH >= 430 && isIOS
             ? sizes.FONTSIZE_HIGH * 0.95
@@ -62,7 +61,7 @@ const useStyles = () => {
       },
 
       innerSectionTitle: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
       },

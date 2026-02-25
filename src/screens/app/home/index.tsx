@@ -219,7 +219,7 @@ const HomeScreenTabsContainer: React.FC = () => {
           title={homeScreenTabs[0].title}
           description={homeScreenTabs[0].description}
           descriptionStyles={{
-            maxWidth: '50%',
+            maxWidth: '70%',
           }}
           onPress={homeScreenTabs[0].onPress}
           iconStyles={homeScreenTabs[0].iconStyles}

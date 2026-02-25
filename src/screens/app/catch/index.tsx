@@ -43,7 +43,6 @@ import {
 import { scaleWithMax } from '../../../utils';
 import GiftOneGetOneProductCard from '../../../components/app/GiftOneGetOneProductCard';
 import SuccessMessage from '../../../components/global/SuccessComponent';
-import fonts from '../../../assets/fonts';
 import CityPickerModal from '../../../components/global/CityPickerModal';
 import { City } from '../../../types';
 import { useAuthStore } from '../../../store/reducer/auth';
@@ -533,8 +532,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   fontSize: theme.sizes.FONTSIZE,
                   color: theme.colors.PRIMARY,
                   fontFamily: selectedCityId
-                    ? fonts.Quicksand.medium
-                    : fonts.Quicksand.regular,
+                    ? theme.fonts.medium
+                    : theme.fonts.regular,
                 }}
                 numberOfLines={1}
               >

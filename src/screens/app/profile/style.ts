@@ -1,14 +1,13 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
 import { scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       container: {
@@ -58,12 +57,12 @@ const useStyles = () => {
         marginLeft: sizes.WIDTH * 0.03,
       },
       profileName: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_BUTTON,
         color: colors.BLACK,
       },
       profileUsername: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.BLACK,
       },

@@ -2,32 +2,37 @@ import { Platform, StyleSheet } from 'react-native';
 import { Colors } from './colors';
 import { Sizes } from './sizes';
 import { useMemo } from 'react';
-import fonts from '../assets/fonts';
+import { getFontsForLanguage } from '../assets/fonts';
 import { isAndroid, scaleWithMax } from '../utils';
 
-export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
+export const getGlobalStyles = (
+  colors: Colors,
+  sizes: Sizes,
+  isArabic: boolean,
+) => {
+  const fonts = getFontsForLanguage(isArabic);
   return useMemo(
     () =>
       StyleSheet.create({
         TEXT_STYLE: {
           fontSize: sizes.FONTSIZE,
           color: colors.PRIMARY_TEXT,
-          fontFamily: fonts.Quicksand.regular,
+          fontFamily: fonts.regular,
         },
         TEXT_STYLE_SEMIBOLD: {
           fontSize: sizes.FONTSIZE,
           color: colors.PRIMARY_TEXT,
-          fontFamily: fonts.Quicksand.semibold,
+          fontFamily: fonts.semibold,
         },
         TEXT_STYLE_MEDIUM: {
           fontSize: sizes.FONTSIZE,
           color: colors.PRIMARY_TEXT,
-          fontFamily: fonts.Quicksand.medium,
+          fontFamily: fonts.medium,
         },
         TEXT_STYLE_BOLD: {
           fontSize: sizes.FONTSIZE,
           color: colors.PRIMARY_TEXT,
-          fontFamily: fonts.Quicksand.bold,
+          fontFamily: fonts.bold,
         },
         SHADOW_STYLE_STORE_CARD: {
           shadowColor: '#000000',
@@ -85,6 +90,6 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           height: scaleWithMax(48, 52),
         },
       }),
-    [colors, sizes],
+    [colors, sizes, isArabic],
   );
 };

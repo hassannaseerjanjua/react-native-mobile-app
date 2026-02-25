@@ -47,7 +47,6 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import { Text } from '../../../utils/elements';
 import { scaleWithMax } from '../../../utils';
 import CustomButton from '../../../components/global/Custombutton';
-import fonts from '../../../assets/fonts';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import { useFocusEffect } from '@react-navigation/native';
 import api from '../../../utils/api';
@@ -701,8 +700,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   fontSize: theme.sizes.FONTSIZE,
                   color: theme.colors.PRIMARY,
                   fontFamily: selectedCityOption
-                    ? fonts.Quicksand.medium
-                    : fonts.Quicksand.regular,
+                    ? theme.fonts.medium
+                    : theme.fonts.regular,
                 }}
                 numberOfLines={1}
               >
@@ -768,7 +767,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                     {!isEditGroupOpen && <SvgEditGroup />}
                     <Text
                       style={{
-                        fontFamily: fonts.Quicksand.semibold,
+                        fontFamily: theme.fonts.semibold,
                         fontSize: theme.sizes.FONTSIZE_MEDIUM,
                         color: theme.colors.PRIMARY,
                         marginStart: theme.sizes.PADDING * 0.1,
@@ -938,7 +937,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                     style={{
                       fontSize: theme.sizes.FONTSIZE,
                       color: theme.colors.PRIMARY,
-                      fontFamily: fonts.Quicksand.bold,
+                      fontFamily: theme.fonts.bold,
                     }}
                   >
                     {isSelectionMode

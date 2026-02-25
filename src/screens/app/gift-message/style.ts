@@ -2,11 +2,10 @@ import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
 import { scaleWithMax } from '../../../utils';
-import fonts from '../../../assets/fonts';
 
 const useStyles = () => {
   const theme = useTheme();
-  const { sizes } = theme;
+  const { sizes, fonts } = theme;
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -65,7 +64,7 @@ const useStyles = () => {
           paddingVertical: scaleWithMax(42, 45),
           backgroundColor: 'transparent',
           fontSize: sizes.FONTSIZE_HIGH,
-          fontFamily: fonts.Quicksand.semibold,
+          fontFamily: fonts.semibold,
         },
         cameraIcon: {
           position: 'absolute',

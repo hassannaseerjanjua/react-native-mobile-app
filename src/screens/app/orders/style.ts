@@ -1,14 +1,13 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
 import { scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       container: {
@@ -55,12 +54,12 @@ const useStyles = () => {
         justifyContent: 'flex-start',
       },
       orderCardTitle: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE,
         color: colors.BLACK,
       },
       orderCardSubtitle: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.BLACK,
         marginTop: sizes.PADDING * 0.1,
@@ -72,7 +71,7 @@ const useStyles = () => {
         marginBottom: sizes.PADDING * 0.4,
       },
       orderCardStatus: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.PRIMARY,
         backgroundColor: colors.SECONDARY,
@@ -87,7 +86,7 @@ const useStyles = () => {
         paddingVertical: sizes.PADDING * 0.25,
       },
       orderCardNumber: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.WHITE,
       },
@@ -111,14 +110,14 @@ const useStyles = () => {
         borderColor: '#EDEDED',
       },
       detailLabel: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE,
         color: colors.BLACK,
         flexShrink: 1,
         maxWidth: '48%',
       },
       detailValue: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.BLACK,
         textAlign: 'right',
@@ -132,7 +131,7 @@ const useStyles = () => {
         flex: 0.75,
       },
       itemSize: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.BLACK,
         textAlign: 'center',
@@ -140,7 +139,7 @@ const useStyles = () => {
         minWidth: 0,
       },
       itemPrice: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE,
         color: colors.PRIMARY_TEXT,
         marginLeft: sizes.PADDING * 0.2,
@@ -153,12 +152,12 @@ const useStyles = () => {
         marginLeft: sizes.PADDING * 0.5,
       },
       totalLabel: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE,
         color: colors.PRIMARY_TEXT,
       },
       totalValue: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
         fontSize: sizes.FONTSIZE_BUTTON,
         color: colors.PRIMARY_TEXT,
         marginLeft: sizes.PADDING * 0.2,

@@ -27,7 +27,6 @@ import {
   getContactsWithPhoneNumbers,
   ContactInfo,
 } from '../../../utils/contacts';
-import fonts from '../../../assets/fonts';
 import { scaleWithMax } from '../../../utils';
 import useTheme from '../../../styles/theme';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
