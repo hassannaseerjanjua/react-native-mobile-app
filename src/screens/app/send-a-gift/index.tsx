@@ -563,14 +563,14 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const shouldShowEmptyState =
     !isMerchant && !isLoading && !shouldShowList && activeTab === 'friends';
 
-  useFocusEffect(
-    useCallback(() => {
-      setSearchQuery('');
-      activeUsersApi.recall();
-      employeesApi.recall();
-      getGroupsData.recall();
-    }, []),
-  );
+  // useFocusEffect(
+  //   useCallback(() => {
+  //     setSearchQuery('');
+  //     activeUsersApi.recall();
+  //     employeesApi.recall();
+  //     getGroupsData.recall();
+  //   }, []),
+  // );
 
   return (
     <ParentView style={styles.container}>

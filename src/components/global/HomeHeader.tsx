@@ -144,7 +144,11 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         {title && (
           <View style={styles.titleContainer}>
             <Pressable onPress={handleBackPress} style={styles.titlePressable}>
-              <Text style={[styles.title, titleTextStyle]} numberOfLines={1} ellipsizeMode="tail">
+              <Text
+                style={[styles.title, titleTextStyle]}
+                numberOfLines={1}
+                ellipsizeMode="tail"
+              >
                 {title}
               </Text>
             </Pressable>
