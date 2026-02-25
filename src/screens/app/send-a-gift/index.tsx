@@ -369,7 +369,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         // Selecting - check limit
         if (newSet.size >= MAX_SELECTION_LIMIT) {
           notify.error(
-            `You can select a maximum of ${MAX_SELECTION_LIMIT} users`,
+            getString('SEND_GIFT_MAX_SELECTION_LIMIT').replace(
+              '{count}',
+              String(MAX_SELECTION_LIMIT),
+            ),
           );
           return prev;
         }
@@ -1124,9 +1127,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         title={getString('STG_DELETE_GROUP')}
         message={
           groupToDelete?.GroupName
-            ? `${getString('STG_DELETE_GROUP_CONFIRM')} "${
+            ? `${getString('STG_DELETE_GROUP_CONFIRM')} ${
                 groupToDelete.GroupName
-              }"?`
+              }?`
             : getString('STG_DELETE_GROUP_CONFIRM')
         }
         confirmText={getString('STG_DELETE')}

@@ -257,10 +257,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     } catch (error: any) {
       // Only show error if user didn't dismiss the share sheet
       if (error.message !== 'User did not share') {
-        notify.error(
-          getString('O_UNABLE_TO_OPEN_WHATSAPP') ||
-            'Unable to share. Please try again.',
-        );
+        notify.error(getString('SEARCH_UNABLE_TO_SHARE'));
       }
     }
   };

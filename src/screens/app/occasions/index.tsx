@@ -342,14 +342,26 @@ const OccasionsScreen: React.FC = () => {
                                               name?: string;
                                             };
                                           }) => {
-                                            if (result.type === 'update' && result.asset) {
+                                            if (
+                                              result.type === 'update' &&
+                                              result.asset
+                                            ) {
                                               formik.setFieldValue('image', {
                                                 uri: result.asset.uri,
-                                                type: result.asset.type || 'image/jpeg',
-                                                name: result.asset.name || `occasion_image_${Date.now()}.jpg`,
+                                                type:
+                                                  result.asset.type ||
+                                                  'image/jpeg',
+                                                name:
+                                                  result.asset.name ||
+                                                  `occasion_image_${Date.now()}.jpg`,
                                               });
-                                            } else if (result.type === 'delete') {
-                                              formik.setFieldValue('image', null);
+                                            } else if (
+                                              result.type === 'delete'
+                                            ) {
+                                              formik.setFieldValue(
+                                                'image',
+                                                null,
+                                              );
                                             }
                                           }
                                         : undefined,
@@ -506,9 +518,9 @@ const OccasionsScreen: React.FC = () => {
         title={getString('OCCASIONS_DELETE_OCCASION')}
         message={
           occasionToDelete?.NameEn
-            ? `${getString('OCCASIONS_DELETE_CONFIRM_MESSAGE')} "${
+            ? `${getString('OCCASIONS_DELETE_CONFIRM_MESSAGE')} ${
                 occasionToDelete.NameEn
-              }"?`
+              }?`
             : getString('OCCASIONS_DELETE_CONFIRM_MESSAGE')
         }
         confirmText={getString('OCCASIONS_DELETE')}

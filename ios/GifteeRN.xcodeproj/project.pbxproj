@@ -338,6 +338,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bitscollision.giftee.debug;
 				PRODUCT_NAME = GifteeRN;
+				SWIFT_OBJC_BRIDGING_HEADER = "GifteeRN/GifteeRN-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -371,6 +372,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.bitscollision.giftee.release;
 				PRODUCT_NAME = GifteeRN;
 				PROVISIONING_PROFILE_SPECIFIER = "";
+				SWIFT_OBJC_BRIDGING_HEADER = "GifteeRN/GifteeRN-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
