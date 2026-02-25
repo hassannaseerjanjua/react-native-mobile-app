@@ -59,7 +59,9 @@ const HomeScreen: React.FC = () => {
     hasLoadedOnceRef.current = true;
   }
 
-  const showShimmer = sliderLoading && !hasLoadedOnceRef.current && !keysLoaded;
+  const showShimmer =
+    !keysLoaded ||
+    (!hasLoadedOnceRef.current && (sliderLoading || !sliderResponse));
 
   return (
     <View style={styles.container}>

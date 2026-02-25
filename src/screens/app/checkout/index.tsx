@@ -87,6 +87,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   >(null);
   const [checkoutCompleted, setCheckoutCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  console.log('submitting', submitting);
   const [waitingForVideoUpload, setWaitingForVideoUpload] = useState(false);
   const [updatingQuantities, setUpdatingQuantities] = useState<
     Record<number, 'increment' | 'decrement' | null>
@@ -573,21 +574,128 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 ...styles.row,
                 flexDirection: rtlFlexDirection(isRtl),
                 justifyContent: 'space-between',
+                alignItems: 'center',
               }}
             >
+              {item.DiscountAmount > 0 ? (
+                <View
+                  style={[
+                    styles.row,
+                    {
+                      flexDirection: rtlFlexDirection(isRtl),
+                      gap: theme.sizes.WIDTH * 0.01,
+                    },
+                  ]}
+                >
+                  <View
+                    style={[
+                      styles.row,
+                      {
+                        flexDirection: rtlFlexDirection(isRtl),
+                        gap: theme.sizes.WIDTH * 0.008,
+                      },
+                    ]}
+                  >
+                    <SvgRiyalPink
+                      width={scaleWithMax(16, 16)}
+                      height={scaleWithMax(16, 16)}
+                      style={{
+                        marginTop: scaleWithMax(2, 2),
+                      }}
+                    />
+                    <Text style={styles.discountedPrice}>
+                      {item.TotalAmount}
+                    </Text>
+                  </View>
+                  <View
+                    style={[
+                      styles.row,
+                      {
+                        flexDirection: rtlFlexDirection(isRtl),
+                        gap: theme.sizes.WIDTH * 0.008,
+                      },
+                    ]}
+                  >
+                    <SvgRiyalIcon
+                      width={scaleWithMax(11, 11)}
+                      height={scaleWithMax(11, 11)}
+                      opacity={0.32}
+                    />
+                    <Text style={styles.cutPrice}>
+                      {item.OrderAmount || 'N/A'}
+                    </Text>
+                  </View>
+                </View>
+              ) : (
+                <PriceWithIcon
+                  Price={item.TotalAmount}
+                  style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+                />
+              )}
+              <TouchableOpacity onPress={() => setItemToRemove(item)}>
+                {cartData?.CampaginType !== 3 && <SvgDeleteIcon />}
+              </TouchableOpacity>
+            </View>
+          ) : isMerchant && cartData?.SendType === 3 ? (
+            item.DiscountAmount > 0 ? (
+              <View
+                style={[
+                  styles.row,
+                  {
+                    flexDirection: rtlFlexDirection(isRtl),
+                    gap: theme.sizes.WIDTH * 0.01,
+                  },
+                ]}
+              >
+                <View
+                  style={[
+                    styles.row,
+                    {
+                      flexDirection: rtlFlexDirection(isRtl),
+                      gap: theme.sizes.WIDTH * 0.008,
+                    },
+                  ]}
+                >
+                  <SvgRiyalPink
+                    width={scaleWithMax(16, 16)}
+                    height={scaleWithMax(16, 16)}
+                    style={{
+                      marginTop: scaleWithMax(2, 2),
+                    }}
+                  />
+                  <Text style={styles.discountedPrice}>
+                    {item.TotalAmount}
+                  </Text>
+                </View>
+                <View
+                  style={[
+                    styles.row,
+                    {
+                      flexDirection: rtlFlexDirection(isRtl),
+                      gap: theme.sizes.WIDTH * 0.008,
+                    },
+                  ]}
+                >
+                  <SvgRiyalIcon
+                    width={scaleWithMax(11, 11)}
+                    height={scaleWithMax(11, 11)}
+                    opacity={0.32}
+                  />
+                  <Text style={styles.cutPrice}>
+                    {item.OrderAmount || 'N/A'}
+                  </Text>
+                </View>
+              </View>
+            ) : (
               <PriceWithIcon
                 Price={item.TotalAmount}
                 style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
               />
-              <TouchableOpacity onPress={() => setItemToRemove(item)}>
-                <SvgDeleteIcon />
-              </TouchableOpacity>
-            </View>
+            )
           ) : (
             <View
               style={{
                 ...styles.row,
-                // flexDirection: rtlFlexDirection(isRtl),
                 ...(langCode === 'ar'
                   ? { flexDirection: rtlFlexDirection(!isRtl) }
                   : { flexDirection: rtlFlexDirection(isRtl) }),
@@ -736,7 +844,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             currencyCode: 'SAR',
             label: 'Giftee Order',
           });
-          if (!applePayToken) {
+          if (applePayToken === null) {
             setSubmitting(false);
             return;
           }
@@ -803,12 +911,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         }
       }
 
-      if (selectedPaymentMethod === 'applePay' && applePayToken) {
-        const cardToken = JSON.parse(applePayToken).token;
-        console.log('cardToken', cardToken);
-        console.log('applePayToken', applePayToken);
+      if (selectedPaymentMethod === 'applePay' && applePayToken !== null) {
         payload.CardToken = applePayToken;
-        notify.success(applePayToken);
       }
 
       if (cartData.FriendIds && cartData.FriendIds.length > 0) {
@@ -1393,7 +1497,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         style={{
                           ...styles.row,
                           flex: 1,
-                          gap: theme.sizes.WIDTH * 0.03,
+                          gap: theme.sizes.WIDTH * 0.025,
                           ...(langCode === 'ar'
                             ? { flexDirection: rtlFlexDirection(!isRtl) }
                             : { flexDirection: rtlFlexDirection(isRtl) }),
@@ -1455,7 +1559,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       style={{
                         ...styles.row,
                         flex: 1,
-                        gap: theme.sizes.WIDTH * 0.03,
+                        gap: theme.sizes.WIDTH * 0.025,
                         ...(langCode === 'ar'
                           ? { flexDirection: rtlFlexDirection(!isRtl) }
                           : { flexDirection: rtlFlexDirection(isRtl) }),
@@ -1516,7 +1620,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         style={{
                           ...styles.row,
                           flex: 1,
-                          gap: theme.sizes.WIDTH * 0.03,
+                          gap: theme.sizes.WIDTH * 0.025,
                           ...(langCode === 'ar'
                             ? { flexDirection: rtlFlexDirection(!isRtl) }
                             : { flexDirection: rtlFlexDirection(isRtl) }),
@@ -1577,76 +1681,78 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     </View>
                   </TouchableOpacity>
                 )}
-
-                <TouchableOpacity
-                  onPress={() =>
-                    setSelectedPaymentMethod(
-                      selectedPaymentMethod === 'wallet' ? null : 'wallet',
-                    )
-                  }
-                >
-                  <View
-                    style={[
-                      styles.GiftContainer,
-                      {
-                        ...(langCode === 'ar'
-                          ? { flexDirection: rtlFlexDirection(!isRtl) }
-                          : { flexDirection: rtlFlexDirection(isRtl) }),
-                      },
-                    ]}
-                  >
-                    <View
-                      style={{
-                        ...styles.row,
-                        flex: 1,
-                        gap: theme.sizes.WIDTH * 0.03,
-                        ...(langCode === 'ar'
-                          ? { flexDirection: rtlFlexDirection(!isRtl) }
-                          : { flexDirection: rtlFlexDirection(isRtl) }),
-                      }}
+                {walletBalance?.data &&
+                  walletBalance?.data?.WalletBalance > 0 && (
+                    <TouchableOpacity
+                      onPress={() =>
+                        setSelectedPaymentMethod(
+                          selectedPaymentMethod === 'wallet' ? null : 'wallet',
+                        )
+                      }
                     >
-                      <CheckBox
-                        Selected={selectedPaymentMethod === 'wallet'}
-                        onSelectionPress={() =>
-                          setSelectedPaymentMethod(
-                            selectedPaymentMethod === 'wallet'
-                              ? null
-                              : 'wallet',
-                          )
-                        }
-                      />
-                      <SvgGifteeWalletIcon
-                        height={scaleWithMax(32, 35)}
-                        width={scaleWithMax(32, 35)}
-                      />
-                      <View>
-                        <Text style={styles.TextMedium}>
-                          {getString('W_GIFTEE_WALLET')}
-                        </Text>
-                        <View style={styles.row}>
-                          <SvgRiyalIcon
-                            width={scaleWithMax(12, 14)}
-                            height={scaleWithMax(12, 14)}
+                      <View
+                        style={[
+                          styles.GiftContainer,
+                          {
+                            ...(langCode === 'ar'
+                              ? { flexDirection: rtlFlexDirection(!isRtl) }
+                              : { flexDirection: rtlFlexDirection(isRtl) }),
+                          },
+                        ]}
+                      >
+                        <View
+                          style={{
+                            ...styles.row,
+                            flex: 1,
+                            gap: theme.sizes.WIDTH * 0.025,
+                            ...(langCode === 'ar'
+                              ? { flexDirection: rtlFlexDirection(!isRtl) }
+                              : { flexDirection: rtlFlexDirection(isRtl) }),
+                          }}
+                        >
+                          <CheckBox
+                            Selected={selectedPaymentMethod === 'wallet'}
+                            onSelectionPress={() =>
+                              setSelectedPaymentMethod(
+                                selectedPaymentMethod === 'wallet'
+                                  ? null
+                                  : 'wallet',
+                              )
+                            }
                           />
-                          <Text style={styles.TextMedium}>
-                            {walletBalance?.data?.WalletBalance
-                              ? Number(
-                                  walletBalance.data.WalletBalance,
-                                ).toFixed(2)
-                              : '0.00'}
-                          </Text>
+                          <SvgGifteeWalletIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                          <View>
+                            <Text style={styles.TextMedium}>
+                              {getString('W_GIFTEE_WALLET')}
+                            </Text>
+                            <View style={styles.row}>
+                              <SvgRiyalIcon
+                                width={scaleWithMax(12, 14)}
+                                height={scaleWithMax(12, 14)}
+                              />
+                              <Text style={styles.TextMedium}>
+                                {walletBalance?.data?.WalletBalance
+                                  ? Number(
+                                      walletBalance.data.WalletBalance,
+                                    ).toFixed(2)
+                                  : '0.00'}
+                              </Text>
+                            </View>
+                          </View>
                         </View>
+                        <SvgSelectedCheck
+                          width={scaleWithMax(16, 18)}
+                          height={scaleWithMax(16, 18)}
+                          style={{
+                            opacity: selectedPaymentMethod === 'wallet' ? 1 : 0,
+                          }}
+                        />
                       </View>
-                    </View>
-                    <SvgSelectedCheck
-                      width={scaleWithMax(16, 18)}
-                      height={scaleWithMax(16, 18)}
-                      style={{
-                        opacity: selectedPaymentMethod === 'wallet' ? 1 : 0,
-                      }}
-                    />
-                  </View>
-                </TouchableOpacity>
+                    </TouchableOpacity>
+                  )}
               </View>
 
               <View style={styles.section}>
@@ -1709,7 +1815,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           flexDirection: rtlFlexDirection(isRtl),
                           alignItems: 'center',
                           justifyContent: 'center',
-                          gap: theme.sizes.WIDTH * 0.02,
+                          gap: theme.sizes.WIDTH * 0.025,
                           paddingHorizontal: theme.sizes.WIDTH * 0.03,
                           paddingVertical: scaleWithMax(8, 10),
                           borderRadius: 10,

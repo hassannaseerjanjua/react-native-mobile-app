@@ -200,7 +200,11 @@ const NotificationsScreen: React.FC = () => {
         }}
         NotificationItemStyles={styles.NotificationItem}
         isGroupImage={item.Image}
-        time={formatRelativeTime(item.CreatedOn, getString)}
+        time={
+          item.NotificationType !== 12
+            ? formatRelativeTime(item.CreatedOn, getString)
+            : null
+        }
         boldText={boldText}
         isSeen={item.IsSeen}
       />

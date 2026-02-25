@@ -34,6 +34,8 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
     occasionId,
     occasionName,
     occasionDate,
+    isLocalOnly,
+    onImageUpdate,
   } = route.params;
   const { styles: screenStyles, theme } = useStyles();
   const navigation = useNavigation();
@@ -79,13 +81,17 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
       });
 
       if (croppedImage) {
-        // Create an asset object compatible with uploadProfileImage
         const asset = {
           uri: croppedImage.uri,
-          type: croppedImage.type,
-          fileName: croppedImage.name,
+          type: croppedImage.type || 'image/jpeg',
+          name: croppedImage.name,
         };
-        uploadProfileImage(asset);
+        if (isLocalOnly && onImageUpdate) {
+          onImageUpdate({ type: 'update', asset });
+          navigation.goBack();
+        } else {
+          uploadProfileImage(asset);
+        }
       }
     } catch (error) {
       console.error('Error selecting/cropping image:', error);
@@ -204,7 +210,12 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
   const handleRemovePhoto = () => {
     if (isUploading) return;
     setShowDeleteConfirmation(false);
-    uploadProfileImage(null, true);
+    if (isLocalOnly && onImageUpdate) {
+      onImageUpdate({ type: 'delete' });
+      navigation.goBack();
+    } else {
+      uploadProfileImage(null, true);
+    }
   };
 
   return (

@@ -22,7 +22,7 @@ interface NotificationItemProps {
   isLink?: boolean;
   isGroupImage?: any;
   icon?: React.ReactNode;
-  time?: string;
+  time?: string | null;
   boldText?: string;
   isSeen?: boolean;
   onPress?: () => void;
@@ -47,7 +47,11 @@ const NotificationItem = ({
     if (boldText && title.includes(boldText)) {
       const parts = title.split(boldText);
       return (
-        <Text style={[styles.titleText, NotificationTextStyles]}>
+        <Text
+          style={[styles.titleText, NotificationTextStyles]}
+          numberOfLines={2}
+          ellipsizeMode="tail"
+        >
           {parts[0]}
           <Text style={styles.boldText}>{boldText}</Text>
           {parts[1]}
@@ -55,7 +59,13 @@ const NotificationItem = ({
       );
     }
     return (
-      <Text style={[styles.titleText, NotificationTextStyles]}>{title}</Text>
+      <Text
+        style={[styles.titleText, NotificationTextStyles]}
+        numberOfLines={2}
+        ellipsizeMode="tail"
+      >
+        {title}
+      </Text>
     );
   };
 
@@ -98,7 +108,10 @@ const NotificationItem = ({
   const wrapperProps = onPress ? { onPress, activeOpacity: 0.7 } : {};
 
   return (
-    <Wrapper style={[styles.container, NotificationItemStyles]} {...wrapperProps}>
+    <Wrapper
+      style={[styles.container, NotificationItemStyles]}
+      {...wrapperProps}
+    >
       {content}
     </Wrapper>
   );

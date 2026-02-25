@@ -113,7 +113,13 @@ const OccasionsScreen: React.FC = () => {
   const validationSchema = useMemo(
     () =>
       Yup.object().shape({
-        occasionName: Yup.string().required(getString('OCCASIONS_REQUIRED')),
+        occasionName: Yup.string()
+          .required(getString('OCCASIONS_REQUIRED'))
+          .test(
+            'not-whitespace',
+            getString('OCCASIONS_REQUIRED'),
+            val => !val || val.trim().length > 0,
+          ),
         occasionDate: Yup.date().required(getString('OCCASIONS_REQUIRED')),
       }),
     [getString],
@@ -312,7 +318,9 @@ const OccasionsScreen: React.FC = () => {
                                     : null;
 
                                 if (imageUri) {
-                                  // Open image viewer if image exists
+                                  const isLocalOnly =
+                                    selectedOccasion.occasionType ===
+                                      'create' || !selectedOccasion.id;
                                   (navigation as any).navigate(
                                     'ProfileImageViewer',
                                     {
@@ -324,6 +332,27 @@ const OccasionsScreen: React.FC = () => {
                                       occasionId: selectedOccasion.id,
                                       occasionName: formik.values.occasionName,
                                       occasionDate: formik.values.occasionDate,
+                                      isLocalOnly,
+                                      onImageUpdate: isLocalOnly
+                                        ? (result: {
+                                            type: 'update' | 'delete';
+                                            asset?: {
+                                              uri: string;
+                                              type?: string;
+                                              name?: string;
+                                            };
+                                          }) => {
+                                            if (result.type === 'update' && result.asset) {
+                                              formik.setFieldValue('image', {
+                                                uri: result.asset.uri,
+                                                type: result.asset.type || 'image/jpeg',
+                                                name: result.asset.name || `occasion_image_${Date.now()}.jpg`,
+                                              });
+                                            } else if (result.type === 'delete') {
+                                              formik.setFieldValue('image', null);
+                                            }
+                                          }
+                                        : undefined,
                                     },
                                   );
                                 } else {
