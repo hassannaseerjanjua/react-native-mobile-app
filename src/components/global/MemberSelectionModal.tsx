@@ -23,7 +23,12 @@ import {
 import { launchImageLibrary } from 'react-native-image-picker';
 import BottomSheetHeader from '../app/BottomSheetHeader';
 import SearchUserItem from '../app/SearchUserItem';
-import { SvgCrossIcon, SvgImageIcon } from '../../assets/icons';
+import {
+  SvgCrossIcon,
+  SvgImageIcon,
+  SvgFindFriendsIcon,
+  SvgSearchFindFriendsIcon,
+} from '../../assets/icons';
 import { ActiveUser, fetchApiResponse } from '../../types';
 import useTheme from '../../styles/theme';
 import fonts from '../../assets/fonts';
@@ -42,12 +47,14 @@ import { useLocaleStore } from '../../store/reducer/locale';
 import notify from '../../utils/notify';
 import { useAuthStore } from '../../store/reducer/auth';
 import Toast from 'react-native-toast-message';
+import CustomButton from './Custombutton';
 
 const dummyImage = require('../../assets/images/user.png');
 
 interface UserListing {
   title?: string;
   users: ActiveUser[];
+  emptyState?: 'noFriends';
 }
 
 interface MemberSelectionModalProps {
@@ -66,6 +73,7 @@ interface MemberSelectionModalProps {
   existingGroupName?: string;
   existingGroupImage?: string | null;
   routeTo?: 'GiftOneGetOne' | 'SelectStore';
+  onFindFriendsNavigate?: () => void;
 }
 
 const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
@@ -80,6 +88,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   existingGroupName = '',
   existingGroupImage,
   routeTo,
+  onFindFriendsNavigate,
 }) => {
   const { styles } = useStyles();
   const { getString, isRtl } = useLocaleStore();
@@ -384,8 +393,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   }}
                 />
               )}
-              <View style={styles.listCard}>
-                {(listing.users || []).length > 0 ? (
+              {(listing.users || []).length > 0 ? (
+                <View style={styles.listCard}>
                   <FlatList
                     data={listing.users || []}
                     keyExtractor={item => item.UserId.toString()}
@@ -427,14 +436,38 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                     showsVerticalScrollIndicator={false}
                     scrollEnabled={false}
                   />
-                ) : (
+                </View>
+              ) : listing.emptyState === 'noFriends' ? (
+                <View style={styles.noFriendsContainer}>
+                  <SvgFindFriendsIcon
+                    width={scaleWithMax(36, 40)}
+                    height={scaleWithMax(36, 40)}
+                  />
+                  <Text style={styles.noFriendsText}>
+                    {getString('SG_NO_FRIENDS_YET')}
+                  </Text>
+                    <CustomButton
+                      icon={<SvgSearchFindFriendsIcon />}
+                      title={getString('SG_FIND_FRIENDS')}
+                      onPress={() => {
+                        onFindFriendsNavigate?.();
+                        closeModal();
+                        (navigation as any).navigate('Search', {
+                          title: getString('SG_FIND_FRIENDS'),
+                        });
+                      }}
+                      type="primary"
+                    />
+                </View>
+              ) : (
+                <View style={styles.listCard}>
                   <View style={styles.emptyStateContainer}>
                     <Text style={styles.emptyStateText}>
                       {getString('EMPTY_NO_USERS_TO_SHOW')}
                     </Text>
                   </View>
-                )}
-              </View>
+                </View>
+              )}
             </View>
           ))
         ) : (
@@ -951,6 +984,20 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         alignItems: 'center',
         justifyContent: 'center',
+      },
+      noFriendsContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: sizes.HEIGHT * 0.26,
+        paddingBottom: sizes.HEIGHT * 0.03,
+      },
+      noFriendsText: {
+        ...theme.globalStyles.TEXT_STYLE,
+        color: colors.BLACK,
+        fontSize: sizes.FONTSIZE_BUTTON,
+        paddingVertical: sizes.HEIGHT * 0.007,
+        paddingBottom: sizes.HEIGHT * 0.03,
+        textAlign: 'center',
       },
       emptyStateText: {
         fontFamily: fonts.Quicksand.medium,

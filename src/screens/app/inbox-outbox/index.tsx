@@ -530,21 +530,30 @@ const InboxItem: React.FC<InboxItemProps> = ({
 
   const hasMultiUsers = isMerchant && order.MultiUsers && order.MultiUsers.length > 0;
 
-  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-    const scrollPosition = event.nativeEvent.contentOffset.x;
-    // Calculate item width: full width minus profile width and spacing
+  const itemGap = theme.sizes.PADDING * 1.2;
+  const getItemWidth = () => {
     const profileWidth = scaleWithMax(50, 55);
     const spacing = theme.sizes.WIDTH * 0.012;
-    const itemWidth = theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
+    const extraMargin = theme.sizes.PADDING * 0.5;
+    return (
+      theme.sizes.WIDTH -
+      theme.sizes.PADDING * 2 -
+      profileWidth -
+      spacing -
+      extraMargin +
+      itemGap
+    );
+  };
+
+  const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const scrollPosition = event.nativeEvent.contentOffset.x;
+    const itemWidth = getItemWidth();
     const index = Math.round(scrollPosition / itemWidth);
     setCurrentIndex(index);
   };
 
   const scrollToIndex = (index: number) => {
-    // Calculate item width: full width minus profile width and spacing
-    const profileWidth = scaleWithMax(50, 55);
-    const spacing = theme.sizes.WIDTH * 0.012;
-    const itemWidth = theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
+    const itemWidth = getItemWidth();
     scrollViewRef.current?.scrollTo({
       x: index * itemWidth,
       animated: true,
@@ -707,17 +716,11 @@ const InboxItem: React.FC<InboxItemProps> = ({
               scrollEventThrottle={16}
               scrollEnabled={order.Items && order.Items.length > 1}
               decelerationRate="fast"
-              snapToInterval={
-                (() => {
-                  const profileWidth = scaleWithMax(50, 55);
-                  const spacing = theme.sizes.WIDTH * 0.012;
-                  return theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
-                })()
-              }
+              snapToInterval={getItemWidth()}
               snapToAlignment="start"
               contentContainerStyle={{
                 paddingVertical: theme.sizes.HEIGHT * 0.014,
-                gap: theme.sizes.PADDING * 0.8,
+                gap: itemGap,
               }}
               style={{
                 overflow: 'visible',

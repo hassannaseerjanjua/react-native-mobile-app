@@ -40,6 +40,8 @@ export const useListingApi = <T>(
   const isLoadingMoreRef = useRef(false);
   const extraParamsRef = useRef(config?.extraParams || {});
   const pageIndexRef = useRef(pageIndex);
+  const fetchIdRef = useRef(0);
+  const pendingExtraParamsChangeRef = useRef(false);
 
   const fetchData = (
     searchParam: string = '',
@@ -50,6 +52,7 @@ export const useListingApi = <T>(
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
 
+    const currentFetchId = ++fetchIdRef.current;
     const currentPage = pageOverride ?? pageIndexRef.current;
 
     if (showLoading && currentPage === 1) setLoading(true);
@@ -69,8 +72,9 @@ export const useListingApi = <T>(
       apiUrl += `&sortColumn=${sortColumn}&sortDirection=${sortDirection}`;
     }
 
-    if (extraParams) {
-      apiUrl += '&' + getQueryFromObject(extraParams);
+    const paramsToUse = extraParamsRef.current;
+    if (paramsToUse && Object.keys(paramsToUse).length > 0) {
+      apiUrl += '&' + getQueryFromObject(paramsToUse);
     }
 
     api
@@ -80,6 +84,9 @@ export const useListingApi = <T>(
           notify.error(res.error);
           return;
         }
+
+        // Ignore stale response (e.g. tab switched before this request completed)
+        if (currentFetchId !== fetchIdRef.current) return;
 
         let newData: T[] = [];
         let newTotalCount = 0;
@@ -127,6 +134,16 @@ export const useListingApi = <T>(
         setIsInitialLoad(true);
         isFetchingRef.current = false;
         isLoadingMoreRef.current = false;
+
+        // If extraParams changed while request was in flight, fetch with new params
+        if (pendingExtraParamsChangeRef.current) {
+          pendingExtraParamsChangeRef.current = false;
+          pageIndexRef.current = 1;
+          setPageIndex(1);
+          setData([]);
+          setHasMore(true);
+          fetchData('', true, 1);
+        }
       });
   };
 
@@ -156,11 +173,17 @@ export const useListingApi = <T>(
   }, [pageIndex]);
 
   useEffect(() => {
-    if (!isInitialLoad || isFetchingRef.current) return;
+    if (!isInitialLoad) return;
     const prevParams = JSON.stringify(extraParamsRef.current);
     const currentParams = JSON.stringify(extraParams);
     if (prevParams !== currentParams) {
       extraParamsRef.current = extraParams;
+      if (isFetchingRef.current) {
+        pendingExtraParamsChangeRef.current = true;
+        fetchIdRef.current++; // Invalidate in-flight request so its response is ignored
+        setData([]); // Clear stale data immediately
+        return;
+      }
       pageIndexRef.current = 1;
       setPageIndex(1);
       setData([]);

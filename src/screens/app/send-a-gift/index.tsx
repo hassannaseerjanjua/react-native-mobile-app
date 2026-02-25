@@ -1,4 +1,10 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useCallback,
+  useMemo,
+  useRef,
+} from 'react';
 import {
   View,
   StatusBar,
@@ -470,13 +476,45 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   }, []);
 
   const frequentlySentFriends =
-    activeTab === 'friends' && !activeUsersApi.search
+    activeTab === 'friends' && !activeUsersApi.search && !activeUsersApi.loading
       ? filterFrequentlySentFriends(activeUsersApi.data || [])
       : [];
 
   const frequentlySentFriendsForGroupModal = filterFrequentlySentFriends(
     friendsForGroupApi.data || [],
   );
+
+  // Delay "search applied" by 400ms to avoid flicker - keeps "me" and empty state text in sync until search completes
+  const [effectiveSearchForHideMe, setEffectiveSearchForHideMe] = useState('');
+  const effectiveSearchTimerRef = useRef<ReturnType<typeof setTimeout> | null>(
+    null,
+  );
+  useEffect(() => {
+    const search = activeUsersApi.search;
+    if (search) {
+      if (effectiveSearchTimerRef.current) {
+        clearTimeout(effectiveSearchTimerRef.current);
+      }
+      effectiveSearchTimerRef.current = setTimeout(() => {
+        setEffectiveSearchForHideMe(search);
+        effectiveSearchTimerRef.current = null;
+      }, 400);
+    } else {
+      if (effectiveSearchTimerRef.current) {
+        clearTimeout(effectiveSearchTimerRef.current);
+        effectiveSearchTimerRef.current = null;
+      }
+      setEffectiveSearchForHideMe('');
+    }
+    return () => {
+      if (effectiveSearchTimerRef.current) {
+        clearTimeout(effectiveSearchTimerRef.current);
+      }
+    };
+  }, [activeUsersApi.search]);
+
+  // Only use effectiveSearchForHideMe - don't use loading, else "me" briefly appears when modifying an existing search
+  const keepMeVisibleForSearch = !effectiveSearchForHideMe;
 
   const getDisplayData = () => {
     if (!isMerchant && activeTab === 'group') {
@@ -488,9 +526,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
     const baseData = activeUsersApi.data || [];
 
-    // Determine if "me" should be shown
+    // Determine if "me" should be shown (keep visible during debounce + loading)
     const shouldShowMe =
-      !activeUsersApi.search &&
+      keepMeVisibleForSearch &&
       activeTab === 'friends' &&
       user &&
       (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo);
@@ -544,7 +582,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
   // Determine if "me" should be shown (same logic as in getDisplayData)
   const shouldShowMe =
-    !activeUsersApi.search &&
+    keepMeVisibleForSearch &&
     activeTab === 'friends' &&
     user &&
     (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo);
@@ -563,14 +601,46 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const shouldShowEmptyState =
     !isMerchant && !isLoading && !shouldShowList && activeTab === 'friends';
 
-  // useFocusEffect(
-  //   useCallback(() => {
-  //     setSearchQuery('');
-  //     activeUsersApi.recall();
-  //     employeesApi.recall();
-  //     getGroupsData.recall();
-  //   }, []),
-  // );
+  // Show no friends container on Others tab when search result is empty
+  const shouldShowOthersEmptyState =
+    !isMerchant &&
+    !isLoading &&
+    !shouldShowList &&
+    activeTab === 'others' &&
+    (activeUsersApi.data || []).length === 0;
+
+  // Text for empty state: use effectiveSearchForHideMe to sync with "me" visibility - no immediate text change
+  const noFriendsEmptyText =
+    shouldShowOthersEmptyState ||
+    (shouldShowEmptyState && !!effectiveSearchForHideMe)
+      ? getString('SEARCH_NO_RESULTS_FOUND')
+      : getString('SG_NO_FRIENDS_YET');
+
+  // Don't show skeleton during search loading on friends tab - keep "me" / empty state visible until API returns
+  const skipSkeletonForSearchTransition =
+    !isMerchant &&
+    activeTab === 'friends' &&
+    !!activeUsersApi.search &&
+    activeUsersApi.loading;
+
+  const shouldRefetchFriendsRef = useRef(false);
+
+  const handleFindFriendsPress = useCallback(() => {
+    shouldRefetchFriendsRef.current = true;
+    navigation.navigate('Search', {
+      title: getString('SG_FIND_FRIENDS'),
+    });
+  }, [navigation, getString]);
+
+  useFocusEffect(
+    useCallback(() => {
+      if (shouldRefetchFriendsRef.current) {
+        shouldRefetchFriendsRef.current = false;
+        activeUsersApi.recall();
+        friendsForGroupApi.recall();
+      }
+    }, [activeUsersApi, friendsForGroupApi]),
+  );
 
   return (
     <ParentView style={styles.container}>
@@ -590,11 +660,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         showSearchBar
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
-        searchPlaceholder={
-          activeTab === 'group'
-            ? getString('STG_SEARCH_GROUP')
-            : getString('HOME_SEARCH')
-        }
+        searchPlaceholder={getString('HOME_SEARCH')}
         rightSideTitle={
           !isMerchant && (activeTab === 'friends' || activeTab === 'group')
             ? getString('SG_NEW_GROUP')
@@ -654,14 +720,13 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       <View style={styles.content}>
         <ScrollView
           style={styles.scrollableContentContainer}
-          contentContainerStyle={[
-            {
-              paddingHorizontal: theme.sizes.PADDING,
-            },
-            isMerchant && isSelectionMode
-              ? { paddingBottom: scaleWithMax(60, 65) }
-              : undefined,
-          ]}
+          contentContainerStyle={{
+            paddingHorizontal: theme.sizes.PADDING,
+            paddingBottom:
+              isMerchant && isSelectionMode
+                ? scaleWithMax(60, 65)
+                : theme.sizes.HEIGHT * 0.025,
+          }}
           showsVerticalScrollIndicator={false}
         >
           <View>
@@ -881,93 +946,109 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
               )}
             </View>
           )}
-          {activeTab !== 'group' && isLoading ? (
-            <View
-              style={[
-                styles.listCard,
-                {
-                  // marginTop:
-                  //   route.params?.routeTo === 'SelectStore' ||
-                  //   !route.params?.routeTo ||
-                  //   isMerchant
-                  //     ? theme.sizes.HEIGHT * 0.014
-                  //     : 0,
-                },
-              ]}
-            >
+          {activeTab !== 'group' &&
+          isLoading &&
+          !skipSkeletonForSearchTransition ? (
+            <View style={[styles.listCard]}>
               <SkeletonLoader screenType="sendAGift" />
             </View>
           ) : shouldShowList ? (
-            <View
-              style={[
-                styles.listCard,
-                {
-                  marginBottom:
-                    route.params?.routeTo === 'SelectStore' ||
-                    !route.params?.routeTo
-                      ? theme.sizes.HEIGHT * 0.04
-                      : theme.sizes.HEIGHT * 0.04,
-                },
-              ]}
-            >
-              <FlatList
-                data={displayData}
-                keyExtractor={item => item.UserId.toString()}
-                renderItem={({ item, index }) => (
-                  <SearchUserItem
-                    item={item}
-                    index={index}
-                    isLast={index === displayData.length - 1}
-                    showAddButton={false}
-                    showSelection={isMerchant && isSelectionMode}
-                    isSelected={selectedUserIds.has(item.UserId)}
-                    onSelectionPress={() => handleUserSelection(item.UserId)}
-                    onPress={() => handleFriendPress(item)}
-                    selectionDisabled={
-                      isMerchant &&
-                      isSelectionMode &&
-                      selectedUserIds.size >= MAX_SELECTION_LIMIT &&
-                      !selectedUserIds.has(item.UserId)
-                    }
-                  />
+            <>
+              <View
+                style={[
+                  styles.listCard,
+                  {
+                    marginBottom: theme.sizes.HEIGHT * 0.025,
+                  },
+                ]}
+              >
+                <FlatList
+                  data={displayData}
+                  keyExtractor={item => item.UserId.toString()}
+                  renderItem={({ item, index }) => (
+                    <SearchUserItem
+                      item={item}
+                      index={index}
+                      isLast={index === displayData.length - 1}
+                      showAddButton={false}
+                      showSelection={isMerchant && isSelectionMode}
+                      isSelected={selectedUserIds.has(item.UserId)}
+                      onSelectionPress={() => handleUserSelection(item.UserId)}
+                      onPress={() => handleFriendPress(item)}
+                      selectionDisabled={
+                        isMerchant &&
+                        isSelectionMode &&
+                        selectedUserIds.size >= MAX_SELECTION_LIMIT &&
+                        !selectedUserIds.has(item.UserId)
+                      }
+                    />
+                  )}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.listContainer}
+                  onEndReached={
+                    activeTab === 'group'
+                      ? undefined
+                      : isMerchant && activeTab === 'employees'
+                      ? employeesApi.loadMore
+                      : activeUsersApi.loadMore
+                  }
+                  onEndReachedThreshold={0.5}
+                />
+              </View>
+              {!isMerchant &&
+                activeTab === 'friends' &&
+                !effectiveSearchForHideMe &&
+                baseFriendsCount === 0 &&
+                shouldShowMe && (
+                  <View
+                    style={[
+                      styles.noFriendsFooter,
+                      {
+                        marginTop: theme.sizes.HEIGHT * 0.1,
+                      },
+                    ]}
+                  >
+                    <SvgFindFriendsIcon
+                      width={scaleWithMax(36, 40)}
+                      height={scaleWithMax(36, 40)}
+                    />
+                    <Text style={styles.noFriendsText}>
+                      {getString('SG_NO_FRIENDS_YET')}
+                    </Text>
+                    <CustomButton
+                      icon={<SvgSearchFindFriendsIcon />}
+                      title={getString('SG_FIND_FRIENDS')}
+                      onPress={handleFindFriendsPress}
+                      type="primary"
+                    />
+                  </View>
                 )}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.listContainer}
-                onEndReached={
-                  activeTab === 'group'
-                    ? undefined
-                    : isMerchant && activeTab === 'employees'
-                    ? employeesApi.loadMore
-                    : activeUsersApi.loadMore
-                }
-                onEndReachedThreshold={0.5}
-              />
-            </View>
+            </>
           ) : isMerchant ? (
             <View style={{ height: theme.sizes.HEIGHT * 0.6 }}>
               <PlaceholderLogoText
                 text={getString('SEND_GIFT_NO_USERS_FOUND')}
               />
             </View>
-          ) : shouldShowEmptyState ? (
-            <View style={styles.noFriendsContainer}>
+          ) : shouldShowEmptyState || shouldShowOthersEmptyState ? (
+            <View
+              style={[
+                styles.noFriendsContainer,
+                isGiftOneGetOne && {
+                  paddingTop: theme.sizes.HEIGHT * 0.22,
+                },
+              ]}
+            >
               <SvgFindFriendsIcon
                 width={scaleWithMax(36, 40)}
                 height={scaleWithMax(36, 40)}
               />
-              <Text style={styles.noFriendsText}>
-                {getString('SG_NO_FRIENDS_YET')}
-              </Text>
+              <Text style={styles.noFriendsText}>{noFriendsEmptyText}</Text>
 
               <CustomButton
                 icon={<SvgSearchFindFriendsIcon />}
                 title={getString('SG_FIND_FRIENDS')}
-                onPress={() => {
-                  navigation.navigate('Search', {
-                    title: getString('SG_FIND_FRIENDS'),
-                    // showConnectOnly: true,
-                  });
-                }}
+                onPress={handleFindFriendsPress}
                 type="primary"
               />
             </View>
@@ -1017,14 +1098,22 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         existingMembers={[]}
         onSave={handleCreateGroup}
         title={getString('NG_ADD_MEMBERS')}
+        onFindFriendsNavigate={() => {
+          shouldRefetchFriendsRef.current = true;
+        }}
         listings={[
-          {
-            title: getString('SG_FREQUENTLY_GIFTED'),
-            users: frequentlySentFriendsForGroupModal,
-          },
+          ...(frequentlySentFriendsForGroupModal.length > 0
+            ? [
+                {
+                  title: getString('SG_FREQUENTLY_GIFTED'),
+                  users: frequentlySentFriendsForGroupModal,
+                },
+              ]
+            : []),
           {
             title: getString('NG_TITLE_FRIENDS'),
             users: friendsForGroupApi.data || [],
+            emptyState: 'noFriends' as const,
           },
         ]}
         isSendAGift={true}

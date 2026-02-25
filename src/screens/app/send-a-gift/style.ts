@@ -67,6 +67,13 @@ const useStyles = () => {
         paddingBottom: sizes.HEIGHT * 0.03,
         textAlign: 'center',
       },
+      noFriendsFooter: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        // marginTop: sizes.HEIGHT * 0.03, //
+        // paddingTop: sizes.HEIGHT * 0.04,
+        // paddingBottom: sizes.HEIGHT * 0.03,
+      },
       tabContainer: {
         // marginBottom: sizes.HEIGHT * 0.01,
         marginTop: sizes.HEIGHT * 0.016,
