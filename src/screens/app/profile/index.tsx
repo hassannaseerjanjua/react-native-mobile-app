@@ -52,6 +52,7 @@ import { BlurView } from '@react-native-community/blur';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import { selectAndCropImage } from '../../../utils/imageCropper';
 import { callLogoutWithDeviceToken } from '../../../utils/notificationService';
+import { encodeGiftLinkParams } from '../../../utils/giftLinkCodec';
 
 const ProfileScreen: React.FC = () => {
   const { styles: screenStyles, theme } = useStyles();
@@ -77,9 +78,13 @@ const ProfileScreen: React.FC = () => {
         return;
       }
 
-      // Generate deep link using https format (already associated with the app)
-      // Format: https://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId={userId}&CityId={cityId}&sendType=1
-      const giftLink = `https://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId=${user.UserId}&CityId=${user.CityId}&sendType=1`;
+      // Generate obfuscated deep link (encodes friendUserId, CityId, sendType)
+      const token = encodeGiftLinkParams({
+        friendUserId: user.UserId,
+        CityId: user.CityId,
+        sendType: 1,
+      });
+      const giftLink = `https://admin.giftee.hostinger.bitscollision.net/select-store?t=${encodeURIComponent(token)}`;
 
       // const shareMessage = `🎁 Want to send me a gift? Click the link below.\n\n${giftLink}`;
       const shareMessage = `${getString('LINK_MY_GIFT_LINK')}.\n\n${giftLink}`;
