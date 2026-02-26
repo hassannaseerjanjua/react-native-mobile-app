@@ -516,15 +516,12 @@ const OccasionsScreen: React.FC = () => {
       <ConfirmationPopup
         visible={showDeleteModal}
         title={getString('OCCASIONS_DELETE_OCCASION')}
-        message={
-          occasionToDelete?.NameEn
-            ? `${getString('OCCASIONS_DELETE_CONFIRM_MESSAGE')} ${
-                occasionToDelete.NameEn
-              }?`
-            : getString('OCCASIONS_DELETE_CONFIRM_MESSAGE')
-        }
+        message={getString('OCCASIONS_DELETE_CONFIRM_MESSAGE').replace(
+          '{value}',
+          occasionToDelete?.NameEn || '',
+        )}
         confirmText={getString('OCCASIONS_DELETE')}
-        cancelText={getString('NG_CANCEL') || 'Cancel'}
+        cancelText={getString('NG_CANCEL')}
         onConfirm={confirmDeleteOccasion}
         onCancel={() => {
           setShowDeleteModal(false);

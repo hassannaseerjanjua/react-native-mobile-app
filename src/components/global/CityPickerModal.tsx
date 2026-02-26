@@ -85,27 +85,23 @@ const CityPickerModal: React.FC<CityPickerModalProps> = ({
     }
   }, [visible, slideAnim, backdropOpacity]);
 
-  // Find initial index when modal opens
+  // Compute initial index so list opens with correct item centered (no snap)
+  const initialScrollIndex = useMemo(() => {
+    if (options.length === 0) return 0;
+    const index = options.findIndex(
+      opt => Number(opt.value) === Number(selectedValue),
+    );
+    return index !== -1 ? index : 0;
+  }, [options, selectedValue]);
+
+  const initialScrollOffset = initialScrollIndex * ITEM_HEIGHT;
+
+  // Sync selectedIndex when modal opens
   useEffect(() => {
-    if (options.length > 0 && visible) {
-      const index = options.findIndex(opt => opt.value === selectedValue);
-      const targetIndex = index !== -1 ? index : 0;
-      setSelectedIndex(targetIndex);
-      setTimeout(() => {
-        const paddingOffset = ITEM_HEIGHT * MIDDLE_INDEX;
-        // Calculate offset to center the item: (targetIndex - MIDDLE_INDEX) * ITEM_HEIGHT
-        // But ensure it's not negative
-        const targetOffset = Math.max(
-          0,
-          (targetIndex - MIDDLE_INDEX) * ITEM_HEIGHT,
-        );
-        flatListRef.current?.scrollToOffset({
-          offset: targetOffset,
-          animated: false,
-        });
-      }, 200);
+    if (visible && options.length > 0) {
+      setSelectedIndex(initialScrollIndex);
     }
-  }, [options, selectedValue, visible]);
+  }, [visible, options.length, initialScrollIndex]);
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const y = event.nativeEvent.contentOffset.y;
@@ -222,7 +218,9 @@ const CityPickerModal: React.FC<CityPickerModalProps> = ({
           <View style={styles.container}>
             <View style={styles.header}>
               <TouchableOpacity onPress={onClose} style={styles.button}>
-                <Text style={styles.cancelText}>{getString('COMP_CANCEL')}</Text>
+                <Text style={styles.cancelText}>
+                  {getString('COMP_CANCEL')}
+                </Text>
               </TouchableOpacity>
               {title && <Text style={styles.title}>{title}</Text>}
               <TouchableOpacity onPress={handleConfirm} style={styles.button}>
@@ -252,24 +250,28 @@ const CityPickerModal: React.FC<CityPickerModalProps> = ({
               {/* Selection indicator */}
               <View style={styles.selectionIndicator} />
 
-              <FlatList
-                ref={flatListRef}
-                data={options}
-                renderItem={renderItem}
-                keyExtractor={(item, index) => `${item.value}-${index}`}
-                getItemLayout={getItemLayout}
-                onScroll={handleScroll}
-                onMomentumScrollEnd={handleMomentumScrollEnd}
-                scrollEventThrottle={16}
-                showsVerticalScrollIndicator={false}
-                snapToInterval={ITEM_HEIGHT}
-                snapToAlignment="start"
-                decelerationRate="fast"
-                contentContainerStyle={styles.listContent}
-                bounces={true}
-                overScrollMode="never"
-                nestedScrollEnabled={Platform.OS === 'android'}
-              />
+              {visible && (
+                <FlatList
+                  ref={flatListRef}
+                  key={`picker-${initialScrollIndex}`}
+                  data={options}
+                  renderItem={renderItem}
+                  keyExtractor={(item, index) => `${item.value}-${index}`}
+                  getItemLayout={getItemLayout}
+                  contentOffset={{ x: 0, y: initialScrollOffset }}
+                  onScroll={handleScroll}
+                  onMomentumScrollEnd={handleMomentumScrollEnd}
+                  scrollEventThrottle={16}
+                  showsVerticalScrollIndicator={false}
+                  snapToInterval={ITEM_HEIGHT}
+                  snapToAlignment="start"
+                  decelerationRate="fast"
+                  contentContainerStyle={styles.listContent}
+                  bounces={true}
+                  overScrollMode="never"
+                  nestedScrollEnabled={Platform.OS === 'android'}
+                />
+              )}
             </View>
           </View>
         </Animated.View>
@@ -294,14 +296,14 @@ const useStyles = () => {
         backgroundColor: 'rgba(0, 0, 0, 0.5)',
       },
       bottomSheet: {
-        backgroundColor: colors.BACKGROUND || '#FFFFFF',
+        backgroundColor: colors.BACKGROUND,
         borderTopLeftRadius: scaleWithMax(24, 30),
         borderTopRightRadius: scaleWithMax(24, 30),
         overflow: 'hidden',
       },
       container: {
         flex: 1,
-        backgroundColor: colors.BACKGROUND || '#FFFFFF',
+        backgroundColor: colors.BACKGROUND,
       },
       header: {
         flexDirection: 'row',
@@ -319,7 +321,7 @@ const useStyles = () => {
       cancelText: {
         fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
-        color: colors.PRIMARY || '#007AFF',
+        color: colors.PRIMARY,
       },
       title: {
         fontFamily: fonts.semibold,
@@ -329,13 +331,13 @@ const useStyles = () => {
       doneText: {
         fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE,
-        color: colors.PRIMARY || '#007AFF',
+        color: colors.PRIMARY,
       },
       pickerContainer: {
         height: CONTAINER_HEIGHT,
         position: 'relative',
         overflow: 'hidden',
-        backgroundColor: colors.BACKGROUND || '#FFFFFF',
+        backgroundColor: colors.BACKGROUND,
       },
       topGradient: {
         position: 'absolute',
@@ -363,13 +365,9 @@ const useStyles = () => {
         pointerEvents: 'none',
         borderTopWidth: StyleSheet.hairlineWidth,
         borderBottomWidth: StyleSheet.hairlineWidth,
-        borderColor: colors.PRIMARY
-          ? colors.PRIMARY + '40'
-          : 'rgba(0, 122, 255, 0.4)',
+        borderColor: colors.PRIMARY + '40',
         borderRadius: scaleWithMax(4, 6),
-        backgroundColor: colors.PRIMARY
-          ? colors.PRIMARY + '15'
-          : 'rgba(0, 122, 255, 0.15)',
+        backgroundColor: colors.PRIMARY + '15',
       },
       listContent: {
         paddingVertical: ITEM_HEIGHT * MIDDLE_INDEX,
@@ -381,25 +379,17 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
       },
       selectedItem: {
-        backgroundColor: colors.PRIMARY
-          ? colors.PRIMARY + '08'
-          : 'rgba(0, 122, 255, 0.08)',
+        backgroundColor: colors.PRIMARY + '08',
       },
       itemText: {
         fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE,
-        color:
-          Platform.OS === 'ios'
-            ? colors.SECONDARY_TEXT || '#C7C7CC'
-            : colors.SECONDARY_TEXT || '#999999',
+        color: colors.SECONDARY_TEXT,
       },
       selectedItemText: {
         fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
-        color:
-          Platform.OS === 'ios'
-            ? colors.PRIMARY_TEXT || '#000000'
-            : colors.PRIMARY_TEXT || '#000000',
+        color: colors.PRIMARY_TEXT,
       },
     });
   }, [theme]);

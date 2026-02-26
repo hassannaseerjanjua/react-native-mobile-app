@@ -229,7 +229,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       Email: '',
       PhoneNo: '',
       ProfileUrl: member.ProfileUrl,
-      RelationStatus: member.RelationStatus,
+      CityId: member.CityId,
+      RelationStatus: member.RelationStatus ?? 0,
       IsVerified: member.IsVerified || false,
     }));
   };
@@ -921,31 +922,33 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   ? getString('SG_OTHERS')
                   : ''}
               </Text>
-              {isMerchant && (
-                <TouchableOpacity
-                  onPress={() => {
-                    if (isSelectionMode) {
-                      setIsSelectionMode(false);
-                      setSelectedUserIds(new Set());
-                    } else {
-                      setIsSelectionMode(true);
-                    }
-                  }}
-                  activeOpacity={0.7}
-                >
-                  <Text
-                    style={{
-                      fontSize: theme.sizes.FONTSIZE,
-                      color: theme.colors.PRIMARY,
-                      fontFamily: theme.fonts.bold,
+              {isMerchant &&
+                employeesApi?.data &&
+                employeesApi?.data?.length > 1 && (
+                  <TouchableOpacity
+                    onPress={() => {
+                      if (isSelectionMode) {
+                        setIsSelectionMode(false);
+                        setSelectedUserIds(new Set());
+                      } else {
+                        setIsSelectionMode(true);
+                      }
                     }}
+                    activeOpacity={0.7}
                   >
-                    {isSelectionMode
-                      ? getString('SEND_GIFT_CANCEL')
-                      : getString('SEND_GIFT_SELECT')}
-                  </Text>
-                </TouchableOpacity>
-              )}
+                    <Text
+                      style={{
+                        fontSize: theme.sizes.FONTSIZE,
+                        color: theme.colors.PRIMARY,
+                        fontFamily: theme.fonts.bold,
+                      }}
+                    >
+                      {isSelectionMode
+                        ? getString('SEND_GIFT_CANCEL')
+                        : getString('SEND_GIFT_SELECT')}
+                    </Text>
+                  </TouchableOpacity>
+                )}
             </View>
           )}
           {activeTab !== 'group' &&
@@ -1124,13 +1127,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       <ConfirmationPopup
         visible={showDeleteModal}
         title={getString('STG_DELETE_GROUP')}
-        message={
-          groupToDelete?.GroupName
-            ? `${getString('STG_DELETE_GROUP_CONFIRM')} ${
-                groupToDelete.GroupName
-              }?`
-            : getString('STG_DELETE_GROUP_CONFIRM')
-        }
+        message={getString('STG_DELETE_GROUP_CONFIRM').replace(
+          '{value}',
+          groupToDelete?.GroupName || '',
+        )}
         confirmText={getString('STG_DELETE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={confirmDeleteGroup}

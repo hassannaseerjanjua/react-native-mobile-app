@@ -60,28 +60,6 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Log received route parameters
-  useEffect(() => {
-    console.log('='.repeat(60));
-    console.log('SELECT STORE SCREEN - COMPONENT MOUNTED/RENDERED');
-    console.log('='.repeat(60));
-    console.log('Route object:', route);
-    console.log('Route params exists:', !!route?.params);
-    console.log(
-      'All route params:',
-      JSON.stringify(route?.params || {}, null, 2),
-    );
-    console.log('friendUserId (from route):', route?.params?.friendUserId);
-    console.log('CityId (from route):', route?.params?.CityId);
-    console.log('sendType (from route):', route?.params?.sendType);
-    console.log('friendName (from route):', route?.params?.friendName);
-    console.log('storeId (from route):', route?.params?.storeId);
-    console.log('Extracted friendUserId variable:', friendUserId);
-    console.log('Extracted initialCityId variable:', initialCityId);
-    console.log('Component mounted at:', new Date().toISOString());
-    console.log('='.repeat(60));
-  }, [route?.params, friendUserId, initialCityId]);
-
   const businessTypeApi = useGetApi<BusinessType[]>(
     apiEndpoints.GET_BUSINESS_TYPE,
     {
@@ -107,13 +85,16 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
   const cityOptions: DropdownOption[] = useMemo(
     () =>
-      (citiesApi.data || []).map(city => ({
-        label:
-          langCode === 'ar'
-            ? city.CityNameAr || city.CityName
-            : city.CityNameEn || city.CityName,
-        value: city.CityID,
-      })),
+      (citiesApi.data || []).map(city => {
+        const cityId = city.CityID ?? (city as { CityId?: number }).CityId;
+        return {
+          label:
+            langCode === 'ar'
+              ? city.CityNameAr || city.CityName
+              : city.CityNameEn || city.CityName,
+          value: cityId,
+        };
+      }),
     [citiesApi.data, langCode],
   );
 
@@ -128,7 +109,10 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   }, [businessTypeApi.data]);
 
   const selectedCityOption: DropdownOption | null = useMemo(
-    () => cityOptions.find(option => option.value === selectedCityId) || null,
+    () =>
+      cityOptions.find(
+        option => Number(option.value) === Number(selectedCityId),
+      ) || null,
     [cityOptions, selectedCityId],
   );
 

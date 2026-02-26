@@ -7,7 +7,7 @@ import InputField from '../../../components/global/InputField';
 import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { SvgEmail, SvgPhone, SvgPhoneIcon } from '../../../assets/icons';
-import { scaleWithMax, normalizePhoneNumber } from '../../../utils';
+import { scaleWithMax, formatPhoneWithCountryCode } from '../../../utils';
 import { createSignInSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
@@ -63,7 +63,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       try {
         const payload =
           activeTab === 'Phone'
-            ? { PhoneNo: normalizePhoneNumber(values.phone) }
+            ? { PhoneNo: formatPhoneWithCountryCode(values.phone) }
             : { Email: values.email };
 
         const verifyResponse = await api.post(
@@ -91,7 +91,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     try {
       const payload =
         activeTab === 'Phone'
-          ? { PhoneNo: normalizePhoneNumber(currentFormValues.phone) }
+          ? { PhoneNo: formatPhoneWithCountryCode(currentFormValues.phone) }
           : { Email: currentFormValues.email };
       const response = await api.post(apiEndpoints.SIGNIN, payload);
 

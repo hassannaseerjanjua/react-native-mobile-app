@@ -87,8 +87,9 @@ export interface GroupMember {
   UserGroupMemberId: number;
   UserId: number;
   FullName: string;
-  ProfileUrl: string;
-  RelationStatus: number;
+  ProfileUrl: string | null;
+  CityId?: number;
+  RelationStatus?: number;
   IsVerified?: boolean;
 }
 

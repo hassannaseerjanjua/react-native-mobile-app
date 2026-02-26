@@ -9,12 +9,20 @@ export const normalizeArabicDigits = (value: string): string => {
     .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776));
 };
 
+const COUNTRY_CODE = '+966';
+
 /**
- * Normalizes phone input for API: Arabic/Persian digits to Western, then strips +966 and non-digits.
+ * Normalizes phone input for API: Arabic/Persian digits to Western, then strips non-digits.
  */
 export const normalizePhoneNumber = (value: string): string => {
   const converted = normalizeArabicDigits(value || '');
-  return converted
-    .replace('+966', '')
-    .replace(/\D/g, '');
+  return converted.replace(/\D/g, '');
+};
+
+/**
+ * Returns phone with +966 country code for API payloads (verify, sign in, sign up).
+ */
+export const formatPhoneWithCountryCode = (value: string): string => {
+  const digits = normalizePhoneNumber(value);
+  return digits ? `${COUNTRY_CODE}${digits}` : '';
 };

@@ -302,8 +302,13 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
         title={isOccasionMode ? getString('PROFILE_IMAGE_VIEWER_DELETE_IMAGE') : getString('PROFILE_IMAGE_VIEWER_DELETE_PHOTO')}
         message={
           isOccasionMode
-            ? getString('PROFILE_IMAGE_VIEWER_DELETE_OCCASION_IMAGE_CONFIRM')
-            : getString('PROFILE_IMAGE_VIEWER_DELETE_PHOTO_CONFIRM')
+            ? getString(
+                'PROFILE_IMAGE_VIEWER_DELETE_OCCASION_IMAGE_CONFIRM',
+              ).replace('{value}', occasionName || '')
+            : getString('PROFILE_IMAGE_VIEWER_DELETE_PHOTO_CONFIRM').replace(
+                '{value}',
+                '',
+              )
         }
         confirmText={getString('PROFILE_IMAGE_VIEWER_DELETE')}
         cancelText={getString('NG_CANCEL') || 'Cancel'}

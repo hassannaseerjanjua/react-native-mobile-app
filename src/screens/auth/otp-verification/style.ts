@@ -37,6 +37,7 @@ const useStyles = () => {
         flexDirection: 'row',
         justifyContent: 'center',
         gap: boxSpacing,
+        direction: 'ltr',
       },
       otpInput: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,

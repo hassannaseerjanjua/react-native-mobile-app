@@ -108,9 +108,9 @@ export function useApplePay() {
           return null;
         }
 
-        const tokenString = applePayToken.paymentData;
+        const tokenString = JSON.stringify(applePayToken.paymentData);
         await paymentResponse.complete(PaymentComplete.SUCCESS);
-        return tokenString as unknown as string;
+        return tokenString;
       } catch (error) {
         // NotAllowedError means user cancelled -- not an error
         if ((error as Error)?.name === 'NotAllowedError') {

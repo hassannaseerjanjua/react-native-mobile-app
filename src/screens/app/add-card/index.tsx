@@ -247,13 +247,10 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
       <ConfirmationPopup
         visible={cardToDelete !== null}
         title={getString('P_DELETE_CARD')}
-        message={
-          cardToDelete?.CardNumber
-            ? `${getString('P_DELETE_CARD_MESSAGE')} "${
-                cardToDelete.CardNumber
-              }"?`
-            : getString('P_DELETE_CARD_MESSAGE')
-        }
+        message={getString('P_DELETE_CARD_MESSAGE').replace(
+          '{value}',
+          cardToDelete?.CardNumber || '',
+        )}
         confirmText={getString('P_DELETE_CARD_CONFIRM')}
         cancelText={getString('NG_CANCEL') || 'Cancel'}
         onConfirm={async () => {

@@ -184,14 +184,14 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
             <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
               <SkeletonLoader screenType="groupTabs" />
             </View>
-          ) : (
+          ) : FavStoreListing.data && FavStoreListing.data.length > 0 ? (
             <GroupTabs
               tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
               tabs={filterOptions}
               activeTab={selectedFilter}
               onTabPress={setSelectedFilter}
             />
-          )}
+          ) : null}
         </View>
 
         {FavStoreListing.loading && !isRefreshing ? (
@@ -228,7 +228,14 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
               </View>
             )}
             ListEmptyComponent={
-              <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
+              <View
+                style={{
+                  height:
+                    FavStoreListing.data && FavStoreListing.data.length > 0
+                      ? theme.sizes.HEIGHT * 0.55
+                      : theme.sizes.HEIGHT * 0.7,
+                }}
+              >
                 <PlaceholderLogoText
                   text={getString('EMPTY_NO_FAVORITES_FOUND')}
                 />

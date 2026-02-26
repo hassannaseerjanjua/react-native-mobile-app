@@ -614,11 +614,10 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         message={
           unfriendModal.isLinkedToGroup
             ? getString('SEARCH_USER_LINKED_TO_GROUPS_MESSAGE')
-            : unfriendModal.userName
-            ? `${getString('SEARCH_ARE_YOU_SURE_UNFRIEND')} ${
-                unfriendModal.userName
-              }?`
-            : getString('SEARCH_ARE_YOU_SURE_UNFRIEND')
+            : getString('SEARCH_ARE_YOU_SURE_UNFRIEND').replace(
+                '{value}',
+                unfriendModal.userName || '',
+              )
         }
         confirmText={getString('SEARCH_YES')}
         cancelText={getString('NG_CANCEL')}

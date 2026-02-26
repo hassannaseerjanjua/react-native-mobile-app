@@ -2095,13 +2095,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <ConfirmationPopup
         visible={!!itemToRemove}
         title={getString('CHECKOUT_REMOVE_ITEM')}
-        message={
-          itemToRemove?.ItemName
-            ? `${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${
-                itemToRemove.ItemName
-              }" ${getString('CHECKOUT_FROM_CART')}`
-            : getString('CHECKOUT_REMOVE_ITEM_CONFIRM')
-        }
+        message={getString('CHECKOUT_REMOVE_ITEM_CONFIRM').replace(
+          '{value}',
+          itemToRemove?.ItemName || '',
+        )}
         confirmText={getString('CHECKOUT_REMOVE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={() => handleRemoveItem()}

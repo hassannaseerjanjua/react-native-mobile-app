@@ -376,13 +376,10 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
       <ConfirmationPopup
         visible={showDeleteModal}
         title={getString('STG_DELETE_GROUP')}
-        message={
-          groupToDelete?.GroupName
-            ? `${getString('STG_DELETE_GROUP_CONFIRM')} "${
-                groupToDelete.GroupName
-              }"?`
-            : getString('STG_DELETE_GROUP_CONFIRM')
-        }
+        message={getString('STG_DELETE_GROUP_CONFIRM').replace(
+          '{value}',
+          groupToDelete?.GroupName || '',
+        )}
         confirmText={getString('STG_DELETE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={confirmDeleteGroup}

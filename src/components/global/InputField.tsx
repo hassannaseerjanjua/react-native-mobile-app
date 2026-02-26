@@ -40,6 +40,7 @@ const InputField = ({
       <View
         style={[
           isMultiline ? styles.textareaContainer : styles.container,
+          isPhone && styles.phoneFieldLtr,
           {
             borderWidth: error ? 1 : 0,
             borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
@@ -55,14 +56,17 @@ const InputField = ({
         ) : (
           icon
         )}
-        {isPhone && <Text style={styles.prefixText}>+966</Text>}
+        {isPhone && (
+          <Text style={styles.prefixText}>{isRtl ? '966+' : '+966'}</Text>
+        )}
         <TextInput
           {...fieldProps}
           style={[
             isMultiline ? styles.textarea : styles.input,
             {
               paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
-              textAlign: rtlTextAlign(isRtl),
+              textAlign: isPhone ? 'left' : rtlTextAlign(isRtl),
+              writingDirection: isPhone ? 'ltr' : undefined,
             },
             fieldProps.style,
           ]}
@@ -78,7 +82,9 @@ const InputField = ({
             width={scaleWithMax(15, 18)}
             height={scaleWithMax(15, 18)}
           />
-          <Text style={styles.galleryUploadText}>{getString('COMP_UPLOAD')}</Text>
+          <Text style={styles.galleryUploadText}>
+            {getString('COMP_UPLOAD')}
+          </Text>
         </View>
       )}
       {!!error && (
@@ -114,6 +120,9 @@ const useStyles = () => {
         alignItems: 'center',
         backgroundColor: colors.WHITE,
         ...globalStyles.SHADOW_STYLE_INPUT,
+      },
+      phoneFieldLtr: {
+        direction: 'ltr',
       },
       textareaContainer: {
         width: '100%',

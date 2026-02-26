@@ -16,7 +16,7 @@ import api from '../../../utils/api.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
 import {
   normalizeArabicDigits,
-  normalizePhoneNumber,
+  formatPhoneWithCountryCode,
 } from '../../../utils/normalizeDigits';
 import { LoginApiResponse } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -181,7 +181,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
       const response = await api.post<LoginApiResponse>(endpoint, {
         OTP: normalizedOtp,
         Email: email,
-        PhoneNo: normalizePhoneNumber(phone ?? ''),
+        PhoneNo: formatPhoneWithCountryCode(phone ?? ''),
       });
       if (response.success && response.data?.Data?.User) {
         dispatch(
@@ -225,7 +225,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
         FullName: fullName,
         UserName: username,
         CityId: city,
-        Phone: normalizePhoneNumber(phone ?? ''),
+        Phone: formatPhoneWithCountryCode(phone ?? ''),
         Email: email,
       });
     } catch (err) {
@@ -277,6 +277,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                 keyboardType="number-pad"
                 maxLength={1}
                 textAlign="center"
+                writingDirection="ltr"
                 selectTextOnFocus
                 autoFocus={index === 0}
               />
