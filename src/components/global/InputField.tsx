@@ -1,15 +1,9 @@
-import {
-  StyleSheet,
-  TextInput,
-  TextInputProps,
-  View,
-  I18nManager,
-} from 'react-native';
+import { StyleSheet, TextInputProps, View, Platform } from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
 import { scaleWithMax, rtlTextAlign, rtlPadding } from '../../utils';
 import { SvgGalleryUploadIcon, SvgPhone } from '../../assets/icons';
-import { Text } from '../../utils/elements';
+import { Text, TextInput } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 
 type Props = {
@@ -109,7 +103,7 @@ const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes, globalStyles } = theme;
+    const { colors, sizes, globalStyles, fonts } = theme;
     return StyleSheet.create({
       container: {
         ...globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
@@ -137,14 +131,17 @@ const useStyles = () => {
       },
       input: {
         ...globalStyles.TEXT_STYLE,
+        fontFamily: fonts.regular,
         flex: 1,
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         paddingVertical: 0,
         paddingHorizontal: 0,
+        ...(Platform.OS === 'android' ? { height: '100%' } : {}),
       },
       textarea: {
         ...globalStyles.TEXT_STYLE,
+        fontFamily: fonts.regular,
         flex: 1,
         minHeight: scaleWithMax(100, 120),
         fontSize: 16,
@@ -177,6 +174,7 @@ const useStyles = () => {
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         marginStart: 8,
+        ...(Platform.OS === 'ios' ? { marginTop: -2.5 } : {}),
       },
       galleryUploadContainer: {
         position: 'absolute',

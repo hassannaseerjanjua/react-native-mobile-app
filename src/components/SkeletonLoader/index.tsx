@@ -835,7 +835,11 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
       case 'settings':
         return (
           <SkeletonPlaceholder>
-            <SkeletonPlaceholder.Item>
+            <SkeletonPlaceholder.Item
+              // paddingHorizontal={theme.sizes.PADDING}
+              paddingTop={screenHeight * 0.0}
+              paddingBottom={screenHeight * 0.02}
+            >
               {/* Language Selection Title */}
               <SkeletonPlaceholder.Item
                 width={screenWidth * 0.35}
@@ -853,6 +857,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                     flexDirection="row"
                     alignItems="center"
                     marginBottom={screenHeight * 0.012}
+                    paddingHorizontal={screenWidth * 0.02}
                   >
                     {/* Radio Button */}
                     <SkeletonPlaceholder.Item

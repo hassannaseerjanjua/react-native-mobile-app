@@ -322,7 +322,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             <FlatList
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
-                paddingBottom: theme.sizes.HEIGHT * 0.16,
+                paddingBottom: theme.sizes.HEIGHT * 0.2,
                 paddingHorizontal: theme.sizes.PADDING,
               }}
               refreshControl={

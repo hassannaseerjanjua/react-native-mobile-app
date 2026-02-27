@@ -2,6 +2,8 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import RNRestart from 'react-native-restart';
+import { I18nManager } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const resourceKeys: Record<string, string> =
   require('../../resource_keys.json') as Record<string, string>;
@@ -59,11 +61,17 @@ export const useLanguageShifter = () => {
 
   const shiftLanguage = (langCode: 'en' | 'ar') => {
     const newLangId = langCode === 'en' ? 1 : 2;
+    const shouldBeRtl = langCode === 'ar';
+    I18nManager.allowRTL(shouldBeRtl);
+    I18nManager.forceRTL(shouldBeRtl);
+    AsyncStorage.setItem('rtl_forced_lang_id', String(newLangId)).catch(() => {
+      // ignore storage errors
+    });
     dispatch(
       setLocale({
         langId: newLangId,
         langCode: langCode,
-        isRtl: langCode === 'ar',
+        isRtl: shouldBeRtl,
       }),
     );
 

@@ -2,7 +2,7 @@ import {
   NavigationContainer,
   NavigationContainerRef,
 } from '@react-navigation/native';
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import RootNavigator from './src/navigators/stack.navigator';
 import BootSplash from 'react-native-bootsplash';
 import { Provider } from 'react-redux';
@@ -26,17 +26,36 @@ export const navigationRef =
   React.createRef<NavigationContainerRef<AppStackParamList>>();
 
 const App = () => {
+  const [isLocaleReady, setIsLocaleReady] = useState(false);
+  const [isNavigationReady, setIsNavigationReady] = useState(false);
+  const [isRootLayoutReady, setIsRootLayoutReady] = useState(false);
+
+  useEffect(() => {
+    if (isLocaleReady && isNavigationReady && isRootLayoutReady) {
+      // Delay one frame so first screen is rendered before fading splash
+      requestAnimationFrame(() => {
+        setTimeout(() => BootSplash.hide({ fade: true }), 80);
+      });
+    }
+  }, [isLocaleReady, isNavigationReady, isRootLayoutReady]);
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
-          <DataWrapper>
+          <DataWrapper onLocaleReady={() => setIsLocaleReady(true)}>
             <NavigationContainer
               ref={navigationRef}
               linking={linking}
+              onReady={() => setIsNavigationReady(true)}
               fallback={<Text>Loading... Please wait...</Text>}
             >
-              <RootNavigator />
+              <View
+                style={{ flex: 1 }}
+                onLayout={() => setIsRootLayoutReady(true)}
+              >
+                <RootNavigator />
+              </View>
             </NavigationContainer>
             <Toast />
           </DataWrapper>
@@ -50,11 +69,19 @@ export default App;
 
 interface DataWrapperProps {
   children: React.ReactNode;
+  onLocaleReady: () => void;
 }
 
-const DataWrapper = ({ children }: { children: React.ReactNode }) => {
+const DataWrapper = ({
+  children,
+  onLocaleReady,
+}: {
+  children: React.ReactNode;
+  onLocaleReady: () => void;
+}) => {
   const { loading, error, doKeysExist } = useFetchLocale();
   const { strings, isRtl } = useLocaleStore();
+  const [didSignalLocaleReady, setDidSignalLocaleReady] = useState(false);
 
   useNotification();
   useDeepLinkHandler();
@@ -64,11 +91,13 @@ const DataWrapper = ({ children }: { children: React.ReactNode }) => {
   }
 
   useEffect(() => {
+    if (didSignalLocaleReady) return;
     if (loading) return;
     if (Object.keys(strings || {}).length > 0) {
-      BootSplash.hide({ fade: true });
+      setDidSignalLocaleReady(true);
+      onLocaleReady();
     }
-  }, [loading, strings]);
+  }, [didSignalLocaleReady, loading, strings, onLocaleReady]);
 
   if (!!error && !doKeysExist) {
     return (

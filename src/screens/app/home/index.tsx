@@ -125,7 +125,6 @@ const HomeScreen: React.FC = () => {
               ellipsizeMode="tail"
             >
               {getString('HOME_WELCOME')}
-              {isRtl ? '، ' : ', '}
               <Text style={styles.userName}>{user?.FullNameEn}</Text>
             </Text>
             <View style={styles.heroImage}>
@@ -158,6 +157,7 @@ const HomeScreenTabsContainer: React.FC = () => {
 
   const isProMax = theme.sizes.WIDTH >= 430 && isIOS;
   const isLargeAndroid = isAndroid && theme.sizes.HEIGHT > 800;
+  const androidHeightBoost = isAndroid ? scaleWithMax(8, 12) : 0;
 
   const formatDescription = (text: string) => text.replace(/\.\s+/, '.\n');
 
@@ -251,8 +251,8 @@ const HomeScreenTabsContainer: React.FC = () => {
             minHeight: isProMax
               ? scaleWithMax(95, 110)
               : isLargeAndroid
-              ? scaleWithMax(88, 93)
-              : scaleWithMax(95, 95),
+              ? scaleWithMax(88, 93) + androidHeightBoost
+              : scaleWithMax(95, 95) + androidHeightBoost,
           }}
         />
       </View>
@@ -269,8 +269,8 @@ const HomeScreenTabsContainer: React.FC = () => {
               minHeight: isProMax
                 ? scaleWithMax(85, 100)
                 : isLargeAndroid
-                ? scaleWithMax(78, 83)
-                : scaleWithMax(85, 85),
+                ? scaleWithMax(78, 83) + androidHeightBoost
+                : scaleWithMax(85, 85) + androidHeightBoost,
             }}
           />
         ))}
@@ -289,7 +289,9 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              minHeight: isProMax ? scaleWithMax(75, 90) : scaleWithMax(78, 80),
+              minHeight: isProMax
+                ? scaleWithMax(75, 90)
+                : scaleWithMax(78, 80) + androidHeightBoost,
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 0.08,

@@ -1,11 +1,18 @@
 import { StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
-import { isIOS, isIOSThen, scaleWithMax } from '../../../utils';
+import {
+  isAndroid,
+  isIOS,
+  isIOSThen,
+  isRTL,
+  scaleWithMax,
+} from '../../../utils';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const useStyles = () => {
   const theme = useTheme();
-
+  const { isRtl } = useLocaleStore();
   const styles = useMemo(() => {
     const { colors, sizes, fonts } = theme;
 
@@ -41,7 +48,8 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
         paddingHorizontal: sizes.PADDING,
-        paddingBottom: scaleWithMax(10, 10),
+        paddingBottom: isAndroid ? scaleWithMax(5, 6) : scaleWithMax(8, 8),
+        // marginStart: scaleWithMax(1, 1),
       },
       userName: {
         fontFamily: fonts.bold,
@@ -56,14 +64,18 @@ const useStyles = () => {
         color: colors.PRIMARY_TEXT,
         // marginVertical: isIOSThen(scaleWithMax(8, 9), scaleWithMax(5, 7)),
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: scaleWithMax(10, 11),
+        includeFontPadding: isRtl ? true : false,
+        paddingVertical: isAndroid ? scaleWithMax(8, 10) : scaleWithMax(10, 11),
+        // marginStart: scaleWithMax(2, 2),
       },
 
       innerSectionTitle: {
         fontFamily: fonts.bold,
         fontSize: sizes.FONTSIZE_HIGH,
+        includeFontPadding: isRtl ? true : false,
         color: colors.PRIMARY_TEXT,
-        paddingVertical: scaleWithMax(10, 11),
+        paddingVertical: isAndroid ? scaleWithMax(8, 10) : scaleWithMax(10, 11),
+        // marginStart: scaleWithMax(2, 2),
       },
       optionsWrapper: {
         flexDirection: 'row',

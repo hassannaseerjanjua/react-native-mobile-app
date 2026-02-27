@@ -111,7 +111,7 @@ const SettingsScreen: React.FC = () => {
     username: user?.UserName || '',
     CityId: user?.CityId || '',
     email: user?.Email || '',
-    phoneNumber: user?.PhoneNo || '',
+    phoneNumber: user?.PhoneNo.replace('+966', '') || '',
     Dob: user?.DateOfBirth || '',
     GenderId: user?.GenderId || '',
   };
@@ -220,6 +220,9 @@ const SettingsScreen: React.FC = () => {
                   key={language}
                   style={styles.languageOption}
                   onPress={async () => {
+                    if (selectedLanguage === language) {
+                      return;
+                    }
                     setSelectedLanguage(language as 'English' | 'Arabic');
                     setShimmerLoading(true);
                     const newLangId = language === 'English' ? 1 : 2;

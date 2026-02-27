@@ -1,7 +1,6 @@
 import React, { useRef, useEffect, useState, useMemo } from 'react';
 import {
   View,
-  Text,
   FlatList,
   TouchableOpacity,
   StyleSheet,
@@ -17,6 +16,7 @@ import { LinearGradient } from 'react-native-linear-gradient';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
+import { Text } from '../../utils/elements';
 
 interface CityPickerOption {
   label: string;

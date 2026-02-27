@@ -20,7 +20,7 @@ const useStyles = () => {
       },
       scrollContent: {
         paddingHorizontal: sizes.PADDING,
-        paddingBottom: sizes.HEIGHT * 0.032,
+        paddingBottom: sizes.HEIGHT * 0.05,
       },
       profileSection: {
         flexDirection: 'row',
