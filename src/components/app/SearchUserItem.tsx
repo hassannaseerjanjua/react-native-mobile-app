@@ -59,6 +59,15 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   const isAdded = currentStatus === 1;
   const isLoading = loadingUsers[item.UserId] || false;
   const dummyImage = require('../../assets/images/user.png');
+  const profileUrlRaw =
+    typeof item?.ProfileUrl === 'string' ? item.ProfileUrl.trim() : '';
+  const isInvalidProfileUrl =
+    !profileUrlRaw ||
+    profileUrlRaw.toLowerCase() === 'null' ||
+    profileUrlRaw.toLowerCase() === 'undefined';
+  const profileSource = !isInvalidProfileUrl
+    ? { uri: profileUrlRaw }
+    : dummyImage;
 
   const isTempAdded = tempAddedUserIds?.has(item.UserId) || false;
   const shouldShowButton = isGeneralSearchScreen
@@ -74,7 +83,8 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
       <View style={styles.userInfo}>
         <View style={styles.avatarWrapper}>
           <Image
-            source={item?.ProfileUrl ? { uri: item.ProfileUrl } : dummyImage}
+            source={profileSource}
+            placeholderSource={dummyImage}
             style={styles.avatar}
           />
         </View>

@@ -162,6 +162,7 @@ export const Image = ({
   const resizeMode =
     styleResizeMode ?? (objectFit ? objectFit : undefined) ?? 'cover';
 
+  const isLocalSource = typeof source === 'number';
   const sourceKey = Array.isArray(source)
     ? source.map(item => (item as any)?.uri || '').join('|')
     : typeof source === 'number'
@@ -169,9 +170,14 @@ export const Image = ({
     : (source as any)?.uri || '';
 
   useEffect(() => {
+    if (isLocalSource) {
+      setLoaded(true);
+      opacity.setValue(1);
+      return;
+    }
     setLoaded(false);
     opacity.setValue(0);
-  }, [sourceKey, opacity]);
+  }, [sourceKey, isLocalSource, opacity]);
 
   const handleLoad = (e: any) => {
     Animated.timing(opacity, {
@@ -184,10 +190,22 @@ export const Image = ({
   };
 
   const handleError = (e: any) => {
-    setLoaded(true);
-    opacity.setValue(1);
+    setLoaded(false);
+    opacity.setValue(0);
     onError?.(e);
   };
+
+  if (isLocalSource) {
+    return (
+      <RNImage
+        {...rest}
+        source={source}
+        resizeMode={resizeMode}
+        onError={handleError}
+        style={[style as any, { tintColor }]}
+      />
+    );
+  }
 
   return (
     <View
