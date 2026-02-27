@@ -663,9 +663,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       marginTop: scaleWithMax(2, 2),
                     }}
                   />
-                  <Text style={styles.discountedPrice}>
-                    {item.TotalAmount}
-                  </Text>
+                  <Text style={styles.discountedPrice}>{item.TotalAmount}</Text>
                 </View>
                 <View
                   style={[
@@ -1982,7 +1980,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       { flexDirection: rtlFlexDirection(isRtl) },
                     ]}
                   >
-                    <Text style={styles.TextMedium}>{'Ehsan'}</Text>
+                    <Text style={styles.TextMedium}>
+                      {getString('CHECKOUT_EHSAN')}
+                    </Text>
                     <PriceWithIcon Price={activeDomationAmount} />
                   </View>
                 )}

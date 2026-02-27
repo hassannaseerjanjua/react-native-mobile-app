@@ -45,10 +45,7 @@ const locale = createSlice({
       );
       state.localeData = { ...state.localeData, ...action.payload };
     },
-    setLocaleFetching(
-      state,
-      action: PayloadAction<{ isFetching: boolean }>,
-    ) {
+    setLocaleFetching(state, action: PayloadAction<{ isFetching: boolean }>) {
       state.localeData.isFetching = action.payload.isFetching;
     },
   },
@@ -575,4 +572,5 @@ type LocaleString =
   | 'S_DELETE_ACCOUNT_CONFIRM_MESSAGE'
   | 'S_ACCOUNT_DELETED_SUCCESSFULLY'
   | 'INBOX_GIFT_LINK_OUTBOX_MESSAGE'
-  | 'STATUS_CHECK';
+  | 'STATUS_CHECK'
+  | 'CHECKOUT_EHSAN';
