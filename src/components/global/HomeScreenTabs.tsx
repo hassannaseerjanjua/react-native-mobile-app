@@ -19,6 +19,7 @@ interface HomeScreenTabsProps {
   title: string;
   titlePrimary?: string;
   description: string;
+  shrinkDescription?: boolean;
   onPress?: () => void;
   style?: ViewStyle;
   iconStyles?: ViewStyle;
@@ -31,6 +32,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
   title,
   titlePrimary,
   description,
+  shrinkDescription = true,
   onPress,
   style,
   iconStyles,
@@ -136,9 +138,9 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           )}
         </Text>
         <Text
-          numberOfLines={2}
-          adjustsFontSizeToFit
-          minimumFontScale={0.9}
+          numberOfLines={shrinkDescription ? 2 : undefined}
+          adjustsFontSizeToFit={shrinkDescription}
+          minimumFontScale={shrinkDescription ? 0.9 : undefined}
           style={[cardStyles.description, descriptionStyles]}
         >
           {description}

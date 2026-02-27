@@ -33,7 +33,7 @@ const useStyles = () => {
       },
       contentContainer: {
         flex: 1,
-        gap: scaleWithMax(10, 12),
+        // gap: scaleWithMax(10, 12),
         paddingHorizontal: sizes.PADDING,
       },
       welcomeText: {
@@ -41,34 +41,35 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
         paddingHorizontal: sizes.PADDING,
+        paddingBottom: scaleWithMax(10, 10),
       },
       userName: {
         fontFamily: fonts.bold,
       },
       heroImage: {
         borderRadius: sizes.BORDER_RADIUS_MID,
-        height: sizes.HEIGHT * (sizes.HEIGHT > 850 ? 0.3 : 0.29),
+        height: sizes.HEIGHT * (isIOS ? 0.28 : 0.28),
       },
       sectionTitle: {
         fontFamily: fonts.bold,
-        fontSize:
-          sizes.WIDTH >= 430 && isIOS
-            ? sizes.FONTSIZE_HIGH * 0.95
-            : sizes.FONTSIZE_HIGH,
+        fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
-        marginVertical: isIOSThen(scaleWithMax(8, 9), scaleWithMax(5, 7)),
+        // marginVertical: isIOSThen(scaleWithMax(8, 9), scaleWithMax(5, 7)),
         paddingHorizontal: sizes.PADDING,
+        paddingVertical: scaleWithMax(10, 11),
       },
 
       innerSectionTitle: {
         fontFamily: fonts.bold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
+        paddingVertical: scaleWithMax(10, 11),
       },
       optionsWrapper: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         gap: scaleWithMax(10, 12),
+        // marginVertical: scaleWithMax(10, 12),
       },
     });
   }, [theme]);

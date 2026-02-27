@@ -159,13 +159,14 @@ const HomeScreenTabsContainer: React.FC = () => {
   const isProMax = theme.sizes.WIDTH >= 430 && isIOS;
   const isLargeAndroid = isAndroid && theme.sizes.HEIGHT > 800;
 
+  const formatDescription = (text: string) => text.replace(/\.\s+/, '.\n');
+
   const homeScreenTabs = [
     {
       id: 'gift-one-get-one',
       icon: <SvgHomeG1G1 />,
       title: getString('HOME_GIFT_ONE_GET_ONE'),
-
-      description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
+      description: formatDescription(getString('HOME_GIFT_ONE_GET_ONE_DESC')),
       iconStyles: {
         marginRight: scaleWithMax(18, 20),
       },
@@ -227,15 +228,23 @@ const HomeScreenTabsContainer: React.FC = () => {
 
   return (
     <View style={styles.contentContainer}>
-      <View style={styles.optionsWrapper}>
+      <View
+        style={[
+          styles.optionsWrapper,
+          {
+            marginBottom: scaleWithMax(10, 12),
+          },
+        ]}
+      >
         <HomeScreenTabs
           key={homeScreenTabs[0].id}
           icon={homeScreenTabs[0].icon}
           title={homeScreenTabs[0].title}
           description={homeScreenTabs[0].description}
-          descriptionStyles={{
-            maxWidth: '70%',
-          }}
+          shrinkDescription={false}
+          // descriptionStyles={{
+          //   maxWidth: '100%',
+          // }}
           onPress={homeScreenTabs[0].onPress}
           iconStyles={homeScreenTabs[0].iconStyles}
           style={{
@@ -247,7 +256,7 @@ const HomeScreenTabsContainer: React.FC = () => {
           }}
         />
       </View>
-      <View style={styles.optionsWrapper}>
+      <View style={[styles.optionsWrapper, {}]}>
         {homeScreenTabs.slice(1, 3).map(tab => (
           <HomeScreenTabs
             key={tab.id}
@@ -271,7 +280,7 @@ const HomeScreenTabsContainer: React.FC = () => {
         {getString('HOME_RECEIVED_AND_SENT_GIFTS')}
       </Text>
 
-      <View style={styles.optionsWrapper}>
+      <View style={[styles.optionsWrapper, {}]}>
         {homeScreenTabs.slice(3, 5).map(tab => (
           <HomeScreenTabs
             key={tab.id}
@@ -280,11 +289,7 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              minHeight: isProMax
-                ? scaleWithMax(75, 90)
-                : isLargeAndroid
-                ? scaleWithMax(73, 78)
-                : scaleWithMax(78, 80),
+              minHeight: isProMax ? scaleWithMax(75, 90) : scaleWithMax(78, 80),
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 0.08,

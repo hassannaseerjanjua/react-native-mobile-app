@@ -320,7 +320,8 @@ const useStyles = () => {
         alignSelf: 'flex-start',
       },
       title: {
-        fontFamily: fonts.bold,
+        // fontFamily: fonts.bold,
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
         fontSize: sizes.FONTSIZE_HEADING,
         // lineHeight: sizes.FONTSIZE_HEADING * 1.6,
         color: colors.PRIMARY_TEXT,
