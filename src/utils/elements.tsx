@@ -1,12 +1,16 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   Text as RNText,
   TextInput as RNTextInput,
+  Image as RNImage,
+  Animated,
   TextProps,
   TextInputProps,
+  ImageProps,
   I18nManager,
   Platform,
   StyleSheet,
+  View,
 } from 'react-native';
 import { useLocaleStore } from '../store/reducer/locale';
 import fonts from '../assets/fonts';
@@ -127,6 +131,86 @@ export const Text = (props: TextProps) => {
         androidAdjustments,
       ]}
     />
+  );
+};
+
+const placeholder = require('../assets/images/img-placeholder.png');
+
+interface AppImageProps extends ImageProps {
+  placeholderSource?: ImageProps['source'];
+}
+
+export const Image = ({
+  placeholderSource,
+  style,
+  source,
+  onLoad,
+  onError,
+  ...rest
+}: AppImageProps) => {
+  const [loaded, setLoaded] = useState(false);
+  const opacity = useRef(new Animated.Value(0)).current;
+
+  // Separate layout-safe styles (valid on View) from image-only styles
+  const flatStyle = (StyleSheet.flatten(style) || {}) as any;
+  const {
+    resizeMode: styleResizeMode,
+    objectFit,
+    tintColor,
+    ...viewStyle
+  } = flatStyle;
+  const resizeMode =
+    styleResizeMode ?? (objectFit ? objectFit : undefined) ?? 'cover';
+
+  const sourceKey = Array.isArray(source)
+    ? source.map(item => (item as any)?.uri || '').join('|')
+    : typeof source === 'number'
+    ? String(source)
+    : (source as any)?.uri || '';
+
+  useEffect(() => {
+    setLoaded(false);
+    opacity.setValue(0);
+  }, [sourceKey, opacity]);
+
+  const handleLoad = (e: any) => {
+    Animated.timing(opacity, {
+      toValue: 1,
+      duration: 250,
+      useNativeDriver: true,
+    }).start();
+    setLoaded(true);
+    onLoad?.(e);
+  };
+
+  const handleError = (e: any) => {
+    setLoaded(true);
+    opacity.setValue(1);
+    onError?.(e);
+  };
+
+  return (
+    <View
+      style={[
+        viewStyle,
+        { overflow: 'hidden', alignItems: 'center', justifyContent: 'center' },
+      ]}
+    >
+      {!loaded && (
+        <RNImage
+          source={placeholderSource ?? placeholder}
+          style={[{ width: '100%', height: '100%' }, { resizeMode }]}
+        />
+      )}
+      <Animated.Image
+        {...rest}
+        source={source}
+        resizeMode={resizeMode}
+        onLoad={handleLoad}
+        onError={handleError}
+        style={[StyleSheet.absoluteFill, { opacity, tintColor }]}
+      />
+    </View>
   );
 };
 

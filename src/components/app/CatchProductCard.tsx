@@ -2,11 +2,10 @@ import React from 'react';
 import {
   View,
   TouchableOpacity,
-  Image,
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import {

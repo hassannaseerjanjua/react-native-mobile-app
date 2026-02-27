@@ -3,14 +3,13 @@ import {
   View,
   StatusBar,
   ScrollView,
-  Image,
   FlatList,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
-import { Text } from '../../../utils/elements';
+import { Text, Image } from '../../../utils/elements';
 import HomeHeader from '../../../components/global/HomeHeader';
 import ParentView from '../../../components/app/ParentView';
 import SkeletonLoader from '../../../components/SkeletonLoader';

@@ -4,11 +4,11 @@ import {
   TouchableOpacity,
   StyleSheet,
   Pressable,
-  Image,
   StyleProp,
   ViewStyle,
   TextStyle,
 } from 'react-native';
+import { Image } from '../../utils/elements';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
 import {

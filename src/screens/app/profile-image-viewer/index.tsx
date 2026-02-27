@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Image,
   TouchableOpacity,
   ImageSourcePropType,
   StatusBar,
   ActivityIndicator,
 } from 'react-native';
+import { Image } from '../../../utils/elements';
 import { useNavigation } from '@react-navigation/native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { SvgPencilIcon, SvgDeleteIcon } from '../../../assets/icons';

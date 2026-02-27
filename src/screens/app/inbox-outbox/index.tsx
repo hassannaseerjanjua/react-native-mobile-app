@@ -1,6 +1,5 @@
 import {
   FlatList,
-  Image,
   ScrollView,
   RefreshControl,
   TouchableOpacity,
@@ -11,7 +10,7 @@ import {
   Platform,
   Linking,
 } from 'react-native';
-import { Text } from '../../../utils/elements';
+import { Text, Image } from '../../../utils/elements';
 import React, { useState, useRef, useEffect } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';

@@ -2,7 +2,6 @@ import React, { useMemo } from 'react';
 import {
   View,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   StyleSheet,
 } from 'react-native';
@@ -14,7 +13,7 @@ import {
 import { ActiveUser } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
 import useTheme from '../../styles/theme';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import { scaleWithMax } from '../../utils';
 
 interface SearchUserItemProps {

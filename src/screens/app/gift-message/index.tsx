@@ -1,5 +1,4 @@
 import {
-  Image,
   FlatList,
   StatusBar,
   View,
@@ -28,7 +27,7 @@ import {
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
 import InputField from '../../../components/global/InputField';
-import { Text } from '../../../utils/elements';
+import { Text, Image } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import {

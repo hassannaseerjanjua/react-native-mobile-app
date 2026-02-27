@@ -3,14 +3,13 @@ import {
   View,
   StyleProp,
   ViewStyle,
-  Image,
   TextStyle,
   TouchableOpacity,
 } from 'react-native';
 import React, { useMemo } from 'react';
 import { SvgGiftLink, SvgGifteeNotifyIcon } from '../../assets/icons';
 import useTheme from '../../styles/theme';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { I18nManager } from 'react-native';
 import { rtlFlexDirection, rtlTransform, scaleWithMax } from '../../utils';

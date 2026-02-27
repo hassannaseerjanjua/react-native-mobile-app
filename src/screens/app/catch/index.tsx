@@ -5,10 +5,10 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
   Modal,
   StyleSheet,
 } from 'react-native';
+import { Image } from '../../../utils/elements';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';

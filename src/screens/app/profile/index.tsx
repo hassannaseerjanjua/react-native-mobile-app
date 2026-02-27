@@ -3,7 +3,6 @@ import {
   View,
   StatusBar,
   ScrollView,
-  Image,
   TouchableOpacity,
   Platform,
   Share,
@@ -12,7 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
-import { Text } from '../../../utils/elements';
+import { Text, Image } from '../../../utils/elements';
 import TabItem from '../../../components/global/TabItem';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';

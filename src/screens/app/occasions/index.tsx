@@ -13,7 +13,7 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import TabItem from '../../../components/global/TabItem.tsx';
 import CustomButton from '../../../components/global/Custombutton.tsx';
-import { Image } from 'react-native';
+import { Image } from '../../../utils/elements';
 import {
   SvgAddOccasion,
   SvgCrownIcon,

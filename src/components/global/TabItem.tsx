@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   StyleProp,
   ViewStyle,
-  Image,
   TextStyle,
 } from 'react-native';
 import React, { useMemo } from 'react';
@@ -17,7 +16,7 @@ import {
   SvgVerifiedIcon,
 } from '../../assets/icons';
 import useTheme from '../../styles/theme';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import { isAndroid, scaleWithMax, rtlTransform } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Platform } from 'react-native';

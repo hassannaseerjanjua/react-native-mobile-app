@@ -10,7 +10,6 @@ import {
   Modal,
   Animated,
   ScrollView,
-  Image,
   FlatList,
   SectionList,
   TouchableOpacity,
@@ -24,6 +23,7 @@ import {
 import { launchImageLibrary } from 'react-native-image-picker';
 import BottomSheetHeader from '../app/BottomSheetHeader';
 import SearchUserItem from '../app/SearchUserItem';
+import { Image } from '../../utils/elements';
 import {
   SvgCrossIcon,
   SvgImageIcon,

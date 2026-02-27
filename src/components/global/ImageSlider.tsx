@@ -1,7 +1,6 @@
 import React, { useState, useRef, useMemo, useEffect } from 'react';
 import {
   View,
-  Image,
   FlatList,
   Dimensions,
   StyleSheet,
@@ -10,7 +9,7 @@ import {
 } from 'react-native';
 import { Slider } from '../../types';
 import useTheme from '../../styles/theme';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import { SvgPlaceholderImage } from '../../assets/icons';
 import { isIOS, isIOSThen } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';

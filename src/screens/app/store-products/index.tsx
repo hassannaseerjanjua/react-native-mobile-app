@@ -3,12 +3,12 @@ import {
   View,
   StatusBar,
   FlatList,
-  Image,
   Text,
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
+import { Image } from '../../../utils/elements';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
 import GroupTabs from '../../../components/global/GroupTabs.tsx';

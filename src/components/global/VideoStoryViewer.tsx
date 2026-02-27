@@ -11,7 +11,6 @@ import {
   View,
   StyleSheet,
   TouchableOpacity,
-  Image,
   StatusBar,
   Dimensions,
   ImageSourcePropType,
@@ -22,7 +21,7 @@ import {
   Platform,
 } from 'react-native';
 import Video, { OnProgressData, OnLoadData } from 'react-native-video';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import { SvgCrossIcon } from '../../assets/icons';
 import { scaleWithMax } from '../../utils';
 import { getCachedVideoPath } from '../../utils/videoCache';

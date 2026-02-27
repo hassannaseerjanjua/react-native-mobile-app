@@ -1,5 +1,4 @@
 import {
-  Image,
   Platform,
   ScrollView,
   Share,
@@ -13,6 +12,7 @@ import {
 } from 'react-native';
 import WebView from 'react-native-webview';
 import React, { useState, useEffect, useMemo } from 'react';
+import { Image } from '../../../utils/elements';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
