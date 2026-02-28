@@ -22,7 +22,6 @@ import {
   SvgGalleryIcon,
   SvgGalleryUploadIcon,
   SvgAddGiftMessageIcon,
-  SvgProfileCrossIcon,
 } from '../../../assets/icons';
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
@@ -60,7 +59,7 @@ import ConfirmationModal from '../../../components/global/ConfirmationModal';
 import { useVisionCamera } from '../../../hooks/useCamera';
 import { Camera } from 'react-native-vision-camera';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import {
   saveGiftMessageData,
   loadGiftMessageData,
@@ -71,6 +70,15 @@ import { useAuthStore } from '../../../store/reducer/auth';
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const MAX_VIDEO_DURATION = 15;
+
+const CloseIcon = ({ size = 16 }: { size?: number }) => (
+  <Svg width={size} height={size} viewBox="0 0 9 9" fill="none">
+    <Path
+      d="M1.70005 7.99976L1.00005 7.29976L3.80005 4.49976L1.00005 1.69976L1.70005 0.999756L4.50005 3.79976L7.30005 0.999756L8.00005 1.69976L5.20005 4.49976L8.00005 7.29976L7.30005 7.99976L4.50005 5.19976L1.70005 7.99976Z"
+      fill="white"
+    />
+  </Svg>
+);
 
 const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   route,
@@ -705,11 +713,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   activeOpacity={0.7}
                 >
                   <View style={styles.crossBackground}>
-                    <Image
-                      source={require('../../../assets/close.png')}
-                      style={styles.closeButtonIcon}
-                      resizeMode="contain"
-                    />
+                    <CloseIcon size={18} />
                   </View>
                 </TouchableOpacity>
               )}

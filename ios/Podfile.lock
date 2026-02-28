@@ -1895,6 +1895,8 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
+  - react-native-create-thumbnail (2.2.0):
+    - React-Core
   - react-native-date-picker (5.0.13):
     - boost
     - DoubleConversion
@@ -3258,6 +3260,7 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-compressor (from `../node_modules/react-native-compressor`)
   - react-native-contacts (from `../node_modules/react-native-contacts`)
+  - react-native-create-thumbnail (from `../node_modules/react-native-create-thumbnail`)
   - react-native-date-picker (from `../node_modules/react-native-date-picker`)
   - react-native-image-picker (from `../node_modules/react-native-image-picker`)
   - "react-native-payments (from `../node_modules/@rnw-community/react-native-payments`)"
@@ -3419,6 +3422,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-compressor"
   react-native-contacts:
     :path: "../node_modules/react-native-contacts"
+  react-native-create-thumbnail:
+    :path: "../node_modules/react-native-create-thumbnail"
   react-native-date-picker:
     :path: "../node_modules/react-native-date-picker"
   react-native-image-picker:
@@ -3582,6 +3587,7 @@ SPEC CHECKSUMS:
   react-native-blur: 981b2ec64b3084ecf98812333f2a8c6e83643a1e
   react-native-compressor: c807ec2a27ef5577dd5192fd2ad789126f63d21d
   react-native-contacts: 7c2462f65a7a07941343bf38a50d02f1f11c32b8
+  react-native-create-thumbnail: 4f175cf70f560b293694ea7260efe0a31683dbd1
   react-native-date-picker: d1d607499ff9f2e1231f902b4bda70595d71253e
   react-native-image-picker: b99d9c1f2ddbef491eb49e1103e5c2ce78b9ab37
   react-native-payments: c7f2b44769c1c31f80a9884b3ae024c17514b8a1

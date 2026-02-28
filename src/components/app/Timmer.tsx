@@ -1,36 +1,40 @@
-import React, { useEffect, useMemo } from 'react';
-import { View, StyleSheet, Dimensions } from 'react-native';
-import Svg, { Line } from 'react-native-svg';
+import React, { useEffect, useMemo, useRef } from 'react';
+import {
+  View,
+  StyleSheet,
+  Dimensions,
+  Image as RNImage,
+} from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
-  useAnimatedProps,
   runOnJS,
 } from 'react-native-reanimated';
-import { scaleWithMax } from '../../utils';
 import useTheme from '../../styles/theme';
 
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
-const EDGE_SAFE_PADDING = 32; // avoids back gesture
-const TRACK_PADDING = 20;
-const TRACK_WIDTH = SCREEN_WIDTH - (TRACK_PADDING + EDGE_SAFE_PADDING) * 2;
+const HORIZONTAL_INSET = 16;
+const HANDLE_WIDTH = 16;
+const BORDER_WIDTH = 3;
+const TRACK_HEIGHT = 60;
+const TRACK_WIDTH = SCREEN_WIDTH - HORIZONTAL_INSET * 2;
+const PLAYHEAD_WIDTH = 3;
+const GRIP_LINE_COUNT = 3;
+const GRIP_LINE_HEIGHT = 14;
+const GRIP_LINE_WIDTH = 2;
+const GRIP_LINE_GAP = 2;
+const MIN_HANDLE_DISTANCE = 4;
 
-const KNOB_SIZE = 16;
-const TOUCH_SLOP = 2;
-
-const TRACK_HEIGHT = scaleWithMax(4, 6);
-
-const AnimatedLine = Animated.createAnimatedComponent(Line);
-
-const MAX_TRIM_DURATION = 15; // Maximum trim duration in seconds
+const MAX_TRIM_DURATION = 15;
 
 interface TrimmerProps {
   totalDuration: number;
   trimStart: number;
   trimEnd: number;
   onTrimChange: (start: number, end: number) => void;
+  thumbnails: string[];
 }
 
 export default function useTrimmer({
@@ -38,139 +42,188 @@ export default function useTrimmer({
   trimStart,
   trimEnd,
   onTrimChange,
+  thumbnails,
 }: TrimmerProps) {
   const { styles, theme } = useStyles();
 
   const leftX = useSharedValue(0);
-  const middleX = useSharedValue(0);
   const rightX = useSharedValue(TRACK_WIDTH);
+  const playheadX = useSharedValue(0);
 
   const activeKnob = useSharedValue<'left' | 'right' | null>(null);
-  const lastTranslation = useSharedValue(0);
+  const startLeftX = useSharedValue(0);
+  const startRightX = useSharedValue(0);
 
-  // Initialize knob positions based on trim values
+  const initialized = useRef(false);
+
+  // Only set positions on first load — after that shared values are the source of truth
   useEffect(() => {
+    if (initialized.current) return;
     if (totalDuration > 0) {
+      initialized.current = true;
       leftX.value = (trimStart / totalDuration) * TRACK_WIDTH;
-      // Ensure right knob respects 15-second max
       const maxEnd = Math.min(trimEnd, trimStart + MAX_TRIM_DURATION);
       rightX.value = (maxEnd / totalDuration) * TRACK_WIDTH;
     }
-  }, [trimStart, trimEnd, totalDuration]);
-  // ------------------ GESTURE ------------------
+  }, [totalDuration]);
+
   const pan = Gesture.Pan()
-    .activeOffsetX([-5, 5]) // ignore tiny accidental drags
-    .onBegin(e => {
-      lastTranslation.value = 0;
-      const x = e.x;
-      const dl = Math.abs(x - leftX.value);
-      const dr = Math.abs(x - rightX.value);
-      activeKnob.value = dl < dr ? 'left' : 'right';
+    .minDistance(1)
+    .onStart(e => {
+      // Capture anchor positions when gesture actually activates
+      startLeftX.value = leftX.value;
+      startRightX.value = rightX.value;
+
+      const touchX = e.x;
+      const dl = Math.abs(touchX - leftX.value);
+      const dr = Math.abs(touchX - rightX.value);
+      activeKnob.value = dl <= dr ? 'left' : 'right';
     })
     .onUpdate(e => {
-      const delta = e.translationX - lastTranslation.value;
-      lastTranslation.value = e.translationX;
-
-      if (Math.abs(delta) < TOUCH_SLOP) return;
+      const tx = e.translationX;
 
       if (activeKnob.value === 'left') {
-        let x = leftX.value + delta;
+        let x = startLeftX.value + tx;
         if (x < 0) x = 0;
-        if (x > rightX.value - KNOB_SIZE) x = rightX.value - KNOB_SIZE;
-
-        // Enforce 15-second maximum trim duration
-        const minLeftX = rightX.value - (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH;
-        if (x < minLeftX) x = minLeftX;
-
+        const maxX = rightX.value - MIN_HANDLE_DISTANCE;
+        if (x > maxX) x = maxX;
+        if (totalDuration > 0) {
+          const minLeftX = Math.max(
+            0,
+            rightX.value -
+              (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH,
+          );
+          if (x < minLeftX) x = minLeftX;
+        }
         leftX.value = x;
       }
 
       if (activeKnob.value === 'right') {
-        let x = rightX.value + delta;
-        if (x < leftX.value + KNOB_SIZE) x = leftX.value + KNOB_SIZE;
+        let x = startRightX.value + tx;
+        const minX = leftX.value + MIN_HANDLE_DISTANCE;
+        if (x < minX) x = minX;
         if (x > TRACK_WIDTH) x = TRACK_WIDTH;
-
-        // Enforce 15-second maximum trim duration
-        const maxRightX = leftX.value + (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH;
-        if (x > maxRightX) x = maxRightX;
-
+        if (totalDuration > 0) {
+          const maxRightX = Math.min(
+            TRACK_WIDTH,
+            leftX.value +
+              (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH,
+          );
+          if (x > maxRightX) x = maxRightX;
+        }
         rightX.value = x;
       }
     })
     .onEnd(() => {
       activeKnob.value = null;
-
-      // Call JS safely on drag end
-      ('worklet');
-      const start = (leftX.value / TRACK_WIDTH) * totalDuration;
-      const end = (rightX.value / TRACK_WIDTH) * totalDuration;
-      runOnJS(onTrimChange)(start, end);
+      if (totalDuration > 0) {
+        const start = (leftX.value / TRACK_WIDTH) * totalDuration;
+        const end = (rightX.value / TRACK_WIDTH) * totalDuration;
+        runOnJS(onTrimChange)(start, end);
+      }
     });
 
-  // ------------------ ANIMATED STYLES ------------------
-  const leftStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: leftX.value - KNOB_SIZE / 2 }],
+  const leftDimStyle = useAnimatedStyle(() => ({
+    width: leftX.value,
+  }));
+  const rightDimStyle = useAnimatedStyle(() => ({
+    width: TRACK_WIDTH - rightX.value,
+  }));
+  const topBorderStyle = useAnimatedStyle(() => ({
+    left: leftX.value,
+    width: rightX.value - leftX.value,
+  }));
+  const bottomBorderStyle = useAnimatedStyle(() => ({
+    left: leftX.value,
+    width: rightX.value - leftX.value,
+  }));
+  const leftHandleStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: leftX.value - HANDLE_WIDTH }],
+  }));
+  const rightHandleStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: rightX.value }],
+  }));
+  const playheadAnimStyle = useAnimatedStyle(() => ({
+    transform: [{ translateX: playheadX.value - PLAYHEAD_WIDTH / 2 }],
   }));
 
-  const rightStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: rightX.value - KNOB_SIZE / 2 }],
-  }));
+  const frameCount = thumbnails.length;
+  const frameWidth = frameCount > 0 ? TRACK_WIDTH / frameCount : 0;
 
-  const middleStyle = useAnimatedStyle(() => ({
-    transform: [{ translateX: middleX.value - KNOB_SIZE / 2 }],
-  }));
-
-  const lineProps = useAnimatedProps(() => ({
-    x1: leftX.value,
-    x2: rightX.value,
-  }));
-
-  // ------------------ RENDER ------------------
   return {
     TrimmerUIComponent: () => {
       return (
         <View style={styles.root}>
           <GestureDetector gesture={pan}>
-            <View style={styles.track}>
-              <View>
-                <Svg width={TRACK_WIDTH} height={TRACK_HEIGHT}>
-                  {/* Background track */}
-                  <Line
-                    x1={0}
-                    y1={TRACK_HEIGHT / 2}
-                    x2={TRACK_WIDTH}
-                    y2={TRACK_HEIGHT / 2}
-                    stroke="#000"
-                    strokeLinecap="round"
-                    strokeWidth={TRACK_HEIGHT}
-                  // opacity={0.5}
-                  //   strokeLinecap="round"
-                  />
-                  {/* Active range */}
-                  <AnimatedLine
-                    animatedProps={lineProps}
-                    y1={TRACK_HEIGHT / 2}
-                    y2={TRACK_HEIGHT / 2}
-                    stroke={theme.colors.PRIMARY}
-                    strokeWidth={TRACK_HEIGHT}
-                    strokeLinecap="round"
-                  // opacity={0.5}
-                  />
-                </Svg>
+            <View style={styles.outerTrack}>
+              <View style={styles.filmstripClip}>
+                {frameCount > 0 ? (
+                  <View style={styles.filmstrip}>
+                    {thumbnails.map((uri, i) => (
+                      <RNImage
+                        key={i}
+                        source={{ uri }}
+                        style={{ width: frameWidth, height: TRACK_HEIGHT }}
+                        resizeMode="cover"
+                      />
+                    ))}
+                  </View>
+                ) : (
+                  <View style={styles.filmstripPlaceholder}>
+                    {Array.from({ length: 8 }).map((_, i) => (
+                      <View key={i} style={styles.skeletonBar} />
+                    ))}
+                  </View>
+                )}
+
+                <Animated.View
+                  style={[styles.dimOverlay, styles.dimLeft, leftDimStyle]}
+                />
+                <Animated.View
+                  style={[styles.dimOverlay, styles.dimRight, rightDimStyle]}
+                />
               </View>
 
-              {/* Left & Right Knobs */}
-              <Animated.View style={[styles.knob, leftStyle]} />
-              <Animated.View style={[styles.knobCurrent, middleStyle]} />
-              <Animated.View style={[styles.knob, rightStyle]} />
+              <Animated.View
+                style={[styles.selectionBorder, styles.selectionBorderTop, topBorderStyle]}
+              />
+              <Animated.View
+                style={[styles.selectionBorder, styles.selectionBorderBottom, bottomBorderStyle]}
+              />
+
+              <Animated.View style={[styles.playhead, playheadAnimStyle]} />
+
+              <Animated.View
+                style={[styles.handle, styles.handleLeft, leftHandleStyle]}
+              >
+                <View style={styles.gripContainer}>
+                  {Array.from({ length: GRIP_LINE_COUNT }).map((_, i) => (
+                    <View key={i} style={styles.gripLine} />
+                  ))}
+                </View>
+              </Animated.View>
+
+              <Animated.View
+                style={[styles.handle, styles.handleRight, rightHandleStyle]}
+              >
+                <View style={styles.gripContainer}>
+                  {Array.from({ length: GRIP_LINE_COUNT }).map((_, i) => (
+                    <View key={i} style={styles.gripLine} />
+                  ))}
+                </View>
+              </Animated.View>
             </View>
           </GestureDetector>
         </View>
       );
     },
     onCurrentPositionChange: (position: number) => {
-      middleX.value = (position / totalDuration) * TRACK_WIDTH;
+      if (totalDuration > 0) {
+        playheadX.value = (position / totalDuration) * TRACK_WIDTH;
+      }
     },
+    TRACK_WIDTH,
+    TRACK_HEIGHT,
   };
 }
 
@@ -179,38 +232,116 @@ const useStyles = () => {
   const styles = useMemo(() => {
     return StyleSheet.create({
       root: {
-        paddingHorizontal: TRACK_PADDING + EDGE_SAFE_PADDING,
+        paddingHorizontal: HORIZONTAL_INSET,
       },
-      track: {
+      outerTrack: {
         width: TRACK_WIDTH,
-
-        justifyContent: 'center',
-        height: '100%',
+        height: TRACK_HEIGHT,
+        position: 'relative',
       },
-      knob: {
+      filmstripClip: {
         position: 'absolute',
-        width: KNOB_SIZE,
-        height: KNOB_SIZE,
-        borderRadius: KNOB_SIZE / 2,
-        backgroundColor: '#fff',
-        borderWidth: 2,
-        borderColor: theme.colors.PRIMARY,
+        top: 0,
+        left: 0,
+        width: TRACK_WIDTH,
+        height: TRACK_HEIGHT,
+        borderRadius: 6,
+        overflow: 'hidden',
+      },
+      filmstrip: {
+        flexDirection: 'row',
+        width: TRACK_WIDTH,
+        height: TRACK_HEIGHT,
+      },
+      filmstripPlaceholder: {
+        width: TRACK_WIDTH,
+        height: TRACK_HEIGHT,
+        backgroundColor: '#2a2a2a',
+        flexDirection: 'row',
+        alignItems: 'center',
+        overflow: 'hidden',
+      },
+      skeletonBar: {
+        flex: 1,
+        height: TRACK_HEIGHT,
+        backgroundColor: '#383838',
+        marginHorizontal: 1,
+        borderRadius: 2,
+      },
+      dimOverlay: {
+        position: 'absolute',
+        top: 0,
+        height: TRACK_HEIGHT,
+        backgroundColor: 'rgba(0,0,0,0.5)',
+      },
+      dimLeft: {
+        left: 0,
+      },
+      dimRight: {
+        right: 0,
+      },
+      selectionBorder: {
+        position: 'absolute',
+        height: BORDER_WIDTH,
+        backgroundColor: theme.colors.WHITE,
+        zIndex: 4,
+      },
+      selectionBorderTop: {
+        top: 0,
+      },
+      selectionBorderBottom: {
+        bottom: 0,
+      },
+      handle: {
+        position: 'absolute',
+        top: 0,
+        width: HANDLE_WIDTH,
+        height: TRACK_HEIGHT,
+        backgroundColor: theme.colors.WHITE,
         justifyContent: 'center',
         alignItems: 'center',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.35,
+        shadowRadius: 3,
+        elevation: 5,
+        zIndex: 10,
       },
-      knobCurrent: {
+      handleLeft: {
+        borderTopLeftRadius: 5,
+        borderBottomLeftRadius: 5,
+      },
+      handleRight: {
+        borderTopRightRadius: 5,
+        borderBottomRightRadius: 5,
+      },
+      gripContainer: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: GRIP_LINE_GAP,
+      },
+      gripLine: {
+        width: GRIP_LINE_WIDTH,
+        height: GRIP_LINE_HEIGHT,
+        borderRadius: GRIP_LINE_WIDTH / 2,
+        backgroundColor: '#888',
+      },
+      playhead: {
         position: 'absolute',
-        width: TRACK_HEIGHT,
+        top: 0,
+        width: PLAYHEAD_WIDTH,
         height: TRACK_HEIGHT,
-        borderRadius: TRACK_HEIGHT / 2,
         backgroundColor: theme.colors.WHITE,
-        marginStart: scaleWithMax(3, 3),
+        borderRadius: PLAYHEAD_WIDTH / 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.6,
+        shadowRadius: 2,
+        elevation: 3,
+        zIndex: 5,
       },
     });
   }, [theme]);
 
-  return {
-    styles,
-    theme,
-  };
+  return { styles, theme };
 };
