@@ -10,6 +10,7 @@ import {
   SvgRiyalIconPrimary,
   SvgCatchAddIcon,
 } from '../../assets/icons';
+import PriceWithIcon from '../global/Price';
 import { CatchItem } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
 
@@ -107,16 +108,17 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
             {storeName}
           </Text>
           {hasDiscount && (
-            <View style={styles.priceContainer}>
-              <SvgRiyalIconPrimary
-                width={scaleWithMax(11, 13)}
-                height={scaleWithMax(11, 13)}
-                style={{
-                  marginTop: 3.5,
-                }}
-              />
-              <Text style={styles.discountedPrice}>{discountedPrice}</Text>
-            </View>
+            <PriceWithIcon
+              amount={discountedPrice}
+              variant="discounted"
+              icon={
+                <SvgRiyalIconPrimary
+                  width={scaleWithMax(11, 13)}
+                  height={scaleWithMax(11, 13)}
+                />
+              }
+              textStyle={styles.discountedPrice}
+            />
           )}
         </View>
 
@@ -132,16 +134,20 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
               {categoryName}
             </Text>
           )}
-          <View style={styles.priceContainer}>
-            <SvgRiyalIcon
-              opacity={hasDiscount ? 0.32 : 1}
-              width={hasDiscount ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
-              height={hasDiscount ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
-            />
-            <Text style={hasDiscount ? styles.originalPrice : styles.price}>
-              {price}
-            </Text>
-          </View>
+          <PriceWithIcon
+            amount={price}
+            variant={hasDiscount ? 'cut' : 'default'}
+            icon={
+              <SvgRiyalIcon
+                width={hasDiscount ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
+                height={
+                  hasDiscount ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
+                }
+              />
+            }
+            iconOpacity={hasDiscount ? 0.32 : 1}
+            textStyle={hasDiscount ? styles.originalPrice : styles.price}
+          />
         </View>
       </View>
     </View>
@@ -211,11 +217,17 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: theme.colors.GRAY,
         fontSize: sizes.FONTSIZE_MEDIUM,
+        flex: 1,
+        minWidth: 0,
+        marginEnd: sizes.PADDING * 0.4,
       },
       subTitle2: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: theme.colors.GRAY,
         fontSize: sizes.FONTSIZE_MEDIUM,
+        flex: 1,
+        minWidth: 0,
+        marginEnd: sizes.PADDING * 0.4,
       },
       priceContainer: {
         flexDirection: 'row',

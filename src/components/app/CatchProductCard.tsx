@@ -97,10 +97,13 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
             flexDirection: 'row',
             alignItems: 'center',
             position: 'relative',
+            paddingEnd: scaleWithMax(22, 26),
           }}
         >
           {item.subTitle2 && (
-            <Text style={styles.subTitle2}>{item.subTitle2}</Text>
+            <Text style={styles.subTitle2} numberOfLines={1}>
+              {item.subTitle2}
+            </Text>
           )}
 
           <View
@@ -183,12 +186,18 @@ const useStyles = () => {
         color: theme.colors.GRAY,
         fontSize: sizes.FONTSIZE_MEDIUM,
         marginTop: sizes.HEIGHT * 0.0005,
+        flex: 1,
+        minWidth: 0,
+        marginEnd: sizes.PADDING * 0.4,
       },
       subTitle2: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: theme.colors.GRAY,
         fontSize: sizes.FONTSIZE_MEDIUM,
         marginTop: sizes.HEIGHT * 0.0005,
+        flex: 1,
+        minWidth: 0,
+        marginEnd: sizes.PADDING * 0.4,
       },
       priceContainer: {
         flexDirection: 'row',

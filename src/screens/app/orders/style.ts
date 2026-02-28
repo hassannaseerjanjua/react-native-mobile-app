@@ -142,14 +142,12 @@ const useStyles = () => {
         fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE,
         color: colors.PRIMARY_TEXT,
-        marginLeft: sizes.PADDING * 0.2,
+        marginStart: sizes.PADDING * 0.2,
       },
       priceContainer: {
-        flexDirection: 'row',
         alignItems: 'center',
-        justifyContent: 'flex-end',
         flexShrink: 0,
-        marginLeft: sizes.PADDING * 0.5,
+        marginStart: sizes.PADDING * 0.5,
       },
       totalLabel: {
         fontFamily: fonts.semibold,
@@ -160,7 +158,7 @@ const useStyles = () => {
         fontFamily: fonts.bold,
         fontSize: sizes.FONTSIZE_BUTTON,
         color: colors.PRIMARY_TEXT,
-        marginLeft: sizes.PADDING * 0.2,
+        marginStart: sizes.PADDING * 0.2,
       },
       totalRow: {
         flexDirection: 'row',

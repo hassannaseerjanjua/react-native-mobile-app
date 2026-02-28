@@ -43,7 +43,6 @@ import {
 import {
   scaleWithMax,
   rtlTransform,
-  rtlFlexDirection,
   rtlPosition,
   rtlMargin,
   isIOS,
@@ -202,9 +201,15 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     return Array.from(itemsMap.values());
   }, [cartData?.Items]);
 
+  const userCardsApi = useGetApi<UserCard[]>(apiEndpoints.GET_CARDS, {
+    transformData: data => data.Data || [],
+  });
+
   useEffect(() => {
-    fetchUserCards();
-  }, []);
+    if (userCardsApi.data) {
+      setUserCards(userCardsApi.data);
+    }
+  }, [userCardsApi.data]);
 
   useEffect(() => {
     if (route.params?.selectedCard) {
@@ -213,18 +218,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
   }, [route.params?.selectedCard]);
 
-  const fetchUserCards = async () => {
-    try {
-      const response = await api.get<{ Data: UserCard[] }>(
-        apiEndpoints.GET_CARDS,
-      );
-      if (response.success && response.data?.Data) {
-        setUserCards(response.data.Data);
-      }
-    } catch (error: any) {
-      console.error('Error fetching cards:', error);
-    }
-  };
 
   // useEffect(() => {
   //   if (cartItemsApi.data) {
@@ -544,17 +537,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       : require('../../../assets/images/img-placeholder.png');
 
     return (
-      <View
-        style={[
-          styles.CartContainer,
-          // { flexDirection: rtlFlexDirection(isRtl) },
-          {
-            ...(langCode === 'ar'
-              ? { flexDirection: rtlFlexDirection(!isRtl) }
-              : { flexDirection: rtlFlexDirection(isRtl) }),
-          },
-        ]}
-      >
+      <View style={[styles.CartContainer]}>
         <Image source={imageSource} style={styles.CartProductImage} />
         <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
           <View>
@@ -572,64 +555,40 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             <View
               style={{
                 ...styles.row,
-                flexDirection: rtlFlexDirection(isRtl),
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
               {item.DiscountAmount > 0 ? (
-                <View
-                  style={[
-                    styles.row,
-                    {
-                      flexDirection: rtlFlexDirection(isRtl),
-                      gap: theme.sizes.WIDTH * 0.01,
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.row,
-                      {
-                        flexDirection: rtlFlexDirection(isRtl),
-                        gap: theme.sizes.WIDTH * 0.008,
-                      },
-                    ]}
-                  >
-                    <SvgRiyalPink
-                      width={scaleWithMax(16, 16)}
-                      height={scaleWithMax(16, 16)}
-                      style={{
-                        marginTop: scaleWithMax(2, 2),
-                      }}
-                    />
-                    <Text style={styles.discountedPrice}>
-                      {item.TotalAmount}
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.row,
-                      {
-                        flexDirection: rtlFlexDirection(isRtl),
-                        gap: theme.sizes.WIDTH * 0.008,
-                      },
-                    ]}
-                  >
-                    <SvgRiyalIcon
-                      width={scaleWithMax(11, 11)}
-                      height={scaleWithMax(11, 11)}
-                      opacity={0.32}
-                    />
-                    <Text style={styles.cutPrice}>
-                      {item.OrderAmount || 'N/A'}
-                    </Text>
-                  </View>
+                <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+                  <PriceWithIcon
+                    amount={item.TotalAmount}
+                    variant="discounted"
+                    icon={
+                      <SvgRiyalPink
+                        width={scaleWithMax(16, 16)}
+                        height={scaleWithMax(16, 16)}
+                      />
+                    }
+                    textStyle={styles.discountedPrice}
+                  />
+                  <PriceWithIcon
+                    amount={item.OrderAmount || 'N/A'}
+                    variant="cut"
+                    icon={
+                      <SvgRiyalIcon
+                        width={scaleWithMax(11, 11)}
+                        height={scaleWithMax(11, 11)}
+                      />
+                    }
+                    iconOpacity={0.32}
+                    textStyle={styles.cutPrice}
+                  />
                 </View>
               ) : (
                 <PriceWithIcon
-                  Price={item.TotalAmount}
-                  style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+                  amount={item.TotalAmount}
+                  textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
                 />
               )}
               <TouchableOpacity onPress={() => setItemToRemove(item)}>
@@ -638,129 +597,81 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             </View>
           ) : isMerchant && cartData?.SendType === 3 ? (
             item.DiscountAmount > 0 ? (
-              <View
-                style={[
-                  styles.row,
-                  {
-                    flexDirection: rtlFlexDirection(isRtl),
-                    gap: theme.sizes.WIDTH * 0.01,
-                  },
-                ]}
-              >
-                <View
-                  style={[
-                    styles.row,
-                    {
-                      flexDirection: rtlFlexDirection(isRtl),
-                      gap: theme.sizes.WIDTH * 0.008,
-                    },
-                  ]}
-                >
-                  <SvgRiyalPink
-                    width={scaleWithMax(16, 16)}
-                    height={scaleWithMax(16, 16)}
-                    style={{
-                      marginTop: scaleWithMax(2, 2),
-                    }}
-                  />
-                  <Text style={styles.discountedPrice}>{item.TotalAmount}</Text>
-                </View>
-                <View
-                  style={[
-                    styles.row,
-                    {
-                      flexDirection: rtlFlexDirection(isRtl),
-                      gap: theme.sizes.WIDTH * 0.008,
-                    },
-                  ]}
-                >
-                  <SvgRiyalIcon
-                    width={scaleWithMax(11, 11)}
-                    height={scaleWithMax(11, 11)}
-                    opacity={0.32}
-                  />
-                  <Text style={styles.cutPrice}>
-                    {item.OrderAmount || 'N/A'}
-                  </Text>
-                </View>
+              <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+                <PriceWithIcon
+                  amount={item.TotalAmount}
+                  variant="discounted"
+                  icon={
+                    <SvgRiyalPink
+                      width={scaleWithMax(16, 16)}
+                      height={scaleWithMax(16, 16)}
+                    />
+                  }
+                  textStyle={styles.discountedPrice}
+                />
+                <PriceWithIcon
+                  amount={item.OrderAmount || 'N/A'}
+                  variant="cut"
+                  icon={
+                    <SvgRiyalIcon
+                      width={scaleWithMax(11, 11)}
+                      height={scaleWithMax(11, 11)}
+                    />
+                  }
+                  iconOpacity={0.32}
+                  textStyle={styles.cutPrice}
+                />
               </View>
             ) : (
               <PriceWithIcon
-                Price={item.TotalAmount}
-                style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+                amount={item.TotalAmount}
+                textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
               />
             )
           ) : (
             <View
               style={{
                 ...styles.row,
-                ...(langCode === 'ar'
-                  ? { flexDirection: rtlFlexDirection(!isRtl) }
-                  : { flexDirection: rtlFlexDirection(isRtl) }),
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
               {item.DiscountAmount > 0 ? (
-                <View
-                  style={[
-                    styles.row,
-                    {
-                      flexDirection: rtlFlexDirection(isRtl),
-                      gap: theme.sizes.WIDTH * 0.01,
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.row,
-                      {
-                        flexDirection: rtlFlexDirection(isRtl),
-                        gap: theme.sizes.WIDTH * 0.008,
-                      },
-                    ]}
-                  >
-                    <SvgRiyalPink
-                      width={scaleWithMax(16, 16)}
-                      height={scaleWithMax(16, 16)}
-                      style={{
-                        marginTop: scaleWithMax(2, 2),
-                      }}
-                    />
-                    <Text style={styles.discountedPrice}>
-                      {item.TotalAmount}
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.row,
-                      {
-                        flexDirection: rtlFlexDirection(isRtl),
-                        gap: theme.sizes.WIDTH * 0.008,
-                      },
-                    ]}
-                  >
-                    <SvgRiyalIcon
-                      width={scaleWithMax(11, 11)}
-                      height={scaleWithMax(11, 11)}
-                      opacity={0.32}
-                    />
-                    <Text style={styles.cutPrice}>
-                      {item.OrderAmount || 'N/A'}
-                    </Text>
-                  </View>
+                <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+                  <PriceWithIcon
+                    amount={item.TotalAmount}
+                    variant="discounted"
+                    icon={
+                      <SvgRiyalPink
+                        width={scaleWithMax(16, 16)}
+                        height={scaleWithMax(16, 16)}
+                      />
+                    }
+                    textStyle={styles.discountedPrice}
+                  />
+                  <PriceWithIcon
+                    amount={item.OrderAmount || 'N/A'}
+                    variant="cut"
+                    icon={
+                      <SvgRiyalIcon
+                        width={scaleWithMax(11, 11)}
+                        height={scaleWithMax(11, 11)}
+                      />
+                    }
+                    iconOpacity={0.32}
+                    textStyle={styles.cutPrice}
+                  />
                 </View>
               ) : (
                 <PriceWithIcon
-                  Price={item.TotalAmount}
-                  style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+                  amount={item.TotalAmount}
+                  textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
                 />
               )}
 
               <View
                 style={[
                   styles.quantityControls,
-                  { flexDirection: rtlFlexDirection(isRtl) },
                 ]}
               >
                 <TouchableOpacity
@@ -1199,12 +1110,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 <View
                   style={[
                     styles.sectionHeaderRow,
-                    // { flexDirection: rtlFlexDirection(isRtl) },
-                    {
-                      ...(langCode === 'ar'
-                        ? { flexDirection: rtlFlexDirection(!isRtl) }
-                        : { flexDirection: rtlFlexDirection(isRtl) }),
-                    },
                   ]}
                 >
                   <Text style={styles.heading}>
@@ -1306,7 +1211,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           styles.row,
                           {
                             gap: theme.sizes.WIDTH * 0.036,
-                            flexDirection: rtlFlexDirection(isRtl),
                           },
                         ]}
                       >
@@ -1437,11 +1341,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 <View
                   style={[
                     styles.sectionHeaderRow,
-                    {
-                      ...(langCode === 'ar'
-                        ? { flexDirection: rtlFlexDirection(!isRtl) }
-                        : { flexDirection: rtlFlexDirection(isRtl) }),
-                    },
                   ]}
                 >
                   <Text style={styles.heading}>
@@ -1453,11 +1352,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     <View
                       style={[
                         styles.row,
-                        {
-                          ...(langCode === 'ar'
-                            ? { flexDirection: rtlFlexDirection(!isRtl) }
-                            : { flexDirection: rtlFlexDirection(isRtl) }),
-                        },
                       ]}
                     >
                       {/* <PlusIcon
@@ -1483,12 +1377,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     <View
                       style={[
                         styles.GiftContainer,
-                        {
-                          ...(langCode === 'ar'
-                            ? { flexDirection: rtlFlexDirection(!isRtl) }
-                            : { flexDirection: rtlFlexDirection(isRtl) }),
-                          marginBottom: theme.sizes.HEIGHT * 0.005,
-                        },
+                        { marginBottom: theme.sizes.HEIGHT * 0.005 },
                       ]}
                     >
                       <View
@@ -1496,9 +1385,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           ...styles.row,
                           flex: 1,
                           gap: theme.sizes.WIDTH * 0.025,
-                          ...(langCode === 'ar'
-                            ? { flexDirection: rtlFlexDirection(!isRtl) }
-                            : { flexDirection: rtlFlexDirection(isRtl) }),
                         }}
                       >
                         <CheckBox
@@ -1544,13 +1430,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   <View
                     style={[
                       styles.GiftContainer,
-                      {
-                        ...(langCode === 'ar'
-                          ? { flexDirection: rtlFlexDirection(!isRtl) }
-                          : { flexDirection: rtlFlexDirection(isRtl) }),
-
-                        marginBottom: theme.sizes.HEIGHT * 0.005,
-                      },
+                      { marginBottom: theme.sizes.HEIGHT * 0.005 },
                     ]}
                   >
                     <View
@@ -1558,9 +1438,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         ...styles.row,
                         flex: 1,
                         gap: theme.sizes.WIDTH * 0.025,
-                        ...(langCode === 'ar'
-                          ? { flexDirection: rtlFlexDirection(!isRtl) }
-                          : { flexDirection: rtlFlexDirection(isRtl) }),
                       }}
                     >
                       <CheckBox
@@ -1606,12 +1483,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     <View
                       style={[
                         styles.GiftContainer,
-                        {
-                          ...(langCode === 'ar'
-                            ? { flexDirection: rtlFlexDirection(!isRtl) }
-                            : { flexDirection: rtlFlexDirection(isRtl) }),
-                          marginBottom: theme.sizes.HEIGHT * 0.005,
-                        },
+                      { marginBottom: theme.sizes.HEIGHT * 0.005 },
                       ]}
                     >
                       <View
@@ -1619,9 +1491,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           ...styles.row,
                           flex: 1,
                           gap: theme.sizes.WIDTH * 0.025,
-                          ...(langCode === 'ar'
-                            ? { flexDirection: rtlFlexDirection(!isRtl) }
-                            : { flexDirection: rtlFlexDirection(isRtl) }),
                         }}
                       >
                         <CheckBox
@@ -1691,11 +1560,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       <View
                         style={[
                           styles.GiftContainer,
-                          {
-                            ...(langCode === 'ar'
-                              ? { flexDirection: rtlFlexDirection(!isRtl) }
-                              : { flexDirection: rtlFlexDirection(isRtl) }),
-                          },
                         ]}
                       >
                         <View
@@ -1703,9 +1567,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                             ...styles.row,
                             flex: 1,
                             gap: theme.sizes.WIDTH * 0.025,
-                            ...(langCode === 'ar'
-                              ? { flexDirection: rtlFlexDirection(!isRtl) }
-                              : { flexDirection: rtlFlexDirection(isRtl) }),
                           }}
                         >
                           <CheckBox
@@ -1726,19 +1587,22 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                             <Text style={styles.TextMedium}>
                               {getString('W_GIFTEE_WALLET')}
                             </Text>
-                            <View style={styles.row}>
-                              <SvgRiyalIcon
-                                width={scaleWithMax(12, 14)}
-                                height={scaleWithMax(12, 14)}
-                              />
-                              <Text style={styles.TextMedium}>
-                                {walletBalance?.data?.WalletBalance
+                            <PriceWithIcon
+                              amount={
+                                walletBalance?.data?.WalletBalance
                                   ? Number(
                                       walletBalance.data.WalletBalance,
                                     ).toFixed(2)
-                                  : '0.00'}
-                              </Text>
-                            </View>
+                                  : '0.00'
+                              }
+                              textStyle={styles.TextMedium}
+                              icon={
+                                <SvgRiyalIcon
+                                  width={scaleWithMax(12, 14)}
+                                  height={scaleWithMax(12, 14)}
+                                />
+                              }
+                            />
                           </View>
                         </View>
                         <SvgSelectedCheck
@@ -1754,13 +1618,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               </View>
 
               <View style={styles.section}>
-                <View
-                  style={{
-                    flexDirection: 'row',
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
+                <View style={styles.sectionHeaderRow}>
                   <Text
                     style={{
                       ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
@@ -1788,10 +1646,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{
-                    flexDirection: rtlFlexDirection(isRtl),
-                    gap: 10,
-                  }}
+                  contentContainerStyle={[styles.row, { gap: 10 }]}
                 >
                   {DomationAmounts.map(amount => {
                     // Check if custom value matches this preset value
@@ -1809,19 +1664,20 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     return (
                       <TouchableOpacity
                         key={amount.value}
-                        style={{
-                          flexDirection: rtlFlexDirection(isRtl),
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: theme.sizes.WIDTH * 0.025,
-                          paddingHorizontal: theme.sizes.WIDTH * 0.03,
-                          paddingVertical: scaleWithMax(8, 10),
-                          borderRadius: 10,
-                          backgroundColor: isActive
-                            ? theme.colors.SECONDARY
-                            : theme.colors.LIGHT_GRAY,
-                          // minHeight: scaleWithMax(36, 38),
-                        }}
+                        style={[
+                          styles.row,
+                          {
+                            justifyContent: 'center',
+                            gap: theme.sizes.WIDTH * 0.025,
+                            paddingHorizontal: theme.sizes.WIDTH * 0.03,
+                            paddingVertical: scaleWithMax(8, 10),
+                            borderRadius: 10,
+                            backgroundColor: isActive
+                              ? theme.colors.SECONDARY
+                              : theme.colors.LIGHT_GRAY,
+                            // minHeight: scaleWithMax(36, 38),
+                          },
+                        ]}
                         onPress={() => {
                           if (amount.value === 'Custom') {
                             // Toggle custom input
@@ -1848,23 +1704,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           }
                         }}
                       >
-                        <View
-                          style={[
-                            styles.row,
-                            { gap: theme.sizes.WIDTH * 0.01 },
-                          ]}
-                        >
-                          {amount.value === 'Custom' ? null : isActive ? (
-                            <SvgRiyalPink
-                              width={scaleWithMax(12, 14)}
-                              height={scaleWithMax(12, 14)}
-                            />
-                          ) : (
-                            <SvgRiyalIcon
-                              width={scaleWithMax(12, 14)}
-                              height={scaleWithMax(12, 14)}
-                            />
-                          )}
+                        {amount.value === 'Custom' ? (
                           <Text
                             style={[
                               styles.TextMedium,
@@ -1876,7 +1716,33 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           >
                             {amount.title}
                           </Text>
-                        </View>
+                        ) : (
+                          <PriceWithIcon
+                            amount={amount.title}
+                            variant={isActive ? 'discounted' : 'default'}
+                            icon={
+                              isActive ? (
+                                <SvgRiyalPink
+                                  width={scaleWithMax(12, 14)}
+                                  height={scaleWithMax(12, 14)}
+                                />
+                              ) : (
+                                <SvgRiyalIcon
+                                  width={scaleWithMax(12, 14)}
+                                  height={scaleWithMax(12, 14)}
+                                />
+                              )
+                            }
+                            textStyle={
+                              isActive
+                                ? {
+                                    ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                                    color: theme.colors.PRIMARY,
+                                  }
+                                : styles.TextMedium
+                            }
+                          />
+                        )}
                       </TouchableOpacity>
                     );
                   })}
@@ -1925,78 +1791,48 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 >
                   {getString('CHECKOUT_ORDER_INFO')}
                 </Text>
-                <View
-                  style={[
-                    styles.Prices,
-                    { flexDirection: rtlFlexDirection(isRtl) },
-                  ]}
-                >
+                <View style={[styles.Prices]}>
                   <Text style={styles.TextMedium}>
                     {getString('CHECKOUT_ORDER_AMOUNT')}
                   </Text>
-                  <PriceWithIcon Price={cartData?.TotalAmount || 0} />
+                  <PriceWithIcon amount={cartData?.TotalAmount || 0} />
                 </View>
                 {/* {(cartData?.TotalDiscount || 0) > 0 && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
+                  <View style={[styles.Prices]}>
                     <Text style={styles.TextMedium}>{getString('CHECKOUT_DISCOUNT')}</Text>
-                    <PriceWithIcon Price={cartData?.TotalDiscount || 0} />
+                    <PriceWithIcon amount={cartData?.TotalDiscount || 0} />
                   </View>
                 )} */}
                 {(cartData?.TotalVat || 0) > 0 && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
+                  <View style={[styles.Prices]}>
                     <Text style={styles.TextMedium}>
                       {getString('CHECKOUT_VAT')}
                     </Text>
-                    <PriceWithIcon Price={cartData?.TotalVat || 0} />
+                    <PriceWithIcon amount={cartData?.TotalVat || 0} />
                   </View>
                 )}
                 {(cartData?.DeliveryCharges || 0) > 0 && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
+                  <View style={[styles.Prices]}>
                     <Text style={styles.TextMedium}>
                       {getString('CHECKOUT_DELIVERY_CHARGES')}
                     </Text>
-                    <PriceWithIcon Price={cartData?.DeliveryCharges || 0} />
+                    <PriceWithIcon amount={cartData?.DeliveryCharges || 0} />
                   </View>
                 )}
                 {activeDomationAmount && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
+                  <View style={[styles.Prices]}>
                     <Text style={styles.TextMedium}>
                       {getString('CHECKOUT_EHSAN')}
                     </Text>
-                    <PriceWithIcon Price={activeDomationAmount} />
+                    <PriceWithIcon amount={activeDomationAmount} />
                   </View>
                 )}
-                <View
-                  style={[
-                    styles.Prices,
-                    { flexDirection: rtlFlexDirection(isRtl) },
-                  ]}
-                >
+                <View style={[styles.Prices]}>
                   <Text style={styles.TextMedium}>
                     {getString('CHECKOUT_TOTAL_AMOUNT')}
                   </Text>
                   <PriceWithIcon
-                    Price={
+                    amount={
                       (cartData?.TotalAmount || 0) + (activeDomationAmount || 0)
                     }
                   />
@@ -2057,13 +1893,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   ]}
                 >
                   <PriceWithIcon
-                    Price={
+                    amount={
                       (cartData?.TotalAmount || 0) + (activeDomationAmount || 0)
                     }
-                    style={{
+                    textStyle={{
                       color: theme.colors.WHITE,
                     }}
-                    Icon={
+                    icon={
                       <SvgRiyalIconWhite
                         width={scaleWithMax(12, 14)}
                         height={scaleWithMax(12, 14)}
@@ -2118,21 +1954,21 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         <View style={{ flex: 1, backgroundColor: theme.colors.WHITE }}>
           {/* Header with close button */}
           <View
-            style={{
-              flexDirection: rtlFlexDirection(isRtl),
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: theme.sizes.PADDING,
-              paddingVertical: theme.sizes.HEIGHT * 0.01,
-              backgroundColor: theme.colors.WHITE,
-              borderBottomWidth: 1,
-              borderBottomColor: theme.colors.DIVIDER_COLOR,
-              ...Platform.select({
-                ios: {
-                  paddingTop: theme.sizes.HEIGHT * 0.02,
-                },
-              }),
-            }}
+            style={[
+              styles.sectionHeaderRow,
+              {
+                paddingHorizontal: theme.sizes.PADDING,
+                paddingVertical: theme.sizes.HEIGHT * 0.01,
+                backgroundColor: theme.colors.WHITE,
+                borderBottomWidth: 1,
+                borderBottomColor: theme.colors.DIVIDER_COLOR,
+                ...Platform.select({
+                  ios: {
+                    paddingTop: theme.sizes.HEIGHT * 0.02,
+                  },
+                }),
+              },
+            ]}
           >
             <Text style={styles.heading}>
               {getString('CHECKOUT_PAYMENT_MANAGEMENT')}

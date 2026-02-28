@@ -482,11 +482,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               const isEmpty = filteredContacts.length === 0;
 
               return (
-                <FlatList
-                  style={[styles.listCard, isEmpty && styles.listCardEmpty]}
-                  data={filteredContacts}
-                  keyExtractor={item => item.UserId.toString()}
-                  renderItem={({ item, index }) => {
+                <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
+                  <FlatList
+                    data={filteredContacts}
+                    keyExtractor={item => item.UserId.toString()}
+                    renderItem={({ item, index }) => {
                     const phoneNo = item.PhoneNo || '';
                     const formattedPhone = formatPhoneNumber(phoneNo);
                     const verified = verifiedUsers[formattedPhone];
@@ -519,35 +519,36 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       />
                     );
                   }}
-                  showsVerticalScrollIndicator={false}
-                  ListEmptyComponent={
-                    <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
-                      <PlaceholderLogoText
-                        text={getString('SEARCH_NO_USERS_FOUND')}
-                      />
-                    </View>
-                  }
-                  contentContainerStyle={styles.listContainer}
-                  ListFooterComponent={
-                    loadingContacts || verifyingContacts ? (
-                      <View style={{ padding: 20, alignItems: 'center' }}>
-                        <Text>
-                          {verifyingContacts
-                            ? getString('SEARCH_VERIFYING_CONTACTS')
-                            : getString('SEARCH_LOADING_CONTACTS')}
-                        </Text>
+                    showsVerticalScrollIndicator={false}
+                    ListEmptyComponent={
+                      <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
+                        <PlaceholderLogoText
+                          text={getString('SEARCH_NO_USERS_FOUND')}
+                        />
                       </View>
-                    ) : null
-                  }
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={isRefreshing}
-                      onRefresh={handleRefresh}
-                      tintColor={theme.colors.PRIMARY}
-                      colors={[theme.colors.PRIMARY]}
-                    />
-                  }
-                />
+                    }
+                    contentContainerStyle={styles.listContainer}
+                    ListFooterComponent={
+                      loadingContacts || verifyingContacts ? (
+                        <View style={{ padding: 20, alignItems: 'center' }}>
+                          <Text>
+                            {verifyingContacts
+                              ? getString('SEARCH_VERIFYING_CONTACTS')
+                              : getString('SEARCH_LOADING_CONTACTS')}
+                          </Text>
+                        </View>
+                      ) : null
+                    }
+                    refreshControl={
+                      <RefreshControl
+                        refreshing={isRefreshing}
+                        onRefresh={handleRefresh}
+                        tintColor={theme.colors.PRIMARY}
+                        colors={[theme.colors.PRIMARY]}
+                      />
+                    }
+                  />
+                </View>
               );
             }
 
@@ -558,11 +559,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
             const isEmpty = !filteredData || filteredData.length === 0;
 
             return (
-              <FlatList
-                style={[styles.listCard, isEmpty && styles.listCardEmpty]}
-                data={filteredData}
-                keyExtractor={item => item.UserId.toString()}
-                renderItem={({ item, index }) => (
+              <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
+                <FlatList
+                  data={filteredData}
+                  keyExtractor={item => item.UserId.toString()}
+                  renderItem={({ item, index }) => (
                   <SearchUserItem
                     item={item}
                     index={index}
@@ -579,30 +580,31 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                     }
                   />
                 )}
-                showsVerticalScrollIndicator={false}
-                contentContainerStyle={styles.listContainer}
-                ListEmptyComponent={
-                  <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
-                    <PlaceholderLogoText
-                      text={getString('SEARCH_NO_USERS_FOUND')}
+                  showsVerticalScrollIndicator={false}
+                  contentContainerStyle={styles.listContainer}
+                  ListEmptyComponent={
+                    <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
+                      <PlaceholderLogoText
+                        text={getString('SEARCH_NO_USERS_FOUND')}
+                      />
+                    </View>
+                  }
+                  onEndReached={
+                    showEmployeesOnly
+                      ? employeesApi.loadMore
+                      : activeUsersApi.loadMore
+                  }
+                  onEndReachedThreshold={0.5}
+                  refreshControl={
+                    <RefreshControl
+                      refreshing={isRefreshing}
+                      onRefresh={handleRefresh}
+                      tintColor={theme.colors.PRIMARY}
+                      colors={[theme.colors.PRIMARY]}
                     />
-                  </View>
-                }
-                onEndReached={
-                  showEmployeesOnly
-                    ? employeesApi.loadMore
-                    : activeUsersApi.loadMore
-                }
-                onEndReachedThreshold={0.5}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={isRefreshing}
-                    onRefresh={handleRefresh}
-                    tintColor={theme.colors.PRIMARY}
-                    colors={[theme.colors.PRIMARY]}
-                  />
-                }
-              />
+                  }
+                />
+              </View>
             );
           })()
         )}

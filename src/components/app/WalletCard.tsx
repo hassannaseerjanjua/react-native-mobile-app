@@ -3,7 +3,8 @@ import { View, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
 import { isAndroid, scaleWithMax } from '../../utils';
 import { Text } from '../../utils/elements';
-import { SvgRiyalIcon, SvgWalletGifteeIcon } from '../../assets/icons';
+import { SvgWalletGifteeIcon } from '../../assets/icons';
+import PriceWithIcon from '../global/Price';
 import { useLocaleStore } from '../../store/reducer/locale';
 
 interface WalletCardProps {
@@ -88,10 +89,11 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
 
       <View style={styles.balanceSection}>
         <Text style={styles.balanceLabel}>{getString('W_WALLET_BALANCE')}</Text>
-        <View style={styles.riyalIconContainer}>
-          <SvgRiyalIcon style={styles.riyalIcon} />
-          <Text style={styles.balanceAmount}>{balance}</Text>
-        </View>
+        <PriceWithIcon
+          amount={balance}
+          textStyle={styles.balanceAmount}
+          containerStyle={styles.riyalIconContainer}
+        />
       </View>
     </View>
   );

@@ -14,6 +14,7 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import ParentView from '../../../components/app/ParentView';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { SvgGiftClaimIcon, SvgRiyalIcon } from '../../../assets/icons';
+import PriceWithIcon from '../../../components/global/Price';
 import { scaleWithMax } from '../../../utils';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { useListingApi } from '../../../hooks/useListingApi';
@@ -283,13 +284,17 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                     {variantName}
                   </Text>
                 )}
-                <View style={styles.priceContainer}>
-                  <SvgRiyalIcon
-                    width={scaleWithMax(12, 14)}
-                    height={scaleWithMax(12, 14)}
-                  />
-                  <Text style={styles.itemPrice}>{itemTotal.toFixed(2)}</Text>
-                </View>
+                <PriceWithIcon
+                  amount={itemTotal.toFixed(2)}
+                  textStyle={styles.itemPrice}
+                  containerStyle={styles.priceContainer}
+                  icon={
+                    <SvgRiyalIcon
+                      width={scaleWithMax(12, 14)}
+                      height={scaleWithMax(12, 14)}
+                    />
+                  }
+                />
               </View>
             </View>
           );
@@ -299,15 +304,17 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
           <Text style={styles.totalLabel}>{getString('O_TOTAL_AMOUNT')}</Text>
           <View style={styles.priceContainer}>
             {order.TotalAmount > 0 ? (
-              <>
-                <SvgRiyalIcon
-                  width={scaleWithMax(12, 14)}
-                  height={scaleWithMax(12, 14)}
-                />
-                <Text style={styles.totalValue}>
-                  {order.TotalAmount.toFixed(2)}
-                </Text>
-              </>
+              <PriceWithIcon
+                amount={order.TotalAmount.toFixed(2)}
+                textStyle={styles.totalValue}
+                containerStyle={styles.priceContainer}
+                icon={
+                  <SvgRiyalIcon
+                    width={scaleWithMax(12, 14)}
+                    height={scaleWithMax(12, 14)}
+                  />
+                }
+              />
             ) : (
               <SvgGiftClaimIcon />
             )}
