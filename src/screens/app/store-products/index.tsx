@@ -37,6 +37,7 @@ import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
 import ParentView from '../../../components/app/ParentView';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
+import PriceWithIcon from '../../../components/global/Price';
 
 const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   route,
@@ -494,15 +495,17 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             <Text style={styles.footerButtonText}>
               {getString('VIEW_CART')}
             </Text>
-            <View style={styles.footerPriceRow}>
-              <SvgRiyalIconWhite
-                width={scaleWithMax(12, 14)}
-                height={scaleWithMax(12, 14)}
-              />
-              <Text style={styles.footerPriceText}>
-                {cartApi.data?.TotalAmount || '0.00'}
-              </Text>
-            </View>
+            <PriceWithIcon
+              amount={cartApi.data?.TotalAmount || '0.00'}
+              textStyle={styles.footerPriceText}
+              containerStyle={styles.footerPriceRow}
+              icon={
+                <SvgRiyalIconWhite
+                  width={scaleWithMax(12, 14)}
+                  height={scaleWithMax(12, 14)}
+                />
+              }
+            />
           </TouchableOpacity>
         </View>
       )}

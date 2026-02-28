@@ -88,19 +88,21 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
             style={styles.avatar}
           />
         </View>
-        <Text
-          style={[
-            styles.userName,
-            {
-              maxWidth: shouldShowButton ? '80%' : '80%',
-            },
-          ]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {item.FullName}
-        </Text>
-        {item.IsVerified && <SvgVerifiedIcon />}
+        <View style={styles.nameRow}>
+          <Text
+            style={[
+              styles.userName,
+              {
+                maxWidth: shouldShowButton ? '80%' : '80%',
+              },
+            ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {item.FullName}
+          </Text>
+          {item.IsVerified && <SvgVerifiedIcon />}
+        </View>
       </View>
 
       {shouldShowButton && (
@@ -133,8 +135,8 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
                   (isTempAdded
                     ? getString('SEARCH_ADDED')
                     : isAdded
-                      ? getString('MF_UNFRIEND')
-                      : getString('SEARCH_ADD'))}
+                    ? getString('MF_UNFRIEND')
+                    : getString('SEARCH_ADD'))}
               </Text>
             </View>
           )}
@@ -148,7 +150,9 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
             isSelected && styles.selectedCircle,
             selectionDisabled && !isSelected && styles.disabledCircle,
           ]}
-          onPress={selectionDisabled && !isSelected ? undefined : onSelectionPress}
+          onPress={
+            selectionDisabled && !isSelected ? undefined : onSelectionPress
+          }
           activeOpacity={selectionDisabled && !isSelected ? 1 : 0.7}
           disabled={selectionDisabled && !isSelected}
         >
@@ -207,7 +211,13 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_BUTTON,
         letterSpacing: 0.15,
         color: colors.PRIMARY_TEXT,
-        marginEnd: scaleWithMax(6, 7),
+        marginEnd: scaleWithMax(3, 4),
+      },
+      nameRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        minWidth: 0,
       },
       addButton: {
         borderRadius: sizes.BORDER_RADIUS,

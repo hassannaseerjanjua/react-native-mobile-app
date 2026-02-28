@@ -110,6 +110,7 @@ const useStyles = () => {
         color: theme.colors.BLACK,
         minWidth: scaleWithMax(20, 22),
         textAlign: 'center',
+        textAlignVertical: 'center',
       },
       vatNote: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,

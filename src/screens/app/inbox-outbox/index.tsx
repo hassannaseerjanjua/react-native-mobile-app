@@ -719,6 +719,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     <SvgOutboxShareIcon
                       height={scaleWithMax(20, 20)}
                       width={scaleWithMax(20, 20)}
+                      style={{ transform: rtlTransform(isRtl) }}
                     />
                   </TouchableOpacity>
                 )}

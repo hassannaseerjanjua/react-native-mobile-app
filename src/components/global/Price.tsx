@@ -95,7 +95,7 @@ const PriceWithIcon = ({
       {showIcon && resolvedIcon ? (
         <View style={{ opacity: iconOpacity }}>{resolvedIcon}</View>
       ) : null}
-      <Text style={[textStyle, variantTextStyle]}>{amount}</Text>
+      <Text style={[variantTextStyle, textStyle]}>{amount}</Text>
     </View>
   );
 };

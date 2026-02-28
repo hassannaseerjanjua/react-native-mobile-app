@@ -216,9 +216,12 @@ const useStyles = () => {
       quantityText: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE,
+        lineHeight: Math.round(sizes.FONTSIZE * 1.5),
         color: theme.colors.PRIMARY,
         minWidth: scaleWithMax(20, 25),
         textAlign: 'center',
+        textAlignVertical: 'center',
+        includeFontPadding: false,
       },
       itemRow: {
         flexDirection: 'column',

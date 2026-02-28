@@ -121,11 +121,11 @@ const useStyles = () => {
       footerPriceRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: scaleWithMax(4, 4),
+        // gap: scaleWithMax(4, 4),
         zIndex: 1,
       },
       footerPriceText: {
-        ...theme.globalStyles.TEXT_STYLE,
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE_BUTTON,
         color: theme.colors.WHITE,
       },

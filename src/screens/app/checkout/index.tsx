@@ -218,7 +218,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     }
   }, [route.params?.selectedCard]);
 
-
   // useEffect(() => {
   //   if (cartItemsApi.data) {
   //     setCartData(cartItemsApi.data);
@@ -669,11 +668,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 />
               )}
 
-              <View
-                style={[
-                  styles.quantityControls,
-                ]}
-              >
+              <View style={[styles.quantityControls]}>
                 <TouchableOpacity
                   onPress={() => handleQuantityChange(item, 'decrement')}
                   disabled={!!updatingQuantities[item.OrderItemId]}
@@ -1107,11 +1102,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               // keyboardDismissMode="on-drag"
             >
               <View style={styles.section}>
-                <View
-                  style={[
-                    styles.sectionHeaderRow,
-                  ]}
-                >
+                <View style={[styles.sectionHeaderRow]}>
                   <Text style={styles.heading}>
                     {getString('CHECKOUT_ORDER_DETAILS')}
                   </Text>
@@ -1338,22 +1329,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               </View>
 
               <View style={styles.section}>
-                <View
-                  style={[
-                    styles.sectionHeaderRow,
-                  ]}
-                >
+                <View style={[styles.sectionHeaderRow]}>
                   <Text style={styles.heading}>
                     {getString('CHECKOUT_PAYMENT_MANAGEMENT')}
                   </Text>
                   <TouchableOpacity
                     onPress={() => navigation.navigate('AddCard' as never)}
                   >
-                    <View
-                      style={[
-                        styles.row,
-                      ]}
-                    >
+                    <View style={[styles.row]}>
                       {/* <PlusIcon
                         height={scaleWithMax(15, 18)}
                         width={scaleWithMax(15, 18)}
@@ -1483,7 +1466,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     <View
                       style={[
                         styles.GiftContainer,
-                      { marginBottom: theme.sizes.HEIGHT * 0.005 },
+                        { marginBottom: theme.sizes.HEIGHT * 0.005 },
                       ]}
                     >
                       <View
@@ -1557,11 +1540,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         )
                       }
                     >
-                      <View
-                        style={[
-                          styles.GiftContainer,
-                        ]}
-                      >
+                      <View style={[styles.GiftContainer]}>
                         <View
                           style={{
                             ...styles.row,
