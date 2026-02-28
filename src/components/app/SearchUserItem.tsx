@@ -4,6 +4,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import {
   SvgSearchAdd,
@@ -54,7 +55,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   selectionDisabled = false,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, langCode } = useLocaleStore();
   const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
   const isAdded = currentStatus === 1;
   const isLoading = loadingUsers[item.UserId] || false;
@@ -73,6 +74,14 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   const shouldShowButton = isGeneralSearchScreen
     ? !isAdded || isTempAdded || isLoading
     : showAddButton;
+
+  const meSuffix = getString('SG_ME');
+  const isArabic = langCode === 'ar';
+  const fullName = item.FullName || '';
+  const hasMeSuffix = meSuffix ? fullName.endsWith(meSuffix) : false;
+  const displayName = hasMeSuffix
+    ? fullName.slice(0, -meSuffix.length)
+    : fullName;
 
   return (
     <TouchableOpacity
@@ -99,9 +108,23 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
             numberOfLines={1}
             ellipsizeMode="tail"
           >
-            {item.FullName}
+            {displayName}
+            {hasMeSuffix && (
+              <Text
+                style={[
+                  styles.userNameSuffix,
+                  isArabic ? styles.userNameSuffixArabic : null,
+                ]}
+              >
+                {meSuffix}
+              </Text>
+            )}
           </Text>
-          {item.IsVerified && <SvgVerifiedIcon />}
+          {item.IsVerified && (
+            <View style={styles.verifiedIconWrapper}>
+              <SvgVerifiedIcon />
+            </View>
+          )}
         </View>
       </View>
 
@@ -209,15 +232,28 @@ const useStyles = () => {
       userName: {
         fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_BUTTON,
+        lineHeight: Math.round(sizes.FONTSIZE_BUTTON * 1.2),
         letterSpacing: 0.15,
         color: colors.PRIMARY_TEXT,
         marginEnd: scaleWithMax(3, 4),
+        includeFontPadding: false,
+      },
+      userNameSuffix: {
+        marginStart: scaleWithMax(3, 4),
+      },
+      userNameSuffixArabic: {
+        fontFamily: fonts.medium,
       },
       nameRow: {
         flexDirection: 'row',
         alignItems: 'center',
         flex: 1,
         minWidth: 0,
+      },
+      verifiedIconWrapper: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: Platform.OS === 'ios' ? -scaleWithMax(1, 1) : 0,
       },
       addButton: {
         borderRadius: sizes.BORDER_RADIUS,

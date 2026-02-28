@@ -167,7 +167,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               <TouchableOpacity
                 style={[
                   styles.searchContainer,
-                  { marginEnd: theme.sizes.WIDTH * 0.03 },
+                  { marginEnd: theme.sizes.WIDTH * 0.022 },
                 ]}
                 onPress={() => navigation.navigate('CheckOut' as never)}
               >
@@ -176,7 +176,10 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                     {getCartCount.data?.Count}
                   </Text>
                 </View>
-                <SvgCartIcon />
+                <SvgCartIcon
+                  width={scaleWithMax(22, 22)}
+                  height={scaleWithMax(22, 22)}
+                />
               </TouchableOpacity>
             )}
           {showSearch && (
