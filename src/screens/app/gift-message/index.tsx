@@ -1147,7 +1147,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   style={{
                     position: 'absolute',
                     bottom: scaleWithMax(5, 6),
-                    [isRtl ? 'left' : 'right']: scaleWithMax(20, 25),
+                    // [isRtl ? 'left' : 'right']: scaleWithMax(20, 25),
+                    end: scaleWithMax(20, 25),
                     zIndex: 1000,
                     width: scaleWithMax(50, 60),
                     height: scaleWithMax(50, 60),
@@ -1211,8 +1212,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           pointerEvents="none"
                           style={{
                             position: 'absolute',
-                            top: scaleWithMax(2, 4),
-                            end: scaleWithMax(6, 8),
+                            top: scaleWithMax(8, 9),
+                            end: scaleWithMax(8, 9),
                             // [isRtl ? 'left' : 'right']: scaleWithMax(6, 8),
                             width: scaleWithMax(14, 16),
                             height: scaleWithMax(14, 16),
