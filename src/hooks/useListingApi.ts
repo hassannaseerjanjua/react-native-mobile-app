@@ -3,6 +3,7 @@ import useDebouncedSearch from './useDebouncedSearch';
 import { getQueryFromObject } from '../utils';
 import api, { getAuthHeader } from '../utils/api';
 import notify from '../utils/notify';
+import { getCached, setCached } from '../utils/api-cache';
 
 export const useListingApi = <T>(
   url: string,
@@ -19,6 +20,8 @@ export const useListingApi = <T>(
       totalCount: number;
     };
     idExtractor?: (data: T) => any;
+    /** Skip caching for this listing (e.g. always-changing feeds) */
+    noCache?: boolean;
   },
 ) => {
   const [pageIndex, setPageIndex] = useState(config?.pageIndex || 1);
@@ -43,7 +46,14 @@ export const useListingApi = <T>(
   const fetchIdRef = useRef(0);
   const pendingExtraParamsChangeRef = useRef(false);
 
-  const fetchData = (
+  // Stable cache key for page-1, non-search fetches.
+  // Captures everything that defines a unique dataset (excluding page/search).
+  const buildCacheKey = (currentExtraParams: Record<string, any>) =>
+    `listing:${url}:${pageSize}:${config?.sortColumn ?? ''}:${
+      config?.sortDirection ?? ''
+    }:${JSON.stringify(currentExtraParams)}`;
+
+  const fetchData = async (
     searchParam: string = '',
     showLoading: boolean = true,
     pageOverride?: number,
@@ -54,8 +64,45 @@ export const useListingApi = <T>(
 
     const currentFetchId = ++fetchIdRef.current;
     const currentPage = pageOverride ?? pageIndexRef.current;
+    const searchValue = searchParam || search;
+    const isFirstPage = currentPage === 1;
+    const noCache = config?.noCache ?? false;
 
-    if (showLoading && currentPage === 1) setLoading(true);
+    // Step 1: for page-1 non-search requests, show stale data immediately.
+    // IMPORTANT: we do NOT clear data before this await. Clearing data
+    // synchronously before the cache check causes a render with data=[] and
+    // loading=false, which shows "no products found" for a frame. Instead we
+    // let the cache result decide: cache hit → replace directly (no empty
+    // state), no cache → clear then show skeleton.
+    let cachedJson: string | null = null;
+    if (isFirstPage && !searchValue && !noCache) {
+      const cacheKey = buildCacheKey(extraParamsRef.current);
+      const cached = await getCached<{ data: T[]; totalCount: number }>(
+        cacheKey,
+      );
+      if (cached !== null) {
+        setData(cached.data);
+        setTotalCount(cached.totalCount);
+        setHasMore(cached.data.length < cached.totalCount);
+        cachedJson = JSON.stringify(cached.data);
+        // Mark initial load done so loadMore is unblocked while the
+        // background refresh is still in flight. isFetchingRef.current
+        // being true will still prevent the actual page-2 fetch from
+        // starting until the page-1 network request completes.
+        setIsInitialLoad(true);
+        // Already have data visible — suppress the full-screen loader
+        setLoading(false);
+      } else {
+        // No cache: clear old data now and show skeleton
+        setData([]);
+        if (showLoading) setLoading(true);
+      }
+    } else {
+      // Search queries and noCache paths: clear and show loader immediately
+      if (isFirstPage) setData([]);
+      if (showLoading && isFirstPage) setLoading(true);
+    }
+
     if (currentPage > 1) {
       setLoadingMore(true);
       isLoadingMoreRef.current = true;
@@ -63,7 +110,6 @@ export const useListingApi = <T>(
 
     let apiUrl = `${url}?pageIndex=${currentPage}&pageSize=${pageSize}`;
 
-    const searchValue = searchParam || search;
     if (searchValue) {
       apiUrl += `&searchTerm=${encodeURIComponent(searchValue)}`;
     }
@@ -77,6 +123,7 @@ export const useListingApi = <T>(
       apiUrl += '&' + getQueryFromObject(paramsToUse);
     }
 
+    // Step 2: fetch fresh data
     api
       .get<any>(apiUrl, getAuthHeader(token))
       .then(res => {
@@ -124,8 +171,19 @@ export const useListingApi = <T>(
             return updatedData;
           });
         } else {
-          setData(newData);
+          // Only update state if data actually changed — avoids a flash
+          // when the fresh response is identical to what the cache showed.
+          const freshJson = JSON.stringify(newData);
+          if (freshJson !== cachedJson) {
+            setData(newData);
+          }
           setHasMore(newData.length < newTotalCount && newData.length > 0);
+
+          // Cache page-1 non-search results
+          if (!searchValue && !noCache) {
+            const cacheKey = buildCacheKey(paramsToUse);
+            setCached(cacheKey, { data: newData, totalCount: newTotalCount });
+          }
         }
       })
       .finally(() => {
@@ -135,13 +193,17 @@ export const useListingApi = <T>(
         isFetchingRef.current = false;
         isLoadingMoreRef.current = false;
 
-        // If extraParams changed while request was in flight, fetch with new params
+        // If extraParams changed while request was in flight, fetch with new params.
+        // setLoading(true) is intentionally set here so it wins in the same React
+        // batch as the setLoading(false) above — preventing an empty-state flash
+        // between the stale fetch completing and the new fetch starting.
         if (pendingExtraParamsChangeRef.current) {
           pendingExtraParamsChangeRef.current = false;
           pageIndexRef.current = 1;
           setPageIndex(1);
           setData([]);
           setHasMore(true);
+          setLoading(true);
           fetchData('', true, 1);
         }
       });
@@ -149,9 +211,9 @@ export const useListingApi = <T>(
 
   // Only fetch on initial mount, not on focus
   useEffect(() => {
-      if (!isInitialLoad && !isFetchingRef.current) {
-        fetchData('', true, 1);
-      }
+    if (!isInitialLoad && !isFetchingRef.current) {
+      fetchData('', true, 1);
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -186,8 +248,8 @@ export const useListingApi = <T>(
       }
       pageIndexRef.current = 1;
       setPageIndex(1);
-      setData([]);
       setHasMore(true);
+      setLoading(true);
       fetchData('', true, 1);
     }
   }, [extraParams]);
@@ -196,7 +258,6 @@ export const useListingApi = <T>(
     if (!isInitialLoad || isFetchingRef.current) return;
     pageIndexRef.current = 1;
     setPageIndex(1);
-    setData([]);
     setHasMore(true);
     fetchData('', true, 1);
   }, [pageSize, sortColumn, sortDirection]);

@@ -1002,21 +1002,38 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   if (checkoutCompleted) {
     const isSendType2 = cartData?.SendType === 2;
+    const isCampaign = cartData?.CampaginType === 3;
 
     return (
       <>
         <SuccessMessage
           subTitle={
-            isSendType2 ? getString('INBOX_GIFT_LINK_OUTBOX_MESSAGE') : ''
+            isSendType2
+              ? getString('INBOX_GIFT_LINK_OUTBOX_MESSAGE')
+              : isCampaign
+              ? getString('INBOX_GIFT_FOUND_MESSAGE')
+              : ''
           }
-          SuccessLogo={isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
+          SuccessLogo={
+            isSendType2 ? (
+              <SvgLinkShareIcon />
+            ) : isCampaign ? (
+              <Image
+                source={require('../../../assets/images/giftOneGetOne.png')}
+              />
+            ) : (
+              <SvgGiftSentIcon />
+            )
+          }
           SuccessMessage={
             isSendType2
               ? getString('CHECKOUT_GIFT_LINK_CREATED')
+              : isCampaign
+              ? getString('HOME_GIFT_ONE_GET_ONE_STATUS')
               : getString('CHECKOUT_GIFT_DELIVERED')
           }
           SuccessSubMessage={
-            !isSendType2
+            !isSendType2 && !isCampaign
               ? getString('CHECKOUT_YOUR_SURPRISE_HAS_BEEN_SENT')
               : ''
           }

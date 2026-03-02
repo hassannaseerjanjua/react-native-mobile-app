@@ -731,6 +731,21 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 : theme.sizes.HEIGHT * 0.025,
           }}
           showsVerticalScrollIndicator={false}
+          scrollEventThrottle={300}
+          onScroll={({ nativeEvent }) => {
+            const { layoutMeasurement, contentOffset, contentSize } =
+              nativeEvent;
+            const nearBottom =
+              layoutMeasurement.height + contentOffset.y >=
+              contentSize.height - 100;
+            if (!nearBottom) return;
+            if (activeTab === 'group') return;
+            if (isMerchant && activeTab === 'employees') {
+              employeesApi.loadMore();
+            } else {
+              activeUsersApi.loadMore();
+            }
+          }}
         >
           <View>
             <GroupTabs
@@ -990,14 +1005,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   )}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContainer}
-                  onEndReached={
-                    activeTab === 'group'
-                      ? undefined
-                      : isMerchant && activeTab === 'employees'
-                      ? employeesApi.loadMore
-                      : activeUsersApi.loadMore
-                  }
-                  onEndReachedThreshold={0.5}
+                  scrollEnabled={false}
                 />
               </View>
               {!isMerchant &&

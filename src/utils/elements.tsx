@@ -12,6 +12,7 @@ import {
   StyleSheet,
   View,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useLocaleStore } from '../store/reducer/locale';
 import fonts from '../assets/fonts';
 import { getFontsForLanguage } from '../assets/fonts';
@@ -136,6 +137,50 @@ export const Text = (props: TextProps) => {
 
 const placeholder = require('../assets/images/img-placeholder.png');
 
+// ---------------------------------------------------------------------------
+// Persistent image URI cache
+// ---------------------------------------------------------------------------
+// In-memory Set for instant lookups this session.
+// Backed by AsyncStorage so it survives app restarts.
+// A URI stays cached until it fails to load (e.g. URL removed/changed).
+// ---------------------------------------------------------------------------
+
+const CACHE_STORAGE_KEY = '@image_uri_cache';
+const MAX_CACHE_SIZE = 500; // cap to avoid unbounded growth
+
+const loadedUriCache = new Set<string>();
+let persistDebounceTimer: ReturnType<typeof setTimeout> | null = null;
+
+// Resolves once the persisted cache has been loaded from AsyncStorage.
+// handleLoad awaits this before checking wasCached, so images that fire
+// onLoad before AsyncStorage finishes still get the correct behaviour.
+const cacheReadyPromise = AsyncStorage.getItem(CACHE_STORAGE_KEY)
+  .then(raw => {
+    if (!raw) return;
+    const uris: string[] = JSON.parse(raw);
+    uris.forEach(uri => loadedUriCache.add(uri));
+  })
+  .catch(() => {});
+
+const persistCache = () => {
+  if (persistDebounceTimer) clearTimeout(persistDebounceTimer);
+  persistDebounceTimer = setTimeout(() => {
+    const uris = Array.from(loadedUriCache).slice(-MAX_CACHE_SIZE);
+    AsyncStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(uris)).catch(() => {});
+  }, 1000);
+};
+
+const addToCache = (uri: string) => {
+  loadedUriCache.add(uri);
+  persistCache();
+};
+
+const removeFromCache = (uri: string) => {
+  if (!loadedUriCache.has(uri)) return;
+  loadedUriCache.delete(uri);
+  persistCache();
+};
+
 interface AppImageProps extends ImageProps {
   placeholderSource?: ImageProps['source'];
 }
@@ -148,8 +193,18 @@ export const Image = ({
   onError,
   ...rest
 }: AppImageProps) => {
-  const [loaded, setLoaded] = useState(false);
-  const opacity = useRef(new Animated.Value(0)).current;
+  const isLocalSource = typeof source === 'number';
+  const sourceKey = Array.isArray(source)
+    ? source.map(item => (item as any)?.uri || '').join('|')
+    : typeof source === 'number'
+    ? String(source)
+    : (source as any)?.uri || '';
+
+  // Always start with placeholder visible. For cached URIs the native layer
+  // still needs a moment to paint — we snap opacity to 1 the instant onLoad
+  // fires (no fade animation), which is near-instant from the native cache.
+  const [loaded, setLoaded] = useState(isLocalSource);
+  const opacity = useRef(new Animated.Value(isLocalSource ? 1 : 0)).current;
 
   // Separate layout-safe styles (valid on View) from image-only styles
   const flatStyle = (StyleSheet.flatten(style) || {}) as any;
@@ -162,13 +217,6 @@ export const Image = ({
   const resizeMode =
     styleResizeMode ?? (objectFit ? objectFit : undefined) ?? 'cover';
 
-  const isLocalSource = typeof source === 'number';
-  const sourceKey = Array.isArray(source)
-    ? source.map(item => (item as any)?.uri || '').join('|')
-    : typeof source === 'number'
-    ? String(source)
-    : (source as any)?.uri || '';
-
   useEffect(() => {
     if (isLocalSource) {
       setLoaded(true);
@@ -179,17 +227,30 @@ export const Image = ({
     opacity.setValue(0);
   }, [sourceKey, isLocalSource, opacity]);
 
-  const handleLoad = (e: any) => {
-    Animated.timing(opacity, {
-      toValue: 1,
-      duration: 250,
-      useNativeDriver: true,
-    }).start();
+  const handleLoad = async (e: any) => {
+    // Wait for the persisted cache to finish loading from AsyncStorage.
+    // After the first resolution this is a no-op (resolved microtask).
+    await cacheReadyPromise;
+
+    const wasCached = Boolean(sourceKey) && loadedUriCache.has(sourceKey);
+    if (sourceKey) addToCache(sourceKey);
+
+    if (wasCached) {
+      // Already in cache: snap immediately, no fade animation
+      opacity.setValue(1);
+    } else {
+      Animated.timing(opacity, {
+        toValue: 1,
+        duration: 250,
+        useNativeDriver: true,
+      }).start();
+    }
     setLoaded(true);
     onLoad?.(e);
   };
 
   const handleError = (e: any) => {
+    removeFromCache(sourceKey);
     setLoaded(false);
     opacity.setValue(0);
     onError?.(e);

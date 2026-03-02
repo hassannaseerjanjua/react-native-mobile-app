@@ -61,7 +61,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const businessTypeApi = useGetApi<BusinessType[]>(
-    apiEndpoints.GET_BUSINESS_TYPE,
+    apiEndpoints.GET_BUSINESS_TYPE + '?cityid=' + selectedCityId,
     {
       transformData: (data: any) => data.Data.Items || [],
     },
@@ -150,6 +150,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
+      pageSize: 5,
       extraParams: {
         businessTypeId:
           selectedFilter === 'all' ? undefined : Number(selectedFilter),
@@ -233,6 +234,12 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
+
+  useEffect(() => {
+    if (selectedCityId) {
+      businessTypeApi.refetch();
+    }
+  }, [selectedCityId]);
 
   return (
     <ParentView>
