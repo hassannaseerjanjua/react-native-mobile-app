@@ -566,16 +566,18 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             >
               <SkeletonLoader screenType="groupTabs" />
             </View>
+          ) : categoriesApi.data &&
+            categoriesApi.data.length > 0 &&
+            ((listingApi?.data && listingApi.data.length > 0) ||
+              listingApi?.loading) ? (
+            <GroupTabs
+              tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
+              tabs={filterOptions}
+              activeTab={selectedFilter}
+              onTabPress={handleTabPress}
+            />
           ) : (
-            categoriesApi.data &&
-            categoriesApi.data.length > 0 && (
-              <GroupTabs
-                tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
-                tabs={filterOptions}
-                activeTab={selectedFilter}
-                onTabPress={handleTabPress}
-              />
-            )
+            <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
           )}
         </View>
 

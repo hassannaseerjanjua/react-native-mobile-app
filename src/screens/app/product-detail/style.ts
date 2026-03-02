@@ -26,7 +26,7 @@ const useStyles = () => {
         shadowOpacity: 0.2,
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 4,
+        elevation: 2,
       },
       backContainer: {
         ...theme.globalStyles.SHADOW_STYLE,

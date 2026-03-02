@@ -402,13 +402,19 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
               <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
                 <SkeletonLoader screenType="groupTabs" />
               </View>
-            ) : (
+            ) : (categoriesApi.data &&
+                categoriesApi.data.length > 0 &&
+                currentListingApi.data &&
+                currentListingApi.data.length > 0) ||
+              currentListingApi.loading ? (
               <GroupTabs
                 tabs={filterOptions}
                 activeTab={selectedFilter}
                 onTabPress={handleTabPress}
                 tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
               />
+            ) : (
+              <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
             )}
           </View>
           {currentListingApi.loading && !isRefreshing ? (

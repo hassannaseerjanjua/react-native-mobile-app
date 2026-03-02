@@ -304,7 +304,7 @@ const useStyles = () => {
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.35,
         shadowRadius: 3,
-        elevation: 5,
+        elevation: 3,
         zIndex: 10,
       },
       handleLeft: {
@@ -337,7 +337,7 @@ const useStyles = () => {
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.6,
         shadowRadius: 2,
-        elevation: 3,
+        elevation: 2,
         zIndex: 5,
       },
     });

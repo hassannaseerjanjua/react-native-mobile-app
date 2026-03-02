@@ -155,6 +155,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         businessTypeId:
           selectedFilter === 'all' ? undefined : Number(selectedFilter),
         cityid: selectedCityId,
+        userapp: true,
       },
     },
   );
@@ -311,13 +312,18 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
                 <SkeletonLoader screenType="groupTabs" />
               </View>
-            ) : (
+            ) : businessTypeApi.data &&
+              businessTypeApi.data.length > 0 &&
+              ((storeListApi.data && storeListApi.data.length > 0) ||
+                storeListApi.loading) ? (
               <GroupTabs
                 tabs={filterOptions}
                 activeTab={selectedFilter}
                 onTabPress={setSelectedFilter}
                 tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
               />
+            ) : (
+              <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
             )}
           </View>
 

@@ -184,14 +184,19 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
             <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
               <SkeletonLoader screenType="groupTabs" />
             </View>
-          ) : FavStoreListing.data && FavStoreListing.data.length > 0 ? (
+          ) : businessTypeApi.data &&
+            businessTypeApi.data.length > 0 &&
+            ((FavStoreListing.data && FavStoreListing.data.length > 0) ||
+              FavStoreListing.loading) ? (
             <GroupTabs
               tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
               tabs={filterOptions}
               activeTab={selectedFilter}
               onTabPress={setSelectedFilter}
             />
-          ) : null}
+          ) : (
+            <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
+          )}
         </View>
 
         {FavStoreListing.loading && !isRefreshing ? (

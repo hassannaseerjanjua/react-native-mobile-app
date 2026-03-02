@@ -103,7 +103,7 @@ const useStyles = () => {
         },
         shadowOpacity: 0.3,
         shadowRadius: 10,
-        elevation: 10,
+        elevation: 4,
       },
       qrContent: {
         width: '100%',
@@ -185,7 +185,7 @@ const useStyles = () => {
         padding: scaleWithMax(6, 8),
         ...theme.globalStyles.SHADOW_STYLE_LOW,
         shadowColor: '#00000050',
-        elevation: 4,
+        elevation: 2,
       },
     });
   }, [theme]);

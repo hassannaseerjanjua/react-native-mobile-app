@@ -296,7 +296,7 @@ const HomeScreenTabsContainer: React.FC = () => {
               shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 0.08,
               shadowRadius: 8,
-              elevation: 2,
+              elevation: 1,
             }}
           />
         ))}

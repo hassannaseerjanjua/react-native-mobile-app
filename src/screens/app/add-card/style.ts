@@ -20,7 +20,7 @@ const useStyles = () => {
       listContainer: {
         paddingVertical: sizes.PADDING,
         paddingHorizontal: sizes.PADDING,
-        gap: sizes.HEIGHT * 0.005,
+        gap: sizes.HEIGHT * 0.01,
       },
       cardContainer: {
         flexDirection: 'row',

@@ -736,6 +736,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                           setGroupName(text);
                           if (groupError) setGroupError('');
                         }}
+                        maxLength={50}
                         onFocus={() => {
                           if (Platform.OS === 'android') {
                             setTimeout(() => {
@@ -790,7 +791,7 @@ const useStyles = () => {
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.08,
       shadowRadius: scaleWithMax(4, 6),
-      elevation: 2,
+      elevation: 1,
     };
 
     const avatarSize = scaleWithMax(60, 60);
@@ -999,7 +1000,7 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS_HIGH,
         ...shadowStyle,
-        elevation: 3,
+        elevation: 2,
         marginBottom: sizes.HEIGHT * 0.018,
       },
       sectionTitle: {

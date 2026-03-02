@@ -56,8 +56,16 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
         )}
 
         <View style={styles.centerContent}>
-          {title && <Text style={styles.title}>{title}</Text>}
-          {subTitle && <Text style={styles.subTitle}>{subTitle}</Text>}
+          {title && (
+            <Text style={styles.title} numberOfLines={1} ellipsizeMode="tail">
+              {title}
+            </Text>
+          )}
+          {subTitle && (
+            <Text style={styles.subTitle} numberOfLines={1} ellipsizeMode="tail">
+              {subTitle}
+            </Text>
+          )}
         </View>
 
         {rightSideTitle && (
@@ -136,12 +144,14 @@ const useStyles = () => {
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
+        maxWidth: '70%',
       },
       subTitle: {
         fontFamily: fonts.regular,
         fontSize: 12,
         color: colors.SECONDARY_TEXT,
         textAlign: 'center',
+        maxWidth: '70%',
       },
       rightSideTitle: {
         fontSize: 16,

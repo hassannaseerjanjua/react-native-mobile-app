@@ -118,11 +118,16 @@ const GiftOneGetOneScreen: React.FC<AppStackScreen<'GiftOneGetOne'>> = ({
         showSearchBar
       />
       <View style={styles.tabsContainer}>
-        <GroupTabs
-          tabs={filterOptions}
-          activeTab={selectedFilter}
-          onTabPress={setSelectedFilter}
-        />
+        {filterOptions.length > 0 &&
+        (filteredStores.length > 0 || isLoading) ? (
+          <GroupTabs
+            tabs={filterOptions}
+            activeTab={selectedFilter}
+            onTabPress={setSelectedFilter}
+          />
+        ) : (
+          <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
+        )}
       </View>
       <View style={styles.content}>
         {isLoading ? (

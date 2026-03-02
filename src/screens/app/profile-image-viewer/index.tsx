@@ -220,7 +220,7 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
 
   return (
     <ParentView style={screenStyles.container}>
-      <View style={{ zIndex: 10, elevation: 10 }}>
+      <View style={{ zIndex: 10, elevation: 4 }}>
         <HomeHeader
           title={title || getString('PROFILE_IMAGE_VIEWER_TITLE')}
           showBackButton
