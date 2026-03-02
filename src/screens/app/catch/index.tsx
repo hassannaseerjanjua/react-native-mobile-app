@@ -426,6 +426,10 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     }
   };
 
+  useEffect(() => {
+    categoriesApi.refetch();
+  }, [selectedCityId]);
+
   // Render product item based on screen type
   const renderProductItem = ({ item }: { item: any }) => {
     if (screenType === 'favorite') {
@@ -563,12 +567,15 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               <SkeletonLoader screenType="groupTabs" />
             </View>
           ) : (
-            <GroupTabs
-              tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
-              tabs={filterOptions}
-              activeTab={selectedFilter}
-              onTabPress={handleTabPress}
-            />
+            categoriesApi.data &&
+            categoriesApi.data.length > 0 && (
+              <GroupTabs
+                tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
+                tabs={filterOptions}
+                activeTab={selectedFilter}
+                onTabPress={handleTabPress}
+              />
+            )
           )}
         </View>
 
