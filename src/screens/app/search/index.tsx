@@ -3,6 +3,7 @@ import {
   View,
   StatusBar,
   FlatList,
+  ScrollView,
   Share,
   Platform,
   TouchableOpacity,
@@ -76,6 +77,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     showEmployeesOnly ? '' : apiEndpoints.GET_ACTIVE_USERS,
     token,
     {
+      pageSize: 30,
       idExtractor: (item: ActiveUser) => item.UserId,
       transformData: (data: ActiveUsersApiResponse) => ({
         data: data.Data?.Items || [],
@@ -92,6 +94,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     showEmployeesOnly ? apiEndpoints.GET_EMPLOYEES : '',
     token,
     {
+      pageSize: 30,
       idExtractor: (item: ActiveUser) => item.UserId,
       transformData: (data: ActiveUsersApiResponse) => ({
         data: data.Data?.Items || [],
@@ -153,6 +156,20 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       employeesApi.recall();
     } else {
       activeUsersApi.recall();
+    }
+  };
+
+  const handleScroll = ({ nativeEvent }: { nativeEvent: any }) => {
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    const threshold = layoutMeasurement.height * 0.5;
+    const nearBottom =
+      layoutMeasurement.height + contentOffset.y >= contentSize.height - threshold;
+    if (!nearBottom) return;
+    if (showConnectOnly) return;
+    if (showEmployeesOnly) {
+      employeesApi.loadMore();
+    } else {
+      activeUsersApi.loadMore();
     }
   };
 
@@ -435,15 +452,30 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         }
       />
 
-      <View style={[styles.content, styles.contentContainer]}>
+      <View style={styles.content}>
         {activeUsersApi.loading ||
         employeesApi.loading ||
         (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
-          <View style={styles.listCard}>
+          <View style={[styles.listCard, styles.contentContainer]}>
             <SkeletonLoader screenType="search" />
           </View>
         ) : (
-          (() => {
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={300}
+            onScroll={handleScroll}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                tintColor={theme.colors.PRIMARY}
+                colors={[theme.colors.PRIMARY]}
+              />
+            }
+          >
+            {(() => {
             // In connect mode, only show mobile contacts
             if (showConnectOnly) {
               // Map mobile contacts to ActiveUser format for display
@@ -482,43 +514,46 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               const isEmpty = filteredContacts.length === 0;
 
               return (
-                <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
+                <View
+                  style={[styles.listCard, isEmpty && styles.listCardEmpty]}
+                >
                   <FlatList
                     data={filteredContacts}
+                    scrollEnabled={false}
                     keyExtractor={item => item.UserId.toString()}
                     renderItem={({ item, index }) => {
-                    const phoneNo = item.PhoneNo || '';
-                    const formattedPhone = formatPhoneNumber(phoneNo);
-                    const verified = verifiedUsers[formattedPhone];
-                    const isAppUser = verified?.IsAppUser || false;
+                      const phoneNo = item.PhoneNo || '';
+                      const formattedPhone = formatPhoneNumber(phoneNo);
+                      const verified = verifiedUsers[formattedPhone];
+                      const isAppUser = verified?.IsAppUser || false;
 
-                    return (
-                      <SearchUserItem
-                        item={item}
-                        index={index}
-                        isLast={index === (filteredContacts?.length ?? 0) - 1}
-                        updatedUsers={updatedUsers}
-                        loadingUsers={loadingUsers}
-                        handleAddUser={
-                          isAppUser
-                            ? () => handleContactAction(item)
-                            : undefined
-                        }
-                        showAddButton={true}
-                        tempAddedUserIds={tempAddedUserIds}
-                        isGeneralSearchScreen={false}
-                        // Pass custom button text for invite
-                        customButtonText={
-                          !isAppUser ? getString('SEARCH_INVITE') : undefined
-                        }
-                        onCustomButtonPress={
-                          !isAppUser
-                            ? () => handleContactAction(item)
-                            : undefined
-                        }
-                      />
-                    );
-                  }}
+                      return (
+                        <SearchUserItem
+                          item={item}
+                          index={index}
+                          isLast={index === (filteredContacts?.length ?? 0) - 1}
+                          updatedUsers={updatedUsers}
+                          loadingUsers={loadingUsers}
+                          handleAddUser={
+                            isAppUser
+                              ? () => handleContactAction(item)
+                              : undefined
+                          }
+                          showAddButton={true}
+                          tempAddedUserIds={tempAddedUserIds}
+                          isGeneralSearchScreen={false}
+                          // Pass custom button text for invite
+                          customButtonText={
+                            !isAppUser ? getString('SEARCH_INVITE') : undefined
+                          }
+                          onCustomButtonPress={
+                            !isAppUser
+                              ? () => handleContactAction(item)
+                              : undefined
+                          }
+                        />
+                      );
+                    }}
                     showsVerticalScrollIndicator={false}
                     ListEmptyComponent={
                       <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
@@ -539,14 +574,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                         </View>
                       ) : null
                     }
-                    refreshControl={
-                      <RefreshControl
-                        refreshing={isRefreshing}
-                        onRefresh={handleRefresh}
-                        tintColor={theme.colors.PRIMARY}
-                        colors={[theme.colors.PRIMARY]}
-                      />
-                    }
                   />
                 </View>
               );
@@ -562,24 +589,27 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
                 <FlatList
                   data={filteredData}
+                  scrollEnabled={false}
                   keyExtractor={item => item.UserId.toString()}
                   renderItem={({ item, index }) => (
-                  <SearchUserItem
-                    item={item}
-                    index={index}
-                    isLast={index === (filteredData?.length ?? 0) - 1}
-                    updatedUsers={updatedUsers}
-                    loadingUsers={loadingUsers}
-                    handleAddUser={
-                      showEmployeesOnly ? undefined : handleAddUser
-                    }
-                    showAddButton={!showEmployeesOnly}
-                    tempAddedUserIds={tempAddedUserIds}
-                    isGeneralSearchScreen={
-                      !showFriendsOnly && !showConnectOnly && !showEmployeesOnly
-                    }
-                  />
-                )}
+                    <SearchUserItem
+                      item={item}
+                      index={index}
+                      isLast={index === (filteredData?.length ?? 0) - 1}
+                      updatedUsers={updatedUsers}
+                      loadingUsers={loadingUsers}
+                      handleAddUser={
+                        showEmployeesOnly ? undefined : handleAddUser
+                      }
+                      showAddButton={!showEmployeesOnly}
+                      tempAddedUserIds={tempAddedUserIds}
+                      isGeneralSearchScreen={
+                        !showFriendsOnly &&
+                        !showConnectOnly &&
+                        !showEmployeesOnly
+                      }
+                    />
+                  )}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContainer}
                   ListEmptyComponent={
@@ -589,24 +619,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       />
                     </View>
                   }
-                  onEndReached={
-                    showEmployeesOnly
-                      ? employeesApi.loadMore
-                      : activeUsersApi.loadMore
-                  }
-                  onEndReachedThreshold={0.5}
-                  refreshControl={
-                    <RefreshControl
-                      refreshing={isRefreshing}
-                      onRefresh={handleRefresh}
-                      tintColor={theme.colors.PRIMARY}
-                      colors={[theme.colors.PRIMARY]}
-                    />
-                  }
                 />
               </View>
             );
-          })()
+          })()}
+          </ScrollView>
         )}
       </View>
 

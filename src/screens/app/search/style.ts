@@ -19,7 +19,7 @@ const useStyles = () => {
       contentContainer: {
         paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.PADDING,
-        paddingBottom: sizes.HEIGHT * 0.02,
+        paddingBottom: sizes.HEIGHT * 0.04,
       },
       listCard: {
         backgroundColor: colors.WHITE,

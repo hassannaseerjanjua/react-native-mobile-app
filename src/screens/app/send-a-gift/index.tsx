@@ -97,6 +97,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     apiEndpoints.GET_ACTIVE_USERS,
     token,
     {
+      pageSize: 30,
       idExtractor: (item: ActiveUser) => item.UserId,
       transformData: (data: ActiveUsersApiResponse) => ({
         data: data.Data?.Items || [],
@@ -115,6 +116,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     apiEndpoints.GET_ACTIVE_USERS,
     token,
     {
+      pageSize: 30,
       idExtractor: (item: ActiveUser) => item.UserId,
       transformData: (data: ActiveUsersApiResponse) => ({
         data: data.Data?.Items || [],
@@ -143,6 +145,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     isMerchant ? apiEndpoints.GET_EMPLOYEES : '',
     token,
     {
+      pageSize: 30,
       idExtractor: (item: ActiveUser) => item.UserId,
       transformData: (data: ActiveUsersApiResponse) => ({
         data: data.Data?.Items || [],
@@ -735,9 +738,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           onScroll={({ nativeEvent }) => {
             const { layoutMeasurement, contentOffset, contentSize } =
               nativeEvent;
+            const threshold = layoutMeasurement.height * 0.5;
             const nearBottom =
               layoutMeasurement.height + contentOffset.y >=
-              contentSize.height - 100;
+              contentSize.height - threshold;
             if (!nearBottom) return;
             if (activeTab === 'group') return;
             if (isMerchant && activeTab === 'employees') {
