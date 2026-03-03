@@ -6,6 +6,7 @@ import {
   Modal,
   TouchableWithoutFeedback,
   Dimensions,
+  Platform,
 } from 'react-native';
 import React, {
   useRef,
@@ -133,6 +134,9 @@ const AppBottomSheet = ({
               : undefined
           }
           enablePanDownToClose={enablePanDownToClose}
+          enableOverDrag={false}
+          enableHandlePanningGesture={Platform.OS !== 'android'}
+          enableContentPanningGesture={Platform.OS !== 'android'}
           handleStyle={{
             borderTopLeftRadius: scaleWithMax(24, 30),
             borderTopRightRadius: scaleWithMax(24, 30),
