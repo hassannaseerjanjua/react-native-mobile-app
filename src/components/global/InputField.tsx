@@ -1,15 +1,9 @@
-import {
-  StyleSheet,
-  TextInput,
-  TextInputProps,
-  View,
-  I18nManager,
-} from 'react-native';
+import { StyleSheet, TextInputProps, View, Platform } from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
 import { scaleWithMax, rtlTextAlign, rtlPadding } from '../../utils';
 import { SvgGalleryUploadIcon, SvgPhone } from '../../assets/icons';
-import { Text } from '../../utils/elements';
+import { Text, TextInput } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 
 type Props = {
@@ -40,6 +34,7 @@ const InputField = ({
       <View
         style={[
           isMultiline ? styles.textareaContainer : styles.container,
+          isPhone && styles.phoneFieldLtr,
           {
             borderWidth: error ? 1 : 0,
             borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
@@ -55,14 +50,17 @@ const InputField = ({
         ) : (
           icon
         )}
-        {isPhone && <Text style={styles.prefixText}>+966</Text>}
+        {isPhone && (
+          <Text style={styles.prefixText}>{isRtl ? '966+' : '+966'}</Text>
+        )}
         <TextInput
           {...fieldProps}
           style={[
             isMultiline ? styles.textarea : styles.input,
             {
               paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
-              textAlign: rtlTextAlign(isRtl),
+              textAlign: isPhone ? 'left' : rtlTextAlign(isRtl),
+              writingDirection: isPhone ? 'ltr' : undefined,
             },
             fieldProps.style,
           ]}
@@ -78,7 +76,9 @@ const InputField = ({
             width={scaleWithMax(15, 18)}
             height={scaleWithMax(15, 18)}
           />
-          <Text style={styles.galleryUploadText}>{getString('COMP_UPLOAD')}</Text>
+          <Text style={styles.galleryUploadText}>
+            {getString('COMP_UPLOAD')}
+          </Text>
         </View>
       )}
       {!!error && (
@@ -103,7 +103,7 @@ const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes, globalStyles } = theme;
+    const { colors, sizes, globalStyles, fonts } = theme;
     return StyleSheet.create({
       container: {
         ...globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
@@ -114,6 +114,9 @@ const useStyles = () => {
         alignItems: 'center',
         backgroundColor: colors.WHITE,
         ...globalStyles.SHADOW_STYLE_INPUT,
+      },
+      phoneFieldLtr: {
+        direction: 'ltr',
       },
       textareaContainer: {
         width: '100%',
@@ -128,14 +131,17 @@ const useStyles = () => {
       },
       input: {
         ...globalStyles.TEXT_STYLE,
+        fontFamily: fonts.regular,
         flex: 1,
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         paddingVertical: 0,
         paddingHorizontal: 0,
+        ...(Platform.OS === 'android' ? { height: '100%' } : {}),
       },
       textarea: {
         ...globalStyles.TEXT_STYLE,
+        fontFamily: fonts.regular,
         flex: 1,
         minHeight: scaleWithMax(100, 120),
         fontSize: 16,
@@ -168,6 +174,7 @@ const useStyles = () => {
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         marginStart: 8,
+        ...(Platform.OS === 'ios' ? { marginTop: -2.5 } : {}),
       },
       galleryUploadContainer: {
         position: 'absolute',

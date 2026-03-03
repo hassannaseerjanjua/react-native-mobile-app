@@ -1,15 +1,15 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { Text } from '../../utils/elements';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, Image } from '../../utils/elements';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import {
   SvgItemFavouriteIcon,
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
-  SvgRiyalIconPrimary,
   SvgRiyalPink,
 } from '../../assets/icons';
+import PriceWithIcon from '../global/Price';
 import { FaveItems, StoreProduct } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
 
@@ -114,57 +114,63 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
         <Text style={styles.title} numberOfLines={1}>
           {itemName}
         </Text>
-        <Text style={styles.subtitle} numberOfLines={1}>
+        {/* <Text style={styles.subtitle} numberOfLines={1}>
           {categoryName}
-        </Text>
+        </Text> */}
         <View style={styles.priceContainer}>
           {isSpecialPrice && (
-            <>
-              <SvgRiyalPink
-                width={scaleWithMax(11, 13)}
-                height={scaleWithMax(11, 13)}
-                style={{
-                  marginTop: 3.5,
-                }}
-              />
-              <Text style={styles.discountedPrice}>{cutPrice}</Text>
-            </>
-          )}
-
-          {!isFavoriteTab && (
-            <>
-              <SvgRiyalIcon
-                width={
-                  isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
-                }
-                height={
-                  isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
-                }
-                opacity={isSpecialPrice ? 0.32 : 1}
-              />
-            </>
-          )}
-          {!isFavoriteTab && (
-            <Text style={isSpecialPrice ? styles.cutPrice : styles.price}>
-              {(isFavoriteTab ? cutPrice : price) ||
-                getString('COMP_NOT_AVAILABLE')}
-            </Text>
-          )}
-
-          {isFavoriteTab && (
-            <>
-              <View style={styles.priceContainer}>
+            <PriceWithIcon
+              amount={cutPrice}
+              variant="discounted"
+              icon={
                 <SvgRiyalPink
                   width={scaleWithMax(11, 13)}
                   height={scaleWithMax(11, 13)}
-                  style={{
-                    marginTop: 3.5,
-                  }}
                 />
-                <Text style={styles.discountedPrice}>{cutPrice}</Text>
-                <Text style={styles.cutPrice}>{price}</Text>
-              </View>
-            </>
+              }
+              textStyle={styles.discountedPrice}
+            />
+          )}
+
+          {!isFavoriteTab && (
+            <PriceWithIcon
+              amount={price || getString('COMP_NOT_AVAILABLE')}
+              variant={isSpecialPrice ? 'cut' : 'default'}
+              icon={
+                <SvgRiyalIcon
+                  width={
+                    isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
+                  }
+                  height={
+                    isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
+                  }
+                />
+              }
+              iconOpacity={isSpecialPrice ? 0.32 : 1}
+              textStyle={isSpecialPrice ? styles.cutPrice : styles.price}
+            />
+          )}
+
+          {isFavoriteTab && (
+            <View style={styles.priceContainer}>
+              <PriceWithIcon
+                amount={cutPrice}
+                variant="discounted"
+                icon={
+                  <SvgRiyalPink
+                    width={scaleWithMax(11, 13)}
+                    height={scaleWithMax(11, 13)}
+                  />
+                }
+                textStyle={styles.discountedPrice}
+              />
+              <PriceWithIcon
+                amount={price}
+                variant="cut"
+                showIcon={false}
+                textStyle={styles.cutPrice}
+              />
+            </View>
           )}
         </View>
       </View>
@@ -189,6 +195,7 @@ const useStyles = () => {
         position: 'relative',
         height: sizes.HEIGHT * 0.21,
         width: '100%',
+        ...theme.globalStyles.SHADOW_STYLE_INPUT,
       },
 
       image: {

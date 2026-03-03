@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import {
   View,
-  Image,
   TouchableOpacity,
   ImageSourcePropType,
   StatusBar,
   ActivityIndicator,
 } from 'react-native';
+import { Image } from '../../../utils/elements';
 import { useNavigation } from '@react-navigation/native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { SvgPencilIcon, SvgDeleteIcon } from '../../../assets/icons';
@@ -34,6 +34,8 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
     occasionId,
     occasionName,
     occasionDate,
+    isLocalOnly,
+    onImageUpdate,
   } = route.params;
   const { styles: screenStyles, theme } = useStyles();
   const navigation = useNavigation();
@@ -79,13 +81,17 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
       });
 
       if (croppedImage) {
-        // Create an asset object compatible with uploadProfileImage
         const asset = {
           uri: croppedImage.uri,
-          type: croppedImage.type,
-          fileName: croppedImage.name,
+          type: croppedImage.type || 'image/jpeg',
+          name: croppedImage.name,
         };
-        uploadProfileImage(asset);
+        if (isLocalOnly && onImageUpdate) {
+          onImageUpdate({ type: 'update', asset });
+          navigation.goBack();
+        } else {
+          uploadProfileImage(asset);
+        }
       }
     } catch (error) {
       console.error('Error selecting/cropping image:', error);
@@ -204,12 +210,17 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
   const handleRemovePhoto = () => {
     if (isUploading) return;
     setShowDeleteConfirmation(false);
-    uploadProfileImage(null, true);
+    if (isLocalOnly && onImageUpdate) {
+      onImageUpdate({ type: 'delete' });
+      navigation.goBack();
+    } else {
+      uploadProfileImage(null, true);
+    }
   };
 
   return (
     <ParentView style={screenStyles.container}>
-      <View style={{ zIndex: 10, elevation: 10 }}>
+      <View style={{ zIndex: 10, elevation: 4 }}>
         <HomeHeader
           title={title || getString('PROFILE_IMAGE_VIEWER_TITLE')}
           showBackButton
@@ -291,8 +302,13 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
         title={isOccasionMode ? getString('PROFILE_IMAGE_VIEWER_DELETE_IMAGE') : getString('PROFILE_IMAGE_VIEWER_DELETE_PHOTO')}
         message={
           isOccasionMode
-            ? getString('PROFILE_IMAGE_VIEWER_DELETE_OCCASION_IMAGE_CONFIRM')
-            : getString('PROFILE_IMAGE_VIEWER_DELETE_PHOTO_CONFIRM')
+            ? getString(
+                'PROFILE_IMAGE_VIEWER_DELETE_OCCASION_IMAGE_CONFIRM',
+              ).replace('{value}', occasionName || '')
+            : getString('PROFILE_IMAGE_VIEWER_DELETE_PHOTO_CONFIRM').replace(
+                '{value}',
+                '',
+              )
         }
         confirmText={getString('PROFILE_IMAGE_VIEWER_DELETE')}
         cancelText={getString('NG_CANCEL') || 'Cancel'}

@@ -2,74 +2,83 @@ import { Platform, StyleSheet } from 'react-native';
 import { Colors } from './colors';
 import { Sizes } from './sizes';
 import { useMemo } from 'react';
-import fonts from '../assets/fonts';
+import { getFontsForLanguage } from '../assets/fonts';
 import { isAndroid, scaleWithMax } from '../utils';
 
-export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
+export const getGlobalStyles = (
+  colors: Colors,
+  sizes: Sizes,
+  isArabic: boolean,
+) => {
+  const fonts = getFontsForLanguage(isArabic);
   return useMemo(
     () =>
       StyleSheet.create({
         TEXT_STYLE: {
           fontSize: sizes.FONTSIZE,
           color: colors.PRIMARY_TEXT,
-          fontFamily: fonts.Quicksand.regular,
+          fontFamily: fonts.regular,
+          // ...(isArabic && { lineHeight: sizes.FONTSIZE * 1.35 }),
         },
         TEXT_STYLE_SEMIBOLD: {
           fontSize: sizes.FONTSIZE,
           color: colors.PRIMARY_TEXT,
-          fontFamily: fonts.Quicksand.semibold,
+          fontFamily: fonts.semibold,
+          // ...(isArabic && { lineHeight: sizes.FONTSIZE * 1.35 }),
         },
         TEXT_STYLE_MEDIUM: {
           fontSize: sizes.FONTSIZE,
           color: colors.PRIMARY_TEXT,
-          fontFamily: fonts.Quicksand.medium,
+          fontFamily: fonts.medium,
+          // ...(isArabic && { lineHeight: sizes.FONTSIZE * 1.35 }),
         },
         TEXT_STYLE_BOLD: {
           fontSize: sizes.FONTSIZE,
           color: colors.PRIMARY_TEXT,
-          fontFamily: fonts.Quicksand.bold,
+          fontFamily: fonts.bold,
+          // ...(isArabic && { lineHeight: sizes.FONTSIZE * 1.35 }),
         },
         SHADOW_STYLE_STORE_CARD: {
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 0.07,
           shadowRadius: 40,
-          elevation: 4,
+          elevation: Platform.OS === 'android' ? 2 : 4,
         },
         SHADOW_STYLE_SEARCH_BAR: {
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 0.05,
           shadowRadius: 17,
-          elevation: 17,
+          elevation: Platform.OS === 'android' ? 6 : 17,
         },
         SHADOW_STYLE: {
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.08,
           shadowRadius: 17,
-          elevation: 4,
+          elevation: Platform.OS === 'android' ? 2 : 4,
         },
         SHADOW_STYLE_INPUT: {
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: 0 },
           shadowOpacity: 0.05,
           shadowRadius: 17,
-          elevation: 3,
+          elevation: Platform.OS === 'android' ? 1 : 3,
         },
         SHADOW_STYLE_MEDIUM: {
           shadowColor: '#000000',
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.25,
           shadowRadius: 8,
-          elevation: 3,
+          elevation: Platform.OS === 'android' ? 2 : 3,
         },
         SHADOW_STYLE_LOW: {
           shadowColor: '#0000000D',
           shadowOffset: { width: 0, height: 1 },
           shadowOpacity: 0.25,
           shadowRadius: 3.84,
-          elevation: 2,
+          elevation: Platform.OS === 'android' ? 1 : 2,
         },
         CONTAINER_STYLE: {
           flex: 1,
@@ -85,6 +94,6 @@ export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
           height: scaleWithMax(48, 52),
         },
       }),
-    [colors, sizes],
+    [colors, sizes, isArabic],
   );
 };

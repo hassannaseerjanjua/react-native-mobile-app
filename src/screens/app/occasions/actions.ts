@@ -91,11 +91,12 @@ export const createOccasion = async (
     formData.append('NameEn', values.occasionName);
     formData.append('NameAr', values.occasionName);
     formData.append('OccasionDate', values.occasionDate);
-    if (values.image && typeof values.image === 'object') {
+    if (values.image && typeof values.image === 'object' && values.image.uri) {
+      const img = values.image as { uri: string; type?: string; name?: string; fileName?: string };
       formData.append('ImageUrl', {
-        uri: values.image.uri,
-        type: values.image.type,
-        name: values.image.name,
+        uri: img.uri,
+        type: img.type || 'image/jpeg',
+        name: img.name || img.fileName || `occasion_image_${Date.now()}.jpg`,
       } as any);
     }
     const response = await api.post(apiEndpoints.CREATE_OCCASION, formData, {
@@ -122,11 +123,12 @@ export const updateOccasion = async (
     formData.append('OccassionId', id.toString());
     formData.append('NameEn', values.occasionName);
     formData.append('OccasionDate', values.occasionDate);
-    if (values.image && typeof values.image === 'object') {
+    if (values.image && typeof values.image === 'object' && values.image.uri) {
+      const img = values.image as { uri: string; type?: string; name?: string; fileName?: string };
       formData.append('ImageUrl', {
-        uri: values.image.uri,
-        type: values.image.type,
-        name: values.image.name,
+        uri: img.uri,
+        type: img.type || 'image/jpeg',
+        name: img.name || img.fileName || `occasion_image_${Date.now()}.jpg`,
       } as any);
     }
     const response = await api.put(apiEndpoints.UPDATE_OCCASION(id), formData, {

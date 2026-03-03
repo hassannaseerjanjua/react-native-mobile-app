@@ -1,5 +1,4 @@
 import {
-  Image,
   Platform,
   ScrollView,
   Share,
@@ -13,6 +12,7 @@ import {
 } from 'react-native';
 import WebView from 'react-native-webview';
 import React, { useState, useEffect, useMemo } from 'react';
+import { Image } from '../../../utils/elements';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -43,7 +43,6 @@ import {
 import {
   scaleWithMax,
   rtlTransform,
-  rtlFlexDirection,
   rtlPosition,
   rtlMargin,
   isIOS,
@@ -72,6 +71,7 @@ import SearchUserItem from '../../../components/app/SearchUserItem';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { FlatList } from 'react-native';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+import { useApplePay } from '../../../hooks/useApplePay';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
@@ -86,6 +86,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   >(null);
   const [checkoutCompleted, setCheckoutCompleted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  console.log('submitting', submitting);
   const [waitingForVideoUpload, setWaitingForVideoUpload] = useState(false);
   const [updatingQuantities, setUpdatingQuantities] = useState<
     Record<number, 'increment' | 'decrement' | null>
@@ -109,6 +110,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const [selectedCardFromParams, setSelectedCardFromParams] =
     useState<UserCard | null>(null);
   const isMerchant = user?.isMerchant === 1;
+  const { isApplePayAvailable, requestApplePayPayment } = useApplePay();
   const cartItemsApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
     transformData: (data: any) => {
       setCartData(data?.Data);
@@ -120,10 +122,19 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     transformData: data => data.Data,
   });
 
+  console.log('isApplePayAvailable', isApplePayAvailable);
+
   const [cartData, setCartData] = useState<CartResponse | null>(
     cartItemsApi.data,
   );
   const loading = cartItemsApi.loading;
+
+  // Sync cartData when loaded from cache (transformData only runs on fresh API response)
+  useEffect(() => {
+    if (cartItemsApi.data && !cartData) {
+      setCartData(cartItemsApi.data);
+    }
+  }, [cartItemsApi.data, cartData]);
 
   useEffect(() => {
     if (cartData && !hasInitializedEhsaan) {
@@ -197,9 +208,15 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     return Array.from(itemsMap.values());
   }, [cartData?.Items]);
 
+  const userCardsApi = useGetApi<UserCard[]>(apiEndpoints.GET_CARDS, {
+    transformData: data => data.Data || [],
+  });
+
   useEffect(() => {
-    fetchUserCards();
-  }, []);
+    if (userCardsApi.data) {
+      setUserCards(userCardsApi.data);
+    }
+  }, [userCardsApi.data]);
 
   useEffect(() => {
     if (route.params?.selectedCard) {
@@ -207,19 +224,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       setSelectedPaymentMethod('savedCard');
     }
   }, [route.params?.selectedCard]);
-
-  const fetchUserCards = async () => {
-    try {
-      const response = await api.get<{ Data: UserCard[] }>(
-        apiEndpoints.GET_CARDS,
-      );
-      if (response.success && response.data?.Data) {
-        setUserCards(response.data.Data);
-      }
-    } catch (error: any) {
-      console.error('Error fetching cards:', error);
-    }
-  };
 
   // useEffect(() => {
   //   if (cartItemsApi.data) {
@@ -538,20 +542,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       ? { uri: itemImage }
       : require('../../../assets/images/img-placeholder.png');
 
-    console.log('item', item);
-
     return (
-      <View
-        style={[
-          styles.CartContainer,
-          // { flexDirection: rtlFlexDirection(isRtl) },
-          {
-            ...(langCode === 'ar'
-              ? { flexDirection: rtlFlexDirection(!isRtl) }
-              : { flexDirection: rtlFlexDirection(isRtl) }),
-          },
-        ]}
-      >
+      <View style={[styles.CartContainer]}>
         <Image source={imageSource} style={styles.CartProductImage} />
         <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
           <View>
@@ -569,92 +561,121 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             <View
               style={{
                 ...styles.row,
-                flexDirection: rtlFlexDirection(isRtl),
-                justifyContent: 'space-between',
-              }}
-            >
-              <PriceWithIcon
-                Price={item.TotalAmount}
-                style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
-              />
-              <TouchableOpacity onPress={() => setItemToRemove(item)}>
-                <SvgDeleteIcon />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View
-              style={{
-                ...styles.row,
-                // flexDirection: rtlFlexDirection(isRtl),
-                ...(langCode === 'ar'
-                  ? { flexDirection: rtlFlexDirection(!isRtl) }
-                  : { flexDirection: rtlFlexDirection(isRtl) }),
                 justifyContent: 'space-between',
                 alignItems: 'center',
               }}
             >
               {item.DiscountAmount > 0 ? (
-                <View
-                  style={[
-                    styles.row,
-                    {
-                      flexDirection: rtlFlexDirection(isRtl),
-                      gap: theme.sizes.WIDTH * 0.01,
-                    },
-                  ]}
-                >
-                  <View
-                    style={[
-                      styles.row,
-                      {
-                        flexDirection: rtlFlexDirection(isRtl),
-                        gap: theme.sizes.WIDTH * 0.008,
-                      },
-                    ]}
-                  >
-                    <SvgRiyalPink
-                      width={scaleWithMax(16, 16)}
-                      height={scaleWithMax(16, 16)}
-                      style={{
-                        marginTop: scaleWithMax(2, 2),
-                      }}
-                    />
-                    <Text style={styles.discountedPrice}>
-                      {item.TotalAmount}
-                    </Text>
-                  </View>
-                  <View
-                    style={[
-                      styles.row,
-                      {
-                        flexDirection: rtlFlexDirection(isRtl),
-                        gap: theme.sizes.WIDTH * 0.008,
-                      },
-                    ]}
-                  >
-                    <SvgRiyalIcon
-                      width={scaleWithMax(11, 11)}
-                      height={scaleWithMax(11, 11)}
-                      opacity={0.32}
-                    />
-                    <Text style={styles.cutPrice}>
-                      {item.OrderAmount || 'N/A'}
-                    </Text>
-                  </View>
+                <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+                  <PriceWithIcon
+                    amount={item.TotalAmount}
+                    variant="discounted"
+                    icon={
+                      <SvgRiyalPink
+                        width={scaleWithMax(16, 16)}
+                        height={scaleWithMax(16, 16)}
+                      />
+                    }
+                    textStyle={styles.discountedPrice}
+                  />
+                  <PriceWithIcon
+                    amount={item.OrderAmount || 'N/A'}
+                    variant="cut"
+                    icon={
+                      <SvgRiyalIcon
+                        width={scaleWithMax(11, 11)}
+                        height={scaleWithMax(11, 11)}
+                      />
+                    }
+                    iconOpacity={0.32}
+                    textStyle={styles.cutPrice}
+                  />
                 </View>
               ) : (
                 <PriceWithIcon
-                  Price={item.TotalAmount}
-                  style={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+                  amount={item.TotalAmount}
+                  textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+                />
+              )}
+              <TouchableOpacity onPress={() => setItemToRemove(item)}>
+                {cartData?.CampaginType !== 3 && <SvgDeleteIcon />}
+              </TouchableOpacity>
+            </View>
+          ) : isMerchant && cartData?.SendType === 3 ? (
+            item.DiscountAmount > 0 ? (
+              <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+                <PriceWithIcon
+                  amount={item.TotalAmount}
+                  variant="discounted"
+                  icon={
+                    <SvgRiyalPink
+                      width={scaleWithMax(16, 16)}
+                      height={scaleWithMax(16, 16)}
+                    />
+                  }
+                  textStyle={styles.discountedPrice}
+                />
+                <PriceWithIcon
+                  amount={item.OrderAmount || 'N/A'}
+                  variant="cut"
+                  icon={
+                    <SvgRiyalIcon
+                      width={scaleWithMax(11, 11)}
+                      height={scaleWithMax(11, 11)}
+                    />
+                  }
+                  iconOpacity={0.32}
+                  textStyle={styles.cutPrice}
+                />
+              </View>
+            ) : (
+              <PriceWithIcon
+                amount={item.TotalAmount}
+                textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+              />
+            )
+          ) : (
+            <View
+              style={{
+                ...styles.row,
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              {item.DiscountAmount > 0 ? (
+                <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+                  <PriceWithIcon
+                    amount={item.TotalAmount}
+                    variant="discounted"
+                    icon={
+                      <SvgRiyalPink
+                        width={scaleWithMax(16, 16)}
+                        height={scaleWithMax(16, 16)}
+                      />
+                    }
+                    textStyle={styles.discountedPrice}
+                  />
+                  <PriceWithIcon
+                    amount={item.OrderAmount || 'N/A'}
+                    variant="cut"
+                    icon={
+                      <SvgRiyalIcon
+                        width={scaleWithMax(11, 11)}
+                        height={scaleWithMax(11, 11)}
+                      />
+                    }
+                    iconOpacity={0.32}
+                    textStyle={styles.cutPrice}
+                  />
+                </View>
+              ) : (
+                <PriceWithIcon
+                  amount={item.TotalAmount}
+                  textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
                 />
               )}
 
-              <View
-                style={[
-                  styles.quantityControls,
-                  { flexDirection: rtlFlexDirection(isRtl) },
-                ]}
-              >
+              <View style={[styles.quantityControls]}>
                 <TouchableOpacity
                   onPress={() => handleQuantityChange(item, 'decrement')}
                   disabled={!!updatingQuantities[item.OrderItemId]}
@@ -719,6 +740,33 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     try {
       setSubmitting(true);
 
+      // Apple Pay: present native sheet first, get token before API call
+      let applePayToken: string | null = null;
+      if (selectedPaymentMethod === 'applePay') {
+        const totalAmount =
+          (cartData.TotalAmount || 0) + (activeDomationAmount || 0);
+        if (totalAmount <= 0) {
+          notify.error(getString('AU_ERROR_OCCURRED'));
+          setSubmitting(false);
+          return;
+        }
+        try {
+          applePayToken = await requestApplePayPayment(totalAmount, {
+            currencyCode: 'SAR',
+            label: 'Giftee Order',
+          });
+          if (applePayToken === null) {
+            setSubmitting(false);
+            return;
+          }
+        } catch (error: any) {
+          console.error('[ApplePay] Error:', error);
+          notify.error(error?.message || getString('AU_ERROR_OCCURRED'));
+          setSubmitting(false);
+          return;
+        }
+      }
+
       // Wait for video upload if it's in progress
       if (isVideoUploading) {
         setWaitingForVideoUpload(true);
@@ -746,7 +794,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
       const payload: any = {
         orderid: cartData.OrderId,
-        orderPaymentType: selectedPaymentMethod === 'wallet' ? 1 : 2,
+        orderPaymentType:
+          selectedPaymentMethod === 'wallet'
+            ? 1
+            : selectedPaymentMethod === 'applePay'
+            ? 3
+            : 2,
         IsRedeem: false,
       };
 
@@ -767,6 +820,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         if (cardToken) {
           payload.CardToken = cardToken;
         }
+      }
+
+      if (selectedPaymentMethod === 'applePay' && applePayToken !== null) {
+        payload.CardToken = applePayToken;
       }
 
       if (cartData.FriendIds && cartData.FriendIds.length > 0) {
@@ -952,18 +1009,38 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   if (checkoutCompleted) {
     const isSendType2 = cartData?.SendType === 2;
+    const isCampaign = cartData?.CampaginType === 3;
 
     return (
       <>
         <SuccessMessage
-          SuccessLogo={isSendType2 ? <SvgLinkShareIcon /> : <SvgGiftSentIcon />}
+          subTitle={
+            isSendType2
+              ? getString('INBOX_GIFT_LINK_OUTBOX_MESSAGE')
+              : isCampaign
+              ? getString('INBOX_GIFT_FOUND_MESSAGE')
+              : ''
+          }
+          SuccessLogo={
+            isSendType2 ? (
+              <SvgLinkShareIcon />
+            ) : isCampaign ? (
+              <Image
+                source={require('../../../assets/images/giftOneGetOne.png')}
+              />
+            ) : (
+              <SvgGiftSentIcon />
+            )
+          }
           SuccessMessage={
             isSendType2
               ? getString('CHECKOUT_GIFT_LINK_CREATED')
+              : isCampaign
+              ? getString('HOME_GIFT_ONE_GET_ONE_STATUS')
               : getString('CHECKOUT_GIFT_DELIVERED')
           }
           SuccessSubMessage={
-            !isSendType2
+            !isSendType2 && !isCampaign
               ? getString('CHECKOUT_YOUR_SURPRISE_HAS_BEEN_SENT')
               : ''
           }
@@ -996,7 +1073,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     );
   }
 
-  if (loading) {
+  if (loading || (!cartData && !cartItemsApi.error)) {
     return (
       <ParentView>
         <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
@@ -1025,6 +1102,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       : require('../../../assets/images/img-placeholder.png');
 
   const DomationAmounts = [
+    { value: '1', title: '1' },
     { value: '3', title: '3' },
     { value: '5', title: '5' },
     { value: '10', title: '10' },
@@ -1049,24 +1127,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               // keyboardDismissMode="on-drag"
             >
               <View style={styles.section}>
-                <View
-                  style={[
-                    styles.sectionHeaderRow,
-                    // { flexDirection: rtlFlexDirection(isRtl) },
-                    {
-                      ...(langCode === 'ar'
-                        ? { flexDirection: rtlFlexDirection(!isRtl) }
-                        : { flexDirection: rtlFlexDirection(isRtl) }),
-                    },
-                  ]}
-                >
+                <View style={[styles.sectionHeaderRow]}>
                   <Text style={styles.heading}>
                     {getString('CHECKOUT_ORDER_DETAILS')}
                   </Text>
                   <TouchableOpacity
                     onPress={() => setShowRemoveConfirmation(true)}
                   >
-                    <Text
+                    {/* <Text
                       style={[
                         styles.TextMedium,
                         {
@@ -1075,6 +1143,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         },
                       ]}
                     >
+                      {getString('CHECKOUT_REMOVE')}
+                    </Text> */}
+                    <Text style={styles.addCardAction}>
                       {getString('CHECKOUT_REMOVE')}
                     </Text>
                   </TouchableOpacity>
@@ -1156,7 +1227,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           styles.row,
                           {
                             gap: theme.sizes.WIDTH * 0.036,
-                            flexDirection: rtlFlexDirection(isRtl),
                           },
                         ]}
                       >
@@ -1284,32 +1354,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
               </View>
 
               <View style={styles.section}>
-                <View
-                  style={[
-                    styles.sectionHeaderRow,
-                    {
-                      ...(langCode === 'ar'
-                        ? { flexDirection: rtlFlexDirection(!isRtl) }
-                        : { flexDirection: rtlFlexDirection(isRtl) }),
-                    },
-                  ]}
-                >
+                <View style={[styles.sectionHeaderRow]}>
                   <Text style={styles.heading}>
                     {getString('CHECKOUT_PAYMENT_MANAGEMENT')}
                   </Text>
                   <TouchableOpacity
                     onPress={() => navigation.navigate('AddCard' as never)}
                   >
-                    <View
-                      style={[
-                        styles.row,
-                        {
-                          ...(langCode === 'ar'
-                            ? { flexDirection: rtlFlexDirection(!isRtl) }
-                            : { flexDirection: rtlFlexDirection(isRtl) }),
-                        },
-                      ]}
-                    >
+                    <View style={[styles.row]}>
                       {/* <PlusIcon
                         height={scaleWithMax(15, 18)}
                         width={scaleWithMax(15, 18)}
@@ -1320,7 +1372,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     </View>
                   </TouchableOpacity>
                 </View>
-                {isIOS && (
+                {isApplePayAvailable && (
                   <TouchableOpacity
                     onPress={() =>
                       setSelectedPaymentMethod(
@@ -1333,22 +1385,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     <View
                       style={[
                         styles.GiftContainer,
-                        {
-                          ...(langCode === 'ar'
-                            ? { flexDirection: rtlFlexDirection(!isRtl) }
-                            : { flexDirection: rtlFlexDirection(isRtl) }),
-                          marginBottom: theme.sizes.HEIGHT * 0.005,
-                        },
+                        { marginBottom: theme.sizes.HEIGHT * 0.005 },
                       ]}
                     >
                       <View
                         style={{
                           ...styles.row,
                           flex: 1,
-                          gap: theme.sizes.WIDTH * 0.03,
-                          ...(langCode === 'ar'
-                            ? { flexDirection: rtlFlexDirection(!isRtl) }
-                            : { flexDirection: rtlFlexDirection(isRtl) }),
+                          gap: theme.sizes.WIDTH * 0.025,
                         }}
                       >
                         <CheckBox
@@ -1394,23 +1438,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   <View
                     style={[
                       styles.GiftContainer,
-                      {
-                        ...(langCode === 'ar'
-                          ? { flexDirection: rtlFlexDirection(!isRtl) }
-                          : { flexDirection: rtlFlexDirection(isRtl) }),
-
-                        marginBottom: theme.sizes.HEIGHT * 0.005,
-                      },
+                      { marginBottom: theme.sizes.HEIGHT * 0.005 },
                     ]}
                   >
                     <View
                       style={{
                         ...styles.row,
                         flex: 1,
-                        gap: theme.sizes.WIDTH * 0.03,
-                        ...(langCode === 'ar'
-                          ? { flexDirection: rtlFlexDirection(!isRtl) }
-                          : { flexDirection: rtlFlexDirection(isRtl) }),
+                        gap: theme.sizes.WIDTH * 0.025,
                       }}
                     >
                       <CheckBox
@@ -1456,22 +1491,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     <View
                       style={[
                         styles.GiftContainer,
-                        {
-                          ...(langCode === 'ar'
-                            ? { flexDirection: rtlFlexDirection(!isRtl) }
-                            : { flexDirection: rtlFlexDirection(isRtl) }),
-                          marginBottom: theme.sizes.HEIGHT * 0.005,
-                        },
+                        { marginBottom: theme.sizes.HEIGHT * 0.005 },
                       ]}
                     >
                       <View
                         style={{
                           ...styles.row,
                           flex: 1,
-                          gap: theme.sizes.WIDTH * 0.03,
-                          ...(langCode === 'ar'
-                            ? { flexDirection: rtlFlexDirection(!isRtl) }
-                            : { flexDirection: rtlFlexDirection(isRtl) }),
+                          gap: theme.sizes.WIDTH * 0.025,
                         }}
                       >
                         <CheckBox
@@ -1529,86 +1556,73 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     </View>
                   </TouchableOpacity>
                 )}
-
-                <TouchableOpacity
-                  onPress={() =>
-                    setSelectedPaymentMethod(
-                      selectedPaymentMethod === 'wallet' ? null : 'wallet',
-                    )
-                  }
-                >
-                  <View
-                    style={[
-                      styles.GiftContainer,
-                      {
-                        ...(langCode === 'ar'
-                          ? { flexDirection: rtlFlexDirection(!isRtl) }
-                          : { flexDirection: rtlFlexDirection(isRtl) }),
-                      },
-                    ]}
-                  >
-                    <View
-                      style={{
-                        ...styles.row,
-                        flex: 1,
-                        gap: theme.sizes.WIDTH * 0.03,
-                        ...(langCode === 'ar'
-                          ? { flexDirection: rtlFlexDirection(!isRtl) }
-                          : { flexDirection: rtlFlexDirection(isRtl) }),
-                      }}
+                {walletBalance?.data &&
+                  walletBalance?.data?.WalletBalance > 0 && (
+                    <TouchableOpacity
+                      onPress={() =>
+                        setSelectedPaymentMethod(
+                          selectedPaymentMethod === 'wallet' ? null : 'wallet',
+                        )
+                      }
                     >
-                      <CheckBox
-                        Selected={selectedPaymentMethod === 'wallet'}
-                        onSelectionPress={() =>
-                          setSelectedPaymentMethod(
-                            selectedPaymentMethod === 'wallet'
-                              ? null
-                              : 'wallet',
-                          )
-                        }
-                      />
-                      <SvgGifteeWalletIcon
-                        height={scaleWithMax(32, 35)}
-                        width={scaleWithMax(32, 35)}
-                      />
-                      <View>
-                        <Text style={styles.TextMedium}>
-                          {getString('W_GIFTEE_WALLET')}
-                        </Text>
-                        <View style={styles.row}>
-                          <SvgRiyalIcon
-                            width={scaleWithMax(12, 14)}
-                            height={scaleWithMax(12, 14)}
+                      <View style={[styles.GiftContainer]}>
+                        <View
+                          style={{
+                            ...styles.row,
+                            flex: 1,
+                            gap: theme.sizes.WIDTH * 0.025,
+                          }}
+                        >
+                          <CheckBox
+                            Selected={selectedPaymentMethod === 'wallet'}
+                            onSelectionPress={() =>
+                              setSelectedPaymentMethod(
+                                selectedPaymentMethod === 'wallet'
+                                  ? null
+                                  : 'wallet',
+                              )
+                            }
                           />
-                          <Text style={styles.TextMedium}>
-                            {walletBalance?.data?.WalletBalance
-                              ? Number(
-                                  walletBalance.data.WalletBalance,
-                                ).toFixed(2)
-                              : '0.00'}
-                          </Text>
+                          <SvgGifteeWalletIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                          <View>
+                            <Text style={styles.TextMedium}>
+                              {getString('W_GIFTEE_WALLET')}
+                            </Text>
+                            <PriceWithIcon
+                              amount={
+                                walletBalance?.data?.WalletBalance
+                                  ? Number(
+                                      walletBalance.data.WalletBalance,
+                                    ).toFixed(2)
+                                  : '0.00'
+                              }
+                              textStyle={styles.TextMedium}
+                              icon={
+                                <SvgRiyalIcon
+                                  width={scaleWithMax(12, 14)}
+                                  height={scaleWithMax(12, 14)}
+                                />
+                              }
+                            />
+                          </View>
                         </View>
+                        <SvgSelectedCheck
+                          width={scaleWithMax(16, 18)}
+                          height={scaleWithMax(16, 18)}
+                          style={{
+                            opacity: selectedPaymentMethod === 'wallet' ? 1 : 0,
+                          }}
+                        />
                       </View>
-                    </View>
-                    <SvgSelectedCheck
-                      width={scaleWithMax(16, 18)}
-                      height={scaleWithMax(16, 18)}
-                      style={{
-                        opacity: selectedPaymentMethod === 'wallet' ? 1 : 0,
-                      }}
-                    />
-                  </View>
-                </TouchableOpacity>
+                    </TouchableOpacity>
+                  )}
               </View>
 
               <View style={styles.section}>
-                <View
-                  style={{
-                    flexDirection: rtlFlexDirection(isRtl),
-                    alignItems: 'center',
-                    justifyContent: 'space-between',
-                  }}
-                >
+                <View style={styles.sectionHeaderRow}>
                   <Text
                     style={{
                       ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
@@ -1628,7 +1642,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     ...theme.globalStyles.TEXT_STYLE_MEDIUM,
                     color: '#1B917B',
                     fontSize: scaleWithMax(10, 11),
-                    marginTop: theme.sizes.HEIGHT * -0.0,
+                    marginTop: theme.sizes.HEIGHT * -0.008,
                   }}
                 >
                   {getString('CHECKOUT_EHSAN_MESSAGE')}
@@ -1636,10 +1650,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 <ScrollView
                   horizontal
                   showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={{
-                    flexDirection: rtlFlexDirection(isRtl),
-                    gap: 10,
-                  }}
+                  contentContainerStyle={[styles.row, { gap: 10 }]}
                 >
                   {DomationAmounts.map(amount => {
                     // Check if custom value matches this preset value
@@ -1657,19 +1668,20 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     return (
                       <TouchableOpacity
                         key={amount.value}
-                        style={{
-                          flexDirection: rtlFlexDirection(isRtl),
-                          alignItems: 'center',
-                          justifyContent: 'center',
-                          gap: theme.sizes.WIDTH * 0.02,
-                          paddingHorizontal: theme.sizes.WIDTH * 0.03,
-                          paddingVertical: scaleWithMax(8, 10),
-                          borderRadius: 10,
-                          backgroundColor: isActive
-                            ? theme.colors.SECONDARY
-                            : theme.colors.LIGHT_GRAY,
-                          // minHeight: scaleWithMax(36, 38),
-                        }}
+                        style={[
+                          styles.row,
+                          {
+                            justifyContent: 'center',
+                            gap: theme.sizes.WIDTH * 0.025,
+                            paddingHorizontal: theme.sizes.WIDTH * 0.03,
+                            paddingVertical: scaleWithMax(8, 10),
+                            borderRadius: 10,
+                            backgroundColor: isActive
+                              ? theme.colors.SECONDARY
+                              : theme.colors.LIGHT_GRAY,
+                            // minHeight: scaleWithMax(36, 38),
+                          },
+                        ]}
                         onPress={() => {
                           if (amount.value === 'Custom') {
                             // Toggle custom input
@@ -1696,23 +1708,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           }
                         }}
                       >
-                        <View
-                          style={[
-                            styles.row,
-                            { gap: theme.sizes.WIDTH * 0.01 },
-                          ]}
-                        >
-                          {amount.value === 'Custom' ? null : isActive ? (
-                            <SvgRiyalPink
-                              width={scaleWithMax(12, 14)}
-                              height={scaleWithMax(12, 14)}
-                            />
-                          ) : (
-                            <SvgRiyalIcon
-                              width={scaleWithMax(12, 14)}
-                              height={scaleWithMax(12, 14)}
-                            />
-                          )}
+                        {amount.value === 'Custom' ? (
                           <Text
                             style={[
                               styles.TextMedium,
@@ -1724,7 +1720,33 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           >
                             {amount.title}
                           </Text>
-                        </View>
+                        ) : (
+                          <PriceWithIcon
+                            amount={amount.title}
+                            variant={isActive ? 'discounted' : 'default'}
+                            icon={
+                              isActive ? (
+                                <SvgRiyalPink
+                                  width={scaleWithMax(12, 14)}
+                                  height={scaleWithMax(12, 14)}
+                                />
+                              ) : (
+                                <SvgRiyalIcon
+                                  width={scaleWithMax(12, 14)}
+                                  height={scaleWithMax(12, 14)}
+                                />
+                              )
+                            }
+                            textStyle={
+                              isActive
+                                ? {
+                                    ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                                    color: theme.colors.PRIMARY,
+                                  }
+                                : styles.TextMedium
+                            }
+                          />
+                        )}
                       </TouchableOpacity>
                     );
                   })}
@@ -1773,76 +1795,48 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 >
                   {getString('CHECKOUT_ORDER_INFO')}
                 </Text>
-                <View
-                  style={[
-                    styles.Prices,
-                    { flexDirection: rtlFlexDirection(isRtl) },
-                  ]}
-                >
+                <View style={[styles.Prices]}>
                   <Text style={styles.TextMedium}>
                     {getString('CHECKOUT_ORDER_AMOUNT')}
                   </Text>
-                  <PriceWithIcon Price={cartData?.TotalAmount || 0} />
+                  <PriceWithIcon amount={cartData?.TotalAmount || 0} />
                 </View>
                 {/* {(cartData?.TotalDiscount || 0) > 0 && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
+                  <View style={[styles.Prices]}>
                     <Text style={styles.TextMedium}>{getString('CHECKOUT_DISCOUNT')}</Text>
-                    <PriceWithIcon Price={cartData?.TotalDiscount || 0} />
+                    <PriceWithIcon amount={cartData?.TotalDiscount || 0} />
                   </View>
                 )} */}
                 {(cartData?.TotalVat || 0) > 0 && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
+                  <View style={[styles.Prices]}>
                     <Text style={styles.TextMedium}>
                       {getString('CHECKOUT_VAT')}
                     </Text>
-                    <PriceWithIcon Price={cartData?.TotalVat || 0} />
+                    <PriceWithIcon amount={cartData?.TotalVat || 0} />
                   </View>
                 )}
                 {(cartData?.DeliveryCharges || 0) > 0 && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
+                  <View style={[styles.Prices]}>
                     <Text style={styles.TextMedium}>
                       {getString('CHECKOUT_DELIVERY_CHARGES')}
                     </Text>
-                    <PriceWithIcon Price={cartData?.DeliveryCharges || 0} />
+                    <PriceWithIcon amount={cartData?.DeliveryCharges || 0} />
                   </View>
                 )}
                 {activeDomationAmount && (
-                  <View
-                    style={[
-                      styles.Prices,
-                      { flexDirection: rtlFlexDirection(isRtl) },
-                    ]}
-                  >
-                    <Text style={styles.TextMedium}>{'Ehsan'}</Text>
-                    <PriceWithIcon Price={activeDomationAmount} />
+                  <View style={[styles.Prices]}>
+                    <Text style={styles.TextMedium}>
+                      {getString('CHECKOUT_EHSAN')}
+                    </Text>
+                    <PriceWithIcon amount={activeDomationAmount} />
                   </View>
                 )}
-                <View
-                  style={[
-                    styles.Prices,
-                    { flexDirection: rtlFlexDirection(isRtl) },
-                  ]}
-                >
+                <View style={[styles.Prices]}>
                   <Text style={styles.TextMedium}>
                     {getString('CHECKOUT_TOTAL_AMOUNT')}
                   </Text>
                   <PriceWithIcon
-                    Price={
+                    amount={
                       (cartData?.TotalAmount || 0) + (activeDomationAmount || 0)
                     }
                   />
@@ -1903,13 +1897,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   ]}
                 >
                   <PriceWithIcon
-                    Price={
+                    amount={
                       (cartData?.TotalAmount || 0) + (activeDomationAmount || 0)
                     }
-                    style={{
+                    textStyle={{
                       color: theme.colors.WHITE,
                     }}
-                    Icon={
+                    icon={
                       <SvgRiyalIconWhite
                         width={scaleWithMax(12, 14)}
                         height={scaleWithMax(12, 14)}
@@ -1941,13 +1935,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <ConfirmationPopup
         visible={!!itemToRemove}
         title={getString('CHECKOUT_REMOVE_ITEM')}
-        message={
-          itemToRemove?.ItemName
-            ? `${getString('CHECKOUT_REMOVE_ITEM_CONFIRM')} "${
-                itemToRemove.ItemName
-              }" ${getString('CHECKOUT_FROM_CART')}`
-            : getString('CHECKOUT_REMOVE_ITEM_CONFIRM')
-        }
+        message={getString('CHECKOUT_REMOVE_ITEM_CONFIRM').replace(
+          '{value}',
+          itemToRemove?.ItemName || '',
+        )}
         confirmText={getString('CHECKOUT_REMOVE')}
         cancelText={getString('NG_CANCEL')}
         onConfirm={() => handleRemoveItem()}
@@ -1967,21 +1958,21 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         <View style={{ flex: 1, backgroundColor: theme.colors.WHITE }}>
           {/* Header with close button */}
           <View
-            style={{
-              flexDirection: rtlFlexDirection(isRtl),
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: theme.sizes.PADDING,
-              paddingVertical: theme.sizes.HEIGHT * 0.01,
-              backgroundColor: theme.colors.WHITE,
-              borderBottomWidth: 1,
-              borderBottomColor: theme.colors.DIVIDER_COLOR,
-              ...Platform.select({
-                ios: {
-                  paddingTop: theme.sizes.HEIGHT * 0.02,
-                },
-              }),
-            }}
+            style={[
+              styles.sectionHeaderRow,
+              {
+                paddingHorizontal: theme.sizes.PADDING,
+                paddingVertical: theme.sizes.HEIGHT * 0.01,
+                backgroundColor: theme.colors.WHITE,
+                borderBottomWidth: 1,
+                borderBottomColor: theme.colors.DIVIDER_COLOR,
+                ...Platform.select({
+                  ios: {
+                    paddingTop: theme.sizes.HEIGHT * 0.02,
+                  },
+                }),
+              },
+            ]}
           >
             <Text style={styles.heading}>
               {getString('CHECKOUT_PAYMENT_MANAGEMENT')}

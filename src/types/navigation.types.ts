@@ -59,6 +59,8 @@ export type AppStackParamList = {
     occasionId?: number | null;
     occasionName?: string;
     occasionDate?: string;
+    isLocalOnly?: boolean;
+    onImageUpdate?: (result: { type: 'update'; asset: { uri: string; type?: string; name?: string } } | { type: 'delete' }) => void;
   };
   SendAGift: {
     routeTo: 'GiftOneGetOne' | 'SelectStore';

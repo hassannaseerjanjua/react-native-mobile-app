@@ -10,7 +10,6 @@ import {
 } from 'react-native';
 import { ReactElement } from 'react';
 import useTheme from '../../styles/theme';
-import fonts from '../../assets/fonts';
 import { Text } from '../../utils/elements';
 import { isAndroid, isIOS, isIOSThen, scaleWithMax } from '../../utils';
 
@@ -20,6 +19,7 @@ interface HomeScreenTabsProps {
   title: string;
   titlePrimary?: string;
   description: string;
+  shrinkDescription?: boolean;
   onPress?: () => void;
   style?: ViewStyle;
   iconStyles?: ViewStyle;
@@ -32,13 +32,14 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
   title,
   titlePrimary,
   description,
+  shrinkDescription = true,
   onPress,
   style,
   iconStyles,
   descriptionStyles,
 }) => {
   const theme = useTheme();
-  const { colors, sizes } = theme;
+  const { colors, sizes, fonts } = theme;
   const isProMax = sizes.WIDTH >= 430 && isIOS;
   const isLargeAndroid = isAndroid && sizes.HEIGHT > 800;
 
@@ -69,7 +70,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
             : isLargeAndroid
             ? sizes.FONTSIZE_SMALL_HEADING * 1.02
             : sizes.FONTSIZE_SMALL_HEADING,
-          fontFamily: fonts.Quicksand.bold,
+          fontFamily: fonts.bold,
           color: colors.PRIMARY_TEXT,
           flexShrink: 1,
           marginBottom: scaleWithMax(2.5, 3),
@@ -83,7 +84,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
             : isLargeAndroid
             ? scaleWithMax(10.1, 10.2)
             : scaleWithMax(10, 10),
-          fontFamily: fonts.Quicksand.regular,
+          fontFamily: fonts.regular,
           color: colors.BLACK,
           lineHeight: isProMax
             ? scaleWithMax(12.25, 13.25)
@@ -137,9 +138,9 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           )}
         </Text>
         <Text
-          numberOfLines={2}
-          adjustsFontSizeToFit
-          minimumFontScale={0.8}
+          numberOfLines={shrinkDescription ? 2 : undefined}
+          adjustsFontSizeToFit={shrinkDescription}
+          minimumFontScale={shrinkDescription ? 0.9 : undefined}
           style={[cardStyles.description, descriptionStyles]}
         >
           {description}

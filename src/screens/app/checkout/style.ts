@@ -14,7 +14,7 @@ const useStyles = () => {
       scrollContent: {
         paddingHorizontal: 0,
         paddingBottom: sizes.HEIGHT * 0.03,
-        paddingTop: sizes.HEIGHT * 0.015,
+        paddingTop: sizes.HEIGHT * 0.01,
         gap: sizes.HEIGHT * 0.02,
       },
       heading: {
@@ -27,7 +27,7 @@ const useStyles = () => {
         alignItems: 'center',
         backgroundColor: theme.colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS,
-        marginTop: sizes.HEIGHT * 0.006,
+        // marginTop: sizes.HEIGHT * 0.006,
         paddingVertical: sizes.PADDING * 0.55,
         paddingHorizontal: sizes.PADDING * 0.75,
         gap: sizes.WIDTH * 0.03,
@@ -74,7 +74,7 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: theme.sizes.FONT_SIZE_EXTRA_HIGH,
         color: theme.colors.BLACK,
-        marginTop: sizes.HEIGHT * 0.02,
+        // marginTop: sizes.HEIGHT * 0.02,
       },
       row: {
         flexDirection: 'row',
@@ -110,6 +110,7 @@ const useStyles = () => {
         color: theme.colors.BLACK,
         minWidth: scaleWithMax(20, 22),
         textAlign: 'center',
+        textAlignVertical: 'center',
       },
       vatNote: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
@@ -142,11 +143,11 @@ const useStyles = () => {
       },
       section: {
         marginHorizontal: sizes.PADDING,
-        gap: sizes.HEIGHT * 0.008,
+        gap: sizes.HEIGHT * 0.009,
       },
       tabContainer: {
-        marginBottom: sizes.HEIGHT * 0.018,
-        height: sizes.HEIGHT * 0.05,
+        // marginBottom: sizes.HEIGHT * 0.018,
+        // height: sizes.HEIGHT * 0.05,
       },
       discountedPrice: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,

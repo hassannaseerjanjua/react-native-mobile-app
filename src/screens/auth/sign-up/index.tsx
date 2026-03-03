@@ -14,7 +14,11 @@ import {
   SvgUser,
   SvgUsername,
 } from '../../../assets/icons';
-import { scaleWithMax, toOption, normalizePhoneNumber } from '../../../utils';
+import {
+  scaleWithMax,
+  toOption,
+  formatPhoneWithCountryCode,
+} from '../../../utils';
 import { City } from '../../../types';
 import DropdownField from '../../../components/global/DropdownField';
 import useGetApi from '../../../hooks/useGetApi';
@@ -101,7 +105,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
               apiEndpoints.VERIFY_EMAIL_PHONE,
               {
                 Email: formData.email,
-                PhoneNo: normalizePhoneNumber(formData.phoneNumber),
+                PhoneNo: formatPhoneWithCountryCode(formData.phoneNumber),
               },
             );
             if (verifyResponse.success && !verifyResponse.failed) {
@@ -125,7 +129,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         FullName: formData.fullName,
         UserName: formData.username,
         CityId: formData.city,
-        Phone: normalizePhoneNumber(formData.phoneNumber),
+        Phone: formatPhoneWithCountryCode(formData.phoneNumber),
         Email: formData.email,
       })
       .then(res => {
@@ -408,6 +412,24 @@ const StepContent: React.FC<StepContentProps> = ({
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
             <InputField
+              icon={<SvgEmail width={scaleWithMax(20, 25)} />}
+              error={
+                formik.touched.email && formik.errors.email
+                  ? formik.errors.email
+                  : undefined
+              }
+              fieldProps={{
+                id: 'email',
+                placeholder: getString('AU_EMAIL'),
+                value: formData.email,
+                onChangeText: value => updateFormData('email', value, formik),
+                keyboardType: 'email-address',
+                autoCapitalize: 'none',
+              }}
+            />
+          </View>
+          <View style={styles.inputContainer}>
+            <InputField
               icon={<SvgPhone width={scaleWithMax(20, 25)} />}
               isPhone={true}
               error={
@@ -423,24 +445,6 @@ const StepContent: React.FC<StepContentProps> = ({
                   updateFormData('phoneNumber', value, formik);
                 },
                 keyboardType: 'number-pad',
-              }}
-            />
-          </View>
-          <View style={styles.inputContainer}>
-            <InputField
-              icon={<SvgEmail width={scaleWithMax(20, 25)} />}
-              error={
-                formik.touched.email && formik.errors.email
-                  ? formik.errors.email
-                  : undefined
-              }
-              fieldProps={{
-                id: 'email',
-                placeholder: getString('AU_EMAIL'),
-                value: formData.email,
-                onChangeText: value => updateFormData('email', value, formik),
-                keyboardType: 'email-address',
-                autoCapitalize: 'none',
               }}
             />
           </View>

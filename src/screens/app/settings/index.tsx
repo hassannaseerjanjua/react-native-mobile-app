@@ -39,6 +39,7 @@ import notify from '../../../utils/notify';
 import { useDispatch } from 'react-redux';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import { saveTokenWithLanguage } from '../../../utils/notificationService';
 
 const SettingsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -50,6 +51,7 @@ const SettingsScreen: React.FC = () => {
     'English' | 'Arabic'
   >(langCode === 'en' ? 'English' : 'Arabic');
   const [loading, setLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [shimmerLoading, setShimmerLoading] = useState(false);
   const { shiftLanguage } = useLanguageShifter();
   const [date, setDate] = useState(() => {
@@ -109,7 +111,7 @@ const SettingsScreen: React.FC = () => {
     username: user?.UserName || '',
     CityId: user?.CityId || '',
     email: user?.Email || '',
-    phoneNumber: user?.PhoneNo || '',
+    phoneNumber: user?.PhoneNo.replace('+966', '') || '',
     Dob: user?.DateOfBirth || '',
     GenderId: user?.GenderId || '',
   };
@@ -163,6 +165,7 @@ const SettingsScreen: React.FC = () => {
 
   const handleDeleteUser = () => {
     setShowDeleteConfirmation(false);
+    setDeleteLoading(true);
     api
       .post(apiEndpoints.DELETE_USER, {})
       .then(response => {
@@ -179,6 +182,9 @@ const SettingsScreen: React.FC = () => {
       })
       .catch(error => {
         notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+      })
+      .finally(() => {
+        setDeleteLoading(false);
       });
   };
   return (
@@ -213,9 +219,14 @@ const SettingsScreen: React.FC = () => {
                 <TouchableOpacity
                   key={language}
                   style={styles.languageOption}
-                  onPress={() => {
+                  onPress={async () => {
+                    if (selectedLanguage === language) {
+                      return;
+                    }
                     setSelectedLanguage(language as 'English' | 'Arabic');
                     setShimmerLoading(true);
+                    const newLangId = language === 'English' ? 1 : 2;
+                    await saveTokenWithLanguage(newLangId);
                     shiftLanguage(language === 'English' ? 'en' : 'ar');
 
                     setTimeout(() => {
@@ -431,14 +442,14 @@ const SettingsScreen: React.FC = () => {
                         type="primary"
                         onPress={() => formik.handleSubmit()}
                         loading={loading}
-                        disabled={loading}
+                        disabled={loading || deleteLoading}
                       />
                       <CustomButton
                         title={getString('S_DELETE_ACCOUNT')}
                         type="secondary"
                         onPress={() => setShowDeleteConfirmation(true)}
-                        loading={loading}
-                        disabled={loading}
+                        loading={deleteLoading}
+                        disabled={loading || deleteLoading}
                       />
                     </View>
                   </View>

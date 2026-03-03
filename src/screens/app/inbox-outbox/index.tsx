@@ -1,6 +1,5 @@
 import {
   FlatList,
-  Image,
   ScrollView,
   RefreshControl,
   TouchableOpacity,
@@ -11,7 +10,7 @@ import {
   Platform,
   Linking,
 } from 'react-native';
-import { Text } from '../../../utils/elements';
+import { Text, Image } from '../../../utils/elements';
 import React, { useState, useRef, useEffect } from 'react';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -46,7 +45,7 @@ import {
   getStoreName,
   getMainImage,
 } from './actions';
-import { scaleWithMax, rtlMargin } from '../../../utils';
+import { scaleWithMax, rtlMargin, rtlTransform } from '../../../utils';
 import { useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import useDebounceClick from '../../../hooks/useDebounceClick';
@@ -60,12 +59,14 @@ const InboxOutbox: React.FC = () => {
   const route = useRoute();
   const params = route.params as
     | {
-      title?: string;
-      isInbox?: boolean;
-    }
+        title?: string;
+        isInbox?: boolean;
+      }
     | undefined;
   const isInbox = params?.isInbox ?? true;
-  const title = params?.title ?? (isInbox ? getString('INBOX_TITLE') : getString('OUTBOX_TITLE'));
+  const title =
+    params?.title ??
+    (isInbox ? getString('INBOX_TITLE') : getString('OUTBOX_TITLE'));
   const { styles, theme } = useStyles();
   const {
     orders,
@@ -171,10 +172,10 @@ const InboxOutbox: React.FC = () => {
               onClick={
                 isInbox
                   ? orderItem => {
-                    createDebouceClick('item-press', () =>
-                      handleItemPress(item.OrderId, orderItem),
-                    );
-                  }
+                      createDebouceClick('item-press', () =>
+                        handleItemPress(item.OrderId, orderItem),
+                      );
+                    }
                   : undefined
               }
               onVideoPress={() => handleVideoPress(item)}
@@ -289,17 +290,15 @@ const InboxOutbox: React.FC = () => {
 
                   return (
                     <>
-                      <View
-                        key={item.OrderItemId}
-                        style={[
-                          styles.itemRow,
-                        ]}
-                      >
+                      <View key={item.OrderItemId} style={[styles.itemRow]}>
                         <TouchableOpacity
                           style={styles.itemCheckboxRow}
                           onPress={() =>
                             hasMultipleItems &&
-                            handleItemToggle(item.OrderItemId, availableQuantity)
+                            handleItemToggle(
+                              item.OrderItemId,
+                              availableQuantity,
+                            )
                           }
                           disabled={!hasMultipleItems}
                         >
@@ -361,7 +360,7 @@ const InboxOutbox: React.FC = () => {
                                 style={[
                                   styles.quantityButton,
                                   selectedQty <= 1 &&
-                                  styles.quantityButtonDisabled,
+                                    styles.quantityButtonDisabled,
                                 ]}
                                 hitSlop={{
                                   top: 10,
@@ -395,7 +394,7 @@ const InboxOutbox: React.FC = () => {
                                 style={[
                                   styles.quantityButton,
                                   selectedQty >= availableQuantity &&
-                                  styles.quantityButtonDisabled,
+                                    styles.quantityButtonDisabled,
                                 ]}
                                 hitSlop={{
                                   top: 10,
@@ -417,9 +416,10 @@ const InboxOutbox: React.FC = () => {
                             </View>
                           )}
                         </View>
-
                       </View>
-                      {index !== availableItems.length - 1 && <View style={styles.itemSeparator} />}
+                      {index !== availableItems.length - 1 && (
+                        <View style={styles.itemSeparator} />
+                      )}
                     </>
                   );
                 });
@@ -483,8 +483,12 @@ interface InboxItemProps {
   onShareGiftLink?: (giftId: number) => void;
 }
 
-
-const openMap = (lat: number, lng: number, label: string, getString: (key: any) => string) => {
+const openMap = (
+  lat: number,
+  lng: number,
+  label: string,
+  getString: (key: any) => string,
+) => {
   if (!lat || !lng) {
     notify.error(getString('INBOX_STORE_LOCATION_NOT_AVAILABLE'));
     return;
@@ -500,7 +504,9 @@ const openMap = (lat: number, lng: number, label: string, getString: (key: any) 
     android: `${scheme}${latLng}(${label})`,
   });
 
-  Linking.openURL(url as string).catch(err => console.error('Error opening map', err));
+  Linking.openURL(url as string).catch(err =>
+    console.error('Error opening map', err),
+  );
 };
 
 const InboxItem: React.FC<InboxItemProps> = ({
@@ -517,34 +523,46 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const { user } = useAuthStore();
   const isMerchant = user?.isMerchant === 1;
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showEmployeesBottomSheet, setShowEmployeesBottomSheet] = useState(false);
+  const [showEmployeesBottomSheet, setShowEmployeesBottomSheet] =
+    useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
 
   const profileImage = getProfileImage(order, isInbox);
   const userName = getUserName(order, isInbox);
   const storeName = getStoreName(order, isRtl);
-  const isRedeemed = order.Items && order.Items.every(item => item.Status === 10);
+  const isRedeemed =
+    order.Items && order.Items.every(item => item.Status === 10);
   const showGiftLinkGeneric = !isInbox && order.SendType === 2 && !isRedeemed;
   const timeAgo = formatRelativeTime(order.OrderTime, getString);
   const { createDebouceClick } = useDebounceClick();
 
-  const hasMultiUsers = isMerchant && order.MultiUsers && order.MultiUsers.length > 0;
+  const hasMultiUsers =
+    isMerchant && order.MultiUsers && order.MultiUsers.length > 0;
+
+  const itemGap = theme.sizes.PADDING * 1.2;
+  const getItemWidth = () => {
+    const profileWidth = scaleWithMax(50, 55);
+    const spacing = theme.sizes.WIDTH * 0.012;
+    const extraMargin = theme.sizes.PADDING * 0.5;
+    return (
+      theme.sizes.WIDTH -
+      theme.sizes.PADDING * 2 -
+      profileWidth -
+      spacing -
+      extraMargin +
+      itemGap
+    );
+  };
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    // Calculate item width: full width minus profile width and spacing
-    const profileWidth = scaleWithMax(50, 55);
-    const spacing = theme.sizes.WIDTH * 0.012;
-    const itemWidth = theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
+    const itemWidth = getItemWidth();
     const index = Math.round(scrollPosition / itemWidth);
     setCurrentIndex(index);
   };
 
   const scrollToIndex = (index: number) => {
-    // Calculate item width: full width minus profile width and spacing
-    const profileWidth = scaleWithMax(50, 55);
-    const spacing = theme.sizes.WIDTH * 0.012;
-    const itemWidth = theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
+    const itemWidth = getItemWidth();
     scrollViewRef.current?.scrollTo({
       x: index * itemWidth,
       animated: true,
@@ -582,9 +600,18 @@ const InboxItem: React.FC<InboxItemProps> = ({
             />
           </View>
         ) : (
-          <Image style={styles.inboxProfile} source={order.CampaginType === 1 ? { uri: order.stores.ImageLogo } : profileImage} />
+          <Image
+            style={styles.inboxProfile}
+            source={
+              order.CampaginType === 1
+                ? { uri: order.stores.ImageLogo }
+                : profileImage
+            }
+          />
         )}
-        <View style={{ flex: 1, ...rtlMargin(isRtl, theme.sizes.WIDTH * 0.012, 0) }}>
+        <View
+          style={{ flex: 1, ...rtlMargin(isRtl, theme.sizes.WIDTH * 0.012, 0) }}
+        >
           <View
             style={{
               display: 'flex',
@@ -607,14 +634,19 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   numberOfLines={1}
                   ellipsizeMode="tail"
                 >
-                  {showGiftLinkGeneric ? getString('INBOX_GIFT_LINK_LABEL') : order.CampaginType === 1 ? order.stores.NameEn : userName}
+                  {showGiftLinkGeneric
+                    ? getString('INBOX_GIFT_LINK_LABEL')
+                    : order.CampaginType === 1
+                    ? order.stores.NameEn
+                    : userName}
                 </Text>
                 {!showGiftLinkGeneric &&
                   (!isMerchant
                     ? order?.users?.isVerified
-                    : order?.MultiUsers?.[0]?.isVerified) && <SvgVerifiedIcon />}
+                    : order?.MultiUsers?.[0]?.isVerified) && (
+                    <SvgVerifiedIcon />
+                  )}
               </View>
-
 
               <Text style={styles.timeText}>{timeAgo}</Text>
             </View>
@@ -633,12 +665,22 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   />
                 </View>
                 <Text style={styles.storeNameText}>{storeName}</Text>
-                <TouchableOpacity style={styles.backIconContainer} hitSlop={8} onPress={() => {
-                  openMap(order.stores.Lat, order.stores.Long, storeName, getString);
-                }}>
+                <TouchableOpacity
+                  style={styles.backIconContainer}
+                  hitSlop={8}
+                  onPress={() => {
+                    openMap(
+                      order.stores.Lat,
+                      order.stores.Long,
+                      storeName,
+                      getString,
+                    );
+                  }}
+                >
                   <RoundedBackIcon
                     height={scaleWithMax(8, 8)}
                     width={scaleWithMax(8, 8)}
+                    style={{ transform: rtlTransform(isRtl) }}
                   />
                 </TouchableOpacity>
               </View>
@@ -649,47 +691,63 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   Array.isArray(order.orderImages) &&
                   order.orderImages.length > 0) ||
                   order.OrderMessage) && (
-                    <TouchableOpacity
-                      onPress={e => {
-                        e.stopPropagation?.();
-                        onVideoPress?.();
-                      }}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    >
-                      <SmsTrackingIcon
-                        height={scaleWithMax(20, 20)}
-                        width={scaleWithMax(20, 20)}
-                      />
-                    </TouchableOpacity>
-                  )}
+                  <TouchableOpacity
+                    onPress={e => {
+                      e.stopPropagation?.();
+                      onVideoPress?.();
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <SmsTrackingIcon
+                      height={scaleWithMax(20, 20)}
+                      width={scaleWithMax(20, 20)}
+                    />
+                  </TouchableOpacity>
+                )}
                 {order.SendType === 2 && !isInbox && onShareGiftLink && (
                   <TouchableOpacity
                     onPress={() => {
-
                       if (order.Status === 10) {
                         notify.error(getString('INBOX_GIFT_ALREADY_REDEEMED'));
                         return;
                       }
                       createDebouceClick('share-gift', () =>
                         onShareGiftLink(order.OrderId),
-                      )
+                      );
                     }}
                   >
                     <SvgOutboxShareIcon
                       height={scaleWithMax(20, 20)}
                       width={scaleWithMax(20, 20)}
+                      style={{ transform: rtlTransform(isRtl) }}
                     />
                   </TouchableOpacity>
                 )}
               </View>
             </View>
           </View>
-          {
-            order.EhsaanAmount > 0 && (<View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', position: 'relative', marginTop: scaleWithMax(3, 4) }}>
-              <Text style={{ ...theme.globalStyles.TEXT_STYLE, fontSize: theme.sizes.FONTSIZE_MEDIUM, color: theme.colors.PRIMARY_TEXT }}>{getString('INBOX_GOOD_DEED_MESSAGE')}</Text>
+          {order.EhsaanAmount > 0 && (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                position: 'relative',
+                marginTop: scaleWithMax(3, 4),
+              }}
+            >
+              <Text
+                style={{
+                  ...theme.globalStyles.TEXT_STYLE,
+                  fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                  color: theme.colors.PRIMARY_TEXT,
+                }}
+              >
+                {getString('INBOX_GOOD_DEED_MESSAGE')}
+              </Text>
               <SvgEhsanIcon style={{ position: 'absolute', end: -3 }} />
-            </View>)
-          }
+            </View>
+          )}
 
           {/* Slider with ScrollView */}
           <View
@@ -707,17 +765,11 @@ const InboxItem: React.FC<InboxItemProps> = ({
               scrollEventThrottle={16}
               scrollEnabled={order.Items && order.Items.length > 1}
               decelerationRate="fast"
-              snapToInterval={
-                (() => {
-                  const profileWidth = scaleWithMax(50, 55);
-                  const spacing = theme.sizes.WIDTH * 0.012;
-                  return theme.sizes.WIDTH - theme.sizes.PADDING * 2 - profileWidth - spacing + theme.sizes.PADDING * 0.8;
-                })()
-              }
+              snapToInterval={getItemWidth()}
               snapToAlignment="start"
               contentContainerStyle={{
                 paddingVertical: theme.sizes.HEIGHT * 0.014,
-                gap: theme.sizes.PADDING * 0.8,
+                gap: itemGap,
               }}
               style={{
                 overflow: 'visible',
@@ -739,6 +791,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
                       <View style={styles.redeemedBox}>
                         <Text
                           style={{
+                            // color: theme.colors.WHITE,
+                            ...theme.globalStyles.TEXT_STYLE,
                             color: theme.colors.WHITE,
                             fontSize: theme.sizes.FONTSIZE_MEDIUM,
                           }}
@@ -849,7 +903,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     showAddButton={false}
                     showSelection={false}
                     isGeneralSearchScreen={false}
-                    onPress={() => { }}
+                    onPress={() => {}}
                   />
                 )}
                 showsVerticalScrollIndicator={false}

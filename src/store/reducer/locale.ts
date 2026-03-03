@@ -2,6 +2,11 @@ import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../store';
 import RNRestart from 'react-native-restart';
+import { I18nManager } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+const resourceKeys: Record<string, string> =
+  require('../../resource_keys.json') as Record<string, string>;
 
 export interface LocaleState {
   localeData: {
@@ -10,6 +15,7 @@ export interface LocaleState {
     isRtl: boolean;
     strings: Record<LocaleString, string> | null;
     stringsLangId: number | null;
+    isFetching: boolean;
   };
 }
 
@@ -21,6 +27,7 @@ const initState: LocaleState = {
     isRtl: false,
     strings: null,
     stringsLangId: null,
+    isFetching: true,
   },
 };
 
@@ -40,10 +47,13 @@ const locale = createSlice({
       );
       state.localeData = { ...state.localeData, ...action.payload };
     },
+    setLocaleFetching(state, action: PayloadAction<{ isFetching: boolean }>) {
+      state.localeData.isFetching = action.payload.isFetching;
+    },
   },
 });
 
-export const { setLocale } = locale.actions;
+export const { setLocale, setLocaleFetching } = locale.actions;
 export default locale.reducer;
 
 export const useLanguageShifter = () => {
@@ -51,11 +61,17 @@ export const useLanguageShifter = () => {
 
   const shiftLanguage = (langCode: 'en' | 'ar') => {
     const newLangId = langCode === 'en' ? 1 : 2;
+    const shouldBeRtl = langCode === 'ar';
+    I18nManager.allowRTL(shouldBeRtl);
+    I18nManager.forceRTL(shouldBeRtl);
+    AsyncStorage.setItem('rtl_forced_lang_id', String(newLangId)).catch(() => {
+      // ignore storage errors
+    });
     dispatch(
       setLocale({
         langId: newLangId,
         langCode: langCode,
-        isRtl: langCode === 'ar',
+        isRtl: shouldBeRtl,
       }),
     );
 
@@ -76,10 +92,15 @@ export const useLocaleStore = () => {
   return {
     ...locale,
     getString: (key: LocaleString) => {
-      if (locale?.stringsLangId !== locale?.langId) {
-        return key;
+      const fetchedValue = locale?.strings?.[key];
+      if (fetchedValue) {
+        return fetchedValue;
       }
-      return locale?.strings?.[key] || key;
+      const fallbackValue = resourceKeys[key];
+      if (fallbackValue) {
+        return fallbackValue;
+      }
+      return key;
     },
   };
 };
@@ -251,6 +272,7 @@ type LocaleString =
   | 'SEARCH_UNFRIEND_USER'
   | 'SEARCH_USER_LINKED_TO_GROUPS_MESSAGE'
   | 'SEARCH_ARE_YOU_SURE_UNFRIEND'
+  | 'SEARCH_UNABLE_TO_SHARE'
   | 'SEARCH_YES'
   | 'P_GIFT_ME_ON_GIFTEE'
   | 'P_GIFT_ME_ON_GIFTEE_EXCLAMATION'
@@ -529,11 +551,13 @@ type LocaleString =
   | 'SEND_GIFT_CANCEL'
   | 'SEND_GIFT_SELECT'
   | 'SEND_GIFT_NO_USERS_FOUND'
+  | 'SEND_GIFT_MAX_SELECTION_LIMIT'
   | 'SEND_GIFT_SELECT_AT_LEAST_ONE_USER'
   | 'CATCH_CONTINUE'
   | 'CONTACT_US_WHATSAPP_NOT_INSTALLED'
   | 'CONTACT_US_UNABLE_OPEN_WHATSAPP'
   | 'COMP_CANCEL'
+  | 'COMP_CLOSE'
   | 'COMP_CONFIRM'
   | 'COMP_CONFIRM_TITLE'
   | 'COMP_YES'
@@ -554,4 +578,9 @@ type LocaleString =
   | 'COMP_NOT_AVAILABLE'
   | 'S_DELETE_ACCOUNT'
   | 'S_DELETE_ACCOUNT_CONFIRM_MESSAGE'
-  | 'S_ACCOUNT_DELETED_SUCCESSFULLY';
+  | 'S_ACCOUNT_DELETED_SUCCESSFULLY'
+  | 'INBOX_GIFT_LINK_OUTBOX_MESSAGE'
+  | 'STATUS_CHECK'
+  | 'CHECKOUT_EHSAN'
+  | 'INBOX_GIFT_FOUND_MESSAGE'
+  | 'HOME_GIFT_ONE_GET_ONE_STATUS';

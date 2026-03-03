@@ -260,7 +260,7 @@ const useStyles = () => {
         borderRadius: sizes.BORDER_RADIUS,
         maxHeight: '70%',
         width: '100%',
-        elevation: 5,
+        elevation: 3,
         shadowColor: colors.BLACK,
         shadowOffset: {
           width: 0,

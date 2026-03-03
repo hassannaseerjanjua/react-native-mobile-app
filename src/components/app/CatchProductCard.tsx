@@ -2,11 +2,10 @@ import React from 'react';
 import {
   View,
   TouchableOpacity,
-  Image,
   StyleSheet,
   ActivityIndicator,
 } from 'react-native';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import {
@@ -98,10 +97,13 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
             flexDirection: 'row',
             alignItems: 'center',
             position: 'relative',
+            paddingEnd: scaleWithMax(22, 26),
           }}
         >
           {item.subTitle2 && (
-            <Text style={styles.subTitle2}>{item.subTitle2}</Text>
+            <Text style={styles.subTitle2} numberOfLines={1}>
+              {item.subTitle2}
+            </Text>
           )}
 
           <View
@@ -131,11 +133,13 @@ const useStyles = () => {
         marginBottom: sizes.HEIGHT * 0.018,
         flex: 1,
         maxWidth: '48%',
+        overflow: 'visible',
       },
       imageContainer: {
         position: 'relative',
         height: sizes.HEIGHT * 0.21,
         width: '100%',
+        overflow: 'visible',
         ...theme.globalStyles.SHADOW_STYLE_INPUT,
       },
       AddContainer: {
@@ -173,41 +177,49 @@ const useStyles = () => {
         paddingTop: sizes.HEIGHT * 0.006,
       },
       title: {
-        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         color: theme.colors.DARK_GRAY,
-        fontSize: scaleWithMax(12, 13),
-        marginVertical: sizes.HEIGHT * 0.0016,
+        fontSize: scaleWithMax(13, 13),
       },
       subtitle: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-        color: '#A0A0A0',
+        color: theme.colors.GRAY,
         fontSize: sizes.FONTSIZE_MEDIUM,
+        marginTop: sizes.HEIGHT * 0.0005,
+        flex: 1,
+        minWidth: 0,
+        marginEnd: sizes.PADDING * 0.4,
       },
       subTitle2: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-        color: '#A0A0A0',
-        fontSize: sizes.FONTSIZE_SMALL,
+        color: theme.colors.GRAY,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        marginTop: sizes.HEIGHT * 0.0005,
+        flex: 1,
+        minWidth: 0,
+        marginEnd: sizes.PADDING * 0.4,
       },
       priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 3,
+        gap: scaleWithMax(2, 3),
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         color: theme.colors.PRIMARY_TEXT,
         fontSize: sizes.FONTSIZE_BUTTON,
       },
-      originalPrice: {
+      cutPrice: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        color: '#C6C6C6',
+        fontSize: sizes.FONTSIZE_MEDIUM,
         textDecorationLine: 'line-through',
-        color: '#A0A0A0',
-        fontSize: sizes.FONTSIZE_SMALL,
       },
       discountedPrice: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         color: theme.colors.PRIMARY,
-        fontSize: sizes.FONTSIZE_BUTTON,
+        fontSize: sizes.FONTSIZE_SMALL_HEADING,
+        marginEnd: scaleWithMax(1, 2),
       },
     }),
     theme,

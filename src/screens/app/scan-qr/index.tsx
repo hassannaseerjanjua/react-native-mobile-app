@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
-  Image,
   ScrollView,
   NativeScrollEvent,
   NativeSyntheticEvent,
@@ -12,7 +11,7 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import { SvgProfileCrossIcon } from '../../../assets/icons';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { scaleWithMax } from '../../../utils';
-import { Text } from '../../../utils/elements';
+import { Text, Image } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
 import QRCode from 'react-native-qrcode-svg';
 import { useLocaleStore } from '../../../store/reducer/locale';

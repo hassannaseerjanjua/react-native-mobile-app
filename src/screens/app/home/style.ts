@@ -1,14 +1,20 @@
 import { StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
-import { isIOS, isIOSThen, scaleWithMax } from '../../../utils';
+import {
+  isAndroid,
+  isIOS,
+  isIOSThen,
+  isRTL,
+  scaleWithMax,
+} from '../../../utils';
+import { useLocaleStore } from '../../../store/reducer/locale';
 
 const useStyles = () => {
   const theme = useTheme();
-
+  const { isRtl } = useLocaleStore();
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       container: {
@@ -34,42 +40,48 @@ const useStyles = () => {
       },
       contentContainer: {
         flex: 1,
-        gap: scaleWithMax(10, 12),
+        // gap: scaleWithMax(10, 12),
         paddingHorizontal: sizes.PADDING,
       },
       welcomeText: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
         paddingHorizontal: sizes.PADDING,
+        paddingBottom: isAndroid ? scaleWithMax(5, 6) : scaleWithMax(8, 8),
+        // marginStart: scaleWithMax(1, 1),
       },
       userName: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
       },
       heroImage: {
         borderRadius: sizes.BORDER_RADIUS_MID,
-        height: sizes.HEIGHT * (sizes.HEIGHT > 850 ? 0.3 : 0.29),
+        height: sizes.HEIGHT * (isIOS ? 0.28 : 0.28),
       },
       sectionTitle: {
-        fontFamily: fonts.Quicksand.bold,
-        fontSize:
-          sizes.WIDTH >= 430 && isIOS
-            ? sizes.FONTSIZE_HIGH * 0.95
-            : sizes.FONTSIZE_HIGH,
+        fontFamily: fonts.bold,
+        fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY_TEXT,
-        marginVertical: isIOSThen(scaleWithMax(8, 9), scaleWithMax(5, 7)),
+        // marginVertical: isIOSThen(scaleWithMax(8, 9), scaleWithMax(5, 7)),
         paddingHorizontal: sizes.PADDING,
+        includeFontPadding: isRtl ? true : false,
+        paddingVertical: isAndroid ? scaleWithMax(8, 10) : scaleWithMax(10, 11),
+        // marginStart: scaleWithMax(2, 2),
       },
 
       innerSectionTitle: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
         fontSize: sizes.FONTSIZE_HIGH,
+        includeFontPadding: isRtl ? true : false,
         color: colors.PRIMARY_TEXT,
+        paddingVertical: isAndroid ? scaleWithMax(8, 10) : scaleWithMax(10, 11),
+        // marginStart: scaleWithMax(2, 2),
       },
       optionsWrapper: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         gap: scaleWithMax(10, 12),
+        // marginVertical: scaleWithMax(10, 12),
       },
     });
   }, [theme]);

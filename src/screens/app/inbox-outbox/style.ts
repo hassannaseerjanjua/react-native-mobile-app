@@ -37,7 +37,8 @@ const useStyles = () => {
           sizes.WIDTH -
           sizes.PADDING * 2 -
           scaleWithMax(50, 55) -
-          sizes.WIDTH * 0.012,
+          sizes.WIDTH * 0.012 -
+          sizes.PADDING * 0.5,
         alignSelf: 'flex-start',
         overflow: 'visible',
         ...theme.globalStyles.SHADOW_STYLE,
@@ -59,7 +60,8 @@ const useStyles = () => {
           sizes.WIDTH -
           sizes.PADDING * 2 -
           scaleWithMax(50, 55) -
-          sizes.WIDTH * 0.012,
+          sizes.WIDTH * 0.012 -
+          sizes.PADDING * 0.5,
         height: sizes.WIDTH * 0.5,
         resizeMode: 'cover',
         borderTopLeftRadius: 12,
@@ -84,7 +86,8 @@ const useStyles = () => {
           sizes.WIDTH -
           sizes.PADDING * 2 -
           scaleWithMax(50, 55) -
-          sizes.WIDTH * 0.012,
+          sizes.WIDTH * 0.012 -
+          sizes.PADDING * 0.5,
         alignSelf: 'flex-start',
       },
       numCircle: {
@@ -213,9 +216,12 @@ const useStyles = () => {
       quantityText: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE,
+        lineHeight: Math.round(sizes.FONTSIZE * 1.5),
         color: theme.colors.PRIMARY,
         minWidth: scaleWithMax(20, 25),
         textAlign: 'center',
+        textAlignVertical: 'center',
+        includeFontPadding: false,
       },
       itemRow: {
         flexDirection: 'column',

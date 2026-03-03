@@ -10,8 +10,8 @@ import {
   Modal,
   Animated,
   ScrollView,
-  Image,
   FlatList,
+  SectionList,
   TouchableOpacity,
   StyleSheet,
   TextInput,
@@ -23,10 +23,15 @@ import {
 import { launchImageLibrary } from 'react-native-image-picker';
 import BottomSheetHeader from '../app/BottomSheetHeader';
 import SearchUserItem from '../app/SearchUserItem';
-import { SvgCrossIcon, SvgImageIcon } from '../../assets/icons';
+import { Image } from '../../utils/elements';
+import {
+  SvgCrossIcon,
+  SvgImageIcon,
+  SvgFindFriendsIcon,
+  SvgSearchFindFriendsIcon,
+} from '../../assets/icons';
 import { ActiveUser, fetchApiResponse } from '../../types';
 import useTheme from '../../styles/theme';
-import fonts from '../../assets/fonts';
 import api, { getAuthHeader, getAuthHeaderWithFormData } from '../../utils/api';
 import apiEndpoints from '../../constants/api-endpoints';
 import { useNavigation } from '@react-navigation/native';
@@ -42,12 +47,14 @@ import { useLocaleStore } from '../../store/reducer/locale';
 import notify from '../../utils/notify';
 import { useAuthStore } from '../../store/reducer/auth';
 import Toast from 'react-native-toast-message';
+import CustomButton from './Custombutton';
 
 const dummyImage = require('../../assets/images/user.png');
 
 interface UserListing {
   title?: string;
   users: ActiveUser[];
+  emptyState?: 'noFriends';
 }
 
 interface MemberSelectionModalProps {
@@ -66,6 +73,7 @@ interface MemberSelectionModalProps {
   existingGroupName?: string;
   existingGroupImage?: string | null;
   routeTo?: 'GiftOneGetOne' | 'SelectStore';
+  onFindFriendsNavigate?: () => void;
 }
 
 const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
@@ -80,6 +88,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   existingGroupName = '',
   existingGroupImage,
   routeTo,
+  onFindFriendsNavigate,
 }) => {
   const { styles } = useStyles();
   const { getString, isRtl } = useLocaleStore();
@@ -189,10 +198,14 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   }, []);
 
   const handleNextStep = useCallback(() => {
-    if (modalStep === 1 && selectedUsers.size > 0) {
+    if (modalStep === 1) {
+      if (selectedUsers.size === 0) {
+        notify.error(getString('SEND_GIFT_SELECT_AT_LEAST_ONE_USER'), 'bottom');
+        return;
+      }
       setModalStep(2);
     }
-  }, [modalStep, selectedUsers.size]);
+  }, [modalStep, selectedUsers.size, getString]);
 
   const handleBackStep = useCallback(() => {
     if (modalStep === 2) {
@@ -230,6 +243,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     if (isSendAGift) {
       setGroupError('');
 
+      if (selectedUsers.size === 0) {
+        notify.error(getString('SEND_GIFT_SELECT_AT_LEAST_ONE_USER'), 'bottom');
+        return;
+      }
       if (!groupName.trim()) {
         setGroupError(getString('VE_PLEASE_ENTER_GROUP_NAME'));
         return;
@@ -266,7 +283,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
 
         onSave(selectedUsersData, groupName, groupImage);
         closeModal();
-        navigation.navigate('SendToGroup' as never);
       } catch (error: any) {
         notify.error(error?.error || getString('AU_ERROR_OCCURRED'), 'bottom');
         setIsSaving(false);
@@ -361,94 +377,136 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       .filter(listing => listing.users.length > 0);
   }, [searchQuery, listings]);
 
-  const UserListComponent = ({ isSelected }: { isSelected: boolean }) => {
-    return (
-      <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{
-          paddingHorizontal: theme.sizes.PADDING,
-          paddingBottom: theme.sizes.HEIGHT * 0.02,
-        }}
-        showsVerticalScrollIndicator={false}
-        keyboardShouldPersistTaps="handled"
-      >
-        {filteredListings.length > 0 ? (
-          filteredListings.map((listing, listingIndex) => (
-            <View key={listingIndex}>
-              {listing.title ? (
-                <Text style={styles.sectionTitle}>{listing.title}</Text>
-              ) : (
-                <View
-                  style={{
-                    paddingVertical: theme.sizes.HEIGHT * 0.009,
-                  }}
-                />
-              )}
-              <View style={styles.listCard}>
-                {(listing.users || []).length > 0 ? (
-                  <FlatList
-                    data={listing.users || []}
-                    keyExtractor={item => item.UserId.toString()}
-                    renderItem={({ item, index }) => (
-                      <SearchUserItem
-                        item={item}
-                        index={index}
-                        isLast={index === (listing.users || []).length - 1}
-                        showAddButton={false}
-                        showSelection={!viewOnly}
-                        isSelected={selectedUsers.has(item.UserId)}
-                        onSelectionPress={() =>
-                          handleUserSelection(item.UserId)
-                        }
-                        onPress={
-                          viewOnly
-                            ? () => {
-                                closeModal();
-                                routeTo === 'SelectStore'
-                                  ? (navigation as any).navigate(
-                                      'SelectStore',
-                                      {
-                                        friendUserId: item.UserId,
-                                        CityId: item.CityId,
-                                      },
-                                    )
-                                  : (navigation as any).navigate(
-                                      'CatchScreen',
-                                      {
-                                        type: 'GiftOneGetOne',
-                                        friendUserId: item.UserId,
-                                      },
-                                    );
-                              }
-                            : undefined
-                        }
-                      />
-                    )}
-                    showsVerticalScrollIndicator={false}
-                    scrollEnabled={false}
-                  />
-                ) : (
-                  <View style={styles.emptyStateContainer}>
-                    <Text style={styles.emptyStateText}>
-                      {getString('EMPTY_NO_USERS_TO_SHOW')}
-                    </Text>
-                  </View>
-                )}
+  const sectionListSections = useMemo(() => {
+    if (filteredListings.length === 0) {
+      return [
+        {
+          title: '',
+          data: [{ _sectionKey: 'empty-0' }],
+          renderMode: 'empty' as const,
+        },
+      ];
+    }
+    return filteredListings.map((listing, idx) => {
+      if ((listing.users || []).length > 0) {
+        return {
+          title: listing.title || '',
+          data: [{ ...listing, _sectionKey: `users-${idx}` }],
+          renderMode: 'users' as const,
+        };
+      }
+      if (listing.emptyState === 'noFriends') {
+        return {
+          title: listing.title || '',
+          data: [{ _sectionKey: `noFriends-${idx}` }],
+          renderMode: 'noFriends' as const,
+        };
+      }
+      return {
+        title: listing.title || '',
+        data: [{ _sectionKey: `empty-${idx}` }],
+        renderMode: 'empty' as const,
+      };
+    });
+  }, [filteredListings]);
+
+  const userListJsx = (
+    <SectionList
+      sections={sectionListSections}
+      keyExtractor={(item: any) =>
+        item._sectionKey || `section-${Math.random()}`
+      }
+      renderSectionHeader={({ section: { title } }) =>
+        title ? (
+          <Text style={styles.sectionTitle}>{title}</Text>
+        ) : (
+          <View style={{ paddingVertical: theme.sizes.HEIGHT * 0.009 }} />
+        )
+      }
+      renderItem={({ item, section }) => {
+        if (section.renderMode === 'noFriends') {
+          return (
+            <View style={styles.noFriendsContainer}>
+              <SvgFindFriendsIcon
+                width={scaleWithMax(36, 40)}
+                height={scaleWithMax(36, 40)}
+              />
+              <Text style={styles.noFriendsText}>
+                {getString('SG_NO_FRIENDS_YET')}
+              </Text>
+              <CustomButton
+                icon={<SvgSearchFindFriendsIcon />}
+                title={getString('SG_FIND_FRIENDS')}
+                onPress={() => {
+                  onFindFriendsNavigate?.();
+                  closeModal();
+                  (navigation as any).navigate('Search', {
+                    title: getString('SG_FIND_FRIENDS'),
+                  });
+                }}
+                type="primary"
+              />
+            </View>
+          );
+        }
+        if (section.renderMode === 'empty') {
+          return (
+            <View style={styles.listCard}>
+              <View style={styles.emptyStateContainer}>
+                <Text style={styles.emptyStateText}>
+                  {filteredListings.length === 0
+                    ? getString('EMPTY_NO_RESULTS_FOUND')
+                    : getString('EMPTY_NO_USERS_TO_SHOW')}
+                </Text>
               </View>
             </View>
-          ))
-        ) : (
+          );
+        }
+        const listing = item as UserListing & { _sectionKey?: string };
+        const users = listing.users || [];
+        return (
           <View style={styles.listCard}>
-            <View style={styles.emptyStateContainer}>
-              <Text style={styles.emptyStateText}>
-                {getString('EMPTY_NO_RESULTS_FOUND')}
-              </Text>
-            </View>
+            {users.map((user, index) => (
+              <SearchUserItem
+                key={user.UserId}
+                item={user}
+                index={index}
+                isLast={index === users.length - 1}
+                showAddButton={false}
+                showSelection={!viewOnly}
+                isSelected={selectedUsers.has(user.UserId)}
+                onSelectionPress={() => handleUserSelection(user.UserId)}
+                onPress={
+                  viewOnly
+                    ? () => {
+                        closeModal();
+                        routeTo === 'SelectStore'
+                          ? (navigation as any).navigate('SelectStore', {
+                              friendUserId: user.UserId,
+                              CityId: user.CityId,
+                            })
+                          : (navigation as any).navigate('CatchScreen', {
+                              type: 'GiftOneGetOne',
+                              friendUserId: user.UserId,
+                            });
+                      }
+                    : undefined
+                }
+              />
+            ))}
           </View>
-        )}
-      </ScrollView>
-    );
-  };
+        );
+      }}
+      stickySectionHeadersEnabled={false}
+      style={{ flex: 1 }}
+      contentContainerStyle={{
+        paddingHorizontal: theme.sizes.PADDING,
+        paddingBottom: theme.sizes.HEIGHT * 0.02,
+      }}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+    />
+  );
 
   const memberRows = useMemo(() => {
     const chunks: ActiveUser[][] = [];
@@ -608,9 +666,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
 
                 <>
                   {!viewOnly && <SelectedUsersDisplay />}
-                  <UserListComponent
-                    isSelected={selectedUsersData.length > 0}
-                  />
+                  {userListJsx}
                 </>
               </>
             ) : (
@@ -680,6 +736,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                           setGroupName(text);
                           if (groupError) setGroupError('');
                         }}
+                        maxLength={50}
                         onFocus={() => {
                           if (Platform.OS === 'android') {
                             setTimeout(() => {
@@ -727,14 +784,14 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
 const useStyles = () => {
   const theme = useTheme();
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     const shadowStyle = {
       shadowColor: colors.BLACK,
       shadowOffset: { width: 0, height: 2 },
       shadowOpacity: 0.08,
       shadowRadius: scaleWithMax(4, 6),
-      elevation: 2,
+      elevation: 1,
     };
 
     const avatarSize = scaleWithMax(60, 60);
@@ -782,36 +839,42 @@ const useStyles = () => {
         overflow: 'visible',
       },
       step2Container: {
-        paddingVertical: sizes.HEIGHT * 0.02,
+        paddingTop: sizes.PADDING * 0.8,
+        paddingBottom: sizes.HEIGHT * 0.02,
       },
       groupNameInputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: colors.WHITE,
-        borderRadius: sizes.BORDER_RADIUS_MID,
+        borderRadius: 12,
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.HEIGHT * 0.01,
-        ...theme.globalStyles.SHADOW_STYLE,
+        paddingVertical: sizes.HEIGHT * 0.0116,
+        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
+        // shadowColor: '#000',
+        // shadowOffset: { width: 0, height: 2 },
+        // shadowOpacity: 0.08,
+        // shadowRadius: 4,
+        // elevation: 2,
       },
       groupNameIconWrapper: {
-        width: scaleWithMax(34, 34),
-        height: scaleWithMax(34, 34),
-        borderRadius: 999,
+        width: 30,
+        height: 30,
+        borderRadius: 99,
         backgroundColor: colors.SECONDARY,
         alignItems: 'center',
         justifyContent: 'center',
       },
       groupImagePreview: {
-        width: scaleWithMax(28, 28),
-        height: scaleWithMax(28, 28),
-        borderRadius: 999,
+        width: 30,
+        height: 30,
+        borderRadius: 99,
       },
       groupNameInputError: {
         borderColor: colors.RED,
         borderWidth: 1,
       },
       errorText: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.RED,
         marginTop: scaleWithMax(4, 4),
@@ -825,21 +888,21 @@ const useStyles = () => {
         borderColor: colors.RED + '40',
       },
       generalErrorText: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.RED,
         textAlign: 'center',
       },
       groupNameInput: {
         flex: 1,
-        fontSize: sizes.FONTSIZE,
-        fontFamily: fonts.Quicksand.regular,
+        fontSize: 14,
+        fontFamily: fonts.regular,
         color: colors.PRIMARY_TEXT,
         marginLeft: sizes.PADDING * 0.6,
         padding: 0,
       },
       membersHeading: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_LESS_HIGH,
         color: colors.PRIMARY_TEXT,
         marginTop: sizes.HEIGHT * 0.02,
@@ -881,7 +944,7 @@ const useStyles = () => {
         marginBottom: scaleWithMax(6, 6),
       },
       memberGridName: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
@@ -927,7 +990,7 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       selectedUserName: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
@@ -937,11 +1000,11 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS_HIGH,
         ...shadowStyle,
-        elevation: 3,
+        elevation: 2,
         marginBottom: sizes.HEIGHT * 0.018,
       },
       sectionTitle: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.PRIMARY_TEXT,
         paddingBottom: sizes.HEIGHT * 0.01,
@@ -952,8 +1015,22 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'center',
       },
+      noFriendsContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingTop: sizes.HEIGHT * 0.26,
+        paddingBottom: sizes.HEIGHT * 0.03,
+      },
+      noFriendsText: {
+        ...theme.globalStyles.TEXT_STYLE,
+        color: colors.BLACK,
+        fontSize: sizes.FONTSIZE_BUTTON,
+        paddingVertical: sizes.HEIGHT * 0.007,
+        paddingBottom: sizes.HEIGHT * 0.03,
+        textAlign: 'center',
+      },
       emptyStateText: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.SECONDARY_GRAY,
         textAlign: 'center',

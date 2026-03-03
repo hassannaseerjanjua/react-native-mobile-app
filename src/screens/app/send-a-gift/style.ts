@@ -1,12 +1,11 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
 
 const useStyles = () => {
   const theme = useTheme();
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
     return StyleSheet.create({
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
@@ -34,17 +33,17 @@ const useStyles = () => {
         shadowOffset: { width: 0, height: 1 },
         shadowOpacity: 0.04,
         shadowRadius: 17,
-        elevation: 4,
+        elevation: 2,
       },
       sectionTitle: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.PRIMARY_TEXT,
         paddingTop: sizes.HEIGHT * 0.014,
         paddingBottom: sizes.HEIGHT * 0.008,
       },
       errorText: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: 14,
         color: colors.PRIMARY_TEXT,
         padding: 20,
@@ -66,6 +65,13 @@ const useStyles = () => {
         paddingVertical: sizes.HEIGHT * 0.007,
         paddingBottom: sizes.HEIGHT * 0.03,
         textAlign: 'center',
+      },
+      noFriendsFooter: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        // marginTop: sizes.HEIGHT * 0.03, //
+        // paddingTop: sizes.HEIGHT * 0.04,
+        // paddingBottom: sizes.HEIGHT * 0.03,
       },
       tabContainer: {
         // marginBottom: sizes.HEIGHT * 0.01,
@@ -96,7 +102,7 @@ const useStyles = () => {
         shadowOpacity: 0.08,
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 3,
+        elevation: 1,
       },
       selectedUsersList: {
         flexDirection: 'row',
@@ -128,7 +134,7 @@ const useStyles = () => {
         marginBottom: 6,
       },
       selectedUserName: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: 12,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
@@ -174,7 +180,7 @@ const useStyles = () => {
         paddingVertical: sizes.HEIGHT * 0.02,
       },
       membersHeading: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         marginBottom: sizes.HEIGHT * 0.015,
@@ -215,7 +221,7 @@ const useStyles = () => {
         marginBottom: 6,
       },
       memberGridName: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: 12,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',

@@ -3,18 +3,18 @@ import {
   View,
   StatusBar,
   ScrollView,
-  Image,
   FlatList,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
-import { Text } from '../../../utils/elements';
+import { Text, Image } from '../../../utils/elements';
 import HomeHeader from '../../../components/global/HomeHeader';
 import ParentView from '../../../components/app/ParentView';
 import SkeletonLoader from '../../../components/SkeletonLoader';
-import { SvgRiyalIcon } from '../../../assets/icons';
+import { SvgGiftClaimIcon, SvgRiyalIcon } from '../../../assets/icons';
+import PriceWithIcon from '../../../components/global/Price';
 import { scaleWithMax } from '../../../utils';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { useListingApi } from '../../../hooks/useListingApi';
@@ -80,10 +80,13 @@ const formatDate = (
   const month = months[date.getMonth()];
   const hours = date.getHours();
   const minutes = date.getMinutes();
-  const ampm = hours >= 12 ? getString('ORDERS_TIME_PM') : getString('ORDERS_TIME_AM');
+  const ampm =
+    hours >= 12 ? getString('ORDERS_TIME_PM') : getString('ORDERS_TIME_AM');
   const formattedHours = hours % 12 || 12;
   const formattedMinutes = minutes.toString().padStart(2, '0');
-  return `${day}-${month} ${getString('ORDERS_DATE_AT')} ${formattedHours}:${formattedMinutes}${ampm}`;
+  return `${day}-${month} ${getString(
+    'ORDERS_DATE_AT',
+  )} ${formattedHours}:${formattedMinutes}${ampm}`;
 };
 
 const OrdersScreen: React.FC = () => {
@@ -256,7 +259,9 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
 
         <View style={styles.detailRow}>
           <Text style={styles.detailLabel}>{getString('O_ORDER_TIME')}:</Text>
-          <Text style={styles.detailValue}>{formatDate(orderDate, getString)}</Text>
+          <Text style={styles.detailValue}>
+            {formatDate(orderDate, getString)}
+          </Text>
         </View>
 
         {order.Items?.map(item => {
@@ -279,13 +284,17 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                     {variantName}
                   </Text>
                 )}
-                <View style={styles.priceContainer}>
-                  <SvgRiyalIcon
-                    width={scaleWithMax(12, 14)}
-                    height={scaleWithMax(12, 14)}
-                  />
-                  <Text style={styles.itemPrice}>{itemTotal.toFixed(2)}</Text>
-                </View>
+                <PriceWithIcon
+                  amount={itemTotal.toFixed(2)}
+                  textStyle={styles.itemPrice}
+                  containerStyle={styles.priceContainer}
+                  icon={
+                    <SvgRiyalIcon
+                      width={scaleWithMax(12, 14)}
+                      height={scaleWithMax(12, 14)}
+                    />
+                  }
+                />
               </View>
             </View>
           );
@@ -294,13 +303,21 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
         <View style={styles.totalRow}>
           <Text style={styles.totalLabel}>{getString('O_TOTAL_AMOUNT')}</Text>
           <View style={styles.priceContainer}>
-            <SvgRiyalIcon
-              width={scaleWithMax(12, 14)}
-              height={scaleWithMax(12, 14)}
-            />
-            <Text style={styles.totalValue}>
-              {order.TotalAmount.toFixed(2)}
-            </Text>
+            {order.TotalAmount > 0 ? (
+              <PriceWithIcon
+                amount={order.TotalAmount.toFixed(2)}
+                textStyle={styles.totalValue}
+                containerStyle={styles.priceContainer}
+                icon={
+                  <SvgRiyalIcon
+                    width={scaleWithMax(12, 14)}
+                    height={scaleWithMax(12, 14)}
+                  />
+                }
+              />
+            ) : (
+              <SvgGiftClaimIcon />
+            )}
           </View>
         </View>
       </View>

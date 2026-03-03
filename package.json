@@ -9,7 +9,8 @@
     "android": "react-native run-android",
     "android-release": "react-native run-android --mode release",
     "ios": "react-native run-ios",
-    "start": "react-native start"
+    "start": "react-native start",
+    "link-assets": "npx react-native-asset"
   },
   "dependencies": {
     "@gorhom/bottom-sheet": "^5.2.6",
@@ -24,6 +25,7 @@
     "@react-navigation/native": "^7.1.19",
     "@react-navigation/native-stack": "^7.6.2",
     "@reduxjs/toolkit": "^2.10.1",
+    "@rnw-community/react-native-payments": "^1.12.1",
     "axios": "^1.13.2",
     "formik": "^2.4.6",
     "react": "19.1.0",
@@ -31,6 +33,7 @@
     "react-native-bootsplash": "^6.3.11",
     "react-native-compressor": "^1.13.0",
     "react-native-contacts": "^8.0.7",
+    "react-native-create-thumbnail": "^2.2.0",
     "react-native-date-picker": "^5.0.13",
     "react-native-gesture-handler": "^2.28.0",
     "react-native-image-crop-picker": "^0.51.1",

@@ -4,6 +4,7 @@ import {
   AppStackParamList,
   AuthStackParamList,
 } from '../types/navigation.types';
+import { decodeGiftLinkParams } from '../utils/giftLinkCodec';
 
 export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
   prefixes: [
@@ -30,9 +31,10 @@ export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
     console.log('🔗 DEEP LINK - getStateFromPath called');
     console.log('🔗 Path:', path);
 
-    // Parse query parameters manually for select-store
-    if (path.includes('select-store')) {
-      console.log('🔗 Processing select-store path');
+    // Parse query parameters for select-store or gift-me (profile gift link)
+    const isSelectStorePath = path.includes('select-store') || path.includes('gift-me');
+    if (isSelectStorePath) {
+      console.log('🔗 Processing select-store / gift-me path');
 
       // Parse query parameters manually
       const queryParams: Record<string, string> = {};
@@ -47,19 +49,34 @@ export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
         });
       }
 
-      const friendUserId = queryParams['friendUserId'];
-      const CityId = queryParams['CityId'];
-      const sendType = queryParams['sendType'];
+      let friendUserId: string | undefined;
+      let CityId: string | undefined;
+      let sendType: string | undefined;
+
+      // Support obfuscated token (t=gl_...) from profile gift link
+      const token = queryParams['t'];
+      if (token) {
+        const decoded = decodeGiftLinkParams(token);
+        if (decoded) {
+          friendUserId = String(decoded.friendUserId);
+          CityId = String(decoded.CityId);
+          sendType = String(decoded.sendType);
+        }
+      }
+      // Fall back to legacy plain params
+      if (friendUserId === undefined) friendUserId = queryParams['friendUserId'];
+      if (CityId === undefined) CityId = queryParams['CityId'];
+      if (sendType === undefined) sendType = queryParams['sendType'];
 
       console.log('🔗 Query params extracted:');
       console.log('  friendUserId:', friendUserId);
       console.log('  CityId:', CityId);
       console.log('  sendType:', sendType);
 
-      // Get the default state from React Navigation (with full path including query)
-      // React Navigation should automatically handle the path, but we'll parse query params manually
+      // Normalize gift-me to select-store for React Navigation (both map to SelectStore)
       const pathWithoutQuery = path.split('?')[0];
-      const state = getStateFromPath(pathWithoutQuery, config);
+      const navPath = path.includes('gift-me') ? 'select-store' : pathWithoutQuery;
+      const state = getStateFromPath(navPath, config);
 
       console.log(
         '🔗 State from React Navigation:',
@@ -234,7 +251,10 @@ export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
 
       // Location and store screens
       LocationSelection: 'location',
-      SelectStore: 'select-store',
+      SelectStore: {
+        path: 'select-store',
+        alias: ['gift-me'],
+      },
       StoreProducts: 'store-products/:storeId',
 
       // QR and catch screens

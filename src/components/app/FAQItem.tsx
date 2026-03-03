@@ -87,7 +87,7 @@ const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       container: {
@@ -110,7 +110,7 @@ const useStyles = () => {
         minWidth: 0,
       },
       titleText: {
-        fontFamily: 'Quicksand-Medium',
+        fontFamily: fonts.medium,
         fontSize: theme.sizes.FONTSIZE_LESS_HIGH,
         color: colors.PRIMARY_TEXT,
         flex: 1,
@@ -128,7 +128,7 @@ const useStyles = () => {
         marginTop: scaleWithMax(8, 12),
       },
       answerText: {
-        fontFamily: 'Quicksand-Regular',
+        fontFamily: fonts.regular,
         fontSize: theme.sizes.FONTSIZE,
         color: colors.PRIMARY_TEXT,
         textAlign: 'left',

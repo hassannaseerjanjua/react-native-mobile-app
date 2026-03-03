@@ -1,6 +1,6 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
-import { Text } from '../../utils/elements';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { Text, Image } from '../../utils/elements';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import {
@@ -8,7 +8,9 @@ import {
   SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
   SvgRiyalIconPrimary,
+  SvgCatchAddIcon,
 } from '../../assets/icons';
+import PriceWithIcon from '../global/Price';
 import { CatchItem } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
 
@@ -27,7 +29,6 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
   onFavoritePress,
   hasFavorite,
 }) => {
-  const { theme } = useStyles();
   const { styles } = useStyles();
   const { isRtl } = useLocaleStore();
 
@@ -41,7 +42,7 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
     discountedPrice && discountedPrice > 0 && discountedPrice < price;
 
   return (
-    <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
+    <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image
           source={
@@ -51,6 +52,18 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
           }
           style={styles.image}
         />
+        <TouchableOpacity
+          style={styles.addContainer}
+          onPress={e => {
+            e.stopPropagation();
+            onPress(item);
+          }}
+        >
+          <SvgCatchAddIcon
+            width={scaleWithMax(14, 16)}
+            height={scaleWithMax(14, 16)}
+          />
+        </TouchableOpacity>
         {hasFavorite && (
           <TouchableOpacity
             style={styles.favoriteIcon}
@@ -95,16 +108,17 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
             {storeName}
           </Text>
           {hasDiscount && (
-            <View style={styles.priceContainer}>
-              <SvgRiyalIconPrimary
-                width={scaleWithMax(11, 12)}
-                height={scaleWithMax(11, 12)}
-                style={{
-                  marginTop: theme.sizes.HEIGHT * 0.003,
-                }}
-              />
-              <Text style={styles.price}>{discountedPrice}</Text>
-            </View>
+            <PriceWithIcon
+              amount={discountedPrice}
+              variant="discounted"
+              icon={
+                <SvgRiyalIconPrimary
+                  width={scaleWithMax(11, 13)}
+                  height={scaleWithMax(11, 13)}
+                />
+              }
+              textStyle={styles.discountedPrice}
+            />
           )}
         </View>
 
@@ -120,19 +134,23 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
               {categoryName}
             </Text>
           )}
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-            <SvgRiyalIcon
-              opacity={0.5}
-              width={scaleWithMax(10, 12)}
-              height={scaleWithMax(10, 12)}
-            />
-            <Text style={hasDiscount ? styles.originalPrice : styles.price}>
-              {price}
-            </Text>
-          </View>
+          <PriceWithIcon
+            amount={price}
+            variant={hasDiscount ? 'cut' : 'default'}
+            icon={
+              <SvgRiyalIcon
+                width={hasDiscount ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
+                height={
+                  hasDiscount ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
+                }
+              />
+            }
+            iconOpacity={hasDiscount ? 0.32 : 1}
+            textStyle={hasDiscount ? styles.originalPrice : styles.price}
+          />
         </View>
       </View>
-    </TouchableOpacity>
+    </View>
   );
 };
 
@@ -148,11 +166,26 @@ const useStyles = () => {
         marginBottom: sizes.HEIGHT * 0.018,
         flex: 1,
         maxWidth: '48%',
+        overflow: 'visible',
       },
       imageContainer: {
         position: 'relative',
         height: sizes.HEIGHT * 0.21,
         width: '100%',
+        overflow: 'visible',
+      },
+      addContainer: {
+        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
+        overflow: 'visible',
+        backgroundColor: colors.WHITE,
+        borderRadius: 9999,
+        width: scaleWithMax(30, 32),
+        height: scaleWithMax(30, 32),
+        position: 'absolute',
+        bottom: -scaleWithMax(14, 14),
+        end: 0,
+        alignItems: 'center',
+        justifyContent: 'center',
       },
       image: {
         width: '100%',
@@ -176,36 +209,47 @@ const useStyles = () => {
         paddingTop: sizes.HEIGHT * 0.006,
       },
       title: {
-        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         color: theme.colors.DARK_GRAY,
-        fontSize: scaleWithMax(12, 13),
-        marginVertical: sizes.HEIGHT * 0.0016,
+        fontSize: scaleWithMax(13, 13),
       },
       subtitle: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: theme.colors.GRAY,
         fontSize: sizes.FONTSIZE_MEDIUM,
+        flex: 1,
+        minWidth: 0,
+        marginEnd: sizes.PADDING * 0.4,
       },
       subTitle2: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         color: theme.colors.GRAY,
-        fontSize: sizes.FONTSIZE_SMALL,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        flex: 1,
+        minWidth: 0,
+        marginEnd: sizes.PADDING * 0.4,
       },
       priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 3,
+        gap: scaleWithMax(2, 3),
       },
       price: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
-        color: theme.colors.PRIMARY,
+        color: theme.colors.PRIMARY_TEXT,
         fontSize: sizes.FONTSIZE_BUTTON,
+      },
+      discountedPrice: {
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        color: theme.colors.PRIMARY,
+        fontSize: sizes.FONTSIZE_SMALL_HEADING,
+        marginEnd: scaleWithMax(1, 2),
       },
       originalPrice: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+        color: '#C6C6C6',
+        fontSize: sizes.FONTSIZE_MEDIUM,
         textDecorationLine: 'line-through',
-        color: theme.colors.GRAY,
-        fontSize: sizes.FONTSIZE_SMALL,
       },
     }),
     theme,

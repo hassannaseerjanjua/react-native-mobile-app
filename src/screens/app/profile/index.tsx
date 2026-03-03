@@ -3,7 +3,6 @@ import {
   View,
   StatusBar,
   ScrollView,
-  Image,
   TouchableOpacity,
   Platform,
   Share,
@@ -12,7 +11,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useStyles from './style';
-import { Text } from '../../../utils/elements';
+import { Text, Image } from '../../../utils/elements';
 import TabItem from '../../../components/global/TabItem';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
@@ -36,7 +35,7 @@ import {
   SvgPencilIcon,
   CardsIcon,
   VisaIcon,
-  NoonIcon
+  NoonIcon,
 } from '../../../assets/icons';
 import { useDispatch } from 'react-redux';
 import { login, logout, useAuthStore } from '../../../store/reducer/auth';
@@ -52,6 +51,7 @@ import { BlurView } from '@react-native-community/blur';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import { selectAndCropImage } from '../../../utils/imageCropper';
 import { callLogoutWithDeviceToken } from '../../../utils/notificationService';
+import { encodeGiftLinkParams } from '../../../utils/giftLinkCodec';
 
 const ProfileScreen: React.FC = () => {
   const { styles: screenStyles, theme } = useStyles();
@@ -77,9 +77,15 @@ const ProfileScreen: React.FC = () => {
         return;
       }
 
-      // Generate deep link using https format (already associated with the app)
-      // Format: https://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId={userId}&CityId={cityId}&sendType=1
-      const giftLink = `https://admin.giftee.hostinger.bitscollision.net/select-store?friendUserId=${user.UserId}&CityId=${user.CityId}&sendType=1`;
+      // Generate obfuscated deep link (encodes friendUserId, CityId, sendType)
+      const token = encodeGiftLinkParams({
+        friendUserId: user.UserId,
+        CityId: user.CityId,
+        sendType: 1,
+      });
+      const giftLink = `https://admin.giftee.hostinger.bitscollision.net/gift-me?t=${encodeURIComponent(
+        token,
+      )}`;
 
       // const shareMessage = `🎁 Want to send me a gift? Click the link below.\n\n${giftLink}`;
       const shareMessage = `${getString('LINK_MY_GIFT_LINK')}.\n\n${giftLink}`;
@@ -101,7 +107,7 @@ const ProfileScreen: React.FC = () => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) { }
+    } catch (error) {}
   };
 
   const handleImageSelect = async () => {
@@ -162,7 +168,7 @@ const ProfileScreen: React.FC = () => {
           );
         }
       })
-      .catch(error => { })
+      .catch(error => {})
       .finally(() => {
         setIsUploading(false);
         setShowPhotoOptions(false);
@@ -219,12 +225,18 @@ const ProfileScreen: React.FC = () => {
     },
     {
       id: 'friends',
-      title: isMerchant ? getString('PROFILE_MY_EMPLOYEES') : getString('MF_MY_FRIENDS'),
+      title: isMerchant
+        ? getString('PROFILE_MY_EMPLOYEES')
+        : getString('MF_MY_FRIENDS'),
       icon: <SvgProfileFriends />,
       onPress: () => {
         (navigation as any).navigate('Search', {
-          title: isMerchant ? getString('PROFILE_MY_EMPLOYEES') : getString('MF_MY_FRIENDS'),
-          ...(isMerchant ? { showEmployeesOnly: true } : { showFriendsOnly: true }),
+          title: isMerchant
+            ? getString('PROFILE_MY_EMPLOYEES')
+            : getString('MF_MY_FRIENDS'),
+          ...(isMerchant
+            ? { showEmployeesOnly: true }
+            : { showFriendsOnly: true }),
         });
       },
     },
@@ -304,37 +316,39 @@ const ProfileScreen: React.FC = () => {
       },
     },
   ];
+
+  console.log(user);
   const allowedMenuItems: (typeof profileMenuItems)[number]['id'][] = isMerchant
     ? [
-      'wallet',
-      // 'gift-link',
-      'favourites',
-      'friends',
-      'settings',
-      'manage-cards',
-      'order',
-      'connect',
-      'contact-us',
-      'terms',
-      'privacy',
-      'faq',
-      'logout',
-    ]
+        'wallet',
+        // 'gift-link',
+        // 'favourites',
+        'friends',
+        'settings',
+        'manage-cards',
+        'order',
+        'connect',
+        'contact-us',
+        'terms',
+        'privacy',
+        'faq',
+        'logout',
+      ]
     : [
-      'wallet',
-      'gift-link',
-      'favourites',
-      'friends',
-      'settings',
-      'manage-cards',
-      'order',
-      'connect',
-      'contact-us',
-      'terms',
-      'privacy',
-      'faq',
-      'logout',
-    ];
+        'wallet',
+        'gift-link',
+        'favourites',
+        'friends',
+        'settings',
+        'manage-cards',
+        'order',
+        'connect',
+        'contact-us',
+        'terms',
+        'privacy',
+        'faq',
+        'logout',
+      ];
   return (
     <ParentView style={screenStyles.container}>
       <StatusBar
@@ -387,7 +401,6 @@ const ProfileScreen: React.FC = () => {
                 height={scaleWithMax(10, 12)}
               />
             </View>
-
           </TouchableOpacity>
           <View style={screenStyles.profileInfo}>
             <View style={screenStyles.verifiedIconContainer}>
@@ -448,8 +461,12 @@ const ProfileScreen: React.FC = () => {
             ]}
           >
             <View style={screenStyles.qrContent}>
-              <Text style={screenStyles.qrTitle}>{getString('P_LETSSWAPGIFTS')}</Text>
-              <Text style={screenStyles.qrSubtitle}>{getString('P_SCANTOGETME')}</Text>
+              <Text style={screenStyles.qrTitle}>
+                {getString('P_LETSSWAPGIFTS')}
+              </Text>
+              <Text style={screenStyles.qrSubtitle}>
+                {getString('P_SCANTOGETME')}
+              </Text>
 
               <View style={screenStyles.qrCodeContainer}>
                 <View style={screenStyles.modalProfileSection}>
@@ -510,7 +527,11 @@ const ProfileScreen: React.FC = () => {
       >
         <View style={screenStyles.bottomSheet}>
           <CustomButton
-            title={user?.ProfileUrl ? getString('PROFILE_CHANGE_PHOTO') : getString('PROFILE_ADD_PHOTO')}
+            title={
+              user?.ProfileUrl
+                ? getString('PROFILE_CHANGE_PHOTO')
+                : getString('PROFILE_ADD_PHOTO')
+            }
             onPress={handleChangePhoto}
             disabled={isUploading}
             loading={isUploading}

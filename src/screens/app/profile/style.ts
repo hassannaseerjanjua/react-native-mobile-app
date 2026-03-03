@@ -1,14 +1,13 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
 import { scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       container: {
@@ -21,7 +20,7 @@ const useStyles = () => {
       },
       scrollContent: {
         paddingHorizontal: sizes.PADDING,
-        paddingBottom: sizes.HEIGHT * 0.032,
+        paddingBottom: sizes.HEIGHT * 0.05,
       },
       profileSection: {
         flexDirection: 'row',
@@ -58,12 +57,12 @@ const useStyles = () => {
         marginLeft: sizes.WIDTH * 0.03,
       },
       profileName: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_BUTTON,
         color: colors.BLACK,
       },
       profileUsername: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.BLACK,
       },
@@ -104,7 +103,7 @@ const useStyles = () => {
         },
         shadowOpacity: 0.3,
         shadowRadius: 10,
-        elevation: 10,
+        elevation: 4,
       },
       qrContent: {
         width: '100%',
@@ -186,7 +185,7 @@ const useStyles = () => {
         padding: scaleWithMax(6, 8),
         ...theme.globalStyles.SHADOW_STYLE_LOW,
         shadowColor: '#00000050',
-        elevation: 4,
+        elevation: 2,
       },
     });
   }, [theme]);

@@ -2,9 +2,9 @@ import React, { useMemo } from 'react';
 import {
   View,
   TouchableOpacity,
-  Image,
   ActivityIndicator,
   StyleSheet,
+  Platform,
 } from 'react-native';
 import {
   SvgSearchAdd,
@@ -14,8 +14,7 @@ import {
 import { ActiveUser } from '../../types';
 import { useLocaleStore } from '../../store/reducer/locale';
 import useTheme from '../../styles/theme';
-import fonts from '../../assets/fonts';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import { scaleWithMax } from '../../utils';
 
 interface SearchUserItemProps {
@@ -56,16 +55,33 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   selectionDisabled = false,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
+  const { getString, langCode } = useLocaleStore();
   const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
   const isAdded = currentStatus === 1;
   const isLoading = loadingUsers[item.UserId] || false;
   const dummyImage = require('../../assets/images/user.png');
+  const profileUrlRaw =
+    typeof item?.ProfileUrl === 'string' ? item.ProfileUrl.trim() : '';
+  const isInvalidProfileUrl =
+    !profileUrlRaw ||
+    profileUrlRaw.toLowerCase() === 'null' ||
+    profileUrlRaw.toLowerCase() === 'undefined';
+  const profileSource = !isInvalidProfileUrl
+    ? { uri: profileUrlRaw }
+    : dummyImage;
 
   const isTempAdded = tempAddedUserIds?.has(item.UserId) || false;
   const shouldShowButton = isGeneralSearchScreen
     ? !isAdded || isTempAdded || isLoading
     : showAddButton;
+
+  const meSuffix = getString('SG_ME');
+  const isArabic = langCode === 'ar';
+  const fullName = item.FullName || '';
+  const hasMeSuffix = meSuffix ? fullName.endsWith(meSuffix) : false;
+  const displayName = hasMeSuffix
+    ? fullName.slice(0, -meSuffix.length)
+    : fullName;
 
   return (
     <TouchableOpacity
@@ -76,23 +92,40 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
       <View style={styles.userInfo}>
         <View style={styles.avatarWrapper}>
           <Image
-            source={item?.ProfileUrl ? { uri: item.ProfileUrl } : dummyImage}
+            source={profileSource}
+            placeholderSource={dummyImage}
             style={styles.avatar}
           />
         </View>
-        <Text
-          style={[
-            styles.userName,
-            {
-              maxWidth: shouldShowButton ? '80%' : '80%',
-            },
-          ]}
-          numberOfLines={1}
-          ellipsizeMode="tail"
-        >
-          {item.FullName}
-        </Text>
-        {item.IsVerified && <SvgVerifiedIcon />}
+        <View style={styles.nameRow}>
+          <Text
+            style={[
+              styles.userName,
+              {
+                maxWidth: shouldShowButton ? '80%' : '80%',
+              },
+            ]}
+            numberOfLines={1}
+            ellipsizeMode="tail"
+          >
+            {displayName}
+            {hasMeSuffix && (
+              <Text
+                style={[
+                  styles.userNameSuffix,
+                  isArabic ? styles.userNameSuffixArabic : null,
+                ]}
+              >
+                {meSuffix}
+              </Text>
+            )}
+          </Text>
+          {item.IsVerified && (
+            <View style={styles.verifiedIconWrapper}>
+              <SvgVerifiedIcon />
+            </View>
+          )}
+        </View>
       </View>
 
       {shouldShowButton && (
@@ -125,8 +158,8 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
                   (isTempAdded
                     ? getString('SEARCH_ADDED')
                     : isAdded
-                      ? getString('MF_UNFRIEND')
-                      : getString('SEARCH_ADD'))}
+                    ? getString('MF_UNFRIEND')
+                    : getString('SEARCH_ADD'))}
               </Text>
             </View>
           )}
@@ -140,7 +173,9 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
             isSelected && styles.selectedCircle,
             selectionDisabled && !isSelected && styles.disabledCircle,
           ]}
-          onPress={selectionDisabled && !isSelected ? undefined : onSelectionPress}
+          onPress={
+            selectionDisabled && !isSelected ? undefined : onSelectionPress
+          }
           activeOpacity={selectionDisabled && !isSelected ? 1 : 0.7}
           disabled={selectionDisabled && !isSelected}
         >
@@ -162,7 +197,7 @@ const useStyles = () => {
   const theme = useTheme();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       userRow: {
@@ -195,11 +230,30 @@ const useStyles = () => {
       },
 
       userName: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE_BUTTON,
+        lineHeight: Math.round(sizes.FONTSIZE_BUTTON * 1.2),
         letterSpacing: 0.15,
         color: colors.PRIMARY_TEXT,
-        marginEnd: scaleWithMax(6, 7),
+        marginEnd: scaleWithMax(3, 4),
+        includeFontPadding: false,
+      },
+      userNameSuffix: {
+        marginStart: scaleWithMax(3, 4),
+      },
+      userNameSuffixArabic: {
+        fontFamily: fonts.medium,
+      },
+      nameRow: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        flex: 1,
+        minWidth: 0,
+      },
+      verifiedIconWrapper: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: Platform.OS === 'ios' ? -scaleWithMax(1, 1) : 0,
       },
       addButton: {
         borderRadius: sizes.BORDER_RADIUS,
@@ -211,7 +265,7 @@ const useStyles = () => {
         justifyContent: 'center',
       },
       addButtonText: {
-        fontFamily: fonts.Quicksand.medium,
+        fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
         color: colors.PRIMARY,
       },

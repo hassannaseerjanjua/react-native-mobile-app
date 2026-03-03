@@ -18,7 +18,6 @@ import DropdownField, {
   DropdownOption,
 } from '../../../components/global/DropdownField.tsx';
 import CityPickerModal from '../../../components/global/CityPickerModal.tsx';
-import fonts from '../../../assets/fonts';
 import {
   AppStackScreen,
   AppStackParamList,
@@ -61,30 +60,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
 
-  // Log received route parameters
-  useEffect(() => {
-    console.log('='.repeat(60));
-    console.log('SELECT STORE SCREEN - COMPONENT MOUNTED/RENDERED');
-    console.log('='.repeat(60));
-    console.log('Route object:', route);
-    console.log('Route params exists:', !!route?.params);
-    console.log(
-      'All route params:',
-      JSON.stringify(route?.params || {}, null, 2),
-    );
-    console.log('friendUserId (from route):', route?.params?.friendUserId);
-    console.log('CityId (from route):', route?.params?.CityId);
-    console.log('sendType (from route):', route?.params?.sendType);
-    console.log('friendName (from route):', route?.params?.friendName);
-    console.log('storeId (from route):', route?.params?.storeId);
-    console.log('Extracted friendUserId variable:', friendUserId);
-    console.log('Extracted initialCityId variable:', initialCityId);
-    console.log('Component mounted at:', new Date().toISOString());
-    console.log('='.repeat(60));
-  }, [route?.params, friendUserId, initialCityId]);
-
   const businessTypeApi = useGetApi<BusinessType[]>(
-    apiEndpoints.GET_BUSINESS_TYPE,
+    apiEndpoints.GET_BUSINESS_TYPE + '?cityid=' + selectedCityId,
     {
       transformData: (data: any) => data.Data.Items || [],
     },
@@ -108,13 +85,16 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
   const cityOptions: DropdownOption[] = useMemo(
     () =>
-      (citiesApi.data || []).map(city => ({
-        label:
-          langCode === 'ar'
-            ? city.CityNameAr || city.CityName
-            : city.CityNameEn || city.CityName,
-        value: city.CityID,
-      })),
+      (citiesApi.data || []).map(city => {
+        const cityId = city.CityID ?? (city as { CityId?: number }).CityId;
+        return {
+          label:
+            langCode === 'ar'
+              ? city.CityNameAr || city.CityName
+              : city.CityNameEn || city.CityName,
+          value: cityId,
+        };
+      }),
     [citiesApi.data, langCode],
   );
 
@@ -129,7 +109,10 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   }, [businessTypeApi.data]);
 
   const selectedCityOption: DropdownOption | null = useMemo(
-    () => cityOptions.find(option => option.value === selectedCityId) || null,
+    () =>
+      cityOptions.find(
+        option => Number(option.value) === Number(selectedCityId),
+      ) || null,
     [cityOptions, selectedCityId],
   );
 
@@ -167,10 +150,12 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
+      pageSize: 5,
       extraParams: {
         businessTypeId:
           selectedFilter === 'all' ? undefined : Number(selectedFilter),
         cityid: selectedCityId,
+        userapp: true,
       },
     },
   );
@@ -251,6 +236,12 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     }
   };
 
+  useEffect(() => {
+    if (selectedCityId) {
+      businessTypeApi.refetch();
+    }
+  }, [selectedCityId]);
+
   return (
     <ParentView>
       <View style={styles.container}>
@@ -296,8 +287,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                     fontSize: theme.sizes.FONTSIZE,
                     color: theme.colors.PRIMARY,
                     fontFamily: selectedCityOption
-                      ? fonts.Quicksand.medium
-                      : fonts.Quicksand.regular,
+                      ? theme.fonts.medium
+                      : theme.fonts.regular,
                   }}
                   numberOfLines={1}
                 >
@@ -321,13 +312,18 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
                 <SkeletonLoader screenType="groupTabs" />
               </View>
-            ) : (
+            ) : businessTypeApi.data &&
+              businessTypeApi.data.length > 0 &&
+              ((storeListApi.data && storeListApi.data.length > 0) ||
+                storeListApi.loading) ? (
               <GroupTabs
                 tabs={filterOptions}
                 activeTab={selectedFilter}
                 onTabPress={setSelectedFilter}
                 tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
               />
+            ) : (
+              <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
             )}
           </View>
 
@@ -339,7 +335,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             <FlatList
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
-                paddingBottom: theme.sizes.HEIGHT * 0.16,
+                paddingBottom: theme.sizes.HEIGHT * 0.2,
                 paddingHorizontal: theme.sizes.PADDING,
               }}
               refreshControl={
@@ -353,7 +349,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               data={storeListApi.data}
               extraData={favoriteStates}
               ListEmptyComponent={() => (
-                <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
+                <View style={{ height: theme.sizes.HEIGHT * 0.65 }}>
                   <PlaceholderLogoText
                     text={
                       searchQuery

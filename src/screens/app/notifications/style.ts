@@ -1,6 +1,6 @@
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
-import { isAndroid } from '../../../utils';
+import { isAndroid, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
@@ -16,8 +16,8 @@ const useStyles = () => {
         paddingTop: sizes.HEIGHT * 0.01,
       },
       NotificationItem: {
-        height: sizes.HEIGHT * 0.08,
-        marginBottom: sizes.HEIGHT * 0.016,
+        height: scaleWithMax(69, 75),
+        marginBottom: sizes.HEIGHT * 0.014,
         borderRadius: sizes.BORDER_RADIUS,
         ...theme.globalStyles.SHADOW_STYLE,
       },

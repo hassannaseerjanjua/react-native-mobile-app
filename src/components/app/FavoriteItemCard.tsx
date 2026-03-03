@@ -1,8 +1,8 @@
 import React from 'react';
-import { View, TouchableOpacity, Image, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
 import { scaleWithMax, rtlTransform, isAndroid } from '../../utils';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import {
   SvgNextIcon,
   SvgVerifiedIcon,

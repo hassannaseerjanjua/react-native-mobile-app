@@ -1,7 +1,6 @@
 import { StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
 import { isIOSThen, scaleWithMax } from '../../../utils';
 
 const useStyles = () => {

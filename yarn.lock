@@ -1114,12 +1114,32 @@
     xcode "^3.0.1"
     xml2js "0.6.0"
 
-"@expo/config-types@^53.0.5":
+"@expo/config-plugins@^9.1.7":
+  version "9.1.7"
+  resolved "https://registry.yarnpkg.com/@expo/config-plugins/-/config-plugins-9.1.7.tgz#cbaaf883c57cd236f157f26c03784adbe6ebf9ac"
+  integrity sha512-8dJzOesaQS+8XuT49pdSHej1z6XG3x2fqN2O3v807ri8uhxm2N9P6+iZBn19xv9+7OxraOc2tH3nEIWE19Za0w==
+  dependencies:
+    "@expo/config-types" "^53.0.0"
+    "@expo/json-file" "~9.1.3"
+    "@expo/plist" "^0.3.3"
+    "@expo/sdk-runtime-versions" "^1.0.0"
+    chalk "^4.1.2"
+    debug "^4.3.5"
+    getenv "^1.0.0"
+    glob "^10.4.2"
+    resolve-from "^5.0.0"
+    semver "^7.5.4"
+    slash "^3.0.0"
+    slugify "^1.6.6"
+    xcode "^3.0.1"
+    xml2js "0.6.0"
+
+"@expo/config-types@^53.0.0", "@expo/config-types@^53.0.5":
   version "53.0.5"
   resolved "https://registry.yarnpkg.com/@expo/config-types/-/config-types-53.0.5.tgz#bba7e0712c2c5b1d8963348d68ea96339f858db4"
   integrity sha512-kqZ0w44E+HEGBjy+Lpyn0BVL5UANg/tmNixxaRMLS6nf37YsDrLk2VMAmeKMMk5CKG0NmOdVv3ngeUjRQMsy9g==
 
-"@expo/json-file@~9.1.5":
+"@expo/json-file@~9.1.3", "@expo/json-file@~9.1.5":
   version "9.1.5"
   resolved "https://registry.yarnpkg.com/@expo/json-file/-/json-file-9.1.5.tgz#7d7b2dc4990dc2c2de69a571191aba984b7fb7ed"
   integrity sha512-prWBhLUlmcQtvN6Y7BpW2k9zXGd3ySa3R6rAguMJkp1z22nunLN64KYTUWfijFlprFoxm9r2VNnGkcbndAlgKA==
@@ -1127,7 +1147,7 @@
     "@babel/code-frame" "~7.10.4"
     json5 "^2.2.3"
 
-"@expo/plist@^0.3.5":
+"@expo/plist@^0.3.3", "@expo/plist@^0.3.5":
   version "0.3.5"
   resolved "https://registry.yarnpkg.com/@expo/plist/-/plist-0.3.5.tgz#11913c64951936101529cb26d7260ef16970fc31"
   integrity sha512-9RYVU1iGyCJ7vWfg3e7c/NVyMFs8wbl+dMWZphtFtsqyN9zppGREU3ctlD3i8KUE0sCUTVnLjCWr+VeUIDep2g==
@@ -2469,6 +2489,21 @@
     redux "^5.0.1"
     redux-thunk "^3.1.0"
     reselect "^5.1.0"
+
+"@rnw-community/react-native-payments@^1.12.1":
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/@rnw-community/react-native-payments/-/react-native-payments-1.12.1.tgz#ad339b10f11617bf1baf2d92a560cdaa3ebfa5cc"
+  integrity sha512-zvmPXp8U8rtcm7of+RVFDvy6N79NSLnVW6EPjlEIv5wZ3DVk2Fxz2w7WgmR1SXkg4pYyNEG1I8sr2/XUu+Zbfg==
+  dependencies:
+    "@expo/config-plugins" "^9.1.7"
+    "@rnw-community/shared" "^1.12.1"
+    react-native-uuid "^2.0.3"
+    validator "^13.15.26"
+
+"@rnw-community/shared@^1.12.1":
+  version "1.12.1"
+  resolved "https://registry.yarnpkg.com/@rnw-community/shared/-/shared-1.12.1.tgz#d2bcc1153ca69fbd2e3db228de1ee062dcf26e3f"
+  integrity sha512-iH8FldUDips2YGgLVf4r4A8qFJOl0oOLEfinlwRetc+xCCxcSlOu6XMvMGLBdAO2hcjs8M5r0BRpWYLGGipXLA==
 
 "@sideway/address@^4.1.5":
   version "4.1.5"
@@ -4887,6 +4922,11 @@ get-symbol-description@^1.1.0:
     es-errors "^1.3.0"
     get-intrinsic "^1.2.6"
 
+getenv@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/getenv/-/getenv-1.0.0.tgz#874f2e7544fbca53c7a4738f37de8605c3fcfc31"
+  integrity sha512-7yetJWqbS9sbn0vIfliPsFgoXMKn/YMF+Wuiog97x+urnSRRRZ7xB+uVkwGKzRgq9CDFfMQnE9ruL5DHv9c6Xg==
+
 getenv@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/getenv/-/getenv-2.0.0.tgz#b1698c7b0f29588f4577d06c42c73a5b475c69e0"
@@ -7096,6 +7136,11 @@ react-native-contacts@^8.0.7:
   resolved "https://registry.yarnpkg.com/react-native-contacts/-/react-native-contacts-8.0.7.tgz#486fcc1cc267a2c5bceb51f46263a3e10dbb2650"
   integrity sha512-9JyH+3MXZcOD1+Lm+kl1DeQzT24ayZ//LonTSZM2cln66mHgC2MzW1wBQAJ7EL9eu5NSjSav4c4BIWuOsods6Q==
 
+react-native-create-thumbnail@^2.2.0:
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/react-native-create-thumbnail/-/react-native-create-thumbnail-2.2.0.tgz#d5c99c97c02cd5c51a57983f5d79088e58e986bb"
+  integrity sha512-zrwVYWMpeMEGIYO1jgwUMBpSpIzMR7Z2gkSANVlf9BFZLRw017k7CfjttvDhCHjsxNNDb7+V8uJaNwIGdTpz/g==
+
 react-native-date-picker@^5.0.13:
   version "5.0.13"
   resolved "https://registry.yarnpkg.com/react-native-date-picker/-/react-native-date-picker-5.0.13.tgz#fe05f58652aaeee9e67f73cf7436c32a623ff3a4"
@@ -7220,6 +7265,11 @@ react-native-url-polyfill@^3.0.0:
   integrity sha512-aA5CiuUCUb/lbrliVCJ6lZ17/RpNJzvTO/C7gC/YmDQhTUoRD5q5HlJfwLWcxz4VgAhHwXKzhxH+wUN24tAdqg==
   dependencies:
     whatwg-url-without-unicode "8.0.0-3"
+
+react-native-uuid@^2.0.3:
+  version "2.0.3"
+  resolved "https://registry.yarnpkg.com/react-native-uuid/-/react-native-uuid-2.0.3.tgz#f85f8a8d68e52e3f1c18ba0f02ec7776f9d4a0da"
+  integrity sha512-f/YfIS2f5UB+gut7t/9BKGSCYbRA9/74A5R1MDp+FLYsuS+OSWoiM/D8Jko6OJB6Jcu3v6ONuddvZKHdIGpeiw==
 
 react-native-video-trim@^6.0.11:
   version "6.0.11"
@@ -8439,6 +8489,11 @@ v8-to-istanbul@^9.0.1:
     "@jridgewell/trace-mapping" "^0.3.12"
     "@types/istanbul-lib-coverage" "^2.0.1"
     convert-source-map "^2.0.0"
+
+validator@^13.15.26:
+  version "13.15.26"
+  resolved "https://registry.yarnpkg.com/validator/-/validator-13.15.26.tgz#36c3deeab30e97806a658728a155c66fcaa5b944"
+  integrity sha512-spH26xU080ydGggxRyR1Yhcbgx+j3y5jbNXk/8L+iRvdIEQ4uTRH2Sgf2dokud6Q4oAtsbNvJ1Ft+9xmm6IZcA==
 
 vary@~1.1.2:
   version "1.1.2"

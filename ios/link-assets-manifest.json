@@ -6,12 +6,32 @@
       "sha1": "111e880f4de54ccf0a7fd14f38999b9c066e46bb"
     },
     {
-      "path": "src/assets/fonts/Quicksand-Light.ttf",
-      "sha1": "4d3b72ff1544d92ca9a435d7e34d21eda322dd76"
+      "path": "src/assets/fonts/Tajawal-ExtraBold.ttf",
+      "sha1": "ae3e929ac8df1343e9eafb3b894e68b3dfe2bbf7"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-Light.ttf",
+      "sha1": "e18bc6e29892bd28265bb2c181191f81108ad365"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-Bold.ttf",
+      "sha1": "86c33e621bb9eecabcb569994ae1edf2dbd3bfd6"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-ExtraLight.ttf",
+      "sha1": "7e62b070270f1805b67784eb44d68d2289c98f43"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-Regular.ttf",
+      "sha1": "03b61c8af3509f93599cf118fd8be91b3f7ceedd"
     },
     {
       "path": "src/assets/fonts/Quicksand-Medium.ttf",
       "sha1": "04b8198132a4a092b10d0631500268d6a2a0f889"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-Medium.ttf",
+      "sha1": "0f5cb2c0169e78f25bb1626cdc9a2899844619fa"
     },
     {
       "path": "src/assets/fonts/Quicksand-Regular.ttf",
@@ -22,8 +42,16 @@
       "sha1": "339f8d3e09ad271ff12727eef33a99f7a066eee3"
     },
     {
+      "path": "src/assets/fonts/Quicksand-Light.ttf",
+      "sha1": "4d3b72ff1544d92ca9a435d7e34d21eda322dd76"
+    },
+    {
       "path": "src/assets/fonts/index.ts",
-      "sha1": "d50ffadef1b9f18134afb5480de255ff8224c7c6"
+      "sha1": "2bf3392b852259a323b58fc9e7f48323de6077d7"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-Black.ttf",
+      "sha1": "0f82d01655c51022295f0a138ee3f16efc35c914"
     }
   ]
 }

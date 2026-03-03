@@ -295,6 +295,44 @@ const getSavedFCMToken = async (): Promise<string | null> => {
   }
 };
 
+const FCM_TOKEN_SENT_KEY = 'fcm_token_sent_to_backend';
+
+/**
+ * Saves the device token to the backend with the given language ID.
+ * Call this when the user changes language (e.g. from settings) so the backend uses the updated lang for notifications.
+ */
+export const saveTokenWithLanguage = async (
+  langId: number,
+): Promise<void> => {
+  try {
+    const user = store.getState().auth.user;
+    if (!user?.UserId) return;
+
+    const token = await getSavedFCMToken();
+    if (!token) return;
+
+    const res = await api.post<{ Data?: { UserDeviceTokenId?: number } }>(
+      apiEndpoints.SAVE_TOKEN,
+      {
+        UserId: user.UserId,
+        Token: token,
+        LanguageId: langId,
+        DeviceType: Platform.OS === 'android' ? 2 : 1,
+        IsMerchant: user.isMerchant === 1,
+      },
+    );
+    await AsyncStorage.setItem(FCM_TOKEN_SENT_KEY, token);
+    const userDeviceTokenId = res?.data?.Data?.UserDeviceTokenId;
+    if (userDeviceTokenId != null) {
+      await AsyncStorage.setItem(
+        USER_DEVICE_TOKEN_ID_KEY,
+        String(userDeviceTokenId),
+      );
+    }
+  } catch (error) {
+    console.error('Save token with language error:', error);
+  }
+};
 
 /**
  * Calls the logout API. Sends UserDeviceTokenId in body when available (from save-token response).
@@ -337,6 +375,7 @@ export default {
   getFCMToken,
   deleteFCMToken,
   callLogoutWithDeviceToken,
+  saveTokenWithLanguage,
   onTokenRefresh,
   onForegroundNotification,
   onNotificationOpenedApp,

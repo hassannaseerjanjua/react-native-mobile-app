@@ -1,5 +1,4 @@
 import {
-  Image,
   FlatList,
   StatusBar,
   View,
@@ -23,12 +22,11 @@ import {
   SvgGalleryIcon,
   SvgGalleryUploadIcon,
   SvgAddGiftMessageIcon,
-  SvgProfileCrossIcon,
 } from '../../../assets/icons';
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
 import InputField from '../../../components/global/InputField';
-import { Text } from '../../../utils/elements';
+import { Text, Image } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import {
@@ -61,7 +59,7 @@ import ConfirmationModal from '../../../components/global/ConfirmationModal';
 import { useVisionCamera } from '../../../hooks/useCamera';
 import { Camera } from 'react-native-vision-camera';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Path } from 'react-native-svg';
 import {
   saveGiftMessageData,
   loadGiftMessageData,
@@ -72,6 +70,15 @@ import { useAuthStore } from '../../../store/reducer/auth';
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const MAX_VIDEO_DURATION = 15;
+
+const CloseIcon = ({ size = 16 }: { size?: number }) => (
+  <Svg width={size} height={size} viewBox="0 0 9 9" fill="none">
+    <Path
+      d="M1.70005 7.99976L1.00005 7.29976L3.80005 4.49976L1.00005 1.69976L1.70005 0.999756L4.50005 3.79976L7.30005 0.999756L8.00005 1.69976L5.20005 4.49976L8.00005 7.29976L7.30005 7.99976L4.50005 5.19976L1.70005 7.99976Z"
+      fill="white"
+    />
+  </Svg>
+);
 
 const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   route,
@@ -706,11 +713,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   activeOpacity={0.7}
                 >
                   <View style={styles.crossBackground}>
-                    <Image
-                      source={require('../../../assets/close.png')}
-                      style={styles.closeButtonIcon}
-                      resizeMode="contain"
-                    />
+                    <CloseIcon size={18} />
                   </View>
                 </TouchableOpacity>
               )}
@@ -1148,7 +1151,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   style={{
                     position: 'absolute',
                     bottom: scaleWithMax(5, 6),
-                    [isRtl ? 'left' : 'right']: scaleWithMax(20, 25),
+                    // [isRtl ? 'left' : 'right']: scaleWithMax(20, 25),
+                    end: scaleWithMax(20, 25),
                     zIndex: 1000,
                     width: scaleWithMax(50, 60),
                     height: scaleWithMax(50, 60),
@@ -1202,6 +1206,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           height: scaleWithMax(36, 38),
                           borderRadius: 8,
                           backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                          ...theme.globalStyles.SHADOW_STYLE,
                         }}
                       />
                       <SvgAddGiftMessageIcon />
@@ -1211,9 +1216,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           pointerEvents="none"
                           style={{
                             position: 'absolute',
-                            top: scaleWithMax(2, 4),
-
-                            [isRtl ? 'left' : 'right']: scaleWithMax(6, 8),
+                            top: scaleWithMax(8, 9),
+                            end: scaleWithMax(8, 9),
+                            // [isRtl ? 'left' : 'right']: scaleWithMax(6, 8),
                             width: scaleWithMax(14, 16),
                             height: scaleWithMax(14, 16),
                             borderRadius: scaleWithMax(10, 11),
@@ -1299,7 +1304,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           flex: 1,
                         }}
                       >
-                        <PlaceholderLogoText text={getString('GIFT_MESSAGE_NO_FILTERS_AVAILABLE')} />
+                        <PlaceholderLogoText
+                          text={getString('GIFT_MESSAGE_NO_FILTERS_AVAILABLE')}
+                        />
                       </View>
                     }
                     contentContainerStyle={styles.filtersScrollContent}
@@ -1328,7 +1335,9 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   }}
                   style={styles.doneButton}
                 >
-                  <Text style={styles.doneButtonText}>{getString('GIFT_MESSAGE_DONE')}</Text>
+                  <Text style={styles.doneButtonText}>
+                    {getString('GIFT_MESSAGE_DONE')}
+                  </Text>
                 </TouchableOpacity>
               </View>
             </InputAccessoryView>

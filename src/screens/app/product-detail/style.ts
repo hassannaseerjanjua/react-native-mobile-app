@@ -1,7 +1,6 @@
 import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
-import fonts from '../../../assets/fonts';
 import { scaleWithMax } from '../../../utils';
 
 const useStyles = () => {
@@ -27,7 +26,7 @@ const useStyles = () => {
         shadowOpacity: 0.2,
         shadowRadius: 6,
         shadowOffset: { width: 0, height: 2 },
-        elevation: 4,
+        elevation: 2,
       },
       backContainer: {
         ...theme.globalStyles.SHADOW_STYLE,

@@ -2,11 +2,10 @@ import { useMemo } from 'react';
 import { StyleSheet } from 'react-native';
 import useTheme from '../../../styles/theme';
 import { scaleWithMax } from '../../../utils';
-import fonts from '../../../assets/fonts';
 
 const useStyles = () => {
   const theme = useTheme();
-  const { sizes } = theme;
+  const { sizes, fonts } = theme;
   const styles = useMemo(
     () =>
       StyleSheet.create({
@@ -65,7 +64,7 @@ const useStyles = () => {
           paddingVertical: scaleWithMax(42, 45),
           backgroundColor: 'transparent',
           fontSize: sizes.FONTSIZE_HIGH,
-          fontFamily: fonts.Quicksand.semibold,
+          fontFamily: fonts.semibold,
         },
         cameraIcon: {
           position: 'absolute',
@@ -133,16 +132,14 @@ const useStyles = () => {
           fontWeight: '600',
         },
         crossBackground: {
-          backgroundColor: 'rgba(0,0,0,0.3)',
+          backgroundColor: 'rgba(40,40,40,0.85)',
           borderRadius: 50, // circle
           width: scaleWithMax(36, 40),
           height: scaleWithMax(36, 40),
           justifyContent: 'center',
           alignItems: 'center',
-        },
-        closeButtonIcon: {
-          width: scaleWithMax(20, 22),
-          height: scaleWithMax(20, 22),
+          borderWidth: 1.5,
+          borderColor: 'rgba(255,255,255,0.35)',
         },
         flipButton: {
           position: 'absolute',
@@ -154,12 +151,14 @@ const useStyles = () => {
           right: sizes.PADDING,
         },
         flashButtonBackground: {
-          backgroundColor: 'rgba(0,0,0,0.3)',
+          backgroundColor: 'rgba(40,40,40,0.85)',
           borderRadius: 50, // circle
           width: scaleWithMax(36, 40),
           height: scaleWithMax(36, 40),
           justifyContent: 'center',
           alignItems: 'center',
+          borderWidth: 1.5,
+          borderColor: 'rgba(255,255,255,0.35)',
         },
         flashButtonBackgroundActive: {
           backgroundColor: 'rgba(255, 255, 0, 0.3)',

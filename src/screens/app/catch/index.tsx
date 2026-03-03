@@ -5,10 +5,10 @@ import {
   View,
   TouchableOpacity,
   ActivityIndicator,
-  Image,
   Modal,
   StyleSheet,
 } from 'react-native';
+import { Image } from '../../../utils/elements';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
@@ -18,6 +18,7 @@ import GroupTabs from '../../../components/global/GroupTabs';
 import CatchProductCard from '../../../components/app/CatchProductCard';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard';
 import useGetApi from '../../../hooks/useGetApi';
+import { patchCacheItems } from '../../../utils/api-cache';
 import apiEndpoints from '../../../constants/api-endpoints';
 import {
   FaveItems,
@@ -43,7 +44,6 @@ import {
 import { scaleWithMax } from '../../../utils';
 import GiftOneGetOneProductCard from '../../../components/app/GiftOneGetOneProductCard';
 import SuccessMessage from '../../../components/global/SuccessComponent';
-import fonts from '../../../assets/fonts';
 import CityPickerModal from '../../../components/global/CityPickerModal';
 import { City } from '../../../types';
 import { useAuthStore } from '../../../store/reducer/auth';
@@ -108,7 +108,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
 
   const categoriesApi = useGetApi<Category[]>(
     screenType === 'favorite'
-      ? apiEndpoints.GET_CATEGORIES(storeID, businessTypeId)
+      ? apiEndpoints.GET_CATEGORIES(businessTypeId, storeID) +
+          '&isFavUserApp=true'
       : apiEndpoints.GET_CAMPAIGN_CATEGORIES(
           screenType === 'GiftOneGetOne' ? 3 : 1,
           selectedCityId || user?.CityId,
@@ -125,12 +126,19 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     },
   );
 
+  const storeBranchID = route.params?.storeBranchID;
   const getFavoriteItems = useListingApi<FaveItems>(
     screenType === 'favorite' ? apiEndpoints.GET_FAV_STORE_ITEMS : '',
     '',
     {
       transformData: transformListingData,
-      extraParams: storeID ? { StoreId: storeID } : {},
+      extraParams:
+        storeID && storeBranchID
+          ? {
+              StoreId: storeID,
+              StoreBranchId: storeBranchID,
+            }
+          : {},
       idExtractor: (item: FaveItems) => item.ItemId,
     },
   );
@@ -333,12 +341,22 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       ...prev,
       [payload.ItemId]: payload.IsFavorite,
     }));
+    patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
+      'listing:',
+      item => item.ItemId === payload.ItemId,
+      { isFavourite: payload.IsFavorite },
+    );
 
     const revertFavorite = () => {
       setFavoriteStates(prev => ({
         ...prev,
         [payload.ItemId]: !payload.IsFavorite,
       }));
+      patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
+        'listing:',
+        item => item.ItemId === payload.ItemId,
+        { isFavourite: !payload.IsFavorite },
+      );
     };
 
     try {
@@ -426,6 +444,10 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       });
     }
   };
+
+  useEffect(() => {
+    categoriesApi.refetch();
+  }, [selectedCityId]);
 
   // Render product item based on screen type
   const renderProductItem = ({ item }: { item: any }) => {
@@ -520,7 +542,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               onPress={() => setShowCityPicker(true)}
               style={{
                 // width: theme.sizes.WIDTH * 0.48,
-                height: theme.sizes.HEIGHT * 0.045,
+                // height: theme.sizes.HEIGHT * 0.045,
                 flexDirection: 'row',
                 justifyContent: 'flex-end',
                 alignItems: 'center',
@@ -533,8 +555,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   fontSize: theme.sizes.FONTSIZE,
                   color: theme.colors.PRIMARY,
                   fontFamily: selectedCityId
-                    ? fonts.Quicksand.medium
-                    : fonts.Quicksand.regular,
+                    ? theme.fonts.medium
+                    : theme.fonts.regular,
                 }}
                 numberOfLines={1}
               >
@@ -563,13 +585,18 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             >
               <SkeletonLoader screenType="groupTabs" />
             </View>
-          ) : (
+          ) : categoriesApi.data &&
+            categoriesApi.data.length > 0 &&
+            ((listingApi?.data && listingApi.data.length > 0) ||
+              listingApi?.loading) ? (
             <GroupTabs
               tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
               tabs={filterOptions}
               activeTab={selectedFilter}
               onTabPress={handleTabPress}
             />
+          ) : (
+            <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
           )}
         </View>
 

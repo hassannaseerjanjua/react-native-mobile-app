@@ -3,14 +3,13 @@ import {
   View,
   StyleProp,
   ViewStyle,
-  Image,
   TextStyle,
-  Platform,
+  TouchableOpacity,
 } from 'react-native';
 import React, { useMemo } from 'react';
 import { SvgGiftLink, SvgGifteeNotifyIcon } from '../../assets/icons';
 import useTheme from '../../styles/theme';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { I18nManager } from 'react-native';
 import { rtlFlexDirection, rtlTransform, scaleWithMax } from '../../utils';
@@ -22,9 +21,10 @@ interface NotificationItemProps {
   isLink?: boolean;
   isGroupImage?: any;
   icon?: React.ReactNode;
-  time?: string;
+  time?: string | null;
   boldText?: string;
   isSeen?: boolean;
+  onPress?: () => void;
 }
 
 const NotificationItem = ({
@@ -37,6 +37,7 @@ const NotificationItem = ({
   time,
   boldText,
   isSeen = true,
+  onPress,
 }: NotificationItemProps) => {
   const { styles, theme } = useStyles();
   const { isRtl, langCode } = useLocaleStore();
@@ -45,7 +46,11 @@ const NotificationItem = ({
     if (boldText && title.includes(boldText)) {
       const parts = title.split(boldText);
       return (
-        <Text style={[styles.titleText, NotificationTextStyles]}>
+        <Text
+          style={[styles.titleText, NotificationTextStyles]}
+          numberOfLines={2}
+          ellipsizeMode="tail"
+        >
           {parts[0]}
           <Text style={styles.boldText}>{boldText}</Text>
           {parts[1]}
@@ -53,12 +58,18 @@ const NotificationItem = ({
       );
     }
     return (
-      <Text style={[styles.titleText, NotificationTextStyles]}>{title}</Text>
+      <Text
+        style={[styles.titleText, NotificationTextStyles]}
+        numberOfLines={2}
+        ellipsizeMode="tail"
+      >
+        {title}
+      </Text>
     );
   };
 
-  return (
-    <View style={[styles.container, NotificationItemStyles]}>
+  const content = (
+    <>
       {time && (
         <View style={[styles.timeContainer]}>
           <Text style={[styles.timeText]}>{time}</Text>
@@ -89,7 +100,19 @@ const NotificationItem = ({
         {icon && icon}
         {renderTitle()}
       </View>
-    </View>
+    </>
+  );
+
+  const Wrapper = onPress ? TouchableOpacity : View;
+  const wrapperProps = onPress ? { onPress, activeOpacity: 0.7 } : {};
+
+  return (
+    <Wrapper
+      style={[styles.container, NotificationItemStyles]}
+      {...wrapperProps}
+    >
+      {content}
+    </Wrapper>
   );
 };
 

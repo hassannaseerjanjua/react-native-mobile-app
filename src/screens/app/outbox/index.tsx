@@ -1,11 +1,11 @@
 import {
-  Image,
   ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
+import { Image } from '../../../utils/elements';
 import React, { useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import ParentView from '../../../components/app/ParentView';

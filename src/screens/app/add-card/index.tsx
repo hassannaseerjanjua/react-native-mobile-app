@@ -180,7 +180,9 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
       {fromProfile ? (
         <TouchableOpacity
           onPress={() => setCardToDelete(item)}
-          disabled={deletingCard === item.Token || cardToDelete?.Token === item.Token}
+          disabled={
+            deletingCard === item.Token || cardToDelete?.Token === item.Token
+          }
           style={{ padding: theme.sizes.PADDING * 0.2 }}
         >
           {deletingCard === item.Token ? (
@@ -209,7 +211,7 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   );
 
   return (
-    <ParentView>
+    <ParentView style={styles.container}>
       <HomeHeader
         title={
           fromProfile
@@ -245,13 +247,10 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
       <ConfirmationPopup
         visible={cardToDelete !== null}
         title={getString('P_DELETE_CARD')}
-        message={
-          cardToDelete?.CardNumber
-            ? `${getString('P_DELETE_CARD_MESSAGE')} "${
-                cardToDelete.CardNumber
-              }"?`
-            : getString('P_DELETE_CARD_MESSAGE')
-        }
+        message={getString('P_DELETE_CARD_MESSAGE').replace(
+          '{value}',
+          cardToDelete?.CardNumber || '',
+        )}
         confirmText={getString('P_DELETE_CARD_CONFIRM')}
         cancelText={getString('NG_CANCEL') || 'Cancel'}
         onConfirm={async () => {

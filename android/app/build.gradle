@@ -115,6 +115,7 @@ dependencies {
     implementation("com.facebook.react:react-android")
     implementation platform("com.google.firebase:firebase-bom:33.1.2")
     implementation("com.google.firebase:firebase-messaging")
+    implementation "com.facebook.fresco:animated-gif:3.3.0"
 implementation "androidx.work:work-runtime-ktx:2.9.0"
 
 

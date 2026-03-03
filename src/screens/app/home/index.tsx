@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { View, StatusBar } from 'react-native';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { LinearGradient } from 'react-native-linear-gradient';
@@ -24,14 +24,27 @@ import notify from '../../../utils/notify';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
-  const { getString, isRtl } = useLocaleStore();
+  const { getString, isRtl, isFetching } = useLocaleStore();
   const { user } = useAuthStore();
   const navigation = useNavigation();
   const hasLoadedOnceRef = useRef(false);
   const isMerchant = user?.isMerchant === 1;
+  // const keysLoaded =
+  //   getString('HOME_WELCOME') !== 'HOME_WELCOME' &&
+  //   getString('HOME_WHAT_ARE_YOU') !== 'HOME_WHAT_ARE_YOU';
+
+  const [fallbackKeysLoaded, setFallbackKeysLoaded] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setFallbackKeysLoaded(true), 2000);
+    return () => clearTimeout(timer);
+  }, []);
+
   const keysLoaded =
-    getString('HOME_WELCOME') !== 'HOME_WELCOME' &&
-    getString('HOME_WHAT_ARE_YOU') !== 'HOME_WHAT_ARE_YOU';
+    fallbackKeysLoaded ||
+    (!isFetching &&
+      getString('HOME_WELCOME') !== 'HOME_WELCOME' &&
+      getString('HOME_WHAT_ARE_YOU') !== 'HOME_WHAT_ARE_YOU');
 
   const {
     data: sliderResponse,
@@ -59,7 +72,11 @@ const HomeScreen: React.FC = () => {
     hasLoadedOnceRef.current = true;
   }
 
-  const showShimmer = sliderLoading && !hasLoadedOnceRef.current && !keysLoaded;
+  const showShimmer =
+    !keysLoaded ||
+    (!fallbackKeysLoaded &&
+      !hasLoadedOnceRef.current &&
+      (sliderLoading || !sliderResponse));
 
   return (
     <View style={styles.container}>
@@ -108,7 +125,6 @@ const HomeScreen: React.FC = () => {
               ellipsizeMode="tail"
             >
               {getString('HOME_WELCOME')}
-              {isRtl ? '، ' : ', '}
               <Text style={styles.userName}>{user?.FullNameEn}</Text>
             </Text>
             <View style={styles.heroImage}>
@@ -141,14 +157,16 @@ const HomeScreenTabsContainer: React.FC = () => {
 
   const isProMax = theme.sizes.WIDTH >= 430 && isIOS;
   const isLargeAndroid = isAndroid && theme.sizes.HEIGHT > 800;
+  const androidHeightBoost = isAndroid ? scaleWithMax(8, 12) : 0;
+
+  const formatDescription = (text: string) => text.replace(/\.\s+/, '.\n');
 
   const homeScreenTabs = [
     {
       id: 'gift-one-get-one',
       icon: <SvgHomeG1G1 />,
       title: getString('HOME_GIFT_ONE_GET_ONE'),
-
-      description: getString('HOME_GIFT_ONE_GET_ONE_DESC'),
+      description: formatDescription(getString('HOME_GIFT_ONE_GET_ONE_DESC')),
       iconStyles: {
         marginRight: scaleWithMax(18, 20),
       },
@@ -210,27 +228,35 @@ const HomeScreenTabsContainer: React.FC = () => {
 
   return (
     <View style={styles.contentContainer}>
-      <View style={styles.optionsWrapper}>
+      <View
+        style={[
+          styles.optionsWrapper,
+          {
+            marginBottom: scaleWithMax(10, 12),
+          },
+        ]}
+      >
         <HomeScreenTabs
           key={homeScreenTabs[0].id}
           icon={homeScreenTabs[0].icon}
           title={homeScreenTabs[0].title}
           description={homeScreenTabs[0].description}
-          descriptionStyles={{
-            maxWidth: '50%',
-          }}
+          shrinkDescription={false}
+          // descriptionStyles={{
+          //   maxWidth: '100%',
+          // }}
           onPress={homeScreenTabs[0].onPress}
           iconStyles={homeScreenTabs[0].iconStyles}
           style={{
             minHeight: isProMax
               ? scaleWithMax(95, 110)
               : isLargeAndroid
-              ? scaleWithMax(88, 93)
-              : scaleWithMax(95, 95),
+              ? scaleWithMax(88, 93) + androidHeightBoost
+              : scaleWithMax(95, 95) + androidHeightBoost,
           }}
         />
       </View>
-      <View style={styles.optionsWrapper}>
+      <View style={[styles.optionsWrapper, {}]}>
         {homeScreenTabs.slice(1, 3).map(tab => (
           <HomeScreenTabs
             key={tab.id}
@@ -243,8 +269,8 @@ const HomeScreenTabsContainer: React.FC = () => {
               minHeight: isProMax
                 ? scaleWithMax(85, 100)
                 : isLargeAndroid
-                ? scaleWithMax(78, 83)
-                : scaleWithMax(85, 85),
+                ? scaleWithMax(78, 83) + androidHeightBoost
+                : scaleWithMax(85, 85) + androidHeightBoost,
             }}
           />
         ))}
@@ -254,7 +280,7 @@ const HomeScreenTabsContainer: React.FC = () => {
         {getString('HOME_RECEIVED_AND_SENT_GIFTS')}
       </Text>
 
-      <View style={styles.optionsWrapper}>
+      <View style={[styles.optionsWrapper, {}]}>
         {homeScreenTabs.slice(3, 5).map(tab => (
           <HomeScreenTabs
             key={tab.id}
@@ -265,14 +291,12 @@ const HomeScreenTabsContainer: React.FC = () => {
             style={{
               minHeight: isProMax
                 ? scaleWithMax(75, 90)
-                : isLargeAndroid
-                ? scaleWithMax(73, 78)
-                : scaleWithMax(78, 80),
+                : scaleWithMax(78, 80) + androidHeightBoost,
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 0.08,
               shadowRadius: 8,
-              elevation: 2,
+              elevation: 1,
             }}
           />
         ))}

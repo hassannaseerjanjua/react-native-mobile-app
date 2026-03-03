@@ -4,7 +4,6 @@ import {
   TouchableOpacity,
   StyleProp,
   ViewStyle,
-  Image,
   TextStyle,
 } from 'react-native';
 import React, { useMemo } from 'react';
@@ -17,7 +16,7 @@ import {
   SvgVerifiedIcon,
 } from '../../assets/icons';
 import useTheme from '../../styles/theme';
-import { Text } from '../../utils/elements';
+import { Text, Image } from '../../utils/elements';
 import { isAndroid, scaleWithMax, rtlTransform } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Platform } from 'react-native';
@@ -63,6 +62,9 @@ const TabItem = ({
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
   const { isRtl } = useLocaleStore();
+
+  const androidTextAdjust =
+    Platform.OS === 'android' && !isRtl ? { includeFontPadding: false } : null;
 
   return (
     <TouchableOpacity
@@ -111,7 +113,7 @@ const TabItem = ({
         {icon && icon}
         <View style={styles.titleContainer}>
           <Text
-            style={[styles.titleText, TabTextStyles]}
+            style={[styles.titleText, TabTextStyles, androidTextAdjust]}
             numberOfLines={1}
             ellipsizeMode="tail"
           >
@@ -119,7 +121,10 @@ const TabItem = ({
           </Text>
           {isVerified && <SvgVerifiedIcon />}
           {subtitle && (
-            <Text style={styles.subtitleText} numberOfLines={1}>
+            <Text
+              style={[styles.subtitleText, androidTextAdjust]}
+              numberOfLines={1}
+            >
               {subtitle}
             </Text>
           )}
@@ -178,20 +183,12 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: theme.sizes.FONTSIZE_LESS_HIGH,
         color: colors.PRIMARY_TEXT,
-        ...(Platform.OS === 'android' && {
-          textAlignVertical: 'center',
-          includeFontPadding: false,
-        }),
       },
       subtitleText: {
         ...theme.globalStyles.TEXT_STYLE,
         fontSize: scaleWithMax(12, 13),
         color: colors.PRIMARY_TEXT,
         marginTop: scaleWithMax(2, 3),
-        ...(Platform.OS === 'android' && {
-          textAlignVertical: 'center',
-          includeFontPadding: false,
-        }),
       },
       containerWithSubtitle: {
         paddingVertical: theme.sizes.HEIGHT * 0.015,

@@ -1,10 +1,10 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
-import fonts from '../../assets/fonts';
 import { isAndroid, scaleWithMax } from '../../utils';
 import { Text } from '../../utils/elements';
-import { SvgRiyalIcon, SvgWalletGifteeIcon } from '../../assets/icons';
+import { SvgWalletGifteeIcon } from '../../assets/icons';
+import PriceWithIcon from '../global/Price';
 import { useLocaleStore } from '../../store/reducer/locale';
 
 interface WalletCardProps {
@@ -16,7 +16,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
   const { getString } = useLocaleStore();
 
   const styles = useMemo(() => {
-    const { colors, sizes } = theme;
+    const { colors, sizes, fonts } = theme;
 
     return StyleSheet.create({
       container: {
@@ -43,11 +43,11 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
       },
       logoText: {
         color: colors.WHITE,
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: scaleWithMax(20, 24),
       },
       walletName: {
-        fontFamily: fonts.Quicksand.semibold,
+        fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_LESS_HIGH,
         color: colors.BLACK,
         marginLeft: scaleWithMax(10, 12),
@@ -57,12 +57,12 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
         alignItems: 'flex-end',
       },
       balanceLabel: {
-        fontFamily: fonts.Quicksand.regular,
+        fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: colors.BLACK,
       },
       balanceAmount: {
-        fontFamily: fonts.Quicksand.bold,
+        fontFamily: fonts.bold,
         fontSize: scaleWithMax(22, 24),
         color: colors.BLACK,
         marginTop: isAndroid ? sizes.HEIGHT * -0.005 : 0,
@@ -89,10 +89,11 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
 
       <View style={styles.balanceSection}>
         <Text style={styles.balanceLabel}>{getString('W_WALLET_BALANCE')}</Text>
-        <View style={styles.riyalIconContainer}>
-          <SvgRiyalIcon style={styles.riyalIcon} />
-          <Text style={styles.balanceAmount}>{balance}</Text>
-        </View>
+        <PriceWithIcon
+          amount={balance}
+          textStyle={styles.balanceAmount}
+          containerStyle={styles.riyalIconContainer}
+        />
       </View>
     </View>
   );

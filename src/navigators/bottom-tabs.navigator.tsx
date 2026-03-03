@@ -30,7 +30,6 @@ import { useAuthStore } from '../store/reducer/auth';
 import notify from '../utils/notify';
 import useGetApi from '../hooks/useGetApi';
 import apiEndpoints from '../constants/api-endpoints';
-import fonts from '../assets/fonts';
 
 const Tab = createBottomTabNavigator();
 
@@ -235,7 +234,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                       style={{
                         color: theme.colors.WHITE,
                         fontSize: scaleWithMax(9, 10),
-                        fontFamily: fonts.Quicksand.bold,
+                        fontFamily: theme.fonts.bold,
                         lineHeight: scaleWithMax(14, 16),
                         textAlign: 'center',
                       }}
