@@ -1,10 +1,5 @@
 import React, { useEffect, useMemo, useRef } from 'react';
-import {
-  View,
-  StyleSheet,
-  Dimensions,
-  Image as RNImage,
-} from 'react-native';
+import { View, StyleSheet, Dimensions, Image as RNImage } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, {
   useSharedValue,
@@ -90,8 +85,7 @@ export default function useTrimmer({
         if (totalDuration > 0) {
           const minLeftX = Math.max(
             0,
-            rightX.value -
-              (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH,
+            rightX.value - (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH,
           );
           if (x < minLeftX) x = minLeftX;
         }
@@ -106,8 +100,7 @@ export default function useTrimmer({
         if (totalDuration > 0) {
           const maxRightX = Math.min(
             TRACK_WIDTH,
-            leftX.value +
-              (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH,
+            leftX.value + (MAX_TRIM_DURATION / totalDuration) * TRACK_WIDTH,
           );
           if (x > maxRightX) x = maxRightX;
         }
@@ -185,10 +178,18 @@ export default function useTrimmer({
               </View>
 
               <Animated.View
-                style={[styles.selectionBorder, styles.selectionBorderTop, topBorderStyle]}
+                style={[
+                  styles.selectionBorder,
+                  styles.selectionBorderTop,
+                  topBorderStyle,
+                ]}
               />
               <Animated.View
-                style={[styles.selectionBorder, styles.selectionBorderBottom, bottomBorderStyle]}
+                style={[
+                  styles.selectionBorder,
+                  styles.selectionBorderBottom,
+                  bottomBorderStyle,
+                ]}
               />
 
               <Animated.View style={[styles.playhead, playheadAnimStyle]} />

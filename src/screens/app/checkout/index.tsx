@@ -1358,19 +1358,21 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   <Text style={styles.heading}>
                     {getString('CHECKOUT_PAYMENT_MANAGEMENT')}
                   </Text>
-                  <TouchableOpacity
-                    onPress={() => navigation.navigate('AddCard' as never)}
-                  >
-                    <View style={[styles.row]}>
-                      {/* <PlusIcon
-                        height={scaleWithMax(15, 18)}
-                        width={scaleWithMax(15, 18)}
-                      /> */}
-                      <Text style={styles.addCardAction}>
-                        {getString('CHECKOUT_CHANGE_CARD')}
-                      </Text>
-                    </View>
-                  </TouchableOpacity>
+                  {userCards.length > 0 && (
+                    <TouchableOpacity
+                      onPress={() => navigation.navigate('AddCard' as never)}
+                    >
+                      <View style={[styles.row]}>
+                        {/* <PlusIcon
+                          height={scaleWithMax(15, 18)}
+                          width={scaleWithMax(15, 18)}
+                        /> */}
+                        <Text style={styles.addCardAction}>
+                          {getString('CHECKOUT_CHANGE_CARD')}
+                        </Text>
+                      </View>
+                    </TouchableOpacity>
+                  )}
                 </View>
                 {isApplePayAvailable && (
                   <TouchableOpacity
