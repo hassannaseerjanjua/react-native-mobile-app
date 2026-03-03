@@ -178,6 +178,7 @@ const NotificationsScreen: React.FC = () => {
           jsonData.StoreName ||
           jsonData.OccasionUserName ||
           jsonData.FullName ||
+          jsonData.OccasionName ||
           '';
       }
     } catch (e) {
@@ -211,6 +212,9 @@ const NotificationsScreen: React.FC = () => {
     );
   };
 
+  const isMerchant = user?.isMerchant;
+  console.log('isMerchant', isMerchant);
+
   const ListFooterComponent = useMemo(() => {
     if (notificationsApi.loadingMore) {
       return (
@@ -240,7 +244,13 @@ const NotificationsScreen: React.FC = () => {
         <SkeletonLoader screenType="notifications" />
       ) : (
         <FlatList
-          data={notificationsApi.data}
+          data={
+            user?.isMerchant
+              ? notificationsApi.data.filter(
+                  item => item.NotificationType !== 13,
+                )
+              : notificationsApi.data
+          }
           keyExtractor={item => item.NotificationId.toString()}
           contentContainerStyle={[styles.content, { paddingBottom: 20 }]}
           refreshControl={

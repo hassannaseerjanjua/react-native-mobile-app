@@ -1,5 +1,6 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useState, useMemo } from 'react';
 import { View, StatusBar, FlatList, RefreshControl } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { Text } from '../../../utils/elements';
 import useStyles from './style.ts';
 import HomeHeader from '../../../components/global/HomeHeader.tsx';
@@ -37,7 +38,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   );
 
   const businessTypeApi = useGetApi<BusinessType[]>(
-    apiEndpoints.GET_BUSINESS_TYPE,
+    apiEndpoints.GET_BUSINESS_TYPE + '?isFavUserApp=true',
     {
       transformData: (data: any) => data.Data.Items || [],
     },
@@ -71,15 +72,13 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     return [allOption, ...businessTypeOptions];
   }, [businessTypeApi.data, getString, langCode]);
 
-  const filteredFavorites = useMemo(() => {
-    if (!FavStoreListing.data) return [];
-    if (selectedFilter === 'all') {
-      return FavStoreListing.data;
-    }
-    return FavStoreListing.data.filter(
-      item => String(item.BusinessTypeId) === selectedFilter,
-    );
-  }, [FavStoreListing.data, selectedFilter]);
+  useEffect(() => {
+    FavStoreListing.setExtraParams(prev => ({
+      ...prev,
+      businessTypeId:
+        selectedFilter === 'all' ? undefined : Number(selectedFilter),
+    }));
+  }, [selectedFilter]);
 
   const [cameFromProfile, setCameFromProfile] = useState(false);
 
@@ -97,6 +96,13 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
       setIsRefreshing(false);
     }
   }, [isRefreshing, FavStoreListing.loading, businessTypeApi.loading]);
+
+  useFocusEffect(
+    useCallback(() => {
+      FavStoreListing.recall();
+      businessTypeApi.refetch?.();
+    }, []),
+  );
 
   const handleRefresh = () => {
     setIsRefreshing(true);
@@ -206,7 +212,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         ) : (
           <FlatList
             style={styles.list}
-            data={filteredFavorites}
+            data={FavStoreListing.data || []}
             keyExtractor={item => item.StoreId.toString()}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
@@ -238,7 +244,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
                   height:
                     FavStoreListing.data && FavStoreListing.data.length > 0
                       ? theme.sizes.HEIGHT * 0.55
-                      : theme.sizes.HEIGHT * 0.7,
+                      : theme.sizes.HEIGHT * 0.64,
                 }}
               >
                 <PlaceholderLogoText

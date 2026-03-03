@@ -129,6 +129,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   );
   const loading = cartItemsApi.loading;
 
+  // Sync cartData when loaded from cache (transformData only runs on fresh API response)
+  useEffect(() => {
+    if (cartItemsApi.data && !cartData) {
+      setCartData(cartItemsApi.data);
+    }
+  }, [cartItemsApi.data, cartData]);
+
   useEffect(() => {
     if (cartData && !hasInitializedEhsaan) {
       const amount = cartData.EhsaanAmount || 0;
@@ -1066,7 +1073,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     );
   }
 
-  if (loading) {
+  if (loading || (!cartData && !cartItemsApi.error)) {
     return (
       <ParentView>
         <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
@@ -1095,6 +1102,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       : require('../../../assets/images/img-placeholder.png');
 
   const DomationAmounts = [
+    { value: '1', title: '1' },
     { value: '3', title: '3' },
     { value: '5', title: '5' },
     { value: '10', title: '10' },

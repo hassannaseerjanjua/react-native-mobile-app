@@ -54,6 +54,31 @@ export const setCached = (key: string, data: any): void => {
 };
 
 /**
+ * Patch a single field on every item that matches a predicate, across all
+ * listing cache entries whose key starts with a given prefix.
+ *
+ * Useful for optimistically updating a property (e.g. isFavourite) without
+ * invalidating the whole cache and triggering a skeleton re-render.
+ */
+export const patchCacheItems = <T extends object>(
+  keyPrefix: string,
+  predicate: (item: T) => boolean,
+  patch: Partial<T>,
+): void => {
+  let changed = false;
+  memCache.forEach((value, key) => {
+    if (!key.startsWith(keyPrefix)) return;
+    if (!value || !Array.isArray(value.data)) return;
+    const newData = value.data.map((item: T) =>
+      predicate(item) ? { ...item, ...patch } : item,
+    );
+    memCache.set(key, { ...value, data: newData });
+    changed = true;
+  });
+  if (changed) persistCache();
+};
+
+/**
  * Remove a specific key from cache (e.g. after a mutation).
  */
 export const invalidateCache = (key: string): void => {

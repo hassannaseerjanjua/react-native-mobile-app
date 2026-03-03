@@ -13,7 +13,7 @@ const useGetApi = <T>(
   },
 ) => {
   const [data, setData] = useState<T | null>(config?.initialData || null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(!config?.initialData);
   const [error, setError] = useState<any>(null);
   const token = 'Token';
   const isMounted = useRef(true);
@@ -26,7 +26,12 @@ const useGetApi = <T>(
   }, []);
 
   const fetchData = async () => {
-    if (url === '') return;
+    if (url === '') {
+      setLoading(false);
+      return;
+    }
+
+    setLoading(true);
 
     const noCache = config?.noCache ?? false;
     const cacheKey = url;
@@ -40,11 +45,7 @@ const useGetApi = <T>(
         cachedJson = JSON.stringify(cached);
         // Don't show full-screen loader — data is already visible
         setLoading(false);
-      } else {
-        setLoading(true);
       }
-    } else {
-      setLoading(true);
     }
 
     // Step 2: fetch fresh data in the background

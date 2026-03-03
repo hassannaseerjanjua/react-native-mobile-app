@@ -349,7 +349,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               data={storeListApi.data}
               extraData={favoriteStates}
               ListEmptyComponent={() => (
-                <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
+                <View style={{ height: theme.sizes.HEIGHT * 0.65 }}>
                   <PlaceholderLogoText
                     text={
                       searchQuery
