@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,11 +7,17 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from 'react-native-reanimated';
 import { Text } from '../../utils/elements';
 import { FAQ } from '../../types';
 import { SvgNextIcon } from '../../assets/icons';
 import useTheme from '../../styles/theme';
-import { scaleWithMax, rtlTransform } from '../../utils';
+import { scaleWithMax } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
 
 interface FAQItemProps {
@@ -43,6 +49,23 @@ const FAQItem: React.FC<FAQItemProps> = ({
     onPress?.();
   };
 
+  const rotation = useSharedValue(isExpanded ? 1 : 0);
+
+  useEffect(() => {
+    rotation.value = withTiming(isExpanded ? 1 : 0, {
+      duration: 120,
+    });
+  }, [isExpanded, rotation]);
+
+  const scaleX = isRtl ? -1 : 1;
+
+  const animatedIconStyle = useAnimatedStyle(() => {
+    const rotateDeg = interpolate(rotation.value, [0, 1], [0, 90]);
+    return {
+      transform: [{ scaleX }, { rotate: `${rotateDeg}deg` }],
+    };
+  });
+
   return (
     <View style={[styles.container, style]}>
       <TouchableOpacity
@@ -59,17 +82,9 @@ const FAQItem: React.FC<FAQItemProps> = ({
             {questionText}
           </Text>
         </View>
-        <SvgNextIcon
-          style={[
-            styles.arrowIcon,
-            {
-              transform: [
-                ...rtlTransform(isRtl),
-                ...(isExpanded ? [{ rotate: '90deg' }] : []),
-              ],
-            },
-          ]}
-        />
+        <Animated.View style={[styles.arrowIcon, animatedIconStyle]}>
+          <SvgNextIcon />
+        </Animated.View>
       </TouchableOpacity>
 
       {isExpanded && (

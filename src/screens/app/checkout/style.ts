@@ -39,10 +39,11 @@ const useStyles = () => {
         justifyContent: 'space-between',
         backgroundColor: theme.colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS,
-        paddingVertical: sizes.PADDING * 0.5,
+        // paddingVertical: sizes.PADDING * 0.5,
         paddingHorizontal: sizes.PADDING * 0.75,
         gap: sizes.WIDTH * 0.03,
         ...theme.globalStyles.SHADOW_STYLE,
+        ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
       },
 
       CartProductImage: {

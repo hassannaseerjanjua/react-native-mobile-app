@@ -6,7 +6,13 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from 'react-native-reanimated';
 import {
   SvgDeleteIcon,
   SvgEditIcon,
@@ -17,7 +23,7 @@ import {
 } from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { Text, Image } from '../../utils/elements';
-import { isAndroid, scaleWithMax, rtlTransform } from '../../utils';
+import { isAndroid, scaleWithMax } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Platform } from 'react-native';
 
@@ -28,6 +34,7 @@ interface TabItemProps {
   TabItemStyles?: StyleProp<ViewStyle>;
   TabTextStyles?: StyleProp<TextStyle>;
   isEditGroup?: boolean;
+  editOnly?: boolean;
   isLink?: boolean;
   isGroupImage?: any;
   onDeletePress?: () => void;
@@ -35,6 +42,7 @@ interface TabItemProps {
   onImagePress?: () => void;
   icon?: React.ReactNode;
   hideRightIcon?: boolean;
+  rightIconRotated?: boolean;
   rightSideView?: React.ReactNode;
   subtitle?: string;
   activeOpacity?: number;
@@ -49,6 +57,7 @@ const TabItem = ({
   TabItemStyles,
   TabTextStyles,
   isEditGroup,
+  editOnly = false,
   isLink,
   isGroupImage = false,
   onDeletePress,
@@ -56,6 +65,7 @@ const TabItem = ({
   onImagePress,
   icon,
   hideRightIcon,
+  rightIconRotated = false,
   rightSideView,
   subtitle,
   disabled = false,
@@ -66,9 +76,26 @@ const TabItem = ({
   const androidTextAdjust =
     Platform.OS === 'android' && !isRtl ? { includeFontPadding: false } : null;
 
+  const rotation = useSharedValue(rightIconRotated ? 1 : 0);
+
+  useEffect(() => {
+    rotation.value = withTiming(rightIconRotated ? 1 : 0, {
+      duration: 120,
+    });
+  }, [rightIconRotated, rotation]);
+
+  const scaleX = isRtl ? -1 : 1;
+
+  const animatedIconStyle = useAnimatedStyle(() => {
+    const rotateDeg = interpolate(rotation.value, [0, 1], [0, 90]);
+    return {
+      transform: [{ scaleX }, { rotate: `${rotateDeg}deg` }],
+    };
+  });
+
   return (
     <TouchableOpacity
-      activeOpacity={activeOpacity}
+      activeOpacity={activeOpacity ?? 0.8}
       onPress={disabled ? undefined : onPress}
       disabled={disabled}
       style={[
@@ -134,13 +161,17 @@ const TabItem = ({
       {isEditGroup ? (
         <>
           <View style={styles.editGroupContainer}>
-            <SvgDeleteIcon onPress={onDeletePress} />
+            {!editOnly && onDeletePress && (
+              <SvgDeleteIcon onPress={onDeletePress} />
+            )}
             <SvgEditIcon onPress={onEditPress} />
           </View>
         </>
       ) : (
         !hideRightIcon && (
-          <SvgNextIcon style={{ transform: rtlTransform(isRtl) }} />
+          <Animated.View style={animatedIconStyle}>
+            <SvgNextIcon />
+          </Animated.View>
         )
       )}
     </TouchableOpacity>

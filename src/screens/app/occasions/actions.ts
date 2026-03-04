@@ -1,11 +1,16 @@
 import { useState, useEffect } from 'react';
-import api, { getAuthHeaderWithFormData } from '../../../utils/api';
+import { useDispatch } from 'react-redux';
+import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import notify from '../../../utils/notify';
-import { Occasion, OccasionsApiResponse } from '../../../types/index.ts';
+import {
+  Occasion,
+  OccasionsApiResponse,
+  UpdateProfileApiResponse,
+} from '../../../types/index.ts';
 import { getAuthHeader } from '../../../utils/api';
 import { useLocaleStore } from '../../../store/reducer/locale';
-import { useAuthStore } from '../../../store/reducer/auth';
+import { login, useAuthStore } from '../../../store/reducer/auth';
 import { selectAndCropImage } from '../../../utils/imageCropper';
 
 export interface ImageFile {
@@ -92,7 +97,12 @@ export const createOccasion = async (
     formData.append('NameAr', values.occasionName);
     formData.append('OccasionDate', values.occasionDate);
     if (values.image && typeof values.image === 'object' && values.image.uri) {
-      const img = values.image as { uri: string; type?: string; name?: string; fileName?: string };
+      const img = values.image as {
+        uri: string;
+        type?: string;
+        name?: string;
+        fileName?: string;
+      };
       formData.append('ImageUrl', {
         uri: img.uri,
         type: img.type || 'image/jpeg',
@@ -124,7 +134,12 @@ export const updateOccasion = async (
     formData.append('NameEn', values.occasionName);
     formData.append('OccasionDate', values.occasionDate);
     if (values.image && typeof values.image === 'object' && values.image.uri) {
-      const img = values.image as { uri: string; type?: string; name?: string; fileName?: string };
+      const img = values.image as {
+        uri: string;
+        type?: string;
+        name?: string;
+        fileName?: string;
+      };
       formData.append('ImageUrl', {
         uri: img.uri,
         type: img.type || 'image/jpeg',
@@ -162,7 +177,8 @@ export const deleteOccasion = async (
 
 export const useOccasions = () => {
   const { getString, langCode } = useLocaleStore();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
   const [occasionsLoading, setOccasionsLoading] = useState(false);
   const [occasions, setOccasions] = useState<Occasion[]>([]);
@@ -180,6 +196,7 @@ export const useOccasions = () => {
   );
   const [date, setDate] = useState(new Date());
   const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
+  const [readonlyIcon, setReadonlyIcon] = useState<any>(null);
 
   const fetchOccasions = async () => {
     setOccasionsLoading(true);
@@ -253,12 +270,33 @@ export const useOccasions = () => {
     try {
       if (selectedOccasion.occasionType === 'create') {
         success = await createOccasion(values, errorMsg);
+      } else if (selectedOccasion.id === -1) {
+        // Birthday: call settings API
+        if (!user || !token) return;
+        const formData = new FormData();
+        formData.append('Fullname', user.FullNameEn || '');
+        formData.append('CityId', String(user.CityId || ''));
+        formData.append('Dob', values.occasionDate);
+        formData.append('GenderId', String(user.GenderId || ''));
+        const response = await api.put<UpdateProfileApiResponse>(
+          apiEndpoints.UPDATE_PROFILE,
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } },
+        );
+        if (response.success && response.data?.Data && token) {
+          dispatch(login({ user: { ...user, ...response.data.Data }, token }));
+          notify.success(getString('PROFILE_UPDATED_SUCCESSFULLY'));
+          success = true;
+        } else if (response.failed) {
+          notify.error(response.error || errorMsg);
+        }
       } else if (selectedOccasion.id) {
         success = await updateOccasion(selectedOccasion.id, values, errorMsg);
       }
       if (success) {
         await fetchOccasions();
         setSelectedOccasion({ id: null, occasionType: 'none' });
+        setReadonlyIcon(null);
         setIsEditGroupOpen(false);
       }
     } finally {
@@ -296,9 +334,22 @@ export const useOccasions = () => {
     setFormInitialValues({ occasionName: '', occasionDate: '', image: null });
   };
 
-  const handleEditPress = async (item: Occasion) => {
+  const handleEditPress = async (item: Occasion, icon?: any) => {
     setSelectedOccasion({ occasionType: 'edit', id: item.OccassionId });
-    await handleGetOccasionDetail(item.OccassionId);
+    if (item.OccassionId === -1) {
+      // Birthday: set form from user, pass icon from listing
+      const birthdayDate = user?.DateOfBirth || '';
+      setFormInitialValues({
+        occasionName: getString('OCCASSIONS_MY_BIRTHDAY'),
+        occasionDate: birthdayDate,
+        image: null,
+      });
+      setDate(birthdayDate ? new Date(birthdayDate) : new Date());
+      setReadonlyIcon(icon ?? null);
+    } else {
+      setReadonlyIcon(null);
+      await handleGetOccasionDetail(item.OccassionId);
+    }
   };
 
   const handleViewPress = async (item: Occasion) => {
@@ -325,6 +376,7 @@ export const useOccasions = () => {
 
   const handleCreatePress = () => {
     setSelectedOccasion({ id: null, occasionType: 'create' });
+    setReadonlyIcon(null);
     resetForm();
   };
 
@@ -335,6 +387,7 @@ export const useOccasions = () => {
       navigation.goBack();
     } else {
       setSelectedOccasion({ id: null, occasionType: 'none' });
+      setReadonlyIcon(null);
       resetForm();
     }
   };
@@ -378,5 +431,6 @@ export const useOccasions = () => {
     handleBackPress,
     handleDatePickerConfirm,
     fetchOccasions,
+    readonlyIcon,
   };
 };

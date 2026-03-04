@@ -382,6 +382,7 @@
   "O_WHATSAPP_NOT_INSTALLED_MESSAGE": "WhatsApp is not installed on this device. Please install WhatsApp to continue.",
   "OCC_ANNIVERSARY": "Anniversary",
   "OCC_BIRTHDAY": "My Birthday",
+  "OCC_BIRTHDAY_NOT_SET": "Birthday not set",
   "OCC_CREATE": "Create",
   "OCC_CREATE_OCCASION": "Create Occasion",
   "OCC_CURRENT_IMAGE": "Current image",

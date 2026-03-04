@@ -373,12 +373,11 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
           }
 
           return prev - 1;
-        } else {
-          onClose();
-          return prev;
         }
+        // At first story: do nothing (no tap-to-close, use X button or swipe)
+        return prev;
       });
-    }, [hasTextStory, progressAnim, textProgressAnim, onClose]);
+    }, [hasTextStory, progressAnim, textProgressAnim]);
 
     const handleNextStory = useCallback(() => {
       const totalStories = hasTextStory && hasVideo ? 2 : 1;
@@ -396,12 +395,11 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
           }
 
           return prev + 1;
-        } else {
-          onClose();
-          return prev;
         }
+        // At last story: do nothing (no tap-to-close, use X button or swipe)
+        return prev;
       });
-    }, [hasTextStory, hasVideo, progressAnim, textProgressAnim, onClose]);
+    }, [hasTextStory, hasVideo, progressAnim, textProgressAnim]);
 
     const handleScreenPress = useCallback(
       (event: GestureResponderEvent) => {
@@ -602,9 +600,9 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
             </SafeAreaView>
 
 
-            {/* Loading Indicator */}
+            {/* Loading Indicator - pointerEvents none so close button remains tappable */}
             {isLoading && isVideoStory && (
-              <View style={styles.loadingContainer}>
+              <View style={styles.loadingContainer} pointerEvents="none">
                 <ActivityIndicator size="large" color="#FFFFFF" />
               </View>
             )}

@@ -366,7 +366,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       await saveGiftMessageData(orderId, sendMessagePayload);
     }
 
-    // Navigate to checkout
+    // Navigate (push) to checkout so back from checkout returns to GiftMessage
     // isVideoUploading should be true only if there's a video file to upload
     (navigation as any).navigate('CheckOut', {
       friendUserId,

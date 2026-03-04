@@ -1233,11 +1233,21 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         <TouchableOpacity
                           hitSlop={15}
                           onPress={() => {
-                            (navigation as any).navigate('GiftMessage', {
-                              friendUserId: cartData?.FriendId,
-                              storeBranchId: cartData?.StoreBranchId,
-                              orderId: cartData?.OrderId,
-                            });
+                            // If GiftMessage is in stack (came from it), goBack to edit; else replace to open
+                            const state = navigation.getState();
+                            const hasGiftMessageInStack =
+                              state?.routes?.some(
+                                r => r.name === 'GiftMessage',
+                              ) ?? false;
+                            if (hasGiftMessageInStack) {
+                              navigation.goBack();
+                            } else {
+                              (navigation as any).replace('GiftMessage', {
+                                friendUserId: cartData?.FriendId,
+                                storeBranchId: cartData?.StoreBranchId,
+                                orderId: cartData?.OrderId,
+                              });
+                            }
                           }}
                         >
                           <GiftIcon />

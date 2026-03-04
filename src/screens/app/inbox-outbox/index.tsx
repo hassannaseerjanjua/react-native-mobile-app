@@ -610,7 +610,10 @@ const InboxItem: React.FC<InboxItemProps> = ({
           />
         )}
         <View
-          style={{ flex: 1, ...rtlMargin(isRtl, theme.sizes.WIDTH * 0.012, 0) }}
+          style={{
+            flex: 1,
+            ...rtlMargin(isRtl, theme.sizes.WIDTH * 0.012, scaleWithMax(6, 8)),
+          }}
         >
           <View
             style={{
@@ -628,7 +631,14 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 justifyContent: 'space-between',
               }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  flex: 1,
+                  minWidth: 0,
+                }}
+              >
                 <Text
                   style={styles.userNameText}
                   numberOfLines={1}
@@ -685,7 +695,12 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 </TouchableOpacity>
               </View>
               <View
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 8,
+                  ...rtlMargin(isRtl, scaleWithMax(8, 10), 0),
+                }}
               >
                 {((order.orderImages &&
                   Array.isArray(order.orderImages) &&

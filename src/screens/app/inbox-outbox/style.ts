@@ -78,7 +78,8 @@ const useStyles = () => {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingVertical: sizes.HEIGHT * 0.012,
-        paddingHorizontal: sizes.PADDING,
+        paddingLeft: sizes.PADDING,
+        paddingRight: sizes.PADDING + scaleWithMax(6, 8),
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,
         backgroundColor: theme.colors.WHITE,
@@ -98,6 +99,7 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1,
+        marginStart: scaleWithMax(8, 10),
       },
       numText: {
         ...theme.globalStyles.TEXT_STYLE,

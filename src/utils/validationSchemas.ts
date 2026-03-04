@@ -151,6 +151,10 @@ export const createSignUpSchema = (
         : Yup.string().optional(),
     city:
       currentStep === 2 ? cityValidation(getString) : Yup.string().optional(),
+    dateOfBirth:
+      currentStep === 2
+        ? Yup.string().required(getString('ST_BIRTHDAY_REQUIRED'))
+        : Yup.string().optional(),
     phoneNumber:
       currentStep === 3 ? phoneValidation(getString) : Yup.string().optional(),
     email:

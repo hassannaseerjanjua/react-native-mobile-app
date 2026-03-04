@@ -36,6 +36,8 @@ import { scaleWithMax } from '../../../utils';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 
+const BIRTHDAY_IMAGE = require('../../../assets/images/birthday.png');
+
 const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
@@ -72,6 +74,7 @@ const OccasionsScreen: React.FC = () => {
     handleBackPress,
     handleDatePickerConfirm,
     fetchOccasions,
+    readonlyIcon,
   } = useOccasions();
 
   // Refetch occasions when screen comes into focus (e.g., after returning from image viewer)
@@ -142,9 +145,7 @@ const OccasionsScreen: React.FC = () => {
         rightSideTitle={
           isEditGroupOpen || selectedOccasion.occasionType !== 'none'
             ? ''
-            : occasions?.length !== 0
-            ? getString('OCC_EDIT_OCCASION')
-            : ''
+            : getString('OCC_EDIT_OCCASION')
         }
         rightSideTitlePress={() => setIsEditGroupOpen(!isEditGroupOpen)}
         rightSideIcon={<SvgEditGroup />}
@@ -207,22 +208,34 @@ const OccasionsScreen: React.FC = () => {
                     ? formatDateForDisplay(item.OccasionDate)
                     : null;
 
-                // For default birthday, show icon outside and make viewable
+                // For default birthday, same flow as other occasions
                 if (isDefaultBirthday) {
+                  const canEditBirthday = !user?.IsBirthdayUpdated;
                   return (
                     <TabItem
-                      isGroupImage={require('../../../assets/images/birthday.png')}
+                      isGroupImage={BIRTHDAY_IMAGE}
                       title={item.NameEn}
                       subtitle={
-                        isExpanded ? formattedDate || undefined : undefined
+                        isExpanded
+                          ? formattedDate ||
+                            (!user?.DateOfBirth
+                              ? getString('OCC_BIRTHDAY_NOT_SET')
+                              : undefined)
+                          : undefined
                       }
-                      isEditGroup={false} // Default birthday is not editable/deletable
-                      hideRightIcon={isExpanded}
+                      isEditGroup={isEditGroupOpen && canEditBirthday}
+                      editOnly={true}
+                      hideRightIcon={false}
+                      rightIconRotated={isExpanded}
+                      onEditPress={() => handleEditPress(item, BIRTHDAY_IMAGE)}
+                      onDeletePress={() => {}}
                       onPress={() => {
-                        if (isExpanded) {
-                          setExpandedOccasionId(null);
-                        } else {
-                          setExpandedOccasionId(item.OccassionId);
+                        if (!isEditGroupOpen) {
+                          if (isExpanded) {
+                            setExpandedOccasionId(null);
+                          } else {
+                            setExpandedOccasionId(item.OccassionId);
+                          }
                         }
                       }}
                       TabItemStyles={styles.TabItem}
@@ -244,7 +257,8 @@ const OccasionsScreen: React.FC = () => {
                       isExpanded ? formattedDate || undefined : undefined
                     }
                     isEditGroup={isEditGroupOpen}
-                    hideRightIcon={isExpanded}
+                    hideRightIcon={false}
+                    rightIconRotated={isExpanded}
                     onEditPress={() => handleEditPress(item)}
                     onDeletePress={() => {
                       setOccasionToDelete(item);
@@ -304,124 +318,149 @@ const OccasionsScreen: React.FC = () => {
                               : undefined
                           }
                           icon={
-                            <TouchableOpacity
-                              onPress={() => {
-                                const imageUri =
-                                  formik.values.image &&
-                                  typeof formik.values.image === 'object' &&
-                                  formik.values.image.uri
-                                    ? formik.values.image.uri
-                                    : formik.values.image &&
-                                      typeof formik.values.image === 'string' &&
-                                      formik.values.image
-                                    ? formik.values.image
-                                    : null;
-
-                                if (imageUri) {
-                                  const isLocalOnly =
-                                    selectedOccasion.occasionType ===
-                                      'create' || !selectedOccasion.id;
-                                  (navigation as any).navigate(
-                                    'ProfileImageViewer',
-                                    {
-                                      imageUri: imageUri,
-                                      placeholderImage: require('../../../assets/images/img-placeholder.png'),
-                                      title:
-                                        formik.values.occasionName ||
-                                        getString('OCC_EDIT_OCCASION'),
-                                      occasionId: selectedOccasion.id,
-                                      occasionName: formik.values.occasionName,
-                                      occasionDate: formik.values.occasionDate,
-                                      isLocalOnly,
-                                      onImageUpdate: isLocalOnly
-                                        ? (result: {
-                                            type: 'update' | 'delete';
-                                            asset?: {
-                                              uri: string;
-                                              type?: string;
-                                              name?: string;
-                                            };
-                                          }) => {
-                                            if (
-                                              result.type === 'update' &&
-                                              result.asset
-                                            ) {
-                                              formik.setFieldValue('image', {
-                                                uri: result.asset.uri,
-                                                type:
-                                                  result.asset.type ||
-                                                  'image/jpeg',
-                                                name:
-                                                  result.asset.name ||
-                                                  `occasion_image_${Date.now()}.jpg`,
-                                              });
-                                            } else if (
-                                              result.type === 'delete'
-                                            ) {
-                                              formik.setFieldValue(
-                                                'image',
-                                                null,
-                                              );
-                                            }
-                                          }
-                                        : undefined,
-                                    },
-                                  );
-                                } else {
-                                  // Open gallery if no image
-                                  handleImageSelect(formik);
-                                }
-                              }}
-                              activeOpacity={0.7}
-                              style={{
-                                marginLeft: -scaleWithMax(5, 6),
-                                marginRight: -scaleWithMax(2, 3),
-                              }}
-                            >
-                              <View style={{ position: 'relative' }}>
-                                {formik.values.image &&
-                                typeof formik.values.image === 'object' &&
-                                formik.values.image.uri ? (
-                                  <Image
-                                    source={{ uri: formik.values.image.uri }}
-                                    style={{
-                                      width: scaleWithMax(30, 34),
-                                      height: scaleWithMax(30, 34),
-                                      borderRadius: scaleWithMax(14, 16),
-                                    }}
-                                    resizeMode="cover"
-                                  />
-                                ) : formik.values.image &&
-                                  typeof formik.values.image === 'string' &&
-                                  formik.values.image ? (
-                                  <Image
-                                    source={{ uri: formik.values.image }}
-                                    style={{
-                                      width: scaleWithMax(30, 34),
-                                      height: scaleWithMax(30, 34),
-                                      borderRadius: scaleWithMax(14, 16),
-                                    }}
-                                    resizeMode="cover"
-                                  />
-                                ) : (
-                                  <SvgOccasionIcon
-                                    width={scaleWithMax(30, 34)}
-                                    height={scaleWithMax(30, 34)}
-                                  />
-                                )}
-                                <View style={styles.pencilIconContainer}>
-                                  <SvgPencilIcon
-                                    width={scaleWithMax(8, 10)}
-                                    height={scaleWithMax(8, 10)}
-                                  />
-                                </View>
+                            readonlyIcon ? (
+                              <View
+                                style={{
+                                  marginLeft: -scaleWithMax(5, 6),
+                                  marginRight: -scaleWithMax(2, 3),
+                                }}
+                              >
+                                <Image
+                                  source={readonlyIcon}
+                                  style={{
+                                    width: scaleWithMax(30, 34),
+                                    height: scaleWithMax(30, 34),
+                                    borderRadius: scaleWithMax(14, 16),
+                                  }}
+                                  resizeMode="cover"
+                                />
                               </View>
-                            </TouchableOpacity>
+                            ) : (
+                              <TouchableOpacity
+                                onPress={() => {
+                                  const imageUri =
+                                    formik.values.image &&
+                                    typeof formik.values.image === 'object' &&
+                                    formik.values.image.uri
+                                      ? formik.values.image.uri
+                                      : formik.values.image &&
+                                        typeof formik.values.image ===
+                                          'string' &&
+                                        formik.values.image
+                                      ? formik.values.image
+                                      : null;
+
+                                  if (imageUri) {
+                                    const isLocalOnly =
+                                      selectedOccasion.occasionType ===
+                                        'create' || !selectedOccasion.id;
+                                    (navigation as any).navigate(
+                                      'ProfileImageViewer',
+                                      {
+                                        imageUri: imageUri,
+                                        placeholderImage: require('../../../assets/images/img-placeholder.png'),
+                                        title:
+                                          formik.values.occasionName ||
+                                          getString('OCC_EDIT_OCCASION'),
+                                        occasionId: selectedOccasion.id,
+                                        occasionName: formik.values.occasionName,
+                                        occasionDate:
+                                          formik.values.occasionDate,
+                                        isLocalOnly,
+                                        onImageUpdate: isLocalOnly
+                                          ? (result: {
+                                              type: 'update' | 'delete';
+                                              asset?: {
+                                                uri: string;
+                                                type?: string;
+                                                name?: string;
+                                              };
+                                            }) => {
+                                              if (
+                                                result.type === 'update' &&
+                                                result.asset
+                                              ) {
+                                                formik.setFieldValue(
+                                                  'image',
+                                                  {
+                                                    uri: result.asset.uri,
+                                                    type:
+                                                      result.asset.type ||
+                                                      'image/jpeg',
+                                                    name:
+                                                      result.asset.name ||
+                                                      `occasion_image_${Date.now()}.jpg`,
+                                                  },
+                                                );
+                                              } else if (
+                                                result.type === 'delete'
+                                              ) {
+                                                formik.setFieldValue(
+                                                  'image',
+                                                  null,
+                                                );
+                                              }
+                                            }
+                                          : undefined,
+                                      },
+                                    );
+                                  } else {
+                                    handleImageSelect(formik);
+                                  }
+                                }}
+                                activeOpacity={0.7}
+                                style={{
+                                  marginLeft: -scaleWithMax(5, 6),
+                                  marginRight: -scaleWithMax(2, 3),
+                                }}
+                              >
+                                <View style={{ position: 'relative' }}>
+                                  {formik.values.image &&
+                                  typeof formik.values.image === 'object' &&
+                                  formik.values.image.uri ? (
+                                    <Image
+                                      source={{
+                                        uri: formik.values.image.uri,
+                                      }}
+                                      style={{
+                                        width: scaleWithMax(30, 34),
+                                        height: scaleWithMax(30, 34),
+                                        borderRadius: scaleWithMax(14, 16),
+                                      }}
+                                      resizeMode="cover"
+                                    />
+                                  ) : formik.values.image &&
+                                    typeof formik.values.image === 'string' &&
+                                    formik.values.image ? (
+                                    <Image
+                                      source={{ uri: formik.values.image }}
+                                      style={{
+                                        width: scaleWithMax(30, 34),
+                                        height: scaleWithMax(30, 34),
+                                        borderRadius: scaleWithMax(14, 16),
+                                      }}
+                                      resizeMode="cover"
+                                    />
+                                  ) : (
+                                    <SvgOccasionIcon
+                                      width={scaleWithMax(30, 34)}
+                                      height={scaleWithMax(30, 34)}
+                                    />
+                                  )}
+                                  <View style={styles.pencilIconContainer}>
+                                    <SvgPencilIcon
+                                      width={scaleWithMax(8, 10)}
+                                      height={scaleWithMax(8, 10)}
+                                    />
+                                  </View>
+                                </View>
+                              </TouchableOpacity>
+                            )
                           }
                           fieldProps={{
                             placeholder: getString('OCC_EVENT_NAME'),
                             value: formik.values.occasionName,
-                            editable: true,
+                            editable: !readonlyIcon,
                             onChangeText: (text: string) => {
                               formik.setFieldValue('occasionName', text, false);
                               formik.setFieldTouched(
@@ -433,6 +472,10 @@ const OccasionsScreen: React.FC = () => {
                             onBlur: () =>
                               formik.setFieldTouched('occasionName', true),
                             autoCapitalize: 'words',
+                            ...(readonlyIcon && {
+                              style: { color: theme.colors.SECONDARY_TEXT },
+                              pointerEvents: 'none' as const,
+                            }),
                           }}
                         />
                       </View>
@@ -499,6 +542,9 @@ const OccasionsScreen: React.FC = () => {
                             : date
                         }
                         mode="date"
+                        maximumDate={
+                          selectedOccasion.id === -1 ? new Date() : undefined
+                        }
                         onConfirm={selectedDate =>
                           handleDatePickerConfirm(selectedDate, formik)
                         }

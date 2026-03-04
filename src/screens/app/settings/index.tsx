@@ -147,7 +147,7 @@ const SettingsScreen: React.FC = () => {
             }),
           );
 
-          notify.success(getString('PROFILE_UPDATED_SUCCESSFULLY'));
+          // notify.success(getString('PROFILE_UPDATED_SUCCESSFULLY'));
           setTimeout(() => {
             navigation.goBack();
           }, 500);
