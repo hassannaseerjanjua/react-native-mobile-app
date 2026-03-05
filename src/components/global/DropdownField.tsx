@@ -12,6 +12,7 @@ import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import { SvgDropDown } from '../../assets/icons';
 import InputField from './InputField';
+import ShadowView from './ShadowView';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 
@@ -84,7 +85,8 @@ const DropdownField = ({
 
   return (
     <>
-      <TouchableOpacity
+      <ShadowView preset="default">
+        <TouchableOpacity
         style={[
           styles.container,
           {
@@ -119,19 +121,20 @@ const DropdownField = ({
         <Text style={styles.chevron}>
           <SvgDropDown width={scaleWithMax(20, 25)} />
         </Text>
-        {!!error && (
-          <Text
-            style={[
-              styles.error,
-              {
-                textAlign: 'left',
-              },
-            ]}
-          >
-            {error}
-          </Text>
-        )}
-      </TouchableOpacity>
+        </TouchableOpacity>
+      </ShadowView>
+      {!!error && (
+        <Text
+          style={[
+            styles.error,
+            {
+              textAlign: 'left',
+            },
+          ]}
+        >
+          {error}
+        </Text>
+      )}
 
       <Modal
         visible={isVisible}
@@ -230,7 +233,6 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         alignItems: 'center',
         backgroundColor: colors.WHITE,
-        ...globalStyles.SHADOW_STYLE,
       },
       textContainer: {
         flex: 1,

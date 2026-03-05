@@ -31,7 +31,6 @@ const useStyles = () => {
         paddingVertical: sizes.PADDING * 0.5,
         paddingHorizontal: sizes.PADDING * 0.75,
         gap: sizes.WIDTH * 0.03,
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       row: {
         flexDirection: 'row',

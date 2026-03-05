@@ -25,6 +25,7 @@ import {
 } from '../../../assets/icons';
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
+import ShadowView from '../../../components/global/ShadowView';
 import InputField from '../../../components/global/InputField';
 import { Text, Image } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
@@ -1079,7 +1080,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           />
           <View style={styles.content}>
             <View style={styles.body}>
-              <View style={styles.messageContainer}>
+              <ShadowView preset="default">
+                <View style={styles.messageContainer}>
                 <View style={styles.inputWrapper} pointerEvents="box-none">
                   {/* Gradient background when no filter is selected */}
                   {!selectedFilter && (
@@ -1206,7 +1208,6 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           height: scaleWithMax(36, 38),
                           borderRadius: 8,
                           backgroundColor: 'rgba(255, 255, 255, 0.85)',
-                          ...theme.globalStyles.SHADOW_STYLE,
                         }}
                       />
                       <SvgAddGiftMessageIcon />
@@ -1234,6 +1235,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   )}
                 </Pressable>
               </View>
+              </ShadowView>
 
               <View style={styles.filtersWrapper}>
                 <Text style={styles.sectionTitle}>
@@ -1248,6 +1250,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                     showsHorizontalScrollIndicator={false}
                     keyExtractor={item => item.FilterId.toString()}
                     renderItem={({ item: filter, index }) => (
+                      <ShadowView preset="default">
                       <View
                         style={[
                           styles.imageContainer,
@@ -1294,6 +1297,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           />
                         </TouchableOpacity>
                       </View>
+                      </ShadowView>
                     )}
                     ListEmptyComponent={
                       <View

@@ -101,3 +101,16 @@ export const invalidateCachePrefix = (prefix: string): void => {
   });
   if (changed) persistCache();
 };
+
+/**
+ * Clear all API cache (in-memory and persisted).
+ * Call on logout to prevent serving cached data for the next user.
+ */
+export const clearAllCache = (): void => {
+  if (persistTimer) {
+    clearTimeout(persistTimer);
+    persistTimer = null;
+  }
+  memCache.clear();
+  AsyncStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify([])).catch(() => {});
+};

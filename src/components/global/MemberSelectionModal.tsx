@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import BottomSheetHeader from '../app/BottomSheetHeader';
+import ShadowView from './ShadowView';
 import SearchUserItem from '../app/SearchUserItem';
 import { Image } from '../../utils/elements';
 import {
@@ -326,7 +327,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     }
 
     return (
-      <View style={selectedUsersContainerStyle}>
+      <ShadowView preset="default" disabled={viewOnly}>
+        <View style={selectedUsersContainerStyle}>
         <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
@@ -358,6 +360,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           ))}
         </ScrollView>
       </View>
+      </ShadowView>
     );
   };
 
@@ -700,12 +703,13 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   keyboardShouldPersistTaps="handled"
                 >
                   <View style={styles.step2Container}>
-                    <View
-                      style={[
-                        styles.groupNameInputContainer,
-                        groupError && styles.groupNameInputError,
-                      ]}
-                    >
+                    <ShadowView preset="searchBar">
+                      <View
+                        style={[
+                          styles.groupNameInputContainer,
+                          groupError && styles.groupNameInputError,
+                        ]}
+                      >
                       <TouchableOpacity
                         style={styles.groupNameIconWrapper}
                         onPress={handleImageSelect}
@@ -749,6 +753,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                         }}
                       />
                     </View>
+                    </ShadowView>
                     {groupError ? (
                       <Text style={styles.errorText}>{groupError}</Text>
                     ) : null}
@@ -849,8 +854,6 @@ const useStyles = () => {
         borderRadius: 12,
         paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.HEIGHT * 0.0116,
-        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
-        // shadowColor: '#000',
         // shadowOffset: { width: 0, height: 2 },
         // shadowOpacity: 0.08,
         // shadowRadius: 4,
@@ -957,8 +960,6 @@ const useStyles = () => {
         paddingVertical: sizes.BORDER_RADIUS_MID,
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS_MID,
-
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       selectedUsersList: {
         flexDirection: 'row',

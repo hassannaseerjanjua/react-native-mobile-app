@@ -8,6 +8,7 @@ import {
 import useStyles from './style';
 import ParentView from '../../../components/app/ParentView';
 import HomeHeader from '../../../components/global/HomeHeader';
+import ShadowView from '../../../components/global/ShadowView';
 import { SvgProfileCrossIcon } from '../../../assets/icons';
 import { StackActions, useNavigation } from '@react-navigation/native';
 import { scaleWithMax } from '../../../utils';
@@ -42,10 +43,10 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
   const currentItem = hasMultipleItems
     ? selectedItems[currentIndex]
     : selectedItems?.[0] || {
-      ItemImage: productImage,
-      ItemName: productName,
-      Quantity: quantity,
-    };
+        ItemImage: productImage,
+        ItemName: productName,
+        Quantity: quantity,
+      };
 
   useEffect(() => {
     if (orderId && uniqueCode) {
@@ -109,6 +110,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
             alignItems: 'center',
             gap: theme.sizes.PADDING * 0.5,
             marginTop: theme.sizes.HEIGHT * 0.03,
+            // marginBottom: theme.sizes.HEIGHT * 0.02,
           }}
         >
           <Text
@@ -124,33 +126,38 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
           </Text>
         </View>
 
-        <View style={styles.QrContainer}>
-          {qrCodeData?.OrderId && qrCodeData?.UniqueCode ? (
-            <QRCode
-              value={`${qrCodeData.OrderId}:${qrCodeData.UniqueCode}`}
-              size={scaleWithMax(270, 275)}
-              color={theme.colors.PRIMARY}
-              backgroundColor={theme.colors.WHITE}
-              logo={undefined}
-              quietZone={0}
-              ecl="H"
-            />
-          ) : (
-            <View
-              style={{
-                height: scaleWithMax(270, 275),
-                width: scaleWithMax(270, 275),
-                backgroundColor: '#f0f0f0',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Text style={{ color: theme.colors.SECONDARY_TEXT }}>
-                {getString('QR_NO_CODE_AVAILABLE')}
-              </Text>
-            </View>
-          )}
-        </View>
+        <ShadowView
+          preset="qrContainer"
+          containerStyle={{ marginVertical: theme.sizes.PADDING }}
+        >
+          <View style={styles.QrContainer}>
+            {qrCodeData?.OrderId && qrCodeData?.UniqueCode ? (
+              <QRCode
+                value={`${qrCodeData.OrderId}:${qrCodeData.UniqueCode}`}
+                size={scaleWithMax(270, 275)}
+                color={theme.colors.PRIMARY}
+                backgroundColor={theme.colors.WHITE}
+                logo={undefined}
+                quietZone={0}
+                ecl="H"
+              />
+            ) : (
+              <View
+                style={{
+                  height: scaleWithMax(270, 275),
+                  width: scaleWithMax(270, 275),
+                  backgroundColor: '#f0f0f0',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <Text style={{ color: theme.colors.SECONDARY_TEXT }}>
+                  {getString('QR_NO_CODE_AVAILABLE')}
+                </Text>
+              </View>
+            )}
+          </View>
+        </ShadowView>
 
         {hasMultipleItems ? (
           <View>
@@ -173,57 +180,58 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
               }}
             >
               {selectedItems.map((item, index) => (
-                <View
-                  key={item.OrderItemId}
-                  style={[
-                    styles.ProductContainer,
-                    {
-                      width: theme.sizes.WIDTH - theme.sizes.PADDING * 2,
-                      marginRight:
-                        index < selectedItems.length - 1
-                          ? theme.sizes.PADDING * 0.8
-                          : 0,
-                    },
-                  ]}
-                >
-                  <Image
-                    style={styles.ProductImage}
-                    source={item.ItemImage || defaultImage}
-                  />
+                <ShadowView key={item.OrderItemId} preset="qrItemContainer">
                   <View
-                    style={{
-                      flexDirection: 'column',
-                      gap: theme.sizes.PADDING * 0.25,
-                      maxWidth: '65%',
-                    }}
+                    style={[
+                      styles.ProductContainer,
+                      {
+                        width: theme.sizes.WIDTH - theme.sizes.PADDING * 2,
+                        marginRight:
+                          index < selectedItems.length - 1
+                            ? theme.sizes.PADDING * 0.8
+                            : 0,
+                      },
+                    ]}
                   >
-                    <Text
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
+                    <Image
+                      style={styles.ProductImage}
+                      source={item.ItemImage || defaultImage}
+                    />
+                    <View
                       style={{
-                        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-                        fontSize: theme.sizes.FONTSIZE_BUTTON,
+                        flexDirection: 'column',
+                        gap: theme.sizes.PADDING * 0.25,
+                        maxWidth: '65%',
                       }}
                     >
-                      {item.ItemName || getString('QR_PRODUCT_NAME')}
-                    </Text>
-                    <Text
-                      numberOfLines={1}
-                      ellipsizeMode="tail"
-                      style={{
-                        fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                        color: theme.colors.GRAY,
-                      }}
-                    >
-                      {storeName || getString('QR_STORE_NAME')}
-                    </Text>
-                  </View>
-                  {item.Quantity > 0 && (
-                    <View style={styles.numCircle}>
-                      <Text style={styles.numText}>{item.Quantity}</Text>
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={{
+                          ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+                          fontSize: theme.sizes.FONTSIZE_BUTTON,
+                        }}
+                      >
+                        {item.ItemName || getString('QR_PRODUCT_NAME')}
+                      </Text>
+                      <Text
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                        style={{
+                          fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                          color: theme.colors.GRAY,
+                        }}
+                      >
+                        {storeName || getString('QR_STORE_NAME')}
+                      </Text>
                     </View>
-                  )}
-                </View>
+                    {item.Quantity > 0 && (
+                      <View style={styles.numCircle}>
+                        <Text style={styles.numText}>{item.Quantity}</Text>
+                      </View>
+                    )}
+                  </View>
+                </ShadowView>
               ))}
             </ScrollView>
             {selectedItems.length > 1 && (
@@ -256,45 +264,49 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
             )}
           </View>
         ) : (
-          <View style={styles.ProductContainer}>
-            <Image
-              style={styles.ProductImage}
-              source={currentItem.ItemImage || productImage || defaultImage}
-            />
-            <View
-              style={{
-                flexDirection: 'column',
-                gap: theme.sizes.PADDING * 0.25,
-                maxWidth: '65%',
-              }}
-            >
-              <Text
-                numberOfLines={1}
-                ellipsizeMode="tail"
+          <ShadowView preset="qrItemContainer">
+            <View style={styles.ProductContainer}>
+              <Image
+                style={styles.ProductImage}
+                source={currentItem.ItemImage || productImage || defaultImage}
+              />
+              <View
                 style={{
-                  ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-                  fontSize: theme.sizes.FONTSIZE_BUTTON,
+                  flexDirection: 'column',
+                  gap: theme.sizes.PADDING * 0.25,
+                  maxWidth: '65%',
                 }}
               >
-                {currentItem.ItemName || productName || getString('QR_PRODUCT_NAME')}
-              </Text>
-              <Text
-                numberOfLines={1}
-                ellipsizeMode="tail"
-                style={{
-                  fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                  color: theme.colors.GRAY,
-                }}
-              >
-                {storeName || getString('QR_STORE_NAME')}
-              </Text>
-            </View>
-            {currentItem.Quantity > 0 && (
-              <View style={styles.numCircle}>
-                <Text style={styles.numText}>{currentItem.Quantity}</Text>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{
+                    ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+                    fontSize: theme.sizes.FONTSIZE_BUTTON,
+                  }}
+                >
+                  {currentItem.ItemName ||
+                    productName ||
+                    getString('QR_PRODUCT_NAME')}
+                </Text>
+                <Text
+                  numberOfLines={1}
+                  ellipsizeMode="tail"
+                  style={{
+                    fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                    color: theme.colors.GRAY,
+                  }}
+                >
+                  {storeName || getString('QR_STORE_NAME')}
+                </Text>
               </View>
-            )}
-          </View>
+              {currentItem.Quantity > 0 && (
+                <View style={styles.numCircle}>
+                  <Text style={styles.numText}>{currentItem.Quantity}</Text>
+                </View>
+              )}
+            </View>
+          </ShadowView>
         )}
       </View>
     </ParentView>

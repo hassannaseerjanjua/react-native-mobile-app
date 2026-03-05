@@ -50,7 +50,6 @@ const useStyles = () => {
         height: scaleWithMax(16, 18),
         justifyContent: 'center',
         alignItems: 'center',
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       profileInfo: {
         flex: 1,
@@ -79,7 +78,6 @@ const useStyles = () => {
       },
       menuItem: {
         backgroundColor: colors.WHITE,
-        ...theme.globalStyles.SHADOW_STYLE_LOW,
       },
       menuItemText: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
@@ -152,7 +150,6 @@ const useStyles = () => {
         padding: sizes.PADDING * 1.5,
         borderRadius: 20,
         alignItems: 'center',
-        ...theme.globalStyles.SHADOW_STYLE_LOW,
         shadowColor: '#00000050',
       },
       bottomSheet: {
@@ -183,7 +180,6 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: scaleWithMax(12, 14),
         padding: scaleWithMax(6, 8),
-        ...theme.globalStyles.SHADOW_STYLE_LOW,
         shadowColor: '#00000050',
         elevation: 2,
       },

@@ -26,7 +26,6 @@ const useStyles = () => {
         messageContainer: {
           height: sizes.HEIGHT * 0.512,
           paddingHorizontal: sizes.PADDING,
-          ...theme.globalStyles.SHADOW_STYLE,
         },
         inputWrapper: {
           flex: 1,
@@ -92,7 +91,6 @@ const useStyles = () => {
           borderRadius: 12,
           marginRight: scaleWithMax(12, 14),
           backgroundColor: '#fff',
-          ...theme.globalStyles.SHADOW_STYLE,
           overflow: 'hidden',
         },
 
@@ -241,7 +239,6 @@ const useStyles = () => {
           paddingHorizontal: scaleWithMax(16, 18),
           paddingVertical: scaleWithMax(10, 12),
           borderRadius: scaleWithMax(20, 22),
-          ...theme.globalStyles.SHADOW_STYLE,
           minWidth: scaleWithMax(90, 100),
           alignItems: 'center',
         },

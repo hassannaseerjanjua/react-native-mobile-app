@@ -25,6 +25,7 @@ import SearchUserItem from '../../../components/app/SearchUserItem';
 import MemberSelectionModal from '../../../components/global/MemberSelectionModal';
 import GroupTabs from '../../../components/global/GroupTabs';
 import TabItem from '../../../components/global/TabItem';
+import ShadowView from '../../../components/global/ShadowView';
 import {
   ActiveUser,
   ActiveUsersApiResponse,
@@ -773,7 +774,16 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   paddingHorizontal: theme.sizes.PADDING,
                 }}
               >
-                <Text style={styles.sectionTitle}>{getString('SG_GROUP')}</Text>
+                <Text
+                  style={[
+                    styles.sectionTitle,
+                    {
+                      paddingBottom: 0,
+                    },
+                  ]}
+                >
+                  {getString('SG_GROUP')}
+                </Text>
                 {(getGroupsData.data || []).length > 0 && (
                   <TouchableOpacity
                     onPress={() => setIsEditGroupOpen(prev => !prev)}
@@ -865,8 +875,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   contentContainerStyle={{
                     paddingHorizontal: theme.sizes.PADDING,
                     flex: 1,
+                    marginTop: theme.sizes.HEIGHT * 0.008,
                     height: theme.sizes.HEIGHT * 0.6,
-                    paddingVertical: theme.sizes.HEIGHT * 0.001,
+                    // paddingVertical: theme.sizes.HEIGHT * 0.01,
                   }}
                 />
               )}
@@ -900,25 +911,27 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 <Text style={styles.sectionTitle}>
                   {getString('SG_FREQUENTLY_GIFTED')}
                 </Text>
-                <View style={styles.listCard}>
-                  <FlatList
-                    data={frequentlySentFriends}
-                    keyExtractor={item => `frequent-${item.UserId}`}
-                    renderItem={({ item, index }) => (
-                      <SearchUserItem
-                        item={item}
-                        index={index}
-                        isLast={index === frequentlySentFriends.length - 1}
-                        showAddButton={false}
-                        showSelection={false}
-                        isGeneralSearchScreen={false}
-                        onPress={() => handleFriendPress(item)}
-                      />
-                    )}
-                    showsVerticalScrollIndicator={false}
-                    scrollEnabled={false}
-                  />
-                </View>
+                <ShadowView preset="default">
+                  <View style={styles.listCard}>
+                    <FlatList
+                      data={frequentlySentFriends}
+                      keyExtractor={item => `frequent-${item.UserId}`}
+                      renderItem={({ item, index }) => (
+                        <SearchUserItem
+                          item={item}
+                          index={index}
+                          isLast={index === frequentlySentFriends.length - 1}
+                          showAddButton={false}
+                          showSelection={false}
+                          isGeneralSearchScreen={false}
+                          onPress={() => handleFriendPress(item)}
+                        />
+                      )}
+                      showsVerticalScrollIndicator={false}
+                      scrollEnabled={false}
+                    />
+                  </View>
+                </ShadowView>
               </View>
             )}
 
@@ -973,12 +986,15 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           {activeTab !== 'group' &&
           isLoading &&
           !skipSkeletonForSearchTransition ? (
-            <View style={[styles.listCard]}>
-              <SkeletonLoader screenType="sendAGift" />
-            </View>
+            <ShadowView preset="default">
+              <View style={[styles.listCard]}>
+                <SkeletonLoader screenType="sendAGift" />
+              </View>
+            </ShadowView>
           ) : shouldShowList ? (
             <>
-              <View
+              <ShadowView
+                preset="default"
                 style={[
                   styles.listCard,
                   {
@@ -986,32 +1002,36 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   },
                 ]}
               >
-                <FlatList
-                  data={displayData}
-                  keyExtractor={item => item.UserId.toString()}
-                  renderItem={({ item, index }) => (
-                    <SearchUserItem
-                      item={item}
-                      index={index}
-                      isLast={index === displayData.length - 1}
-                      showAddButton={false}
-                      showSelection={isMerchant && isSelectionMode}
-                      isSelected={selectedUserIds.has(item.UserId)}
-                      onSelectionPress={() => handleUserSelection(item.UserId)}
-                      onPress={() => handleFriendPress(item)}
-                      selectionDisabled={
-                        isMerchant &&
-                        isSelectionMode &&
-                        selectedUserIds.size >= MAX_SELECTION_LIMIT &&
-                        !selectedUserIds.has(item.UserId)
-                      }
-                    />
-                  )}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.listContainer}
-                  scrollEnabled={false}
-                />
-              </View>
+                <View>
+                  <FlatList
+                    data={displayData}
+                    keyExtractor={item => item.UserId.toString()}
+                    renderItem={({ item, index }) => (
+                      <SearchUserItem
+                        item={item}
+                        index={index}
+                        isLast={index === displayData.length - 1}
+                        showAddButton={false}
+                        showSelection={isMerchant && isSelectionMode}
+                        isSelected={selectedUserIds.has(item.UserId)}
+                        onSelectionPress={() =>
+                          handleUserSelection(item.UserId)
+                        }
+                        onPress={() => handleFriendPress(item)}
+                        selectionDisabled={
+                          isMerchant &&
+                          isSelectionMode &&
+                          selectedUserIds.size >= MAX_SELECTION_LIMIT &&
+                          !selectedUserIds.has(item.UserId)
+                        }
+                      />
+                    )}
+                    showsVerticalScrollIndicator={false}
+                    contentContainerStyle={styles.listContainer}
+                    scrollEnabled={false}
+                  />
+                </View>
+              </ShadowView>
               {!isMerchant &&
                 activeTab === 'friends' &&
                 !effectiveSearchForHideMe &&

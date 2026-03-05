@@ -19,6 +19,7 @@ import { SvgNextIcon } from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
+import ShadowView from '../global/ShadowView';
 
 interface FAQItemProps {
   item: FAQ;
@@ -67,7 +68,8 @@ const FAQItem: React.FC<FAQItemProps> = ({
   });
 
   return (
-    <View style={[styles.container, style]}>
+    <ShadowView preset="default">
+      <View style={[styles.container, style]}>
       <TouchableOpacity
         onPress={handlePress}
         activeOpacity={0.9}
@@ -95,6 +97,7 @@ const FAQItem: React.FC<FAQItemProps> = ({
         </View>
       )}
     </View>
+    </ShadowView>
   );
 };
 
@@ -108,7 +111,6 @@ const useStyles = () => {
       container: {
         backgroundColor: colors.WHITE,
         width: '100%',
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       questionContainer: {
         flexDirection: 'row',

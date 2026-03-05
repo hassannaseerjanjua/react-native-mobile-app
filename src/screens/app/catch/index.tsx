@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 import { Image } from '../../../utils/elements';
 import ParentView from '../../../components/app/ParentView';
+import ShadowView from '../../../components/global/ShadowView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
 import { AppStackScreen } from '../../../types/navigation.types';
@@ -661,7 +662,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         />
       )}
       {cartApi.data?.Items && (
-        <View style={styles.footerContainer}>
+        <ShadowView preset="storeCard">
+          <View style={styles.footerContainer}>
           <TouchableOpacity
             style={styles.footerButton}
             onPress={() => {
@@ -698,6 +700,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             </View>
           </TouchableOpacity>
         </View>
+        </ShadowView>
       )}
 
       <Modal

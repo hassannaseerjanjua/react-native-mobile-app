@@ -37,6 +37,7 @@ import api from '../../../utils/api.ts';
 import { patchCacheItems } from '../../../utils/api-cache';
 import notify from '../../../utils/notify';
 import ParentView from '../../../components/app/ParentView';
+import ShadowView from '../../../components/global/ShadowView';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 import PriceWithIcon from '../../../components/global/Price';
 
@@ -360,12 +361,14 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             width: '100%',
           }}
         >
-          <TouchableOpacity
-            style={styles.backContainer}
-            onPress={() => navigation.goBack()}
-          >
-            <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
-          </TouchableOpacity>
+          <ShadowView preset="default">
+            <TouchableOpacity
+              style={styles.backContainer}
+              onPress={() => navigation.goBack()}
+            >
+              <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
+            </TouchableOpacity>
+          </ShadowView>
         </View>
         <Image source={storeOverlayImage} style={styles.bottomImage} />
       </View>
@@ -472,7 +475,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       </View>
 
       {isCartFromCurrentStore && cartApi.data && (
-        <View style={styles.footerContainer}>
+        <ShadowView preset="storeCard">
+          <View style={styles.footerContainer}>
           <TouchableOpacity
             style={styles.footerButton}
             onPress={() => {
@@ -511,6 +515,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             />
           </TouchableOpacity>
         </View>
+        </ShadowView>
       )}
     </ParentView>
   );

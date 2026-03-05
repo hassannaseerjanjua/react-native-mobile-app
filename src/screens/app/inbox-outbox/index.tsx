@@ -33,6 +33,7 @@ import {
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
+import ShadowView from '../../../components/global/ShadowView';
 import CustomButton from '../../../components/global/Custombutton';
 import CheckBox from '../../../components/global/CheckBox';
 import { InboxOrder, InboxOrderItem } from '../../../types/index';
@@ -803,7 +804,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     style={styles.imageContainer}
                   >
                     {item.Status === 10 && (
-                      <View style={styles.redeemedBox}>
+                      <ShadowView preset="low">
+                        <View style={styles.redeemedBox}>
                         <Text
                           style={{
                             // color: theme.colors.WHITE,
@@ -815,8 +817,10 @@ const InboxItem: React.FC<InboxItemProps> = ({
                           {getString('INBOX_REDEEMED')}
                         </Text>
                       </View>
+                      </ShadowView>
                     )}
                     <Image source={itemImage} style={styles.inboxImage} />
+                    <ShadowView preset="default">
                     <View style={styles.inboxImageBottom}>
                       <Text
                         style={styles.itemNameText}
@@ -834,6 +838,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                         </View>
                       )}
                     </View>
+                    </ShadowView>
                   </TouchableOpacity>
                 );
               })}
@@ -889,13 +894,15 @@ const InboxItem: React.FC<InboxItemProps> = ({
             >
               {getString('INBOX_MY_EMPLOYEES')}
             </Text>
-            <View
+            <ShadowView
+              preset="default"
+              containerStyle={{
+                marginTop: theme.sizes.HEIGHT * 0.01,
+                marginBottom: theme.sizes.HEIGHT * 0.024,
+              }}
               style={{
                 backgroundColor: theme.colors.WHITE,
                 borderRadius: 16,
-                ...theme.globalStyles.SHADOW_STYLE,
-                marginTop: theme.sizes.HEIGHT * 0.01,
-                marginBottom: theme.sizes.HEIGHT * 0.024,
               }}
             >
               <FlatList
@@ -926,7 +933,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   paddingVertical: 0,
                 }}
               />
-            </View>
+            </ShadowView>
           </View>
         </AppBottomSheet>
       )}

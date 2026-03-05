@@ -3,6 +3,7 @@ import React, { useMemo } from 'react';
 import { useSizes } from '../../styles/sizes';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
+import ShadowView from './ShadowView';
 
 const CustomFooter = ({
   children,
@@ -13,21 +14,21 @@ const CustomFooter = ({
 }) => {
   const { styles, theme } = useStyles();
   return (
-    <View
-      style={[
+    <ShadowView
+      preset="default"
+      containerStyle={[
         {
           position: 'absolute',
           bottom: scaleWithMax(25, 30),
           left: 0,
           right: 0,
           paddingHorizontal: theme.sizes.PADDING,
-          ...theme.globalStyles.SHADOW_STYLE,
         },
         style,
       ]}
     >
-      {children}
-    </View>
+      <View style={{ width: '100%' }}>{children}</View>
+    </ShadowView>
   );
 };
 

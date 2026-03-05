@@ -29,7 +29,6 @@ const useStyles = () => {
         elevation: 2,
       },
       backContainer: {
-        ...theme.globalStyles.SHADOW_STYLE,
         backgroundColor: theme.colors.WHITE,
         borderRadius: 9999,
         width: scaleWithMax(25, 30),
@@ -71,7 +70,6 @@ const useStyles = () => {
 
       faqItem: {
         paddingVertical: sizes.HEIGHT * 0.015,
-        ...theme.globalStyles.SHADOW_STYLE_LOW,
       },
       faqItemText: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,

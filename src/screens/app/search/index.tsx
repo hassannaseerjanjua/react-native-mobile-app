@@ -31,6 +31,7 @@ import {
 import { scaleWithMax } from '../../../utils';
 import useTheme from '../../../styles/theme';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+import ShadowView from '../../../components/global/ShadowView';
 
 interface VerifiedUser {
   PhoneNo: string;
@@ -456,9 +457,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         {activeUsersApi.loading ||
         employeesApi.loading ||
         (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
-          <View style={[styles.listCard, styles.contentContainer]}>
-            <SkeletonLoader screenType="search" />
-          </View>
+          <ShadowView preset="default">
+            <View style={[styles.listCard, styles.contentContainer]}>
+              <SkeletonLoader screenType="search" />
+            </View>
+          </ShadowView>
         ) : (
           <ScrollView
             style={{ flex: 1 }}
@@ -514,9 +517,10 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               const isEmpty = filteredContacts.length === 0;
 
               return (
-                <View
-                  style={[styles.listCard, isEmpty && styles.listCardEmpty]}
-                >
+                <ShadowView preset="default" disabled={isEmpty}>
+                  <View
+                    style={[styles.listCard, isEmpty && styles.listCardEmpty]}
+                  >
                   <FlatList
                     data={filteredContacts}
                     scrollEnabled={false}
@@ -576,6 +580,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                     }
                   />
                 </View>
+                </ShadowView>
               );
             }
 
@@ -586,7 +591,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
             const isEmpty = !filteredData || filteredData.length === 0;
 
             return (
-              <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
+              <ShadowView preset="default" disabled={isEmpty}>
+                <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
                 <FlatList
                   data={filteredData}
                   scrollEnabled={false}
@@ -621,6 +627,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   }
                 />
               </View>
+              </ShadowView>
             );
           })()}
           </ScrollView>

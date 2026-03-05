@@ -41,7 +41,6 @@ const useStyles = () => {
           sizes.PADDING * 0.5,
         alignSelf: 'flex-start',
         overflow: 'visible',
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       redeemedBox: {
         backgroundColor: theme.colors.PRIMARY,
@@ -52,8 +51,6 @@ const useStyles = () => {
         left: sizes.WIDTH * 0.04,
         paddingHorizontal: sizes.PADDING * 0.5,
         paddingVertical: sizes.PADDING * 0.3,
-
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       inboxImage: {
         width:

@@ -24,7 +24,6 @@ const useStyles = () => {
       listCard: {
         backgroundColor: colors.WHITE,
         borderRadius: 16,
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       listCardEmpty: {
         backgroundColor: 'transparent',

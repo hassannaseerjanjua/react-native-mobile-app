@@ -11,6 +11,7 @@ import {
   SvgRiyalPink,
 } from '../../../assets/icons';
 import { scaleWithMax, rtlTransform } from '../../../utils';
+import ShadowView from '../../../components/global/ShadowView';
 import ProductImageSlider from '../../../components/global/ProductImageSlider';
 import GroupTabs from '../../../components/global/GroupTabs';
 import CustomButton from '../../../components/global/Custombutton';
@@ -362,12 +363,14 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           width: '100%',
         }}
       >
-        <TouchableOpacity
-          onPress={navigation.goBack}
-          style={styles.backContainer}
-        >
-          <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
-        </TouchableOpacity>
+        <ShadowView preset="default">
+          <TouchableOpacity
+            onPress={navigation.goBack}
+            style={styles.backContainer}
+          >
+            <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
+          </TouchableOpacity>
+        </ShadowView>
         {!isMerchant && (
           <TouchableOpacity
             style={styles.rounded_white_background}
@@ -473,7 +476,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         </ScrollView>
       )}
 
-      <View
+      <ShadowView
+        preset="storeCard"
         style={{
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
@@ -481,7 +485,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           bottom: scaleWithMax(3, 4),
           left: 0,
           right: 0,
-          ...theme.globalStyles.SHADOW_STYLE_STORE_CARD,
+          backgroundColor: theme.colors.WHITE,
         }}
       >
         <View
@@ -528,7 +532,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             disabled={submitting}
           />
         </View>
-      </View>
+      </ShadowView>
 
       <ConfirmationPopup
         visible={showClearCartConfirmation}

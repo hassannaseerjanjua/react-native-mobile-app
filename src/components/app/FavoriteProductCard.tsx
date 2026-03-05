@@ -81,78 +81,44 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
 
   return (
     <TouchableOpacity style={styles.container} onPress={() => onPress(item)}>
-      <View style={styles.imageContainer}>
-        <Image
-          source={
-            itemImage && itemImage.trim()
-              ? { uri: itemImage }
-              : require('../../assets/images/img-placeholder.png')
-          }
-          style={styles.image}
-        />
-        {hasFavorite && (
-          <TouchableOpacity
-            style={styles.favoriteIcon}
-            onPress={onFavoritePress}
-          >
-            {isFavorite ? (
-              <SvgItemFavouriteIcon
-                width={scaleWithMax(14, 16)}
-                height={scaleWithMax(14, 16)}
-              />
-            ) : (
-              <SvgItemFavouriteIconInActive
-                width={scaleWithMax(14, 16)}
-                height={scaleWithMax(14, 16)}
-              />
-            )}
-          </TouchableOpacity>
-        )}
-      </View>
+        <View style={styles.imageContainer}>
+          <Image
+            source={
+              itemImage && itemImage.trim()
+                ? { uri: itemImage }
+                : require('../../assets/images/img-placeholder.png')
+            }
+            style={styles.image}
+          />
+          {hasFavorite && (
+            <TouchableOpacity
+              style={styles.favoriteIcon}
+              onPress={onFavoritePress}
+            >
+              {isFavorite ? (
+                <SvgItemFavouriteIcon
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
+              ) : (
+                <SvgItemFavouriteIconInActive
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
 
-      <View style={styles.contentContainer}>
-        <Text style={styles.title} numberOfLines={1}>
-          {itemName}
-        </Text>
-        {/* <Text style={styles.subtitle} numberOfLines={1}>
+        <View style={styles.contentContainer}>
+          <Text style={styles.title} numberOfLines={1}>
+            {itemName}
+          </Text>
+          {/* <Text style={styles.subtitle} numberOfLines={1}>
           {categoryName}
         </Text> */}
-        <View style={styles.priceContainer}>
-          {isSpecialPrice && (
-            <PriceWithIcon
-              amount={cutPrice}
-              variant="discounted"
-              icon={
-                <SvgRiyalPink
-                  width={scaleWithMax(11, 13)}
-                  height={scaleWithMax(11, 13)}
-                />
-              }
-              textStyle={styles.discountedPrice}
-            />
-          )}
-
-          {!isFavoriteTab && (
-            <PriceWithIcon
-              amount={price || getString('COMP_NOT_AVAILABLE')}
-              variant={isSpecialPrice ? 'cut' : 'default'}
-              icon={
-                <SvgRiyalIcon
-                  width={
-                    isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
-                  }
-                  height={
-                    isSpecialPrice ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
-                  }
-                />
-              }
-              iconOpacity={isSpecialPrice ? 0.32 : 1}
-              textStyle={isSpecialPrice ? styles.cutPrice : styles.price}
-            />
-          )}
-
-          {isFavoriteTab && (
-            <View style={styles.priceContainer}>
+          <View style={styles.priceContainer}>
+            {isSpecialPrice && (
               <PriceWithIcon
                 amount={cutPrice}
                 variant="discounted"
@@ -164,14 +130,52 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
                 }
                 textStyle={styles.discountedPrice}
               />
+            )}
+
+            {!isFavoriteTab && (
               <PriceWithIcon
-                amount={price}
-                variant="cut"
-                showIcon={false}
-                textStyle={styles.cutPrice}
+                amount={price || getString('COMP_NOT_AVAILABLE')}
+                variant={isSpecialPrice ? 'cut' : 'default'}
+                icon={
+                  <SvgRiyalIcon
+                    width={
+                      isSpecialPrice
+                        ? scaleWithMax(9, 10)
+                        : scaleWithMax(11, 13)
+                    }
+                    height={
+                      isSpecialPrice
+                        ? scaleWithMax(9, 10)
+                        : scaleWithMax(11, 13)
+                    }
+                  />
+                }
+                iconOpacity={isSpecialPrice ? 0.32 : 1}
+                textStyle={isSpecialPrice ? styles.cutPrice : styles.price}
               />
-            </View>
-          )}
+            )}
+
+            {isFavoriteTab && (
+              <View style={styles.priceContainer}>
+                <PriceWithIcon
+                  amount={cutPrice}
+                  variant="discounted"
+                  icon={
+                    <SvgRiyalPink
+                      width={scaleWithMax(11, 13)}
+                      height={scaleWithMax(11, 13)}
+                    />
+                  }
+                  textStyle={styles.discountedPrice}
+                />
+                <PriceWithIcon
+                  amount={price}
+                  variant="cut"
+                  showIcon={false}
+                  textStyle={styles.cutPrice}
+                />
+              </View>
+            )}
         </View>
       </View>
     </TouchableOpacity>
@@ -195,7 +199,11 @@ const useStyles = () => {
         position: 'relative',
         height: sizes.HEIGHT * 0.21,
         width: '100%',
-        ...theme.globalStyles.SHADOW_STYLE_INPUT,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        elevation: 2,
       },
 
       image: {

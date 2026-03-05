@@ -72,6 +72,7 @@ import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { FlatList } from 'react-native';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import { useApplePay } from '../../../hooks/useApplePay';
+import ShadowView from '../../../components/global/ShadowView';
 
 const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   const { styles, theme } = useStyles();
@@ -543,7 +544,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       : require('../../../assets/images/img-placeholder.png');
 
     return (
-      <View style={[styles.CartContainer]}>
+      <ShadowView preset="default">
+        <View style={[styles.CartContainer]}>
         <Image source={imageSource} style={styles.CartProductImage} />
         <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
           <View
@@ -724,7 +726,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             </View>
           )}
         </View>
-      </View>
+        </View>
+      </ShadowView>
     );
   };
   const handleShareGiftLink = async (giftLink: string) => {
@@ -1334,13 +1337,15 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         >
                           {getString('CHECKOUT_MY_EMPLOYEES')}
                         </Text>
-                        <View
+                        <ShadowView
+                          preset="default"
+                          containerStyle={{
+                            marginTop: theme.sizes.HEIGHT * 0.01,
+                            marginBottom: theme.sizes.HEIGHT * 0.024,
+                          }}
                           style={{
                             backgroundColor: theme.colors.WHITE,
                             borderRadius: 16,
-                            ...theme.globalStyles.SHADOW_STYLE,
-                            marginTop: theme.sizes.HEIGHT * 0.01,
-                            marginBottom: theme.sizes.HEIGHT * 0.024,
                           }}
                         >
                           <FlatList
@@ -1374,7 +1379,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                               paddingVertical: 0,
                             }}
                           />
-                        </View>
+                        </ShadowView>
                       </View>
                     </AppBottomSheet>
                   )}
@@ -1411,12 +1416,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       )
                     }
                   >
-                    <View
-                      style={[
-                        styles.GiftContainer,
-                        { marginBottom: theme.sizes.HEIGHT * 0.005 },
-                      ]}
+                    <ShadowView
+                      preset="default"
+                      containerStyle={{
+                        marginBottom: theme.sizes.HEIGHT * 0.005,
+                      }}
                     >
+                      <View style={styles.GiftContainer}>
                       <View
                         style={{
                           ...styles.row,
@@ -1452,6 +1458,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         }}
                       />
                     </View>
+                    </ShadowView>
                   </TouchableOpacity>
                 )}
 
@@ -1464,11 +1471,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     )
                   }
                 >
+                  <ShadowView
+                    preset="default"
+                    containerStyle={{
+                      marginBottom: theme.sizes.HEIGHT * 0.005,
+                    }}
+                  >
                   <View
-                    style={[
-                      styles.GiftContainer,
-                      { marginBottom: theme.sizes.HEIGHT * 0.005 },
-                    ]}
+                    style={styles.GiftContainer}
                   >
                     <View
                       style={{
@@ -1498,13 +1508,14 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       </View>
                     </View>
                     <SvgSelectedCheck
-                      width={scaleWithMax(16, 18)}
-                      height={scaleWithMax(16, 18)}
-                      style={{
-                        opacity: selectedPaymentMethod === 'creditCard' ? 1 : 0,
-                      }}
-                    />
+                        width={scaleWithMax(16, 18)}
+                        height={scaleWithMax(16, 18)}
+                        style={{
+                          opacity: selectedPaymentMethod === 'creditCard' ? 1 : 0,
+                        }}
+                      />
                   </View>
+                  </ShadowView>
                 </TouchableOpacity>
 
                 {(selectedCardFromParams || userCards.length > 0) && (
@@ -1517,12 +1528,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       )
                     }
                   >
-                    <View
-                      style={[
-                        styles.GiftContainer,
-                        { marginBottom: theme.sizes.HEIGHT * 0.005 },
-                      ]}
+                    <ShadowView
+                      preset="default"
+                      containerStyle={{
+                        marginBottom: theme.sizes.HEIGHT * 0.005,
+                      }}
                     >
+                    <View style={styles.GiftContainer}>
                       <View
                         style={{
                           ...styles.row,
@@ -1583,6 +1595,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         }}
                       />
                     </View>
+                    </ShadowView>
                   </TouchableOpacity>
                 )}
                 {walletBalance?.data &&
@@ -1594,7 +1607,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         )
                       }
                     >
-                      <View style={[styles.GiftContainer]}>
+                      <ShadowView preset="default">
+                      <View style={styles.GiftContainer}>
                         <View
                           style={{
                             ...styles.row,
@@ -1646,6 +1660,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           }}
                         />
                       </View>
+                      </ShadowView>
                     </TouchableOpacity>
                   )}
               </View>

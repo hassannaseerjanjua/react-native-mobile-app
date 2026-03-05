@@ -5,6 +5,7 @@ import { scaleWithMax, rtlTextAlign, rtlPadding } from '../../utils';
 import { SvgGalleryUploadIcon, SvgPhone } from '../../assets/icons';
 import { Text, TextInput } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
+import ShadowView from './ShadowView';
 
 type Props = {
   error?: any;
@@ -31,17 +32,18 @@ const InputField = ({
 
   return (
     <>
-      <View
-        style={[
-          isMultiline ? styles.textareaContainer : styles.container,
-          isPhone && styles.phoneFieldLtr,
-          {
-            borderWidth: error ? 1 : 0,
-            borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
-          },
-          style,
-        ]}
-      >
+      <ShadowView preset="input">
+        <View
+          style={[
+            isMultiline ? styles.textareaContainer : styles.container,
+            isPhone && styles.phoneFieldLtr,
+            {
+              borderWidth: error ? 1 : 0,
+              borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
+            },
+            style,
+          ]}
+        >
         {isPhone ? (
           <SvgPhone
             width={scaleWithMax(20, 25)}
@@ -69,7 +71,8 @@ const InputField = ({
           selectionColor={theme.colors.PRIMARY}
           underlineColorAndroid="transparent"
         />
-      </View>
+        </View>
+      </ShadowView>
       {isOccasion && (
         <View style={styles.galleryUploadContainer}>
           <SvgGalleryUploadIcon
@@ -113,7 +116,6 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         alignItems: 'center',
         backgroundColor: colors.WHITE,
-        ...globalStyles.SHADOW_STYLE_INPUT,
       },
       phoneFieldLtr: {
         direction: 'ltr',
@@ -127,7 +129,6 @@ const useStyles = () => {
         paddingVertical: sizes.PADDING,
         alignItems: 'flex-start',
         backgroundColor: colors.WHITE,
-        ...globalStyles.SHADOW_STYLE_INPUT,
       },
       input: {
         ...globalStyles.TEXT_STYLE,

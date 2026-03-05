@@ -42,7 +42,6 @@ const useStyles = () => {
         zIndex: 2,
       },
       backContainer: {
-        ...theme.globalStyles.SHADOW_STYLE,
         backgroundColor: theme.colors.WHITE,
         borderRadius: 9999,
         width: scaleWithMax(25, 30),
@@ -78,7 +77,6 @@ const useStyles = () => {
         backgroundColor: theme.colors.WHITE,
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
-        ...theme.globalStyles.SHADOW_STYLE,
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.015,
         paddingBottom: scaleWithMax(25, 30),

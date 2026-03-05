@@ -39,7 +39,6 @@ const useStyles = () => {
         justifyContent: 'space-between',
 
         backgroundColor: theme.colors.WHITE,
-        ...theme.globalStyles.SHADOW_STYLE_LOW,
       },
       row: {
         flexDirection: 'row',
@@ -53,7 +52,6 @@ const useStyles = () => {
         padding: sizes.PADDING,
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,
-        ...theme.globalStyles.SHADOW_STYLE_LOW,
       },
       numCircle: {
         width: scaleWithMax(25, 30),
@@ -72,7 +70,6 @@ const useStyles = () => {
         textAlignVertical: 'center',
       },
       redeemedView: {
-        ...theme.globalStyles.SHADOW_STYLE,
         position: 'absolute',
         top: 25,
         zIndex: 1,

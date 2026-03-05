@@ -43,7 +43,6 @@ const useStyles = () => {
         backgroundColor: theme.colors.WHITE,
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
-        ...theme.globalStyles.SHADOW_STYLE,
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.015,
         paddingBottom: scaleWithMax(25, 30),

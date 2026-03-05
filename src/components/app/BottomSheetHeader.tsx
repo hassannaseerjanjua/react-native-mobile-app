@@ -9,6 +9,7 @@ import {
 import useTheme from '../../styles/theme';
 import { SvgImageIcon, SvgSearchIcon } from '../../assets/icons';
 import { useLocaleStore } from '../../store/reducer/locale';
+import ShadowView from '../global/ShadowView';
 import { Text } from '../../utils/elements';
 import { rtlTextAlign } from '../../utils';
 
@@ -84,7 +85,8 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
       </View>
 
       {showSearchBar && (
-        <View style={styles.searchBarContainer}>
+        <ShadowView preset="searchBar">
+          <View style={styles.searchBarContainer}>
           {isGroup ? (
             <View style={styles.imageIconContainer}>
               <SvgImageIcon />
@@ -101,6 +103,7 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
             onChangeText={onSearchChange}
           />
         </View>
+        </ShadowView>
       )}
     </View>
   );
@@ -168,8 +171,6 @@ const useStyles = () => {
         paddingVertical: sizes.HEIGHT * 0.018,
         marginTop: sizes.PADDING * 0.8,
         marginBottom: sizes.PADDING * 0.8,
-        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
-        // shadowColor: '#000',
         // shadowOffset: { width: 0, height: 2 },
         // shadowOpacity: 0.08,
         // shadowRadius: 4,

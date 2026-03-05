@@ -334,7 +334,7 @@ const useStyles = () => {
         marginHorizontal: theme.sizes.PADDING,
       },
       searchInputContainer: {
-        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
+        width: '100%',
       },
       avatar: {
         width: scaleWithMax(35, 38),

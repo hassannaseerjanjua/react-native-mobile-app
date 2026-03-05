@@ -28,7 +28,6 @@ const useStyles = () => {
 
       faqItem: {
         paddingVertical: sizes.HEIGHT * 0.015,
-        ...theme.globalStyles.SHADOW_STYLE_LOW,
       },
       faqItemText: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,

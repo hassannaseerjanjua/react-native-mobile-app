@@ -68,7 +68,6 @@ const useStyles = () => {
         height: scaleWithMax(12, 14),
         justifyContent: 'center',
         alignItems: 'center',
-        ...theme.globalStyles.SHADOW_STYLE,
       },
     }),
     theme,

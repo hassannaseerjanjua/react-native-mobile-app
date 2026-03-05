@@ -26,6 +26,7 @@ import { Text, Image } from '../../utils/elements';
 import { isAndroid, scaleWithMax } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Platform } from 'react-native';
+import ShadowView from './ShadowView';
 
 interface TabItemProps {
   title: string;
@@ -94,26 +95,37 @@ const TabItem = ({
   });
 
   return (
-    <TouchableOpacity
-      activeOpacity={activeOpacity ?? 0.8}
-      onPress={disabled ? undefined : onPress}
-      disabled={disabled}
-      style={[
-        styles.container,
-        TabItemStyles,
-        subtitle && styles.containerWithSubtitle,
-      ]}
-    >
-      <View style={styles.contentContainer}>
-        {isGroupImage ? (
-          onImagePress ? (
-            <TouchableOpacity
-              onPress={e => {
-                e.stopPropagation();
-                onImagePress();
-              }}
-              activeOpacity={0.8}
-            >
+    <ShadowView preset="listItem">
+      <TouchableOpacity
+        activeOpacity={activeOpacity ?? 0.8}
+        onPress={disabled ? undefined : onPress}
+        disabled={disabled}
+        style={[
+          styles.container,
+          TabItemStyles,
+          subtitle && styles.containerWithSubtitle,
+        ]}
+      >
+        <View style={styles.contentContainer}>
+          {isGroupImage ? (
+            onImagePress ? (
+              <TouchableOpacity
+                onPress={e => {
+                  e.stopPropagation();
+                  onImagePress();
+                }}
+                activeOpacity={0.8}
+              >
+                <Image
+                  source={
+                    typeof isGroupImage === 'string'
+                      ? { uri: isGroupImage }
+                      : isGroupImage
+                  }
+                  style={styles.groupImage}
+                />
+              </TouchableOpacity>
+            ) : (
               <Image
                 source={
                   typeof isGroupImage === 'string'
@@ -122,59 +134,50 @@ const TabItem = ({
                 }
                 style={styles.groupImage}
               />
-            </TouchableOpacity>
+            )
           ) : (
-            <Image
-              source={
-                typeof isGroupImage === 'string'
-                  ? { uri: isGroupImage }
-                  : isGroupImage
-              }
-              style={styles.groupImage}
-            />
-          )
-        ) : (
-          isGroupImage === '' && <SvgGroup />
-        )}
-        {isLink && <SvgGiftLink />}
-        {icon && icon}
-        <View style={styles.titleContainer}>
-          <Text
-            style={[styles.titleText, TabTextStyles, androidTextAdjust]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {title}
-          </Text>
-          {isVerified && <SvgVerifiedIcon />}
-          {subtitle && (
-            <Text
-              style={[styles.subtitleText, androidTextAdjust]}
-              numberOfLines={1}
-            >
-              {subtitle}
-            </Text>
+            isGroupImage === '' && <SvgGroup />
           )}
-        </View>
-      </View>
-      {rightSideView && rightSideView}
-      {isEditGroup ? (
-        <>
-          <View style={styles.editGroupContainer}>
-            {!editOnly && onDeletePress && (
-              <SvgDeleteIcon onPress={onDeletePress} />
+          {isLink && <SvgGiftLink />}
+          {icon && icon}
+          <View style={styles.titleContainer}>
+            <Text
+              style={[styles.titleText, TabTextStyles, androidTextAdjust]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {title}
+            </Text>
+            {isVerified && <SvgVerifiedIcon />}
+            {subtitle && (
+              <Text
+                style={[styles.subtitleText, androidTextAdjust]}
+                numberOfLines={1}
+              >
+                {subtitle}
+              </Text>
             )}
-            <SvgEditIcon onPress={onEditPress} />
           </View>
-        </>
-      ) : (
-        !hideRightIcon && (
-          <Animated.View style={animatedIconStyle}>
-            <SvgNextIcon />
-          </Animated.View>
-        )
-      )}
-    </TouchableOpacity>
+        </View>
+        {rightSideView && rightSideView}
+        {isEditGroup ? (
+          <>
+            <View style={styles.editGroupContainer}>
+              {!editOnly && onDeletePress && (
+                <SvgDeleteIcon onPress={onDeletePress} />
+              )}
+              <SvgEditIcon onPress={onEditPress} />
+            </View>
+          </>
+        ) : (
+          !hideRightIcon && (
+            <Animated.View style={animatedIconStyle}>
+              <SvgNextIcon />
+            </Animated.View>
+          )
+        )}
+      </TouchableOpacity>
+    </ShadowView>
   );
 };
 
@@ -196,7 +199,6 @@ const useStyles = () => {
         // paddingVertical: theme.sizes.HEIGHT * 0.017,
         ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
         borderRadius: sizes.BORDER_RADIUS,
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       contentContainer: {
         flexDirection: 'row',
