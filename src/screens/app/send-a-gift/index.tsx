@@ -39,6 +39,7 @@ import {
   SvgFindFriendsIcon,
   SvgSearchFindFriendsIcon,
   ArrowDownIcon,
+  SvgCancelIcon,
 } from '../../../assets/icons';
 import CityPickerModal from '../../../components/global/CityPickerModal';
 import { DropdownOption } from '../../../components/global/DropdownField';
@@ -794,8 +795,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                       gap: theme.sizes.PADDING * 0.1,
                     }}
                   >
-                    {!isEditGroupOpen && <SvgEditGroup />}
-                    <Text
+                    {!isEditGroupOpen ? <SvgEditGroup /> : <SvgCancelIcon />}
+                    {/* <Text
                       style={{
                         fontFamily: theme.fonts.semibold,
                         fontSize: theme.sizes.FONTSIZE_MEDIUM,
@@ -806,7 +807,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                       {isEditGroupOpen
                         ? getString('NG_CANCEL')
                         : getString('STG_EDIT_GROUP')}
-                    </Text>
+                    </Text> */}
                   </TouchableOpacity>
                 )}
               </View>
@@ -911,7 +912,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 <Text style={styles.sectionTitle}>
                   {getString('SG_FREQUENTLY_GIFTED')}
                 </Text>
-                <ShadowView preset="default">
+                <ShadowView preset="listItem">
                   <View style={styles.listCard}>
                     <FlatList
                       data={frequentlySentFriends}
@@ -972,7 +973,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                       style={{
                         fontSize: theme.sizes.FONTSIZE,
                         color: theme.colors.PRIMARY,
-                        fontFamily: theme.fonts.bold,
+                        fontFamily: theme.fonts.semibold,
                       }}
                     >
                       {isSelectionMode
@@ -986,7 +987,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           {activeTab !== 'group' &&
           isLoading &&
           !skipSkeletonForSearchTransition ? (
-            <ShadowView preset="default">
+            <ShadowView preset="listItem">
               <View style={[styles.listCard]}>
                 <SkeletonLoader screenType="sendAGift" />
               </View>
@@ -994,7 +995,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           ) : shouldShowList ? (
             <>
               <ShadowView
-                preset="default"
+                preset="listItem"
                 style={[
                   styles.listCard,
                   {

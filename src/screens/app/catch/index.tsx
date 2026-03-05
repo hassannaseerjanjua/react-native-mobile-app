@@ -664,42 +664,42 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       {cartApi.data?.Items && (
         <ShadowView preset="storeCard">
           <View style={styles.footerContainer}>
-          <TouchableOpacity
-            style={styles.footerButton}
-            onPress={() => {
-              if (!cartApi.data) return;
+            <TouchableOpacity
+              style={styles.footerButton}
+              onPress={() => {
+                if (!cartApi.data) return;
 
-              const cartData = cartApi.data;
+                const cartData = cartApi.data;
 
-              (navigation as any).navigate('GiftMessage', {
-                friendUserId,
-                storeBranchId: cartData.StoreBranchId,
-              });
-            }}
-            activeOpacity={0.8}
-          >
-            <View style={styles.footerQuantityBadge}>
-              <Text style={styles.footerQuantityText}>
-                {cartApi.data?.Items?.reduce(
-                  (sum, item) => sum + item.Quantity,
-                  0,
-                ) || 0}
+                (navigation as any).navigate('GiftMessage', {
+                  friendUserId,
+                  storeBranchId: cartData.StoreBranchId,
+                });
+              }}
+              activeOpacity={0.8}
+            >
+              <View style={styles.footerQuantityBadge}>
+                <Text style={styles.footerQuantityText}>
+                  {cartApi.data?.Items?.reduce(
+                    (sum, item) => sum + item.Quantity,
+                    0,
+                  ) || 0}
+                </Text>
+              </View>
+              <Text style={styles.footerButtonText}>
+                {getString('VIEW_CART')}
               </Text>
-            </View>
-            <Text style={styles.footerButtonText}>
-              {getString('VIEW_CART')}
-            </Text>
-            <View style={styles.footerPriceRow}>
-              <SvgRiyalIconWhite
-                width={scaleWithMax(12, 14)}
-                height={scaleWithMax(12, 14)}
-              />
-              <Text style={styles.footerPriceText}>
-                {cartApi.data?.TotalAmount || '0.00'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+              <View style={styles.footerPriceRow}>
+                <SvgRiyalIconWhite
+                  width={scaleWithMax(12, 14)}
+                  height={scaleWithMax(12, 14)}
+                />
+                <Text style={styles.footerPriceText}>
+                  {cartApi.data?.TotalAmount || '0.00'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
         </ShadowView>
       )}
 

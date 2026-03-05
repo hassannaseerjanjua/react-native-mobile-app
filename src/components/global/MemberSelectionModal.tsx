@@ -327,39 +327,39 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     }
 
     return (
-      <ShadowView preset="default" disabled={viewOnly}>
+      <ShadowView preset="listItem" disabled={viewOnly}>
         <View style={selectedUsersContainerStyle}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.selectedUsersList}
-        >
-          {selectedUsersData.map(user => (
-            <View key={user.UserId} style={styles.selectedUserItem}>
-              <View style={styles.selectedUserImageContainer}>
-                <Image
-                  source={
-                    user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
-                  }
-                  style={styles.selectedUserAvatar}
-                />
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.selectedUsersList}
+          >
+            {selectedUsersData.map(user => (
+              <View key={user.UserId} style={styles.selectedUserItem}>
+                <View style={styles.selectedUserImageContainer}>
+                  <Image
+                    source={
+                      user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
+                    }
+                    style={styles.selectedUserAvatar}
+                  />
 
-                {!viewOnly && (
-                  <TouchableOpacity
-                    style={styles.selectedUserCrossIcon}
-                    onPress={() => handleUserSelection(user.UserId)}
-                  >
-                    <SvgCrossIcon width={12} height={12} />
-                  </TouchableOpacity>
-                )}
+                  {!viewOnly && (
+                    <TouchableOpacity
+                      style={styles.selectedUserCrossIcon}
+                      onPress={() => handleUserSelection(user.UserId)}
+                    >
+                      <SvgCrossIcon width={12} height={12} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <Text style={styles.selectedUserName} numberOfLines={1}>
+                  {user.FullName.split(' ')[0]}
+                </Text>
               </View>
-              <Text style={styles.selectedUserName} numberOfLines={1}>
-                {user.FullName.split(' ')[0]}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
+            ))}
+          </ScrollView>
+        </View>
       </ShadowView>
     );
   };
@@ -454,50 +454,60 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         }
         if (section.renderMode === 'empty') {
           return (
-            <View style={styles.listCard}>
-              <View style={styles.emptyStateContainer}>
-                <Text style={styles.emptyStateText}>
-                  {filteredListings.length === 0
-                    ? getString('EMPTY_NO_RESULTS_FOUND')
-                    : getString('EMPTY_NO_USERS_TO_SHOW')}
-                </Text>
+            <ShadowView
+              preset="listItem"
+              containerStyle={styles.listCardContainer}
+            >
+              <View style={styles.listCard}>
+                <View style={styles.emptyStateContainer}>
+                  <Text style={styles.emptyStateText}>
+                    {filteredListings.length === 0
+                      ? getString('EMPTY_NO_RESULTS_FOUND')
+                      : getString('EMPTY_NO_USERS_TO_SHOW')}
+                  </Text>
+                </View>
               </View>
-            </View>
+            </ShadowView>
           );
         }
         const listing = item as UserListing & { _sectionKey?: string };
         const users = listing.users || [];
         return (
-          <View style={styles.listCard}>
-            {users.map((user, index) => (
-              <SearchUserItem
-                key={user.UserId}
-                item={user}
-                index={index}
-                isLast={index === users.length - 1}
-                showAddButton={false}
-                showSelection={!viewOnly}
-                isSelected={selectedUsers.has(user.UserId)}
-                onSelectionPress={() => handleUserSelection(user.UserId)}
-                onPress={
-                  viewOnly
-                    ? () => {
-                        closeModal();
-                        routeTo === 'SelectStore'
-                          ? (navigation as any).navigate('SelectStore', {
-                              friendUserId: user.UserId,
-                              CityId: user.CityId,
-                            })
-                          : (navigation as any).navigate('CatchScreen', {
-                              type: 'GiftOneGetOne',
-                              friendUserId: user.UserId,
-                            });
-                      }
-                    : undefined
-                }
-              />
-            ))}
-          </View>
+          <ShadowView
+            preset="listItem"
+            containerStyle={styles.listCardContainer}
+          >
+            <View style={styles.listCard}>
+              {users.map((user, index) => (
+                <SearchUserItem
+                  key={user.UserId}
+                  item={user}
+                  index={index}
+                  isLast={index === users.length - 1}
+                  showAddButton={false}
+                  showSelection={!viewOnly}
+                  isSelected={selectedUsers.has(user.UserId)}
+                  onSelectionPress={() => handleUserSelection(user.UserId)}
+                  onPress={
+                    viewOnly
+                      ? () => {
+                          closeModal();
+                          routeTo === 'SelectStore'
+                            ? (navigation as any).navigate('SelectStore', {
+                                friendUserId: user.UserId,
+                                CityId: user.CityId,
+                              })
+                            : (navigation as any).navigate('CatchScreen', {
+                                type: 'GiftOneGetOne',
+                                friendUserId: user.UserId,
+                              });
+                        }
+                      : undefined
+                  }
+                />
+              ))}
+            </View>
+          </ShadowView>
         );
       }}
       stickySectionHeadersEnabled={false}
@@ -710,49 +720,49 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                           groupError && styles.groupNameInputError,
                         ]}
                       >
-                      <TouchableOpacity
-                        style={styles.groupNameIconWrapper}
-                        onPress={handleImageSelect}
-                      >
-                        {groupImage ? (
-                          <Image
-                            source={{ uri: groupImage.uri }}
-                            style={styles.groupImagePreview}
-                          />
-                        ) : (
-                          <SvgImageIcon
-                            width={scaleWithMax(15, 17)}
-                            height={scaleWithMax(15, 17)}
-                          />
-                        )}
-                      </TouchableOpacity>
-                      <TextInput
-                        ref={textInputRef}
-                        allowFontScaling={false}
-                        style={[
-                          styles.groupNameInput,
-                          { textAlign: rtlTextAlign(isRtl) },
-                        ]}
-                        placeholder={getString('NG_ENTER_GROUP_NAME')}
-                        placeholderTextColor={theme.colors.SECONDARY_GRAY}
-                        value={groupName}
-                        onChangeText={text => {
-                          setGroupName(text);
-                          if (groupError) setGroupError('');
-                        }}
-                        maxLength={50}
-                        onFocus={() => {
-                          if (Platform.OS === 'android') {
-                            setTimeout(() => {
-                              scrollViewRef.current?.scrollTo({
-                                y: 100,
-                                animated: true,
-                              });
-                            }, 300);
-                          }
-                        }}
-                      />
-                    </View>
+                        <TouchableOpacity
+                          style={styles.groupNameIconWrapper}
+                          onPress={handleImageSelect}
+                        >
+                          {groupImage ? (
+                            <Image
+                              source={{ uri: groupImage.uri }}
+                              style={styles.groupImagePreview}
+                            />
+                          ) : (
+                            <SvgImageIcon
+                              width={scaleWithMax(15, 17)}
+                              height={scaleWithMax(15, 17)}
+                            />
+                          )}
+                        </TouchableOpacity>
+                        <TextInput
+                          ref={textInputRef}
+                          allowFontScaling={false}
+                          style={[
+                            styles.groupNameInput,
+                            { textAlign: rtlTextAlign(isRtl) },
+                          ]}
+                          placeholder={getString('NG_ENTER_GROUP_NAME')}
+                          placeholderTextColor={theme.colors.SECONDARY_GRAY}
+                          value={groupName}
+                          onChangeText={text => {
+                            setGroupName(text);
+                            if (groupError) setGroupError('');
+                          }}
+                          maxLength={50}
+                          onFocus={() => {
+                            if (Platform.OS === 'android') {
+                              setTimeout(() => {
+                                scrollViewRef.current?.scrollTo({
+                                  y: 100,
+                                  animated: true,
+                                });
+                              }, 300);
+                            }
+                          }}
+                        />
+                      </View>
                     </ShadowView>
                     {groupError ? (
                       <Text style={styles.errorText}>{groupError}</Text>
@@ -790,14 +800,6 @@ const useStyles = () => {
   const theme = useTheme();
   const styles = useMemo(() => {
     const { colors, sizes, fonts } = theme;
-
-    const shadowStyle = {
-      shadowColor: colors.BLACK,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.08,
-      shadowRadius: scaleWithMax(4, 6),
-      elevation: 1,
-    };
 
     const avatarSize = scaleWithMax(60, 60);
     const crossIconSize = scaleWithMax(20, 20);
@@ -1000,8 +1002,8 @@ const useStyles = () => {
       listCard: {
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS_HIGH,
-        ...shadowStyle,
-        elevation: 2,
+      },
+      listCardContainer: {
         marginBottom: sizes.HEIGHT * 0.018,
       },
       sectionTitle: {

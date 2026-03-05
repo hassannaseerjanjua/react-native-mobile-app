@@ -112,14 +112,15 @@ import SvgCheckoutGiftLinkIcon from './gift-link-white.svg';
 import SvgApplePayIcon from './apple-pay.svg';
 import SvgApplePayText from './apple-pay-text.svg';
 import SvgPencilIcon from './pencil-icon.svg';
-import SvgSpecialPriceTag from './special-price-tag.svg'
-import SvgSpecialPricePercentage from './percentage-circle.svg'
+import SvgSpecialPriceTag from './special-price-tag.svg';
+import SvgSpecialPricePercentage from './percentage-circle.svg';
 import SvgCatchTimeIcon from './catch-time-popup.svg';
 import MasterCardIcon from './mastercard.svg';
 import NoonIcon from './noon.svg';
 import CardsIcon from './cards.svg';
 import SvgRiyalPink from './Riyal_pink.svg';
 import SvgGifteeNotifyIcon from './giftee_notify.svg';
+import SvgCancelIcon from './editCancel.svg';
 
 export {
   SvgLogoBlue,
@@ -243,4 +244,5 @@ export {
   CardsIcon,
   SvgRiyalPink,
   SvgGifteeNotifyIcon,
+  SvgCancelIcon,
 };

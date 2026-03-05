@@ -137,6 +137,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             <SvgHomeBack
               style={{ transform: rtlTransform(isRtl) }}
               fill={backButtonIconColor}
+              width={scaleWithMax(25, 25)}
+              height={scaleWithMax(25, 25)}
             />
           </TouchableOpacity>
         )}
@@ -208,7 +210,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           {rightSideView && (
             <View style={styles.rightSideViewContainer}>{rightSideView}</View>
           )}
-          {rightSideTitle && (
+          {(rightSideTitle || rightSideIcon) && (
             <TouchableOpacity
               onPress={rightSideTitlePress}
               style={[
@@ -221,9 +223,11 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               ]}
             >
               {rightSideIcon && rightSideIcon}
-              <Text style={[styles.rightSideTitle, rightSideTitleTextStyle]}>
-                {rightSideTitle}
-              </Text>
+              {rightSideTitle ? (
+                <Text style={[styles.rightSideTitle, rightSideTitleTextStyle]}>
+                  {rightSideTitle}
+                </Text>
+              ) : null}
             </TouchableOpacity>
           )}
         </View>
@@ -316,7 +320,7 @@ const useStyles = () => {
       },
       titleContainer: {
         flex: 1,
-        marginStart: sizes.WIDTH * 0.024,
+        marginStart: sizes.WIDTH * 0.02,
         justifyContent: 'center',
       },
       titlePressable: {
@@ -330,7 +334,7 @@ const useStyles = () => {
         color: colors.PRIMARY_TEXT,
       },
       searchBarContainer: {
-        marginTop: sizes.HEIGHT * 0.01,
+        marginTop: sizes.HEIGHT * 0.008,
         marginHorizontal: theme.sizes.PADDING,
       },
       searchInputContainer: {

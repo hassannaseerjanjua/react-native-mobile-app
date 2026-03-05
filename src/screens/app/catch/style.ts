@@ -22,6 +22,7 @@ const useStyles = () => {
       },
       listWrapper: {
         flex: 1,
+        // backgroundColor: 'red',
       },
       listContent: {
         paddingHorizontal: sizes.PADDING,
@@ -30,10 +31,11 @@ const useStyles = () => {
       },
       listContainer: {
         flexGrow: 1,
-        gap: sizes.PADDING,
+        // gap: sizes.PADDING,
       },
       columnWrapper: {
         gap: sizes.PADDING,
+        // backgroundColor: 'blue',
       },
       footerContainer: {
         position: 'absolute',

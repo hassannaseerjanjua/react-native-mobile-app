@@ -47,8 +47,8 @@ export const SHADOW_PRESETS = {
 
   /** List items - smooth, soft shadow for occasion/group cards */
   listItem: {
-    startColor: '#00000006',
-    distance: 8,
+    startColor: '#0000000A',
+    distance: 10,
     offset: [0, 1] as [number, number],
   },
 

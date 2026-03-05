@@ -6,6 +6,12 @@ import {
   TouchableOpacity,
   RefreshControl,
 } from 'react-native';
+import Animated, {
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+  interpolate,
+} from 'react-native-reanimated';
 import useStyles from './style.ts';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -23,6 +29,7 @@ import {
   SvgBirthdayIcon,
   SvgOccasionIcon,
   SvgPencilIcon,
+  SvgCancelIcon,
 } from '../../../assets/icons';
 import InputField from '../../../components/global/InputField.tsx';
 import { Formik } from 'formik';
@@ -37,6 +44,33 @@ import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 
 const BIRTHDAY_IMAGE = require('../../../assets/images/birthday.png');
+
+const COLLAPSED_HEIGHT = scaleWithMax(52, 56);
+const ANIM_DURATION = 220;
+
+const AnimatedOccasionItem: React.FC<{
+  children: React.ReactNode;
+  isExpanded: boolean;
+  expandedHeight: number;
+}> = ({ children, isExpanded, expandedHeight }) => {
+  const expandProgress = useSharedValue(isExpanded ? 1 : 0);
+
+  useEffect(() => {
+    expandProgress.value = withTiming(isExpanded ? 1 : 0, {
+      duration: ANIM_DURATION,
+    });
+  }, [isExpanded, expandProgress]);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    height: interpolate(
+      expandProgress.value,
+      [0, 1],
+      [COLLAPSED_HEIGHT, expandedHeight],
+    ),
+  }));
+
+  return <Animated.View style={animatedStyle}>{children}</Animated.View>;
+};
 
 const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -142,13 +176,16 @@ const OccasionsScreen: React.FC = () => {
             ? getString('OCC_CREATE_OCCASION')
             : getString('OCC_EDIT_OCCASION')
         }
-        rightSideTitle={
-          isEditGroupOpen || selectedOccasion.occasionType !== 'none'
-            ? ''
-            : getString('OCC_EDIT_OCCASION')
-        }
         rightSideTitlePress={() => setIsEditGroupOpen(!isEditGroupOpen)}
-        rightSideIcon={<SvgEditGroup />}
+        rightSideIcon={
+          selectedOccasion.occasionType === 'none' ? (
+            !isEditGroupOpen ? (
+              <SvgEditGroup />
+            ) : (
+              <SvgCancelIcon />
+            )
+          ) : undefined
+        }
         showBackButton={true}
         onBackPress={() => {
           if (expandedOccasionId !== null) {
@@ -182,6 +219,9 @@ const OccasionsScreen: React.FC = () => {
               ]}
               keyExtractor={item => item.OccassionId.toString()}
               contentContainerStyle={styles.content}
+              ItemSeparatorComponent={() => (
+                <View style={styles.occasionItemSpacing} />
+              )}
               showsVerticalScrollIndicator={false}
               refreshControl={
                 <RefreshControl
@@ -212,35 +252,40 @@ const OccasionsScreen: React.FC = () => {
                 if (isDefaultBirthday) {
                   const canEditBirthday = !user?.IsBirthdayUpdated;
                   return (
-                    <TabItem
-                      isGroupImage={BIRTHDAY_IMAGE}
-                      title={item.NameEn}
-                      subtitle={
-                        isExpanded
-                          ? formattedDate ||
-                            (!user?.DateOfBirth
-                              ? getString('OCC_BIRTHDAY_NOT_SET')
-                              : undefined)
-                          : undefined
-                      }
-                      isEditGroup={isEditGroupOpen && canEditBirthday}
-                      editOnly={true}
-                      hideRightIcon={false}
-                      rightIconRotated={isExpanded}
-                      onEditPress={() => handleEditPress(item, BIRTHDAY_IMAGE)}
-                      onDeletePress={() => {}}
-                      onPress={() => {
-                        if (!isEditGroupOpen) {
-                          if (isExpanded) {
-                            setExpandedOccasionId(null);
-                          } else {
-                            setExpandedOccasionId(item.OccassionId);
-                          }
+                    <AnimatedOccasionItem
+                      isExpanded={isExpanded}
+                      expandedHeight={theme.sizes.HEIGHT * 0.075}
+                    >
+                      <TabItem
+                        isGroupImage={BIRTHDAY_IMAGE}
+                        title={item.NameEn}
+                        subtitle={
+                          isExpanded
+                            ? formattedDate ||
+                              (!user?.DateOfBirth
+                                ? getString('OCC_BIRTHDAY_NOT_SET')
+                                : undefined)
+                            : undefined
                         }
-                      }}
-                      TabItemStyles={styles.TabItem}
-                      TabTextStyles={styles.TabText}
-                    />
+                        isEditGroup={isEditGroupOpen && canEditBirthday}
+                        editOnly={true}
+                        hideRightIcon={false}
+                        rightIconRotated={isExpanded}
+                        onEditPress={() => handleEditPress(item, BIRTHDAY_IMAGE)}
+                        onDeletePress={() => {}}
+                        onPress={() => {
+                          if (!isEditGroupOpen) {
+                            if (isExpanded) {
+                              setExpandedOccasionId(null);
+                            } else {
+                              setExpandedOccasionId(item.OccassionId);
+                            }
+                          }
+                        }}
+                        TabItemStyles={styles.TabItem}
+                        TabTextStyles={styles.TabText}
+                      />
+                    </AnimatedOccasionItem>
                   );
                 }
 
@@ -250,32 +295,37 @@ const OccasionsScreen: React.FC = () => {
                   : require('../../../assets/images/img-placeholder.png');
                 const imageUri = item.ImageUrl || null;
                 return (
-                  <TabItem
-                    isGroupImage={imageSource}
-                    title={item.NameEn}
-                    subtitle={
-                      isExpanded ? formattedDate || undefined : undefined
-                    }
-                    isEditGroup={isEditGroupOpen}
-                    hideRightIcon={false}
-                    rightIconRotated={isExpanded}
-                    onEditPress={() => handleEditPress(item)}
-                    onDeletePress={() => {
-                      setOccasionToDelete(item);
-                      setShowDeleteModal(true);
-                    }}
-                    onPress={() => {
-                      if (!isEditGroupOpen) {
-                        if (isExpanded) {
-                          setExpandedOccasionId(null);
-                        } else {
-                          setExpandedOccasionId(item.OccassionId);
-                        }
+                  <AnimatedOccasionItem
+                    isExpanded={isExpanded}
+                    expandedHeight={theme.sizes.HEIGHT * 0.075}
+                  >
+                    <TabItem
+                      isGroupImage={imageSource}
+                      title={item.NameEn}
+                      subtitle={
+                        isExpanded ? formattedDate || undefined : undefined
                       }
-                    }}
-                    TabTextStyles={styles.TabText}
-                    TabItemStyles={styles.TabItem}
-                  />
+                      isEditGroup={isEditGroupOpen}
+                      hideRightIcon={false}
+                      rightIconRotated={isExpanded}
+                      onEditPress={() => handleEditPress(item)}
+                      onDeletePress={() => {
+                        setOccasionToDelete(item);
+                        setShowDeleteModal(true);
+                      }}
+                      onPress={() => {
+                        if (!isEditGroupOpen) {
+                          if (isExpanded) {
+                            setExpandedOccasionId(null);
+                          } else {
+                            setExpandedOccasionId(item.OccassionId);
+                          }
+                        }
+                      }}
+                      TabTextStyles={styles.TabText}
+                      TabItemStyles={styles.TabItem}
+                    />
+                  </AnimatedOccasionItem>
                 );
               }}
             />
@@ -363,7 +413,8 @@ const OccasionsScreen: React.FC = () => {
                                           formik.values.occasionName ||
                                           getString('OCC_EDIT_OCCASION'),
                                         occasionId: selectedOccasion.id,
-                                        occasionName: formik.values.occasionName,
+                                        occasionName:
+                                          formik.values.occasionName,
                                         occasionDate:
                                           formik.values.occasionDate,
                                         isLocalOnly,
@@ -380,18 +431,15 @@ const OccasionsScreen: React.FC = () => {
                                                 result.type === 'update' &&
                                                 result.asset
                                               ) {
-                                                formik.setFieldValue(
-                                                  'image',
-                                                  {
-                                                    uri: result.asset.uri,
-                                                    type:
-                                                      result.asset.type ||
-                                                      'image/jpeg',
-                                                    name:
-                                                      result.asset.name ||
-                                                      `occasion_image_${Date.now()}.jpg`,
-                                                  },
-                                                );
+                                                formik.setFieldValue('image', {
+                                                  uri: result.asset.uri,
+                                                  type:
+                                                    result.asset.type ||
+                                                    'image/jpeg',
+                                                  name:
+                                                    result.asset.name ||
+                                                    `occasion_image_${Date.now()}.jpg`,
+                                                });
                                               } else if (
                                                 result.type === 'delete'
                                               ) {

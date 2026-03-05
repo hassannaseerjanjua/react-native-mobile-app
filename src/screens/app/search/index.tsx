@@ -457,7 +457,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         {activeUsersApi.loading ||
         employeesApi.loading ||
         (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
-          <ShadowView preset="default">
+          <ShadowView preset="listItem">
             <View style={[styles.listCard, styles.contentContainer]}>
               <SkeletonLoader screenType="search" />
             </View>
@@ -517,7 +517,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               const isEmpty = filteredContacts.length === 0;
 
               return (
-                <ShadowView preset="default" disabled={isEmpty}>
+                <ShadowView preset="listItem" disabled={isEmpty}>
                   <View
                     style={[styles.listCard, isEmpty && styles.listCardEmpty]}
                   >
@@ -591,7 +591,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
             const isEmpty = !filteredData || filteredData.length === 0;
 
             return (
-              <ShadowView preset="default" disabled={isEmpty}>
+              <ShadowView preset="listItem" disabled={isEmpty}>
                 <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
                 <FlatList
                   data={filteredData}

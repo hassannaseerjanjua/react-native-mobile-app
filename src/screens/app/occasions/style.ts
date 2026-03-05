@@ -17,9 +17,12 @@ const useStyles = () => {
         paddingBottom: sizes.HEIGHT * 0.1,
       },
       TabItem: {
-        height: sizes.HEIGHT * 0.075,
-        marginBottom: sizes.HEIGHT * 0.016,
+        height: '100%',
+        marginBottom: 0,
         borderRadius: sizes.BORDER_RADIUS_MID,
+      },
+      occasionItemSpacing: {
+        height: sizes.HEIGHT * 0.016,
       },
       TabText: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,

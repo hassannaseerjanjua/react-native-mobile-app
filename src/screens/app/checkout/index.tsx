@@ -154,10 +154,18 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           ...cartData,
           TotalAmount: cartData.TotalAmount - amount,
         });
+      } else {
+        setActiveDomationAmount(1);
       }
       setHasInitializedEhsaan(true);
     }
   }, [cartData, hasInitializedEhsaan]);
+
+  useEffect(() => {
+    if (isApplePayAvailable && selectedPaymentMethod === null) {
+      setSelectedPaymentMethod('applePay');
+    }
+  }, [isApplePayAvailable, selectedPaymentMethod]);
 
   useEffect(() => {
     if (!checkoutCompleted) return;
@@ -546,45 +554,82 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     return (
       <ShadowView preset="default">
         <View style={[styles.CartContainer]}>
-        <Image source={imageSource} style={styles.CartProductImage} />
-        <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
-          <View
-            style={{
-              flexDirection: 'row',
-              justifyContent: 'space-between',
-              alignItems: 'flex-start',
-              gap: theme.sizes.WIDTH * 0.02,
-            }}
-          >
-            <View style={{ flex: 1, minWidth: 0 }}>
-              <Text style={styles.cartTitle}>
-                {langCode === 'ar' ? item.ItemName : item.ItemName}
-              </Text>
-              {item.Variant?.NameEn && (
-                <Text style={styles.TextMedium}>
-                  {langCode === 'ar'
-                    ? item.Variant.NameAr
-                    : item.Variant.NameEn}
-                </Text>
-              )}
-            </View>
-            {isMerchant &&
-              cartData?.MultiUsers &&
-              cartData.MultiUsers.length > 0 && (
-                <Text style={styles.cartItemCountBadge}>
-                  Qty: {item.Quantity * cartData.MultiUsers.length}
-                </Text>
-              )}
-          </View>
-          {isMerchant || cartData?.CampaginType === 3 ? (
+          <Image source={imageSource} style={styles.CartProductImage} />
+          <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
             <View
               style={{
-                ...styles.row,
+                flexDirection: 'row',
                 justifyContent: 'space-between',
-                alignItems: 'center',
+                alignItems: 'flex-start',
+                gap: theme.sizes.WIDTH * 0.02,
               }}
             >
-              {item.DiscountAmount > 0 ? (
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={styles.cartTitle}>
+                  {langCode === 'ar' ? item.ItemName : item.ItemName}
+                </Text>
+                {item.Variant?.NameEn && (
+                  <Text style={styles.TextMedium}>
+                    {langCode === 'ar'
+                      ? item.Variant.NameAr
+                      : item.Variant.NameEn}
+                  </Text>
+                )}
+              </View>
+              {isMerchant &&
+                cartData?.MultiUsers &&
+                cartData.MultiUsers.length > 0 && (
+                  <Text style={styles.cartItemCountBadge}>
+                    {getString('COMP_QTY')} {item.Quantity}
+                  </Text>
+                )}
+            </View>
+            {isMerchant || cartData?.CampaginType === 3 ? (
+              <View
+                style={{
+                  ...styles.row,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                {item.DiscountAmount > 0 ? (
+                  <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+                    <PriceWithIcon
+                      amount={item.TotalAmount}
+                      variant="discounted"
+                      icon={
+                        <SvgRiyalPink
+                          width={scaleWithMax(16, 16)}
+                          height={scaleWithMax(16, 16)}
+                        />
+                      }
+                      textStyle={styles.discountedPrice}
+                    />
+                    <PriceWithIcon
+                      amount={item.OrderAmount || 'N/A'}
+                      variant="cut"
+                      icon={
+                        <SvgRiyalIcon
+                          width={scaleWithMax(11, 11)}
+                          height={scaleWithMax(11, 11)}
+                        />
+                      }
+                      iconOpacity={0.32}
+                      textStyle={styles.cutPrice}
+                    />
+                  </View>
+                ) : (
+                  <PriceWithIcon
+                    amount={item.TotalAmount}
+                    textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
+                  />
+                )}
+                <TouchableOpacity onPress={() => setItemToRemove(item)}>
+                  {cartData?.CampaginType !== 3 && <SvgDeleteIcon />}
+                </TouchableOpacity>
+              </View>
+            ) : isMerchant && cartData?.SendType === 3 ? (
+              item.DiscountAmount > 0 ? (
                 <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
                   <PriceWithIcon
                     amount={item.TotalAmount}
@@ -615,117 +660,80 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   amount={item.TotalAmount}
                   textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
                 />
-              )}
-              <TouchableOpacity onPress={() => setItemToRemove(item)}>
-                {cartData?.CampaginType !== 3 && <SvgDeleteIcon />}
-              </TouchableOpacity>
-            </View>
-          ) : isMerchant && cartData?.SendType === 3 ? (
-            item.DiscountAmount > 0 ? (
-              <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
-                <PriceWithIcon
-                  amount={item.TotalAmount}
-                  variant="discounted"
-                  icon={
-                    <SvgRiyalPink
-                      width={scaleWithMax(16, 16)}
-                      height={scaleWithMax(16, 16)}
-                    />
-                  }
-                  textStyle={styles.discountedPrice}
-                />
-                <PriceWithIcon
-                  amount={item.OrderAmount || 'N/A'}
-                  variant="cut"
-                  icon={
-                    <SvgRiyalIcon
-                      width={scaleWithMax(11, 11)}
-                      height={scaleWithMax(11, 11)}
-                    />
-                  }
-                  iconOpacity={0.32}
-                  textStyle={styles.cutPrice}
-                />
-              </View>
+              )
             ) : (
-              <PriceWithIcon
-                amount={item.TotalAmount}
-                textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
-              />
-            )
-          ) : (
-            <View
-              style={{
-                ...styles.row,
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              {item.DiscountAmount > 0 ? (
-                <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+              <View
+                style={{
+                  ...styles.row,
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                }}
+              >
+                {item.DiscountAmount > 0 ? (
+                  <View style={[styles.row, { gap: theme.sizes.WIDTH * 0.01 }]}>
+                    <PriceWithIcon
+                      amount={item.TotalAmount}
+                      variant="discounted"
+                      icon={
+                        <SvgRiyalPink
+                          width={scaleWithMax(16, 16)}
+                          height={scaleWithMax(16, 16)}
+                        />
+                      }
+                      textStyle={styles.discountedPrice}
+                    />
+                    <PriceWithIcon
+                      amount={item.OrderAmount || 'N/A'}
+                      variant="cut"
+                      icon={
+                        <SvgRiyalIcon
+                          width={scaleWithMax(11, 11)}
+                          height={scaleWithMax(11, 11)}
+                        />
+                      }
+                      iconOpacity={0.32}
+                      textStyle={styles.cutPrice}
+                    />
+                  </View>
+                ) : (
                   <PriceWithIcon
                     amount={item.TotalAmount}
-                    variant="discounted"
-                    icon={
-                      <SvgRiyalPink
-                        width={scaleWithMax(16, 16)}
-                        height={scaleWithMax(16, 16)}
-                      />
-                    }
-                    textStyle={styles.discountedPrice}
+                    textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
                   />
-                  <PriceWithIcon
-                    amount={item.OrderAmount || 'N/A'}
-                    variant="cut"
-                    icon={
-                      <SvgRiyalIcon
-                        width={scaleWithMax(11, 11)}
-                        height={scaleWithMax(11, 11)}
-                      />
-                    }
-                    iconOpacity={0.32}
-                    textStyle={styles.cutPrice}
-                  />
-                </View>
-              ) : (
-                <PriceWithIcon
-                  amount={item.TotalAmount}
-                  textStyle={{ fontSize: theme.sizes.FONTSIZE_LESS_HIGH }}
-                />
-              )}
+                )}
 
-              <View style={[styles.quantityControls]}>
-                <TouchableOpacity
-                  onPress={() => handleQuantityChange(item, 'decrement')}
-                  disabled={!!updatingQuantities[item.OrderItemId]}
-                  style={{
-                    opacity:
-                      updatingQuantities[item.OrderItemId] === 'decrement'
-                        ? 0.5
-                        : 1,
-                  }}
-                >
-                  <DecrementIcon />
-                </TouchableOpacity>
-                <Text style={styles.quantityValue}>
-                  {`${item.Quantity < 10 ? '0' : ''}${item.Quantity}`}
-                </Text>
-                <TouchableOpacity
-                  onPress={() => handleQuantityChange(item, 'increment')}
-                  disabled={!!updatingQuantities[item.OrderItemId]}
-                  style={{
-                    opacity:
-                      updatingQuantities[item.OrderItemId] === 'increment'
-                        ? 0.5
-                        : 1,
-                  }}
-                >
-                  <IncrementIcon />
-                </TouchableOpacity>
+                <View style={[styles.quantityControls]}>
+                  <TouchableOpacity
+                    onPress={() => handleQuantityChange(item, 'decrement')}
+                    disabled={!!updatingQuantities[item.OrderItemId]}
+                    style={{
+                      opacity:
+                        updatingQuantities[item.OrderItemId] === 'decrement'
+                          ? 0.5
+                          : 1,
+                    }}
+                  >
+                    <DecrementIcon />
+                  </TouchableOpacity>
+                  <Text style={styles.quantityValue}>
+                    {`${item.Quantity < 10 ? '0' : ''}${item.Quantity}`}
+                  </Text>
+                  <TouchableOpacity
+                    onPress={() => handleQuantityChange(item, 'increment')}
+                    disabled={!!updatingQuantities[item.OrderItemId]}
+                    style={{
+                      opacity:
+                        updatingQuantities[item.OrderItemId] === 'increment'
+                          ? 0.5
+                          : 1,
+                    }}
+                  >
+                    <IncrementIcon />
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
-          )}
-        </View>
+            )}
+          </View>
         </View>
       </ShadowView>
     );
@@ -1423,41 +1431,42 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       }}
                     >
                       <View style={styles.GiftContainer}>
-                      <View
-                        style={{
-                          ...styles.row,
-                          flex: 1,
-                          gap: theme.sizes.WIDTH * 0.025,
-                        }}
-                      >
-                        <CheckBox
-                          Selected={selectedPaymentMethod === 'applePay'}
-                          onSelectionPress={() =>
-                            setSelectedPaymentMethod(
-                              selectedPaymentMethod === 'applePay'
-                                ? null
-                                : 'applePay',
-                            )
-                          }
-                        />
-                        <SvgApplePayIcon
-                          height={scaleWithMax(32, 35)}
-                          width={scaleWithMax(32, 35)}
-                        />
-                        <View>
-                          <Text style={styles.TextMedium}>
-                            {getString('CHECKOUT_APPLE_PAY')}
-                          </Text>
+                        <View
+                          style={{
+                            ...styles.row,
+                            flex: 1,
+                            gap: theme.sizes.WIDTH * 0.025,
+                          }}
+                        >
+                          <CheckBox
+                            Selected={selectedPaymentMethod === 'applePay'}
+                            onSelectionPress={() =>
+                              setSelectedPaymentMethod(
+                                selectedPaymentMethod === 'applePay'
+                                  ? null
+                                  : 'applePay',
+                              )
+                            }
+                          />
+                          <SvgApplePayIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                          <View>
+                            <Text style={styles.TextMedium}>
+                              {getString('CHECKOUT_APPLE_PAY')}
+                            </Text>
+                          </View>
                         </View>
+                        <SvgSelectedCheck
+                          width={scaleWithMax(16, 18)}
+                          height={scaleWithMax(16, 18)}
+                          style={{
+                            opacity:
+                              selectedPaymentMethod === 'applePay' ? 1 : 0,
+                          }}
+                        />
                       </View>
-                      <SvgSelectedCheck
-                        width={scaleWithMax(16, 18)}
-                        height={scaleWithMax(16, 18)}
-                        style={{
-                          opacity: selectedPaymentMethod === 'applePay' ? 1 : 0,
-                        }}
-                      />
-                    </View>
                     </ShadowView>
                   </TouchableOpacity>
                 )}
@@ -1477,44 +1486,43 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       marginBottom: theme.sizes.HEIGHT * 0.005,
                     }}
                   >
-                  <View
-                    style={styles.GiftContainer}
-                  >
-                    <View
-                      style={{
-                        ...styles.row,
-                        flex: 1,
-                        gap: theme.sizes.WIDTH * 0.025,
-                      }}
-                    >
-                      <CheckBox
-                        Selected={selectedPaymentMethod === 'creditCard'}
-                        onSelectionPress={() =>
-                          setSelectedPaymentMethod(
-                            selectedPaymentMethod === 'creditCard'
-                              ? null
-                              : 'creditCard',
-                          )
-                        }
-                      />
-                      <NoonIcon
-                        height={scaleWithMax(32, 35)}
-                        width={scaleWithMax(32, 35)}
-                      />
-                      <View>
-                        <Text style={styles.TextMedium}>
-                          {getString('CHECKOUT_CREDIT_DEBIT_CARD')}
-                        </Text>
+                    <View style={styles.GiftContainer}>
+                      <View
+                        style={{
+                          ...styles.row,
+                          flex: 1,
+                          gap: theme.sizes.WIDTH * 0.025,
+                        }}
+                      >
+                        <CheckBox
+                          Selected={selectedPaymentMethod === 'creditCard'}
+                          onSelectionPress={() =>
+                            setSelectedPaymentMethod(
+                              selectedPaymentMethod === 'creditCard'
+                                ? null
+                                : 'creditCard',
+                            )
+                          }
+                        />
+                        <NoonIcon
+                          height={scaleWithMax(32, 35)}
+                          width={scaleWithMax(32, 35)}
+                        />
+                        <View>
+                          <Text style={styles.TextMedium}>
+                            {getString('CHECKOUT_CREDIT_DEBIT_CARD')}
+                          </Text>
+                        </View>
                       </View>
-                    </View>
-                    <SvgSelectedCheck
+                      <SvgSelectedCheck
                         width={scaleWithMax(16, 18)}
                         height={scaleWithMax(16, 18)}
                         style={{
-                          opacity: selectedPaymentMethod === 'creditCard' ? 1 : 0,
+                          opacity:
+                            selectedPaymentMethod === 'creditCard' ? 1 : 0,
                         }}
                       />
-                  </View>
+                    </View>
                   </ShadowView>
                 </TouchableOpacity>
 
@@ -1534,67 +1542,70 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         marginBottom: theme.sizes.HEIGHT * 0.005,
                       }}
                     >
-                    <View style={styles.GiftContainer}>
-                      <View
-                        style={{
-                          ...styles.row,
-                          flex: 1,
-                          gap: theme.sizes.WIDTH * 0.025,
-                        }}
-                      >
-                        <CheckBox
-                          Selected={selectedPaymentMethod === 'savedCard'}
-                          onSelectionPress={() =>
-                            setSelectedPaymentMethod(
-                              selectedPaymentMethod === 'savedCard'
-                                ? null
-                                : 'savedCard',
-                            )
-                          }
-                        />
-
-                        {(selectedCardFromParams?.Brand || userCards[0]?.Brand)
-                          ?.toLowerCase()
-                          .includes('master') ? (
-                          <MasterCardIcon
-                            height={scaleWithMax(32, 35)}
-                            width={scaleWithMax(32, 35)}
+                      <View style={styles.GiftContainer}>
+                        <View
+                          style={{
+                            ...styles.row,
+                            flex: 1,
+                            gap: theme.sizes.WIDTH * 0.025,
+                          }}
+                        >
+                          <CheckBox
+                            Selected={selectedPaymentMethod === 'savedCard'}
+                            onSelectionPress={() =>
+                              setSelectedPaymentMethod(
+                                selectedPaymentMethod === 'savedCard'
+                                  ? null
+                                  : 'savedCard',
+                              )
+                            }
                           />
-                        ) : (
+
+                          {(
                             selectedCardFromParams?.Brand || userCards[0]?.Brand
                           )
                             ?.toLowerCase()
-                            .includes('noon') ? (
-                          <NoonIcon
-                            height={scaleWithMax(32, 35)}
-                            width={scaleWithMax(32, 35)}
-                          />
-                        ) : (
-                          <VisaIcon
-                            height={scaleWithMax(32, 35)}
-                            width={scaleWithMax(32, 35)}
-                          />
-                        )}
-                        <View>
-                          <Text style={styles.TextMedium}>
-                            {selectedCardFromParams?.CardNumber ||
-                              userCards[0]?.CardNumber}
-                          </Text>
-                          <Text style={styles.TextMedium}>
-                            {selectedCardFromParams?.Brand ||
-                              userCards[0]?.Brand}
-                          </Text>
+                            .includes('master') ? (
+                            <MasterCardIcon
+                              height={scaleWithMax(32, 35)}
+                              width={scaleWithMax(32, 35)}
+                            />
+                          ) : (
+                              selectedCardFromParams?.Brand ||
+                              userCards[0]?.Brand
+                            )
+                              ?.toLowerCase()
+                              .includes('noon') ? (
+                            <NoonIcon
+                              height={scaleWithMax(32, 35)}
+                              width={scaleWithMax(32, 35)}
+                            />
+                          ) : (
+                            <VisaIcon
+                              height={scaleWithMax(32, 35)}
+                              width={scaleWithMax(32, 35)}
+                            />
+                          )}
+                          <View>
+                            <Text style={styles.TextMedium}>
+                              {selectedCardFromParams?.CardNumber ||
+                                userCards[0]?.CardNumber}
+                            </Text>
+                            <Text style={styles.TextMedium}>
+                              {selectedCardFromParams?.Brand ||
+                                userCards[0]?.Brand}
+                            </Text>
+                          </View>
                         </View>
+                        <SvgSelectedCheck
+                          width={scaleWithMax(16, 18)}
+                          height={scaleWithMax(16, 18)}
+                          style={{
+                            opacity:
+                              selectedPaymentMethod === 'savedCard' ? 1 : 0,
+                          }}
+                        />
                       </View>
-                      <SvgSelectedCheck
-                        width={scaleWithMax(16, 18)}
-                        height={scaleWithMax(16, 18)}
-                        style={{
-                          opacity:
-                            selectedPaymentMethod === 'savedCard' ? 1 : 0,
-                        }}
-                      />
-                    </View>
                     </ShadowView>
                   </TouchableOpacity>
                 )}
@@ -1608,58 +1619,59 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       }
                     >
                       <ShadowView preset="default">
-                      <View style={styles.GiftContainer}>
-                        <View
-                          style={{
-                            ...styles.row,
-                            flex: 1,
-                            gap: theme.sizes.WIDTH * 0.025,
-                          }}
-                        >
-                          <CheckBox
-                            Selected={selectedPaymentMethod === 'wallet'}
-                            onSelectionPress={() =>
-                              setSelectedPaymentMethod(
-                                selectedPaymentMethod === 'wallet'
-                                  ? null
-                                  : 'wallet',
-                              )
-                            }
-                          />
-                          <SvgGifteeWalletIcon
-                            height={scaleWithMax(32, 35)}
-                            width={scaleWithMax(32, 35)}
-                          />
-                          <View>
-                            <Text style={styles.TextMedium}>
-                              {getString('W_GIFTEE_WALLET')}
-                            </Text>
-                            <PriceWithIcon
-                              amount={
-                                walletBalance?.data?.WalletBalance
-                                  ? Number(
-                                      walletBalance.data.WalletBalance,
-                                    ).toFixed(2)
-                                  : '0.00'
-                              }
-                              textStyle={styles.TextMedium}
-                              icon={
-                                <SvgRiyalIcon
-                                  width={scaleWithMax(12, 14)}
-                                  height={scaleWithMax(12, 14)}
-                                />
+                        <View style={styles.GiftContainer}>
+                          <View
+                            style={{
+                              ...styles.row,
+                              flex: 1,
+                              gap: theme.sizes.WIDTH * 0.025,
+                            }}
+                          >
+                            <CheckBox
+                              Selected={selectedPaymentMethod === 'wallet'}
+                              onSelectionPress={() =>
+                                setSelectedPaymentMethod(
+                                  selectedPaymentMethod === 'wallet'
+                                    ? null
+                                    : 'wallet',
+                                )
                               }
                             />
+                            <SvgGifteeWalletIcon
+                              height={scaleWithMax(32, 35)}
+                              width={scaleWithMax(32, 35)}
+                            />
+                            <View>
+                              <Text style={styles.TextMedium}>
+                                {getString('W_GIFTEE_WALLET')}
+                              </Text>
+                              <PriceWithIcon
+                                amount={
+                                  walletBalance?.data?.WalletBalance
+                                    ? Number(
+                                        walletBalance.data.WalletBalance,
+                                      ).toFixed(2)
+                                    : '0.00'
+                                }
+                                textStyle={styles.TextMedium}
+                                icon={
+                                  <SvgRiyalIcon
+                                    width={scaleWithMax(12, 14)}
+                                    height={scaleWithMax(12, 14)}
+                                  />
+                                }
+                              />
+                            </View>
                           </View>
+                          <SvgSelectedCheck
+                            width={scaleWithMax(16, 18)}
+                            height={scaleWithMax(16, 18)}
+                            style={{
+                              opacity:
+                                selectedPaymentMethod === 'wallet' ? 1 : 0,
+                            }}
+                          />
                         </View>
-                        <SvgSelectedCheck
-                          width={scaleWithMax(16, 18)}
-                          height={scaleWithMax(16, 18)}
-                          style={{
-                            opacity: selectedPaymentMethod === 'wallet' ? 1 : 0,
-                          }}
-                        />
-                      </View>
                       </ShadowView>
                     </TouchableOpacity>
                   )}
