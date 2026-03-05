@@ -546,16 +546,33 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       <View style={[styles.CartContainer]}>
         <Image source={imageSource} style={styles.CartProductImage} />
         <View style={{ flex: 1, gap: theme.sizes.HEIGHT * 0.02 }}>
-          <View>
-            {/* <Text style={styles.cartTitle}>{item.ItemName}</Text> */}
-            <Text style={styles.cartTitle}>
-              {langCode === 'ar' ? item.ItemName : item.ItemName}
-            </Text>
-            {item.Variant?.NameEn && (
-              <Text style={styles.TextMedium}>
-                {langCode === 'ar' ? item.Variant.NameAr : item.Variant.NameEn}
+          <View
+            style={{
+              flexDirection: 'row',
+              justifyContent: 'space-between',
+              alignItems: 'flex-start',
+              gap: theme.sizes.WIDTH * 0.02,
+            }}
+          >
+            <View style={{ flex: 1, minWidth: 0 }}>
+              <Text style={styles.cartTitle}>
+                {langCode === 'ar' ? item.ItemName : item.ItemName}
               </Text>
-            )}
+              {item.Variant?.NameEn && (
+                <Text style={styles.TextMedium}>
+                  {langCode === 'ar'
+                    ? item.Variant.NameAr
+                    : item.Variant.NameEn}
+                </Text>
+              )}
+            </View>
+            {isMerchant &&
+              cartData?.MultiUsers &&
+              cartData.MultiUsers.length > 0 && (
+                <Text style={styles.cartItemCountBadge}>
+                  Qty: {item.Quantity * cartData.MultiUsers.length}
+                </Text>
+              )}
           </View>
           {isMerchant || cartData?.CampaginType === 3 ? (
             <View

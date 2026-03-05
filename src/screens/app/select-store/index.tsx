@@ -61,7 +61,10 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const businessTypeApi = useGetApi<BusinessType[]>(
-    apiEndpoints.GET_BUSINESS_TYPE + '?cityid=' + selectedCityId,
+    apiEndpoints.GET_BUSINESS_TYPE +
+      '?cityid=' +
+      selectedCityId +
+      '&hideEmptyBusinessType=true',
     {
       transformData: (data: any) => data.Data.Items || [],
     },

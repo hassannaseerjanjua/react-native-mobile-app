@@ -127,7 +127,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const handleFavorite = async () => {
     if (!item) return;
     const previousFavoriteState = item.isFavourite ?? false;
-    // Optimistically update the UI
     setItem({ ...item, isFavourite: !previousFavoriteState });
     try {
       const res = await api.post<any>(apiEndpoints.HANDLE_FAVORITE_ITEM, {
@@ -135,12 +134,10 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         isFavorite: !previousFavoriteState,
       });
       if (!res.success) {
-        // Revert on error
         setItem({ ...item, isFavourite: previousFavoriteState });
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
       }
     } catch (error: any) {
-      // Revert on error
       setItem({ ...item, isFavourite: previousFavoriteState });
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
@@ -156,7 +153,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     const currentCartQuantity = selectedVariant?.CountInCart || 0;
 
     if (isAlreadyInCart) {
-      // Update cart item quantity
       const newQuantity = currentCartQuantity + quantity;
       const payload = {
         ItemId: item.ItemId,
@@ -178,7 +174,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
       }
     } else {
-      // Add new item to cart
       const finalCampaignId =
         campaignId || item?.CampaignId || item?.Campaign?.CampaignId;
 
@@ -192,9 +187,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         IsGift: true,
       };
 
-      // For merchants, use FriendIds array; otherwise use FriendId
       if (isMerchant) {
-        // Always use array format for merchants
         if (friendIds) {
           payload.FriendIds = Array.isArray(friendIds)
             ? friendIds
@@ -223,7 +216,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     try {
       setSubmitting(true);
 
-      // Clear the cart first
       const clearResponse = await api.put(apiEndpoints.CLEAR_CART, {});
       if (!clearResponse.success) {
         notify.error(clearResponse.error || getString('AU_ERROR_OCCURRED'));
@@ -231,7 +223,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         return;
       }
 
-      // Then add the new item (skip submitting check since we're already managing it)
       await performAddToCart(true);
       setSubmitting(false);
     } catch (error: any) {
@@ -243,35 +234,29 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const handleAddToCart = async () => {
     if (submitting) return;
 
-    // Check if we're in GiftOneGetOne flow and cart has items
     if (isGiftOneGetOne && cartApi.data) {
       const cartItems = cartApi.data.Items || [];
       const hasCartItems = cartItems.length > 0;
 
       if (hasCartItems) {
-        // Check if the current item is in cart
         const currentItemInCart = cartItems.find(
           cartItem => cartItem.ItemId === item?.ItemId,
         );
 
         if (currentItemInCart) {
-          // Item is in cart, check if it's a different variant
           const selectedVariantId = selectedFilter
             ? Number(selectedFilter)
             : null;
           const cartVariantId =
             currentItemInCart.Variant?.ItemVariantId || null;
 
-          // If variants are different, show confirmation
           if (selectedVariantId !== cartVariantId) {
             setIsVariantChange(true);
             setsamestoreg1g1(false);
             setShowClearCartConfirmation(true);
             return;
           }
-          // Same item and same variant - proceed normally (will update quantity)
         } else {
-          // Different item in cart, show confirmation
           const cartStoreId = cartApi.data.StoreId;
           const currentStoreId = item?.StoreId || storeId;
           const isSameStore = cartStoreId === currentStoreId;
@@ -284,7 +269,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       }
     }
 
-    // Proceed with normal add to cart flow
     try {
       setSubmitting(true);
       await performAddToCart(true);
@@ -295,7 +279,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     }
   };
 
-  // Updated price calculation to use FinalPrice directly
   const { originalPrice, finalPrice, discountAmount, hasDiscount } =
     useMemo(() => {
       if (!itemApi.data)
@@ -312,7 +295,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           )
         : itemApi.data.Variants?.find((v: any) => v.IsDefault);
 
-      // Get values from the selected variant or fallback to item level
       const basePrice = selectedVariant
         ? selectedVariant.Price
         : itemApi.data.Price;
@@ -353,7 +335,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     });
   }, [isMerchant, isGiftOneGetOne, cartApi.data, item, selectedFilter]);
 
-  // Calculate savings amount
   const savingsAmount = useMemo(() => {
     return hasDiscount ? originalPrice - finalPrice : 0;
   }, [hasDiscount, originalPrice, finalPrice]);
@@ -432,7 +413,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                   {isRtl ? item?.NameAr : item?.NameEn}
                 </Text>
                 <View style={styles.priceContainer}>
-                  {/* Final Price - Current price after discount */}
                   {hasDiscount && (
                     <>
                       <SvgRiyalPink
@@ -445,8 +425,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                       <Text style={styles.discountedPrice}>{finalPrice}</Text>
                     </>
                   )}
-
-                  {/* Original Price - Strikethrough when discounted */}
                   <SvgRiyalIcon
                     width={
                       hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)
@@ -495,7 +473,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         </ScrollView>
       )}
 
-      {/* Bottom Action Bar */}
       <View
         style={{
           borderTopLeftRadius: 15,

@@ -100,6 +100,12 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_SMALL_HEADING,
         color: theme.colors.BLACK,
       },
+      cartItemCountBadge: {
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: theme.colors.PRIMARY_TEXT,
+        flexShrink: 0,
+      },
       quantityControls: {
         flexDirection: 'row',
         alignItems: 'center',
