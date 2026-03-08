@@ -42,6 +42,7 @@ export type AppStackParamList = {
     campaignId?: number;
     sendType?: number | null;
     addToFavorites?: boolean;
+    fromFavorites?: boolean;
   };
   Search: {
     title?: string;

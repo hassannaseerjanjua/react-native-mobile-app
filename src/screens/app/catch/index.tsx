@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   StatusBar,
   FlatList,
@@ -52,6 +52,7 @@ import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText'
 import ConfirmationModal from '../../../components/global/ConfirmationModal';
 import { BlurView } from '@react-native-community/blur';
 import CustomButton from '../../../components/global/Custombutton';
+import { useFocusEffect } from '@react-navigation/native';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -210,6 +211,20 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     }
   }, [screenType, getStoreProducts.data, getFavoriteItems.data]);
 
+  // When returning from ProductDetails after favoriting/unfavoriting, reload list
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      if (screenType === 'favorite') {
+        getFavoriteItems.recall();
+      }
+    }, [screenType, getFavoriteItems]),
+  );
+
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
     if (!categoriesApi.data || categoriesApi.data.length === 0) {
@@ -320,7 +335,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       const favItem = item as FaveItems;
       navigation.navigate('ProductDetails', {
         itemId: favItem.ItemId,
+        storeId: favItem.StoreId ?? null,
         friendUserId: friendUserId ?? undefined,
+        fromFavorites: true,
       });
     } else if (screenType === 'GiftOneGetOne') {
       const product = item as StoreProduct | CatchItem;

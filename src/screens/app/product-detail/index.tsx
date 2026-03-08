@@ -10,7 +10,7 @@ import {
   SvgRiyalIcon,
   SvgRiyalPink,
 } from '../../../assets/icons';
-import { scaleWithMax, rtlTransform } from '../../../utils';
+import { scaleWithMax, rtlTransform, isIOSThen } from '../../../utils';
 import ShadowView from '../../../components/global/ShadowView';
 import ProductImageSlider from '../../../components/global/ProductImageSlider';
 import GroupTabs from '../../../components/global/GroupTabs';
@@ -49,6 +49,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const isSendAGiftFlow = sendType !== null && sendType !== undefined;
   const campaignId = route?.params?.campaignId ?? null;
   const addToFavorites = route?.params?.addToFavorites ?? false;
+  const fromFavorites = route?.params?.fromFavorites ?? false;
+  const isFavoritesMode = addToFavorites || fromFavorites;
   const isGiftOneGetOne = route.params?.type === 'GiftOneGetOne';
   const [showClearCartConfirmation, setShowClearCartConfirmation] =
     useState(false);
@@ -59,7 +61,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     transformData: (data: any) => (data?.Data || data) as CartResponse,
   });
   const itemApi = useGetApi<StoreProduct>(
-    isSendAGiftFlow || addToFavorites
+    isSendAGiftFlow || isFavoritesMode
       ? apiEndpoints.GET_SEND_A_GIFT_ITEM_BY_ID(itemId, !!campaignId)
       : apiEndpoints.GET_STORE_ITEM_BY_ID(
           itemId,
@@ -376,7 +378,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
           </TouchableOpacity>
         </ShadowView>
-        {!isMerchant && !addToFavorites && (
+        {!isMerchant && !isFavoritesMode && (
           <TouchableOpacity
             style={styles.rounded_white_background}
             onPress={() => handleFavorite()}
@@ -487,7 +489,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
           position: 'absolute',
-          bottom: -30,
+          bottom: isIOSThen(-30, 0),
           left: 0,
           right: 0,
           backgroundColor: theme.colors.WHITE,
@@ -504,7 +506,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             borderTopRightRadius: 15,
           }}
         >
-          {!isMerchant && !isGiftOneGetOne && !addToFavorites && (
+          {!isMerchant && !isGiftOneGetOne && !isFavoritesMode && (
             <View style={styles.QuantityContainer}>
               <MinusIcon
                 width={scaleWithMax(25, 28)}
@@ -523,21 +525,18 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           <CustomButton
             buttonStyle={styles.button}
             onPress={() => {
-              if (addToFavorites) {
-                if (item?.isFavourite) {
-                  navigation.goBack();
-                } else {
-                  handleFavorite().then(success => {
-                    if (success) {
-                      patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
-                        'listing:',
-                        i => i.ItemId === item.ItemId,
-                        { isFavourite: true },
-                      );
-                      navigation.goBack();
-                    }
-                  });
-                }
+              if (isFavoritesMode) {
+                const newFavoriteState = !(item?.isFavourite ?? false);
+                handleFavorite().then(success => {
+                  if (success) {
+                    patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
+                      'listing:',
+                      i => i.ItemId === item.ItemId,
+                      { isFavourite: newFavoriteState },
+                    );
+                    navigation.goBack();
+                  }
+                });
               } else if (isItemInCart) {
                 (navigation as any).navigate('CheckOut');
               } else {
@@ -545,11 +544,13 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               }
             }}
             title={
-              addToFavorites
-                ? getString('PRODUCT_ADD_TO_FAVORITES')
+              isFavoritesMode
+                ? item?.isFavourite
+                  ? getString('PRODUCT_REMOVE_FROM_FAVORITES')
+                  : getString('PRODUCT_ADD_TO_FAVORITES')
                 : isItemInCart
-                ? getString('PRODUCT_VIEW_CART')
-                : getString('PRODUCT_ADD_TO_CART')
+                  ? getString('PRODUCT_VIEW_CART')
+                  : getString('PRODUCT_ADD_TO_CART')
             }
             disabled={submitting}
           />

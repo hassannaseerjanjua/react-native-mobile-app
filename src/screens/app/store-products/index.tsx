@@ -246,8 +246,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     }
   };
 
-  // When returning from ProductDetails after adding to favorites, reload listing
-  // so the favorite state is reflected without manual refresh (reads from patched cache)
+  // When returning from ProductDetails, reload listing so favorite state is reflected
+  // (user may have favorited/unfavorited via Add to Favorites button or heart icon)
   const isFirstFocus = useRef(true);
   useFocusEffect(
     useCallback(() => {
@@ -255,11 +255,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         isFirstFocus.current = false;
         return;
       }
-      if (addToFavorites) {
-        getStoreProducts.recall();
-        getFavoriteItems.recall();
-      }
-    }, [addToFavorites, getStoreProducts, getFavoriteItems]),
+      getStoreProducts.recall();
+      getFavoriteItems.recall();
+    }, [getStoreProducts, getFavoriteItems]),
   );
 
   // Reset to 'all' if favorites tab is selected but there are no favorite items

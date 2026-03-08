@@ -22,7 +22,7 @@ import useGetApi from '../../../hooks/useGetApi.ts';
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
-import { SvgAddOccasion } from '../../../assets/icons';
+import { SvgAddGroup, SvgAddOccasion } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 
 const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
@@ -193,9 +193,9 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         rightSideView={
           <TouchableOpacity
             onPress={() =>
-              navigation.navigate('SelectStore' as never, {
+              (navigation as any).navigate('SelectStore', {
                 addToFavorites: true,
-              } as never)
+              })
             }
             activeOpacity={0.7}
             style={{
@@ -204,9 +204,9 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
               gap: scaleWithMax(4, 6),
             }}
           >
-            <SvgAddOccasion
-              width={scaleWithMax(20, 24)}
-              height={scaleWithMax(20, 24)}
+            <SvgAddGroup
+            // width={scaleWithMax(20, 24)}
+            // height={scaleWithMax(20, 24)}
             />
             <Text
               style={{

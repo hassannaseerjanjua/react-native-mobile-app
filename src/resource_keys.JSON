@@ -458,6 +458,8 @@
   "PP_PRIVACY_POLICY": "Privacy Policy",
   "PRODUCT_ADD_TO_CART": "Add To Cart",
   "PRODUCT_ADD_TO_FAVORITES": "Add to Favorites",
+  "PRODUCT_REMOVE_FROM_FAVORITES": "Remove from Favorites",
+  "PRODUCT_REMOVE_FROM_FAVORITES": "Remove from Favorites",
   "FAV_ADD_FAVORITES": "Add Favorites",
   "PRODUCT_ALL_PRICE_INCLUDE_TAX": "All Price Include tax",
   "PRODUCT_CLEAR_CART_MESSAGE": "Adding a item from different store will clear your previous item in cart. Do you want to continue?",
