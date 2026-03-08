@@ -1,4 +1,10 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import {
   View,
   StatusBar,
@@ -10,7 +16,7 @@ import {
 } from 'react-native';
 import { Image } from '../../../utils/elements';
 import useStyles from './style.ts';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import GroupTabs from '../../../components/global/GroupTabs.tsx';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
@@ -58,6 +64,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const storeId = route.params?.storeId ?? null;
   const businessTypeId = route.params?.businessTypeId ?? null;
   const sendType = route.params?.sendType ?? null;
+  const addToFavorites = route.params?.addToFavorites ?? false;
   const isSendAGiftFlow = sendType !== null && sendType !== undefined;
 
   const effectiveFriendUserId =
@@ -90,9 +97,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   );
 
   const getStoreProducts = useListingApi<StoreProduct>(
-    isSendAGiftFlow
-      ? apiEndpoints.GET_SEND_A_GIFT_ITEMS
-      : apiEndpoints.GET_STORE_DETAIL,
+    apiEndpoints.GET_SEND_A_GIFT_ITEMS,
+
     token,
     {
       transformData: (data: any) => {
@@ -147,13 +153,13 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     const favoritesOption = { id: 'favorites', title: favoritesTabTitle };
 
     // Only include favorites option if there are favorite items and not in send gift flow
-    // Also hide it when coming from send through link flow (sendType === 2)
+    // Also hide it when coming from send through link flow (sendType === 2) or add-to-favorites flow
     const hasFavorites =
       getFavoriteItems.data && getFavoriteItems.data.length > 0;
     const isLinkFlow = sendType === 2;
     const options = [allOption];
 
-    if (hasFavorites && !isLinkFlow && !isMultipleUsers) {
+    if (hasFavorites && !isLinkFlow && !isMultipleUsers && !addToFavorites) {
       options.push(favoritesOption);
     }
 
@@ -174,6 +180,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     friendName,
     isSendAGiftFlow,
     sendType,
+    addToFavorites,
   ]);
 
   const handleProductPress = (item: StoreProduct | FaveItems) => {
@@ -186,8 +193,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       storeId: productItem?.StoreId ?? storeId ?? null,
       friendUserId,
       FriendIds: friendIds,
-      sendType: route.params.sendType,
+      sendType: route.params?.sendType,
       campaignId: itemCampaignId,
+      addToFavorites,
     });
   };
 
@@ -237,6 +245,22 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
+
+  // When returning from ProductDetails after adding to favorites, reload listing
+  // so the favorite state is reflected without manual refresh (reads from patched cache)
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      if (addToFavorites) {
+        getStoreProducts.recall();
+        getFavoriteItems.recall();
+      }
+    }, [addToFavorites, getStoreProducts, getFavoriteItems]),
+  );
 
   // Reset to 'all' if favorites tab is selected but there are no favorite items
   useEffect(() => {
@@ -477,44 +501,44 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       {isCartFromCurrentStore && cartApi.data && (
         <ShadowView preset="storeCard">
           <View style={styles.footerContainer}>
-          <TouchableOpacity
-            style={styles.footerButton}
-            onPress={() => {
-              if (!cartApi.data) return;
+            <TouchableOpacity
+              style={styles.footerButton}
+              onPress={() => {
+                if (!cartApi.data) return;
 
-              const cartData = cartApi.data;
+                const cartData = cartApi.data;
 
-              (navigation as any).navigate('GiftMessage', {
-                friendUserId,
-                storeBranchId: cartData.StoreBranchId,
-              });
-            }}
-            activeOpacity={0.8}
-          >
-            <View style={styles.footerQuantityBadge}>
-              <Text style={styles.footerQuantityText}>
-                {cartApi.data?.Items.reduce(
-                  (sum, item) => sum + item.Quantity,
-                  0,
-                ) || 0}
+                (navigation as any).navigate('GiftMessage', {
+                  friendUserId,
+                  storeBranchId: cartData.StoreBranchId,
+                });
+              }}
+              activeOpacity={0.8}
+            >
+              <View style={styles.footerQuantityBadge}>
+                <Text style={styles.footerQuantityText}>
+                  {cartApi.data?.Items.reduce(
+                    (sum, item) => sum + item.Quantity,
+                    0,
+                  ) || 0}
+                </Text>
+              </View>
+              <Text style={styles.footerButtonText}>
+                {getString('VIEW_CART')}
               </Text>
-            </View>
-            <Text style={styles.footerButtonText}>
-              {getString('VIEW_CART')}
-            </Text>
-            <PriceWithIcon
-              amount={cartApi.data?.TotalAmount || '0.00'}
-              textStyle={styles.footerPriceText}
-              containerStyle={styles.footerPriceRow}
-              icon={
-                <SvgRiyalIconWhite
-                  width={scaleWithMax(12, 14)}
-                  height={scaleWithMax(12, 14)}
-                />
-              }
-            />
-          </TouchableOpacity>
-        </View>
+              <PriceWithIcon
+                amount={cartApi.data?.TotalAmount || '0.00'}
+                textStyle={styles.footerPriceText}
+                containerStyle={styles.footerPriceRow}
+                icon={
+                  <SvgRiyalIconWhite
+                    width={scaleWithMax(12, 14)}
+                    height={scaleWithMax(12, 14)}
+                  />
+                }
+              />
+            </TouchableOpacity>
+          </View>
         </ShadowView>
       )}
     </ParentView>

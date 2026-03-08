@@ -1,5 +1,11 @@
 import React, { useCallback, useEffect, useState, useMemo } from 'react';
-import { View, StatusBar, FlatList, RefreshControl } from 'react-native';
+import {
+  View,
+  StatusBar,
+  FlatList,
+  RefreshControl,
+  TouchableOpacity,
+} from 'react-native';
 import { useFocusEffect } from '@react-navigation/native';
 import { Text } from '../../../utils/elements';
 import useStyles from './style.ts';
@@ -16,6 +22,8 @@ import useGetApi from '../../../hooks/useGetApi.ts';
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
+import { SvgAddOccasion } from '../../../assets/icons';
+import { scaleWithMax } from '../../../utils';
 
 const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   route,
@@ -182,6 +190,35 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         showSearchBar={true}
         searchValue={FavStoreListing.search}
         onSearchChange={FavStoreListing.setSearch}
+        rightSideView={
+          <TouchableOpacity
+            onPress={() =>
+              navigation.navigate('SelectStore' as never, {
+                addToFavorites: true,
+              } as never)
+            }
+            activeOpacity={0.7}
+            style={{
+              flexDirection: 'row',
+              alignItems: 'center',
+              gap: scaleWithMax(4, 6),
+            }}
+          >
+            <SvgAddOccasion
+              width={scaleWithMax(20, 24)}
+              height={scaleWithMax(20, 24)}
+            />
+            <Text
+              style={{
+                fontSize: theme.sizes.FONTSIZE,
+                color: theme.colors.PRIMARY,
+                fontFamily: theme.fonts.medium,
+              }}
+            >
+              {getString('FAV_ADD_FAVORITES')}
+            </Text>
+          </TouchableOpacity>
+        }
       />
 
       <View style={styles.content}>

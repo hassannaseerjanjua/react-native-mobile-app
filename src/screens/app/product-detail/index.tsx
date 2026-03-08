@@ -20,6 +20,7 @@ import { AppStackScreen } from '../../../types/navigation.types';
 import ParentView from '../../../components/app/ParentView';
 import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
+import { patchCacheItems } from '../../../utils/api-cache';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi';
@@ -47,7 +48,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const sendType = route?.params?.sendType ?? null;
   const isSendAGiftFlow = sendType !== null && sendType !== undefined;
   const campaignId = route?.params?.campaignId ?? null;
-  const isGiftOneGetOne = route.params.type === 'GiftOneGetOne';
+  const addToFavorites = route?.params?.addToFavorites ?? false;
+  const isGiftOneGetOne = route.params?.type === 'GiftOneGetOne';
   const [showClearCartConfirmation, setShowClearCartConfirmation] =
     useState(false);
   const [isVariantChange, setIsVariantChange] = useState(false);
@@ -57,11 +59,11 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     transformData: (data: any) => (data?.Data || data) as CartResponse,
   });
   const itemApi = useGetApi<StoreProduct>(
-    isSendAGiftFlow
+    isSendAGiftFlow || addToFavorites
       ? apiEndpoints.GET_SEND_A_GIFT_ITEM_BY_ID(itemId, !!campaignId)
       : apiEndpoints.GET_STORE_ITEM_BY_ID(
           itemId,
-          route.params.type === 'GiftOneGetOne',
+          route.params?.type === 'GiftOneGetOne',
         ),
     {
       transformData: (data: any) => data?.Data ?? null,
@@ -125,8 +127,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     return imgs.length > 0 ? imgs : [placeholderImage];
   }, [item]);
 
-  const handleFavorite = async () => {
-    if (!item) return;
+  const handleFavorite = async (): Promise<boolean> => {
+    if (!item) return false;
     const previousFavoriteState = item.isFavourite ?? false;
     setItem({ ...item, isFavourite: !previousFavoriteState });
     try {
@@ -137,10 +139,13 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       if (!res.success) {
         setItem({ ...item, isFavourite: previousFavoriteState });
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
+        return false;
       }
+      return true;
     } catch (error: any) {
       setItem({ ...item, isFavourite: previousFavoriteState });
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+      return false;
     }
   };
 
@@ -371,7 +376,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
           </TouchableOpacity>
         </ShadowView>
-        {!isMerchant && (
+        {!isMerchant && !addToFavorites && (
           <TouchableOpacity
             style={styles.rounded_white_background}
             onPress={() => handleFavorite()}
@@ -482,7 +487,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           borderTopLeftRadius: 15,
           borderTopRightRadius: 15,
           position: 'absolute',
-          bottom: scaleWithMax(3, 4),
+          bottom: -30,
           left: 0,
           right: 0,
           backgroundColor: theme.colors.WHITE,
@@ -499,7 +504,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             borderTopRightRadius: 15,
           }}
         >
-          {!isMerchant && !isGiftOneGetOne && (
+          {!isMerchant && !isGiftOneGetOne && !addToFavorites && (
             <View style={styles.QuantityContainer}>
               <MinusIcon
                 width={scaleWithMax(25, 28)}
@@ -518,14 +523,31 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           <CustomButton
             buttonStyle={styles.button}
             onPress={() => {
-              if (isItemInCart) {
+              if (addToFavorites) {
+                if (item?.isFavourite) {
+                  navigation.goBack();
+                } else {
+                  handleFavorite().then(success => {
+                    if (success) {
+                      patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
+                        'listing:',
+                        i => i.ItemId === item.ItemId,
+                        { isFavourite: true },
+                      );
+                      navigation.goBack();
+                    }
+                  });
+                }
+              } else if (isItemInCart) {
                 (navigation as any).navigate('CheckOut');
               } else {
                 handleAddToCart();
               }
             }}
             title={
-              isItemInCart
+              addToFavorites
+                ? getString('PRODUCT_ADD_TO_FAVORITES')
+                : isItemInCart
                 ? getString('PRODUCT_VIEW_CART')
                 : getString('PRODUCT_ADD_TO_CART')
             }

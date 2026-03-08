@@ -50,7 +50,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const initialCityId = route?.params?.CityId ?? null;
+  const initialCityId =
+    route?.params?.CityId ?? user?.CityId ?? null;
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
     initialCityId,
   );
@@ -137,11 +138,12 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         isVerified: store.isVerified,
       },
       businessTypeId: store.BusinessTypeID,
-      sendType: route.params.sendType,
+      sendType: route.params?.sendType,
       storeId: store.StoreId ?? null,
       friendUserId: friendUserId ?? undefined,
       FriendIds: friendIds,
       friendName: route.params?.friendName ?? null,
+      addToFavorites: route.params?.addToFavorites ?? false,
     });
   };
   const storeListApi = useListingApi<Store>(

@@ -41,6 +41,7 @@ export type AppStackParamList = {
     type?: 'GiftOneGetOne' | 'catch';
     campaignId?: number;
     sendType?: number | null;
+    addToFavorites?: boolean;
   };
   Search: {
     title?: string;
@@ -104,6 +105,7 @@ export type AppStackParamList = {
     friendName?: string | null;
     storeId?: number | null;
     businessTypeId?: number | null;
+    addToFavorites?: boolean;
   };
   SelectStore: {
     friendUserId?: number | null;
@@ -112,6 +114,7 @@ export type AppStackParamList = {
     storeId?: number | null;
     CityId?: number | null;
     sendType?: number | null;
+    addToFavorites?: boolean;
   };
   CatchScreen: {
     storeID?: number;

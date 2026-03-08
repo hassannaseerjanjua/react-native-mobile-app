@@ -457,6 +457,8 @@
   "PAYMENT_FAILED": "Payment failed. Please try again.",
   "PP_PRIVACY_POLICY": "Privacy Policy",
   "PRODUCT_ADD_TO_CART": "Add To Cart",
+  "PRODUCT_ADD_TO_FAVORITES": "Add to Favorites",
+  "FAV_ADD_FAVORITES": "Add Favorites",
   "PRODUCT_ALL_PRICE_INCLUDE_TAX": "All Price Include tax",
   "PRODUCT_CLEAR_CART_MESSAGE": "Adding a item from different store will clear your previous item in cart. Do you want to continue?",
   "PRODUCT_CLEAR_CART_MESSAGE_SAME": "Adding a item from same store will clear your previous item in cart. Do you want to continue? ",
