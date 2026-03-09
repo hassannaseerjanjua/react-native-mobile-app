@@ -233,8 +233,8 @@ const useStyles = () => {
         flexShrink: 0,
       },
       groupImage: {
-        width: 40,
-        height: 40,
+        width: scaleWithMax(36, 36),
+        height: scaleWithMax(36, 36),
         borderRadius: 999,
       },
     });

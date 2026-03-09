@@ -1082,159 +1082,160 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             <View style={styles.body}>
               <ShadowView preset="default">
                 <View style={styles.messageContainer}>
-                <View style={styles.inputWrapper} pointerEvents="box-none">
-                  {/* Gradient background when no filter is selected */}
-                  {!selectedFilter && (
-                    <LinearGradient
-                      colors={['#FFFFFF', '#FDF0F0', '#FFFFFF']}
-                      locations={[0, 0.5, 1]}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 0, y: 1 }}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                        borderRadius: 10,
-                      }}
-                      pointerEvents="none"
-                    />
-                  )}
-                  {/* Filter background with low opacity */}
-                  {selectedFilter && (
-                    <View
-                      pointerEvents="none"
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        right: 0,
-                        bottom: 0,
-                      }}
-                    >
-                      <Image
-                        source={{ uri: selectedFilter.ImageUrl }}
-                        style={styles.filterBackground}
-                        resizeMode="cover"
-                      />
-                    </View>
-                  )}
-                  <View
-                    style={styles.textInputWrapper}
-                    pointerEvents="box-none"
-                  >
-                    <InputField
-                      fieldProps={{
-                        multiline: true,
-                        maxLength: 100,
-                        value: message,
-                        onChangeText: setMessage,
-                        placeholder: getString('GIFT_MESSAGE_PLACEHOLDER'),
-                        inputAccessoryViewID:
-                          Platform.OS === 'ios'
-                            ? inputAccessoryViewID
-                            : undefined,
-                        style: [
-                          styles.textInput,
-                          selectedFilter?.TextColor && {
-                            color: selectedFilter.TextColor,
-                          },
-                        ],
-                      }}
-                      style={styles.inputFieldContainer}
-                    />
-                  </View>
-                </View>
-                <Pressable
-                  onPress={() => {
-                    handleOpenPopup();
-                  }}
-                  style={{
-                    position: 'absolute',
-                    bottom: scaleWithMax(5, 6),
-                    // [isRtl ? 'left' : 'right']: scaleWithMax(20, 25),
-                    end: scaleWithMax(20, 25),
-                    zIndex: 1000,
-                    width: scaleWithMax(50, 60),
-                    height: scaleWithMax(50, 60),
-                  }}
-                  hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
-                  android_ripple={{
-                    color: 'rgba(0, 0, 0, 0.1)',
-                    borderless: false,
-                    radius: 50,
-                  }}
-                >
-                  {isCompressing ? (
-                    <View
-                      pointerEvents="none"
-                      style={{
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                        width: '100%',
-                        height: '100%',
-                      }}
-                    >
-                      <ActivityIndicator
-                        size="small"
-                        color={theme.colors.PRIMARY}
-                      />
-                      <Text
+                  <View style={styles.inputWrapper} pointerEvents="box-none">
+                    {/* Gradient background when no filter is selected */}
+                    {!selectedFilter && (
+                      <LinearGradient
+                        colors={['#FFFFFF', '#FDF0F0', '#FFFFFF']}
+                        locations={[0, 0.5, 1]}
+                        start={{ x: 0, y: 0 }}
+                        end={{ x: 0, y: 1 }}
                         style={{
-                          fontSize: 10,
-                          color: theme.colors.PRIMARY,
-                          marginTop: 2,
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
+                          borderRadius: 10,
                         }}
-                      >
-                        {Math.round(compressionProgress * 100)}%
-                      </Text>
-                    </View>
-                  ) : (
-                    <View
-                      pointerEvents="none"
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        justifyContent: 'center',
-                        alignItems: 'center',
-                      }}
-                    >
+                        pointerEvents="none"
+                      />
+                    )}
+                    {/* Filter background with low opacity */}
+                    {selectedFilter && (
                       <View
                         pointerEvents="none"
                         style={{
                           position: 'absolute',
-                          width: scaleWithMax(36, 38),
-                          height: scaleWithMax(36, 38),
-                          borderRadius: 8,
-                          backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                          top: 0,
+                          left: 0,
+                          right: 0,
+                          bottom: 0,
                         }}
+                      >
+                        <Image
+                          source={{ uri: selectedFilter.ImageUrl }}
+                          style={styles.filterBackground}
+                          resizeMode="cover"
+                        />
+                      </View>
+                    )}
+                    <View
+                      style={styles.textInputWrapper}
+                      pointerEvents="box-none"
+                    >
+                      <InputField
+                        noShadow
+                        fieldProps={{
+                          multiline: true,
+                          maxLength: 100,
+                          value: message,
+                          onChangeText: setMessage,
+                          placeholder: getString('GIFT_MESSAGE_PLACEHOLDER'),
+                          inputAccessoryViewID:
+                            Platform.OS === 'ios'
+                              ? inputAccessoryViewID
+                              : undefined,
+                          style: [
+                            styles.textInput,
+                            selectedFilter?.TextColor && {
+                              color: selectedFilter.TextColor,
+                            },
+                          ],
+                        }}
+                        style={styles.inputFieldContainer}
                       />
-                      <SvgAddGiftMessageIcon />
-                      {/* Badge when video is added */}
-                      {sendMessagePayload.VideoFile && (
+                    </View>
+                  </View>
+                  <Pressable
+                    onPress={() => {
+                      handleOpenPopup();
+                    }}
+                    style={{
+                      position: 'absolute',
+                      bottom: scaleWithMax(5, 6),
+                      // [isRtl ? 'left' : 'right']: scaleWithMax(20, 25),
+                      end: scaleWithMax(20, 25),
+                      zIndex: 1000,
+                      width: scaleWithMax(50, 60),
+                      height: scaleWithMax(50, 60),
+                    }}
+                    hitSlop={{ top: 15, bottom: 15, left: 15, right: 15 }}
+                    android_ripple={{
+                      color: 'rgba(0, 0, 0, 0.1)',
+                      borderless: false,
+                      radius: 50,
+                    }}
+                  >
+                    {isCompressing ? (
+                      <View
+                        pointerEvents="none"
+                        style={{
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          width: '100%',
+                          height: '100%',
+                        }}
+                      >
+                        <ActivityIndicator
+                          size="small"
+                          color={theme.colors.PRIMARY}
+                        />
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            color: theme.colors.PRIMARY,
+                            marginTop: 2,
+                          }}
+                        >
+                          {Math.round(compressionProgress * 100)}%
+                        </Text>
+                      </View>
+                    ) : (
+                      <View
+                        pointerEvents="none"
+                        style={{
+                          width: '100%',
+                          height: '100%',
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                        }}
+                      >
                         <View
                           pointerEvents="none"
                           style={{
                             position: 'absolute',
-                            top: scaleWithMax(8, 9),
-                            end: scaleWithMax(8, 9),
-                            // [isRtl ? 'left' : 'right']: scaleWithMax(6, 8),
-                            width: scaleWithMax(14, 16),
-                            height: scaleWithMax(14, 16),
-                            borderRadius: scaleWithMax(10, 11),
-                            backgroundColor: '#FF0000',
-                            justifyContent: 'center',
-                            alignItems: 'center',
+                            width: scaleWithMax(36, 38),
+                            height: scaleWithMax(36, 38),
+                            borderRadius: 8,
+                            backgroundColor: 'rgba(255, 255, 255, 0.85)',
                           }}
-                        >
-                          <Text style={styles.videoBadgeText}>1</Text>
-                        </View>
-                      )}
-                    </View>
-                  )}
-                </Pressable>
-              </View>
+                        />
+                        <SvgAddGiftMessageIcon />
+                        {/* Badge when video is added */}
+                        {sendMessagePayload.VideoFile && (
+                          <View
+                            pointerEvents="none"
+                            style={{
+                              position: 'absolute',
+                              top: scaleWithMax(8, 9),
+                              end: scaleWithMax(8, 9),
+                              // [isRtl ? 'left' : 'right']: scaleWithMax(6, 8),
+                              width: scaleWithMax(14, 16),
+                              height: scaleWithMax(14, 16),
+                              borderRadius: scaleWithMax(10, 11),
+                              backgroundColor: '#FF0000',
+                              justifyContent: 'center',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <Text style={styles.videoBadgeText}>1</Text>
+                          </View>
+                        )}
+                      </View>
+                    )}
+                  </Pressable>
+                </View>
               </ShadowView>
 
               <View style={styles.filtersWrapper}>
@@ -1251,52 +1252,52 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                     keyExtractor={item => item.FilterId.toString()}
                     renderItem={({ item: filter, index }) => (
                       <ShadowView preset="default">
-                      <View
-                        style={[
-                          styles.imageContainer,
-                          index === 0
-                            ? { marginLeft: theme.sizes.PADDING }
-                            : {},
-                        ]}
-                      >
-                        <TouchableOpacity
-                          onPress={async () => {
-                            const newFilterId =
-                              sendMessagePayload.ImageFilterId ===
-                              filter.FilterId
-                                ? null
-                                : filter.FilterId;
-                            setSendMessagePayload(prev => ({
-                              ...prev,
-                              ImageFilterId: newFilterId,
-                            }));
-                            // Save data when filter changes
-                            if (orderId) {
-                              await saveGiftMessageData(orderId, {
-                                ImageFilterId: newFilterId,
-                                Message: sendMessagePayload.Message,
-                                VideoFile: sendMessagePayload.VideoFile,
-                              });
-                            }
-                          }}
+                        <View
+                          style={[
+                            styles.imageContainer,
+                            index === 0
+                              ? { marginLeft: theme.sizes.PADDING }
+                              : {},
+                          ]}
                         >
-                          <Image
-                            style={[
-                              styles.filterImage,
-                              {
-                                borderWidth:
-                                  filter.FilterId ===
-                                  sendMessagePayload.ImageFilterId
-                                    ? 2
-                                    : 0,
-                                borderColor: theme.colors.PRIMARY,
-                              },
-                            ]}
-                            source={{ uri: filter.ImageUrl }}
-                            resizeMode="cover"
-                          />
-                        </TouchableOpacity>
-                      </View>
+                          <TouchableOpacity
+                            onPress={async () => {
+                              const newFilterId =
+                                sendMessagePayload.ImageFilterId ===
+                                filter.FilterId
+                                  ? null
+                                  : filter.FilterId;
+                              setSendMessagePayload(prev => ({
+                                ...prev,
+                                ImageFilterId: newFilterId,
+                              }));
+                              // Save data when filter changes
+                              if (orderId) {
+                                await saveGiftMessageData(orderId, {
+                                  ImageFilterId: newFilterId,
+                                  Message: sendMessagePayload.Message,
+                                  VideoFile: sendMessagePayload.VideoFile,
+                                });
+                              }
+                            }}
+                          >
+                            <Image
+                              style={[
+                                styles.filterImage,
+                                {
+                                  borderWidth:
+                                    filter.FilterId ===
+                                    sendMessagePayload.ImageFilterId
+                                      ? 2
+                                      : 0,
+                                  borderColor: theme.colors.PRIMARY,
+                                },
+                              ]}
+                              source={{ uri: filter.ImageUrl }}
+                              resizeMode="cover"
+                            />
+                          </TouchableOpacity>
+                        </View>
                       </ShadowView>
                     )}
                     ListEmptyComponent={

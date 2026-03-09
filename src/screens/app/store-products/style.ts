@@ -74,7 +74,7 @@ const useStyles = () => {
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: theme.colors.WHITE,
+        // backgroundColor: theme.colors.WHITE,
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
         paddingHorizontal: sizes.PADDING,

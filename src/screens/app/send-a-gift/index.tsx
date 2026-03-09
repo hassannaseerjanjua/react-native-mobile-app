@@ -135,6 +135,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     apiEndpoints.GET_GROUPS,
     token,
     {
+      pageSize: 30,
       transformData: (data: getGroupsDataApiResponse) => ({
         data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
@@ -697,7 +698,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                 flexDirection: 'row',
                 justifyContent: 'flex-end',
                 alignItems: 'center',
-                paddingHorizontal: theme.sizes.PADDING * 0.4,
+                // paddingHorizontal: theme.sizes.PADDING * 0.4,
                 gap: scaleWithMax(4, 6),
               }}
             >
@@ -745,7 +746,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
               layoutMeasurement.height + contentOffset.y >=
               contentSize.height - threshold;
             if (!nearBottom) return;
-            if (activeTab === 'group') return;
+            if (activeTab === 'group') {
+              getGroupsData.loadMore();
+              return;
+            }
             if (isMerchant && activeTab === 'employees') {
               employeesApi.loadMore();
             } else {
@@ -845,10 +849,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   ItemSeparatorComponent={() => (
                     <View style={styles.tabSpacing} />
                   )}
-                  onEndReached={
-                    getGroupsData.hasMore ? getGroupsData.loadMore : undefined
-                  }
-                  onEndReachedThreshold={0.5}
                   ListEmptyComponent={
                     <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
                       <PlaceholderLogoText
@@ -875,10 +875,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={{
                     paddingHorizontal: theme.sizes.PADDING,
-                    flex: 1,
                     marginTop: theme.sizes.HEIGHT * 0.008,
-                    height: theme.sizes.HEIGHT * 0.6,
-                    // paddingVertical: theme.sizes.HEIGHT * 0.01,
+                    paddingBottom: theme.sizes.HEIGHT * 0.02,
                   }}
                 />
               )}

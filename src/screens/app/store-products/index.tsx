@@ -497,47 +497,50 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       </View>
 
       {isCartFromCurrentStore && cartApi.data && (
-        <ShadowView preset="storeCard">
-          <View style={styles.footerContainer}>
-            <TouchableOpacity
-              style={styles.footerButton}
-              onPress={() => {
-                if (!cartApi.data) return;
+        // <ShadowView preset="storeCard">
+        <View style={styles.footerContainer}>
+          <TouchableOpacity
+            style={styles.footerButton}
+            onPress={() => {
+              if (!cartApi.data) return;
 
-                const cartData = cartApi.data;
+              const cartData = cartApi.data;
 
-                (navigation as any).navigate('GiftMessage', {
-                  friendUserId,
-                  storeBranchId: cartData.StoreBranchId,
-                });
-              }}
-              activeOpacity={0.8}
-            >
-              <View style={styles.footerQuantityBadge}>
-                <Text style={styles.footerQuantityText}>
-                  {cartApi.data?.Items.reduce(
-                    (sum, item) => sum + item.Quantity,
-                    0,
-                  ) || 0}
-                </Text>
-              </View>
-              <Text style={styles.footerButtonText}>
-                {getString('VIEW_CART')}
+              (navigation as any).navigate('GiftMessage', {
+                friendUserId,
+                storeBranchId: cartData.StoreBranchId,
+              });
+            }}
+            activeOpacity={0.8}
+          >
+            <View style={styles.footerQuantityBadge}>
+              <Text style={styles.footerQuantityText}>
+                {cartApi.data?.Items.reduce(
+                  (sum, item) => sum + item.Quantity,
+                  0,
+                ) || 0}
               </Text>
-              <PriceWithIcon
-                amount={cartApi.data?.TotalAmount || '0.00'}
-                textStyle={styles.footerPriceText}
-                containerStyle={styles.footerPriceRow}
-                icon={
-                  <SvgRiyalIconWhite
-                    width={scaleWithMax(12, 14)}
-                    height={scaleWithMax(12, 14)}
-                  />
-                }
-              />
-            </TouchableOpacity>
-          </View>
-        </ShadowView>
+            </View>
+            <Text style={styles.footerButtonText}>
+              {getString('VIEW_CART')}
+            </Text>
+            <PriceWithIcon
+              amount={cartApi.data?.TotalAmount || '0.00'}
+              textStyle={styles.footerPriceText}
+              containerStyle={styles.footerPriceRow}
+              icon={
+                <SvgRiyalIconWhite
+                  width={scaleWithMax(12, 14)}
+                  height={scaleWithMax(12, 14)}
+                />
+              }
+              iconSize={scaleWithMax(12, 14)}
+              iconPosition="end"
+              iconOnLeftInRtl
+            />
+          </TouchableOpacity>
+        </View>
+        // </ShadowView>
       )}
     </ParentView>
   );

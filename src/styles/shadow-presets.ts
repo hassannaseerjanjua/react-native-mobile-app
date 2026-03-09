@@ -3,11 +3,18 @@
  * Use with: <Shadow {...SHADOW_PRESETS.storeCard}>...</Shadow> or <ShadowView preset="storeCard">
  */
 export const SHADOW_PRESETS = {
-  /** Store card - very soft */
+  /** Store card - soft, slight depth */
   storeCard: {
-    startColor: '#00000008',
-    distance: 24,
-    offset: [0, 0] as [number, number],
+    startColor: '#0000000D',
+    distance: 36,
+    offset: [0, 2] as [number, number],
+  },
+
+  /** Product detail footer - very subtle, no repeat of storeCard */
+  productDetailFooter: {
+    startColor: '#00000004',
+    distance: 6,
+    offset: [0, 1] as [number, number],
   },
 
   /** Search bar */

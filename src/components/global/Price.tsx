@@ -28,6 +28,8 @@ const PriceWithIcon = ({
   iconPosition = 'start',
   variant = 'default',
   gap,
+  /** In RTL, render icon on left of price (fixes Android Arabic) */
+  iconOnLeftInRtl = false,
 }: {
   amount: number | string;
   textStyle?: StyleProp<TextStyle>;
@@ -39,18 +41,22 @@ const PriceWithIcon = ({
   iconPosition?: 'start' | 'end';
   variant?: PriceVariant;
   gap?: number;
+  iconOnLeftInRtl?: boolean;
 }) => {
   const { styles, theme, rowGap } = useStyles();
   const { isRtl } = useLocaleStore();
 
+  const swapOrder = iconOnLeftInRtl && isRtl;
   const rowDirection =
-    iconPosition === 'start'
-      ? isRtl
-        ? 'row-reverse'
-        : 'row'
-      : isRtl
+    swapOrder
       ? 'row'
-      : 'row-reverse';
+      : iconPosition === 'start'
+        ? isRtl
+          ? 'row-reverse'
+          : 'row'
+        : isRtl
+          ? 'row'
+          : 'row-reverse';
 
   const variantTextStyle = (() => {
     switch (variant) {
@@ -84,6 +90,14 @@ const PriceWithIcon = ({
         })
       : icon;
 
+  const iconEl =
+    showIcon && resolvedIcon ? (
+      <View style={{ opacity: iconOpacity }}>{resolvedIcon}</View>
+    ) : null;
+  const textEl = (
+    <Text style={[variantTextStyle, textStyle]}>{amount}</Text>
+  );
+
   return (
     <View
       style={[
@@ -92,10 +106,17 @@ const PriceWithIcon = ({
         containerStyle,
       ]}
     >
-      {showIcon && resolvedIcon ? (
-        <View style={{ opacity: iconOpacity }}>{resolvedIcon}</View>
-      ) : null}
-      <Text style={[variantTextStyle, textStyle]}>{amount}</Text>
+      {swapOrder ? (
+        <>
+          {textEl}
+          {iconEl}
+        </>
+      ) : (
+        <>
+          {iconEl}
+          {textEl}
+        </>
+      )}
     </View>
   );
 };

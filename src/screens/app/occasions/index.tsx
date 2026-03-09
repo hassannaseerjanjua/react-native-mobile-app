@@ -180,9 +180,15 @@ const OccasionsScreen: React.FC = () => {
         rightSideIcon={
           selectedOccasion.occasionType === 'none' ? (
             !isEditGroupOpen ? (
-              <SvgEditGroup />
+              <SvgEditGroup
+                width={scaleWithMax(18, 18)}
+                height={scaleWithMax(18, 18)}
+              />
             ) : (
-              <SvgCancelIcon />
+              <SvgCancelIcon
+                width={scaleWithMax(18, 18)}
+                height={scaleWithMax(18, 18)}
+              />
             )
           ) : undefined
         }
@@ -219,9 +225,9 @@ const OccasionsScreen: React.FC = () => {
               ]}
               keyExtractor={item => item.OccassionId.toString()}
               contentContainerStyle={styles.content}
-              ItemSeparatorComponent={() => (
-                <View style={styles.occasionItemSpacing} />
-              )}
+              // ItemSeparatorComponent={() => (
+              //   <View style={styles.occasionItemSpacing} />
+              // )}
               showsVerticalScrollIndicator={false}
               refreshControl={
                 <RefreshControl
@@ -271,7 +277,9 @@ const OccasionsScreen: React.FC = () => {
                         editOnly={true}
                         hideRightIcon={false}
                         rightIconRotated={isExpanded}
-                        onEditPress={() => handleEditPress(item, BIRTHDAY_IMAGE)}
+                        onEditPress={() =>
+                          handleEditPress(item, BIRTHDAY_IMAGE)
+                        }
                         onDeletePress={() => {}}
                         onPress={() => {
                           if (!isEditGroupOpen) {

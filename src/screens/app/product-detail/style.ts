@@ -96,7 +96,7 @@ const useStyles = () => {
       priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 3,
+        gap: scaleWithMax(4, 6),
       },
       TaxIncludeText: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,

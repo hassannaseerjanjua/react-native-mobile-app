@@ -1136,6 +1136,45 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     { value: '10', title: '10' },
     { value: 'Custom', title: getString('CHECKOUT_CUSTOM') },
   ];
+  const orderInfoRows = [
+    {
+      key: 'orderAmount',
+      label: getString('CHECKOUT_ORDER_AMOUNT'),
+      amount: cartData?.TotalAmount || 0,
+    },
+    ...((cartData?.TotalVat || 0) > 0
+      ? [
+          {
+            key: 'vat',
+            label: getString('CHECKOUT_VAT'),
+            amount: cartData?.TotalVat || 0,
+          },
+        ]
+      : []),
+    ...((cartData?.DeliveryCharges || 0) > 0
+      ? [
+          {
+            key: 'deliveryCharges',
+            label: getString('CHECKOUT_DELIVERY_CHARGES'),
+            amount: cartData?.DeliveryCharges || 0,
+          },
+        ]
+      : []),
+    ...(activeDomationAmount
+      ? [
+          {
+            key: 'ehsan',
+            label: getString('CHECKOUT_EHSAN'),
+            amount: activeDomationAmount,
+          },
+        ]
+      : []),
+    {
+      key: 'totalAmount',
+      label: getString('CHECKOUT_TOTAL_AMOUNT'),
+      amount: (cartData?.TotalAmount || 0) + (activeDomationAmount || 0),
+    },
+  ];
 
   return (
     <ParentView>
@@ -1196,6 +1235,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 <View style={[styles.tabContainer]}>
                   <TabItem
                     activeOpacity={0}
+                    TabItemStyles={{
+                      paddingHorizontal: scaleWithMax(10, 12),
+                    }}
                     disabled={
                       !(
                         isMerchant &&
@@ -1812,8 +1854,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     <InputField
                       icon={
                         <SvgEhsanIcon
-                          width={scaleWithMax(20, 22)}
-                          height={scaleWithMax(20, 22)}
+                          width={scaleWithMax(26, 28)}
+                          height={scaleWithMax(26, 28)}
                         />
                       }
                       fieldProps={{
@@ -1851,52 +1893,17 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 >
                   {getString('CHECKOUT_ORDER_INFO')}
                 </Text>
-                <View style={[styles.Prices]}>
-                  <Text style={styles.TextMedium}>
-                    {getString('CHECKOUT_ORDER_AMOUNT')}
-                  </Text>
-                  <PriceWithIcon amount={cartData?.TotalAmount || 0} />
-                </View>
-                {/* {(cartData?.TotalDiscount || 0) > 0 && (
-                  <View style={[styles.Prices]}>
-                    <Text style={styles.TextMedium}>{getString('CHECKOUT_DISCOUNT')}</Text>
-                    <PriceWithIcon amount={cartData?.TotalDiscount || 0} />
-                  </View>
-                )} */}
-                {(cartData?.TotalVat || 0) > 0 && (
-                  <View style={[styles.Prices]}>
-                    <Text style={styles.TextMedium}>
-                      {getString('CHECKOUT_VAT')}
-                    </Text>
-                    <PriceWithIcon amount={cartData?.TotalVat || 0} />
-                  </View>
-                )}
-                {(cartData?.DeliveryCharges || 0) > 0 && (
-                  <View style={[styles.Prices]}>
-                    <Text style={styles.TextMedium}>
-                      {getString('CHECKOUT_DELIVERY_CHARGES')}
-                    </Text>
-                    <PriceWithIcon amount={cartData?.DeliveryCharges || 0} />
-                  </View>
-                )}
-                {activeDomationAmount && (
-                  <View style={[styles.Prices]}>
-                    <Text style={styles.TextMedium}>
-                      {getString('CHECKOUT_EHSAN')}
-                    </Text>
-                    <PriceWithIcon amount={activeDomationAmount} />
-                  </View>
-                )}
-                <View style={[styles.Prices]}>
-                  <Text style={styles.TextMedium}>
-                    {getString('CHECKOUT_TOTAL_AMOUNT')}
-                  </Text>
-                  <PriceWithIcon
-                    amount={
-                      (cartData?.TotalAmount || 0) + (activeDomationAmount || 0)
-                    }
-                  />
-                </View>
+                {orderInfoRows.map((row, index) => (
+                  <React.Fragment key={row.key}>
+                    <View style={styles.Prices}>
+                      <Text style={styles.TextMedium}>{row.label}</Text>
+                      <PriceWithIcon amount={row.amount} />
+                    </View>
+                    {index < orderInfoRows.length - 1 && (
+                      <View style={styles.priceSeparator} />
+                    )}
+                  </React.Fragment>
+                ))}
 
                 <Text style={styles.vatNote}>
                   {getString('CHECKOUT_VAT_NOTE')}

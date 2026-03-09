@@ -15,6 +15,7 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.012,
         paddingBottom: sizes.HEIGHT * 0.1,
+        gap: sizes.HEIGHT * 0.016,
       },
       TabItem: {
         height: '100%',
@@ -23,11 +24,13 @@ const useStyles = () => {
       },
       occasionItemSpacing: {
         height: sizes.HEIGHT * 0.016,
+        backgroundColor: theme.colors.WHITE,
       },
       TabText: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         fontSize: sizes.FONTSIZE_SMALL_HEADING,
         color: theme.colors.PRIMARY_TEXT,
+        backgroundColor: theme.colors.WHITE,
       },
       buttonContainer: {
         position: 'absolute',

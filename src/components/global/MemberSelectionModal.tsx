@@ -136,10 +136,14 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     return Array.from(usersMap.values());
   }, [allUsers]);
 
-  const selectedUsersData = useMemo(
-    () => uniqueUsers.filter(user => selectedUsers.has(user.UserId)),
-    [uniqueUsers, selectedUsers],
-  );
+  const selectedUsersData = useMemo(() => {
+    const userIds = Array.from(selectedUsers);
+    const userMap = new Map(uniqueUsers.map(u => [u.UserId, u]));
+    return userIds
+      .reverse()
+      .map(id => userMap.get(id))
+      .filter((u): u is ActiveUser => !!u);
+  }, [uniqueUsers, selectedUsers]);
 
   const resetModalState = useCallback(
     (prefillGroupName = false) => {
@@ -327,7 +331,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     }
 
     return (
-      <ShadowView preset="listItem" disabled={viewOnly}>
+      <ShadowView preset="low" disabled={viewOnly}>
         <View style={selectedUsersContainerStyle}>
           <ScrollView
             horizontal
@@ -423,7 +427,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         title ? (
           <Text style={styles.sectionTitle}>{title}</Text>
         ) : (
-          <View style={{ paddingVertical: theme.sizes.HEIGHT * 0.009 }} />
+          <View style={{ paddingVertical: theme.sizes.HEIGHT * 0.006 }} />
         )
       }
       renderItem={({ item, section }) => {
@@ -846,7 +850,7 @@ const useStyles = () => {
         overflow: 'visible',
       },
       step2Container: {
-        paddingTop: sizes.PADDING * 0.8,
+        paddingTop: sizes.HEIGHT * 0.006,
         paddingBottom: sizes.HEIGHT * 0.02,
       },
       groupNameInputContainer: {
@@ -855,7 +859,7 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: 12,
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.HEIGHT * 0.0116,
+        ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
         // shadowOffset: { width: 0, height: 2 },
         // shadowOpacity: 0.08,
         // shadowRadius: 4,
@@ -957,8 +961,7 @@ const useStyles = () => {
       },
       selectedUsersContainer: {
         marginHorizontal: sizes.PADDING,
-        marginVertical: sizes.HEIGHT * 0.003,
-        marginBottom: sizes.HEIGHT * 0.01,
+        marginVertical: sizes.HEIGHT * 0.006,
         paddingVertical: sizes.BORDER_RADIUS_MID,
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS_MID,
@@ -1004,13 +1007,14 @@ const useStyles = () => {
         borderRadius: sizes.BORDER_RADIUS_HIGH,
       },
       listCardContainer: {
-        marginBottom: sizes.HEIGHT * 0.018,
+        marginBottom: sizes.HEIGHT * 0.006,
       },
       sectionTitle: {
         fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.PRIMARY_TEXT,
-        paddingBottom: sizes.HEIGHT * 0.01,
+        paddingTop: sizes.HEIGHT * 0.008,
+        paddingBottom: sizes.HEIGHT * 0.006,
       },
       emptyStateContainer: {
         paddingVertical: sizes.HEIGHT * 0.03,

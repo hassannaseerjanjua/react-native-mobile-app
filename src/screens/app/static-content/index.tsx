@@ -30,12 +30,10 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
       ? getStaticContent?.data?.ContentEn || '<p>No content</p>'
       : getStaticContent?.data?.ContentAr || '<p>No content</p>';
 
-  const htmlContent = isRtl
-    ? rawHtmlContent.replace(
-        /(\d+(?:-\d+)+:)/g,
-        '<span class="nowrap">$1</span>',
-      )
-    : rawHtmlContent;
+  const htmlContent = rawHtmlContent.replace(
+    /(\d+(?:-\d+)+:)/g,
+    '<span class="nowrap">$1</span>',
+  );
 
   const html = `
     <!DOCTYPE html>

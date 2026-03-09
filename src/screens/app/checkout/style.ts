@@ -82,9 +82,11 @@ const useStyles = () => {
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
-        borderBottomColor: theme.colors.SECONDARY_GRAY,
-        borderBottomWidth: 0.6,
-        paddingVertical: sizes.PADDING * 0.36,
+        // paddingVertical: sizes.PADDING * 0.06,
+      },
+      priceSeparator: {
+        height: 1,
+        backgroundColor: theme.colors.SECONDARY_GRAY,
       },
       checkoutCompletedContainer: {
         flex: 1,

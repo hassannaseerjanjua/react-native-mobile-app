@@ -10,7 +10,8 @@ import {
   SvgRiyalIcon,
   SvgRiyalPink,
 } from '../../../assets/icons';
-import { scaleWithMax, rtlTransform, isIOSThen } from '../../../utils';
+import PriceWithIcon from '../../../components/global/Price';
+import { scaleWithMax, rtlTransform } from '../../../utils';
 import ShadowView from '../../../components/global/ShadowView';
 import ProductImageSlider from '../../../components/global/ProductImageSlider';
 import GroupTabs from '../../../components/global/GroupTabs';
@@ -349,213 +350,220 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
   return (
     <ParentView edges={['bottom']}>
-      <View style={styles.sliderWrapper}>
-        <ProductImageSlider
-          loading={loading}
-          sliders={productImages}
-          contentContainerStyle={styles.sliderContent}
-        />
-      </View>
-      <View
-        style={{
-          position: 'absolute',
-          top: 68,
-          left: 0,
-          right: 0,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: sizes.PADDING,
-          alignItems: 'center',
-          zIndex: 10,
-          width: '100%',
-        }}
-      >
-        <ShadowView preset="default">
-          <TouchableOpacity
-            onPress={navigation.goBack}
-            style={styles.backContainer}
-          >
-            <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
-          </TouchableOpacity>
-        </ShadowView>
-        {!isMerchant && !isFavoritesMode && (
-          <TouchableOpacity
-            style={styles.rounded_white_background}
-            onPress={() => handleFavorite()}
-          >
-            {item?.isFavourite ? (
-              <SvgItemFavouriteIcon
-                width={scaleWithMax(14, 16)}
-                height={scaleWithMax(14, 16)}
-              />
-            ) : (
-              <SvgItemFavouriteIconInActive
-                width={scaleWithMax(14, 16)}
-                height={scaleWithMax(14, 16)}
-              />
-            )}
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {loading ? (
-        <View>
-          <ScrollView
-            contentContainerStyle={{
-              paddingHorizontal: sizes.PADDING,
-              paddingBottom: sizes.HEIGHT * 0.15,
-            }}
-          >
-            <View>
-              <SkeletonLoader screenType="productDetails" />
-            </View>
-          </ScrollView>
-        </View>
-      ) : (
-        <ScrollView
-          style={{ ...styles.container }}
-          contentContainerStyle={styles.scrollViewContent}
-        >
-          <View style={styles.LowerContainer}>
-            <View style={styles.ProductTitleContainer}>
-              <View style={styles.titleRow}>
-                <Text style={styles.ProductTitle}>
-                  {isRtl ? item?.NameAr : item?.NameEn}
-                </Text>
-                <View style={styles.priceContainer}>
-                  {hasDiscount && (
-                    <>
-                      <SvgRiyalPink
-                        width={scaleWithMax(15, 18)}
-                        height={scaleWithMax(15, 18)}
-                        style={{
-                          marginTop: 3.5,
-                        }}
-                      />
-                      <Text style={styles.discountedPrice}>{finalPrice}</Text>
-                    </>
-                  )}
-                  <SvgRiyalIcon
-                    width={
-                      hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)
-                    }
-                    height={
-                      hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)
-                    }
-                    opacity={hasDiscount ? 0.32 : 1}
-                    style={{
-                      marginTop: 3.5,
-                    }}
-                  />
-                  <Text style={hasDiscount ? styles.cutPrice : styles.price}>
-                    {originalPrice}
-                  </Text>
-                </View>
-              </View>
-              <Text style={styles.TaxIncludeText}>
-                {getString('PRODUCT_ALL_PRICE_INCLUDE_TAX')}
-              </Text>
-            </View>
-
-            <View style={styles.ProductDescriptionContainer}>
-              <Text style={styles.Heading}>
-                {getString('PRODUCT_DESCRIPTION')}
-              </Text>
-              <Text style={styles.Description}>
-                {isRtl ? item?.DescAr : item?.DescEn}
-              </Text>
-            </View>
-            {item?.Variants?.length > 1 && (
-              <>
-                <View style={styles.tabsContainer}>
-                  <Text style={styles.Heading}>
-                    {getString('PRODUCT_VARIANTS')}
-                  </Text>
-                  <GroupTabs
-                    tabs={filterOptions}
-                    activeTab={selectedFilter}
-                    onTabPress={setSelectedFilter}
-                  />
-                </View>
-              </>
-            )}
-          </View>
-        </ScrollView>
-      )}
-
-      <ShadowView
-        preset="storeCard"
-        style={{
-          borderTopLeftRadius: 15,
-          borderTopRightRadius: 15,
-          position: 'absolute',
-          bottom: isIOSThen(-30, 0),
-          left: 0,
-          right: 0,
-          backgroundColor: theme.colors.WHITE,
-        }}
-      >
-        <View
-          style={{
-            ...styles.spaceBetween,
-            gap: sizes.WIDTH * 0.045,
-            backgroundColor: theme.colors.WHITE,
-            paddingHorizontal: sizes.PADDING,
-            paddingVertical: sizes.HEIGHT * 0.028,
-            borderTopLeftRadius: 15,
-            borderTopRightRadius: 15,
-          }}
-        >
-          {!isMerchant && !isGiftOneGetOne && !isFavoritesMode && (
-            <View style={styles.QuantityContainer}>
-              <MinusIcon
-                width={scaleWithMax(25, 28)}
-                height={scaleWithMax(25, 28)}
-                onPress={() => handleQuantityChange('decrement')}
-              />
-              <Text style={styles.QuantityText}>{quantity}</Text>
-              <PlusIcon
-                width={scaleWithMax(25, 28)}
-                height={scaleWithMax(25, 28)}
-                onPress={() => handleQuantityChange('increment')}
-              />
-            </View>
-          )}
-
-          <CustomButton
-            buttonStyle={styles.button}
-            onPress={() => {
-              if (isFavoritesMode) {
-                const newFavoriteState = !(item?.isFavourite ?? false);
-                handleFavorite().then(success => {
-                  if (success) {
-                    patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
-                      'listing:',
-                      i => i.ItemId === item.ItemId,
-                      { isFavourite: newFavoriteState },
-                    );
-                    navigation.goBack();
-                  }
-                });
-              } else if (isItemInCart) {
-                (navigation as any).navigate('CheckOut');
-              } else {
-                handleAddToCart();
-              }
-            }}
-            title={
-              isFavoritesMode
-                ? item?.isFavourite
-                  ? getString('PRODUCT_REMOVE_FROM_FAVORITES')
-                  : getString('PRODUCT_ADD_TO_FAVORITES')
-                : isItemInCart
-                  ? getString('PRODUCT_VIEW_CART')
-                  : getString('PRODUCT_ADD_TO_CART')
-            }
-            disabled={submitting}
+      <View style={{ flex: 1 }}>
+        <View style={styles.sliderWrapper}>
+          <ProductImageSlider
+            loading={loading}
+            sliders={productImages}
+            contentContainerStyle={styles.sliderContent}
           />
         </View>
-      </ShadowView>
+        <View
+          style={{
+            position: 'absolute',
+            top: 68,
+            left: 0,
+            right: 0,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingHorizontal: sizes.PADDING,
+            alignItems: 'center',
+            zIndex: 10,
+            width: '100%',
+          }}
+        >
+          <ShadowView preset="default">
+            <TouchableOpacity
+              onPress={navigation.goBack}
+              style={styles.backContainer}
+            >
+              <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
+            </TouchableOpacity>
+          </ShadowView>
+          {!isMerchant && !isFavoritesMode && (
+            <TouchableOpacity
+              style={styles.rounded_white_background}
+              onPress={() => handleFavorite()}
+            >
+              {item?.isFavourite ? (
+                <SvgItemFavouriteIcon
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
+              ) : (
+                <SvgItemFavouriteIconInActive
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {loading ? (
+          <ScrollView
+            style={styles.container}
+            contentContainerStyle={{
+              paddingHorizontal: sizes.PADDING,
+              paddingBottom: sizes.HEIGHT * 0.04,
+            }}
+          >
+            <SkeletonLoader screenType="productDetails" />
+          </ScrollView>
+        ) : (
+          <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.scrollViewContent}
+          >
+            <View style={styles.LowerContainer}>
+              <View style={styles.ProductTitleContainer}>
+                <View style={styles.titleRow}>
+                  <Text style={styles.ProductTitle}>
+                    {isRtl ? item?.NameAr : item?.NameEn}
+                  </Text>
+                  <View style={styles.priceContainer}>
+                    {hasDiscount && (
+                      <PriceWithIcon
+                        amount={finalPrice}
+                        variant="discounted"
+                        icon={
+                          <SvgRiyalPink
+                            width={scaleWithMax(15, 18)}
+                            height={scaleWithMax(15, 18)}
+                          />
+                        }
+                        iconSize={scaleWithMax(15, 18)}
+                        textStyle={styles.discountedPrice}
+                      />
+                    )}
+                    <PriceWithIcon
+                      amount={originalPrice}
+                      variant={hasDiscount ? 'cut' : 'default'}
+                      icon={
+                        <SvgRiyalIcon
+                          width={
+                            hasDiscount
+                              ? scaleWithMax(11, 13)
+                              : scaleWithMax(15, 18)
+                          }
+                          height={
+                            hasDiscount
+                              ? scaleWithMax(11, 13)
+                              : scaleWithMax(15, 18)
+                          }
+                        />
+                      }
+                      iconSize={
+                        hasDiscount
+                          ? scaleWithMax(11, 13)
+                          : scaleWithMax(15, 18)
+                      }
+                      iconOpacity={hasDiscount ? 0.32 : 1}
+                      textStyle={hasDiscount ? styles.cutPrice : styles.price}
+                    />
+                  </View>
+                </View>
+                <Text style={styles.TaxIncludeText}>
+                  {getString('PRODUCT_ALL_PRICE_INCLUDE_TAX')}
+                </Text>
+              </View>
+
+              <View style={styles.ProductDescriptionContainer}>
+                <Text style={styles.Heading}>
+                  {getString('PRODUCT_DESCRIPTION')}
+                </Text>
+                <Text style={styles.Description}>
+                  {isRtl ? item?.DescAr : item?.DescEn}
+                </Text>
+              </View>
+              {item?.Variants?.length > 1 && (
+                <>
+                  <View style={styles.tabsContainer}>
+                    <Text style={styles.Heading}>
+                      {getString('PRODUCT_VARIANTS')}
+                    </Text>
+                    <GroupTabs
+                      tabs={filterOptions}
+                      activeTab={selectedFilter}
+                      onTabPress={setSelectedFilter}
+                    />
+                  </View>
+                </>
+              )}
+            </View>
+          </ScrollView>
+        )}
+
+        <ShadowView
+          preset="productDetailFooter"
+          style={{
+            borderTopLeftRadius: 15,
+            borderTopRightRadius: 15,
+            backgroundColor: theme.colors.WHITE,
+          }}
+        >
+          <View
+            style={{
+              ...styles.spaceBetween,
+              gap: sizes.WIDTH * 0.045,
+              backgroundColor: theme.colors.WHITE,
+              paddingHorizontal: sizes.PADDING,
+              paddingTop: sizes.HEIGHT * 0.016,
+              borderTopLeftRadius: 15,
+              borderTopRightRadius: 15,
+            }}
+          >
+            {!isMerchant && !isGiftOneGetOne && !isFavoritesMode && (
+              <View style={styles.QuantityContainer}>
+                <MinusIcon
+                  width={scaleWithMax(25, 28)}
+                  height={scaleWithMax(25, 28)}
+                  onPress={() => handleQuantityChange('decrement')}
+                />
+                <Text style={styles.QuantityText}>{quantity}</Text>
+                <PlusIcon
+                  width={scaleWithMax(25, 28)}
+                  height={scaleWithMax(25, 28)}
+                  onPress={() => handleQuantityChange('increment')}
+                />
+              </View>
+            )}
+
+            <CustomButton
+              buttonStyle={styles.button}
+              onPress={() => {
+                if (isFavoritesMode) {
+                  const newFavoriteState = !(item?.isFavourite ?? false);
+                  handleFavorite().then(success => {
+                    if (success) {
+                      patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
+                        'listing:',
+                        i => i.ItemId === item.ItemId,
+                        { isFavourite: newFavoriteState },
+                      );
+                      navigation.goBack();
+                    }
+                  });
+                } else if (isItemInCart) {
+                  (navigation as any).navigate('CheckOut');
+                } else {
+                  handleAddToCart();
+                }
+              }}
+              title={
+                isFavoritesMode
+                  ? item?.isFavourite
+                    ? getString('PRODUCT_REMOVE_FROM_FAVORITES')
+                    : getString('PRODUCT_ADD_TO_FAVORITES')
+                  : isItemInCart
+                  ? getString('PRODUCT_VIEW_CART')
+                  : getString('PRODUCT_ADD_TO_CART')
+              }
+              disabled={submitting}
+            />
+          </View>
+        </ShadowView>
+      </View>
 
       <ConfirmationPopup
         visible={showClearCartConfirmation}

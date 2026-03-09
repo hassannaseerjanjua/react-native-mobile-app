@@ -47,8 +47,7 @@ const SuccessMessage: React.FC<SuccessMessageProps> = ({
       )}
       {showFooter && (
         <>
-          <CustomFooter>
-            {' '}
+          <CustomFooter disableShadow>
             <Text style={styles.subTitle}>{subTitle}</Text>
             <View style={styles.buttonsRow}>
               {!!primaryButtonTitle && (
