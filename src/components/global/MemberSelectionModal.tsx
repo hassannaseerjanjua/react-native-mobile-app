@@ -518,7 +518,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       style={{ flex: 1 }}
       contentContainerStyle={{
         paddingHorizontal: theme.sizes.PADDING,
-        paddingBottom: theme.sizes.HEIGHT * 0.02,
+        paddingBottom: theme.sizes.HEIGHT * 0.1,
       }}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"

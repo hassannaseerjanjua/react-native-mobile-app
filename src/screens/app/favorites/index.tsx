@@ -17,13 +17,20 @@ import { AppStackScreen } from '../../../types/navigation.types.ts';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { useListingApi } from '../../../hooks/useListingApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
-import { FavStores, BusinessType } from '../../../types/index.ts';
+import { FavStores, BusinessType, City } from '../../../types/index.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import api from '../../../utils/api.ts';
 import notify from '../../../utils/notify';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
-import { SvgAddGroup, SvgAddOccasion } from '../../../assets/icons';
+import CustomButton from '../../../components/global/Custombutton';
+import CityPickerModal from '../../../components/global/CityPickerModal.tsx';
+import {
+  SvgAddOccasion,
+  ArrowDownIcon,
+  SvgAddGroup,
+} from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
+import { useAuthStore } from '../../../store/reducer/auth';
 
 const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   route,
@@ -31,6 +38,20 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
 }) => {
   const { styles, theme } = useStyles();
   const { getString, langCode } = useLocaleStore();
+  const { user } = useAuthStore();
+  const [selectedCityId, setSelectedCityId] = useState<number | null>(
+    user?.CityId || null,
+  );
+  const [showCityPicker, setShowCityPicker] = useState(false);
+
+  const businessTypeUrl = useMemo(
+    () =>
+      apiEndpoints.GET_BUSINESS_TYPE +
+      '?isFavUserApp=true' +
+      (selectedCityId ? `&cityid=${selectedCityId}` : ''),
+    [selectedCityId],
+  );
+
   const FavStoreListing = useListingApi<FavStores>(
     apiEndpoints.GET_FAV_STORE,
     '',
@@ -45,11 +66,35 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     },
   );
 
-  const businessTypeApi = useGetApi<BusinessType[]>(
-    apiEndpoints.GET_BUSINESS_TYPE + '?isFavUserApp=true',
-    {
-      transformData: (data: any) => data.Data.Items || [],
-    },
+  const businessTypeApi = useGetApi<BusinessType[]>(businessTypeUrl, {
+    transformData: (data: any) => data.Data.Items || [],
+    noCache: true,
+  });
+
+  const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
+    transformData: (data: any) => data?.Data?.cities ?? [],
+  });
+
+  const cityOptions = useMemo(
+    () =>
+      (citiesApi.data || []).map(city => {
+        const cityId = city.CityID ?? (city as { CityId?: number }).CityId;
+        return {
+          label:
+            langCode === 'ar'
+              ? city.CityNameAr || city.CityName
+              : city.CityNameEn || city.CityName,
+          value: cityId,
+        };
+      }),
+    [citiesApi.data, langCode],
+  );
+
+  const selectedCityOption = useMemo(
+    () =>
+      cityOptions.find(opt => Number(opt.value) === Number(selectedCityId)) ||
+      null,
+    [cityOptions, selectedCityId],
   );
 
   const [selectedFilter, setSelectedFilter] = useState('all');
@@ -85,8 +130,13 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
       ...prev,
       businessTypeId:
         selectedFilter === 'all' ? undefined : Number(selectedFilter),
+      cityid: selectedCityId,
     }));
-  }, [selectedFilter]);
+  }, [selectedFilter, selectedCityId]);
+
+  useEffect(() => {
+    businessTypeApi.refetch?.();
+  }, [selectedCityId]);
 
   const [cameFromProfile, setCameFromProfile] = useState(false);
 
@@ -109,6 +159,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     useCallback(() => {
       FavStoreListing.recall();
       businessTypeApi.refetch?.();
+      citiesApi.refetch?.();
     }, []),
   );
 
@@ -116,7 +167,14 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     setIsRefreshing(true);
     FavStoreListing.recall();
     businessTypeApi.refetch?.();
+    citiesApi.refetch?.();
   };
+
+  const handleAddFavoritesPress = () =>
+    (navigation as any).navigate('SelectStore', {
+      addToFavorites: true,
+      CityId: selectedCityId,
+    });
 
   const handleStepPress = (item: FavStores | any) => {
     if ('StoreNameEn' in item && 'StoreBranchID' in item) {
@@ -192,36 +250,40 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         onSearchChange={FavStoreListing.setSearch}
         rightSideView={
           <TouchableOpacity
-            onPress={() =>
-              (navigation as any).navigate('SelectStore', {
-                addToFavorites: true,
-              })
-            }
+            onPress={() => setShowCityPicker(true)}
             activeOpacity={0.7}
             style={{
+              width: theme.sizes.WIDTH * 0.48,
               flexDirection: 'row',
+              justifyContent: 'flex-end',
               alignItems: 'center',
               gap: scaleWithMax(4, 6),
             }}
           >
-            <SvgAddGroup
-            // width={scaleWithMax(20, 24)}
-            // height={scaleWithMax(20, 24)}
-            />
             <Text
               style={{
                 fontSize: theme.sizes.FONTSIZE,
                 color: theme.colors.PRIMARY,
-                fontFamily: theme.fonts.medium,
+                fontFamily: selectedCityOption
+                  ? theme.fonts.medium
+                  : theme.fonts.regular,
               }}
+              numberOfLines={1}
             >
-              {getString('FAV_ADD_FAVORITES')}
+              {selectedCityOption
+                ? selectedCityOption.label
+                : getString('SELECT_STORE_SELECT_CITY') || 'Select City'}
             </Text>
+            <ArrowDownIcon
+              width={scaleWithMax(12, 14)}
+              height={scaleWithMax(12, 14)}
+              fill={theme.colors.PRIMARY}
+            />
           </TouchableOpacity>
         }
       />
 
-      <View style={styles.content}>
+      <View style={[styles.content, { position: 'relative' }]}>
         <View>
           {businessTypeApi.loading && !isRefreshing ? (
             <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
@@ -278,20 +340,61 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
             ListEmptyComponent={
               <View
                 style={{
-                  height:
+                  // backgroundColor: theme.colors.RED,
+                  marginTop:
                     FavStoreListing.data && FavStoreListing.data.length > 0
-                      ? theme.sizes.HEIGHT * 0.55
-                      : theme.sizes.HEIGHT * 0.64,
+                      ? theme.sizes.HEIGHT * 0.2
+                      : theme.sizes.HEIGHT * 0.32,
+                  alignItems: 'center',
                 }}
               >
                 <PlaceholderLogoText
                   text={getString('EMPTY_NO_FAVORITES_FOUND')}
                 />
+                <View
+                  style={{
+                    marginTop: theme.sizes.HEIGHT * 0.02,
+                    width: '100%',
+                  }}
+                >
+                  <CustomButton
+                    title={getString('FAV_ADD_FAVORITES')}
+                    type="primary"
+                    icon={<SvgAddOccasion />}
+                    onPress={handleAddFavoritesPress}
+                  />
+                </View>
               </View>
             }
           />
         )}
+
+        {!FavStoreListing.loading && (
+          <View style={styles.buttonContainer}>
+            <CustomButton
+              title={getString('FAV_ADD_FAVORITES')}
+              type="primary"
+              icon={<SvgAddOccasion />}
+              onPress={handleAddFavoritesPress}
+            />
+          </View>
+        )}
       </View>
+
+      <CityPickerModal
+        visible={showCityPicker}
+        onClose={() => setShowCityPicker(false)}
+        options={cityOptions.map(opt => ({
+          label: opt.label,
+          value: opt.value,
+        }))}
+        selectedValue={selectedCityId}
+        onSelect={value => {
+          setSelectedCityId(value as number | null);
+          setShowCityPicker(false);
+        }}
+        title={getString('SELECT_STORE_SELECT_CITY') || 'Select City'}
+      />
     </View>
   );
 };

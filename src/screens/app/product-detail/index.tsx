@@ -11,7 +11,7 @@ import {
   SvgRiyalPink,
 } from '../../../assets/icons';
 import PriceWithIcon from '../../../components/global/Price';
-import { scaleWithMax, rtlTransform } from '../../../utils';
+import { scaleWithMax, rtlTransform, isAndroid } from '../../../utils';
 import ShadowView from '../../../components/global/ShadowView';
 import ProductImageSlider from '../../../components/global/ProductImageSlider';
 import GroupTabs from '../../../components/global/GroupTabs';
@@ -509,6 +509,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               backgroundColor: theme.colors.WHITE,
               paddingHorizontal: sizes.PADDING,
               paddingTop: sizes.HEIGHT * 0.016,
+              paddingBottom: isAndroid ? sizes.HEIGHT * 0.025 : undefined,
               borderTopLeftRadius: 15,
               borderTopRightRadius: 15,
             }}

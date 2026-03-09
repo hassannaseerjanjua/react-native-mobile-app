@@ -49,6 +49,7 @@ import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
 import { BlurView } from '@react-native-community/blur';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import ShadowView from '../../../components/global/ShadowView';
 import { selectAndCropImage } from '../../../utils/imageCropper';
 import { callLogoutWithDeviceToken } from '../../../utils/notificationService';
 import { encodeGiftLinkParams } from '../../../utils/giftLinkCodec';
@@ -327,7 +328,7 @@ const ProfileScreen: React.FC = () => {
         'settings',
         'manage-cards',
         'order',
-        'connect',
+        // 'connect',
         'contact-us',
         'terms',
         'privacy',
@@ -425,6 +426,7 @@ const ProfileScreen: React.FC = () => {
                   icon={item.icon}
                   TabItemStyles={screenStyles.menuItem}
                   TabTextStyles={screenStyles.menuItemText}
+                  shadowPreset="lightOffset"
                 />
               </View>
             ),
@@ -451,7 +453,9 @@ const ProfileScreen: React.FC = () => {
             activeOpacity={1}
             onPress={() => setShowQrModal(false)}
           />
-          <View
+          <ShadowView
+            preset="storeCard"
+            containerStyle={{ alignSelf: 'stretch' }}
             style={[
               screenStyles.modalContent,
               {
@@ -468,7 +472,11 @@ const ProfileScreen: React.FC = () => {
                 {getString('P_SCANTOGETME')}
               </Text>
 
-              <View style={screenStyles.qrCodeContainer}>
+              <ShadowView
+                preset="listItem"
+                containerStyle={{ alignSelf: 'stretch' }}
+                style={screenStyles.qrCodeContainer}
+              >
                 <View style={screenStyles.modalProfileSection}>
                   <Image
                     source={
@@ -509,9 +517,9 @@ const ProfileScreen: React.FC = () => {
                     </Text>
                   </View>
                 )}
-              </View>
+              </ShadowView>
             </View>
-          </View>
+          </ShadowView>
         </View>
       </Modal>
 

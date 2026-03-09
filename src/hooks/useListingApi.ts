@@ -316,6 +316,7 @@ export const useListingApi = <T>(
     extraParams,
     sortColumn,
     sortDirection,
+    isInitialLoad,
 
     setPageIndex,
     setSearch,

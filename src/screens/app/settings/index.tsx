@@ -39,6 +39,7 @@ import notify from '../../../utils/notify';
 import { useDispatch } from 'react-redux';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import ShadowView from '../../../components/global/ShadowView';
 import { saveTokenWithLanguage } from '../../../utils/notificationService';
 
 const SettingsScreen: React.FC = () => {
@@ -410,7 +411,11 @@ const SettingsScreen: React.FC = () => {
                       </TouchableOpacity>
                     </View>
 
-                    <View style={styles.genderContainer}>
+                    <ShadowView
+                      preset="input"
+                      containerStyle={{ alignSelf: 'stretch' }}
+                      style={styles.genderContainer}
+                    >
                       <View style={styles.genderOptions}>
                         {[
                           { label: getString('S_MALE'), value: 1 },
@@ -434,7 +439,7 @@ const SettingsScreen: React.FC = () => {
                           </TouchableOpacity>
                         ))}
                       </View>
-                    </View>
+                    </ShadowView>
 
                     <View style={styles.buttonContainer}>
                       <CustomButton
@@ -444,13 +449,15 @@ const SettingsScreen: React.FC = () => {
                         loading={loading}
                         disabled={loading || deleteLoading}
                       />
-                      <CustomButton
-                        title={getString('S_DELETE_ACCOUNT')}
-                        type="secondary"
-                        onPress={() => setShowDeleteConfirmation(true)}
-                        loading={deleteLoading}
-                        disabled={loading || deleteLoading}
-                      />
+                      {!user?.isMerchant && (
+                        <CustomButton
+                          title={getString('S_DELETE_ACCOUNT')}
+                          type="secondary"
+                          onPress={() => setShowDeleteConfirmation(true)}
+                          loading={deleteLoading}
+                          disabled={loading || deleteLoading}
+                        />
+                      )}
                     </View>
                   </View>
 

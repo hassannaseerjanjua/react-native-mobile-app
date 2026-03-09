@@ -576,6 +576,12 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       : isMerchant && activeTab === 'employees'
       ? employeesApi.loading
       : activeUsersApi.loading;
+  const getRelevantApi = () =>
+    activeTab === 'group'
+      ? getGroupsData
+      : isMerchant && activeTab === 'employees'
+      ? employeesApi
+      : activeUsersApi;
   const searchQuery =
     activeTab === 'group'
       ? getGroupsData.search
@@ -607,8 +613,13 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
   // Check if we should show empty state
   // Show empty state when: not merchant, not loading, no data to display, and on friends tab
+  // Require isInitialLoad so we don't flash "no friends" before data has loaded (like checkout)
   const shouldShowEmptyState =
-    !isMerchant && !isLoading && !shouldShowList && activeTab === 'friends';
+    !isMerchant &&
+    !isLoading &&
+    !shouldShowList &&
+    activeTab === 'friends' &&
+    activeUsersApi.isInitialLoad;
 
   // Show no friends container on Others tab when search result is empty
   const shouldShowOthersEmptyState =
@@ -616,6 +627,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     !isLoading &&
     !shouldShowList &&
     activeTab === 'others' &&
+    activeUsersApi.isInitialLoad &&
     (activeUsersApi.data || []).length === 0;
 
   // Text for empty state: use effectiveSearchForHideMe to sync with "me" visibility - no immediate text change
@@ -793,13 +805,24 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
                   <TouchableOpacity
                     onPress={() => setIsEditGroupOpen(prev => !prev)}
                     activeOpacity={0.7}
+                    hitSlop={8}
                     style={{
                       flexDirection: 'row',
                       alignItems: 'center',
                       gap: theme.sizes.PADDING * 0.1,
                     }}
                   >
-                    {!isEditGroupOpen ? <SvgEditGroup /> : <SvgCancelIcon />}
+                    {!isEditGroupOpen ? (
+                      <SvgEditGroup
+                        width={scaleWithMax(13, 15)}
+                        height={scaleWithMax(13, 15)}
+                      />
+                    ) : (
+                      <SvgCancelIcon
+                        width={scaleWithMax(13, 15)}
+                        height={scaleWithMax(13, 15)}
+                      />
+                    )}
                     {/* <Text
                       style={{
                         fontFamily: theme.fonts.semibold,
@@ -983,7 +1006,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             </View>
           )}
           {activeTab !== 'group' &&
-          isLoading &&
+          (isLoading || !getRelevantApi()?.isInitialLoad) &&
           !skipSkeletonForSearchTransition ? (
             <ShadowView preset="listItem">
               <View style={[styles.listCard]}>

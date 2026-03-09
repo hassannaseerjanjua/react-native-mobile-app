@@ -636,7 +636,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             columnWrapperStyle={styles.columnWrapper}
             extraData={favoriteStates}
             ListEmptyComponent={() => (
-              <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
+              <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
                 <PlaceholderLogoText
                   text={getString('EMPTY_NO_PRODUCTS_FOUND')}
                 />

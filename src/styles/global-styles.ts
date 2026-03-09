@@ -4,10 +4,7 @@ import { Sizes } from './sizes';
 import { getFontsForLanguage } from '../assets/fonts';
 import { isAndroid, scaleWithMax } from '../utils';
 
-export {
-  SHADOW_PRESETS,
-  type ShadowPresetName,
-} from './shadow-presets';
+export { SHADOW_PRESETS, type ShadowPresetName } from './shadow-presets';
 
 export const getGlobalStyles = (
   colors: Colors,

@@ -27,6 +27,7 @@ import { isAndroid, scaleWithMax } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Platform } from 'react-native';
 import ShadowView from './ShadowView';
+import type { ShadowPresetName } from '../../styles/global-styles';
 
 interface TabItemProps {
   title: string;
@@ -48,6 +49,7 @@ interface TabItemProps {
   subtitle?: string;
   activeOpacity?: number;
   disabled?: boolean;
+  shadowPreset?: ShadowPresetName;
 }
 
 const TabItem = ({
@@ -70,6 +72,7 @@ const TabItem = ({
   rightSideView,
   subtitle,
   disabled = false,
+  shadowPreset = 'listItem',
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
   const { isRtl } = useLocaleStore();
@@ -95,7 +98,7 @@ const TabItem = ({
   });
 
   return (
-    <ShadowView preset="listItem">
+    <ShadowView preset={shadowPreset}>
       <TouchableOpacity
         activeOpacity={activeOpacity ?? 0.8}
         onPress={disabled ? undefined : onPress}

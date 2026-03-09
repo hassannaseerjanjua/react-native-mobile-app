@@ -133,6 +133,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             style={styles.backButton}
             onPress={handleBackPress}
             activeOpacity={0.7}
+            hitSlop={10}
           >
             <SvgHomeBack
               style={{ transform: rtlTransform(isRtl) }}
@@ -274,6 +275,7 @@ const useStyles = () => {
         justifyContent: 'space-between',
         paddingTop: isAndroidThen(sizes.PADDING, 0),
         paddingBottom: sizes.HEIGHT * 0.01,
+        // backgroundColor: colors.RED,
         paddingHorizontal: theme.sizes.PADDING,
       },
       rightSection: {
@@ -317,11 +319,13 @@ const useStyles = () => {
       backButton: {
         alignItems: 'center',
         justifyContent: 'center',
+        marginEnd: sizes.WIDTH * 0.015,
       },
       titleContainer: {
         flex: 1,
-        marginStart: sizes.WIDTH * 0.02,
+        // marginStart: sizes.WIDTH * 0.02,
         justifyContent: 'center',
+        // backgroundColor: colors.RED,
       },
       titlePressable: {
         alignSelf: 'flex-start',

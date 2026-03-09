@@ -22,6 +22,7 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { Order, OrdersApiResponse } from '../../../types/index';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+import ShadowView from '../../../components/global/ShadowView';
 
 const getStatusText = (
   status: number,
@@ -225,7 +226,11 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   const orderDate = order.OrderTime || new Date().toISOString();
 
   return (
-    <View style={styles.orderCard}>
+    <ShadowView
+      preset="listItem"
+      containerStyle={{ alignSelf: 'stretch' }}
+      style={styles.orderCard}
+    >
       <View style={styles.rowContainer}>
         <View style={styles.leftSection}>
           <View style={styles.imageContainer}>
@@ -321,7 +326,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
           </View>
         </View>
       </View>
-    </View>
+    </ShadowView>
   );
 };
 

@@ -164,7 +164,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
     const threshold = layoutMeasurement.height * 0.5;
     const nearBottom =
-      layoutMeasurement.height + contentOffset.y >= contentSize.height - threshold;
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - threshold;
     if (!nearBottom) return;
     if (showConnectOnly) return;
     if (showEmployeesOnly) {
@@ -426,7 +427,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         searchPlaceholder={getString('HOME_SEARCH')}
         rightSideView={
           !showFriendsOnly &&
-          !showConnectOnly && (
+          !showConnectOnly &&
+          !user?.isMerchant && (
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('Search', {
@@ -435,7 +437,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               }
               style={{
                 backgroundColor: theme.colors.SECONDARY,
-                paddingHorizontal: scaleWithMax(10, 12),
+                paddingHorizontal: scaleWithMax(10, 10),
                 paddingVertical: scaleWithMax(5, 6),
                 borderRadius: scaleWithMax(5, 6),
               }}
@@ -457,12 +459,18 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         {activeUsersApi.loading ||
         employeesApi.loading ||
         (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
-          <ShadowView preset="listItem">
-            <View style={[styles.listCard, styles.contentContainer]}>
-              <SkeletonLoader screenType="search" />
-            </View>
-          </ShadowView>
+          // true ? (
+          // <ShadowView preset="listItem">
+          <View
+            style={{
+              paddingHorizontal: theme.sizes.PADDING,
+              paddingVertical: theme.sizes.PADDING,
+            }}
+          >
+            <SkeletonLoader screenType="search" />
+          </View>
         ) : (
+          // </ShadowView>
           <ScrollView
             style={{ flex: 1 }}
             contentContainerStyle={styles.contentContainer}
@@ -479,157 +487,163 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
             }
           >
             {(() => {
-            // In connect mode, only show mobile contacts
-            if (showConnectOnly) {
-              // Map mobile contacts to ActiveUser format for display
-              const mappedContacts: ActiveUser[] = mobileContacts.map(
-                (contact, index) => {
-                  const phoneNo = contact.phoneNumbers[0] || '';
-                  const formattedPhone = formatPhoneNumber(phoneNo);
-                  const verified = verifiedUsers[formattedPhone];
+              // In connect mode, only show mobile contacts
+              if (showConnectOnly) {
+                // Map mobile contacts to ActiveUser format for display
+                const mappedContacts: ActiveUser[] = mobileContacts.map(
+                  (contact, index) => {
+                    const phoneNo = contact.phoneNumbers[0] || '';
+                    const formattedPhone = formatPhoneNumber(phoneNo);
+                    const verified = verifiedUsers[formattedPhone];
 
-                  return {
-                    UserId:
-                      verified?.IsAppUser && verified.UserID
-                        ? verified.UserID
-                        : -(index + 1), // Negative IDs for non-app users
-                    FullName: contact.name,
-                    PhoneNo: phoneNo,
-                    Email: contact.emails[0] || '',
-                    ProfileUrl: contact.thumbnail || null,
-                    RelationStatus: verified?.IsAppUser ? 2 : 0, // 2 = not friend, 0 = not a user
-                    IsVerified: verified?.IsAppUser ? true : false,
-                  };
-                },
-              );
-
-              // Filter contacts by search query if needed
-              const filteredContacts = mappedContacts.filter(contact => {
-                if (!searchQuery) return true;
-                const query = searchQuery.toLowerCase();
-                return (
-                  contact.FullName?.toLowerCase().includes(query) ||
-                  contact.PhoneNo?.includes(query) ||
-                  contact.Email?.toLowerCase().includes(query)
+                    return {
+                      UserId:
+                        verified?.IsAppUser && verified.UserID
+                          ? verified.UserID
+                          : -(index + 1), // Negative IDs for non-app users
+                      FullName: contact.name,
+                      PhoneNo: phoneNo,
+                      Email: contact.emails[0] || '',
+                      ProfileUrl: contact.thumbnail || null,
+                      RelationStatus: verified?.IsAppUser ? 2 : 0, // 2 = not friend, 0 = not a user
+                      IsVerified: verified?.IsAppUser ? true : false,
+                    };
+                  },
                 );
-              });
 
-              const isEmpty = filteredContacts.length === 0;
+                // Filter contacts by search query if needed
+                const filteredContacts = mappedContacts.filter(contact => {
+                  if (!searchQuery) return true;
+                  const query = searchQuery.toLowerCase();
+                  return (
+                    contact.FullName?.toLowerCase().includes(query) ||
+                    contact.PhoneNo?.includes(query) ||
+                    contact.Email?.toLowerCase().includes(query)
+                  );
+                });
+
+                const isEmpty = filteredContacts.length === 0;
+
+                return (
+                  <ShadowView preset="listItem" disabled={isEmpty}>
+                    <View
+                      style={[styles.listCard, isEmpty && styles.listCardEmpty]}
+                    >
+                      <FlatList
+                        data={filteredContacts}
+                        scrollEnabled={false}
+                        keyExtractor={item => item.UserId.toString()}
+                        renderItem={({ item, index }) => {
+                          const phoneNo = item.PhoneNo || '';
+                          const formattedPhone = formatPhoneNumber(phoneNo);
+                          const verified = verifiedUsers[formattedPhone];
+                          const isAppUser = verified?.IsAppUser || false;
+
+                          return (
+                            <SearchUserItem
+                              item={item}
+                              index={index}
+                              isLast={
+                                index === (filteredContacts?.length ?? 0) - 1
+                              }
+                              updatedUsers={updatedUsers}
+                              loadingUsers={loadingUsers}
+                              handleAddUser={
+                                isAppUser
+                                  ? () => handleContactAction(item)
+                                  : undefined
+                              }
+                              showAddButton={true}
+                              tempAddedUserIds={tempAddedUserIds}
+                              isGeneralSearchScreen={false}
+                              // Pass custom button text for invite
+                              customButtonText={
+                                !isAppUser
+                                  ? getString('SEARCH_INVITE')
+                                  : undefined
+                              }
+                              onCustomButtonPress={
+                                !isAppUser
+                                  ? () => handleContactAction(item)
+                                  : undefined
+                              }
+                            />
+                          );
+                        }}
+                        showsVerticalScrollIndicator={false}
+                        ListEmptyComponent={
+                          <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
+                            <PlaceholderLogoText
+                              text={getString('SEARCH_NO_USERS_FOUND')}
+                            />
+                          </View>
+                        }
+                        contentContainerStyle={styles.listContainer}
+                        ListFooterComponent={
+                          loadingContacts || verifyingContacts ? (
+                            <View style={{ padding: 20, alignItems: 'center' }}>
+                              <Text>
+                                {verifyingContacts
+                                  ? getString('SEARCH_VERIFYING_CONTACTS')
+                                  : getString('SEARCH_LOADING_CONTACTS')}
+                              </Text>
+                            </View>
+                          ) : null
+                        }
+                      />
+                    </View>
+                  </ShadowView>
+                );
+              }
+
+              // For other modes, show API users (employees or active users)
+              const filteredData = showEmployeesOnly
+                ? employeesApi?.data
+                : activeUsersApi?.data;
+              const isEmpty = !filteredData || filteredData.length === 0;
 
               return (
                 <ShadowView preset="listItem" disabled={isEmpty}>
                   <View
                     style={[styles.listCard, isEmpty && styles.listCardEmpty]}
                   >
-                  <FlatList
-                    data={filteredContacts}
-                    scrollEnabled={false}
-                    keyExtractor={item => item.UserId.toString()}
-                    renderItem={({ item, index }) => {
-                      const phoneNo = item.PhoneNo || '';
-                      const formattedPhone = formatPhoneNumber(phoneNo);
-                      const verified = verifiedUsers[formattedPhone];
-                      const isAppUser = verified?.IsAppUser || false;
-
-                      return (
+                    <FlatList
+                      data={filteredData}
+                      scrollEnabled={false}
+                      keyExtractor={item => item.UserId.toString()}
+                      renderItem={({ item, index }) => (
                         <SearchUserItem
                           item={item}
                           index={index}
-                          isLast={index === (filteredContacts?.length ?? 0) - 1}
+                          isLast={index === (filteredData?.length ?? 0) - 1}
                           updatedUsers={updatedUsers}
                           loadingUsers={loadingUsers}
                           handleAddUser={
-                            isAppUser
-                              ? () => handleContactAction(item)
-                              : undefined
+                            showEmployeesOnly ? undefined : handleAddUser
                           }
-                          showAddButton={true}
+                          showAddButton={!showEmployeesOnly}
                           tempAddedUserIds={tempAddedUserIds}
-                          isGeneralSearchScreen={false}
-                          // Pass custom button text for invite
-                          customButtonText={
-                            !isAppUser ? getString('SEARCH_INVITE') : undefined
-                          }
-                          onCustomButtonPress={
-                            !isAppUser
-                              ? () => handleContactAction(item)
-                              : undefined
+                          isGeneralSearchScreen={
+                            !showFriendsOnly &&
+                            !showConnectOnly &&
+                            !showEmployeesOnly
                           }
                         />
-                      );
-                    }}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                      <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
-                        <PlaceholderLogoText
-                          text={getString('SEARCH_NO_USERS_FOUND')}
-                        />
-                      </View>
-                    }
-                    contentContainerStyle={styles.listContainer}
-                    ListFooterComponent={
-                      loadingContacts || verifyingContacts ? (
-                        <View style={{ padding: 20, alignItems: 'center' }}>
-                          <Text>
-                            {verifyingContacts
-                              ? getString('SEARCH_VERIFYING_CONTACTS')
-                              : getString('SEARCH_LOADING_CONTACTS')}
-                          </Text>
+                      )}
+                      showsVerticalScrollIndicator={false}
+                      contentContainerStyle={styles.listContainer}
+                      ListEmptyComponent={
+                        <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
+                          <PlaceholderLogoText
+                            text={getString('SEARCH_NO_USERS_FOUND')}
+                          />
                         </View>
-                      ) : null
-                    }
-                  />
-                </View>
-                </ShadowView>
-              );
-            }
-
-            // For other modes, show API users (employees or active users)
-            const filteredData = showEmployeesOnly
-              ? employeesApi?.data
-              : activeUsersApi?.data;
-            const isEmpty = !filteredData || filteredData.length === 0;
-
-            return (
-              <ShadowView preset="listItem" disabled={isEmpty}>
-                <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
-                <FlatList
-                  data={filteredData}
-                  scrollEnabled={false}
-                  keyExtractor={item => item.UserId.toString()}
-                  renderItem={({ item, index }) => (
-                    <SearchUserItem
-                      item={item}
-                      index={index}
-                      isLast={index === (filteredData?.length ?? 0) - 1}
-                      updatedUsers={updatedUsers}
-                      loadingUsers={loadingUsers}
-                      handleAddUser={
-                        showEmployeesOnly ? undefined : handleAddUser
-                      }
-                      showAddButton={!showEmployeesOnly}
-                      tempAddedUserIds={tempAddedUserIds}
-                      isGeneralSearchScreen={
-                        !showFriendsOnly &&
-                        !showConnectOnly &&
-                        !showEmployeesOnly
                       }
                     />
-                  )}
-                  showsVerticalScrollIndicator={false}
-                  contentContainerStyle={styles.listContainer}
-                  ListEmptyComponent={
-                    <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
-                      <PlaceholderLogoText
-                        text={getString('SEARCH_NO_USERS_FOUND')}
-                      />
-                    </View>
-                  }
-                />
-              </View>
-              </ShadowView>
-            );
-          })()}
+                  </View>
+                </ShadowView>
+              );
+            })()}
           </ScrollView>
         )}
       </View>

@@ -277,7 +277,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                 keyboardType="number-pad"
                 maxLength={1}
                 textAlign="center"
-                writingDirection="ltr"
+                // writingDirection="ltr"
                 selectTextOnFocus
                 autoFocus={index === 0}
               />
@@ -289,7 +289,10 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
               {getString('AU_HAVENT_RECEIVED_CODE')}{' '}
               {isTimerActive ? (
                 <Text>
-                  {getString('AU_WAIT_FOR')} {formatTimer(timer)}
+                  {getString('AU_WAIT_FOR')}{' '}
+                  <Text style={{ color: theme.colors.PRIMARY }}>
+                    {formatTimer(timer)}
+                  </Text>
                 </Text>
               ) : (
                 <Text

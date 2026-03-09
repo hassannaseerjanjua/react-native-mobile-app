@@ -84,112 +84,115 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
     : fullName;
 
   return (
-    <TouchableOpacity
-      style={[styles.userRow, !isLast && styles.userRowDivider]}
-      onPress={showSelection ? onSelectionPress : onPress}
-      activeOpacity={1}
-    >
-      <View style={styles.userInfo}>
-        <View style={styles.avatarWrapper}>
-          <Image
-            source={profileSource}
-            placeholderSource={dummyImage}
-            style={styles.avatar}
-          />
-        </View>
-        <View style={styles.nameRow}>
-          <Text
-            style={[
-              styles.userName,
-              {
-                maxWidth: shouldShowButton ? '80%' : '80%',
-              },
-            ]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {displayName}
-            {hasMeSuffix && (
-              <Text
-                style={[
-                  styles.userNameSuffix,
-                  isArabic ? styles.userNameSuffixArabic : null,
-                ]}
-              >
-                {meSuffix}
-              </Text>
+    <>
+      <TouchableOpacity
+        style={[styles.userRow, !isLast && styles.userRowDivider]}
+        onPress={showSelection ? onSelectionPress : onPress}
+        activeOpacity={1}
+      >
+        <View style={styles.userInfo}>
+          <View style={styles.avatarWrapper}>
+            <Image
+              source={profileSource}
+              placeholderSource={dummyImage}
+              style={styles.avatar}
+            />
+          </View>
+          <View style={styles.nameRow}>
+            <Text
+              style={[
+                styles.userName,
+                {
+                  maxWidth: shouldShowButton ? '80%' : '80%',
+                },
+              ]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {displayName}
+              {hasMeSuffix && (
+                <Text
+                  style={[
+                    styles.userNameSuffix,
+                    isArabic ? styles.userNameSuffixArabic : null,
+                  ]}
+                >
+                  {meSuffix}
+                </Text>
+              )}
+            </Text>
+            {item.IsVerified && (
+              <View style={styles.verifiedIconWrapper}>
+                <SvgVerifiedIcon />
+              </View>
             )}
-          </Text>
-          {item.IsVerified && (
-            <View style={styles.verifiedIconWrapper}>
-              <SvgVerifiedIcon />
-            </View>
-          )}
+          </View>
         </View>
-      </View>
 
-      {shouldShowButton && (
-        <TouchableOpacity
-          activeOpacity={0.8}
-          style={[
-            styles.addButton,
-            (isAdded || isTempAdded) && styles.addedButton,
-          ]}
-          onPress={() => {
-            if (customButtonText && onCustomButtonPress) {
-              onCustomButtonPress();
-            } else {
-              handleAddUser?.(item.UserId);
+        {shouldShowButton && (
+          <TouchableOpacity
+            activeOpacity={0.8}
+            style={[
+              styles.addButton,
+              (isAdded || isTempAdded) && styles.addedButton,
+            ]}
+            onPress={() => {
+              if (customButtonText && onCustomButtonPress) {
+                onCustomButtonPress();
+              } else {
+                handleAddUser?.(item.UserId);
+              }
+            }}
+            disabled={isLoading || isTempAdded}
+          >
+            {isLoading ? (
+              <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
+            ) : (
+              <View style={[styles.buttonContent]}>
+                <Text
+                  style={[
+                    styles.addButtonText,
+                    (isAdded || isTempAdded) && styles.addedButtonText,
+                  ]}
+                >
+                  {customButtonText ||
+                    (isTempAdded
+                      ? getString('SEARCH_ADDED')
+                      : isAdded
+                      ? getString('MF_UNFRIEND')
+                      : getString('SEARCH_ADD'))}
+                </Text>
+              </View>
+            )}
+          </TouchableOpacity>
+        )}
+
+        {showSelection && (
+          <TouchableOpacity
+            style={[
+              styles.selectionCircle,
+              isSelected && styles.selectedCircle,
+              selectionDisabled && !isSelected && styles.disabledCircle,
+            ]}
+            onPress={
+              selectionDisabled && !isSelected ? undefined : onSelectionPress
             }
-          }}
-          disabled={isLoading || isTempAdded}
-        >
-          {isLoading ? (
-            <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
-          ) : (
-            <View style={[styles.buttonContent]}>
-              <Text
-                style={[
-                  styles.addButtonText,
-                  (isAdded || isTempAdded) && styles.addedButtonText,
-                ]}
-              >
-                {customButtonText ||
-                  (isTempAdded
-                    ? getString('SEARCH_ADDED')
-                    : isAdded
-                    ? getString('MF_UNFRIEND')
-                    : getString('SEARCH_ADD'))}
-              </Text>
-            </View>
-          )}
-        </TouchableOpacity>
-      )}
-
-      {showSelection && (
-        <TouchableOpacity
-          style={[
-            styles.selectionCircle,
-            isSelected && styles.selectedCircle,
-            selectionDisabled && !isSelected && styles.disabledCircle,
-          ]}
-          onPress={
-            selectionDisabled && !isSelected ? undefined : onSelectionPress
-          }
-          activeOpacity={selectionDisabled && !isSelected ? 1 : 0.7}
-          disabled={selectionDisabled && !isSelected}
-        >
-          {isSelected && (
-            <View style={styles.iconWrapper}>
-              <SvgSelectedCheck
-                width={scaleWithMax(9, 10)}
-                height={scaleWithMax(9, 10)}
-              />
-            </View>
-          )}
-        </TouchableOpacity>
-      )}
-    </TouchableOpacity>
+            activeOpacity={selectionDisabled && !isSelected ? 1 : 0.7}
+            disabled={selectionDisabled && !isSelected}
+          >
+            {isSelected && (
+              <View style={styles.iconWrapper}>
+                <SvgSelectedCheck
+                  width={scaleWithMax(9, 10)}
+                  height={scaleWithMax(9, 10)}
+                />
+              </View>
+            )}
+          </TouchableOpacity>
+        )}
+      </TouchableOpacity>
+      {!isLast && <View style={styles.separator} />}
+    </>
   );
 };
 
@@ -208,8 +211,8 @@ const useStyles = () => {
         paddingHorizontal: scaleWithMax(14, 14),
       },
       userRowDivider: {
-        borderBottomWidth: 1,
-        borderBottomColor: colors.DIVIDER_COLOR,
+        // borderBottomWidth: 1,
+        // borderBottomColor: colors.DIVIDER_COLOR,
       },
 
       userInfo: {
@@ -257,10 +260,10 @@ const useStyles = () => {
       },
       addButton: {
         borderRadius: sizes.BORDER_RADIUS,
-        paddingHorizontal: theme.sizes.WIDTH * 0.018,
+        paddingHorizontal: theme.sizes.WIDTH * 0.022,
         paddingVertical: theme.sizes.HEIGHT * 0.006,
         backgroundColor: colors.SECONDARY,
-        minWidth: scaleWithMax(68, 68),
+        // minWidth: scaleWithMax(68, 68),
         alignItems: 'center',
         justifyContent: 'center',
       },
@@ -308,6 +311,12 @@ const useStyles = () => {
         alignItems: 'center',
         gap: scaleWithMax(2, 2),
         justifyContent: 'center',
+      },
+      separator: {
+        height: 1,
+        backgroundColor: colors.DIVIDER_COLOR,
+        marginVertical: 0,
+        marginHorizontal: theme.sizes.PADDING,
       },
     });
   }, [theme]);

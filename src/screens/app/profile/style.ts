@@ -90,18 +90,10 @@ const useStyles = () => {
         padding: sizes.PADDING,
       },
       modalContent: {
-        // width: '90%',
+        width: '100%',
         maxWidth: 400,
-        padding: sizes.PADDING * 1,
+        padding: sizes.PADDING * 0.8,
         alignItems: 'center',
-        shadowColor: '#000',
-        shadowOffset: {
-          width: 0,
-          height: 4,
-        },
-        shadowOpacity: 0.3,
-        shadowRadius: 10,
-        elevation: 4,
       },
       qrContent: {
         width: '100%',
@@ -111,6 +103,7 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         width: '100%',
+        // backgroundColor: colors.RED,
         marginBottom: sizes.PADDING * 1.5,
       },
       modalProfileImage: {
@@ -120,7 +113,7 @@ const useStyles = () => {
       },
       modalProfileInfo: {
         flex: 1,
-        marginLeft: sizes.WIDTH * 0.03,
+        marginLeft: sizes.WIDTH * 0.02,
       },
       modalProfileName: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
@@ -136,7 +129,8 @@ const useStyles = () => {
       qrTitle: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         fontSize: sizes.FONTSIZE_HEADING,
-        marginBottom: sizes.PADDING * 0.25,
+
+        marginVertical: sizes.PADDING * 0.25,
         color: colors.PRIMARY_TEXT,
       },
       qrSubtitle: {
@@ -146,11 +140,11 @@ const useStyles = () => {
         marginBottom: sizes.PADDING * 1.22,
       },
       qrCodeContainer: {
+        width: '100%',
         backgroundColor: colors.WHITE,
-        padding: sizes.PADDING * 1.5,
+        padding: sizes.PADDING * 1.2,
         borderRadius: 20,
         alignItems: 'center',
-        shadowColor: '#00000050',
       },
       bottomSheet: {
         width: sizes.PADDED_WIDTH,
@@ -180,8 +174,6 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: scaleWithMax(12, 14),
         padding: scaleWithMax(6, 8),
-        shadowColor: '#00000050',
-        elevation: 2,
       },
     });
   }, [theme]);

@@ -70,33 +70,31 @@ const FAQItem: React.FC<FAQItemProps> = ({
   return (
     <ShadowView preset="default">
       <View style={[styles.container, style]}>
-      <TouchableOpacity
-        onPress={handlePress}
-        activeOpacity={0.9}
-        style={styles.questionContainer}
-      >
-        <View style={styles.contentContainer}>
-          <Text
-            style={[styles.titleText, textStyle]}
-            numberOfLines={isExpanded ? undefined : 1}
-            ellipsizeMode="tail"
-          >
-            {questionText}
-          </Text>
-        </View>
-        <Animated.View style={[styles.arrowIcon, animatedIconStyle]}>
-          <SvgNextIcon />
-        </Animated.View>
-      </TouchableOpacity>
+        <TouchableOpacity
+          onPress={handlePress}
+          activeOpacity={0.9}
+          style={styles.questionContainer}
+        >
+          <View style={styles.contentContainer}>
+            <Text
+              style={[styles.titleText, textStyle]}
+              numberOfLines={isExpanded ? undefined : 1}
+              ellipsizeMode="tail"
+            >
+              {questionText}
+            </Text>
+          </View>
+          <Animated.View style={[styles.arrowIcon, animatedIconStyle]}>
+            <SvgNextIcon />
+          </Animated.View>
+        </TouchableOpacity>
 
-      {isExpanded && (
-        <View style={styles.answerContainer}>
-          <Text style={styles.answerText}>
-            {answerText}
-          </Text>
-        </View>
-      )}
-    </View>
+        {isExpanded && (
+          <View style={styles.answerContainer}>
+            <Text style={styles.answerText}>{answerText}</Text>
+          </View>
+        )}
+      </View>
     </ShadowView>
   );
 };
@@ -111,6 +109,7 @@ const useStyles = () => {
       container: {
         backgroundColor: colors.WHITE,
         width: '100%',
+        borderRadius: theme.sizes.BORDER_RADIUS_MID,
       },
       questionContainer: {
         flexDirection: 'row',
@@ -135,8 +134,7 @@ const useStyles = () => {
         textAlign: 'left',
         writingDirection: 'ltr',
       },
-      arrowIcon: {
-      },
+      arrowIcon: {},
       answerContainer: {
         marginHorizontal: theme.sizes.PADDING,
         paddingTop: theme.sizes.HEIGHT * 0.01,

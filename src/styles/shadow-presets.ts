@@ -6,7 +6,7 @@ export const SHADOW_PRESETS = {
   /** Store card - soft, slight depth */
   storeCard: {
     startColor: '#0000000D',
-    distance: 36,
+    distance: 20,
     offset: [0, 2] as [number, number],
   },
 
@@ -49,6 +49,13 @@ export const SHADOW_PRESETS = {
   low: {
     startColor: '#00000006',
     distance: 3,
+    offset: [0, 1] as [number, number],
+  },
+
+  /** Light offset - very subtle, for profile menu items etc. */
+  lightOffset: {
+    startColor: '#00000003',
+    distance: 4,
     offset: [0, 1] as [number, number],
   },
 

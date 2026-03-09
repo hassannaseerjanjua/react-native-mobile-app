@@ -78,6 +78,7 @@ const useStyles = () => {
         marginBottom: 20,
         height: scaleWithMax(45, 50),
         justifyContent: 'center',
+        overflow: 'hidden',
       },
       genderTitle: {
         fontFamily: fonts.medium,

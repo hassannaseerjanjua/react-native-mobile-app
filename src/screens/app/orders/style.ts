@@ -27,6 +27,7 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS * 1.2,
         padding: sizes.PADDING * 0.8,
+        overflow: 'hidden',
       },
       rowContainer: {
         flexDirection: 'row',
