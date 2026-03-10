@@ -115,7 +115,15 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       }, 1000);
     }
   };
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, "");
 
+    const part1 = digits.slice(0, 2);
+    const part2 = digits.slice(2, 5);
+    const part3 = digits.slice(5, 9);
+
+    return [part1, part2, part3].filter(Boolean).join(" ");
+  };
   return (
     <>
       <AuthLayout
@@ -255,7 +263,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
           <Text style={styles.bottomSheetNumber}>
             {activeTab === 'Phone'
-              ? `+966 ${currentFormValues.phone}`
+              ? `+966 ${formatPhone(currentFormValues.phone)}`
               : currentFormValues.email}
           </Text>
 

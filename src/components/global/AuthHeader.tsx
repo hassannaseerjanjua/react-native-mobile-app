@@ -46,7 +46,9 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({
           <SvgBackIcon
             width={backSize}
             height={backSize}
-            style={{ transform: rtlTransform(isRtl) }}
+            style={{
+              transform: [...rtlTransform(isRtl), { translateX: -3 }]
+            }}
           />
         </TouchableOpacity>
       ) : spaceTaken ? (
@@ -85,6 +87,7 @@ const useStyles = () => {
         paddingVertical: sizes.PADDING,
         alignItems: 'center',
         justifyContent: 'center',
+
       },
       title: {
         fontFamily: fonts.bold,

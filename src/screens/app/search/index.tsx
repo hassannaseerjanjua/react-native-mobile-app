@@ -39,7 +39,7 @@ interface VerifiedUser {
   UserID: number | null;
 }
 
-interface SearchProps extends AppStackScreen<'Search'> {}
+interface SearchProps extends AppStackScreen<'Search'> { }
 
 const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
@@ -457,8 +457,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
 
       <View style={styles.content}>
         {activeUsersApi.loading ||
-        employeesApi.loading ||
-        (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
+          employeesApi.loading ||
+          (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
           // true ? (
           // <ShadowView preset="listItem">
           <View
@@ -655,9 +655,9 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
           unfriendModal.isLinkedToGroup
             ? getString('SEARCH_USER_LINKED_TO_GROUPS_MESSAGE')
             : getString('SEARCH_ARE_YOU_SURE_UNFRIEND').replace(
-                '{value}',
-                unfriendModal.userName || '',
-              )
+              '{value}',
+              unfriendModal.userName || '',
+            )
         }
         confirmText={getString('SEARCH_YES')}
         cancelText={getString('NG_CANCEL')}

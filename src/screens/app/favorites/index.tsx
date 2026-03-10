@@ -234,7 +234,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
-
+  console.log("favestorelisting loaidng ==>", FavStoreListing.loading)
   return (
     <View style={styles.container}>
       <StatusBar
@@ -245,8 +245,10 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         title={getString('FAV_FAVORITES')}
         showBackButton={true}
         onBackPress={handleBackPress}
-        showSearchBar={true}
+        loading={FavStoreListing?.loading}
+        showSearchBar={FavStoreListing.data.length > 0 && !FavStoreListing.loading}
         searchValue={FavStoreListing.search}
+        hideSearchBar={false}
         onSearchChange={FavStoreListing.setSearch}
         rightSideView={
           <TouchableOpacity
@@ -344,7 +346,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
                   marginTop:
                     FavStoreListing.data && FavStoreListing.data.length > 0
                       ? theme.sizes.HEIGHT * 0.2
-                      : theme.sizes.HEIGHT * 0.32,
+                      : theme.sizes.HEIGHT * 0.25,
                   alignItems: 'center',
                 }}
               >
@@ -369,7 +371,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
           />
         )}
 
-        {!FavStoreListing.loading && (
+        {!FavStoreListing.loading && FavStoreListing.data.length > 0 && (
           <View style={styles.buttonContainer}>
             <CustomButton
               title={getString('FAV_ADD_FAVORITES')}

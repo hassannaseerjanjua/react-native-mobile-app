@@ -63,9 +63,9 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
   const businessTypeApi = useGetApi<BusinessType[]>(
     apiEndpoints.GET_BUSINESS_TYPE +
-      '?cityid=' +
-      selectedCityId +
-      '&hideEmptyBusinessType=true',
+    '?cityid=' +
+    selectedCityId +
+    '&hideEmptyBusinessType=true',
     {
       transformData: (data: any) => data.Data.Items || [],
     },
@@ -130,8 +130,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         title: isRtl ? store.NameAr : store.NameEn,
         subtitle: isRtl
           ? businessTypeMap[store.BusinessTypeID] ||
-            (store as any).BusinessTypeNameAr ||
-            store.BusinessTypeName
+          (store as any).BusinessTypeNameAr ||
+          store.BusinessTypeName
           : store.BusinessTypeName,
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,
@@ -269,7 +269,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               });
             }
           }}
-          showSearchBar={true}
+          showSearchBar={storeListApi.data.length > 0 && !storeListApi.loading}
+          loading={storeListApi.loading}
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
           searchPlaceholder={getString('HOME_SEARCH')}
@@ -354,7 +355,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               data={storeListApi.data}
               extraData={favoriteStates}
               ListEmptyComponent={() => (
-                <View style={{ height: theme.sizes.HEIGHT * 0.65 }}>
+                <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
                   <PlaceholderLogoText
                     text={
                       searchQuery

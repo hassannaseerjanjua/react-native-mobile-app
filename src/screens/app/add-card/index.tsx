@@ -31,6 +31,7 @@ import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { UserCard, AppStackScreen } from '../../../types/navigation.types';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+import ShadowView from '../../../components/global/ShadowView';
 // import { UserCard, AppStackScreen } from '../../../types/navigation.types';
 
 const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
@@ -120,88 +121,90 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   };
 
   const renderCardItem = ({ item }: { item: UserCard }) => (
-    <TouchableOpacity
-      style={[
-        styles.cardContainer,
-        {
-          ...(langCode === 'ar'
-            ? { flexDirection: rtlFlexDirection(!isRtl) }
-            : { flexDirection: rtlFlexDirection(isRtl) }),
-          marginBottom: theme.sizes.HEIGHT * 0.005,
-        },
-      ]}
-      activeOpacity={0.7}
-      onPress={() =>
-        !fromProfile &&
-        setSelectedCard(selectedCard === item.Token ? null : item.Token)
-      }
-      disabled={fromProfile}
-    >
-      <View
-        style={{
-          ...styles.row,
-          flex: 1,
-          gap: theme.sizes.WIDTH * 0.03,
-          ...(langCode === 'ar'
-            ? { flexDirection: rtlFlexDirection(!isRtl) }
-            : { flexDirection: rtlFlexDirection(isRtl) }),
-        }}
-      >
-        {!fromProfile && (
-          <CheckBox
-            Selected={selectedCard === item.Token}
-            onSelectionPress={() =>
-              setSelectedCard(selectedCard === item.Token ? null : item.Token)
-            }
-          />
-        )}
-        {item.Brand?.toLowerCase().includes('master') ? (
-          <MasterCardIcon
-            height={scaleWithMax(32, 35)}
-            width={scaleWithMax(32, 35)}
-          />
-        ) : item.Brand?.toLowerCase().includes('noon') ? (
-          <NoonIcon
-            height={scaleWithMax(32, 35)}
-            width={scaleWithMax(32, 35)}
-          />
-        ) : (
-          <VisaIcon
-            height={scaleWithMax(32, 35)}
-            width={scaleWithMax(32, 35)}
-          />
-        )}
-        <View>
-          <Text style={styles.cardNumber}>{item.CardNumber}</Text>
-          <Text style={styles.cardBrand}>{item.Brand}</Text>
-        </View>
-      </View>
 
-      {fromProfile ? (
-        <TouchableOpacity
-          onPress={() => setCardToDelete(item)}
-          disabled={
-            deletingCard === item.Token || cardToDelete?.Token === item.Token
-          }
-          style={{ padding: theme.sizes.PADDING * 0.2 }}
+    <ShadowView preset='default'>
+      <TouchableOpacity
+        style={[
+          styles.cardContainer,
+          {
+            ...(langCode === 'ar'
+              ? { flexDirection: rtlFlexDirection(!isRtl) }
+              : { flexDirection: rtlFlexDirection(isRtl) }),
+            marginBottom: theme.sizes.HEIGHT * 0.005,
+          },
+        ]}
+        activeOpacity={0.7}
+        onPress={() =>
+          !fromProfile &&
+          setSelectedCard(selectedCard === item.Token ? null : item.Token)
+        }
+        disabled={fromProfile}
+      >
+        <View
+          style={{
+            ...styles.row,
+            flex: 1,
+            gap: theme.sizes.WIDTH * 0.03,
+            ...(langCode === 'ar'
+              ? { flexDirection: rtlFlexDirection(!isRtl) }
+              : { flexDirection: rtlFlexDirection(isRtl) }),
+          }}
         >
-          {deletingCard === item.Token ? (
-            <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
-          ) : (
-            <SvgDeleteIcon
-              width={scaleWithMax(20, 22)}
-              height={scaleWithMax(20, 22)}
+          {!fromProfile && (
+            <CheckBox
+              Selected={selectedCard === item.Token}
+              onSelectionPress={() =>
+                setSelectedCard(selectedCard === item.Token ? null : item.Token)
+              }
             />
           )}
-        </TouchableOpacity>
-      ) : (
-        <SvgSelectedCheck
-          width={scaleWithMax(16, 18)}
-          height={scaleWithMax(16, 18)}
-          style={{ opacity: selectedCard === item.Token ? 1 : 0 }}
-        />
-      )}
-    </TouchableOpacity>
+          {item.Brand?.toLowerCase().includes('master') ? (
+            <MasterCardIcon
+              height={scaleWithMax(32, 35)}
+              width={scaleWithMax(32, 35)}
+            />
+          ) : item.Brand?.toLowerCase().includes('noon') ? (
+            <NoonIcon
+              height={scaleWithMax(32, 35)}
+              width={scaleWithMax(32, 35)}
+            />
+          ) : (
+            <VisaIcon
+              height={scaleWithMax(32, 35)}
+              width={scaleWithMax(32, 35)}
+            />
+          )}
+          <View>
+            <Text style={styles.cardNumber}>{item.CardNumber}</Text>
+            <Text style={styles.cardBrand}>{item.Brand}</Text>
+          </View>
+        </View>
+
+        {fromProfile ? (
+          <TouchableOpacity
+            onPress={() => setCardToDelete(item)}
+            disabled={
+              deletingCard === item.Token || cardToDelete?.Token === item.Token
+            }
+            style={{ padding: theme.sizes.PADDING * 0.2 }}
+          >
+            {deletingCard === item.Token ? (
+              <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
+            ) : (
+              <SvgDeleteIcon
+                width={scaleWithMax(20, 22)}
+                height={scaleWithMax(20, 22)}
+              />
+            )}
+          </TouchableOpacity>
+        ) : (
+          <SvgSelectedCheck
+            width={scaleWithMax(16, 18)}
+            height={scaleWithMax(16, 18)}
+            style={{ opacity: selectedCard === item.Token ? 1 : 0 }}
+          />
+        )}
+      </TouchableOpacity></ShadowView>
   );
 
   const renderEmptyState = () => (

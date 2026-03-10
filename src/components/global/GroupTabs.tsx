@@ -67,7 +67,7 @@ const useStyles = () => {
         paddingVertical: theme.sizes.HEIGHT * 0.016,
       },
       tab: {
-        backgroundColor: colors.LIGHT_GRAY,
+        backgroundColor: colors.LIGHT_GRAY_2,
         borderRadius: 10,
         paddingHorizontal: sizes.WIDTH * 0.04,
         alignItems: 'center',

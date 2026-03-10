@@ -32,7 +32,7 @@ import { Text } from '../../../utils/elements';
 import { createSignUpSchema } from '../../../utils/validationSchemas';
 import notify from '../../../utils/notify';
 
-interface SignUpProps extends AuthStackScreen<'SignUp'> {}
+interface SignUpProps extends AuthStackScreen<'SignUp'> { }
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
@@ -124,7 +124,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           }
         }
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleSignUp = async () => {
@@ -197,7 +197,15 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     () => createSignUpSchema(currentStep, getString as (key: any) => string),
     [currentStep, getString],
   );
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, "");
 
+    const part1 = digits.slice(0, 2);
+    const part2 = digits.slice(2, 5);
+    const part3 = digits.slice(5, 9);
+
+    return [part1, part2, part3].filter(Boolean).join(" ");
+  };
   return (
     <>
       <AuthLayout
@@ -212,18 +220,18 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           currentStep === 1
             ? getString('AU_LETS_START')
             : currentStep === 2
-            ? getString('AU_SELECT_CITY')
-            : currentStep === 3
-            ? `${getString('AU_PHONE_NUMBER')}${getString(
-                'AU_PHONE_AND_EMAIL',
-              )}${getString('AU_EMAIL')}`
-            : ''
+              ? getString('AU_SELECT_CITY')
+              : currentStep === 3
+                ? `${getString('AU_PHONE_NUMBER_LABEL')}${getString(
+                  'AU_PHONE_AND_EMAIL',
+                )}${getString('AU_EMAIL')}`
+                : ''
         }
       >
         <Formik
           initialValues={formData}
           validationSchema={validationSchema}
-          onSubmit={() => {}}
+          onSubmit={() => { }}
           enableReinitialize={true}
         >
           {formik => (
@@ -273,7 +281,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             {getString('AU_IS_THIS_YOUR_CORRECT_PN')}
           </Text>
           <Text style={styles.bottomSheetNumber}>
-            +966 {formData.phoneNumber}
+            +966 {formatPhone(formData.phoneNumber)}
           </Text>
           <CustomButton
             title={getString('AU_SEND_CODE_BY_SMS')}
@@ -380,8 +388,8 @@ const StepContent: React.FC<StepContentProps> = ({
                 usernameApiError
                   ? usernameApiError
                   : formik.touched.username && formik.errors.username
-                  ? formik.errors.username
-                  : undefined
+                    ? formik.errors.username
+                    : undefined
               }
               fieldProps={{
                 placeholder: getString('AU_PL_USERNAME'),

@@ -148,6 +148,7 @@ const useStyles = () => {
       },
       button: {
         // width: sizes.WIDTH * 0.6,
+        borderRadius:sizes.BORDER_RADIUS_MID*1.2 ,
         flex: 1
       },
       QuantityContainer: {

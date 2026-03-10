@@ -136,6 +136,12 @@ const useStyles = () => {
         top: sizes.HEIGHT * 0.018,
         right: sizes.WIDTH * 0.03,
       },
+      footerQuantityWrapper: {
+        position: 'absolute',
+        zIndex:1,
+        top: sizes.HEIGHT * 0.0116,
+        left: sizes.WIDTH * 0.03,
+      },
       sectionHeaderRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -170,6 +176,20 @@ const useStyles = () => {
         color: '#C6C6C6',
         fontSize: sizes.FONTSIZE_MEDIUM,
         textDecorationLine: 'line-through',
+      },
+          footerQuantityBadge: {
+        width: scaleWithMax(28, 32),
+        height: scaleWithMax(28, 32),
+        borderRadius: scaleWithMax(14, 16),
+        backgroundColor: theme.colors.WHITE,
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1,
+      },
+      footerQuantityText: {
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        
       },
     }),
 

@@ -24,6 +24,7 @@ import { Text } from '../../utils/elements';
 import apiEndpoints from '../../constants/api-endpoints';
 import useGetApi from '../../hooks/useGetApi';
 import InputField from './InputField';
+import SkeletonLoader from '../SkeletonLoader';
 
 interface HomeHeaderProps {
   title?: string;
@@ -48,6 +49,8 @@ interface HomeHeaderProps {
   customContainerStyle?: StyleProp<ViewStyle>;
   titleTextStyle?: StyleProp<TextStyle>;
   backButtonIconColor?: string;
+  hideSearchBar?: boolean;
+  loading?: boolean;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -71,7 +74,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   rightSideView,
   rightSideTitleTextStyle,
   titleTextStyle,
-  backButtonIconColor,
+  backButtonIconColor, hideSearchBar, loading
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -130,7 +133,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
       <View style={[styles.container, customContainerStyle]}>
         {showBackButton && (
           <TouchableOpacity
-            style={styles.backButton}
+            style={[styles.backButton, { transform: [{ translateX: -3 }] }]}
             onPress={handleBackPress}
             activeOpacity={0.7}
             hitSlop={10}
@@ -139,12 +142,14 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               style={{ transform: rtlTransform(isRtl) }}
               fill={backButtonIconColor}
               width={scaleWithMax(25, 25)}
+
               height={scaleWithMax(25, 25)}
             />
           </TouchableOpacity>
         )}
         {title && (
-          <View style={styles.titleContainer}>
+          <View style={[styles.titleContainer, { transform: [{ translateX: -3 }] }]}
+          >
             <Pressable onPress={handleBackPress} style={styles.titlePressable}>
               <Text
                 style={[styles.title, titleTextStyle]}
@@ -234,9 +239,14 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         </View>
       </View>
 
-      {showSearchBar && (
-        <View style={styles.searchBarContainer}>
-          <InputField
+
+
+
+      <View style={styles.searchBarContainer}>
+        {loading ? (
+          <SkeletonLoader screenType="searchBar" />
+        ) :
+          showSearchBar && <InputField
             icon={
               <SvgSearchIcon
                 width={scaleWithMax(20, 22)}
@@ -256,8 +266,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             }}
             style={styles.searchInputContainer}
           />
-        </View>
-      )}
+        }
+      </View>
+
     </View>
   );
 };

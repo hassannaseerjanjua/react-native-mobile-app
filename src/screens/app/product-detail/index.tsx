@@ -65,9 +65,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     isSendAGiftFlow || isFavoritesMode
       ? apiEndpoints.GET_SEND_A_GIFT_ITEM_BY_ID(itemId, !!campaignId)
       : apiEndpoints.GET_STORE_ITEM_BY_ID(
-          itemId,
-          route.params?.type === 'GiftOneGetOne',
-        ),
+        itemId,
+        route.params?.type === 'GiftOneGetOne',
+      ),
     {
       transformData: (data: any) => data?.Data ?? null,
     },
@@ -169,8 +169,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         ...(!isMerchant
           ? { Quantity: newQuantity }
           : {
-              Quantity: quantity,
-            }),
+            Quantity: quantity,
+          }),
       };
 
       const response = await api.put(
@@ -300,8 +300,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
       const selectedVariant = selectedFilter
         ? itemApi.data.Variants?.find(
-            (v: any) => v.ItemVariantId === Number(selectedFilter),
-          )
+          (v: any) => v.ItemVariantId === Number(selectedFilter),
+        )
         : itemApi.data.Variants?.find((v: any) => v.IsDefault);
 
       const basePrice = selectedVariant
@@ -484,6 +484,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                     </Text>
                     <GroupTabs
                       tabs={filterOptions}
+                      tabStyle={{
+                        paddingVertical: theme.sizes.HEIGHT * 0.008,
+                      }}
                       activeTab={selectedFilter}
                       onTabPress={setSelectedFilter}
                     />
@@ -557,8 +560,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                     ? getString('PRODUCT_REMOVE_FROM_FAVORITES')
                     : getString('PRODUCT_ADD_TO_FAVORITES')
                   : isItemInCart
-                  ? getString('PRODUCT_VIEW_CART')
-                  : getString('PRODUCT_ADD_TO_CART')
+                    ? getString('PRODUCT_VIEW_CART')
+                    : getString('PRODUCT_ADD_TO_CART')
               }
               disabled={submitting}
             />
@@ -572,8 +575,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           isVariantChange
             ? getString('PRODUCT_CLEAR_CART_VARIANT_MESSAGE')
             : samestoreg1g1
-            ? getString('PRODUCT_CLEAR_CART_MESSAGE_SAME')
-            : getString('PRODUCT_CLEAR_CART_MESSAGE')
+              ? getString('PRODUCT_CLEAR_CART_MESSAGE_SAME')
+              : getString('PRODUCT_CLEAR_CART_MESSAGE')
         }
         confirmText={getString('PRODUCT_CONFIRM')}
         cancelText={getString('NG_CANCEL')}

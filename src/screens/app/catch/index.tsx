@@ -117,11 +117,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const categoriesApi = useGetApi<Category[]>(
     screenType === 'favorite'
       ? apiEndpoints.GET_CATEGORIES(businessTypeId, storeID) +
-          '&isFavUserApp=true'
+      '&isFavUserApp=true'
       : apiEndpoints.GET_CAMPAIGN_CATEGORIES(
-          screenType === 'GiftOneGetOne' ? 3 : 1,
-          selectedCityId || user?.CityId,
-        ),
+        screenType === 'GiftOneGetOne' ? 3 : 1,
+        selectedCityId || user?.CityId,
+      ),
     {
       transformData: transformCategoriesData,
     },
@@ -143,9 +143,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       extraParams:
         storeID && storeBranchID
           ? {
-              StoreId: storeID,
-              StoreBranchId: storeBranchID,
-            }
+            StoreId: storeID,
+            StoreBranchId: storeBranchID,
+          }
           : {},
       idExtractor: (item: FaveItems) => item.ItemId,
     },
@@ -268,6 +268,20 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       return getStoreProducts.data || [];
     } else {
       return transformedCatchItems;
+    }
+  }, [
+    screenType,
+    getFavoriteItems.data,
+    transformedCatchItems,
+    getStoreProducts.data,
+  ]);
+  const filteredListingApi = useMemo(() => {
+    if (screenType === 'favorite') {
+      return getFavoriteItems || [];
+    } else if (screenType === 'GiftOneGetOne') {
+      return getStoreProducts || [];
+    } else {
+      return getCatchItems;
     }
   }, [
     screenType,
@@ -483,7 +497,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           isFavorite={getFavoriteState(item)}
           hasFavorite={true}
           onFavoritePress={createFavoritePressHandler(item)}
-          // isFavoriteTab={true}
+        // isFavoriteTab={true}
         />
       );
     }
@@ -556,7 +570,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         title={getHeaderTitle()}
         showBackButton
         onBackPress={() => navigation.goBack()}
-        showSearchBar
+        showSearchBar={filteredItems.length > 0 && !filteredListingApi.loading}
+        loading={filteredListingApi.loading}
         searchValue={listingApi?.search}
         onSearchChange={handleSearchChange}
         searchPlaceholder={getString('HOME_SEARCH')}
@@ -586,7 +601,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               >
                 {selectedCityId
                   ? citiesApi.data?.find(city => city.CityID === selectedCityId)
-                      ?.CityName ?? ''
+                    ?.CityName ?? ''
                   : getString('SELECT_STORE_SELECT_CITY')}
               </Text>
               <ArrowDownIcon
@@ -636,7 +651,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             columnWrapperStyle={styles.columnWrapper}
             extraData={favoriteStates}
             ListEmptyComponent={() => (
-              <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
+              <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
                 <PlaceholderLogoText
                   text={getString('EMPTY_NO_PRODUCTS_FOUND')}
                 />
