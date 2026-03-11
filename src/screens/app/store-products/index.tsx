@@ -366,7 +366,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   };
 
   return (
-    <ParentView edges={['left', 'right']}>
+    <ParentView edges={['left', 'right']} stableLayout={false}>
       <View style={{ position: 'relative' }}>
         <Image source={storeCoverImage} style={styles.topImage} />
         <View

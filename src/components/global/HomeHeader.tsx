@@ -74,7 +74,9 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   rightSideView,
   rightSideTitleTextStyle,
   titleTextStyle,
-  backButtonIconColor, hideSearchBar, loading
+  backButtonIconColor,
+  hideSearchBar,
+  loading,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -142,13 +144,13 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               style={{ transform: rtlTransform(isRtl) }}
               fill={backButtonIconColor}
               width={scaleWithMax(25, 25)}
-
               height={scaleWithMax(25, 25)}
             />
           </TouchableOpacity>
         )}
         {title && (
-          <View style={[styles.titleContainer, { transform: [{ translateX: -3 }] }]}
+          <View
+            style={[styles.titleContainer, { transform: [{ translateX: -3 }] }]}
           >
             <Pressable onPress={handleBackPress} style={styles.titlePressable}>
               <Text
@@ -239,14 +241,14 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         </View>
       </View>
 
-
-
-
-      <View style={styles.searchBarContainer}>
-        {loading ? (
+      {loading && (
+        <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
           <SkeletonLoader screenType="searchBar" />
-        ) :
-          showSearchBar && <InputField
+        </View>
+      )}
+      {!loading && showSearchBar && (
+        <View style={styles.searchBarContainer}>
+          <InputField
             icon={
               <SvgSearchIcon
                 width={scaleWithMax(20, 22)}
@@ -266,9 +268,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             }}
             style={styles.searchInputContainer}
           />
-        }
-      </View>
-
+        </View>
+      )}
     </View>
   );
 };

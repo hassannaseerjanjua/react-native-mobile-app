@@ -39,12 +39,13 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   const { styles, theme } = useStyles();
   const { getString, langCode } = useLocaleStore();
   const { user } = useAuthStore();
-  const routeParams = route.params as { cityId?: number; redirectionType?: string } | undefined;
+  const routeParams = route.params as
+    | { cityId?: number; redirectionType?: string }
+    | undefined;
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
     routeParams?.cityId ?? user?.CityId ?? null,
   );
   const [showCityPicker, setShowCityPicker] = useState(false);
-
 
   const businessTypeUrl = useMemo(
     () =>
@@ -246,7 +247,13 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         title={getString('FAV_FAVORITES')}
         showBackButton={true}
         onBackPress={handleBackPress}
-        loading={FavStoreListing?.loading}
+        loading={
+          FavStoreListing?.loading ||
+          businessTypeApi.loading ||
+          citiesApi.loading ||
+          isRefreshing ||
+          FavStoreListing.search !== ''
+        }
         showSearchBar={
           FavStoreListing.data.length > 0 && !FavStoreListing.loading
         }

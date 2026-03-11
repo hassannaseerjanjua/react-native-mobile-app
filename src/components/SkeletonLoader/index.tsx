@@ -10,31 +10,31 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
 type SkeletonLoaderProps = {
   screenType:
-  | 'home'
-  | 'wallet'
-  | 'search'
-  | 'sendAGift'
-  | 'sendToGroup'
-  | 'staticContent'
-  | 'faq'
-  | 'storeCard'
-  | 'productListing'
-  | 'orderListing'
-  | 'settings'
-  | 'landing'
-  | 'productDetails'
-  | 'tabItem'
-  | 'checkout'
-  | 'occasionView'
-  | 'occasionList'
-  | 'inbox'
-  | 'giftFilters'
-  | 'tabItem'
-  | 'tabItemCity'
-  | 'groupTabs'
-  | 'cards'
-  | 'notifications'
-  | 'searchBar';
+    | 'home'
+    | 'wallet'
+    | 'search'
+    | 'sendAGift'
+    | 'sendToGroup'
+    | 'staticContent'
+    | 'faq'
+    | 'storeCard'
+    | 'productListing'
+    | 'orderListing'
+    | 'settings'
+    | 'landing'
+    | 'productDetails'
+    | 'tabItem'
+    | 'checkout'
+    | 'occasionView'
+    | 'occasionList'
+    | 'inbox'
+    | 'giftFilters'
+    | 'tabItem'
+    | 'tabItemCity'
+    | 'groupTabs'
+    | 'cards'
+    | 'notifications'
+    | 'searchBar';
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
@@ -58,22 +58,22 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
         return isProMax
           ? scaleWithMax(95, 110)
           : isLargeAndroid
-            ? scaleWithMax(95, 103)
-            : scaleWithMax(95, 95);
+          ? scaleWithMax(95, 103)
+          : scaleWithMax(95, 95);
       } else if (row === 2) {
         // Second row: Catch, Send a Gift
         return isProMax
           ? scaleWithMax(85, 100)
           : isLargeAndroid
-            ? scaleWithMax(85, 93)
-            : scaleWithMax(85, 85);
+          ? scaleWithMax(85, 93)
+          : scaleWithMax(85, 85);
       } else {
         // Third row: Inbox, Outbox
         return isProMax
           ? scaleWithMax(75, 90)
           : isLargeAndroid
-            ? scaleWithMax(75, 83)
-            : scaleWithMax(78, 80);
+          ? scaleWithMax(75, 83)
+          : scaleWithMax(78, 80);
       }
     }
     return screenHeight * 0.1;
@@ -1809,8 +1809,9 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
         return (
           <SkeletonPlaceholder>
             <SkeletonPlaceholder.Item
+              // paddingHorizontal={theme.sizes.PADDING}
               width="100%"
-              height={scaleWithMax(46, 51)}
+              height={theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT.height}
               borderRadius={scaleWithMax(12, 14)}
             />
           </SkeletonPlaceholder>
