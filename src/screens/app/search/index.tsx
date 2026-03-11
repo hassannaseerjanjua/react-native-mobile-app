@@ -40,7 +40,7 @@ interface VerifiedUser {
   UserID: number | null;
 }
 
-interface SearchProps extends AppStackScreen<'Search'> { }
+interface SearchProps extends AppStackScreen<'Search'> {}
 
 const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const { styles, theme } = useStyles();
@@ -75,9 +75,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   >({});
   const [verifyingContacts, setVerifyingContacts] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
-  const [connectDisplayedCount, setConnectDisplayedCount] = useState(
-    CONNECT_PAGE_SIZE,
-  );
+  const [connectDisplayedCount, setConnectDisplayedCount] =
+    useState(CONNECT_PAGE_SIZE);
 
   const activeUsersApi = useListingApi<ActiveUser>(
     showEmployeesOnly ? '' : apiEndpoints.GET_ACTIVE_USERS,
@@ -326,8 +325,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     [connectFilteredContacts, connectDisplayedCount],
   );
 
-  const connectHasMore =
-    connectDisplayedCount < connectFilteredContacts.length;
+  const connectHasMore = connectDisplayedCount < connectFilteredContacts.length;
 
   const connectMappedContacts = useMemo<ActiveUser[]>(() => {
     return connectDisplayedContacts.map((contact, index) => {
@@ -537,8 +535,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
 
       <View style={styles.content}>
         {activeUsersApi.loading ||
-          employeesApi.loading ||
-          (showConnectOnly && loadingContacts) ? (
+        employeesApi.loading ||
+        (showConnectOnly && loadingContacts) ? (
           // true ? (
           // <ShadowView preset="listItem">
           <View
@@ -558,8 +556,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               <View
                 style={[
                   styles.listCard,
-                  connectDisplayedContacts.length === 0 &&
-                    styles.listCardEmpty,
+                  connectDisplayedContacts.length === 0 && styles.listCardEmpty,
                 ]}
               >
                 <FlatList
@@ -722,9 +719,9 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
           unfriendModal.isLinkedToGroup
             ? getString('SEARCH_USER_LINKED_TO_GROUPS_MESSAGE')
             : getString('SEARCH_ARE_YOU_SURE_UNFRIEND').replace(
-              '{value}',
-              unfriendModal.userName || '',
-            )
+                '{value}',
+                unfriendModal.userName || '',
+              )
         }
         confirmText={getString('SEARCH_YES')}
         cancelText={getString('NG_CANCEL')}

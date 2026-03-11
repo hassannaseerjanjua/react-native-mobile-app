@@ -46,7 +46,7 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
     (!isFetching && getString('AU_SIGN_IN') !== 'AU_SIGN_IN');
 
   return (
-    <ParentView style={styles.container}>
+    <ParentView style={styles.container} stableLayout={false}>
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <TouchableOpacity
         style={[

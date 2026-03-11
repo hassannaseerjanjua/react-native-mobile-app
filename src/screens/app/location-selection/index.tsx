@@ -77,7 +77,10 @@ const LocationSelection: React.FC = () => {
     <ParentView>
       <GestureHandlerRootView style={{ flex: 1 }}>
         <View style={{ flex: 1 }}>
-          <HomeHeader title={getString('LOCATION_SELECT_LOCATION')} showBackButton />
+          <HomeHeader
+            title={getString('LOCATION_SELECT_LOCATION')}
+            showBackButton
+          />
           <View style={{ flex: 1, position: 'relative' }}>
             <DummyLocationSvg
               width={theme.sizes.WIDTH}
@@ -119,7 +122,9 @@ const LocationSelection: React.FC = () => {
                     <LocationArrowSvg />
                   </View>
                 </View>
-                <Text style={styles.bottomSheetHeading}>{getString('LOCATION_DELIVERY_LOCATION')}</Text>
+                <Text style={styles.bottomSheetHeading}>
+                  {getString('LOCATION_DELIVERY_LOCATION')}
+                </Text>
                 <Text style={styles.bottomSheetDescription}>
                   1107.5 KM. Gulshan - e - Maymar 1107.5 KM. Gulshan - e -
                   Maymar
@@ -131,7 +136,9 @@ const LocationSelection: React.FC = () => {
                   }}
                 />
 
-                <Text style={styles.bottomSheetHeading}>{getString('LOCATION_ADDRESS_DETAILS')}</Text>
+                <Text style={styles.bottomSheetHeading}>
+                  {getString('LOCATION_ADDRESS_DETAILS')}
+                </Text>
                 <Text style={styles.bottomSheetDescription}>
                   {getString('LOCATION_ADDRESS_DETAILS_MESSAGE')}
                 </Text>
@@ -160,7 +167,9 @@ const LocationSelection: React.FC = () => {
                           backgroundColor: theme.colors.WHITE,
                         }}
                         fieldProps={{
-                          placeholder: getString('LOCATION_ADDRESS_PLACEHOLDER'),
+                          placeholder: getString(
+                            'LOCATION_ADDRESS_PLACEHOLDER',
+                          ),
                           value: formik.values.address,
                           onChangeText: (value: string) => {
                             formik.setFieldValue('address', value);

@@ -121,8 +121,7 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   };
 
   const renderCardItem = ({ item }: { item: UserCard }) => (
-
-    <ShadowView preset='default'>
+    <ShadowView preset="default">
       <TouchableOpacity
         style={[
           styles.cardContainer,
@@ -204,7 +203,8 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
             style={{ opacity: selectedCard === item.Token ? 1 : 0 }}
           />
         )}
-      </TouchableOpacity></ShadowView>
+      </TouchableOpacity>
+    </ShadowView>
   );
 
   const renderEmptyState = () => (

@@ -65,9 +65,7 @@ const ContactUsScreen: React.FC = () => {
       // On Android 11+, canOpenURL returns false unless WhatsApp is declared in manifest queries.
       // Try opening directly; if it fails, show appropriate error.
       const canOpen =
-        Platform.OS === 'ios'
-          ? await Linking.canOpenURL(whatsappUrl)
-          : true;
+        Platform.OS === 'ios' ? await Linking.canOpenURL(whatsappUrl) : true;
       if (canOpen) {
         await Linking.openURL(whatsappUrl);
       } else {

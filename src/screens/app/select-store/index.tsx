@@ -50,8 +50,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const initialCityId =
-    route?.params?.CityId ?? user?.CityId ?? null;
+  const initialCityId = route?.params?.CityId ?? user?.CityId ?? null;
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
     initialCityId,
   );
@@ -63,9 +62,9 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
   const businessTypeApi = useGetApi<BusinessType[]>(
     apiEndpoints.GET_BUSINESS_TYPE +
-    '?cityid=' +
-    selectedCityId +
-    '&hideEmptyBusinessType=true',
+      '?cityid=' +
+      selectedCityId +
+      '&hideEmptyBusinessType=true',
     {
       transformData: (data: any) => data.Data.Items || [],
     },
@@ -130,8 +129,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         title: isRtl ? store.NameAr : store.NameEn,
         subtitle: isRtl
           ? businessTypeMap[store.BusinessTypeID] ||
-          (store as any).BusinessTypeNameAr ||
-          store.BusinessTypeName
+            (store as any).BusinessTypeNameAr ||
+            store.BusinessTypeName
           : store.BusinessTypeName,
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,

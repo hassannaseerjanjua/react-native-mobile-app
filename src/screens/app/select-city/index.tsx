@@ -22,7 +22,7 @@ import SkeletonLoader from '../../../components/SkeletonLoader';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
-interface SelectCityProps extends AppStackScreen<'SelectCity'> { }
+interface SelectCityProps extends AppStackScreen<'SelectCity'> {}
 
 const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
@@ -92,14 +92,13 @@ const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
           }}
           ListEmptyComponent={
             <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
-              <PlaceholderLogoText text={getString('SELECT_CITY_NO_CITIES_FOUND')} />
+              <PlaceholderLogoText
+                text={getString('SELECT_CITY_NO_CITIES_FOUND')}
+              />
             </View>
           }
           renderItem={({ item }) => (
-            <TabItem
-              title={item.CityName}
-              onPress={() => onSelectCity(item)}
-            />
+            <TabItem title={item.CityName} onPress={() => onSelectCity(item)} />
           )}
         />
       )}

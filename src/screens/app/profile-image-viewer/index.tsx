@@ -299,7 +299,11 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
 
       <ConfirmationPopup
         visible={showDeleteConfirmation}
-        title={isOccasionMode ? getString('PROFILE_IMAGE_VIEWER_DELETE_IMAGE') : getString('PROFILE_IMAGE_VIEWER_DELETE_PHOTO')}
+        title={
+          isOccasionMode
+            ? getString('PROFILE_IMAGE_VIEWER_DELETE_IMAGE')
+            : getString('PROFILE_IMAGE_VIEWER_DELETE_PHOTO')
+        }
         message={
           isOccasionMode
             ? getString(

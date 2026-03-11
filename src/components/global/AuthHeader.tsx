@@ -47,7 +47,7 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({
             width={backSize}
             height={backSize}
             style={{
-              transform: [...rtlTransform(isRtl), { translateX: -3 }]
+              transform: [...rtlTransform(isRtl), { translateX: -5 }],
             }}
           />
         </TouchableOpacity>
@@ -87,7 +87,6 @@ const useStyles = () => {
         paddingVertical: sizes.PADDING,
         alignItems: 'center',
         justifyContent: 'center',
-
       },
       title: {
         fontFamily: fonts.bold,
