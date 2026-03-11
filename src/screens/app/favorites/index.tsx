@@ -39,10 +39,12 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   const { styles, theme } = useStyles();
   const { getString, langCode } = useLocaleStore();
   const { user } = useAuthStore();
+  const routeParams = route.params as { cityId?: number; redirectionType?: string } | undefined;
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
-    user?.CityId || null,
+    routeParams?.cityId ?? user?.CityId ?? null,
   );
   const [showCityPicker, setShowCityPicker] = useState(false);
+
 
   const businessTypeUrl = useMemo(
     () =>
@@ -68,7 +70,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
 
   const businessTypeApi = useGetApi<BusinessType[]>(businessTypeUrl, {
     transformData: (data: any) => data.Data.Items || [],
-    noCache: true,
   });
 
   const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
@@ -234,7 +235,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
-  console.log("favestorelisting loaidng ==>", FavStoreListing.loading)
+  console.log('favestorelisting loaidng ==>', FavStoreListing.loading);
   return (
     <View style={styles.container}>
       <StatusBar
@@ -246,7 +247,9 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         showBackButton={true}
         onBackPress={handleBackPress}
         loading={FavStoreListing?.loading}
-        showSearchBar={FavStoreListing.data.length > 0 && !FavStoreListing.loading}
+        showSearchBar={
+          FavStoreListing.data.length > 0 && !FavStoreListing.loading
+        }
         searchValue={FavStoreListing.search}
         hideSearchBar={false}
         onSearchChange={FavStoreListing.setSearch}
@@ -392,7 +395,9 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         }))}
         selectedValue={selectedCityId}
         onSelect={value => {
-          setSelectedCityId(value as number | null);
+          const cityId = value as number | null;
+          setSelectedCityId(cityId);
+          navigation.setParams({ ...routeParams, cityId } as object);
           setShowCityPicker(false);
         }}
         title={getString('SELECT_STORE_SELECT_CITY') || 'Select City'}

@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import Animated, {
   useAnimatedStyle,
@@ -89,6 +90,9 @@ const OccasionsScreen: React.FC = () => {
     loading,
     occasionsLoading,
     occasions,
+    loadingMore,
+    hasMore,
+    loadMore,
     showDatePicker,
     setShowDatePicker,
     selectedOccasion,
@@ -236,6 +240,25 @@ const OccasionsScreen: React.FC = () => {
                   tintColor={theme.colors.PRIMARY}
                   colors={[theme.colors.PRIMARY]}
                 />
+              }
+              onEndReached={() => {
+                if (hasMore && !loadingMore) loadMore();
+              }}
+              onEndReachedThreshold={0.5}
+              ListFooterComponent={
+                loadingMore ? (
+                  <View
+                    style={{
+                      paddingVertical: theme.sizes.PADDING,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <ActivityIndicator
+                      size="small"
+                      color={theme.colors.PRIMARY}
+                    />
+                  </View>
+                ) : null
               }
               ListEmptyComponent={
                 <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>

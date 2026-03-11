@@ -19,9 +19,12 @@ const useStyles = () => {
         flex: 1,
       },
       scrollContent: {},
+      flexGrow: {
+        flexGrow: 1,
+      },
       contentContainer: {
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.HEIGHT * 0.02,
+        paddingVertical: sizes.HEIGHT * 0.016,
       },
       orderCard: {
         backgroundColor: colors.WHITE,

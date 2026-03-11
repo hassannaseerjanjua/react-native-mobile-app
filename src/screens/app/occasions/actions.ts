@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
@@ -8,10 +8,10 @@ import {
   OccasionsApiResponse,
   UpdateProfileApiResponse,
 } from '../../../types/index.ts';
-import { getAuthHeader } from '../../../utils/api';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { login, useAuthStore } from '../../../store/reducer/auth';
 import { selectAndCropImage } from '../../../utils/imageCropper';
+import { useListingApi } from '../../../hooks/useListingApi';
 
 export interface ImageFile {
   uri: string;
@@ -44,20 +44,6 @@ export interface FormInitialValues {
   occasionDate: string;
   image: ImageValue;
 }
-
-export const getOccasions = async (): Promise<Occasion[]> => {
-  try {
-    const response = await api.get<OccasionsApiResponse>(
-      apiEndpoints.GET_OCCASIONS,
-      getAuthHeader('Token'),
-    );
-    return response.success && response.data?.Data?.Items
-      ? response.data.Data.Items
-      : [];
-  } catch (error: any) {
-    return [];
-  }
-};
 
 export const getOccasionDetail = async (
   id: number,
@@ -180,8 +166,6 @@ export const useOccasions = () => {
   const { user, token } = useAuthStore();
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const [occasionsLoading, setOccasionsLoading] = useState(false);
-  const [occasions, setOccasions] = useState<Occasion[]>([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedOccasion, setSelectedOccasion] = useState<SelectedOccasion>({
     id: null,
@@ -198,16 +182,25 @@ export const useOccasions = () => {
   const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
   const [readonlyIcon, setReadonlyIcon] = useState<any>(null);
 
-  const fetchOccasions = async () => {
-    setOccasionsLoading(true);
-    const data = await getOccasions();
-    setOccasions(data);
-    setOccasionsLoading(false);
-  };
+  const occasionsListing = useListingApi<Occasion>(
+    apiEndpoints.GET_OCCASIONS,
+    token,
+    {
+      pageSize: 15,
+      idExtractor: (item: Occasion) => item.OccassionId,
+      transformData: (res: OccasionsApiResponse | any) => ({
+        data: res?.Data?.Items ?? [],
+        totalCount: res?.Data?.TotalCount ?? 0,
+      }),
+    },
+  );
 
-  useEffect(() => {
-    fetchOccasions();
-  }, []);
+  const occasions = occasionsListing.data ?? [];
+  const occasionsLoading = occasionsListing.loading;
+  const loadingMore = occasionsListing.loadingMore;
+  const hasMore = occasionsListing.hasMore;
+  const fetchOccasions = () => occasionsListing.recall();
+  const loadMore = () => occasionsListing.loadMore();
 
   const handleImageSelect = async (formik: any) => {
     try {
@@ -412,6 +405,9 @@ export const useOccasions = () => {
     loading,
     occasionsLoading,
     occasions,
+    loadingMore,
+    hasMore,
+    loadMore,
     showDatePicker,
     setShowDatePicker,
     selectedOccasion,

@@ -12,15 +12,14 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         paddingHorizontal: 0,
-        
       },
       content: {
-        flex: 1,        paddingTop: sizes.HEIGHT * 0.016,
-
+        flex: 1,
+        paddingTop: sizes.HEIGHT * 0.01,
       },
       contentContainer: {
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.PADDING*0.3,
+        paddingVertical: sizes.PADDING * 0.35,
         paddingBottom: sizes.HEIGHT * 0.04,
       },
       listCard: {
