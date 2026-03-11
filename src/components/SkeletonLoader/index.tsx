@@ -43,7 +43,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
 
   const getSliderHeight = () => {
     if (screenType === 'home') {
-      return theme.sizes.HEIGHT * (theme.sizes.HEIGHT > 850 ? 0.29 : 0.29);
+      return theme.sizes.HEIGHT * (isAndroid ? 0.30 : 0.29);
     }
     return screenHeight * 0.34;
   };
@@ -58,21 +58,27 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
         return isProMax
           ? scaleWithMax(95, 110)
           : isLargeAndroid
-          ? scaleWithMax(95, 103)
+          ? scaleWithMax(108, 103)
+          : isAndroid
+          ? scaleWithMax(108, 95)
           : scaleWithMax(95, 95);
       } else if (row === 2) {
         // Second row: Catch, Send a Gift
         return isProMax
           ? scaleWithMax(85, 100)
           : isLargeAndroid
-          ? scaleWithMax(85, 93)
+          ? scaleWithMax(97, 93)
+          : isAndroid
+          ? scaleWithMax(97, 85)
           : scaleWithMax(85, 85);
       } else {
         // Third row: Inbox, Outbox
         return isProMax
           ? scaleWithMax(75, 90)
           : isLargeAndroid
-          ? scaleWithMax(75, 83)
+          ? scaleWithMax(88, 83)
+          : isAndroid
+          ? scaleWithMax(88, 80)
           : scaleWithMax(78, 80);
       }
     }

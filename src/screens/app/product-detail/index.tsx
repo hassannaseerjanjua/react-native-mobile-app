@@ -45,6 +45,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [favoriteSubmitting, setFavoriteSubmitting] = useState<boolean>(false);
+  const favoriteInProgressRef = React.useRef(false);
   const [item, setItem] = useState<any>(null);
   const sendType = route?.params?.sendType ?? null;
   const isSendAGiftFlow = sendType !== null && sendType !== undefined;
@@ -65,9 +67,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     isSendAGiftFlow || isFavoritesMode
       ? apiEndpoints.GET_SEND_A_GIFT_ITEM_BY_ID(itemId, !!campaignId)
       : apiEndpoints.GET_STORE_ITEM_BY_ID(
-        itemId,
-        route.params?.type === 'GiftOneGetOne',
-      ),
+          itemId,
+          route.params?.type === 'GiftOneGetOne',
+        ),
     {
       transformData: (data: any) => data?.Data ?? null,
     },
@@ -132,23 +134,35 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
   const handleFavorite = async (): Promise<boolean> => {
     if (!item) return false;
+    if (favoriteInProgressRef.current) return false;
+    favoriteInProgressRef.current = true;
+    setFavoriteSubmitting(true);
     const previousFavoriteState = item.isFavourite ?? false;
-    setItem({ ...item, isFavourite: !previousFavoriteState });
+    const newFavoriteState = !previousFavoriteState;
+    setItem({ ...item, isFavourite: newFavoriteState });
     try {
       const res = await api.post<any>(apiEndpoints.HANDLE_FAVORITE_ITEM, {
         ItemId: item.ItemId,
-        isFavorite: !previousFavoriteState,
+        isFavorite: newFavoriteState,
       });
       if (!res.success) {
         setItem({ ...item, isFavourite: previousFavoriteState });
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
         return false;
       }
+      patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
+        'listing:',
+        i => i.ItemId === item.ItemId,
+        { isFavourite: newFavoriteState },
+      );
       return true;
     } catch (error: any) {
       setItem({ ...item, isFavourite: previousFavoriteState });
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
       return false;
+    } finally {
+      favoriteInProgressRef.current = false;
+      setFavoriteSubmitting(false);
     }
   };
 
@@ -169,8 +183,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         ...(!isMerchant
           ? { Quantity: newQuantity }
           : {
-            Quantity: quantity,
-          }),
+              Quantity: quantity,
+            }),
       };
 
       const response = await api.put(
@@ -300,8 +314,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
       const selectedVariant = selectedFilter
         ? itemApi.data.Variants?.find(
-          (v: any) => v.ItemVariantId === Number(selectedFilter),
-        )
+            (v: any) => v.ItemVariantId === Number(selectedFilter),
+          )
         : itemApi.data.Variants?.find((v: any) => v.IsDefault);
 
       const basePrice = selectedVariant
@@ -349,7 +363,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   }, [hasDiscount, originalPrice, finalPrice]);
 
   return (
-    <ParentView edges={['bottom']}>
+    <ParentView edges={['bottom']} stableLayout={false}>
       <View style={{ flex: 1 }}>
         <View style={styles.sliderWrapper}>
           <ProductImageSlider
@@ -384,6 +398,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
             <TouchableOpacity
               style={styles.rounded_white_background}
               onPress={() => handleFavorite()}
+              disabled={favoriteSubmitting}
             >
               {item?.isFavourite ? (
                 <SvgItemFavouriteIcon
@@ -537,16 +552,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               buttonStyle={styles.button}
               onPress={() => {
                 if (isFavoritesMode) {
-                  const newFavoriteState = !(item?.isFavourite ?? false);
                   handleFavorite().then(success => {
-                    if (success) {
-                      patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
-                        'listing:',
-                        i => i.ItemId === item.ItemId,
-                        { isFavourite: newFavoriteState },
-                      );
-                      navigation.goBack();
-                    }
+                    if (success) navigation.goBack();
                   });
                 } else if (isItemInCart) {
                   (navigation as any).navigate('CheckOut');
@@ -560,10 +567,10 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                     ? getString('PRODUCT_REMOVE_FROM_FAVORITES')
                     : getString('PRODUCT_ADD_TO_FAVORITES')
                   : isItemInCart
-                    ? getString('PRODUCT_VIEW_CART')
-                    : getString('PRODUCT_ADD_TO_CART')
+                  ? getString('PRODUCT_VIEW_CART')
+                  : getString('PRODUCT_ADD_TO_CART')
               }
-              disabled={submitting}
+              disabled={submitting || favoriteSubmitting}
             />
           </View>
         </ShadowView>
@@ -575,8 +582,8 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           isVariantChange
             ? getString('PRODUCT_CLEAR_CART_VARIANT_MESSAGE')
             : samestoreg1g1
-              ? getString('PRODUCT_CLEAR_CART_MESSAGE_SAME')
-              : getString('PRODUCT_CLEAR_CART_MESSAGE')
+            ? getString('PRODUCT_CLEAR_CART_MESSAGE_SAME')
+            : getString('PRODUCT_CLEAR_CART_MESSAGE')
         }
         confirmText={getString('PRODUCT_CONFIRM')}
         cancelText={getString('NG_CANCEL')}

@@ -1,12 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
-import {
-  isAndroid,
-  isIOS,
-  isIOSThen,
-  isRTL,
-} from '../../../utils';
+import { isAndroid, isIOS, isIOSThen, isRTL } from '../../../utils';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
 const useStyles = () => {
@@ -55,7 +50,7 @@ const useStyles = () => {
       },
       heroImage: {
         borderRadius: sizes.BORDER_RADIUS_MID,
-        height: sizes.HEIGHT * (isIOS ? 0.28 : 0.28),
+        height: sizes.HEIGHT * (isAndroid ? 0.30 : 0.28),
       },
       sectionTitle: {
         fontFamily: fonts.bold,

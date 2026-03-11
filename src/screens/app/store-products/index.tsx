@@ -260,6 +260,33 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     }, [getStoreProducts, getFavoriteItems]),
   );
 
+  // Sync userToggleOverrides with fresh server data when it arrives.
+  // userToggleOverrides holds optimistic updates from the listing; when the user
+  // unfavorites from ProductDetails and we recall, we must overwrite stale overrides.
+  useEffect(() => {
+    const products = getStoreProducts.data || [];
+    const favorites = getFavoriteItems.data || [];
+    const itemsToSync: (StoreProduct | FaveItems)[] = [...products];
+    favorites.forEach(f => {
+      if (!itemsToSync.some(p => p.ItemId === f.ItemId)) {
+        itemsToSync.push(f);
+      }
+    });
+    if (itemsToSync.length === 0) return;
+    setUserToggleOverrides(prev => {
+      const next = { ...prev };
+      let changed = false;
+      itemsToSync.forEach(item => {
+        const serverState = item.isFavourite ?? false;
+        if (prev[item.ItemId] !== serverState) {
+          next[item.ItemId] = serverState;
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [getStoreProducts.data, getFavoriteItems.data]);
+
   // Reset to 'all' if favorites tab is selected but there are no favorite items
   useEffect(() => {
     if (

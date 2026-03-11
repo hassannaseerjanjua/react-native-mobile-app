@@ -238,7 +238,9 @@ const HomeScreenTabsContainer: React.FC = () => {
           shrinkDescription={false}
           onPress={homeScreenTabs[0].onPress}
           iconStyles={homeScreenTabs[0].iconStyles}
-          style={{ minHeight: theme.sizes.HEIGHT * 0.113 }}
+          style={{
+            minHeight: theme.sizes.HEIGHT * isAndroidThen(0.128, 0.113),
+          }}
         />
       </View>
       <View style={styles.optionsWrapper}>
@@ -250,7 +252,9 @@ const HomeScreenTabsContainer: React.FC = () => {
             title={tab.title}
             description={tab.description}
             onPress={tab.onPress}
-            style={{ minHeight: theme.sizes.HEIGHT * 0.101 }}
+            style={{
+              minHeight: theme.sizes.HEIGHT * isAndroidThen(0.115, 0.101),
+            }}
           />
         ))}
       </View>
@@ -268,7 +272,7 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              minHeight: theme.sizes.HEIGHT * 0.093,
+              minHeight: theme.sizes.HEIGHT * isAndroidThen(0.105, 0.093),
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 0.08,

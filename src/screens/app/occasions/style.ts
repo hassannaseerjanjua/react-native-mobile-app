@@ -15,7 +15,7 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.012,
         paddingBottom: sizes.HEIGHT * 0.1,
-        gap: sizes.HEIGHT * 0.016,
+        gap: sizes.HEIGHT * 0.018,
       },
       TabItem: {
         height: '100%',
@@ -39,10 +39,10 @@ const useStyles = () => {
         right: sizes.PADDING,
       },
       inputContainer: {
-        marginBottom: sizes.HEIGHT * 0.02,
+        // marginBottom: sizes.HEIGHT * 0.012,
       },
       button: {
-        marginTop: sizes.HEIGHT * 0.02,
+        marginTop: sizes.HEIGHT * 0.004,
       },
       uploadImageContainer: {
         borderWidth: 2,

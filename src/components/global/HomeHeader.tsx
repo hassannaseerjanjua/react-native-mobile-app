@@ -346,8 +346,9 @@ const useStyles = () => {
         // fontFamily: fonts.bold,
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         fontSize: sizes.FONTSIZE_HEADING,
-        // lineHeight: sizes.FONTSIZE_HEADING * 1.6,
+        // lineHeight: sizes.FONTSIZE_HEADING * 1.2,
         color: colors.PRIMARY_TEXT,
+        includeFontPadding: false,
       },
       searchBarContainer: {
         marginTop: sizes.HEIGHT * 0.008,

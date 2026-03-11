@@ -262,8 +262,14 @@ export const useListingApi = <T>(
     fetchData('', true, 1);
   }, [pageSize, sortColumn, sortDirection]);
 
-  const recall = (showLoading: boolean = true) => {
+  const recall = (
+    showLoading: boolean = true,
+    overrideParams?: Record<string, any>,
+  ) => {
     if (loading || isFetchingRef.current) return;
+    if (overrideParams && Object.keys(overrideParams).length > 0) {
+      extraParamsRef.current = { ...extraParamsRef.current, ...overrideParams };
+    }
     pageIndexRef.current = 1;
     setPageIndex(1);
     setHasMore(true);

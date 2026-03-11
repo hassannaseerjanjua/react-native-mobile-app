@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState, useMemo } from 'react';
+import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
 import {
   View,
   StatusBar,
@@ -136,9 +136,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     }));
   }, [selectedFilter, selectedCityId]);
 
-  useEffect(() => {
-    businessTypeApi.refetch?.();
-  }, [selectedCityId]);
+  // businessTypeApi auto-refetches when businessTypeUrl changes (driven by selectedCityId)
 
   const [cameFromProfile, setCameFromProfile] = useState(false);
 
@@ -157,11 +155,16 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     }
   }, [isRefreshing, FavStoreListing.loading, businessTypeApi.loading]);
 
+  const businessTypeRefetchRef = useRef(businessTypeApi.refetch);
+  businessTypeRefetchRef.current = businessTypeApi.refetch;
+  const citiesRefetchRef = useRef(citiesApi.refetch);
+  citiesRefetchRef.current = citiesApi.refetch;
+
   useFocusEffect(
     useCallback(() => {
       FavStoreListing.recall();
-      businessTypeApi.refetch?.();
-      citiesApi.refetch?.();
+      businessTypeRefetchRef.current?.();
+      citiesRefetchRef.current?.();
     }, []),
   );
 
@@ -247,16 +250,17 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         title={getString('FAV_FAVORITES')}
         showBackButton={true}
         onBackPress={handleBackPress}
-        loading={
-          FavStoreListing?.loading ||
-          businessTypeApi.loading ||
-          citiesApi.loading ||
-          isRefreshing ||
-          FavStoreListing.search !== ''
-        }
-        showSearchBar={
-          FavStoreListing.data.length > 0 && !FavStoreListing.loading
-        }
+        // loading={
+        //   FavStoreListing?.loading ||
+        //   businessTypeApi.loading ||
+        //   citiesApi.loading ||
+        //   isRefreshing ||
+        //   FavStoreListing.search !== ''
+        // }
+        // showSearchBar={
+        //   FavStoreListing.data.length > 0 && !FavStoreListing.loading
+        // }
+        showSearchBar={true}
         searchValue={FavStoreListing.search}
         hideSearchBar={false}
         onSearchChange={FavStoreListing.setSearch}
