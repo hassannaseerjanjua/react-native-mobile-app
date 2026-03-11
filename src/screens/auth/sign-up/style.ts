@@ -116,6 +116,7 @@ const useStyles = () => {
       },
       bottomSheetContainer: {
         width: sizes.PADDED_WIDTH,
+        paddingBottom:theme.sizes.HEIGHT*0.052,
         alignSelf: 'center',
       },
       bottomSheetTitle: {

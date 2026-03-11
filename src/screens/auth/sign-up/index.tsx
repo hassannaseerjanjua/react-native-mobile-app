@@ -206,6 +206,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
 
     return [part1, part2, part3].filter(Boolean).join(" ");
   };
+
   return (
     <>
       <AuthLayout
