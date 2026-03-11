@@ -19,7 +19,7 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import useGetApi from '../../../hooks/useGetApi';
-import { isAndroid, isAndroidThen, isIOS, scaleWithMax } from '../../../utils';
+import { isAndroidThen } from '../../../utils';
 import notify from '../../../utils/notify';
 
 const HomeScreen: React.FC = () => {
@@ -155,10 +155,6 @@ const HomeScreenTabsContainer: React.FC = () => {
   const navigation = useNavigation();
   const isMerchant = user?.isMerchant === 1;
 
-  const isProMax = theme.sizes.WIDTH >= 430 && isIOS;
-  const isLargeAndroid = isAndroid && theme.sizes.HEIGHT > 800;
-  const androidHeightBoost = isAndroid ? scaleWithMax(8, 12) : 0;
-
   const formatDescription = (text: string) => text.replace(/\.\s+/, '.\n');
 
   const homeScreenTabs = [
@@ -168,7 +164,7 @@ const HomeScreenTabsContainer: React.FC = () => {
       title: getString('HOME_GIFT_ONE_GET_ONE'),
       description: formatDescription(getString('HOME_GIFT_ONE_GET_ONE_DESC')),
       iconStyles: {
-        marginRight: scaleWithMax(18, 20),
+        marginRight: theme.sizes.WIDTH * 0.048,
       },
       onPress: () =>
         isMerchant
@@ -231,9 +227,7 @@ const HomeScreenTabsContainer: React.FC = () => {
       <View
         style={[
           styles.optionsWrapper,
-          {
-            marginBottom: scaleWithMax(10, 12),
-          },
+          { marginBottom: theme.sizes.HEIGHT * 0.014 },
         ]}
       >
         <HomeScreenTabs
@@ -242,21 +236,12 @@ const HomeScreenTabsContainer: React.FC = () => {
           title={homeScreenTabs[0].title}
           description={homeScreenTabs[0].description}
           shrinkDescription={false}
-          // descriptionStyles={{
-          //   maxWidth: '100%',
-          // }}
           onPress={homeScreenTabs[0].onPress}
           iconStyles={homeScreenTabs[0].iconStyles}
-          style={{
-            minHeight: isProMax
-              ? scaleWithMax(95, 110)
-              : isLargeAndroid
-              ? scaleWithMax(88, 93) + androidHeightBoost
-              : scaleWithMax(95, 95) + androidHeightBoost,
-          }}
+          style={{ minHeight: theme.sizes.HEIGHT * 0.113 }}
         />
       </View>
-      <View style={[styles.optionsWrapper, {}]}>
+      <View style={styles.optionsWrapper}>
         {homeScreenTabs.slice(1, 3).map(tab => (
           <HomeScreenTabs
             key={tab.id}
@@ -265,13 +250,7 @@ const HomeScreenTabsContainer: React.FC = () => {
             title={tab.title}
             description={tab.description}
             onPress={tab.onPress}
-            style={{
-              minHeight: isProMax
-                ? scaleWithMax(85, 100)
-                : isLargeAndroid
-                ? scaleWithMax(78, 83) + androidHeightBoost
-                : scaleWithMax(85, 85) + androidHeightBoost,
-            }}
+            style={{ minHeight: theme.sizes.HEIGHT * 0.101 }}
           />
         ))}
       </View>
@@ -280,7 +259,7 @@ const HomeScreenTabsContainer: React.FC = () => {
         {getString('HOME_RECEIVED_AND_SENT_GIFTS')}
       </Text>
 
-      <View style={[styles.optionsWrapper, {}]}>
+      <View style={styles.optionsWrapper}>
         {homeScreenTabs.slice(3, 5).map(tab => (
           <HomeScreenTabs
             key={tab.id}
@@ -289,9 +268,7 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              minHeight: isProMax
-                ? scaleWithMax(75, 90)
-                : scaleWithMax(78, 80) + androidHeightBoost,
+              minHeight: theme.sizes.HEIGHT * 0.093,
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 0.08,

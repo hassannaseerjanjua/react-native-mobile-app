@@ -30,7 +30,7 @@ import notify from '../../../utils/notify';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 
-interface SendToGroupProps extends AppStackScreen<'SendToGroup'> {}
+interface SendToGroupProps extends AppStackScreen<'SendToGroup'> { }
 
 const SendToGroupScreen: React.FC<SendToGroupProps> = ({
   navigation,
@@ -226,8 +226,8 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
           isEditGroupOpen
             ? ''
             : (getGroupsData?.data || []).length !== 0
-            ? getString('STG_EDIT_GROUP')
-            : getString('SG_NEW_GROUP') || 'New Group'
+              ? getString('STG_EDIT_GROUP')
+              : getString('SG_NEW_GROUP') || 'New Group'
         }
         rightSideTitlePress={() => {
           if ((getGroupsData?.data || []).length !== 0) {
@@ -275,12 +275,12 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
                 isEditGroupOpen
                   ? () => handleEditGroup(group)
                   : () => {
-                      setSelectedGroup(group);
-                      setIsViewMembersOpen(true);
-                      setTimeout(() => {
-                        setIsEditGroupOpen(false);
-                      }, 300);
-                    }
+                    setSelectedGroup(group);
+                    setIsViewMembersOpen(true);
+                    setTimeout(() => {
+                      setIsEditGroupOpen(false);
+                    }, 300);
+                  }
               }
               isEditGroup={isEditGroupOpen}
               TabItemStyles={styles.TabItem}
@@ -297,7 +297,9 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
           onEndReachedThreshold={0.5}
           ListEmptyComponent={
             <View style={{ height: theme.sizes.HEIGHT * 0.67 }}>
-              <PlaceholderLogoText text={getString('STG_NO_GROUP_FOUND')} />
+              <PlaceholderLogoText
+                text={getString('STG_NO_GROUP_FOUND')}
+              />
             </View>
           }
           ListFooterComponent={
@@ -324,7 +326,7 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
         visible={isViewMembersOpen}
         onClose={() => setIsViewMembersOpen(false)}
         existingMembers={getGroupMembersData()}
-        onSave={() => {}}
+        onSave={() => { }}
         title={selectedGroup?.GroupName || getString('STG_GROUP_MEMBERS')}
         listings={[
           {

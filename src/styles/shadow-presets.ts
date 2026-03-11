@@ -31,11 +31,11 @@ export const SHADOW_PRESETS = {
     offset: [0, 1] as [number, number],
   },
 
-  /** Input field */
+  /** Input field - deeper shadow, no spread */
   input: {
-    startColor: '#00000006',
-    distance: 10,
-    offset: [0, 0] as [number, number],
+    startColor: '#0000000E',
+    distance: 8,
+    offset: [0, 1] as [number, number],
   },
 
   /** Medium */

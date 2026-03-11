@@ -806,38 +806,38 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     {item.Status === 10 && (
                       <ShadowView preset="low">
                         <View style={styles.redeemedBox}>
-                          <Text
-                            style={{
-                              // color: theme.colors.WHITE,
-                              ...theme.globalStyles.TEXT_STYLE,
-                              color: theme.colors.WHITE,
-                              fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                            }}
-                          >
-                            {getString('INBOX_REDEEMED')}
-                          </Text>
-                        </View>
+                        <Text
+                          style={{
+                            // color: theme.colors.WHITE,
+                            ...theme.globalStyles.TEXT_STYLE,
+                            color: theme.colors.WHITE,
+                            fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                          }}
+                        >
+                          {getString('INBOX_REDEEMED')}
+                        </Text>
+                      </View>
                       </ShadowView>
                     )}
                     <Image source={itemImage} style={styles.inboxImage} />
                     <ShadowView preset="default">
-                      <View style={styles.inboxImageBottom}>
-                        <Text
-                          style={styles.itemNameText}
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                        >
-                          {item.ItemName}
-                        </Text>
+                    <View style={styles.inboxImageBottom}>
+                      <Text
+                        style={styles.itemNameText}
+                        numberOfLines={1}
+                        ellipsizeMode="tail"
+                      >
+                        {item.ItemName}
+                      </Text>
 
-                        {item.Quantity - item.UsedQuantity > 0 && (
-                          <View style={styles.numCircle}>
-                            <Text style={styles.numText}>
-                              {item.Quantity - item.UsedQuantity}
-                            </Text>
-                          </View>
-                        )}
-                      </View>
+                      {item.Quantity - item.UsedQuantity > 0 && (
+                        <View style={styles.numCircle}>
+                          <Text style={styles.numText}>
+                            {item.Quantity - item.UsedQuantity}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
                     </ShadowView>
                   </TouchableOpacity>
                 );

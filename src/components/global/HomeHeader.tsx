@@ -135,7 +135,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
       <View style={[styles.container, customContainerStyle]}>
         {showBackButton && (
           <TouchableOpacity
-            style={[styles.backButton, { transform: [{ translateX: -3 }] }]}
+            style={[styles.backButton, { transform: [{ translateX: -5 }] }]}
             onPress={handleBackPress}
             activeOpacity={0.7}
             hitSlop={10}
@@ -285,7 +285,7 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: isAndroidThen(sizes.PADDING, 0),
+        paddingTop: isAndroidThen(sizes.HEIGHT * 0.01, 0),
         paddingBottom: sizes.HEIGHT * 0.01,
         // backgroundColor: colors.RED,
         paddingHorizontal: theme.sizes.PADDING,
