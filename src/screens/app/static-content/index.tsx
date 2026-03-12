@@ -25,6 +25,7 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
     },
   );
 
+  const hasData = !!getStaticContent.data;
   const rawHtmlContent =
     langId === 1
       ? getStaticContent?.data?.ContentEn || '<p>No content</p>'
@@ -42,13 +43,17 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
         <meta charset="UTF-8" />
         <meta
           name="viewport"
-          content="width=device-width, initial-scale=1.0, user-scalable=no"
+          content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
         />
         <style>
-          * { box-sizing: border-box; max-width: 100%; }
+          html, body { -webkit-overflow-scrolling: touch; }
+          * { box-sizing: border-box; }
           body {
             margin: 0;
-            padding: 16px;
+            padding: 0px 16px;
+            width: 100%;
+            overflow-wrap: break-word;
+            word-break: break-word;
             font-family: '${theme.fonts.regular}',
             font-size: 14px;
             line-height: 20px;
@@ -58,7 +63,6 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
             background-color: ${theme.colors.BACKGROUND};
             width: 100%;
             max-width: 100%;
-            overflow-x: hidden;
           }
           h1 {
             font-size: 24px;
@@ -76,10 +80,13 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
             margin: 0 0 12px 0;
             text-align: inherit;
             unicode-bidi: ${isRtl ? 'isolate-override' : 'normal'};
-            max-width: 100%;
             overflow-wrap: break-word;
             word-break: break-word;
           }
+          a { overflow-wrap: break-word; word-break: break-word; }
+          img { max-width: 100%; height: auto; }
+          table { width: 100%; table-layout: fixed; }
+          pre, code { overflow-wrap: break-word; word-break: break-word; max-width: 100%; }
           .nowrap { white-space: nowrap; }
           li {
             margin-bottom: 8px;
@@ -112,15 +119,25 @@ const StaticContent: React.FC<StaticProps> = ({ navigation, route }) => {
         onBackPress={() => navigation.goBack()}
       />
 
-      <View style={styles.scrollView}>
-        {getStaticContent.loading ? (
-          <SkeletonLoader screenType="staticContent" />
+      <View style={[styles.scrollView, styles.contentWrapper]}>
+        {!hasData ? (
+          <View style={styles.skeletonWrapper}>
+            <SkeletonLoader screenType="staticContent" />
+          </View>
         ) : (
           <WebView
             originWhitelist={['*']}
             source={{ html }}
-            style={styles.scrollView}
+            style={styles.webView}
+            scrollEnabled={true}
+            showsHorizontalScrollIndicator={false}
             showsVerticalScrollIndicator={false}
+            startInLoadingState={true}
+            renderLoading={() => (
+              <View style={[styles.skeletonWrapper, styles.loadingOverlay]}>
+                <SkeletonLoader screenType="staticContent" />
+              </View>
+            )}
           />
         )}
       </View>

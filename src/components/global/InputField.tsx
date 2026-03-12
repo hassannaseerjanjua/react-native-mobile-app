@@ -45,34 +45,31 @@ const InputField = ({
         style,
       ]}
     >
-          {isPhone ? (
-            <SvgPhone
-              width={scaleWithMax(20, 25)}
-              height={scaleWithMax(20, 25)}
-            />
-          ) : (
-            icon
-          )}
-          {isPhone && (
-            <Text style={styles.prefixText}>{isRtl ? '966+' : '+966'}</Text>
-          )}
-          <TextInput
-            {...fieldProps}
-            style={[
-              isMultiline ? styles.textarea : styles.input,
-              {
-                paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
-                textAlign: isPhone ? 'left' : rtlTextAlign(isRtl),
-                writingDirection: isPhone ? 'ltr' : undefined,
-              },
-              fieldProps.style,
-            ]}
-            allowFontScaling={false}
-            placeholderTextColor={theme.colors.SECONDARY_TEXT}
-            selectionColor={theme.colors.PRIMARY}
-            underlineColorAndroid="transparent"
-          />
-        </View>
+      {isPhone ? (
+        <SvgPhone width={scaleWithMax(20, 25)} height={scaleWithMax(20, 25)} />
+      ) : (
+        icon
+      )}
+      {isPhone && (
+        <Text style={styles.prefixText}>{isRtl ? '966+' : '+966'}</Text>
+      )}
+      <TextInput
+        {...fieldProps}
+        style={[
+          isMultiline ? styles.textarea : styles.input,
+          {
+            paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
+            textAlign: isPhone ? 'left' : rtlTextAlign(isRtl),
+            writingDirection: isPhone ? 'ltr' : undefined,
+          },
+          fieldProps.style,
+        ]}
+        allowFontScaling={false}
+        placeholderTextColor={theme.colors.SECONDARY_TEXT}
+        selectionColor={theme.colors.PRIMARY}
+        underlineColorAndroid="transparent"
+      />
+    </View>
   );
 
   return (

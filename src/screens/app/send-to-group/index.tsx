@@ -295,13 +295,14 @@ const SendToGroupScreen: React.FC<SendToGroupProps> = ({
             getGroupsData.hasMore ? getGroupsData.loadMore : undefined
           }
           onEndReachedThreshold={0.5}
-          ListEmptyComponent={
-            <View style={{ height: theme.sizes.HEIGHT * 0.67 }}>
-              <PlaceholderLogoText
-                text={getString('STG_NO_GROUP_FOUND')}
-              />
-            </View>
-          }
+          ListEmptyComponent={() => {
+            if (!getGroupsData.isInitialLoad) return null;
+            return (
+              <View style={{ height: theme.sizes.HEIGHT * 0.67 }}>
+                <PlaceholderLogoText text={getString('STG_NO_GROUP_FOUND')} />
+              </View>
+            );
+          }}
           ListFooterComponent={
             getGroupsData.loadingMore ? (
               <View

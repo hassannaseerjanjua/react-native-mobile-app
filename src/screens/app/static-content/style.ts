@@ -17,10 +17,23 @@ const useStyles = () => {
       scrollView: {
         flex: 1,
       },
+      contentWrapper: {
+        paddingVertical: sizes.HEIGHT * 0.01,
+      },
+      skeletonWrapper: {
+        flex: 1,
+        paddingHorizontal: sizes.PADDING,
+      },
+      loadingOverlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: colors.BACKGROUND,
+      },
+      webView: {
+        flex: 1,
+      },
       scrollContent: {
         paddingHorizontal: sizes.PADDING,
         paddingBottom: sizes.HEIGHT * 0.02,
-        // backgroundColor: colors.RED,
       },
     });
   }, [theme]);

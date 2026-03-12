@@ -90,11 +90,14 @@ const SelectCity: React.FC<SelectCityProps> = ({ navigation }) => {
 
             gap: scaleWithMax(10, 12),
           }}
-          ListEmptyComponent={
-            <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
-              <PlaceholderLogoText text={getString('SELECT_CITY_NO_CITIES_FOUND')} />
-            </View>
-          }
+          ListEmptyComponent={() => {
+            if (!citiesApi.isInitialLoad) return null;
+            return (
+              <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
+                <PlaceholderLogoText text={getString('SELECT_CITY_NO_CITIES_FOUND')} />
+              </View>
+            );
+          }}
           renderItem={({ item }) => (
             <TabItem
               title={item.CityName}

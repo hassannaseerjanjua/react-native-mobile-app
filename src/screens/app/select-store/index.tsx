@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
@@ -268,9 +269,11 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               });
             }
           }}
-          // showSearchBar={storeListApi.data.length > 0 && !storeListApi.loading}
-          // loading={storeListApi.loading}
-          showSearchBar={true}
+          showSearchBar={
+            storeListApi.data.length > 0 &&
+            !(businessTypeApi.loading && storeListApi.loading)
+          }
+          loading={businessTypeApi.loading && storeListApi.loading}
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
           searchPlaceholder={getString('HOME_SEARCH')}
@@ -284,7 +287,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                   flexDirection: 'row',
                   justifyContent: 'flex-end',
                   alignItems: 'center',
-                  paddingHorizontal: theme.sizes.PADDING * 0.4,
+                  // paddingHorizontal: theme.sizes.PADDING * 0.4,
                   gap: scaleWithMax(4, 6),
                 }}
               >
@@ -339,10 +342,13 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             </View>
           ) : (
             <FlatList
+              style={{ flex: 1 }}
+              removeClippedSubviews={false}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
-                paddingBottom: theme.sizes.HEIGHT * 0.2,
+                paddingBottom: theme.sizes.HEIGHT * 0.1,
                 paddingHorizontal: theme.sizes.PADDING,
+                flexGrow: 1,
               }}
               refreshControl={
                 <RefreshControl
@@ -354,17 +360,20 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               }
               data={storeListApi.data}
               extraData={favoriteStates}
-              ListEmptyComponent={() => (
-                <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
-                  <PlaceholderLogoText
-                    text={
-                      searchQuery
-                        ? getString('SEARCH_NO_RESULTS_FOUND')
-                        : getString('SELECT_STORE_NO_STORES_FOUND')
-                    }
-                  />
-                </View>
-              )}
+              ListEmptyComponent={() => {
+                if (!storeListApi.isInitialLoad) return null;
+                return (
+                  <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
+                    <PlaceholderLogoText
+                      text={
+                        searchQuery
+                          ? getString('SEARCH_NO_RESULTS_FOUND')
+                          : getString('SELECT_STORE_NO_STORES_FOUND')
+                      }
+                    />
+                  </View>
+                );
+              }}
               keyExtractor={item => item.StoreId.toString()}
               renderItem={({ item }) => (
                 <>
@@ -391,8 +400,27 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                   </View>
                 </>
               )}
-              onEndReached={storeListApi.loadMore}
-              onEndReachedThreshold={0.5}
+              onEndReached={() => {
+                if (storeListApi.hasMore && !storeListApi.loadingMore) {
+                  storeListApi.loadMore();
+                }
+              }}
+              onEndReachedThreshold={0.3}
+              ListFooterComponent={
+                storeListApi.loadingMore ? (
+                  <View
+                    style={{
+                      paddingVertical: theme.sizes.HEIGHT * 0.02,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <ActivityIndicator
+                      size="small"
+                      color={theme.colors.PRIMARY}
+                    />
+                  </View>
+                ) : null
+              }
             />
           )}
         </View>

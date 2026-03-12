@@ -666,6 +666,7 @@ export const useInboxOutboxActions = (isInbox: boolean = true) => {
     filterMap,
     search: getInboxOutboxDetails.search,
     setSearch: getInboxOutboxDetails.setSearch,
+    isInitialLoad: getInboxOutboxDetails.isInitialLoad,
     loadMore: getInboxOutboxDetails.loadMore,
     loadingMore: getInboxOutboxDetails.loadingMore,
     hasMore: getInboxOutboxDetails.hasMore,

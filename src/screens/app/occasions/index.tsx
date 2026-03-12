@@ -89,6 +89,7 @@ const OccasionsScreen: React.FC = () => {
   const {
     loading,
     occasionsLoading,
+    occasionsInitialLoad,
     occasions,
     loadingMore,
     hasMore,
@@ -260,13 +261,16 @@ const OccasionsScreen: React.FC = () => {
                   </View>
                 ) : null
               }
-              ListEmptyComponent={
-                <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
-                  <PlaceholderLogoText
-                    text={getString('OCCASIONS_NO_OCCASIONS_FOUND')}
-                  />
-                </View>
-              }
+              ListEmptyComponent={() => {
+                if (!occasionsInitialLoad) return null;
+                return (
+                  <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
+                    <PlaceholderLogoText
+                      text={getString('OCCASIONS_NO_OCCASIONS_FOUND')}
+                    />
+                  </View>
+                );
+              }}
               renderItem={({ item }: { item: Occasion }) => {
                 const isDefaultBirthday = item.OccassionId === -1;
                 const isExpanded = expandedOccasionId === item.OccassionId;

@@ -696,13 +696,19 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       )}
                       showsVerticalScrollIndicator={false}
                       contentContainerStyle={styles.listContainer}
-                      ListEmptyComponent={
-                        <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
-                          <PlaceholderLogoText
-                            text={getString('SEARCH_NO_USERS_FOUND')}
-                          />
-                        </View>
-                      }
+                      ListEmptyComponent={() => {
+                        const relevantApi = showEmployeesOnly
+                          ? employeesApi
+                          : activeUsersApi;
+                        if (!relevantApi?.isInitialLoad) return null;
+                        return (
+                          <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
+                            <PlaceholderLogoText
+                              text={getString('SEARCH_NO_USERS_FOUND')}
+                            />
+                          </View>
+                        );
+                      }}
                     />
                   </View>
                 </ShadowView>

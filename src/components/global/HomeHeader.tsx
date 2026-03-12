@@ -88,7 +88,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const [internalSearchValue, setInternalSearchValue] = useState(
     searchValue || '',
   );
-
+  const [isFocused, setIsFocused] = useState(false);
   useEffect(() => {
     if (onSearchChange) {
       setInternalSearchValue(searchValue || '');
@@ -241,12 +241,12 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         </View>
       </View>
 
-      {loading && (
-        <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
+      {loading && !isFocused && (
+        <View style={styles.searchBarContainer}>
           <SkeletonLoader screenType="searchBar" />
         </View>
       )}
-      {!loading && showSearchBar && (
+      {((!loading && showSearchBar) || isFocused) && (
         <View style={styles.searchBarContainer}>
           <InputField
             icon={
@@ -256,6 +256,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               />
             }
             fieldProps={{
+              onFocus: () => setIsFocused(true),
+              // onBlur: () => setTimeout(() => setIsFocused(false), 200),
               allowFontScaling: false,
               placeholder: defaultSearchPlaceholder,
               placeholderTextColor: theme.colors.SECONDARY_TEXT,
@@ -264,7 +266,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               editable: true,
               autoCorrect: false,
               autoCapitalize: 'none',
-              returnKeyType: 'search',
+              returnKeyType: 'done',
             }}
             style={styles.searchInputContainer}
           />
@@ -309,7 +311,7 @@ const useStyles = () => {
       cartCount: {
         position: 'absolute',
         top: 0,
-        right: 0,
+        end: 0,
         backgroundColor: colors.PRIMARY,
         borderRadius: 9999,
         zIndex: 1,

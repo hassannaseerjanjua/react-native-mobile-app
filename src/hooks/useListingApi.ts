@@ -32,7 +32,7 @@ export const useListingApi = <T>(
 
   const [data, setData] = useState<T[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(url !== '');
   const [recallCount, setRecallCount] = useState(0);
   const [extraParams, setExtraParams] = useState(config?.extraParams || {});
   const [sortColumn, setSortColumn] = useState(config?.sortColumn || '');

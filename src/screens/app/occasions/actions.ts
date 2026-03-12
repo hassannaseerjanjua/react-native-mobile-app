@@ -197,6 +197,7 @@ export const useOccasions = () => {
 
   const occasions = occasionsListing.data ?? [];
   const occasionsLoading = occasionsListing.loading;
+  const occasionsInitialLoad = occasionsListing.isInitialLoad;
   const loadingMore = occasionsListing.loadingMore;
   const hasMore = occasionsListing.hasMore;
   const fetchOccasions = () => occasionsListing.recall();
@@ -396,6 +397,7 @@ export const useOccasions = () => {
   return {
     loading,
     occasionsLoading,
+    occasionsInitialLoad,
     occasions,
     loadingMore,
     hasMore,

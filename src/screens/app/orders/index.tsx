@@ -104,6 +104,7 @@ const OrdersScreen: React.FC = () => {
         data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
+      pageSize: 5,
       // noCache: true,
     },
   );
@@ -134,7 +135,8 @@ const OrdersScreen: React.FC = () => {
         title={getString('O_ORDERS')}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
-        showSearchBar={true}
+        showSearchBar={orders.length > 0 && !ordersListing.loading}
+        loading={ordersListing.loading}
         searchPlaceholder={getString('O_SEARCH_ORDER')}
         searchValue={ordersListing.search}
         onSearchChange={ordersListing.setSearch}
@@ -164,19 +166,16 @@ const OrdersScreen: React.FC = () => {
           }
         }}
         onEndReachedThreshold={0.5}
-        ListEmptyComponent={() =>
-          isLoading && !isRefreshing ? (
-            <SkeletonLoader screenType="orderListing" />
-          ) : (
-            <View
-              style={{
-                height: theme.sizes.HEIGHT * 0.68,
-              }}
-            >
+        ListEmptyComponent={() => {
+          if (!ordersListing.isInitialLoad && !isLoading) return null;
+          if (isLoading && !isRefreshing)
+            return <SkeletonLoader screenType="orderListing" />;
+          return (
+            <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
               <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
             </View>
-          )
-        }
+          );
+        }}
         ListFooterComponent={() => {
           if (ordersListing.loadingMore) {
             return (

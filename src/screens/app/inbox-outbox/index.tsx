@@ -72,6 +72,7 @@ const InboxOutbox: React.FC = () => {
   const {
     orders,
     isLoading,
+    isInitialLoad,
     isRtl,
     openBottomSheet,
     selectedOrder,
@@ -141,7 +142,8 @@ const InboxOutbox: React.FC = () => {
         <HomeHeader
           showBackButton
           title={title}
-          showSearchBar
+          showSearchBar={orders.length > 0 && !isLoading}
+          loading={isLoading}
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={getString('HOME_SEARCH')}
@@ -186,15 +188,14 @@ const InboxOutbox: React.FC = () => {
           keyExtractor={item => item.OrderId.toString()}
           onEndReached={hasMore ? loadMore : undefined}
           onEndReachedThreshold={0.5}
-          ListEmptyComponent={() => (
-            <View
-              style={{
-                height: theme.sizes.HEIGHT * 0.74,
-              }}
-            >
-              <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
-            </View>
-          )}
+          ListEmptyComponent={() => {
+            if (!isInitialLoad) return null;
+            return (
+              <View style={{ height: theme.sizes.HEIGHT * 0.74 }}>
+                <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
+              </View>
+            );
+          }}
           ListFooterComponent={
             loadingMore ? (
               <View

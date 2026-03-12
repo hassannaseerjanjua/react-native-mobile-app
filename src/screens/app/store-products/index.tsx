@@ -483,13 +483,16 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                   colors={[theme.colors.PRIMARY]}
                 />
               }
-              ListEmptyComponent={() => (
-                <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
-                  <PlaceholderLogoText
-                    text={getString('EMPTY_NO_PRODUCTS_FOUND')}
-                  />
-                </View>
-              )}
+              ListEmptyComponent={() => {
+                if (!currentListingApi.isInitialLoad) return null;
+                return (
+                  <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
+                    <PlaceholderLogoText
+                      text={getString('EMPTY_NO_PRODUCTS_FOUND')}
+                    />
+                  </View>
+                );
+              }}
               contentContainerStyle={[
                 styles.content,
                 {

@@ -410,9 +410,11 @@ const ProfileScreen: React.FC = () => {
             </View>
             <Text style={screenStyles.profileUsername}>@{user?.UserName}</Text>
           </View>
-          <TouchableOpacity onPress={() => setShowQrModal(true)}>
-            <SvgProfileQrIcon />
-          </TouchableOpacity>
+          {!isMerchant && (
+            <TouchableOpacity onPress={() => setShowQrModal(true)}>
+              <SvgProfileQrIcon />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={screenStyles.menuContainer}>

@@ -19,7 +19,7 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import useGetApi from '../../../hooks/useGetApi';
-import { isAndroidThen } from '../../../utils';
+import { isAndroidThen, isIOS } from '../../../utils';
 import notify from '../../../utils/notify';
 
 const HomeScreen: React.FC = () => {
@@ -154,6 +154,7 @@ const HomeScreenTabsContainer: React.FC = () => {
   const { user } = useAuthStore();
   const navigation = useNavigation();
   const isMerchant = user?.isMerchant === 1;
+  const isProMax = theme.sizes.WIDTH >= 430 && isIOS;
 
   const formatDescription = (text: string) => text.replace(/\.\s+/, '.\n');
 
@@ -239,7 +240,9 @@ const HomeScreenTabsContainer: React.FC = () => {
           onPress={homeScreenTabs[0].onPress}
           iconStyles={homeScreenTabs[0].iconStyles}
           style={{
-            minHeight: theme.sizes.HEIGHT * isAndroidThen(0.128, 0.113),
+            minHeight:
+              theme.sizes.HEIGHT *
+              isAndroidThen(0.128, isProMax ? 0.12 : 0.113),
           }}
         />
       </View>
@@ -253,7 +256,9 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              minHeight: theme.sizes.HEIGHT * isAndroidThen(0.115, 0.101),
+              minHeight:
+                theme.sizes.HEIGHT *
+                isAndroidThen(0.115, isProMax ? 0.106 : 0.101),
             }}
           />
         ))}
@@ -272,7 +277,9 @@ const HomeScreenTabsContainer: React.FC = () => {
             description={tab.description}
             onPress={tab.onPress}
             style={{
-              minHeight: theme.sizes.HEIGHT * isAndroidThen(0.105, 0.093),
+              minHeight:
+                theme.sizes.HEIGHT *
+                isAndroidThen(0.105, isProMax ? 0.098 : 0.093),
               shadowColor: '#000000',
               shadowOffset: { width: 0, height: 5 },
               shadowOpacity: 0.08,

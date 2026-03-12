@@ -262,13 +262,16 @@ const NotificationsScreen: React.FC = () => {
               colors={[theme.colors.PRIMARY]}
             />
           }
-          ListEmptyComponent={
-            <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
-              <PlaceholderLogoText
-                text={getString('SEARCH_NO_RESULTS_FOUND')}
-              />
-            </View>
-          }
+          ListEmptyComponent={() => {
+            if (!notificationsApi.isInitialLoad) return null;
+            return (
+              <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
+                <PlaceholderLogoText
+                  text={getString('SEARCH_NO_RESULTS_FOUND')}
+                />
+              </View>
+            );
+          }}
           renderItem={renderItem}
           onEndReached={notificationsApi.loadMore}
           onEndReachedThreshold={0.5}

@@ -275,6 +275,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     transformedCatchItems,
     getStoreProducts.data,
   ]);
+
   const filteredListingApi = useMemo(() => {
     if (screenType === 'favorite') {
       return getFavoriteItems || [];
@@ -289,13 +290,24 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     transformedCatchItems,
     getStoreProducts.data,
   ]);
-
+  console.log('filteredItems ==>', filteredListingApi.search);
   const listingApi = useMemo(() => {
     if (screenType === 'favorite') return getFavoriteItems;
     if (screenType === 'GiftOneGetOne') return getStoreProducts;
     if (screenType === 'catch') return getCatchItems;
     return null;
   }, [screenType, getFavoriteItems, getStoreProducts, getCatchItems]);
+
+  const showEmptyState = useMemo(() => {
+    if (!listingApi) return false;
+    // Don't show until the first fetch has completed (avoids flash before data arrives)
+    if (!listingApi.isInitialLoad) return false;
+    // Don't show during the initial skeleton loader or a mid-flight recall
+    if (listingApi.loading) return false;
+    // Don't show while paginating (data is still coming in)
+    if (listingApi.loadingMore) return false;
+    return filteredItems.length === 0;
+  }, [listingApi, filteredItems]);
 
   const handleSearchChange = (text: string) => {
     if (listingApi) {
@@ -561,7 +573,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   }
 
   return (
-    <ParentView>
+    <ParentView
+      emptyStateText={
+        showEmptyState ? getString('EMPTY_NO_PRODUCTS_FOUND') : undefined
+      }
+    >
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -570,9 +586,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         title={getHeaderTitle()}
         showBackButton
         onBackPress={() => navigation.goBack()}
-        // showSearchBar={filteredItems.length > 0 && !filteredListingApi.loading}
-        // loading={filteredListingApi.loading}
-        showSearchBar={true}
+        showSearchBar={
+          filteredItems.length > 0 &&
+          !(categoriesApi.loading && filteredListingApi.loading)
+        }
+        loading={categoriesApi.loading && filteredListingApi.loading}
         searchValue={listingApi?.search}
         onSearchChange={handleSearchChange}
         searchPlaceholder={getString('HOME_SEARCH')}
@@ -651,13 +669,13 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             keyExtractor={getItemKey}
             columnWrapperStyle={styles.columnWrapper}
             extraData={favoriteStates}
-            ListEmptyComponent={() => (
-              <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
-                <PlaceholderLogoText
-                  text={getString('EMPTY_NO_PRODUCTS_FOUND')}
-                />
-              </View>
-            )}
+            // ListEmptyComponent={() => (
+            //   <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
+            //     <PlaceholderLogoText
+            //       text={getString('EMPTY_NO_PRODUCTS_FOUND')}
+            //     />
+            //   </View>
+            // )}
             contentContainerStyle={[
               styles.listContent,
               styles.listContainer,
