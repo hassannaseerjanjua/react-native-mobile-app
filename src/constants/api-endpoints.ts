@@ -21,6 +21,7 @@ const apiEndpoints = {
   VERIFY_EMAIL_PHONE: `/${version}/User/VerifyEmailAndPhoneNo`,
   LOGOUT: `/${version}/Auth/LogOut`,
   DELETE_USER: `/${version}/User/DeleteAccount`,
+  REFRESH_TOKEN: `/${version}/Auth/RefreshLogin`,
   // ============================================
   // HOME & GENERAL
   // ============================================

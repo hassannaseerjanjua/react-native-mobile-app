@@ -57,6 +57,11 @@ export interface LoginApiResponse {
   };
 }
 
+export interface RefreshLoginApiResponse {
+  User: User;
+  JwtToken: string;
+}
+
 export interface ActiveUser {
   UserId: number;
   FullName: string;
