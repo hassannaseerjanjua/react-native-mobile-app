@@ -39,30 +39,30 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
   const itemImage = isStoreProduct
     ? (item as StoreProduct).Thumbnail
     : isFaveItems
-    ? (item as FaveItems).ItemImage
-    : null;
+      ? (item as FaveItems).ItemImage
+      : null;
   const itemName = isStoreProduct
     ? isRtl
       ? (item as StoreProduct).NameAr
       : (item as StoreProduct).NameEn
     : isFaveItems
-    ? isRtl
-      ? (item as FaveItems).ItemNameAr
-      : (item as FaveItems).ItemNameEn
-    : '';
+      ? isRtl
+        ? (item as FaveItems).ItemNameAr
+        : (item as FaveItems).ItemNameEn
+      : '';
   const categoryName = isStoreProduct
     ? isRtl
       ? (item as StoreProduct).CategoryNameAr
       : (item as StoreProduct).CategoryNameEn
     : isFaveItems
-    ? isRtl
-      ? (item as FaveItems).CategoryNameAr
-      : (item as FaveItems).CategoryNameEn
-    : '';
+      ? isRtl
+        ? (item as FaveItems).CategoryNameAr
+        : (item as FaveItems).CategoryNameEn
+      : '';
   const price =
     (item as StoreProduct).Variants?.length > 0
       ? (item as StoreProduct).Variants.find(v => v.IsDefault)?.FinalPrice ||
-        (item as StoreProduct).Price
+      (item as StoreProduct).Price
       : 0;
 
   const defaultVariant = (item as StoreProduct).Variants?.find(
@@ -89,7 +89,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
           }
           style={styles.image}
         />
-        {hasFavorite && (
+        {hasFavorite && !isFavoriteTab && (
           <TouchableOpacity
             style={styles.favoriteIcon}
             onPress={onFavoritePress}
@@ -163,12 +163,12 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
                 }
                 textStyle={styles.discountedPrice}
               />
-              <PriceWithIcon
+              {price > cutPrice && <PriceWithIcon
                 amount={price}
                 variant="cut"
                 showIcon={false}
                 textStyle={styles.cutPrice}
-              />
+              />}
             </View>
           )}
         </View>

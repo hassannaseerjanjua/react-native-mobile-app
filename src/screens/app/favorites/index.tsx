@@ -260,9 +260,8 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         // showSearchBar={
         //   FavStoreListing.data.length > 0 && !FavStoreListing.loading
         // }
-        showSearchBar={true}
+        showSearchBar={FavStoreListing.data.length > 0 && !FavStoreListing.loading}
         searchValue={FavStoreListing.search}
-        hideSearchBar={false}
         onSearchChange={FavStoreListing.setSearch}
         rightSideView={
           <TouchableOpacity
@@ -360,7 +359,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
                   marginTop:
                     FavStoreListing.data && FavStoreListing.data.length > 0
                       ? theme.sizes.HEIGHT * 0.2
-                      : theme.sizes.HEIGHT * 0.25,
+                      : theme.sizes.HEIGHT * 0.29,
                   alignItems: 'center',
                 }}
               >

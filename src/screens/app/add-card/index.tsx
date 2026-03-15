@@ -243,6 +243,11 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
             title={getString('P_SELECT_CARD_BUTTON')}
             onPress={handleSelectCard}
             disabled={!selectedCard}
+            buttonStyle={{
+              backgroundColor: !selectedCard ? "#FFA5A5" : theme.colors.PRIMARY,
+              borderColor: !selectedCard ? "#FFA5A5" : theme.colors.PRIMARY,
+            }}
+
           />
         </CustomFooter>
       )}

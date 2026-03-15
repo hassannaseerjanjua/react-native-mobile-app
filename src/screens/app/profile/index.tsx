@@ -108,7 +108,7 @@ const ProfileScreen: React.FC = () => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) {}
+    } catch (error) { }
   };
 
   const handleImageSelect = async () => {
@@ -169,7 +169,7 @@ const ProfileScreen: React.FC = () => {
           );
         }
       })
-      .catch(error => {})
+      .catch(error => { })
       .finally(() => {
         setIsUploading(false);
         setShowPhotoOptions(false);
@@ -321,35 +321,35 @@ const ProfileScreen: React.FC = () => {
   console.log(user);
   const allowedMenuItems: (typeof profileMenuItems)[number]['id'][] = isMerchant
     ? [
-        'wallet',
-        // 'gift-link',
-        // 'favourites',
-        'friends',
-        'settings',
-        'manage-cards',
-        'order',
-        // 'connect',
-        'contact-us',
-        'terms',
-        'privacy',
-        'faq',
-        'logout',
-      ]
+      'wallet',
+      // 'gift-link',
+      // 'favourites',
+      'friends',
+      'settings',
+      'manage-cards',
+      'order',
+      // 'connect',
+      'contact-us',
+      'terms',
+      'privacy',
+      'faq',
+      'logout',
+    ]
     : [
-        'wallet',
-        'gift-link',
-        'favourites',
-        'friends',
-        'settings',
-        'manage-cards',
-        'order',
-        'connect',
-        'contact-us',
-        'terms',
-        'privacy',
-        'faq',
-        'logout',
-      ];
+      'wallet',
+      'gift-link',
+      'favourites',
+      'friends',
+      'settings',
+      'manage-cards',
+      'order',
+      'connect',
+      'contact-us',
+      'terms',
+      'privacy',
+      'faq',
+      'logout',
+    ];
   return (
     <ParentView style={screenStyles.container}>
       <StatusBar

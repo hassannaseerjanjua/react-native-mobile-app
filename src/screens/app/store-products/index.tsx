@@ -203,6 +203,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     ItemId: number;
     isFavorite: boolean;
   }) => {
+    if (currentListingApi.loading) return
     // Optimistically update local override and patch the cache so the next
     // visit shows the correct state before the fresh API response arrives.
     setUserToggleOverrides(prev => ({
@@ -452,9 +453,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                 <SkeletonLoader screenType="groupTabs" />
               </View>
             ) : (categoriesApi.data &&
-                categoriesApi.data.length > 0 &&
-                currentListingApi.data &&
-                currentListingApi.data.length > 0) ||
+              categoriesApi.data.length > 0 &&
+              currentListingApi.data &&
+              currentListingApi.data.length > 0) ||
               currentListingApi.loading ? (
               <GroupTabs
                 tabs={filterOptions}

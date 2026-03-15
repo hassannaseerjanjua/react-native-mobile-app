@@ -72,6 +72,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
     route.params?.cityId || null,
   );
+  const [itemsToFavorite, setItemsToFavorite] = useState<number[]>([])
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
@@ -117,11 +118,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const categoriesApi = useGetApi<Category[]>(
     screenType === 'favorite'
       ? apiEndpoints.GET_CATEGORIES(businessTypeId, storeID) +
-          '&isFavUserApp=true'
+      '&isFavUserApp=true'
       : apiEndpoints.GET_CAMPAIGN_CATEGORIES(
-          screenType === 'GiftOneGetOne' ? 3 : 1,
-          selectedCityId || user?.CityId,
-        ),
+        screenType === 'GiftOneGetOne' ? 3 : 1,
+        selectedCityId || user?.CityId,
+      ),
     {
       transformData: transformCategoriesData,
     },
@@ -143,9 +144,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       extraParams:
         storeID && storeBranchID
           ? {
-              StoreId: storeID,
-              StoreBranchId: storeBranchID,
-            }
+            StoreId: storeID,
+            StoreBranchId: storeBranchID,
+          }
           : {},
       idExtractor: (item: FaveItems) => item.ItemId,
     },
@@ -387,6 +388,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     ItemId: number;
     IsFavorite: boolean;
   }) => {
+    if (filteredListingApi.loading) return
     setFavoriteStates(prev => ({
       ...prev,
       [payload.ItemId]: payload.IsFavorite,
@@ -509,7 +511,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           isFavorite={getFavoriteState(item)}
           hasFavorite={true}
           onFavoritePress={createFavoritePressHandler(item)}
-          // isFavoriteTab={true}
+        // isFavoriteTab={true}
         />
       );
     }
@@ -620,7 +622,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               >
                 {selectedCityId
                   ? citiesApi.data?.find(city => city.CityID === selectedCityId)
-                      ?.CityName ?? ''
+                    ?.CityName ?? ''
                   : getString('SELECT_STORE_SELECT_CITY')}
               </Text>
               <ArrowDownIcon

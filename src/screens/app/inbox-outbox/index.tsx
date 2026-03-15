@@ -60,9 +60,9 @@ const InboxOutbox: React.FC = () => {
   const route = useRoute();
   const params = route.params as
     | {
-        title?: string;
-        isInbox?: boolean;
-      }
+      title?: string;
+      isInbox?: boolean;
+    }
     | undefined;
   const isInbox = params?.isInbox ?? true;
   const title =
@@ -175,10 +175,10 @@ const InboxOutbox: React.FC = () => {
               onClick={
                 isInbox
                   ? orderItem => {
-                      createDebouceClick('item-press', () =>
-                        handleItemPress(item.OrderId, orderItem),
-                      );
-                    }
+                    createDebouceClick('item-press', () =>
+                      handleItemPress(item.OrderId, orderItem),
+                    );
+                  }
                   : undefined
               }
               onVideoPress={() => handleVideoPress(item)}
@@ -362,7 +362,7 @@ const InboxOutbox: React.FC = () => {
                                 style={[
                                   styles.quantityButton,
                                   selectedQty <= 1 &&
-                                    styles.quantityButtonDisabled,
+                                  styles.quantityButtonDisabled,
                                 ]}
                                 hitSlop={{
                                   top: 10,
@@ -396,7 +396,7 @@ const InboxOutbox: React.FC = () => {
                                 style={[
                                   styles.quantityButton,
                                   selectedQty >= availableQuantity &&
-                                    styles.quantityButtonDisabled,
+                                  styles.quantityButtonDisabled,
                                 ]}
                                 hitSlop={{
                                   top: 10,
@@ -649,8 +649,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   {showGiftLinkGeneric
                     ? getString('INBOX_GIFT_LINK_LABEL')
                     : order.CampaginType === 1
-                    ? order.stores.NameEn
-                    : userName}
+                      ? order.stores.NameEn
+                      : userName}
                 </Text>
                 {!showGiftLinkGeneric &&
                   (!isMerchant
@@ -701,26 +701,26 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   flexDirection: 'row',
                   alignItems: 'center',
                   gap: 8,
-                  ...rtlMargin(isRtl, scaleWithMax(8, 10), 0),
+                  // ...rtlMargin(isRtl, scaleWithMax(8, 10), 0),
                 }}
               >
                 {((order.orderImages &&
                   Array.isArray(order.orderImages) &&
                   order.orderImages.length > 0) ||
                   order.OrderMessage) && (
-                  <TouchableOpacity
-                    onPress={e => {
-                      e.stopPropagation?.();
-                      onVideoPress?.();
-                    }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <SmsTrackingIcon
-                      height={scaleWithMax(20, 20)}
-                      width={scaleWithMax(20, 20)}
-                    />
-                  </TouchableOpacity>
-                )}
+                    <TouchableOpacity
+                      onPress={e => {
+                        e.stopPropagation?.();
+                        onVideoPress?.();
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <SmsTrackingIcon
+                        height={scaleWithMax(20, 20)}
+                        width={scaleWithMax(20, 20)}
+                      />
+                    </TouchableOpacity>
+                  )}
                 {order.SendType === 2 && !isInbox && onShareGiftLink && (
                   <TouchableOpacity
                     onPress={() => {
@@ -807,38 +807,38 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     {item.Status === 10 && (
                       <ShadowView preset="low">
                         <View style={styles.redeemedBox}>
-                        <Text
-                          style={{
-                            // color: theme.colors.WHITE,
-                            ...theme.globalStyles.TEXT_STYLE,
-                            color: theme.colors.WHITE,
-                            fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                          }}
-                        >
-                          {getString('INBOX_REDEEMED')}
-                        </Text>
-                      </View>
+                          <Text
+                            style={{
+                              // color: theme.colors.WHITE,
+                              ...theme.globalStyles.TEXT_STYLE,
+                              color: theme.colors.WHITE,
+                              fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                            }}
+                          >
+                            {getString('INBOX_REDEEMED')}
+                          </Text>
+                        </View>
                       </ShadowView>
                     )}
                     <Image source={itemImage} style={styles.inboxImage} />
                     <ShadowView preset="default">
-                    <View style={styles.inboxImageBottom}>
-                      <Text
-                        style={styles.itemNameText}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {item.ItemName}
-                      </Text>
+                      <View style={styles.inboxImageBottom}>
+                        <Text
+                          style={styles.itemNameText}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {item.ItemName}
+                        </Text>
 
-                      {item.Quantity - item.UsedQuantity > 0 && (
-                        <View style={styles.numCircle}>
-                          <Text style={styles.numText}>
-                            {item.Quantity - item.UsedQuantity}
-                          </Text>
-                        </View>
-                      )}
-                    </View>
+                        {item.Quantity - item.UsedQuantity > 0 && (
+                          <View style={styles.numCircle}>
+                            <Text style={styles.numText}>
+                              {item.Quantity - item.UsedQuantity}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
                     </ShadowView>
                   </TouchableOpacity>
                 );
@@ -926,7 +926,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     showAddButton={false}
                     showSelection={false}
                     isGeneralSearchScreen={false}
-                    onPress={() => {}}
+                    onPress={() => { }}
                   />
                 )}
                 showsVerticalScrollIndicator={false}

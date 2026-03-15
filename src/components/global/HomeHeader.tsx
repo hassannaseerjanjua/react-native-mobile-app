@@ -350,7 +350,7 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_HEADING,
         // lineHeight: sizes.FONTSIZE_HEADING * 1.2,
         color: colors.PRIMARY_TEXT,
-        includeFontPadding: false,
+        includeFontPadding: true,
       },
       searchBarContainer: {
         marginTop: sizes.HEIGHT * 0.008,

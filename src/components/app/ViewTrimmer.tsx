@@ -24,10 +24,11 @@ import Svg, { Path, Circle } from 'react-native-svg';
 
 const MAX_VIDEO_DURATION = 15;
 const FRAME_COUNT = 10;
-
 const formatTime = (secs: number): string => {
-  const m = Math.floor(secs / 60);
-  const s = Math.floor(secs % 60);
+  const totalSeconds = Math.ceil(secs); // round up
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+
   return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
@@ -64,7 +65,7 @@ const CloseIcon = ({ size = 16 }: { size?: number }) => (
 const ViewTrimmer = ({
   videoUrl,
   onSaveVideo,
-  onCancel = () => {},
+  onCancel = () => { },
 }: ViewTrimmerProps) => {
   const insets = useSafeAreaInsets();
   const videoRef = useRef<VideoRef | null>(null);
@@ -131,8 +132,8 @@ const ViewTrimmer = ({
         Platform.OS === 'ios'
           ? rawPath
           : videoUrl.startsWith('file://')
-          ? videoUrl
-          : 'file://' + videoUrl;
+            ? videoUrl
+            : 'file://' + videoUrl;
 
       const collected: string[] = [];
       let lastGoodPath: string | null = null;
