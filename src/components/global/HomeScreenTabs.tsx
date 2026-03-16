@@ -127,7 +127,11 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
   );
 
   return (
-    <TouchableOpacity style={[cardStyles.card, style]} onPress={onPress}>
+    <TouchableOpacity
+      activeOpacity={0.75}
+      style={[cardStyles.card, style]}
+      onPress={onPress}
+    >
       {icon && (
         <View style={[cardStyles.iconContainer, iconStyles]}>{icon}</View>
       )}
