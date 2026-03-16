@@ -38,9 +38,9 @@ const caller = async <T>(
   config = {
     ...config,
     headers: {
-      ...config?.headers,
       LangID: langId,
       UserId: userId,
+      ...config?.headers,
       ...(token && { Authorization: `Bearer ${token}` }),
     },
   };

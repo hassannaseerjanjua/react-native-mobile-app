@@ -31,6 +31,7 @@ import {
   SvgOccasionIcon,
   SvgPencilIcon,
   SvgCancelIcon,
+  PlusIcon,
 } from '../../../assets/icons';
 import InputField from '../../../components/global/InputField.tsx';
 import { Formik } from 'formik';
@@ -178,8 +179,8 @@ const OccasionsScreen: React.FC = () => {
           selectedOccasion.occasionType === 'none'
             ? getString('OCC_OCCASIONS')
             : selectedOccasion.occasionType === 'create'
-            ? getString('OCC_CREATE_OCCASION')
-            : getString('OCC_EDIT_OCCASION')
+              ? getString('OCC_CREATE_OCCASION')
+              : getString('OCC_EDIT_OCCASION')
         }
         rightSideTitlePress={() => setIsEditGroupOpen(!isEditGroupOpen)}
         rightSideIcon={
@@ -278,8 +279,8 @@ const OccasionsScreen: React.FC = () => {
                   isDefaultBirthday && user?.DateOfBirth
                     ? formatDateForDisplay(user.DateOfBirth)
                     : item.OccasionDate && item.OccasionDate !== 'null'
-                    ? formatDateForDisplay(item.OccasionDate)
-                    : null;
+                      ? formatDateForDisplay(item.OccasionDate)
+                      : null;
 
                 // For default birthday, same flow as other occasions
                 if (isDefaultBirthday) {
@@ -295,9 +296,9 @@ const OccasionsScreen: React.FC = () => {
                         subtitle={
                           isExpanded
                             ? formattedDate ||
-                              (!user?.DateOfBirth
-                                ? getString('OCC_BIRTHDAY_NOT_SET')
-                                : undefined)
+                            (!user?.DateOfBirth
+                              ? getString('OCC_BIRTHDAY_NOT_SET')
+                              : undefined)
                             : undefined
                         }
                         isEditGroup={isEditGroupOpen && canEditBirthday}
@@ -307,7 +308,7 @@ const OccasionsScreen: React.FC = () => {
                         onEditPress={() =>
                           handleEditPress(item, BIRTHDAY_IMAGE)
                         }
-                        onDeletePress={() => {}}
+                        onDeletePress={() => { }}
                         onPress={() => {
                           if (!isEditGroupOpen) {
                             if (isExpanded) {
@@ -370,7 +371,7 @@ const OccasionsScreen: React.FC = () => {
               <CustomButton
                 title={getString('OCC_CREATE_OCCASION')}
                 type="primary"
-                icon={<SvgAddOccasion />}
+                icon={<SvgAddOccasion style={{ marginBottom: theme.sizes.PADDING * 0.18 }} />}
                 onPress={handleCreatePress}
               />
             </View>
@@ -398,7 +399,7 @@ const OccasionsScreen: React.FC = () => {
                         <InputField
                           error={
                             formik.touched.occasionName &&
-                            formik.errors.occasionName
+                              formik.errors.occasionName
                               ? formik.errors.occasionName
                               : undefined
                           }
@@ -425,20 +426,20 @@ const OccasionsScreen: React.FC = () => {
                                 onPress={() => {
                                   const imageUri =
                                     formik.values.image &&
-                                    typeof formik.values.image === 'object' &&
-                                    formik.values.image.uri
+                                      typeof formik.values.image === 'object' &&
+                                      formik.values.image.uri
                                       ? formik.values.image.uri
                                       : formik.values.image &&
                                         typeof formik.values.image ===
-                                          'string' &&
+                                        'string' &&
                                         formik.values.image
-                                      ? formik.values.image
-                                      : null;
+                                        ? formik.values.image
+                                        : null;
 
                                   if (imageUri) {
                                     const isLocalOnly =
                                       selectedOccasion.occasionType ===
-                                        'create' || !selectedOccasion.id;
+                                      'create' || !selectedOccasion.id;
                                     (navigation as any).navigate(
                                       'ProfileImageViewer',
                                       {
@@ -455,35 +456,35 @@ const OccasionsScreen: React.FC = () => {
                                         isLocalOnly,
                                         onImageUpdate: isLocalOnly
                                           ? (result: {
-                                              type: 'update' | 'delete';
-                                              asset?: {
-                                                uri: string;
-                                                type?: string;
-                                                name?: string;
-                                              };
-                                            }) => {
-                                              if (
-                                                result.type === 'update' &&
-                                                result.asset
-                                              ) {
-                                                formik.setFieldValue('image', {
-                                                  uri: result.asset.uri,
-                                                  type:
-                                                    result.asset.type ||
-                                                    'image/jpeg',
-                                                  name:
-                                                    result.asset.name ||
-                                                    `occasion_image_${Date.now()}.jpg`,
-                                                });
-                                              } else if (
-                                                result.type === 'delete'
-                                              ) {
-                                                formik.setFieldValue(
-                                                  'image',
-                                                  null,
-                                                );
-                                              }
+                                            type: 'update' | 'delete';
+                                            asset?: {
+                                              uri: string;
+                                              type?: string;
+                                              name?: string;
+                                            };
+                                          }) => {
+                                            if (
+                                              result.type === 'update' &&
+                                              result.asset
+                                            ) {
+                                              formik.setFieldValue('image', {
+                                                uri: result.asset.uri,
+                                                type:
+                                                  result.asset.type ||
+                                                  'image/jpeg',
+                                                name:
+                                                  result.asset.name ||
+                                                  `occasion_image_${Date.now()}.jpg`,
+                                              });
+                                            } else if (
+                                              result.type === 'delete'
+                                            ) {
+                                              formik.setFieldValue(
+                                                'image',
+                                                null,
+                                              );
                                             }
+                                          }
                                           : undefined,
                                       },
                                     );
@@ -499,8 +500,8 @@ const OccasionsScreen: React.FC = () => {
                               >
                                 <View style={{ position: 'relative' }}>
                                   {formik.values.image &&
-                                  typeof formik.values.image === 'object' &&
-                                  formik.values.image.uri ? (
+                                    typeof formik.values.image === 'object' &&
+                                    formik.values.image.uri ? (
                                     <Image
                                       source={{
                                         uri: formik.values.image.uri,
@@ -571,7 +572,7 @@ const OccasionsScreen: React.FC = () => {
                           <InputField
                             error={
                               formik.touched.occasionDate &&
-                              formik.errors.occasionDate
+                                formik.errors.occasionDate
                                 ? formik.errors.occasionDate
                                 : undefined
                             }
@@ -586,10 +587,10 @@ const OccasionsScreen: React.FC = () => {
                               value:
                                 selectedOccasion.occasionType === 'edit'
                                   ? formatDateForDisplay(
-                                      formik.values.occasionDate,
-                                    )
+                                    formik.values.occasionDate,
+                                  )
                                   : formik.values.occasionDate,
-                              onChangeText: () => {},
+                              onChangeText: () => { },
                               onFocus: () =>
                                 formik.setFieldTouched(
                                   'occasionDate',
@@ -608,6 +609,7 @@ const OccasionsScreen: React.FC = () => {
                             ? getString('OCC_SAVE')
                             : getString('OCC_CREATE')
                         }
+
                         type="primary"
                         buttonStyle={styles.button}
                         onPress={() => formik.handleSubmit()}
@@ -621,8 +623,8 @@ const OccasionsScreen: React.FC = () => {
                           selectedOccasion.occasionType === 'edit' && date
                             ? date
                             : formik.values.occasionDate
-                            ? new Date(formik.values.occasionDate)
-                            : date
+                              ? new Date(formik.values.occasionDate)
+                              : date
                         }
                         mode="date"
                         maximumDate={

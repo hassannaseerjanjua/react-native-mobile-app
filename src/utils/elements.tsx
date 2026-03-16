@@ -25,17 +25,17 @@ export const Text = (props: TextProps) => {
     isRtl && Platform.OS === 'ios' && flattenedStyle.lineHeight == null;
   const arabicAdjustments = shouldAdjustArabic
     ? {
-        lineHeight: Math.round(fontSize * 1.43),
-        marginBottom: -Math.max(1, Math.round(fontSize * 0.2)),
-      }
+      lineHeight: Math.round(fontSize * 1.43),
+      marginBottom: -Math.max(1, Math.round(fontSize * 0.2)),
+    }
     : null;
 
   const androidAdjustments =
     Platform.OS === 'android' && isRtl && flattenedStyle.lineHeight == null
       ? {
-          // includeFontPadding: false,
-          // lineHeight: Math.round(fontSize * 1.2),
-        }
+        // includeFontPadding: false,
+        // lineHeight: Math.round(fontSize * 1.2),
+      }
       : null;
 
   const textValue = React.Children.toArray(props.children)
@@ -160,14 +160,14 @@ const cacheReadyPromise = AsyncStorage.getItem(CACHE_STORAGE_KEY)
     const uris: string[] = JSON.parse(raw);
     uris.forEach(uri => loadedUriCache.add(uri));
   })
-  .catch(() => {});
+  .catch(() => { });
 
 const persistCache = () => {
   if (persistDebounceTimer) clearTimeout(persistDebounceTimer);
   persistDebounceTimer = setTimeout(() => {
     const uris = Array.from(loadedUriCache).slice(-MAX_CACHE_SIZE);
     AsyncStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(uris)).catch(
-      () => {},
+      () => { },
     );
   }, 1000);
 };
@@ -199,8 +199,8 @@ export const Image = ({
   const sourceKey = Array.isArray(source)
     ? source.map(item => (item as any)?.uri || '').join('|')
     : typeof source === 'number'
-    ? String(source)
-    : (source as any)?.uri || '';
+      ? String(source)
+      : (source as any)?.uri || '';
 
   // Always start with placeholder visible. For cached URIs the native layer
   // still needs a moment to paint — we snap opacity to 1 the instant onLoad
@@ -347,9 +347,10 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           Platform.OS === 'ios'
             ? { writingDirection: isRtl ? 'rtl' : 'ltr' }
             : null,
-          props.style,
           { fontFamily },
           platformAdjustments,
+          props.style,
+
         ]}
       />
     );

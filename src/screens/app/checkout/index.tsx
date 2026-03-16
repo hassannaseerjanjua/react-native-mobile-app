@@ -1453,7 +1453,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           width={scaleWithMax(15, 18)}
                         /> */}
                         <Text style={styles.addCardAction}>
-                          {getString('CHECKOUT_CHANGE_CARD')}
+                          {getString('CHECKOUT_CHANGE_USER_CARD')}
                         </Text>
                       </View>
                     </TouchableOpacity>

@@ -101,7 +101,7 @@ const OrdersScreen: React.FC = () => {
     {
       idExtractor: (item: Order) => item.OrderId,
       transformData: (data: OrdersApiResponse) => ({
-        data: data.Data?.Items || [],
+        data: [],
         totalCount: data.Data?.TotalCount || 0,
       }),
       pageSize: 5,
@@ -125,7 +125,7 @@ const OrdersScreen: React.FC = () => {
   };
 
   return (
-    <ParentView style={styles.container} stableLayout>
+    <ParentView emptyStateText={ordersListing.data.length === 0 && !ordersListing.loading ? getString('O_NO_ORDER_FOUND') : ""} style={styles.container} stableLayout>
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -166,16 +166,16 @@ const OrdersScreen: React.FC = () => {
           }
         }}
         onEndReachedThreshold={0.5}
-        ListEmptyComponent={() => {
-          if (!ordersListing.isInitialLoad && !isLoading) return null;
-          if (isLoading && !isRefreshing)
-            return <SkeletonLoader screenType="orderListing" />;
-          return (
-            <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
-              <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
-            </View>
-          );
-        }}
+        // ListEmptyComponent={() => {
+        //   if (!ordersListing.isInitialLoad && !isLoading) return null;
+        //   if (isLoading && !isRefreshing)
+        //     return <SkeletonLoader screenType="orderListing" />;
+        //   return (
+        //     <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
+        //       <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
+        //     </View>
+        //   );
+        // }}
         ListFooterComponent={() => {
           if (ordersListing.loadingMore) {
             return (

@@ -7,7 +7,7 @@ import InputField from '../../../components/global/InputField';
 import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { SvgEmail, SvgPhone, SvgPhoneIcon } from '../../../assets/icons';
-import { scaleWithMax, formatPhoneWithCountryCode } from '../../../utils';
+import { scaleWithMax, formatPhoneWithCountryCode, isRTL } from '../../../utils';
 import { createSignInSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
@@ -32,7 +32,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     email: '',
   });
 
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
 
   const validationSchema = useMemo(
     () => createSignInSchema(activeTab, getString as (key: any) => string),
@@ -263,7 +263,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
           <Text style={styles.bottomSheetNumber}>
             {activeTab === 'Phone'
-              ? `+966 ${formatPhone(currentFormValues.phone)}`
+              ? `${isRtl ? '966+' : '+966'} ${formatPhone(currentFormValues.phone)}`
               : currentFormValues.email}
           </Text>
 

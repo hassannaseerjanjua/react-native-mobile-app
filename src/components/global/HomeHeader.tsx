@@ -262,6 +262,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               placeholder: defaultSearchPlaceholder,
               placeholderTextColor: theme.colors.SECONDARY_TEXT,
               value: displaySearchValue,
+              style: { includeFontPadding: false },
               onChangeText: handleSearchChange,
               editable: true,
               autoCorrect: false,
@@ -358,6 +359,7 @@ const useStyles = () => {
       },
       searchInputContainer: {
         width: '100%',
+
       },
       avatar: {
         width: scaleWithMax(35, 38),

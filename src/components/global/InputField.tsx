@@ -61,10 +61,12 @@ const InputField = ({
             paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
             textAlign: isPhone ? 'left' : rtlTextAlign(isRtl),
             writingDirection: isPhone ? 'ltr' : undefined,
+            includeFontPadding: isRtl && isPhone
           },
           fieldProps.style,
         ]}
         allowFontScaling={false}
+
         placeholderTextColor={theme.colors.SECONDARY_TEXT}
         selectionColor={theme.colors.PRIMARY}
         underlineColorAndroid="transparent"

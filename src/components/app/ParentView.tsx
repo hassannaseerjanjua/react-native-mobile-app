@@ -48,7 +48,7 @@ const ParentView = ({
         <View
           style={{
             position: 'absolute',
-            top: 0,
+            top: theme.sizes.HEIGHT * 0.02,
             left: 0,
             right: 0,
             bottom: 0,
