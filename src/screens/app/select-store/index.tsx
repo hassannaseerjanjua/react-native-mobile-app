@@ -63,9 +63,9 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
   const businessTypeApi = useGetApi<BusinessType[]>(
     apiEndpoints.GET_BUSINESS_TYPE +
-      '?cityid=' +
-      selectedCityId +
-      '&hideEmptyBusinessType=true',
+    '?cityid=' +
+    selectedCityId +
+    '&hideEmptyBusinessType=true',
     {
       transformData: (data: any) => data.Data.Items || [],
     },
@@ -130,8 +130,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         title: isRtl ? store.NameAr : store.NameEn,
         subtitle: isRtl
           ? businessTypeMap[store.BusinessTypeID] ||
-            (store as any).BusinessTypeNameAr ||
-            store.BusinessTypeName
+          (store as any).BusinessTypeNameAr ||
+          store.BusinessTypeName
           : store.BusinessTypeName,
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,
@@ -152,7 +152,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     {
       idExtractor: (item: Store) => item.StoreId,
       transformData: (data: StoreListApiResponse) => ({
-        data: data.Data?.Items || [],
+        data: [],
         totalCount: data.Data?.TotalCount || 0,
       }),
       pageSize: 5,
@@ -248,7 +248,11 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   }, [selectedCityId]);
 
   return (
-    <ParentView>
+    <ParentView emptyStateText={!storeListApi.isInitialLoad ? "" :
+      searchQuery
+        ? getString('SEARCH_NO_RESULTS_FOUND')
+        : getString('SELECT_STORE_NO_STORES_FOUND')
+    }>
       <View style={styles.container}>
         <StatusBar
           backgroundColor={theme.colors.BACKGROUND}
@@ -360,20 +364,20 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               }
               data={storeListApi.data}
               extraData={favoriteStates}
-              ListEmptyComponent={() => {
-                if (!storeListApi.isInitialLoad) return null;
-                return (
-                  <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
-                    <PlaceholderLogoText
-                      text={
-                        searchQuery
-                          ? getString('SEARCH_NO_RESULTS_FOUND')
-                          : getString('SELECT_STORE_NO_STORES_FOUND')
-                      }
-                    />
-                  </View>
-                );
-              }}
+              // ListEmptyComponent={() => {
+              //   if (!storeListApi.isInitialLoad) return null;
+              //   return (
+              //     <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
+              //       <PlaceholderLogoText
+              //         text={
+              //           searchQuery
+              //             ? getString('SEARCH_NO_RESULTS_FOUND')
+              //             : getString('SELECT_STORE_NO_STORES_FOUND')
+              //         }
+              //       />
+              //     </View>
+              //   );
+              // }}
               keyExtractor={item => item.StoreId.toString()}
               renderItem={({ item }) => (
                 <>

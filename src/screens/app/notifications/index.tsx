@@ -265,7 +265,7 @@ const NotificationsScreen: React.FC = () => {
           ListEmptyComponent={() => {
             if (!notificationsApi.isInitialLoad) return null;
             return (
-              <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
+              <View style={{ height: theme.sizes.HEIGHT * 0.77 }}>
                 <PlaceholderLogoText
                   text={getString('SEARCH_NO_RESULTS_FOUND')}
                 />

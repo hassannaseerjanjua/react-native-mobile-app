@@ -1180,31 +1180,31 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   );
 
   return (
-    <ParentView>
+    <ParentView emptyStateText={!loading && cartData?.Items?.length === 0 ? getString('CHECKOUT_YOUR_CART_IS_EMPTY') : ''}>
       <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
-      {cartData ? (
-        <>
-          <KeyboardAvoidingView
-            style={{ flex: 1 }}
-            // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-            behavior="padding"
-          // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      {/* {cartData ? ( */}
+      <>
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          behavior="padding"
+        // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+        >
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={[styles.scrollContent]}
+            keyboardShouldPersistTaps="handled"
+          // keyboardDismissMode="on-drag"
           >
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={[styles.scrollContent]}
-              keyboardShouldPersistTaps="handled"
-            // keyboardDismissMode="on-drag"
-            >
-              <View style={styles.section}>
-                <View style={[styles.sectionHeaderRow]}>
-                  <Text style={styles.heading}>
-                    {getString('CHECKOUT_ORDER_DETAILS')}
-                  </Text>
-                  <TouchableOpacity
-                    onPress={() => setShowRemoveConfirmation(true)}
-                  >
-                    {/* <Text
+            <View style={styles.section}>
+              <View style={[styles.sectionHeaderRow]}>
+                <Text style={styles.heading}>
+                  {getString('CHECKOUT_ORDER_DETAILS')}
+                </Text>
+                <TouchableOpacity
+                  onPress={() => setShowRemoveConfirmation(true)}
+                >
+                  {/* <Text
                       style={[
                         styles.TextMedium,
                         {
@@ -1215,313 +1215,257 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     >
                       {getString('CHECKOUT_REMOVE')}
                     </Text> */}
-                    <Text style={styles.addCardAction}>
-                      {getString('CHECKOUT_REMOVE')}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-
-                {mergedCartItems.map((item, index) => (
-                  <View key={item.ItemId}>
-                    {renderCartItem(item)}
-                    {index < mergedCartItems.length - 1 && (
-                      <View style={{ height: theme.sizes.HEIGHT * 0.01 }} />
-                    )}
-                  </View>
-                ))}
+                  <Text style={styles.addCardAction}>
+                    {getString('CHECKOUT_REMOVE')}
+                  </Text>
+                </TouchableOpacity>
               </View>
 
-              <View style={styles.section}>
-                <Text style={styles.heading}>
-                  {getString('CHECKOUT_SEND_A_GIFT')}
-                </Text>
-                <View style={[styles.tabContainer]}>
-                  <TabItem
-                    activeOpacity={0}
-                    TabItemStyles={{
-                      paddingHorizontal: scaleWithMax(10, 12),
-                    }}
-                    disabled={
-                      !(
-                        isMerchant &&
+              {mergedCartItems.map((item, index) => (
+                <View key={item.ItemId}>
+                  {renderCartItem(item)}
+                  {index < mergedCartItems.length - 1 && (
+                    <View style={{ height: theme.sizes.HEIGHT * 0.01 }} />
+                  )}
+                </View>
+              ))}
+            </View>
+
+            <View style={styles.section}>
+              <Text style={styles.heading}>
+                {getString('CHECKOUT_SEND_A_GIFT')}
+              </Text>
+              <View style={[styles.tabContainer]}>
+                <TabItem
+                  activeOpacity={0}
+                  TabItemStyles={{
+                    paddingHorizontal: scaleWithMax(10, 12),
+                  }}
+                  disabled={
+                    !(
+                      isMerchant &&
+                      cartData?.MultiUsers &&
+                      cartData.MultiUsers.length > 1
+                    )
+                  }
+                  isGroupImage={
+                    cartData?.SendType === 2
+                      ? null
+                      : isMerchant &&
                         cartData?.MultiUsers &&
-                        cartData.MultiUsers.length > 1
-                      )
-                    }
-                    isGroupImage={
-                      cartData?.SendType === 2
-                        ? null
+                        cartData?.MultiUsers.length === 1
+                        ? cartData?.MultiUsers[0].ProfileUrl ||
+                        require('../../../assets/images/img-placeholder.png')
                         : isMerchant &&
                           cartData?.MultiUsers &&
-                          cartData?.MultiUsers.length === 1
-                          ? cartData?.MultiUsers[0].ProfileUrl ||
-                          require('../../../assets/images/img-placeholder.png')
-                          : isMerchant &&
-                            cartData?.MultiUsers &&
-                            cartData?.MultiUsers.length > 1
-                            ? null
-                            : cartData?.CampaginType === 3
-                              ? cartData?.users.ProfileUrl ||
-                              require('../../../assets/images/img-placeholder.png')
-                              : cartData?.FriendImageUrl ||
-                              require('../../../assets/images/img-placeholder.png')
-                    }
-                    title={
-                      isMerchant &&
-                        cartData?.MultiUsers &&
-                        cartData?.MultiUsers.length > 1
-                        ? getString('CHECKOUT_MY_EMPLOYEES')
-                        : cartData?.MultiUsers &&
-                          cartData?.MultiUsers.length === 1
-                          ? cartData?.MultiUsers[0].FullName
+                          cartData?.MultiUsers.length > 1
+                          ? null
                           : cartData?.CampaginType === 3
-                            ? cartData?.users.FullName
-                            : cartData?.FriendName ||
-                            getString('SG_SEND_THROUGH_LINK')
-                    }
-                    TabTextStyles={{
-                      ...styles.TextMedium,
-                      maxWidth: '90%',
-                    }}
-                    onPress={() => {
-                      if (
-                        isMerchant &&
-                        cartData?.MultiUsers &&
-                        cartData?.MultiUsers.length > 1
-                      ) {
-                        setShowEmployeesBottomSheet(true);
-                      }
-                    }}
-                    isLink={cartData?.SendType === 2}
-                    hideRightIcon={true}
-                    rightSideView={
-                      <View
-                        style={[
-                          styles.row,
-                          {
-                            gap: theme.sizes.WIDTH * 0.036,
-                          },
-                        ]}
-                      >
-                        <TouchableOpacity
-                          hitSlop={15}
-                          onPress={() => {
-                            // If GiftMessage is in stack (came from it), goBack to edit; else replace to open
-                            const state = navigation.getState();
-                            const hasGiftMessageInStack =
-                              state?.routes?.some(
-                                r => r.name === 'GiftMessage',
-                              ) ?? false;
-                            if (hasGiftMessageInStack) {
-                              navigation.goBack();
-                            } else {
-                              (navigation as any).replace('GiftMessage', {
-                                friendUserId: cartData?.FriendId,
-                                storeBranchId: cartData?.StoreBranchId,
-                                orderId: cartData?.OrderId,
-                              });
-                            }
-                          }}
-                        >
-                          <GiftIcon />
-                        </TouchableOpacity>
-                        {isMerchant &&
-                          cartData?.MultiUsers &&
-                          cartData?.MultiUsers.length > 1 && (
-                            <TouchableOpacity
-                              hitSlop={15}
-                              onPress={() => setShowEmployeesBottomSheet(true)}
-                            >
-                              <ArrowDownIcon
-                                style={{ transform: rtlTransform(isRtl) }}
-                              />
-                            </TouchableOpacity>
-                          )}
-                      </View>
-                    }
-                    icon={
+                            ? cartData?.users.ProfileUrl ||
+                            require('../../../assets/images/img-placeholder.png')
+                            : cartData?.FriendImageUrl ||
+                            require('../../../assets/images/img-placeholder.png')
+                  }
+                  title={
+                    isMerchant &&
+                      cartData?.MultiUsers &&
+                      cartData?.MultiUsers.length > 1
+                      ? getString('CHECKOUT_MY_EMPLOYEES')
+                      : cartData?.MultiUsers &&
+                        cartData?.MultiUsers.length === 1
+                        ? cartData?.MultiUsers[0].FullName
+                        : cartData?.CampaginType === 3
+                          ? cartData?.users.FullName
+                          : cartData?.FriendName ||
+                          getString('SG_SEND_THROUGH_LINK')
+                  }
+                  TabTextStyles={{
+                    ...styles.TextMedium,
+                    maxWidth: '90%',
+                  }}
+                  onPress={() => {
+                    if (
                       isMerchant &&
-                        cartData?.MultiUsers &&
-                        cartData?.MultiUsers.length > 1 ? (
-                        <View
-                          style={{
-                            width: scaleWithMax(40, 45),
-                            height: scaleWithMax(40, 45),
-                            borderRadius: scaleWithMax(20, 22.5),
-                            backgroundColor: theme.colors.WHITE,
-                            borderWidth: 1,
-                            borderColor: theme.colors.DIVIDER_COLOR,
-                            justifyContent: 'center',
-                            alignItems: 'center',
-                            ...rtlMargin(isRtl, 0, theme.sizes.WIDTH * 0.025),
-                          }}
-                        >
-                          <SvgProfileFriends
-                            height={scaleWithMax(23, 28)}
-                            width={scaleWithMax(23, 28)}
-                          />
-                        </View>
-                      ) : undefined
+                      cartData?.MultiUsers &&
+                      cartData?.MultiUsers.length > 1
+                    ) {
+                      setShowEmployeesBottomSheet(true);
                     }
-                  />
-                </View>
-
-                {/* Employees Bottom Sheet */}
-                {isMerchant &&
-                  cartData?.MultiUsers &&
-                  cartData.MultiUsers.length > 0 && (
-                    <AppBottomSheet
-                      isOpen={showEmployeesBottomSheet}
-                      onClose={() => setShowEmployeesBottomSheet(false)}
-                      height={Math.min(
-                        theme.sizes.HEIGHT * 0.7,
-                        100 + (cartData.MultiUsers?.length || 0) * 60,
-                      )}
-                      snapPoints={['70%']}
+                  }}
+                  isLink={cartData?.SendType === 2}
+                  hideRightIcon={true}
+                  rightSideView={
+                    <View
+                      style={[
+                        styles.row,
+                        {
+                          gap: theme.sizes.WIDTH * 0.036,
+                        },
+                      ]}
                     >
-                      <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
-                        <Text
-                          style={{
-                            ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-                            fontSize: theme.sizes.FONTSIZE_MED_HIGH,
-                            paddingTop: theme.sizes.HEIGHT * 0.014,
-                            paddingBottom: theme.sizes.HEIGHT * 0.008,
-                          }}
-                        >
-                          {getString('CHECKOUT_MY_EMPLOYEES')}
-                        </Text>
-                        <ShadowView
-                          preset="default"
-                          containerStyle={{
-                            marginTop: theme.sizes.HEIGHT * 0.01,
-                            marginBottom: theme.sizes.HEIGHT * 0.024,
-                          }}
-                          style={{
-                            backgroundColor: theme.colors.WHITE,
-                            borderRadius: 16,
-                          }}
-                        >
-                          <FlatList
-                            data={cartData.MultiUsers || []}
-                            keyExtractor={item => item.UserId.toString()}
-                            renderItem={({ item, index }) => (
-                              <SearchUserItem
-                                item={{
-                                  UserId: item.UserId,
-                                  FullName: item.FullName || '',
-                                  Email: undefined,
-                                  PhoneNo: item.PhoneNo || '',
-                                  ProfileUrl: item.ProfileUrl || null,
-                                  RelationStatus: 1,
-                                  CityId: item.CityId || undefined,
-                                  IsVerified: item.isVerified === true,
-                                }}
-                                index={index}
-                                isLast={
-                                  index ===
-                                  (cartData.MultiUsers?.length || 0) - 1
-                                }
-                                showAddButton={false}
-                                showSelection={false}
-                                isGeneralSearchScreen={false}
-                                onPress={() => { }}
-                              />
-                            )}
-                            showsVerticalScrollIndicator={false}
-                            contentContainerStyle={{
-                              paddingVertical: 0,
-                            }}
-                          />
-                        </ShadowView>
+                      <TouchableOpacity
+                        hitSlop={15}
+                        onPress={() => {
+                          // If GiftMessage is in stack (came from it), goBack to edit; else replace to open
+                          const state = navigation.getState();
+                          const hasGiftMessageInStack =
+                            state?.routes?.some(
+                              r => r.name === 'GiftMessage',
+                            ) ?? false;
+                          if (hasGiftMessageInStack) {
+                            navigation.goBack();
+                          } else {
+                            (navigation as any).replace('GiftMessage', {
+                              friendUserId: cartData?.FriendId,
+                              storeBranchId: cartData?.StoreBranchId,
+                              orderId: cartData?.OrderId,
+                            });
+                          }
+                        }}
+                      >
+                        <GiftIcon />
+                      </TouchableOpacity>
+                      {isMerchant &&
+                        cartData?.MultiUsers &&
+                        cartData?.MultiUsers.length > 1 && (
+                          <TouchableOpacity
+                            hitSlop={15}
+                            onPress={() => setShowEmployeesBottomSheet(true)}
+                          >
+                            <ArrowDownIcon
+                              style={{ transform: rtlTransform(isRtl) }}
+                            />
+                          </TouchableOpacity>
+                        )}
+                    </View>
+                  }
+                  icon={
+                    isMerchant &&
+                      cartData?.MultiUsers &&
+                      cartData?.MultiUsers.length > 1 ? (
+                      <View
+                        style={{
+                          width: scaleWithMax(40, 45),
+                          height: scaleWithMax(40, 45),
+                          borderRadius: scaleWithMax(20, 22.5),
+                          backgroundColor: theme.colors.WHITE,
+                          borderWidth: 1,
+                          borderColor: theme.colors.DIVIDER_COLOR,
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          ...rtlMargin(isRtl, 0, theme.sizes.WIDTH * 0.025),
+                        }}
+                      >
+                        <SvgProfileFriends
+                          height={scaleWithMax(23, 28)}
+                          width={scaleWithMax(23, 28)}
+                        />
                       </View>
-                    </AppBottomSheet>
-                  )}
+                    ) : undefined
+                  }
+                />
               </View>
 
-              <View style={styles.section}>
-                <View style={[styles.sectionHeaderRow]}>
-                  <Text style={styles.heading}>
-                    {getString('CHECKOUT_PAYMENT_MANAGEMENT')}
-                  </Text>
-                  {userCards.length > 0 && (
-                    <TouchableOpacity
-                      onPress={() => navigation.navigate('AddCard' as never)}
-                    >
-                      <View style={[styles.row]}>
-                        {/* <PlusIcon
+              {/* Employees Bottom Sheet */}
+              {isMerchant &&
+                cartData?.MultiUsers &&
+                cartData.MultiUsers.length > 0 && (
+                  <AppBottomSheet
+                    isOpen={showEmployeesBottomSheet}
+                    onClose={() => setShowEmployeesBottomSheet(false)}
+                    height={Math.min(
+                      theme.sizes.HEIGHT * 0.7,
+                      100 + (cartData.MultiUsers?.length || 0) * 60,
+                    )}
+                    snapPoints={['70%']}
+                  >
+                    <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
+                      <Text
+                        style={{
+                          ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                          fontSize: theme.sizes.FONTSIZE_MED_HIGH,
+                          paddingTop: theme.sizes.HEIGHT * 0.014,
+                          paddingBottom: theme.sizes.HEIGHT * 0.008,
+                        }}
+                      >
+                        {getString('CHECKOUT_MY_EMPLOYEES')}
+                      </Text>
+                      <ShadowView
+                        preset="default"
+                        containerStyle={{
+                          marginTop: theme.sizes.HEIGHT * 0.01,
+                          marginBottom: theme.sizes.HEIGHT * 0.024,
+                        }}
+                        style={{
+                          backgroundColor: theme.colors.WHITE,
+                          borderRadius: 16,
+                        }}
+                      >
+                        <FlatList
+                          data={cartData.MultiUsers || []}
+                          keyExtractor={item => item.UserId.toString()}
+                          renderItem={({ item, index }) => (
+                            <SearchUserItem
+                              item={{
+                                UserId: item.UserId,
+                                FullName: item.FullName || '',
+                                Email: undefined,
+                                PhoneNo: item.PhoneNo || '',
+                                ProfileUrl: item.ProfileUrl || null,
+                                RelationStatus: 1,
+                                CityId: item.CityId || undefined,
+                                IsVerified: item.isVerified === true,
+                              }}
+                              index={index}
+                              isLast={
+                                index ===
+                                (cartData.MultiUsers?.length || 0) - 1
+                              }
+                              showAddButton={false}
+                              showSelection={false}
+                              isGeneralSearchScreen={false}
+                              onPress={() => { }}
+                            />
+                          )}
+                          showsVerticalScrollIndicator={false}
+                          contentContainerStyle={{
+                            paddingVertical: 0,
+                          }}
+                        />
+                      </ShadowView>
+                    </View>
+                  </AppBottomSheet>
+                )}
+            </View>
+
+            <View style={styles.section}>
+              <View style={[styles.sectionHeaderRow]}>
+                <Text style={styles.heading}>
+                  {getString('CHECKOUT_PAYMENT_MANAGEMENT')}
+                </Text>
+                {userCards.length > 0 && (
+                  <TouchableOpacity
+                    onPress={() => navigation.navigate('AddCard' as never)}
+                  >
+                    <View style={[styles.row]}>
+                      {/* <PlusIcon
                           height={scaleWithMax(15, 18)}
                           width={scaleWithMax(15, 18)}
                         /> */}
-                        <Text style={styles.addCardAction}>
-                          {getString('CHECKOUT_CHANGE_USER_CARD')}
-                        </Text>
-                      </View>
-                    </TouchableOpacity>
-                  )}
-                </View>
-                {isApplePayAvailable && (
-                  <TouchableOpacity
-                    onPress={() =>
-                      setSelectedPaymentMethod(
-                        selectedPaymentMethod === 'applePay'
-                          ? null
-                          : 'applePay',
-                      )
-                    }
-                  >
-                    <ShadowView
-                      preset="default"
-                      containerStyle={{
-                        marginBottom: theme.sizes.HEIGHT * 0.005,
-                      }}
-                    >
-                      <View style={styles.GiftContainer}>
-                        <View
-                          style={{
-                            ...styles.row,
-                            flex: 1,
-                            gap: theme.sizes.WIDTH * 0.025,
-                          }}
-                        >
-                          <CheckBox
-                            Selected={selectedPaymentMethod === 'applePay'}
-                            onSelectionPress={() =>
-                              setSelectedPaymentMethod(
-                                selectedPaymentMethod === 'applePay'
-                                  ? null
-                                  : 'applePay',
-                              )
-                            }
-                          />
-                          <SvgApplePayIcon
-                            height={scaleWithMax(32, 35)}
-                            width={scaleWithMax(32, 35)}
-                          />
-                          <View>
-                            <Text style={styles.TextMedium}>
-                              {getString('CHECKOUT_APPLE_PAY')}
-                            </Text>
-                          </View>
-                        </View>
-                        <SvgSelectedCheck
-                          width={scaleWithMax(16, 18)}
-                          height={scaleWithMax(16, 18)}
-                          style={{
-                            opacity:
-                              selectedPaymentMethod === 'applePay' ? 1 : 0,
-                          }}
-                        />
-                      </View>
-                    </ShadowView>
+                      <Text style={styles.addCardAction}>
+                        {getString('CHECKOUT_CHANGE_USER_CARD')}
+                      </Text>
+                    </View>
                   </TouchableOpacity>
                 )}
-
+              </View>
+              {isApplePayAvailable && (
                 <TouchableOpacity
                   onPress={() =>
                     setSelectedPaymentMethod(
-                      selectedPaymentMethod === 'creditCard'
+                      selectedPaymentMethod === 'applePay'
                         ? null
-                        : 'creditCard',
+                        : 'applePay',
                     )
                   }
                 >
@@ -1540,22 +1484,22 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         }}
                       >
                         <CheckBox
-                          Selected={selectedPaymentMethod === 'creditCard'}
+                          Selected={selectedPaymentMethod === 'applePay'}
                           onSelectionPress={() =>
                             setSelectedPaymentMethod(
-                              selectedPaymentMethod === 'creditCard'
+                              selectedPaymentMethod === 'applePay'
                                 ? null
-                                : 'creditCard',
+                                : 'applePay',
                             )
                           }
                         />
-                        <NoonIcon
+                        <SvgApplePayIcon
                           height={scaleWithMax(32, 35)}
                           width={scaleWithMax(32, 35)}
                         />
                         <View>
                           <Text style={styles.TextMedium}>
-                            {getString('CHECKOUT_CREDIT_DEBIT_CARD')}
+                            {getString('CHECKOUT_APPLE_PAY')}
                           </Text>
                         </View>
                       </View>
@@ -1564,29 +1508,162 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         height={scaleWithMax(16, 18)}
                         style={{
                           opacity:
-                            selectedPaymentMethod === 'creditCard' ? 1 : 0,
+                            selectedPaymentMethod === 'applePay' ? 1 : 0,
                         }}
                       />
                     </View>
                   </ShadowView>
                 </TouchableOpacity>
+              )}
 
-                {(selectedCardFromParams || userCards.length > 0) && (
+              <TouchableOpacity
+                onPress={() =>
+                  setSelectedPaymentMethod(
+                    selectedPaymentMethod === 'creditCard'
+                      ? null
+                      : 'creditCard',
+                  )
+                }
+              >
+                <ShadowView
+                  preset="default"
+                  containerStyle={{
+                    marginBottom: theme.sizes.HEIGHT * 0.005,
+                  }}
+                >
+                  <View style={styles.GiftContainer}>
+                    <View
+                      style={{
+                        ...styles.row,
+                        flex: 1,
+                        gap: theme.sizes.WIDTH * 0.025,
+                      }}
+                    >
+                      <CheckBox
+                        Selected={selectedPaymentMethod === 'creditCard'}
+                        onSelectionPress={() =>
+                          setSelectedPaymentMethod(
+                            selectedPaymentMethod === 'creditCard'
+                              ? null
+                              : 'creditCard',
+                          )
+                        }
+                      />
+                      <NoonIcon
+                        height={scaleWithMax(32, 35)}
+                        width={scaleWithMax(32, 35)}
+                      />
+                      <View>
+                        <Text style={styles.TextMedium}>
+                          {getString('CHECKOUT_CREDIT_DEBIT_CARD')}
+                        </Text>
+                      </View>
+                    </View>
+                    <SvgSelectedCheck
+                      width={scaleWithMax(16, 18)}
+                      height={scaleWithMax(16, 18)}
+                      style={{
+                        opacity:
+                          selectedPaymentMethod === 'creditCard' ? 1 : 0,
+                      }}
+                    />
+                  </View>
+                </ShadowView>
+              </TouchableOpacity>
+
+              {(selectedCardFromParams || userCards.length > 0) && (
+                <TouchableOpacity
+                  onPress={() =>
+                    setSelectedPaymentMethod(
+                      selectedPaymentMethod === 'savedCard'
+                        ? null
+                        : 'savedCard',
+                    )
+                  }
+                >
+                  <ShadowView
+                    preset="default"
+                    containerStyle={{
+                      marginBottom: theme.sizes.HEIGHT * 0.005,
+                    }}
+                  >
+                    <View style={styles.GiftContainer}>
+                      <View
+                        style={{
+                          ...styles.row,
+                          flex: 1,
+                          gap: theme.sizes.WIDTH * 0.025,
+                        }}
+                      >
+                        <CheckBox
+                          Selected={selectedPaymentMethod === 'savedCard'}
+                          onSelectionPress={() =>
+                            setSelectedPaymentMethod(
+                              selectedPaymentMethod === 'savedCard'
+                                ? null
+                                : 'savedCard',
+                            )
+                          }
+                        />
+
+                        {(
+                          selectedCardFromParams?.Brand || userCards[0]?.Brand
+                        )
+                          ?.toLowerCase()
+                          .includes('master') ? (
+                          <MasterCardIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                        ) : (
+                          selectedCardFromParams?.Brand ||
+                          userCards[0]?.Brand
+                        )
+                          ?.toLowerCase()
+                          .includes('noon') ? (
+                          <NoonIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                        ) : (
+                          <VisaIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
+                        )}
+                        <View>
+                          <Text style={styles.TextMedium}>
+                            {selectedCardFromParams?.CardNumber ||
+                              userCards[0]?.CardNumber}
+                          </Text>
+                          <Text style={styles.TextMedium}>
+                            {selectedCardFromParams?.Brand ||
+                              userCards[0]?.Brand}
+                          </Text>
+                        </View>
+                      </View>
+                      <SvgSelectedCheck
+                        width={scaleWithMax(16, 18)}
+                        height={scaleWithMax(16, 18)}
+                        style={{
+                          opacity:
+                            selectedPaymentMethod === 'savedCard' ? 1 : 0,
+                        }}
+                      />
+                    </View>
+                  </ShadowView>
+                </TouchableOpacity>
+              )}
+              {walletBalance?.data &&
+                walletBalance?.data?.WalletBalance > 0 && (
                   <TouchableOpacity
                     onPress={() =>
                       setSelectedPaymentMethod(
-                        selectedPaymentMethod === 'savedCard'
-                          ? null
-                          : 'savedCard',
+                        selectedPaymentMethod === 'wallet' ? null : 'wallet',
                       )
                     }
                   >
-                    <ShadowView
-                      preset="default"
-                      containerStyle={{
-                        marginBottom: theme.sizes.HEIGHT * 0.005,
-                      }}
-                    >
+                    <ShadowView preset="default">
                       <View style={styles.GiftContainer}>
                         <View
                           style={{
@@ -1596,50 +1673,39 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           }}
                         >
                           <CheckBox
-                            Selected={selectedPaymentMethod === 'savedCard'}
+                            Selected={selectedPaymentMethod === 'wallet'}
                             onSelectionPress={() =>
                               setSelectedPaymentMethod(
-                                selectedPaymentMethod === 'savedCard'
+                                selectedPaymentMethod === 'wallet'
                                   ? null
-                                  : 'savedCard',
+                                  : 'wallet',
                               )
                             }
                           />
-
-                          {(
-                            selectedCardFromParams?.Brand || userCards[0]?.Brand
-                          )
-                            ?.toLowerCase()
-                            .includes('master') ? (
-                            <MasterCardIcon
-                              height={scaleWithMax(32, 35)}
-                              width={scaleWithMax(32, 35)}
-                            />
-                          ) : (
-                            selectedCardFromParams?.Brand ||
-                            userCards[0]?.Brand
-                          )
-                            ?.toLowerCase()
-                            .includes('noon') ? (
-                            <NoonIcon
-                              height={scaleWithMax(32, 35)}
-                              width={scaleWithMax(32, 35)}
-                            />
-                          ) : (
-                            <VisaIcon
-                              height={scaleWithMax(32, 35)}
-                              width={scaleWithMax(32, 35)}
-                            />
-                          )}
+                          <SvgGifteeWalletIcon
+                            height={scaleWithMax(32, 35)}
+                            width={scaleWithMax(32, 35)}
+                          />
                           <View>
                             <Text style={styles.TextMedium}>
-                              {selectedCardFromParams?.CardNumber ||
-                                userCards[0]?.CardNumber}
+                              {getString('W_GIFTEE_WALLET')}
                             </Text>
-                            <Text style={styles.TextMedium}>
-                              {selectedCardFromParams?.Brand ||
-                                userCards[0]?.Brand}
-                            </Text>
+                            <PriceWithIcon
+                              amount={
+                                walletBalance?.data?.WalletBalance
+                                  ? Number(
+                                    walletBalance.data.WalletBalance,
+                                  ).toFixed(2)
+                                  : '0.00'
+                              }
+                              textStyle={styles.TextMedium}
+                              icon={
+                                <SvgRiyalIcon
+                                  width={scaleWithMax(12, 14)}
+                                  height={scaleWithMax(12, 14)}
+                                />
+                              }
+                            />
                           </View>
                         </View>
                         <SvgSelectedCheck
@@ -1647,382 +1713,316 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           height={scaleWithMax(16, 18)}
                           style={{
                             opacity:
-                              selectedPaymentMethod === 'savedCard' ? 1 : 0,
+                              selectedPaymentMethod === 'wallet' ? 1 : 0,
                           }}
                         />
                       </View>
                     </ShadowView>
                   </TouchableOpacity>
                 )}
-                {walletBalance?.data &&
-                  walletBalance?.data?.WalletBalance > 0 && (
-                    <TouchableOpacity
-                      onPress={() =>
-                        setSelectedPaymentMethod(
-                          selectedPaymentMethod === 'wallet' ? null : 'wallet',
-                        )
-                      }
-                    >
-                      <ShadowView preset="default">
-                        <View style={styles.GiftContainer}>
-                          <View
-                            style={{
-                              ...styles.row,
-                              flex: 1,
-                              gap: theme.sizes.WIDTH * 0.025,
-                            }}
-                          >
-                            <CheckBox
-                              Selected={selectedPaymentMethod === 'wallet'}
-                              onSelectionPress={() =>
-                                setSelectedPaymentMethod(
-                                  selectedPaymentMethod === 'wallet'
-                                    ? null
-                                    : 'wallet',
-                                )
-                              }
-                            />
-                            <SvgGifteeWalletIcon
-                              height={scaleWithMax(32, 35)}
-                              width={scaleWithMax(32, 35)}
-                            />
-                            <View>
-                              <Text style={styles.TextMedium}>
-                                {getString('W_GIFTEE_WALLET')}
-                              </Text>
-                              <PriceWithIcon
-                                amount={
-                                  walletBalance?.data?.WalletBalance
-                                    ? Number(
-                                      walletBalance.data.WalletBalance,
-                                    ).toFixed(2)
-                                    : '0.00'
-                                }
-                                textStyle={styles.TextMedium}
-                                icon={
-                                  <SvgRiyalIcon
-                                    width={scaleWithMax(12, 14)}
-                                    height={scaleWithMax(12, 14)}
-                                  />
-                                }
-                              />
-                            </View>
-                          </View>
-                          <SvgSelectedCheck
-                            width={scaleWithMax(16, 18)}
-                            height={scaleWithMax(16, 18)}
-                            style={{
-                              opacity:
-                                selectedPaymentMethod === 'wallet' ? 1 : 0,
-                            }}
-                          />
-                        </View>
-                      </ShadowView>
-                    </TouchableOpacity>
-                  )}
-              </View>
+            </View>
 
-              <View style={styles.section}>
-                <View style={styles.sectionHeaderRow}>
-                  <Text
-                    style={{
-                      ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-                      fontSize: theme.sizes.FONTSIZE_SMALL_HEADING,
-                      color: theme.colors.BLACK,
-                    }}
-                  >
-                    {getString('CHECKOUT_SEND_GIFT_WITH_EHSAN')}
-                  </Text>
-                  <SvgEhsanIcon
-                    width={scaleWithMax(26, 28)}
-                    height={scaleWithMax(26, 28)}
-                  />
-                </View>
+            <View style={styles.section}>
+              <View style={styles.sectionHeaderRow}>
                 <Text
                   style={{
-                    ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-                    color: '#1B917B',
-                    fontSize: scaleWithMax(10, 11),
-                    marginTop: theme.sizes.HEIGHT * -0.008,
+                    ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                    fontSize: theme.sizes.FONTSIZE_SMALL_HEADING,
+                    color: theme.colors.BLACK,
                   }}
                 >
-                  {getString('CHECKOUT_EHSAN_MESSAGE')}
+                  {getString('CHECKOUT_SEND_GIFT_WITH_EHSAN')}
                 </Text>
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  contentContainerStyle={[styles.row, { gap: 10 }]}
-                >
-                  {DomationAmounts.map(amount => {
-                    // Check if custom value matches this preset value
-                    const customMatchesPreset =
-                      showCustomDonationInput &&
-                      customDonationAmount &&
-                      Number(customDonationAmount) === Number(amount.value);
+                <SvgEhsanIcon
+                  width={scaleWithMax(26, 28)}
+                  height={scaleWithMax(26, 28)}
+                />
+              </View>
+              <Text
+                style={{
+                  ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+                  color: '#1B917B',
+                  fontSize: scaleWithMax(10, 11),
+                  marginTop: theme.sizes.HEIGHT * -0.008,
+                }}
+              >
+                {getString('CHECKOUT_EHSAN_MESSAGE')}
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={[styles.row, { gap: 10 }]}
+              >
+                {DomationAmounts.map(amount => {
+                  // Check if custom value matches this preset value
+                  const customMatchesPreset =
+                    showCustomDonationInput &&
+                    customDonationAmount &&
+                    Number(customDonationAmount) === Number(amount.value);
 
-                    const isActive =
-                      amount.value === 'Custom'
-                        ? showCustomDonationInput
-                        : activeDomationAmount === Number(amount.value) &&
-                        !customMatchesPreset;
+                  const isActive =
+                    amount.value === 'Custom'
+                      ? showCustomDonationInput
+                      : activeDomationAmount === Number(amount.value) &&
+                      !customMatchesPreset;
 
-                    return (
-                      <TouchableOpacity
-                        key={amount.value}
-                        style={[
-                          styles.row,
-                          {
-                            justifyContent: 'center',
-                            gap: theme.sizes.WIDTH * 0.025,
-                            paddingHorizontal: theme.sizes.WIDTH * 0.03,
-                            paddingVertical: scaleWithMax(8, 10),
-                            borderRadius: 10,
-                            backgroundColor: isActive
-                              ? theme.colors.SECONDARY
-                              : theme.colors.LIGHT_GRAY,
-                            // minHeight: scaleWithMax(36, 38),
-                          },
-                        ]}
-                        onPress={() => {
-                          if (amount.value === 'Custom') {
-                            // Toggle custom input
-                            if (showCustomDonationInput) {
-                              setShowCustomDonationInput(false);
-                              setCustomDonationAmount('');
-                              setActiveDomationAmount(undefined);
-                            } else {
-                              setShowCustomDonationInput(true);
-                              setActiveDomationAmount(undefined);
-                              setCustomDonationAmount('');
-                            }
+                  return (
+                    <TouchableOpacity
+                      key={amount.value}
+                      style={[
+                        styles.row,
+                        {
+                          justifyContent: 'center',
+                          gap: theme.sizes.WIDTH * 0.025,
+                          paddingHorizontal: theme.sizes.WIDTH * 0.03,
+                          paddingVertical: scaleWithMax(8, 10),
+                          borderRadius: 10,
+                          backgroundColor: isActive
+                            ? theme.colors.SECONDARY
+                            : theme.colors.LIGHT_GRAY,
+                          // minHeight: scaleWithMax(36, 38),
+                        },
+                      ]}
+                      onPress={() => {
+                        if (amount.value === 'Custom') {
+                          // Toggle custom input
+                          if (showCustomDonationInput) {
+                            setShowCustomDonationInput(false);
+                            setCustomDonationAmount('');
+                            setActiveDomationAmount(undefined);
                           } else {
-                            // Toggle preset amount
-                            if (activeDomationAmount === Number(amount.value)) {
-                              // Already selected, deselect it
-                              setActiveDomationAmount(undefined);
-                            } else {
-                              // Select this preset
-                              setShowCustomDonationInput(false);
-                              setCustomDonationAmount('');
-                              setActiveDomationAmount(Number(amount.value));
-                            }
+                            setShowCustomDonationInput(true);
+                            setActiveDomationAmount(undefined);
+                            setCustomDonationAmount('');
                           }
-                        }}
-                      >
-                        {amount.value === 'Custom' ? (
-                          <Text
-                            style={[
-                              styles.TextMedium,
-                              isActive && {
+                        } else {
+                          // Toggle preset amount
+                          if (activeDomationAmount === Number(amount.value)) {
+                            // Already selected, deselect it
+                            setActiveDomationAmount(undefined);
+                          } else {
+                            // Select this preset
+                            setShowCustomDonationInput(false);
+                            setCustomDonationAmount('');
+                            setActiveDomationAmount(Number(amount.value));
+                          }
+                        }
+                      }}
+                    >
+                      {amount.value === 'Custom' ? (
+                        <Text
+                          style={[
+                            styles.TextMedium,
+                            isActive && {
+                              ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                              color: theme.colors.PRIMARY,
+                            },
+                          ]}
+                        >
+                          {amount.title}
+                        </Text>
+                      ) : (
+                        <PriceWithIcon
+                          amount={amount.title}
+                          variant={isActive ? 'discounted' : 'default'}
+                          icon={
+                            isActive ? (
+                              <SvgRiyalPink
+                                width={scaleWithMax(12, 14)}
+                                height={scaleWithMax(12, 14)}
+                              />
+                            ) : (
+                              <SvgRiyalIcon
+                                width={scaleWithMax(12, 14)}
+                                height={scaleWithMax(12, 14)}
+                              />
+                            )
+                          }
+                          textStyle={
+                            isActive
+                              ? {
                                 ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
                                 color: theme.colors.PRIMARY,
-                              },
-                            ]}
-                          >
-                            {amount.title}
-                          </Text>
-                        ) : (
-                          <PriceWithIcon
-                            amount={amount.title}
-                            variant={isActive ? 'discounted' : 'default'}
-                            icon={
-                              isActive ? (
-                                <SvgRiyalPink
-                                  width={scaleWithMax(12, 14)}
-                                  height={scaleWithMax(12, 14)}
-                                />
-                              ) : (
-                                <SvgRiyalIcon
-                                  width={scaleWithMax(12, 14)}
-                                  height={scaleWithMax(12, 14)}
-                                />
-                              )
-                            }
-                            textStyle={
-                              isActive
-                                ? {
-                                  ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-                                  color: theme.colors.PRIMARY,
-                                }
-                                : styles.TextMedium
-                            }
-                          />
-                        )}
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-                {showCustomDonationInput && (
-                  <View style={{ marginTop: theme.sizes.HEIGHT * 0.01 }}>
-                    <InputField
-                      icon={
-                        <SvgEhsanIcon
-                          width={scaleWithMax(26, 28)}
-                          height={scaleWithMax(26, 28)}
-                        />
-                      }
-                      fieldProps={{
-                        placeholder: getString('CHECKOUT_ENTER_AMOUNT'),
-                        value: customDonationAmount,
-                        onChangeText: (text: string) => {
-                          // Only allow numbers
-                          const numericValue = text.replace(/[^0-9]/g, '');
-                          setCustomDonationAmount(numericValue);
-                          if (numericValue) {
-                            // Set activeDomationAmount but presets won't highlight if custom matches them
-                            setActiveDomationAmount(Number(numericValue));
-                          } else {
-                            setActiveDomationAmount(undefined);
+                              }
+                              : styles.TextMedium
                           }
-                        },
-                        maxLength: 4,
-                        returnKeyType: 'done',
-                        onSubmitEditing: () => {
-                          Keyboard.dismiss();
-                        },
-                        keyboardType: 'numeric',
-                        autoFocus: true,
-                      }}
-                    />
+                        />
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+              {showCustomDonationInput && (
+                <View style={{ marginTop: theme.sizes.HEIGHT * 0.01 }}>
+                  <InputField
+                    icon={
+                      <SvgEhsanIcon
+                        width={scaleWithMax(26, 28)}
+                        height={scaleWithMax(26, 28)}
+                      />
+                    }
+                    fieldProps={{
+                      placeholder: getString('CHECKOUT_ENTER_AMOUNT'),
+                      value: customDonationAmount,
+                      onChangeText: (text: string) => {
+                        // Only allow numbers
+                        const numericValue = text.replace(/[^0-9]/g, '');
+                        setCustomDonationAmount(numericValue);
+                        if (numericValue) {
+                          // Set activeDomationAmount but presets won't highlight if custom matches them
+                          setActiveDomationAmount(Number(numericValue));
+                        } else {
+                          setActiveDomationAmount(undefined);
+                        }
+                      },
+                      maxLength: 4,
+                      returnKeyType: 'done',
+                      onSubmitEditing: () => {
+                        Keyboard.dismiss();
+                      },
+                      keyboardType: 'numeric',
+                      autoFocus: true,
+                    }}
+                  />
+                </View>
+              )}
+              <Text
+                style={[
+                  styles.heading,
+                  {
+                    marginTop: theme.sizes.HEIGHT * 0.01,
+                  },
+                ]}
+              >
+                {getString('CHECKOUT_ORDER_INFO')}
+              </Text>
+              {orderInfoRows.map((row, index) => (
+                <React.Fragment key={row.key}>
+                  <View style={styles.Prices}>
+                    <Text style={styles.TextMedium}>{row.label}</Text>
+                    <PriceWithIcon amount={row.amount} />
                   </View>
-                )}
-                <Text
+                  {index < orderInfoRows.length - 1 && (
+                    <View style={styles.priceSeparator} />
+                  )}
+                </React.Fragment>
+              ))}
+
+              <Text style={styles.vatNote}>
+                {getString('CHECKOUT_VAT_NOTE')}
+              </Text>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+        <View
+          style={{
+            height: theme.sizes.HEIGHT * 0.11,
+            backgroundColor: theme.colors.WHITE,
+          }}
+        >
+          <View style={styles.footerContainer}>
+            <View style={{ position: 'relative' }}>
+              {totalQuantity && totalQuantity > 0 && (
+                <View
                   style={[
-                    styles.heading,
-                    {
-                      marginTop: theme.sizes.HEIGHT * 0.01,
-                    },
+                    styles.footerQuantityWrapper,
+                    rtlPosition(isRtl, theme.sizes.WIDTH * 0.03, undefined),
                   ]}
                 >
-                  {getString('CHECKOUT_ORDER_INFO')}
-                </Text>
-                {orderInfoRows.map((row, index) => (
-                  <React.Fragment key={row.key}>
-                    <View style={styles.Prices}>
-                      <Text style={styles.TextMedium}>{row.label}</Text>
-                      <PriceWithIcon amount={row.amount} />
-                    </View>
-                    {index < orderInfoRows.length - 1 && (
-                      <View style={styles.priceSeparator} />
-                    )}
-                  </React.Fragment>
-                ))}
-
-                <Text style={styles.vatNote}>
-                  {getString('CHECKOUT_VAT_NOTE')}
-                </Text>
-              </View>
-            </ScrollView>
-          </KeyboardAvoidingView>
-          <View
-            style={{
-              height: theme.sizes.HEIGHT * 0.11,
-              backgroundColor: theme.colors.WHITE,
-            }}
-          >
-            <View style={styles.footerContainer}>
-              <View style={{ position: 'relative' }}>
-                {totalQuantity && totalQuantity > 0 && (
                   <View
                     style={[
-                      styles.footerQuantityWrapper,
-                      rtlPosition(isRtl, theme.sizes.WIDTH * 0.03, undefined),
+                      styles.footerQuantityBadge,
+                      {
+                        opacity:
+                          submitting ||
+                            waitingForVideoUpload ||
+                            !selectedPaymentMethod
+                            ? 0.7
+                            : 1,
+                      },
                     ]}
                   >
-                    <View
+                    <Text
                       style={[
-                        styles.footerQuantityBadge,
+                        styles.footerQuantityText,
                         {
-                          opacity:
-                            submitting ||
-                              waitingForVideoUpload ||
-                              !selectedPaymentMethod
-                              ? 0.7
-                              : 1,
+                          color: isApplePayAvailable
+                            ? theme.colors.PRIMARY_TEXT
+                            : theme.colors.PRIMARY,
                         },
                       ]}
                     >
-                      <Text
-                        style={[
-                          styles.footerQuantityText,
-                          {
-                            color: isApplePayAvailable
-                              ? theme.colors.PRIMARY_TEXT
-                              : theme.colors.PRIMARY,
-                          },
-                        ]}
-                      >
-                        {totalQuantity}
-                      </Text>
-                    </View>
+                      {totalQuantity}
+                    </Text>
                   </View>
-                )}
-                <CustomButton
-                  title={
-                    selectedPaymentMethod === 'applePay'
-                      ? ''
-                      : getString('CHECKOUT_PROCEED_TO_CHECKOUT')
+                </View>
+              )}
+              <CustomButton
+                title={
+                  selectedPaymentMethod === 'applePay'
+                    ? ''
+                    : getString('CHECKOUT_PROCEED_TO_CHECKOUT')
+                }
+                onPress={handleProceedToCheckout}
+                icon={
+                  selectedPaymentMethod === 'applePay' ? (
+                    <SvgApplePayText />
+                  ) : undefined
+                }
+                buttonStyle={{
+                  backgroundColor: !selectedPaymentMethod
+                    ? '#FFA5A5'
+                    : selectedPaymentMethod === 'applePay'
+                      ? '#000000'
+                      : theme.colors.PRIMARY,
+                  borderColor: !selectedPaymentMethod
+                    ? '#FFA5A5'
+                    : selectedPaymentMethod === 'applePay'
+                      ? '#000000'
+                      : theme.colors.PRIMARY,
+                }}
+                labelStyle={{
+                  color: theme.colors.WHITE,
+                }}
+                disabled={
+                  submitting ||
+                  waitingForVideoUpload ||
+                  !selectedPaymentMethod
+                }
+                loading={submitting || waitingForVideoUpload}
+              />
+              <View
+                style={[
+                  styles.footerPriceWrapper,
+                  rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.03),
+                ]}
+              >
+                <PriceWithIcon
+                  amount={
+                    (cartData?.TotalAmount || 0) + (activeDomationAmount || 0)
                   }
-                  onPress={handleProceedToCheckout}
-                  icon={
-                    selectedPaymentMethod === 'applePay' ? (
-                      <SvgApplePayText />
-                    ) : undefined
-                  }
-                  buttonStyle={{
-                    backgroundColor: !selectedPaymentMethod
-                      ? '#FFA5A5'
-                      : selectedPaymentMethod === 'applePay'
-                        ? '#000000'
-                        : theme.colors.PRIMARY,
-                    borderColor: !selectedPaymentMethod
-                      ? '#FFA5A5'
-                      : selectedPaymentMethod === 'applePay'
-                        ? '#000000'
-                        : theme.colors.PRIMARY,
-                  }}
-                  labelStyle={{
+                  textStyle={{
                     color: theme.colors.WHITE,
                   }}
-                  disabled={
-                    submitting ||
-                    waitingForVideoUpload ||
-                    !selectedPaymentMethod
+                  icon={
+                    <SvgRiyalIconWhite
+                      width={scaleWithMax(12, 14)}
+                      height={scaleWithMax(12, 14)}
+                    />
                   }
-                  loading={submitting || waitingForVideoUpload}
                 />
-                <View
-                  style={[
-                    styles.footerPriceWrapper,
-                    rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.03),
-                  ]}
-                >
-                  <PriceWithIcon
-                    amount={
-                      (cartData?.TotalAmount || 0) + (activeDomationAmount || 0)
-                    }
-                    textStyle={{
-                      color: theme.colors.WHITE,
-                    }}
-                    icon={
-                      <SvgRiyalIconWhite
-                        width={scaleWithMax(12, 14)}
-                        height={scaleWithMax(12, 14)}
-                      />
-                    }
-                  />
-                </View>
               </View>
             </View>
           </View>
-        </>
-      ) : (
+        </View>
+      </>
+      {/* ) : (
         <View style={{ height: theme.sizes.HEIGHT * 0.8 }}>
           <PlaceholderLogoText
             text={getString('CHECKOUT_YOUR_CART_IS_EMPTY')}
           />
         </View>
-      )}
+      )} */}
 
       <ConfirmationPopup
         visible={showRemoveConfirmation}
