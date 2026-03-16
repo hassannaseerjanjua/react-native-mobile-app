@@ -114,7 +114,7 @@ const InboxOutbox: React.FC = () => {
   };
 
   return (
-    <ParentView>
+    <ParentView emptyStateText={orders.length === 0 && !isLoading ? getString('O_NO_ORDER_FOUND') : ''}>
       <View
         style={{
           position: 'absolute',
@@ -188,14 +188,14 @@ const InboxOutbox: React.FC = () => {
           keyExtractor={item => item.OrderId.toString()}
           onEndReached={hasMore ? loadMore : undefined}
           onEndReachedThreshold={0.5}
-          ListEmptyComponent={() => {
-            if (!isInitialLoad) return null;
-            return (
-              <View style={{ height: theme.sizes.HEIGHT * 0.74 }}>
-                <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
-              </View>
-            );
-          }}
+          // ListEmptyComponent={() => {
+          //   if (!isInitialLoad) return null;
+          //   return (
+          //     <View style={{ height: theme.sizes.HEIGHT * 0.74 }}>
+          //       <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
+          //     </View>
+          //   );
+          // }}
           ListFooterComponent={
             loadingMore ? (
               <View

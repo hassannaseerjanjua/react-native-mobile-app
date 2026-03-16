@@ -878,7 +878,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
                     <View style={styles.tabSpacing} />
                   )}
                   ListEmptyComponent={
-                    <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
+                    <View style={{ height: theme.sizes.HEIGHT * 0.63 }}>
                       <PlaceholderLogoText
                         text={getString('STG_NO_GROUP_FOUND')}
                       />

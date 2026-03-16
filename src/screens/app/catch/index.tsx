@@ -145,7 +145,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         storeID && storeBranchID
           ? {
             StoreId: storeID,
-            StoreBranchId: storeBranchID,
+            // StoreBranchId: storeBranchID,
           }
           : {},
       idExtractor: (item: FaveItems) => item.ItemId,

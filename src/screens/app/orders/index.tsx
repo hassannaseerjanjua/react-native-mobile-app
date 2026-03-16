@@ -101,7 +101,7 @@ const OrdersScreen: React.FC = () => {
     {
       idExtractor: (item: Order) => item.OrderId,
       transformData: (data: OrdersApiResponse) => ({
-        data: [],
+        data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
       pageSize: 5,

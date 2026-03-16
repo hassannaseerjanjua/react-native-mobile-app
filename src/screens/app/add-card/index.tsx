@@ -214,7 +214,7 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   );
 
   return (
-    <ParentView style={styles.container}>
+    <ParentView style={styles.container} emptyStateText={!loading && cards.length === 0 ? getString('NO_CARDS_FOUND') : ''}>
       <HomeHeader
         title={
           fromProfile
@@ -232,7 +232,7 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
             renderItem={renderCardItem}
             keyExtractor={item => item.Token}
             contentContainerStyle={styles.listContainer}
-            ListEmptyComponent={renderEmptyState}
+            // ListEmptyComponent={renderEmptyState}
             showsVerticalScrollIndicator={false}
           />
         )}

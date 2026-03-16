@@ -263,7 +263,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
           <Text style={styles.bottomSheetNumber}>
             {activeTab === 'Phone'
-              ? `${isRtl ? '966+' : '+966'} ${formatPhone(currentFormValues.phone)}`
+              ? `+966 ${formatPhone(currentFormValues.phone)}`
               : currentFormValues.email}
           </Text>
 

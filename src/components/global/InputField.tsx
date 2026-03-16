@@ -51,7 +51,7 @@ const InputField = ({
         icon
       )}
       {isPhone && (
-        <Text style={styles.prefixText}>{isRtl ? '966+' : '+966'}</Text>
+        <Text style={styles.prefixText}>{'+966'}</Text>
       )}
       <TextInput
         {...fieldProps}
