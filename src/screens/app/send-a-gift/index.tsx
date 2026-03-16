@@ -57,9 +57,15 @@ import { CartResponse } from '../../../types';
 import notify from '../../../utils/notify';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 
-interface SendAGiftProps extends AppStackScreen<'SendAGift'> { }
+interface SendAGiftProps extends AppStackScreen<'SendAGift'> {
+  onReady?: () => void;
+}
 
-const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
+const SendAGiftScreen: React.FC<SendAGiftProps> = ({
+  navigation,
+  route,
+  onReady,
+}) => {
   const isGiftOneGetOne = route.params?.routeTo === 'GiftOneGetOne';
   const { styles, theme } = useStyles();
   const { getString, langCode } = useLocaleStore();
@@ -90,57 +96,62 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   const [groupToDelete, setGroupToDelete] = useState<GroupData | null>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  // Fetch cart to check if there's an existing cart for a different user
-  const cartApi = useGetApi<CartResponse>(apiEndpoints.GET_CART_ITEMS, {
-    transformData: (data: any) => (data?.Data || data) as CartResponse,
-  });
-
+  // Lazy: only fetch active users when on friends/others tab (avoids fetch for merchants on employees tab)
+  const activeUsersEnabled =
+    (!isMerchant && (activeTab === 'friends' || activeTab === 'others')) ||
+    (isMerchant && activeTab === 'others');
   const activeUsersApi = useListingApi<ActiveUser>(
     apiEndpoints.GET_ACTIVE_USERS,
     token,
     {
-      pageSize: 30,
+      pageSize: 15,
       idExtractor: (item: ActiveUser) => item.UserId,
       transformData: (data: ActiveUsersApiResponse) => ({
         data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
       extraParams: {
-        // userId: user?.UserId,
         friends: activeTab === 'friends',
         cityid:
           isMerchant && activeTab === 'others' ? selectedCityId : undefined,
       },
+      enabled: activeUsersEnabled,
+      noCache: true,
     },
   );
 
+  // Lazy: only fetch when Create Group or Edit Group modal is open
+  const friendsForGroupEnabled = isCreateGroupOpen || isMemberSelectionOpen;
   const friendsForGroupApi = useListingApi<ActiveUser>(
     apiEndpoints.GET_ACTIVE_USERS,
     token,
     {
-      pageSize: 30,
+      pageSize: 15,
       idExtractor: (item: ActiveUser) => item.UserId,
       transformData: (data: ActiveUsersApiResponse) => ({
         data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
-      extraParams: {
-        // userId: user?.UserId,
-        friends: true,
-      },
+      extraParams: { friends: true },
+      enabled: friendsForGroupEnabled,
+      noCache: true,
     },
   );
 
+  // Lazy: only fetch groups when on group tab
+  const groupsEnabled = !isMerchant && activeTab === 'group';
   const getGroupsData = useListingApi<GroupData>(
     apiEndpoints.GET_GROUPS,
     token,
     {
-      pageSize: 30,
+      pageSize: 15,
       transformData: (data: getGroupsDataApiResponse) => ({
         data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
       idExtractor: (item: GroupData) => item.UserGroupId,
+      enabled: groupsEnabled,
+      noCache: true,
     },
   );
 
@@ -148,7 +159,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     isMerchant ? apiEndpoints.GET_EMPLOYEES : '',
     token,
     {
-      pageSize: 30,
+      pageSize: 15,
       idExtractor: (item: ActiveUser) => item.UserId,
       transformData: (data: ActiveUsersApiResponse) => ({
         data: data.Data?.Items || [],
@@ -157,11 +168,15 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
       extraParams: {
         cityId: selectedCityId,
       },
+      noCache: true,
     },
   );
 
+  // Lazy: only fetch cities when merchant opens city picker
   const citiesApi = useGetApi<City[]>(apiEndpoints.GET_CITY_LISTING, {
     transformData: (data: any) => data?.Data?.cities ?? [],
+    enabled: isMerchant && showCityPicker,
+    noCache: true,
   });
 
   const cityOptions: DropdownOption[] = useMemo(
@@ -182,24 +197,17 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   );
 
   useEffect(() => {
-    if (activeTab !== 'group' && !isMerchant) {
-      // Clear search when switching tabs to avoid stale filtered data
-      if (activeUsersApi.search) {
-        activeUsersApi.setSearch('');
-      }
-      // Update params - the useListingApi hook will automatically refetch when extraParams change
-      activeUsersApi.setExtraParams({
-        // userId: user?.UserId,
-        friends: activeTab === 'friends',
-      });
-    } else if (isMerchant && activeTab === 'others') {
-      // For merchant on others tab, update cityId param
+    if (!activeUsersEnabled) return;
+    if (activeUsersApi.search) activeUsersApi.setSearch('');
+    if (isMerchant) {
       activeUsersApi.setExtraParams({
         cityid: selectedCityId,
         friends: false,
       });
+    } else {
+      activeUsersApi.setExtraParams({ friends: activeTab === 'friends' });
     }
-  }, [activeTab, user?.UserId, isMerchant, selectedCityId]);
+  }, [activeTab, activeUsersEnabled, isMerchant, selectedCityId]);
 
   // Update employees API extraParams when city changes or when switching to employees tab
   useEffect(() => {
@@ -243,7 +251,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
   const handleEditGroup = (group: GroupData) => {
     setSelectedGroup(group);
-    friendsForGroupApi.recall();
     setIsMemberSelectionOpen(true);
   };
 
@@ -388,6 +395,30 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     });
   };
 
+  const clearCartIfDifferentUser = useCallback(
+    async (selectedFriendUserId: number | null): Promise<boolean> => {
+      const cartRes = await api.get<{ Data?: CartResponse }>(
+        apiEndpoints.GET_CART_ITEMS,
+      );
+      const raw = cartRes.data as { Data?: CartResponse } | undefined;
+      const existingCart = (raw?.Data || raw) as CartResponse | undefined;
+      if (
+        existingCart?.FriendId != null &&
+        existingCart.FriendId !== selectedFriendUserId &&
+        existingCart.Items &&
+        existingCart.Items.length > 0
+      ) {
+        const response = await api.put(apiEndpoints.CLEAR_CART, {});
+        if (!response.success) {
+          notify.error(response.error || getString('AU_ERROR_OCCURRED'));
+          return false;
+        }
+      }
+      return true;
+    },
+    [],
+  );
+
   const handleFriendPress = async (item: ActiveUser) => {
     if (isMerchant && isSelectionMode) {
       handleUserSelection(item.UserId);
@@ -396,23 +427,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
 
     const selectedFriendUserId = item.UserId;
 
-    // Check if there's a cart for a different user
-    const existingCart = cartApi.data;
-    if (
-      existingCart &&
-      existingCart.FriendId !== null &&
-      existingCart.FriendId !== selectedFriendUserId &&
-      existingCart.Items &&
-      existingCart.Items.length > 0
-    ) {
-      // Clear the cart for the previous user to start fresh flow
-      const response = await api.put(apiEndpoints.CLEAR_CART, {});
-
-      if (!response.success) {
-        notify.error(response.error || getString('AU_ERROR_OCCURRED'));
-        return;
-      }
-    }
+    const canProceed = await clearCartIfDifferentUser(selectedFriendUserId);
+    if (!canProceed) return;
 
     // Navigate to the next screen
     if (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo) {
@@ -525,49 +541,40 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
   // Only use effectiveSearchForHideMe - don't use loading, else "me" briefly appears when modifying an existing search
   const keepMeVisibleForSearch = !effectiveSearchForHideMe;
 
-  const getDisplayData = () => {
-    if (!isMerchant && activeTab === 'group') {
-      return [];
-    }
-    if (isMerchant && activeTab === 'employees') {
-      return employeesApi.data || [];
-    }
+  const displayData = useMemo(() => {
+    if (!isMerchant && activeTab === 'group') return [];
+    if (isMerchant && activeTab === 'employees') return employeesApi.data || [];
 
     const baseData = activeUsersApi.data || [];
-
-    // Determine if "me" should be shown (keep visible during debounce + loading)
     const shouldShowMe =
       keepMeVisibleForSearch &&
       activeTab === 'friends' &&
       user &&
       (route.params?.routeTo === 'SelectStore' || !route.params?.routeTo);
 
-    // Build the final list
-    let finalData: ActiveUser[] = [];
+    if (!shouldShowMe) return baseData;
 
-    // Add current user first if applicable
-    if (shouldShowMe) {
-      const currentUser: ActiveUser = {
-        UserId: user.UserId,
-        FullName: `${user.FullNameEn || user.FullNameAr || getString('SG_USER_ME')
-          }${getString('SG_ME')}`,
-        Email: user.Email,
-        PhoneNo: user.PhoneNo,
-        ProfileUrl: user.ProfileUrl,
-        RelationStatus: 1,
-        CityId: user.CityId,
-        IsVerified: user.IsVerified,
-      };
-      finalData.push(currentUser);
-    }
-
-    // Add all friends (including frequently sent friends)
-    finalData.push(...baseData);
-
-    return finalData;
-  };
-
-  const displayData = getDisplayData();
+    const currentUser: ActiveUser = {
+      UserId: user!.UserId,
+      FullName: `${user!.FullNameEn || user!.FullNameAr || getString('SG_USER_ME')}${getString('SG_ME')}`,
+      Email: user!.Email,
+      PhoneNo: user!.PhoneNo,
+      ProfileUrl: user!.ProfileUrl,
+      RelationStatus: 1,
+      CityId: user!.CityId,
+      IsVerified: user!.IsVerified,
+    };
+    return [currentUser, ...baseData];
+  }, [
+    isMerchant,
+    activeTab,
+    employeesApi.data,
+    activeUsersApi.data,
+    keepMeVisibleForSearch,
+    user,
+    route.params?.routeTo,
+    getString,
+  ]);
 
   const isLoading =
     activeTab === 'group'
@@ -652,15 +659,32 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
     });
   }, [navigation, getString]);
 
+  const handleScroll = useCallback(
+    ({ nativeEvent }: { nativeEvent: any }) => {
+      const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+      const nearBottom =
+        layoutMeasurement.height + contentOffset.y >=
+        contentSize.height - layoutMeasurement.height * 0.5;
+      if (!nearBottom) return;
+      if (activeTab === 'group') getGroupsData.loadMore();
+      else if (isMerchant && activeTab === 'employees') employeesApi.loadMore();
+      else activeUsersApi.loadMore();
+    },
+    [activeTab, isMerchant, getGroupsData, employeesApi, activeUsersApi],
+  );
+
   useFocusEffect(
     useCallback(() => {
       if (shouldRefetchFriendsRef.current) {
         shouldRefetchFriendsRef.current = false;
         activeUsersApi.recall();
-        friendsForGroupApi.recall();
       }
-    }, [activeUsersApi, friendsForGroupApi]),
+    }, [activeUsersApi]),
   );
+
+  useEffect(() => {
+    onReady?.();
+  }, [onReady]);
 
   return (
     <ParentView style={styles.container}>
@@ -691,7 +715,6 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
             !isMerchant &&
             (activeTab === 'friends' || activeTab === 'group')
           ) {
-            friendsForGroupApi.recall();
             setIsCreateGroupOpen(true);
           }
         }}
@@ -749,24 +772,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           }}
           showsVerticalScrollIndicator={false}
           scrollEventThrottle={300}
-          onScroll={({ nativeEvent }) => {
-            const { layoutMeasurement, contentOffset, contentSize } =
-              nativeEvent;
-            const threshold = layoutMeasurement.height * 0.5;
-            const nearBottom =
-              layoutMeasurement.height + contentOffset.y >=
-              contentSize.height - threshold;
-            if (!nearBottom) return;
-            if (activeTab === 'group') {
-              getGroupsData.loadMore();
-              return;
-            }
-            if (isMerchant && activeTab === 'employees') {
-              employeesApi.loadMore();
-            } else {
-              activeUsersApi.loadMore();
-            }
-          }}
+          onScroll={handleScroll}
         >
           <View>
             <GroupTabs
@@ -1114,96 +1120,102 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
         </ScrollView>
       </View>
 
-      <MemberSelectionModal
-        visible={isMemberSelectionOpen}
-        onClose={() => setIsMemberSelectionOpen(false)}
-        existingMembers={getGroupMembersData()}
-        onSave={handleSaveGroupMembers}
-        title={getString('STG_EDIT_GROUP_MEMBERS')}
-        existingGroupImage={selectedGroup?.ImageUrl}
-        existingGroupName={selectedGroup?.GroupName}
-        listings={[
-          {
-            users: [
-              ...getGroupMembersData(),
-              ...(friendsForGroupApi?.data || []),
-            ].filter(
-              (user, index, self) =>
-                index === self.findIndex(u => u.UserId === user.UserId),
-            ),
-          },
-        ]}
-      />
+      {isMemberSelectionOpen && (
+        <MemberSelectionModal
+          visible
+          onClose={() => setIsMemberSelectionOpen(false)}
+          existingMembers={getGroupMembersData()}
+          onSave={handleSaveGroupMembers}
+          title={getString('STG_EDIT_GROUP_MEMBERS')}
+          existingGroupImage={selectedGroup?.ImageUrl}
+          existingGroupName={selectedGroup?.GroupName}
+          listings={[
+            {
+              users: [
+                ...getGroupMembersData(),
+                ...(friendsForGroupApi?.data || []),
+              ].filter(
+                (u, index, self) =>
+                  index === self.findIndex(x => x.UserId === u.UserId),
+              ),
+            },
+          ]}
+        />
+      )}
 
-      <MemberSelectionModal
-        visible={isViewMembersOpen}
-        onClose={() => setIsViewMembersOpen(false)}
-        existingMembers={getGroupMembersData()}
-        onSave={() => { }}
-        title={selectedGroup?.GroupName || getString('STG_GROUP_MEMBERS')}
-        listings={[
-          {
-            users: getGroupMembersData(),
-          },
-        ]}
-        viewOnly={true}
-        routeTo={route.params?.routeTo}
-      />
+      {isViewMembersOpen && (
+        <MemberSelectionModal
+          visible
+          onClose={() => setIsViewMembersOpen(false)}
+          existingMembers={getGroupMembersData()}
+          onSave={() => {}}
+          title={selectedGroup?.GroupName || getString('STG_GROUP_MEMBERS')}
+          listings={[{ users: getGroupMembersData() }]}
+          viewOnly
+          routeTo={route.params?.routeTo}
+        />
+      )}
 
-      <MemberSelectionModal
-        visible={isCreateGroupOpen}
-        onClose={() => setIsCreateGroupOpen(false)}
-        existingMembers={[]}
-        onSave={handleCreateGroup}
-        title={getString('NG_ADD_MEMBERS')}
-        onFindFriendsNavigate={() => {
-          shouldRefetchFriendsRef.current = true;
-        }}
-        listings={[
-          ...(frequentlySentFriendsForGroupModal.length > 0
-            ? [
-              {
-                title: getString('SG_FREQUENTLY_GIFTED'),
-                users: frequentlySentFriendsForGroupModal,
-              },
-            ]
-            : []),
-          {
-            title: getString('NG_TITLE_FRIENDS'),
-            users: friendsForGroupApi.data || [],
-            emptyState: 'noFriends' as const,
-          },
-        ]}
-        isSendAGift={true}
-      />
+      {isCreateGroupOpen && (
+        <MemberSelectionModal
+          visible
+          onClose={() => setIsCreateGroupOpen(false)}
+          existingMembers={[]}
+          onSave={handleCreateGroup}
+          title={getString('NG_ADD_MEMBERS')}
+          onFindFriendsNavigate={() => {
+            shouldRefetchFriendsRef.current = true;
+          }}
+          listings={[
+            ...(frequentlySentFriendsForGroupModal.length > 0
+              ? [
+                  {
+                    title: getString('SG_FREQUENTLY_GIFTED'),
+                    users: frequentlySentFriendsForGroupModal,
+                  },
+                ]
+              : []),
+            {
+              title: getString('NG_TITLE_FRIENDS'),
+              users: friendsForGroupApi.data || [],
+              emptyState: 'noFriends' as const,
+            },
+          ]}
+          isSendAGift
+        />
+      )}
 
-      <ConfirmationPopup
-        visible={showDeleteModal}
-        title={getString('STG_DELETE_GROUP')}
-        message={getString('STG_DELETE_GROUP_CONFIRM').replace(
-          '{value}',
-          groupToDelete?.GroupName || '',
-        )}
-        confirmText={getString('STG_DELETE')}
-        cancelText={getString('NG_CANCEL')}
-        onConfirm={confirmDeleteGroup}
-        onCancel={() => {
-          setShowDeleteModal(false);
-          setTimeout(() => setGroupToDelete(null), 300);
-        }}
-      />
+      {showDeleteModal && (
+        <ConfirmationPopup
+          visible
+          title={getString('STG_DELETE_GROUP')}
+          message={getString('STG_DELETE_GROUP_CONFIRM').replace(
+            '{value}',
+            groupToDelete?.GroupName || '',
+          )}
+          confirmText={getString('STG_DELETE')}
+          cancelText={getString('NG_CANCEL')}
+          onConfirm={confirmDeleteGroup}
+          onCancel={() => {
+            setShowDeleteModal(false);
+            setTimeout(() => setGroupToDelete(null), 300);
+          }}
+        />
+      )}
 
-      <CityPickerModal
-        visible={showCityPicker}
-        onClose={() => setShowCityPicker(false)}
-        options={cityOptions}
-        selectedValue={selectedCityId}
-        onSelect={value => {
-          setSelectedCityId(value as number | null);
-          setShowCityPicker(false);
-        }}
-        title={getString('SELECT_STORE_SELECT_CITY') || 'Select City'}
-      />
+      {showCityPicker && (
+        <CityPickerModal
+          visible
+          onClose={() => setShowCityPicker(false)}
+          options={cityOptions}
+          selectedValue={selectedCityId}
+          onSelect={value => {
+            setSelectedCityId(value as number | null);
+            setShowCityPicker(false);
+          }}
+          title={getString('SELECT_STORE_SELECT_CITY') || 'Select City'}
+        />
+      )}
 
       {isMerchant && isSelectionMode && (
         <View
@@ -1217,28 +1229,13 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({ navigation, route }) => {
           <CustomButton
             title={`${getString('NG_NEXT')} (${selectedUserIds.size
               }/${MAX_SELECTION_LIMIT})`}
-            onPress={() => {
+            onPress={async () => {
               const friendIds = Array.from(selectedUserIds);
               if (friendIds.length > 0) {
-                // Check if there's a cart for a different user
-                const existingCart = cartApi.data;
-                if (
-                  existingCart &&
-                  existingCart.FriendId !== null &&
-                  existingCart.Items &&
-                  existingCart.Items.length > 0
-                ) {
-                  // Clear the cart for the previous user to start fresh flow
-                  api.put(apiEndpoints.CLEAR_CART, {}).then(response => {
-                    if (response.success) {
-                      navigateWithSelectedUsers(friendIds);
-                    } else {
-                      notify.error(
-                        response.error || getString('AU_ERROR_OCCURRED'),
-                      );
-                    }
-                  });
-                } else {
+                const canProceed = await clearCartIfDifferentUser(
+                  isMerchant ? null : friendIds[0],
+                );
+                if (canProceed) {
                   navigateWithSelectedUsers(friendIds);
                 }
               } else {

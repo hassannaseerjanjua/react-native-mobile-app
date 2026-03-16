@@ -121,13 +121,13 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
   const getCartCount = useGetApi<any>(apiEndpoints.GET_CART_COUNT, {
     transformData: data => data.Data,
+    enabled: showCartIcon,
   });
 
-  // Refetch cart count when screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
-      getCartCount.refetch();
-    }, []),
+      if (showCartIcon) getCartCount.refetch();
+    }, [showCartIcon]),
   );
 
   return (

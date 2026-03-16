@@ -10,10 +10,13 @@ const useGetApi = <T>(
     initialData?: T;
     /** Skip caching for this call (e.g. user-specific or always-fresh endpoints) */
     noCache?: boolean;
+    /** When false, skip initial fetch. Call refetch() when needed. */
+    enabled?: boolean;
   },
 ) => {
+  const enabled = config?.enabled !== false;
   const [data, setData] = useState<T | null>(config?.initialData || null);
-  const [loading, setLoading] = useState(!config?.initialData);
+  const [loading, setLoading] = useState(!config?.initialData && enabled);
   const [error, setError] = useState<any>(null);
   const token = 'Token';
   const isMounted = useRef(true);
@@ -84,8 +87,12 @@ const useGetApi = <T>(
   }, []);
 
   useEffect(() => {
+    if (!enabled || url === '') {
+      setLoading(false);
+      return;
+    }
     fetchData();
-  }, [url, fetchData]);
+  }, [url, enabled, fetchData]);
 
   return {
     data,

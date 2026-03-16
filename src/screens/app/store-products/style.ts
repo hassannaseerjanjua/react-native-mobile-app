@@ -58,6 +58,7 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_BUTTON,
         color: theme.colors.GRAY,
         textAlign: 'left',
+        fontFamily: theme.fonts.regular,
       },
       headingContainer: {
         paddingTop: sizes.HEIGHT * 0.038,

@@ -43,7 +43,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
 
   const getSliderHeight = () => {
     if (screenType === 'home') {
-      return theme.sizes.HEIGHT * (isAndroid ? 0.30 : 0.29);
+      return theme.sizes.HEIGHT * (isAndroid ? 0.3 : 0.29);
     }
     return screenHeight * 0.34;
   };

@@ -1,12 +1,50 @@
-import React from 'react';
+import React, { Suspense, lazy, useState, useCallback } from 'react';
+import { View, StyleSheet, InteractionManager } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 
 import Home from '../screens/app/home/index.tsx';
 import SearchScreen from '../screens/app/search/index.tsx';
-import SendAGiftScreen from '../screens/app/send-a-gift/index.tsx';
+import SendAGiftFallback from '../screens/app/send-a-gift/SendAGiftFallback';
 import SendToGroupScreen from '../screens/app/send-to-group/index.tsx';
+
+const SendAGiftScreen = lazy(
+  () => import('../screens/app/send-a-gift/index.tsx'),
+);
+
+const SendAGiftWithFallback = (props: any) => {
+  const [showFallback, setShowFallback] = useState(true);
+  const onReady = useCallback(() => setShowFallback(false), []);
+
+  useFocusEffect(
+    useCallback(() => {
+      setShowFallback(true);
+      const handle = InteractionManager.runAfterInteractions(() => {
+        setShowFallback(false);
+      });
+      return () => handle.cancel();
+    }, []),
+  );
+
+  return (
+    <View style={styles.wrapper}>
+      <Suspense fallback={<SendAGiftFallback />}>
+        <SendAGiftScreen {...props} onReady={onReady} />
+      </Suspense>
+      {showFallback && (
+        <View style={StyleSheet.absoluteFill}>
+          <SendAGiftFallback />
+        </View>
+      )}
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  wrapper: { flex: 1 },
+});
 import ProfileScreen from '../screens/app/profile/index.tsx';
 import WalletScreen from '../screens/app/wallet/index.tsx';
 import FAQScreen from '../screens/app/faq/index.tsx';
@@ -46,7 +84,7 @@ const AppStackNavigator = () => {
     >
       <AppStack.Screen name="BottomTabs" component={BottomTabNavigator} />
       <AppStack.Screen name="Search" component={SearchScreen} />
-      <AppStack.Screen name="SendAGift" component={SendAGiftScreen} />
+      <AppStack.Screen name="SendAGift" component={SendAGiftWithFallback} />
       <AppStack.Screen name="SendToGroup" component={SendToGroupScreen} />
       <AppStack.Screen name="Wallet" component={WalletScreen} />
       <AppStack.Screen name="GiftMessage" component={GiftMessage} />
