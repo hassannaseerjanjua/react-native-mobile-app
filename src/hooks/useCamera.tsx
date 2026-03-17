@@ -1,13 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Platform } from 'react-native';
+import { useCallback, useRef, useState } from 'react';
+import { Alert, Linking, Platform } from 'react-native';
 import {
   Camera,
   CameraPermissionStatus,
   RecordVideoOptions,
   useCameraDevice,
 } from 'react-native-vision-camera';
+import { useLocaleStore } from '../store/reducer/locale';
 
 export function useVisionCamera(frameProcessor?: (frame: any) => void) {
+  const { getString } = useLocaleStore();
   const cameraRef = useRef<Camera>(null);
   const [cameraPosition, setCameraPosition] = useState<'front' | 'back'>(
     'front',
@@ -30,90 +32,89 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
     setCameraPosition(prev => (prev === 'front' ? 'back' : 'front'));
   }, []);
 
-  // Request Permissions
-  const requestPermission = useCallback(async () => {
-    // Check current permission status
-    const cameraStatus = await Camera.getCameraPermissionStatus();
-    const micStatus = await Camera.getMicrophonePermissionStatus();
+  // Request Permissions - returns true if granted, false if denied
+  const requestPermission = useCallback(async (): Promise<boolean> => {
+    // Check current permission status first
+    let cameraStatus = await Camera.getCameraPermissionStatus();
+    let micStatus = await Camera.getMicrophonePermissionStatus();
+
+    // If camera already denied (user retrying) - show open settings
+    if (cameraStatus === 'denied' || cameraStatus === 'restricted') {
+      Alert.alert(
+        getString('GIFT_MESSAGE_PERMISSION_DENIED_TITLE'),
+        getString('GIFT_MESSAGE_CAMERA_PERMISSION_DENIED_OPEN_SETTINGS'),
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: getString('GIFT_MESSAGE_OPEN_SETTINGS'),
+            onPress: () => Linking.openSettings(),
+          },
+        ],
+      );
+      return false;
+    }
+
+    // If microphone already denied (user retrying) - show open settings
+    if (micStatus === 'denied' || micStatus === 'restricted') {
+      Alert.alert(
+        getString('GIFT_MESSAGE_MIC_PERMISSION_DENIED_TITLE'),
+        getString('GIFT_MESSAGE_MIC_PERMISSION_DENIED_OPEN_SETTINGS'),
+        [
+          { text: 'Cancel', style: 'cancel' },
+          {
+            text: getString('GIFT_MESSAGE_OPEN_SETTINGS'),
+            onPress: () => Linking.openSettings(),
+          },
+        ],
+      );
+      return false;
+    }
 
     // Request camera permission if not granted
-    let finalCameraStatus = cameraStatus;
     if (cameraStatus !== 'granted') {
-      finalCameraStatus = await Camera.requestCameraPermission();
-      if (finalCameraStatus !== 'granted') {
+      cameraStatus = await Camera.requestCameraPermission();
+      if (cameraStatus !== 'granted') {
         Alert.alert(
-          'Camera Permission',
-          'Camera permission is required to record videos',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Grant Permission',
-              onPress: async () => {
-                const newStatus = await Camera.requestCameraPermission();
-                if (newStatus === 'granted') {
-                  setIsCameraActive(true);
-                  setPermission(newStatus);
-                  setIsAuthorized(true);
-                }
-              },
-            },
-          ],
+          getString('GIFT_MESSAGE_PERMISSION_DENIED_TITLE'),
+          getString('GIFT_MESSAGE_CAMERA_PERMISSION_DENIED'),
+          [{ text: 'OK' }],
         );
-        setPermission(finalCameraStatus);
+        setPermission(cameraStatus);
         setIsAuthorized(false);
-        return;
+        return false;
       }
     }
 
     // Request microphone permission if not granted
-    let finalMicStatus = micStatus;
     if (micStatus !== 'granted') {
-      finalMicStatus = await Camera.requestMicrophonePermission();
-      if (finalMicStatus !== 'granted') {
+      micStatus = await Camera.requestMicrophonePermission();
+      if (micStatus !== 'granted') {
         Alert.alert(
-          'Microphone Permission',
-          'Microphone permission is required for video recording with audio',
-          [
-            { text: 'Cancel', style: 'cancel' },
-            {
-              text: 'Grant Permission',
-              onPress: async () => {
-                const newMicStatus = await Camera.requestMicrophonePermission();
-                if (newMicStatus === 'granted') {
-                  setIsCameraActive(true);
-                  setPermission(finalCameraStatus);
-                  setIsAuthorized(true);
-                } else {
-                  Alert.alert(
-                    'Permission Required',
-                    'Microphone permission is required for video recording',
-                  );
-                }
-              },
-            },
-          ],
+          getString('GIFT_MESSAGE_MIC_PERMISSION_DENIED_TITLE'),
+          getString('GIFT_MESSAGE_MIC_PERMISSION_DENIED'),
+          [{ text: 'OK' }],
         );
-        setPermission(finalCameraStatus);
+        setPermission(cameraStatus);
         setIsAuthorized(false);
-        return;
+        return false;
       }
     }
 
-    const currentDevice = cameraPosition === 'front' ? frontDevice : backDevice;
+    const currentDevice =
+      cameraPosition === 'front' ? frontDevice : backDevice;
     if (!currentDevice) {
       Alert.alert('Error', 'No camera device found');
-      setPermission(finalCameraStatus);
+      setPermission(cameraStatus);
       setIsAuthorized(false);
-      return;
+      return false;
     }
 
     // Both permissions granted
-    if (finalCameraStatus === 'granted' && finalMicStatus === 'granted') {
-      setIsCameraActive(true);
-      setPermission(finalCameraStatus);
-      setIsAuthorized(true);
-    }
-  }, [frontDevice, backDevice, cameraPosition]);
+    setIsCameraActive(true);
+    setPermission(cameraStatus);
+    setIsAuthorized(true);
+    return true;
+  }, [frontDevice, backDevice, cameraPosition, getString]);
 
   // Don't auto-request permissions on mount - let the component request when needed
 

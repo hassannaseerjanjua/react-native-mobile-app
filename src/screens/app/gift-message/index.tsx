@@ -1062,11 +1062,11 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 });
               }
 
-              // Request camera permissions first
-              await requestPermission();
-
-              // Then show camera - recording will start when user presses the button
-              setShowCamera(true);
+              // Request camera permissions first - only show camera if granted
+              const granted = await requestPermission();
+              if (granted) {
+                setShowCamera(true);
+              }
             }}
             loading={false}
           />
