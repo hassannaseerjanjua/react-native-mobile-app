@@ -248,10 +248,10 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   }, [selectedCityId]);
 
   return (
-    <ParentView emptyStateText={!storeListApi.isInitialLoad ? "" :
-      searchQuery
-        ? getString('SEARCH_NO_RESULTS_FOUND')
-        : getString('SELECT_STORE_NO_STORES_FOUND')
+    <ParentView emptyStateText={!storeListApi.loading && storeListApi.data.length === 0 ? searchQuery
+      ? getString('SEARCH_NO_RESULTS_FOUND')
+      : getString('SELECT_STORE_NO_STORES_FOUND') : ""
+
     }>
       <View style={styles.container}>
         <StatusBar
