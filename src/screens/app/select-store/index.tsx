@@ -63,9 +63,9 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
   const businessTypeApi = useGetApi<BusinessType[]>(
     apiEndpoints.GET_BUSINESS_TYPE +
-    '?cityid=' +
-    selectedCityId +
-    '&hideEmptyBusinessType=true',
+      '?cityid=' +
+      selectedCityId +
+      '&hideEmptyBusinessType=true',
     {
       transformData: (data: any) => data.Data.Items || [],
     },
@@ -130,8 +130,8 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         title: isRtl ? store.NameAr : store.NameEn,
         subtitle: isRtl
           ? businessTypeMap[store.BusinessTypeID] ||
-          (store as any).BusinessTypeNameAr ||
-          store.BusinessTypeName
+            (store as any).BusinessTypeNameAr ||
+            store.BusinessTypeName
           : store.BusinessTypeName,
         imageLogo: store.ImageLogo,
         imageCover: store.ImageCover,
@@ -152,7 +152,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     {
       idExtractor: (item: Store) => item.StoreId,
       transformData: (data: StoreListApiResponse) => ({
-        data: [],
+        data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
       pageSize: 5,
@@ -248,11 +248,15 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   }, [selectedCityId]);
 
   return (
-    <ParentView emptyStateText={!storeListApi.isInitialLoad ? "" :
-      searchQuery
-        ? getString('SEARCH_NO_RESULTS_FOUND')
-        : getString('SELECT_STORE_NO_STORES_FOUND')
-    }>
+    <ParentView
+      emptyStateText={
+        !storeListApi.isInitialLoad
+          ? ''
+          : searchQuery
+          ? getString('SEARCH_NO_RESULTS_FOUND')
+          : getString('SELECT_STORE_NO_STORES_FOUND')
+      }
+    >
       <View style={styles.container}>
         <StatusBar
           backgroundColor={theme.colors.BACKGROUND}
