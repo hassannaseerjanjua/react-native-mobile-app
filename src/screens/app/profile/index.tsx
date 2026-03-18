@@ -51,6 +51,10 @@ import { BlurView } from '@react-native-community/blur';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import ShadowView from '../../../components/global/ShadowView';
 import { selectAndCropImage } from '../../../utils/imageCropper';
+import {
+  requestGalleryPermission,
+  showGalleryPermissionDeniedAlert,
+} from '../../../utils/cameraPermission';
 import { callLogoutWithDeviceToken } from '../../../utils/notificationService';
 import { encodeGiftLinkParams } from '../../../utils/giftLinkCodec';
 
@@ -114,8 +118,10 @@ const ProfileScreen: React.FC = () => {
   const handleImageSelect = async () => {
     if (isUploading) return;
 
+    const granted = await requestGalleryPermission(getString);
+    if (!granted) return;
+
     try {
-      // Use WhatsApp-like cropper with circular overlay
       const croppedImage = await selectAndCropImage({
         cropSize: 400,
         circularOverlay: true, // Round overlay like WhatsApp
@@ -124,6 +130,7 @@ const ProfileScreen: React.FC = () => {
         compressionQuality: 0.8,
         maxWidth: 800,
         maxHeight: 800,
+        onPermissionDenied: () => showGalleryPermissionDeniedAlert(getString),
       });
 
       if (croppedImage) {
@@ -373,16 +380,14 @@ const ProfileScreen: React.FC = () => {
       >
         <View style={screenStyles.profileSection}>
           <TouchableOpacity
-            onPress={() => {
+            onPress={async () => {
               if (user?.ProfileUrl) {
-                // If image exists, navigate to ProfileImageViewer
                 (navigation as any).navigate('ProfileImageViewer', {
                   imageUri: user.ProfileUrl,
                   placeholderImage: dummyImage,
                 });
               } else {
-                // If no image, open gallery directly
-                handleImageSelect();
+                await handleImageSelect();
               }
             }}
             disabled={isUploading}

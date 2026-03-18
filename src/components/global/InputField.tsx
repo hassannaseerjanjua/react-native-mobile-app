@@ -50,9 +50,7 @@ const InputField = ({
       ) : (
         icon
       )}
-      {isPhone && (
-        <Text style={styles.prefixText}>{'+966'}</Text>
-      )}
+      {isPhone && <Text style={styles.prefixText}>{'+966'}</Text>}
       <TextInput
         {...fieldProps}
         style={[
@@ -61,12 +59,17 @@ const InputField = ({
             paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
             textAlign: isPhone ? 'left' : rtlTextAlign(isRtl),
             writingDirection: isPhone ? 'ltr' : undefined,
-            includeFontPadding: isRtl && isPhone
+            // includeFontPadding: isRtl && isPhone,
+            ...(Platform.OS === 'ios' &&
+            isRtl &&
+            isPhone &&
+            fieldProps.value?.length === 0
+              ? { lineHeight: 23 }
+              : {}),
           },
           fieldProps.style,
         ]}
         allowFontScaling={false}
-
         placeholderTextColor={theme.colors.SECONDARY_TEXT}
         selectionColor={theme.colors.PRIMARY}
         underlineColorAndroid="transparent"
@@ -179,6 +182,7 @@ const useStyles = () => {
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         marginStart: 8,
+        writingDirection: 'ltr',
         ...(Platform.OS === 'ios' ? { marginTop: -2.5 } : {}),
       },
       galleryUploadContainer: {

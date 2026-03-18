@@ -118,7 +118,7 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY,
         marginBottom: sizes.PADDING * 1.3,
-        direction:"ltr",
+        direction: 'ltr',
         textAlign: 'center',
       },
     });

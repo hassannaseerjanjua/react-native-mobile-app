@@ -19,6 +19,7 @@ const apiEndpoints = {
   VERIFY_OTP_SIGNIN: `/${version}/Auth/VerifyOTP-SignIn`,
   SAVE_TOKEN: `/${version}/User/save-token`,
   VERIFY_EMAIL_PHONE: `/${version}/User/VerifyEmailAndPhoneNo`,
+  VERIFY_EMAIL_PHONE_SIGNIN: `/${version}/Auth/VerifyEmailAndPhoneNoOnSignIn`,
   LOGOUT: `/${version}/Auth/LogOut`,
   DELETE_USER: `/${version}/User/DeleteAccount`,
   REFRESH_TOKEN: `/${version}/Auth/RefreshLogin`,

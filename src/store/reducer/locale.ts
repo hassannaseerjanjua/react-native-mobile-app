@@ -4,6 +4,9 @@ import { RootState } from '../store';
 import RNRestart from 'react-native-restart';
 import { I18nManager } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../../utils/api';
+import apiEndpoints from '../../constants/api-endpoints';
+import notify from '../../utils/notify';
 
 const resourceKeys: Record<string, string> =
   require('../../resource_keys.json') as Record<string, string>;
@@ -59,9 +62,20 @@ export default locale.reducer;
 export const useLanguageShifter = () => {
   const dispatch = useDispatch();
 
-  const shiftLanguage = (langCode: 'en' | 'ar') => {
+  const shiftLanguage = async (langCode: 'en' | 'ar') => {
     const newLangId = langCode === 'en' ? 1 : 2;
     const shouldBeRtl = langCode === 'ar';
+
+    const response = await api.get<{
+      Data: { ResourceDictionary: Record<string, string> };
+    }>(apiEndpoints.LOCALE(newLangId));
+
+    if (!response.success || !response.data) {
+      notify.error(response.error || 'Something went wrong');
+      return;
+    }
+
+    const strings = response?.data?.Data?.ResourceDictionary || {};
     I18nManager.allowRTL(shouldBeRtl);
     I18nManager.forceRTL(shouldBeRtl);
     AsyncStorage.setItem('rtl_forced_lang_id', String(newLangId)).catch(() => {
@@ -72,6 +86,8 @@ export const useLanguageShifter = () => {
         langId: newLangId,
         langCode: langCode,
         isRtl: shouldBeRtl,
+        strings,
+        stringsLangId: newLangId,
       }),
     );
 
@@ -513,6 +529,8 @@ type LocaleString =
   | 'GIFT_MESSAGE_OPEN_SETTINGS'
   | 'GIFT_MESSAGE_PERMISSION_DENIED_TITLE'
   | 'GIFT_MESSAGE_MIC_PERMISSION_DENIED_TITLE'
+  | 'GIFT_MESSAGE_GALLERY_PERMISSION_DENIED_TITLE'
+  | 'GIFT_MESSAGE_GALLERY_PERMISSION_DENIED_OPEN_SETTINGS'
   | 'GIFT_MESSAGE_REMOVE_VIDEO'
   | 'GIFT_MESSAGE_NO_FILTERS_AVAILABLE'
   | 'GIFT_MESSAGE_DONE'
@@ -595,4 +613,6 @@ type LocaleString =
   | 'CHECKOUT_EHSAN'
   | 'INBOX_GIFT_FOUND_MESSAGE'
   | 'COMP_QTY'
-  | 'HOME_GIFT_ONE_GET_ONE_STATUS'|'AU_PHONE_NUMBER_LABEL'|'CHECKOUT_CHANGE_USER_CARD';
+  | 'HOME_GIFT_ONE_GET_ONE_STATUS'
+  | 'AU_PHONE_NUMBER_LABEL'
+  | 'CHECKOUT_CHANGE_USER_CARD';

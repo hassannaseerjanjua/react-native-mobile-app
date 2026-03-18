@@ -1,4 +1,3 @@
-
 import {
   StyleSheet,
   TouchableOpacity,
@@ -10,10 +9,17 @@ import {
   Platform,
   NativeSyntheticEvent,
   NativeScrollEvent,
-  Dimensions, Animated
+  Dimensions,
+  Animated,
 } from 'react-native';
 
-import React, { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
+import React, {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from 'react';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import { SvgDropDown } from '../../assets/icons';
@@ -22,6 +28,7 @@ import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 import LinearGradient from 'react-native-linear-gradient';
 import ShadowView from './ShadowView';
+import { store } from '../../store/store';
 
 export type DropdownOption = {
   label: any;
@@ -50,17 +57,20 @@ const ITEM_HEIGHT = scaleWithMax(44, 50);
 const VISIBLE_ITEMS = 5;
 const CONTAINER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
 const MIDDLE_INDEX = Math.floor(VISIBLE_ITEMS / 2);
+const localeStrings = store.getState().locale.localeData.strings;
+const getString = (key: string) =>
+  localeStrings?.[key as keyof typeof localeStrings] || key;
 
 const DropdownField = ({
   icon = null,
   error,
   style,
-  placeholder = 'Select an option',
+  placeholder = getString('SELECT_CITY_TITLE'),
   options,
   selectedValue,
   onSelect,
   disabled = false,
-  label = 'Select Option',
+  label,
   searchValue = '',
   onSearchChange,
   isLoading = false,
@@ -187,7 +197,8 @@ const DropdownField = ({
     }
 
     if (Platform.OS === 'android') {
-      const expectedOffset = clampedIndex === 0 ? 0 : clampedIndex * ITEM_HEIGHT;
+      const expectedOffset =
+        clampedIndex === 0 ? 0 : clampedIndex * ITEM_HEIGHT;
       if (Math.abs(y - expectedOffset) > ITEM_HEIGHT * 0.05) {
         flatListRef.current?.scrollToOffset({
           offset: expectedOffset,
@@ -248,7 +259,7 @@ const DropdownField = ({
 
   return (
     <View style={[inline && styles.inlineWrapper, style]}>
-      <ShadowView preset='default'>
+      <ShadowView preset="default">
         <TouchableOpacity
           style={[
             styles.container,
@@ -340,15 +351,23 @@ const DropdownField = ({
               {/* FIX 3: use modalInnerContainer instead of styles.container */}
               <View style={styles.modalInnerContainer}>
                 <View style={styles.header}>
-                  <TouchableOpacity onPress={() => setIsVisible(false)} style={styles.button}>
+                  <TouchableOpacity
+                    onPress={() => setIsVisible(false)}
+                    style={styles.button}
+                  >
                     <Text style={styles.cancelText}>
                       {getString('COMP_CANCEL')}
                     </Text>
                   </TouchableOpacity>
                   {/* FIX 2: use label prop as the title */}
                   {label && <Text style={styles.title}>{label}</Text>}
-                  <TouchableOpacity onPress={handleConfirm} style={styles.button}>
-                    <Text style={styles.doneText}>{getString('COMP_DONE')}</Text>
+                  <TouchableOpacity
+                    onPress={handleConfirm}
+                    style={styles.button}
+                  >
+                    <Text style={styles.doneText}>
+                      {getString('COMP_DONE')}
+                    </Text>
                   </TouchableOpacity>
                 </View>
 

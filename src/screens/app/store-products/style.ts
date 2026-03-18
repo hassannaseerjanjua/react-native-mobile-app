@@ -106,6 +106,10 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: theme.colors.PRIMARY,
+        padding: 0,
+        margin: 0,
+        includeFontPadding: false,
+        lineHeight: 28,
       },
       footerButtonText: {
         ...theme.globalStyles.TEXT_STYLE,
@@ -115,6 +119,7 @@ const useStyles = () => {
         left: 0,
         right: 0,
         textAlign: 'center',
+        includeFontPadding: false,
         zIndex: 0,
       },
       footerPriceRow: {

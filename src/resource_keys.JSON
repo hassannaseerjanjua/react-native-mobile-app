@@ -256,6 +256,7 @@
   "GIFT_MESSAGE_OPEN_SETTINGS": "Open Settings",
   "GIFT_MESSAGE_PERMISSION_DENIED_TITLE": "Camera Permission Denied",
   "GIFT_MESSAGE_MIC_PERMISSION_DENIED_TITLE": "Microphone Permission Denied",
+  "GIFT_MESSAGE_GALLERY_PERMISSION_DENIED_TITLE": "Photo Library Permission Denied",
   "GIFT_MESSAGE_NO_FILTERS_AVAILABLE": "No filters available",
   "GIFT_MESSAGE_PLACEHOLDER": "Type Text...",
   "GIFT_MESSAGE_PLEASE_WAIT_VIDEO": "Please wait, video is being processed...",

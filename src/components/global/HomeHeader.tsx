@@ -135,7 +135,10 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
       <View style={[styles.container, customContainerStyle]}>
         {showBackButton && (
           <TouchableOpacity
-            style={[styles.backButton, { transform: [{ translateX: -5 }] }]}
+            style={[
+              styles.backButton,
+              { transform: [{ translateX: isRtl ? 5 : -5 }] },
+            ]}
             onPress={handleBackPress}
             activeOpacity={0.7}
             hitSlop={10}
@@ -359,7 +362,6 @@ const useStyles = () => {
       },
       searchInputContainer: {
         width: '100%',
-
       },
       avatar: {
         width: scaleWithMax(35, 38),

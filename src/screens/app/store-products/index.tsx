@@ -9,12 +9,12 @@ import {
   View,
   StatusBar,
   FlatList,
-  Text,
+  // Text,
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import { Image } from '../../../utils/elements';
+import { Image, Text } from '../../../utils/elements';
 import useStyles from './style.ts';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import GroupTabs from '../../../components/global/GroupTabs.tsx';
@@ -203,7 +203,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     ItemId: number;
     isFavorite: boolean;
   }) => {
-    if (currentListingApi.loading) return
+    if (currentListingApi.loading) return;
     // Optimistically update local override and patch the cache so the next
     // visit shows the correct state before the fresh API response arrives.
     setUserToggleOverrides(prev => ({
@@ -405,7 +405,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             right: 0,
             flexDirection: 'row',
             justifyContent: 'space-between',
-            paddingHorizontal: 10,
+            paddingHorizontal: theme.sizes.PADDING,
             alignItems: 'center',
             zIndex: 10,
             width: '100%',
@@ -453,9 +453,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                 <SkeletonLoader screenType="groupTabs" />
               </View>
             ) : (categoriesApi.data &&
-              categoriesApi.data.length > 0 &&
-              currentListingApi.data &&
-              currentListingApi.data.length > 0) ||
+                categoriesApi.data.length > 0 &&
+                currentListingApi.data &&
+                currentListingApi.data.length > 0) ||
               currentListingApi.loading ? (
               <GroupTabs
                 tabs={filterOptions}
