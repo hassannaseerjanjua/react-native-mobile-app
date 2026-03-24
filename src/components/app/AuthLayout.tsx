@@ -27,6 +27,7 @@ const AuthLayout = ({
     <ParentView
       style={styles.container}
       edges={['bottom', 'left', 'right', 'top']}
+      stableLayout={false}
     >
       <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
       <AuthHeader

@@ -15,16 +15,16 @@ const useStyles = () => {
       },
       content: {
         flex: 1,
+        paddingTop: sizes.HEIGHT * 0.01,
       },
       contentContainer: {
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.PADDING,
-        paddingBottom: sizes.HEIGHT * 0.02,
+        paddingVertical: sizes.PADDING * 0.35,
+        paddingBottom: sizes.HEIGHT * 0.04,
       },
       listCard: {
         backgroundColor: colors.WHITE,
         borderRadius: 16,
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       listCardEmpty: {
         backgroundColor: 'transparent',

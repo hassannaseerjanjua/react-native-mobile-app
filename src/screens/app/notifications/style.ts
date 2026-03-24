@@ -19,7 +19,6 @@ const useStyles = () => {
         height: scaleWithMax(69, 75),
         marginBottom: sizes.HEIGHT * 0.014,
         borderRadius: sizes.BORDER_RADIUS,
-        ...theme.globalStyles.SHADOW_STYLE,
       },
     }),
     theme,

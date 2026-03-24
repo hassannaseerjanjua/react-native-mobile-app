@@ -27,11 +27,9 @@ const useStyles = () => {
         alignItems: 'center',
         backgroundColor: theme.colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS,
-        // marginTop: sizes.HEIGHT * 0.006,
         paddingVertical: sizes.PADDING * 0.55,
         paddingHorizontal: sizes.PADDING * 0.75,
         gap: sizes.WIDTH * 0.03,
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       GiftContainer: {
         flexDirection: 'row',
@@ -39,10 +37,9 @@ const useStyles = () => {
         justifyContent: 'space-between',
         backgroundColor: theme.colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS,
-        paddingVertical: sizes.PADDING * 0.5,
         paddingHorizontal: sizes.PADDING * 0.75,
         gap: sizes.WIDTH * 0.03,
-        ...theme.globalStyles.SHADOW_STYLE,
+        ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
       },
 
       CartProductImage: {
@@ -85,9 +82,11 @@ const useStyles = () => {
         justifyContent: 'space-between',
         alignItems: 'center',
         flexDirection: 'row',
-        borderBottomColor: theme.colors.SECONDARY_GRAY,
-        borderBottomWidth: 0.6,
-        paddingVertical: sizes.PADDING * 0.36,
+        // paddingVertical: sizes.PADDING * 0.06,
+      },
+      priceSeparator: {
+        height: 1,
+        backgroundColor: theme.colors.SECONDARY_GRAY,
       },
       checkoutCompletedContainer: {
         flex: 1,
@@ -98,6 +97,12 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         fontSize: sizes.FONTSIZE_SMALL_HEADING,
         color: theme.colors.BLACK,
+      },
+      cartItemCountBadge: {
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        color: theme.colors.PRIMARY_TEXT,
+        flexShrink: 0,
       },
       quantityControls: {
         flexDirection: 'row',
@@ -130,6 +135,12 @@ const useStyles = () => {
         position: 'absolute',
         top: sizes.HEIGHT * 0.018,
         right: sizes.WIDTH * 0.03,
+      },
+      footerQuantityWrapper: {
+        position: 'absolute',
+        zIndex:1,
+        top: sizes.HEIGHT * 0.0116,
+        left: sizes.WIDTH * 0.03,
       },
       sectionHeaderRow: {
         flexDirection: 'row',
@@ -165,6 +176,20 @@ const useStyles = () => {
         color: '#C6C6C6',
         fontSize: sizes.FONTSIZE_MEDIUM,
         textDecorationLine: 'line-through',
+      },
+          footerQuantityBadge: {
+        width: scaleWithMax(28, 32),
+        height: scaleWithMax(28, 32),
+        borderRadius: scaleWithMax(14, 16),
+        backgroundColor: theme.colors.WHITE,
+        alignItems: 'center',
+        justifyContent: 'center',
+        zIndex: 1,
+      },
+      footerQuantityText: {
+        ...theme.globalStyles.TEXT_STYLE_BOLD,
+        fontSize: sizes.FONTSIZE_MEDIUM,
+        
       },
     }),
 

@@ -42,7 +42,6 @@ const useStyles = () => {
         zIndex: 2,
       },
       backContainer: {
-        ...theme.globalStyles.SHADOW_STYLE,
         backgroundColor: theme.colors.WHITE,
         borderRadius: 9999,
         width: scaleWithMax(25, 30),
@@ -59,6 +58,7 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_BUTTON,
         color: theme.colors.GRAY,
         textAlign: 'left',
+        fontFamily: theme.fonts.regular,
       },
       headingContainer: {
         paddingTop: sizes.HEIGHT * 0.038,
@@ -75,10 +75,9 @@ const useStyles = () => {
         bottom: 0,
         left: 0,
         right: 0,
-        backgroundColor: theme.colors.WHITE,
+        // backgroundColor: theme.colors.WHITE,
         borderTopLeftRadius: 15,
         borderTopRightRadius: 15,
-        ...theme.globalStyles.SHADOW_STYLE,
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.015,
         paddingBottom: scaleWithMax(25, 30),
@@ -107,6 +106,10 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         fontSize: sizes.FONTSIZE_MEDIUM,
         color: theme.colors.PRIMARY,
+        padding: 0,
+        margin: 0,
+        includeFontPadding: false,
+        lineHeight: 28,
       },
       footerButtonText: {
         ...theme.globalStyles.TEXT_STYLE,
@@ -116,6 +119,7 @@ const useStyles = () => {
         left: 0,
         right: 0,
         textAlign: 'center',
+        includeFontPadding: false,
         zIndex: 0,
       },
       footerPriceRow: {

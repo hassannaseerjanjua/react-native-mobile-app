@@ -46,7 +46,9 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({
           <SvgBackIcon
             width={backSize}
             height={backSize}
-            style={{ transform: rtlTransform(isRtl) }}
+            style={{
+              transform: [...rtlTransform(isRtl), { translateX: -5 }],
+            }}
           />
         </TouchableOpacity>
       ) : spaceTaken ? (

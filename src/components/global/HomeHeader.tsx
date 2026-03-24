@@ -24,6 +24,7 @@ import { Text } from '../../utils/elements';
 import apiEndpoints from '../../constants/api-endpoints';
 import useGetApi from '../../hooks/useGetApi';
 import InputField from './InputField';
+import SkeletonLoader from '../SkeletonLoader';
 
 interface HomeHeaderProps {
   title?: string;
@@ -48,6 +49,8 @@ interface HomeHeaderProps {
   customContainerStyle?: StyleProp<ViewStyle>;
   titleTextStyle?: StyleProp<TextStyle>;
   backButtonIconColor?: string;
+  hideSearchBar?: boolean;
+  loading?: boolean;
 }
 
 const HomeHeader: React.FC<HomeHeaderProps> = ({
@@ -72,6 +75,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   rightSideTitleTextStyle,
   titleTextStyle,
   backButtonIconColor,
+  hideSearchBar,
+  loading,
 }) => {
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
@@ -83,7 +88,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const [internalSearchValue, setInternalSearchValue] = useState(
     searchValue || '',
   );
-
+  const [isFocused, setIsFocused] = useState(false);
   useEffect(() => {
     if (onSearchChange) {
       setInternalSearchValue(searchValue || '');
@@ -116,13 +121,13 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
   const getCartCount = useGetApi<any>(apiEndpoints.GET_CART_COUNT, {
     transformData: data => data.Data,
+    enabled: showCartIcon,
   });
 
-  // Refetch cart count when screen comes into focus
   useFocusEffect(
     React.useCallback(() => {
-      getCartCount.refetch();
-    }, []),
+      if (showCartIcon) getCartCount.refetch();
+    }, [showCartIcon]),
   );
 
   return (
@@ -130,18 +135,26 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
       <View style={[styles.container, customContainerStyle]}>
         {showBackButton && (
           <TouchableOpacity
-            style={styles.backButton}
+            style={[
+              styles.backButton,
+              { transform: [{ translateX: isRtl ? 5 : -5 }] },
+            ]}
             onPress={handleBackPress}
             activeOpacity={0.7}
+            hitSlop={10}
           >
             <SvgHomeBack
               style={{ transform: rtlTransform(isRtl) }}
               fill={backButtonIconColor}
+              width={scaleWithMax(25, 25)}
+              height={scaleWithMax(25, 25)}
             />
           </TouchableOpacity>
         )}
         {title && (
-          <View style={styles.titleContainer}>
+          <View
+            style={[styles.titleContainer, { transform: [{ translateX: -3 }] }]}
+          >
             <Pressable onPress={handleBackPress} style={styles.titlePressable}>
               <Text
                 style={[styles.title, titleTextStyle]}
@@ -208,7 +221,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           {rightSideView && (
             <View style={styles.rightSideViewContainer}>{rightSideView}</View>
           )}
-          {rightSideTitle && (
+          {(rightSideTitle || rightSideIcon) && (
             <TouchableOpacity
               onPress={rightSideTitlePress}
               style={[
@@ -221,15 +234,22 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               ]}
             >
               {rightSideIcon && rightSideIcon}
-              <Text style={[styles.rightSideTitle, rightSideTitleTextStyle]}>
-                {rightSideTitle}
-              </Text>
+              {rightSideTitle ? (
+                <Text style={[styles.rightSideTitle, rightSideTitleTextStyle]}>
+                  {rightSideTitle}
+                </Text>
+              ) : null}
             </TouchableOpacity>
           )}
         </View>
       </View>
 
-      {showSearchBar && (
+      {loading && !isFocused && (
+        <View style={styles.searchBarContainer}>
+          <SkeletonLoader screenType="searchBar" />
+        </View>
+      )}
+      {((!loading && showSearchBar) || isFocused) && (
         <View style={styles.searchBarContainer}>
           <InputField
             icon={
@@ -239,15 +259,18 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               />
             }
             fieldProps={{
+              onFocus: () => setIsFocused(true),
+              // onBlur: () => setTimeout(() => setIsFocused(false), 200),
               allowFontScaling: false,
               placeholder: defaultSearchPlaceholder,
               placeholderTextColor: theme.colors.SECONDARY_TEXT,
               value: displaySearchValue,
+              style: { includeFontPadding: false },
               onChangeText: handleSearchChange,
               editable: true,
               autoCorrect: false,
               autoCapitalize: 'none',
-              returnKeyType: 'search',
+              returnKeyType: 'done',
             }}
             style={styles.searchInputContainer}
           />
@@ -268,8 +291,9 @@ const useStyles = () => {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'space-between',
-        paddingTop: isAndroidThen(sizes.PADDING, 0),
+        paddingTop: isAndroidThen(sizes.HEIGHT * 0.01, 0),
         paddingBottom: sizes.HEIGHT * 0.01,
+        // backgroundColor: colors.RED,
         paddingHorizontal: theme.sizes.PADDING,
       },
       rightSection: {
@@ -291,7 +315,7 @@ const useStyles = () => {
       cartCount: {
         position: 'absolute',
         top: 0,
-        right: 0,
+        end: 0,
         backgroundColor: colors.PRIMARY,
         borderRadius: 9999,
         zIndex: 1,
@@ -313,11 +337,13 @@ const useStyles = () => {
       backButton: {
         alignItems: 'center',
         justifyContent: 'center',
+        marginEnd: sizes.WIDTH * 0.015,
       },
       titleContainer: {
         flex: 1,
-        marginStart: sizes.WIDTH * 0.024,
+        // marginStart: sizes.WIDTH * 0.02,
         justifyContent: 'center',
+        // backgroundColor: colors.RED,
       },
       titlePressable: {
         alignSelf: 'flex-start',
@@ -326,15 +352,16 @@ const useStyles = () => {
         // fontFamily: fonts.bold,
         ...theme.globalStyles.TEXT_STYLE_BOLD,
         fontSize: sizes.FONTSIZE_HEADING,
-        // lineHeight: sizes.FONTSIZE_HEADING * 1.6,
+        // lineHeight: sizes.FONTSIZE_HEADING * 1.2,
         color: colors.PRIMARY_TEXT,
+        includeFontPadding: true,
       },
       searchBarContainer: {
-        marginTop: sizes.HEIGHT * 0.01,
+        marginTop: sizes.HEIGHT * 0.008,
         marginHorizontal: theme.sizes.PADDING,
       },
       searchInputContainer: {
-        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
+        width: '100%',
       },
       avatar: {
         width: scaleWithMax(35, 38),

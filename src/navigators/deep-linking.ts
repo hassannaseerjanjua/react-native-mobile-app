@@ -7,11 +7,7 @@ import {
 import { decodeGiftLinkParams } from '../utils/giftLinkCodec';
 
 export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
-  prefixes: [
-    'giftee://',
-    'https://giftee.app',
-    'https://admin.giftee.hostinger.bitscollision.net',
-  ],
+  prefixes: ['giftee://', 'https://giftee.app', 'https://giftee.global'],
   async getInitialURL() {
     const url = await Linking.getInitialURL();
     console.log('🔗 DEEP LINK - getInitialURL:', url);
@@ -32,7 +28,8 @@ export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
     console.log('🔗 Path:', path);
 
     // Parse query parameters for select-store or gift-me (profile gift link)
-    const isSelectStorePath = path.includes('select-store') || path.includes('gift-me');
+    const isSelectStorePath =
+      path.includes('select-store') || path.includes('gift-me');
     if (isSelectStorePath) {
       console.log('🔗 Processing select-store / gift-me path');
 
@@ -64,7 +61,8 @@ export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
         }
       }
       // Fall back to legacy plain params
-      if (friendUserId === undefined) friendUserId = queryParams['friendUserId'];
+      if (friendUserId === undefined)
+        friendUserId = queryParams['friendUserId'];
       if (CityId === undefined) CityId = queryParams['CityId'];
       if (sendType === undefined) sendType = queryParams['sendType'];
 
@@ -75,7 +73,9 @@ export const linking: LinkingOptions<AppStackParamList | AuthStackParamList> = {
 
       // Normalize gift-me to select-store for React Navigation (both map to SelectStore)
       const pathWithoutQuery = path.split('?')[0];
-      const navPath = path.includes('gift-me') ? 'select-store' : pathWithoutQuery;
+      const navPath = path.includes('gift-me')
+        ? 'select-store'
+        : pathWithoutQuery;
       const state = getStateFromPath(navPath, config);
 
       console.log(

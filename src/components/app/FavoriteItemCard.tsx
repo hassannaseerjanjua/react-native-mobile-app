@@ -1,7 +1,8 @@
 import React from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
-import { scaleWithMax, rtlTransform, isAndroid } from '../../utils';
+import { scaleWithMax, rtlTransform } from '../../utils';
+import ShadowView from '../global/ShadowView';
 import { Text, Image } from '../../utils/elements';
 import {
   SvgNextIcon,
@@ -58,7 +59,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
     ? { uri: (item as Store | FavStores).ImageLogo! }
     : placeholderImage;
   return (
-    <View style={[styles.shadowContainer, style]}>
+    <ShadowView preset="storeCard" style={[styles.shadowContainer, style]}>
       <TouchableOpacity
         style={styles.container}
         onPress={() => onPress(item)}
@@ -132,7 +133,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
           </View>
         </View>
       </TouchableOpacity>
-    </View>
+    </ShadowView>
   );
 };
 
@@ -145,9 +146,7 @@ const useStyles = () => {
   const styles = StyleSheet.create({
     shadowContainer: {
       borderRadius: theme.sizes.BORDER_RADIUS_MID,
-      ...theme.globalStyles.SHADOW_STYLE_STORE_CARD,
-      // Android requires a background color for elevation to work
-      backgroundColor: isAndroid ? theme.colors.WHITE : undefined,
+      backgroundColor: theme.colors.WHITE,
     },
     container: {
       borderRadius: theme.sizes.BORDER_RADIUS_MID,
@@ -173,7 +172,6 @@ const useStyles = () => {
       right: 10,
       alignItems: 'center',
       justifyContent: 'center',
-      ...theme.globalStyles.SHADOW_STYLE,
     },
     contentOverlay: {
       flexDirection: 'row',

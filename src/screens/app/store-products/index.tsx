@@ -1,16 +1,22 @@
-import React, { useEffect, useState, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import {
   View,
   StatusBar,
   FlatList,
-  Text,
+  // Text,
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
 } from 'react-native';
-import { Image } from '../../../utils/elements';
+import { Image, Text } from '../../../utils/elements';
 import useStyles from './style.ts';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import GroupTabs from '../../../components/global/GroupTabs.tsx';
 import FavoriteProductCard from '../../../components/app/FavoriteProductCard.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
@@ -37,6 +43,7 @@ import api from '../../../utils/api.ts';
 import { patchCacheItems } from '../../../utils/api-cache';
 import notify from '../../../utils/notify';
 import ParentView from '../../../components/app/ParentView';
+import ShadowView from '../../../components/global/ShadowView';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 import PriceWithIcon from '../../../components/global/Price';
 
@@ -57,6 +64,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const storeId = route.params?.storeId ?? null;
   const businessTypeId = route.params?.businessTypeId ?? null;
   const sendType = route.params?.sendType ?? null;
+  const addToFavorites = route.params?.addToFavorites ?? false;
   const isSendAGiftFlow = sendType !== null && sendType !== undefined;
 
   const effectiveFriendUserId =
@@ -89,9 +97,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   );
 
   const getStoreProducts = useListingApi<StoreProduct>(
-    isSendAGiftFlow
-      ? apiEndpoints.GET_SEND_A_GIFT_ITEMS
-      : apiEndpoints.GET_STORE_DETAIL,
+    apiEndpoints.GET_SEND_A_GIFT_ITEMS,
+
     token,
     {
       transformData: (data: any) => {
@@ -146,13 +153,13 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     const favoritesOption = { id: 'favorites', title: favoritesTabTitle };
 
     // Only include favorites option if there are favorite items and not in send gift flow
-    // Also hide it when coming from send through link flow (sendType === 2)
+    // Also hide it when coming from send through link flow (sendType === 2) or add-to-favorites flow
     const hasFavorites =
       getFavoriteItems.data && getFavoriteItems.data.length > 0;
     const isLinkFlow = sendType === 2;
     const options = [allOption];
 
-    if (hasFavorites && !isLinkFlow && !isMultipleUsers) {
+    if (hasFavorites && !isLinkFlow && !isMultipleUsers && !addToFavorites) {
       options.push(favoritesOption);
     }
 
@@ -173,6 +180,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     friendName,
     isSendAGiftFlow,
     sendType,
+    addToFavorites,
   ]);
 
   const handleProductPress = (item: StoreProduct | FaveItems) => {
@@ -185,8 +193,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       storeId: productItem?.StoreId ?? storeId ?? null,
       friendUserId,
       FriendIds: friendIds,
-      sendType: route.params.sendType,
+      sendType: route.params?.sendType,
       campaignId: itemCampaignId,
+      addToFavorites,
     });
   };
 
@@ -194,6 +203,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     ItemId: number;
     isFavorite: boolean;
   }) => {
+    if (currentListingApi.loading) return;
     // Optimistically update local override and patch the cache so the next
     // visit shows the correct state before the fresh API response arrives.
     setUserToggleOverrides(prev => ({
@@ -236,6 +246,47 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
+
+  // When returning from ProductDetails, reload listing so favorite state is reflected
+  // (user may have favorited/unfavorited via Add to Favorites button or heart icon)
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      getStoreProducts.recall();
+      getFavoriteItems.recall();
+    }, [getStoreProducts, getFavoriteItems]),
+  );
+
+  // Sync userToggleOverrides with fresh server data when it arrives.
+  // userToggleOverrides holds optimistic updates from the listing; when the user
+  // unfavorites from ProductDetails and we recall, we must overwrite stale overrides.
+  useEffect(() => {
+    const products = getStoreProducts.data || [];
+    const favorites = getFavoriteItems.data || [];
+    const itemsToSync: (StoreProduct | FaveItems)[] = [...products];
+    favorites.forEach(f => {
+      if (!itemsToSync.some(p => p.ItemId === f.ItemId)) {
+        itemsToSync.push(f);
+      }
+    });
+    if (itemsToSync.length === 0) return;
+    setUserToggleOverrides(prev => {
+      const next = { ...prev };
+      let changed = false;
+      itemsToSync.forEach(item => {
+        const serverState = item.isFavourite ?? false;
+        if (prev[item.ItemId] !== serverState) {
+          next[item.ItemId] = serverState;
+          changed = true;
+        }
+      });
+      return changed ? next : prev;
+    });
+  }, [getStoreProducts.data, getFavoriteItems.data]);
 
   // Reset to 'all' if favorites tab is selected but there are no favorite items
   useEffect(() => {
@@ -343,7 +394,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   };
 
   return (
-    <ParentView edges={['left', 'right']}>
+    <ParentView edges={['left', 'right']} stableLayout={false}>
       <View style={{ position: 'relative' }}>
         <Image source={storeCoverImage} style={styles.topImage} />
         <View
@@ -354,18 +405,20 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             right: 0,
             flexDirection: 'row',
             justifyContent: 'space-between',
-            paddingHorizontal: 10,
+            paddingHorizontal: theme.sizes.PADDING,
             alignItems: 'center',
             zIndex: 10,
             width: '100%',
           }}
         >
-          <TouchableOpacity
-            style={styles.backContainer}
-            onPress={() => navigation.goBack()}
-          >
-            <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
-          </TouchableOpacity>
+          <ShadowView preset="default">
+            <TouchableOpacity
+              style={styles.backContainer}
+              onPress={() => navigation.goBack()}
+            >
+              <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
+            </TouchableOpacity>
+          </ShadowView>
         </View>
         <Image source={storeOverlayImage} style={styles.bottomImage} />
       </View>
@@ -431,13 +484,16 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                   colors={[theme.colors.PRIMARY]}
                 />
               }
-              ListEmptyComponent={() => (
-                <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
-                  <PlaceholderLogoText
-                    text={getString('EMPTY_NO_PRODUCTS_FOUND')}
-                  />
-                </View>
-              )}
+              ListEmptyComponent={() => {
+                if (!currentListingApi.isInitialLoad) return null;
+                return (
+                  <View style={{ height: theme.sizes.HEIGHT * 0.5 }}>
+                    <PlaceholderLogoText
+                      text={getString('EMPTY_NO_PRODUCTS_FOUND')}
+                    />
+                  </View>
+                );
+              }}
               contentContainerStyle={[
                 styles.content,
                 {
@@ -472,6 +528,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       </View>
 
       {isCartFromCurrentStore && cartApi.data && (
+        // <ShadowView preset="storeCard">
         <View style={styles.footerContainer}>
           <TouchableOpacity
             style={styles.footerButton}
@@ -508,9 +565,13 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
                   height={scaleWithMax(12, 14)}
                 />
               }
+              iconSize={scaleWithMax(12, 14)}
+              iconPosition="end"
+              iconOnLeftInRtl
             />
           </TouchableOpacity>
         </View>
+        // </ShadowView>
       )}
     </ParentView>
   );

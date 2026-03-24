@@ -23,6 +23,10 @@ import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import useStyles from './style';
 import notify from '../../../utils/notify';
 import { selectAndCropImage } from '../../../utils/imageCropper';
+import {
+  requestGalleryPermission,
+  showGalleryPermissionDeniedAlert,
+} from '../../../utils/cameraPermission';
 
 const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
   route,
@@ -68,8 +72,10 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
   const handleImageSelect = async () => {
     if (isUploading) return;
 
+    const granted = await requestGalleryPermission(getString);
+    if (!granted) return;
+
     try {
-      // Use WhatsApp-like cropper with circular overlay
       const croppedImage = await selectAndCropImage({
         cropSize: 400,
         circularOverlay: true, // Round overlay like WhatsApp
@@ -78,6 +84,7 @@ const ProfileImageViewer: React.FC<AppStackScreen<'ProfileImageViewer'>> = ({
         compressionQuality: isOccasionMode ? 0.2 : 0.8, // Higher compression for occasions
         maxWidth: 800,
         maxHeight: 800,
+        onPermissionDenied: () => showGalleryPermissionDeniedAlert(getString),
       });
 
       if (croppedImage) {

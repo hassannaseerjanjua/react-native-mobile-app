@@ -29,7 +29,6 @@ const useStyles = () => {
         elevation: 2,
       },
       backContainer: {
-        ...theme.globalStyles.SHADOW_STYLE,
         backgroundColor: theme.colors.WHITE,
         borderRadius: 9999,
         width: scaleWithMax(25, 30),
@@ -71,7 +70,6 @@ const useStyles = () => {
 
       faqItem: {
         paddingVertical: sizes.HEIGHT * 0.015,
-        ...theme.globalStyles.SHADOW_STYLE_LOW,
       },
       faqItemText: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
@@ -98,7 +96,7 @@ const useStyles = () => {
       priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: 3,
+        gap: scaleWithMax(4, 6),
       },
       TaxIncludeText: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
@@ -150,6 +148,7 @@ const useStyles = () => {
       },
       button: {
         // width: sizes.WIDTH * 0.6,
+        borderRadius:sizes.BORDER_RADIUS_MID*1.2 ,
         flex: 1
       },
       QuantityContainer: {

@@ -15,16 +15,22 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.012,
         paddingBottom: sizes.HEIGHT * 0.1,
+        gap: sizes.HEIGHT * 0.018,
       },
       TabItem: {
-        height: sizes.HEIGHT * 0.075,
-        marginBottom: sizes.HEIGHT * 0.016,
+        height: '100%',
+        marginBottom: 0,
         borderRadius: sizes.BORDER_RADIUS_MID,
+      },
+      occasionItemSpacing: {
+        height: sizes.HEIGHT * 0.016,
+        backgroundColor: theme.colors.WHITE,
       },
       TabText: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         fontSize: sizes.FONTSIZE_SMALL_HEADING,
         color: theme.colors.PRIMARY_TEXT,
+        backgroundColor: theme.colors.WHITE,
       },
       buttonContainer: {
         position: 'absolute',
@@ -33,10 +39,10 @@ const useStyles = () => {
         right: sizes.PADDING,
       },
       inputContainer: {
-        marginBottom: sizes.HEIGHT * 0.02,
+        // marginBottom: sizes.HEIGHT * 0.012,
       },
       button: {
-        marginTop: sizes.HEIGHT * 0.02,
+        marginTop: sizes.HEIGHT * 0.004,
       },
       uploadImageContainer: {
         borderWidth: 2,
@@ -68,7 +74,6 @@ const useStyles = () => {
         height: scaleWithMax(12, 14),
         justifyContent: 'center',
         alignItems: 'center',
-        ...theme.globalStyles.SHADOW_STYLE,
       },
     }),
     theme,

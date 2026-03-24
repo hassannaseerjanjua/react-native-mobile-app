@@ -1,4 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+  <!-- Required for Linking.canOpenURL to detect WhatsApp on Android 11+ -->
+  <queries>
+    <package android:name="com.whatsapp" />
+    <package android:name="com.whatsapp.w4b" />
+  </queries>
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.CAMERA" />
   <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -54,7 +59,7 @@
         <category android:name="android.intent.category.BROWSABLE" />
         <data
           android:scheme="https"
-          android:host="admin.giftee.hostinger.bitscollision.net"
+          android:host="giftee.global"
           android:pathPrefix="/" />
       </intent-filter>
     </activity>

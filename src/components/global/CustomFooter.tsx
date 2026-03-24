@@ -3,31 +3,36 @@ import React, { useMemo } from 'react';
 import { useSizes } from '../../styles/sizes';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
+import ShadowView from './ShadowView';
 
 const CustomFooter = ({
   children,
   style,
+  disableShadow,
 }: {
   children: React.ReactNode;
   style?: StyleProp<ViewStyle>;
+  disableShadow?: boolean;
 }) => {
-  const { styles, theme } = useStyles();
+  const { theme } = useStyles();
+  const containerStyle = [
+    {
+      position: 'absolute' as const,
+      bottom: scaleWithMax(25, 30),
+      left: 0,
+      right: 0,
+      paddingHorizontal: theme.sizes.PADDING,
+    },
+    style,
+  ];
+  const content = <View style={{ width: '100%' }}>{children}</View>;
+  if (disableShadow) {
+    return <View style={containerStyle}>{content}</View>;
+  }
   return (
-    <View
-      style={[
-        {
-          position: 'absolute',
-          bottom: scaleWithMax(25, 30),
-          left: 0,
-          right: 0,
-          paddingHorizontal: theme.sizes.PADDING,
-          ...theme.globalStyles.SHADOW_STYLE,
-        },
-        style,
-      ]}
-    >
-      {children}
-    </View>
+    <ShadowView preset="default" containerStyle={containerStyle}>
+      {content}
+    </ShadowView>
   );
 };
 

@@ -1,13 +1,7 @@
 import { StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
-import {
-  isAndroid,
-  isIOS,
-  isIOSThen,
-  isRTL,
-  scaleWithMax,
-} from '../../../utils';
+import { isAndroid, isIOS, isIOSThen, isRTL } from '../../../utils';
 import { useLocaleStore } from '../../../store/reducer/locale';
 
 const useStyles = () => {
@@ -48,7 +42,7 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
         paddingHorizontal: sizes.PADDING,
-        paddingBottom: isAndroid ? scaleWithMax(5, 6) : scaleWithMax(8, 8),
+        paddingBottom: isAndroid ? sizes.HEIGHT * 0.007 : sizes.HEIGHT * 0.01,
         // marginStart: scaleWithMax(1, 1),
       },
       userName: {
@@ -56,7 +50,7 @@ const useStyles = () => {
       },
       heroImage: {
         borderRadius: sizes.BORDER_RADIUS_MID,
-        height: sizes.HEIGHT * (isIOS ? 0.28 : 0.28),
+        height: sizes.HEIGHT * (isAndroid ? 0.30 : 0.28),
       },
       sectionTitle: {
         fontFamily: fonts.bold,
@@ -65,8 +59,7 @@ const useStyles = () => {
         // marginVertical: isIOSThen(scaleWithMax(8, 9), scaleWithMax(5, 7)),
         paddingHorizontal: sizes.PADDING,
         includeFontPadding: isRtl ? true : false,
-        paddingVertical: isAndroid ? scaleWithMax(8, 10) : scaleWithMax(10, 11),
-        // marginStart: scaleWithMax(2, 2),
+        paddingVertical: isAndroid ? sizes.HEIGHT * 0.01 : sizes.HEIGHT * 0.012,
       },
 
       innerSectionTitle: {
@@ -74,13 +67,13 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_HIGH,
         includeFontPadding: isRtl ? true : false,
         color: colors.PRIMARY_TEXT,
-        paddingVertical: isAndroid ? scaleWithMax(8, 10) : scaleWithMax(10, 11),
+        paddingVertical: isAndroid ? sizes.HEIGHT * 0.01 : sizes.HEIGHT * 0.012,
         // marginStart: scaleWithMax(2, 2),
       },
       optionsWrapper: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        gap: scaleWithMax(10, 12),
+        gap: sizes.WIDTH * 0.027,
         // marginVertical: scaleWithMax(10, 12),
       },
     });

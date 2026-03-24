@@ -22,8 +22,11 @@ export const useListingApi = <T>(
     idExtractor?: (data: T) => any;
     /** Skip caching for this listing (e.g. always-changing feeds) */
     noCache?: boolean;
+    /** When false, skip initial fetch. Fetch when enabled becomes true. */
+    enabled?: boolean;
   },
 ) => {
+  const enabled = config?.enabled !== false;
   const [pageIndex, setPageIndex] = useState(config?.pageIndex || 1);
   const [pageSize, setPageSize] = useState(config?.pageSize || 15);
   const [isInitialLoad, setIsInitialLoad] = useState(false);
@@ -32,7 +35,7 @@ export const useListingApi = <T>(
 
   const [data, setData] = useState<T[]>([]);
   const [totalCount, setTotalCount] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(url !== '' && enabled);
   const [recallCount, setRecallCount] = useState(0);
   const [extraParams, setExtraParams] = useState(config?.extraParams || {});
   const [sortColumn, setSortColumn] = useState(config?.sortColumn || '');
@@ -209,13 +212,14 @@ export const useListingApi = <T>(
       });
   };
 
-  // Only fetch on initial mount, not on focus
+  // Fetch when enabled and url is set. Skip initial fetch when disabled.
   useEffect(() => {
-    if (!isInitialLoad && !isFetchingRef.current) {
+    if (!enabled || url === '' || isFetchingRef.current) return;
+    if (!isInitialLoad) {
       fetchData('', true, 1);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [enabled]);
 
   const { search, setSearch } = useDebouncedSearch(searchValue => {
     if (!isInitialLoad) return;
@@ -262,8 +266,14 @@ export const useListingApi = <T>(
     fetchData('', true, 1);
   }, [pageSize, sortColumn, sortDirection]);
 
-  const recall = (showLoading: boolean = true) => {
+  const recall = (
+    showLoading: boolean = true,
+    overrideParams?: Record<string, any>,
+  ) => {
     if (loading || isFetchingRef.current) return;
+    if (overrideParams && Object.keys(overrideParams).length > 0) {
+      extraParamsRef.current = { ...extraParamsRef.current, ...overrideParams };
+    }
     pageIndexRef.current = 1;
     setPageIndex(1);
     setHasMore(true);
@@ -316,6 +326,7 @@ export const useListingApi = <T>(
     extraParams,
     sortColumn,
     sortDirection,
+    isInitialLoad,
 
     setPageIndex,
     setSearch,

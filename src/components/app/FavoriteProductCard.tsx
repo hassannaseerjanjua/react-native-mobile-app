@@ -70,8 +70,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
   );
   const cutPrice =
     (item as StoreProduct).Variants?.length > 0 && defaultVariant
-      ? (defaultVariant.FinalPrice ?? 0) -
-          (defaultVariant.DiscountedPrice ?? 0) || (item as StoreProduct).Price
+      ? (defaultVariant.FinalPrice ?? 0) - (defaultVariant.DiscountedPrice ?? 0)
       : 0;
 
   const isSpecialPrice = item.Campaign !== null;
@@ -90,7 +89,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
           }
           style={styles.image}
         />
-        {hasFavorite && (
+        {hasFavorite && !isFavoriteTab && (
           <TouchableOpacity
             style={styles.favoriteIcon}
             onPress={onFavoritePress}
@@ -155,21 +154,32 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
             <View style={styles.priceContainer}>
               <PriceWithIcon
                 amount={cutPrice}
-                variant="discounted"
+                variant={price > cutPrice ? 'discounted' : 'default'}
                 icon={
-                  <SvgRiyalPink
-                    width={scaleWithMax(11, 13)}
-                    height={scaleWithMax(11, 13)}
-                  />
+                  price > cutPrice ? (
+                    <SvgRiyalPink
+                      width={scaleWithMax(11, 13)}
+                      height={scaleWithMax(11, 13)}
+                    />
+                  ) : (
+                    <SvgRiyalIcon
+                      width={scaleWithMax(11, 13)}
+                      height={scaleWithMax(11, 13)}
+                    />
+                  )
                 }
-                textStyle={styles.discountedPrice}
+                textStyle={
+                  price > cutPrice ? styles.discountedPrice : styles.price
+                }
               />
-              <PriceWithIcon
-                amount={price}
-                variant="cut"
-                showIcon={false}
-                textStyle={styles.cutPrice}
-              />
+              {price > cutPrice && (
+                <PriceWithIcon
+                  amount={price}
+                  variant="cut"
+                  showIcon={false}
+                  textStyle={styles.cutPrice}
+                />
+              )}
             </View>
           )}
         </View>
@@ -195,7 +205,11 @@ const useStyles = () => {
         position: 'relative',
         height: sizes.HEIGHT * 0.21,
         width: '100%',
-        ...theme.globalStyles.SHADOW_STYLE_INPUT,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        elevation: 2,
       },
 
       image: {

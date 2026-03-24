@@ -54,68 +54,68 @@ const CatchProductCard: React.FC<FavoriteProductCardProps> = ({
         <Image source={item.coverImage} style={styles.image} />
         <TouchableOpacity
           style={styles.AddContainer}
-          onPress={e => {
-            e.stopPropagation();
-            if (onCatchPress) {
-              onCatchPress(item);
-            }
-          }}
-          disabled={loading}
-        >
-          {loading ? (
-            <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
-          ) : (
-            <SvgCatchAddIcon
-              width={scaleWithMax(14, 16)}
-              height={scaleWithMax(14, 16)}
-            />
+              onPress={e => {
+                e.stopPropagation();
+                if (onCatchPress) {
+                  onCatchPress(item);
+                }
+              }}
+              disabled={loading}
+            >
+              {loading ? (
+                <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
+              ) : (
+                <SvgCatchAddIcon
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
           )}
         </TouchableOpacity>
       </View>
 
       <View style={styles.contentContainer}>
-        <Text style={styles.title} numberOfLines={1}>
-          {item.title}
-        </Text>
-        <View
-          style={{
-            justifyContent: 'space-between',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          {item.subtitle && (
-            <Text style={styles.subtitle} numberOfLines={1}>
-              {item.subtitle}
-            </Text>
-          )}
-        </View>
-
-        <View
-          style={{
-            justifyContent: 'space-between',
-            flexDirection: 'row',
-            alignItems: 'center',
-            position: 'relative',
-            paddingEnd: scaleWithMax(22, 26),
-          }}
-        >
-          {item.subTitle2 && (
-            <Text style={styles.subTitle2} numberOfLines={1}>
-              {item.subTitle2}
-            </Text>
-          )}
+          <Text style={styles.title} numberOfLines={1}>
+            {item.title}
+          </Text>
+          <View
+            style={{
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            {item.subtitle && (
+              <Text style={styles.subtitle} numberOfLines={1}>
+                {item.subtitle}
+              </Text>
+            )}
+          </View>
 
           <View
             style={{
-              position: 'absolute',
-              end: 0,
-              top: -scaleWithMax(7, 8),
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+              position: 'relative',
+              paddingEnd: scaleWithMax(22, 26),
             }}
           >
-            <SvgGiftClaimIcon />
+            {item.subTitle2 && (
+              <Text style={styles.subTitle2} numberOfLines={1}>
+                {item.subTitle2}
+              </Text>
+            )}
+
+            <View
+              style={{
+                position: 'absolute',
+                end: 0,
+                top: -scaleWithMax(7, 8),
+              }}
+            >
+              <SvgGiftClaimIcon />
+            </View>
           </View>
-        </View>
       </View>
     </TouchableOpacity>
   );
@@ -140,11 +140,19 @@ const useStyles = () => {
         height: sizes.HEIGHT * 0.21,
         width: '100%',
         overflow: 'visible',
-        ...theme.globalStyles.SHADOW_STYLE_INPUT,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        elevation: 2,
       },
       AddContainer: {
-        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
         overflow: 'visible',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
         backgroundColor: colors.WHITE,
         borderRadius: 9999,
         width: scaleWithMax(30, 32),

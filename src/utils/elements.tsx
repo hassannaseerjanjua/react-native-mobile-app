@@ -166,7 +166,9 @@ const persistCache = () => {
   if (persistDebounceTimer) clearTimeout(persistDebounceTimer);
   persistDebounceTimer = setTimeout(() => {
     const uris = Array.from(loadedUriCache).slice(-MAX_CACHE_SIZE);
-    AsyncStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(uris)).catch(() => {});
+    AsyncStorage.setItem(CACHE_STORAGE_KEY, JSON.stringify(uris)).catch(
+      () => {},
+    );
   }, 1000);
 };
 
@@ -323,7 +325,7 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
       if (Platform.OS === 'android') {
         return {
           includeFontPadding: false,
-          // paddingTop: Math.round(fontSize * 0.2),
+          paddingTop: Math.round(fontSize * 0.2),
           paddingBottom: 0,
         };
       }
@@ -345,9 +347,9 @@ export const TextInput = React.forwardRef<RNTextInput, TextInputProps>(
           Platform.OS === 'ios'
             ? { writingDirection: isRtl ? 'rtl' : 'ltr' }
             : null,
-          props.style,
           { fontFamily },
           platformAdjustments,
+          props.style,
         ]}
       />
     );

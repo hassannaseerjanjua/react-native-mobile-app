@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
-import { isAndroid, scaleWithMax } from '../../utils';
+import { isAndroid, isRTL, scaleWithMax } from '../../utils';
 import { Text } from '../../utils/elements';
 import { SvgWalletGifteeIcon } from '../../assets/icons';
 import PriceWithIcon from '../global/Price';
@@ -17,7 +17,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
 
   const styles = useMemo(() => {
     const { colors, sizes, fonts } = theme;
-
+    const { isRtl } = useLocaleStore();
     return StyleSheet.create({
       container: {
         backgroundColor: colors.SECONDARY,
@@ -32,6 +32,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
         flexDirection: 'row',
         alignItems: 'center',
         flex: 1,
+
       },
       logoContainer: {
         backgroundColor: colors.PRIMARY,
@@ -68,7 +69,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
         marginTop: isAndroid ? sizes.HEIGHT * -0.005 : 0,
       },
       riyalIconContainer: {
-        flexDirection: 'row',
+        flexDirection: isRtl ? 'row-reverse' : 'row',
         alignItems: 'center',
       },
       riyalIcon: {

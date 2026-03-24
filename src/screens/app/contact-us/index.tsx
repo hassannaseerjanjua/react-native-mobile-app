@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Linking,
   Alert,
+  Platform,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Formik } from 'formik';
@@ -58,10 +59,15 @@ const ContactUsScreen: React.FC = () => {
 
   const handleWhatsAppPress = async () => {
     const phoneNumber = '+966544656676';
-    const whatsappUrl = `https://wa.me/${phoneNumber}`;
+    const whatsappUrl = `https://wa.me/${phoneNumber.replace(/\D/g, '')}`;
 
     try {
-      const canOpen = await Linking.canOpenURL(whatsappUrl);
+      // On Android 11+, canOpenURL returns false unless WhatsApp is declared in manifest queries.
+      // Try opening directly; if it fails, show appropriate error.
+      const canOpen =
+        Platform.OS === 'ios'
+          ? await Linking.canOpenURL(whatsappUrl)
+          : true;
       if (canOpen) {
         await Linking.openURL(whatsappUrl);
       } else {
@@ -72,8 +78,8 @@ const ContactUsScreen: React.FC = () => {
       }
     } catch (error) {
       Alert.alert(
-        getString('AU_ERROR_OCCURRED') || 'Error',
-          getString('CONTACT_US_UNABLE_OPEN_WHATSAPP'),
+        getString('CU_CONTACT_US') || 'Contact Us',
+        getString('CONTACT_US_WHATSAPP_NOT_INSTALLED'),
       );
     }
   };

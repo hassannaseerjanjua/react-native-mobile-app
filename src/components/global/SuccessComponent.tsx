@@ -47,8 +47,7 @@ const SuccessMessage: React.FC<SuccessMessageProps> = ({
       )}
       {showFooter && (
         <>
-          <CustomFooter>
-            {' '}
+          <CustomFooter disableShadow>
             <Text style={styles.subTitle}>{subTitle}</Text>
             <View style={styles.buttonsRow}>
               {!!primaryButtonTitle && (
@@ -93,10 +92,10 @@ const useStyles = () => {
           position: 'relative',
         },
         TextLarge: {
-          ...theme.globalStyles.TEXT_STYLE_MEDIUM,
+          ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
           fontSize: theme.sizes.FONT_SIZE_EXTRA_HIGH,
           color: theme.colors.BLACK,
-          marginTop: theme.sizes.HEIGHT * 0.02,
+          marginTop: theme.sizes.HEIGHT * 0.01,
           textAlign: 'center',
         },
         TextMed: {
@@ -108,7 +107,7 @@ const useStyles = () => {
         subTitle: {
           ...theme.globalStyles.TEXT_STYLE_MEDIUM,
           fontSize: theme.sizes.FONTSIZE_SMALL_HEADING,
-          color: theme.colors.PRIMARY_TEXT,
+          color: theme.colors.BLACK,
           textAlign: 'center',
           marginBottom: theme.sizes.HEIGHT * 0.01,
         },

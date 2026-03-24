@@ -33,6 +33,7 @@ import {
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
+import ShadowView from '../../../components/global/ShadowView';
 import CustomButton from '../../../components/global/Custombutton';
 import CheckBox from '../../../components/global/CheckBox';
 import { InboxOrder, InboxOrderItem } from '../../../types/index';
@@ -59,9 +60,9 @@ const InboxOutbox: React.FC = () => {
   const route = useRoute();
   const params = route.params as
     | {
-        title?: string;
-        isInbox?: boolean;
-      }
+      title?: string;
+      isInbox?: boolean;
+    }
     | undefined;
   const isInbox = params?.isInbox ?? true;
   const title =
@@ -71,6 +72,7 @@ const InboxOutbox: React.FC = () => {
   const {
     orders,
     isLoading,
+    isInitialLoad,
     isRtl,
     openBottomSheet,
     selectedOrder,
@@ -112,7 +114,7 @@ const InboxOutbox: React.FC = () => {
   };
 
   return (
-    <ParentView>
+    <ParentView emptyStateText={orders.length === 0 && !isLoading ? getString('O_NO_ORDER_FOUND') : ''}>
       <View
         style={{
           position: 'absolute',
@@ -140,7 +142,8 @@ const InboxOutbox: React.FC = () => {
         <HomeHeader
           showBackButton
           title={title}
-          showSearchBar
+          showSearchBar={orders.length > 0 && !isLoading}
+          loading={isLoading}
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={getString('HOME_SEARCH')}
@@ -172,10 +175,10 @@ const InboxOutbox: React.FC = () => {
               onClick={
                 isInbox
                   ? orderItem => {
-                      createDebouceClick('item-press', () =>
-                        handleItemPress(item.OrderId, orderItem),
-                      );
-                    }
+                    createDebouceClick('item-press', () =>
+                      handleItemPress(item.OrderId, orderItem),
+                    );
+                  }
                   : undefined
               }
               onVideoPress={() => handleVideoPress(item)}
@@ -185,15 +188,14 @@ const InboxOutbox: React.FC = () => {
           keyExtractor={item => item.OrderId.toString()}
           onEndReached={hasMore ? loadMore : undefined}
           onEndReachedThreshold={0.5}
-          ListEmptyComponent={() => (
-            <View
-              style={{
-                height: theme.sizes.HEIGHT * 0.74,
-              }}
-            >
-              <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
-            </View>
-          )}
+          // ListEmptyComponent={() => {
+          //   if (!isInitialLoad) return null;
+          //   return (
+          //     <View style={{ height: theme.sizes.HEIGHT * 0.74 }}>
+          //       <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
+          //     </View>
+          //   );
+          // }}
           ListFooterComponent={
             loadingMore ? (
               <View
@@ -360,7 +362,7 @@ const InboxOutbox: React.FC = () => {
                                 style={[
                                   styles.quantityButton,
                                   selectedQty <= 1 &&
-                                    styles.quantityButtonDisabled,
+                                  styles.quantityButtonDisabled,
                                 ]}
                                 hitSlop={{
                                   top: 10,
@@ -394,7 +396,7 @@ const InboxOutbox: React.FC = () => {
                                 style={[
                                   styles.quantityButton,
                                   selectedQty >= availableQuantity &&
-                                    styles.quantityButtonDisabled,
+                                  styles.quantityButtonDisabled,
                                 ]}
                                 hitSlop={{
                                   top: 10,
@@ -610,7 +612,10 @@ const InboxItem: React.FC<InboxItemProps> = ({
           />
         )}
         <View
-          style={{ flex: 1, ...rtlMargin(isRtl, theme.sizes.WIDTH * 0.012, 0) }}
+          style={{
+            flex: 1,
+            ...rtlMargin(isRtl, theme.sizes.WIDTH * 0.012, scaleWithMax(6, 8)),
+          }}
         >
           <View
             style={{
@@ -628,7 +633,14 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 justifyContent: 'space-between',
               }}
             >
-              <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <View
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  flex: 1,
+                  minWidth: 0,
+                }}
+              >
                 <Text
                   style={styles.userNameText}
                   numberOfLines={1}
@@ -637,8 +649,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   {showGiftLinkGeneric
                     ? getString('INBOX_GIFT_LINK_LABEL')
                     : order.CampaginType === 1
-                    ? order.stores.NameEn
-                    : userName}
+                      ? order.stores.NameEn
+                      : userName}
                 </Text>
                 {!showGiftLinkGeneric &&
                   (!isMerchant
@@ -685,25 +697,30 @@ const InboxItem: React.FC<InboxItemProps> = ({
                 </TouchableOpacity>
               </View>
               <View
-                style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}
+                style={{
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  gap: 8,
+                  // ...rtlMargin(isRtl, scaleWithMax(8, 10), 0),
+                }}
               >
                 {((order.orderImages &&
                   Array.isArray(order.orderImages) &&
                   order.orderImages.length > 0) ||
                   order.OrderMessage) && (
-                  <TouchableOpacity
-                    onPress={e => {
-                      e.stopPropagation?.();
-                      onVideoPress?.();
-                    }}
-                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                  >
-                    <SmsTrackingIcon
-                      height={scaleWithMax(20, 20)}
-                      width={scaleWithMax(20, 20)}
-                    />
-                  </TouchableOpacity>
-                )}
+                    <TouchableOpacity
+                      onPress={e => {
+                        e.stopPropagation?.();
+                        onVideoPress?.();
+                      }}
+                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                    >
+                      <SmsTrackingIcon
+                        height={scaleWithMax(20, 20)}
+                        width={scaleWithMax(20, 20)}
+                      />
+                    </TouchableOpacity>
+                  )}
                 {order.SendType === 2 && !isInbox && onShareGiftLink && (
                   <TouchableOpacity
                     onPress={() => {
@@ -788,37 +805,41 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     style={styles.imageContainer}
                   >
                     {item.Status === 10 && (
-                      <View style={styles.redeemedBox}>
-                        <Text
-                          style={{
-                            // color: theme.colors.WHITE,
-                            ...theme.globalStyles.TEXT_STYLE,
-                            color: theme.colors.WHITE,
-                            fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                          }}
-                        >
-                          {getString('INBOX_REDEEMED')}
-                        </Text>
-                      </View>
-                    )}
-                    <Image source={itemImage} style={styles.inboxImage} />
-                    <View style={styles.inboxImageBottom}>
-                      <Text
-                        style={styles.itemNameText}
-                        numberOfLines={1}
-                        ellipsizeMode="tail"
-                      >
-                        {item.ItemName}
-                      </Text>
-
-                      {item.Quantity - item.UsedQuantity > 0 && (
-                        <View style={styles.numCircle}>
-                          <Text style={styles.numText}>
-                            {item.Quantity - item.UsedQuantity}
+                      <ShadowView preset="low">
+                        <View style={styles.redeemedBox}>
+                          <Text
+                            style={{
+                              // color: theme.colors.WHITE,
+                              ...theme.globalStyles.TEXT_STYLE,
+                              color: theme.colors.WHITE,
+                              fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                            }}
+                          >
+                            {getString('INBOX_REDEEMED')}
                           </Text>
                         </View>
-                      )}
-                    </View>
+                      </ShadowView>
+                    )}
+                    <Image source={itemImage} style={styles.inboxImage} />
+                    <ShadowView preset="default">
+                      <View style={styles.inboxImageBottom}>
+                        <Text
+                          style={styles.itemNameText}
+                          numberOfLines={1}
+                          ellipsizeMode="tail"
+                        >
+                          {item.ItemName}
+                        </Text>
+
+                        {item.Quantity - item.UsedQuantity > 0 && (
+                          <View style={styles.numCircle}>
+                            <Text style={styles.numText}>
+                              {item.Quantity - item.UsedQuantity}
+                            </Text>
+                          </View>
+                        )}
+                      </View>
+                    </ShadowView>
                   </TouchableOpacity>
                 );
               })}
@@ -874,13 +895,15 @@ const InboxItem: React.FC<InboxItemProps> = ({
             >
               {getString('INBOX_MY_EMPLOYEES')}
             </Text>
-            <View
+            <ShadowView
+              preset="default"
+              containerStyle={{
+                marginTop: theme.sizes.HEIGHT * 0.01,
+                marginBottom: theme.sizes.HEIGHT * 0.024,
+              }}
               style={{
                 backgroundColor: theme.colors.WHITE,
                 borderRadius: 16,
-                ...theme.globalStyles.SHADOW_STYLE,
-                marginTop: theme.sizes.HEIGHT * 0.01,
-                marginBottom: theme.sizes.HEIGHT * 0.024,
               }}
             >
               <FlatList
@@ -903,7 +926,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     showAddButton={false}
                     showSelection={false}
                     isGeneralSearchScreen={false}
-                    onPress={() => {}}
+                    onPress={() => { }}
                   />
                 )}
                 showsVerticalScrollIndicator={false}
@@ -911,7 +934,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   paddingVertical: 0,
                 }}
               />
-            </View>
+            </ShadowView>
           </View>
         </AppBottomSheet>
       )}

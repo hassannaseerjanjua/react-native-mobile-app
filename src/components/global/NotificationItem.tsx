@@ -13,6 +13,7 @@ import { Text, Image } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { I18nManager } from 'react-native';
 import { rtlFlexDirection, rtlTransform, scaleWithMax } from '../../utils';
+import ShadowView from './ShadowView';
 
 interface NotificationItemProps {
   title: string;
@@ -107,12 +108,14 @@ const NotificationItem = ({
   const wrapperProps = onPress ? { onPress, activeOpacity: 0.7 } : {};
 
   return (
-    <Wrapper
-      style={[styles.container, NotificationItemStyles]}
-      {...wrapperProps}
-    >
-      {content}
-    </Wrapper>
+    <ShadowView preset="listItem">
+      <Wrapper
+        style={[styles.container, NotificationItemStyles]}
+        {...wrapperProps}
+      >
+        {content}
+      </Wrapper>
+    </ShadowView>
   );
 };
 
@@ -132,8 +135,6 @@ const useStyles = () => {
         gap: 10,
         width: '100%',
         paddingHorizontal: theme.sizes.PADDING * 0.85,
-        // paddingVertical: theme.sizes.HEIGHT * 0.014,
-        ...theme.globalStyles.SHADOW_STYLE,
         borderRadius: theme.sizes.BORDER_RADIUS_MID,
         position: 'relative',
       },

@@ -30,7 +30,8 @@ import { useListingApi } from '../../../hooks/useListingApi.ts';
 import { useAuthStore } from '../../../store/reducer/auth.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import notify from '../../../utils/notify.ts';
-import { rtlFlexDirection } from '../../../utils';
+import { rtlFlexDirection, rtlPosition, scaleWithMax } from '../../../utils';
+import { SvgCrossIcon, SvgProfileCrossIcon } from '../../../assets/icons/index.ts';
 
 const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -239,16 +240,16 @@ const NotificationsScreen: React.FC = () => {
       />
 
       {notificationsApi.loading &&
-      !notificationsApi.loadingMore &&
-      !isRefreshing ? (
+        !notificationsApi.loadingMore &&
+        !isRefreshing ? (
         <SkeletonLoader screenType="notifications" />
       ) : (
         <FlatList
           data={
             user?.isMerchant
               ? notificationsApi.data.filter(
-                  item => item.NotificationType !== 13,
-                )
+                item => item.NotificationType !== 13,
+              )
               : notificationsApi.data
           }
           keyExtractor={item => item.NotificationId.toString()}
@@ -261,13 +262,16 @@ const NotificationsScreen: React.FC = () => {
               colors={[theme.colors.PRIMARY]}
             />
           }
-          ListEmptyComponent={
-            <View style={{ height: theme.sizes.HEIGHT * 0.68 }}>
-              <PlaceholderLogoText
-                text={getString('SEARCH_NO_RESULTS_FOUND')}
-              />
-            </View>
-          }
+          ListEmptyComponent={() => {
+            if (!notificationsApi.isInitialLoad) return null;
+            return (
+              <View style={{ height: theme.sizes.HEIGHT * 0.77 }}>
+                <PlaceholderLogoText
+                  text={getString('SEARCH_NO_RESULTS_FOUND')}
+                />
+              </View>
+            );
+          }}
           renderItem={renderItem}
           onEndReached={notificationsApi.loadMore}
           onEndReachedThreshold={0.5}
@@ -293,7 +297,7 @@ const NotificationsScreen: React.FC = () => {
             paddingBottom: theme.sizes.HEIGHT * 0.01,
           }}
         >
-          <View
+          {/* <View
             style={{
               flexDirection: rtlFlexDirection(isRtl),
               alignItems: 'center',
@@ -334,7 +338,18 @@ const NotificationsScreen: React.FC = () => {
                 {getString('COMP_CLOSE')}
               </Text>
             </TouchableOpacity>
-          </View>
+          </View> */}
+          <TouchableOpacity style={[{
+            position: "absolute",
+            zIndex: 1,
+            top: theme.sizes.HEIGHT * 0.020,
+          }, rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.039),
+          ]} onPress={() => {
+            setShowWelcomeWebView(false);
+            setWelcomeHtml('');
+          }}>
+            <SvgProfileCrossIcon height={scaleWithMax(15, 20)} width={scaleWithMax(15, 20)} />
+          </TouchableOpacity>
 
           {loadingWelcome ? (
             <View

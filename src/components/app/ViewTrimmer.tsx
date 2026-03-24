@@ -24,10 +24,11 @@ import Svg, { Path, Circle } from 'react-native-svg';
 
 const MAX_VIDEO_DURATION = 15;
 const FRAME_COUNT = 10;
-
 const formatTime = (secs: number): string => {
-  const m = Math.floor(secs / 60);
-  const s = Math.floor(secs % 60);
+  const totalSeconds = Math.ceil(secs); // round up
+  const m = Math.floor(totalSeconds / 60);
+  const s = totalSeconds % 60;
+
   return `${m}:${s.toString().padStart(2, '0')}`;
 };
 
@@ -40,10 +41,7 @@ interface ViewTrimmerProps {
 const PlayIcon = ({ size = 52 }: { size?: number }) => (
   <Svg width={size} height={size} viewBox="0 0 52 52" fill="none">
     <Circle cx="26" cy="26" r="26" fill="rgba(0,0,0,0.45)" />
-    <Path
-      d="M21 17.5L37 26L21 34.5V17.5Z"
-      fill="white"
-    />
+    <Path d="M21 17.5L37 26L21 34.5V17.5Z" fill="white" />
   </Svg>
 );
 
@@ -67,7 +65,7 @@ const CloseIcon = ({ size = 16 }: { size?: number }) => (
 const ViewTrimmer = ({
   videoUrl,
   onSaveVideo,
-  onCancel = () => {},
+  onCancel = () => { },
 }: ViewTrimmerProps) => {
   const insets = useSafeAreaInsets();
   const videoRef = useRef<VideoRef | null>(null);
@@ -110,10 +108,7 @@ const ViewTrimmer = ({
     });
   };
 
-  const {
-    TrimmerUIComponent,
-    onCurrentPositionChange,
-  } = useTrimmer({
+  const { TrimmerUIComponent, onCurrentPositionChange } = useTrimmer({
     totalDuration: duration || 0,
     trimStart: startTime,
     trimEnd: endTime || duration || 0,
@@ -161,9 +156,7 @@ const ViewTrimmer = ({
       };
 
       for (let i = 0; i < FRAME_COUNT; i++) {
-        const timeStamp = Math.floor(
-          (i / FRAME_COUNT) * videoDuration * 1000,
-        );
+        const timeStamp = Math.floor((i / FRAME_COUNT) * videoDuration * 1000);
         let path = await extractFrame(timeStamp);
         if (!path && timeStamp > 0) {
           path = await extractFrame(0);
@@ -176,10 +169,7 @@ const ViewTrimmer = ({
           collected.push(lastGoodPath);
         }
 
-        if (
-          collected.length > 0 &&
-          (i % 2 === 1 || i === FRAME_COUNT - 1)
-        ) {
+        if (collected.length > 0 && (i % 2 === 1 || i === FRAME_COUNT - 1)) {
           setThumbnails([...collected]);
         }
       }
@@ -293,10 +283,7 @@ const ViewTrimmer = ({
 
       {/* Top bar */}
       <View
-        style={[
-          styles.topBar,
-          { paddingTop: insets.top + 8 },
-        ]}
+        style={[styles.topBar, { paddingTop: insets.top + 8 }]}
         pointerEvents="box-none"
       >
         <TouchableOpacity
@@ -312,7 +299,9 @@ const ViewTrimmer = ({
         <View style={styles.topBarCenter}>
           <Text style={styles.durationText}>
             {formatTime((endTime ?? 0) - startTime)}{' '}
-            <Text style={styles.durationSub}>/ {formatTime(duration ?? 0)}</Text>
+            <Text style={styles.durationSub}>
+              / {formatTime(duration ?? 0)}
+            </Text>
           </Text>
         </View>
 

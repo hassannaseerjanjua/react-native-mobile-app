@@ -34,8 +34,7 @@ const useStyles = () => {
       mainContent: {
         flex: 1,
       },
-      contentSection: {
-      },
+      contentSection: {},
       headerContainer: {
         marginBottom: 10,
       },
@@ -116,6 +115,7 @@ const useStyles = () => {
       },
       bottomSheetContainer: {
         width: sizes.PADDED_WIDTH,
+        paddingBottom: theme.sizes.HEIGHT * 0.052,
         alignSelf: 'center',
       },
       bottomSheetTitle: {
@@ -137,6 +137,7 @@ const useStyles = () => {
         color: colors.PRIMARY,
         marginBottom: sizes.PADDING * 1.3,
         textAlign: 'center',
+        direction: 'ltr',
       },
       errorText: {
         color: colors.RED,

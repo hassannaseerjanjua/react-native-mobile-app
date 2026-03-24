@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -7,12 +7,19 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from 'react-native-reanimated';
 import { Text } from '../../utils/elements';
 import { FAQ } from '../../types';
 import { SvgNextIcon } from '../../assets/icons';
 import useTheme from '../../styles/theme';
-import { scaleWithMax, rtlTransform } from '../../utils';
+import { scaleWithMax } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
+import ShadowView from '../global/ShadowView';
 
 interface FAQItemProps {
   item: FAQ;
@@ -43,43 +50,52 @@ const FAQItem: React.FC<FAQItemProps> = ({
     onPress?.();
   };
 
-  return (
-    <View style={[styles.container, style]}>
-      <TouchableOpacity
-        onPress={handlePress}
-        activeOpacity={0.9}
-        style={styles.questionContainer}
-      >
-        <View style={styles.contentContainer}>
-          <Text
-            style={[styles.titleText, textStyle]}
-            numberOfLines={isExpanded ? undefined : 1}
-            ellipsizeMode="tail"
-          >
-            {questionText}
-          </Text>
-        </View>
-        <SvgNextIcon
-          style={[
-            styles.arrowIcon,
-            {
-              transform: [
-                ...rtlTransform(isRtl),
-                ...(isExpanded ? [{ rotate: '90deg' }] : []),
-              ],
-            },
-          ]}
-        />
-      </TouchableOpacity>
+  const rotation = useSharedValue(isExpanded ? 1 : 0);
 
-      {isExpanded && (
-        <View style={styles.answerContainer}>
-          <Text style={styles.answerText}>
-            {answerText}
-          </Text>
-        </View>
-      )}
-    </View>
+  useEffect(() => {
+    rotation.value = withTiming(isExpanded ? 1 : 0, {
+      duration: 120,
+    });
+  }, [isExpanded, rotation]);
+
+  const scaleX = isRtl ? -1 : 1;
+
+  const animatedIconStyle = useAnimatedStyle(() => {
+    const rotateDeg = interpolate(rotation.value, [0, 1], [0, 90]);
+    return {
+      transform: [{ scaleX }, { rotate: `${rotateDeg}deg` }],
+    };
+  });
+
+  return (
+    <ShadowView preset="default">
+      <View style={[styles.container, style]}>
+        <TouchableOpacity
+          onPress={handlePress}
+          activeOpacity={0.9}
+          style={styles.questionContainer}
+        >
+          <View style={styles.contentContainer}>
+            <Text
+              style={[styles.titleText, textStyle]}
+              numberOfLines={isExpanded ? undefined : 1}
+              ellipsizeMode="tail"
+            >
+              {questionText}
+            </Text>
+          </View>
+          <Animated.View style={[styles.arrowIcon, animatedIconStyle]}>
+            <SvgNextIcon />
+          </Animated.View>
+        </TouchableOpacity>
+
+        {isExpanded && (
+          <View style={styles.answerContainer}>
+            <Text style={styles.answerText}>{answerText}</Text>
+          </View>
+        )}
+      </View>
+    </ShadowView>
   );
 };
 
@@ -93,7 +109,7 @@ const useStyles = () => {
       container: {
         backgroundColor: colors.WHITE,
         width: '100%',
-        ...theme.globalStyles.SHADOW_STYLE,
+        borderRadius: theme.sizes.BORDER_RADIUS_MID,
       },
       questionContainer: {
         flexDirection: 'row',
@@ -118,8 +134,7 @@ const useStyles = () => {
         textAlign: 'left',
         writingDirection: 'ltr',
       },
-      arrowIcon: {
-      },
+      arrowIcon: {},
       answerContainer: {
         marginHorizontal: theme.sizes.PADDING,
         paddingTop: theme.sizes.HEIGHT * 0.01,

@@ -21,6 +21,8 @@ import {
 import { LoginApiResponse } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
+// import { isRTL } from '../../../utils/rtl.ts';
+import { isIOS } from '../../../utils/index.ts';
 
 interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
@@ -30,7 +32,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 }) => {
   const { styles, theme } = useStyles();
   const dispatch = useDispatch();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [timer, setTimer] = useState(60);
   const [isTimerActive, setIsTimerActive] = useState(true);
@@ -266,6 +268,8 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                   styles.otpInput,
                   {
                     borderColor: digit ? theme.colors.BLACK : '#EEEEEE',
+                    includeFontPadding: false,
+                    paddingTop: isRtl ? 8 : 0,
                   },
                 ]}
                 value={digit}
@@ -277,7 +281,7 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                 keyboardType="number-pad"
                 maxLength={1}
                 textAlign="center"
-                writingDirection="ltr"
+                // writingDirection="ltr"
                 selectTextOnFocus
                 autoFocus={index === 0}
               />
@@ -289,7 +293,10 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
               {getString('AU_HAVENT_RECEIVED_CODE')}{' '}
               {isTimerActive ? (
                 <Text>
-                  {getString('AU_WAIT_FOR')} {formatTimer(timer)}
+                  {getString('AU_WAIT_FOR')}{' '}
+                  <Text style={{ color: theme.colors.PRIMARY }}>
+                    {formatTimer(timer)}
+                  </Text>
                 </Text>
               ) : (
                 <Text

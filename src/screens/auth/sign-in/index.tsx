@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { View, TouchableOpacity } from 'react-native';
+import { View, TouchableOpacity, Platform } from 'react-native';
 import { Formik } from 'formik';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
@@ -7,7 +7,11 @@ import InputField from '../../../components/global/InputField';
 import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { SvgEmail, SvgPhone, SvgPhoneIcon } from '../../../assets/icons';
-import { scaleWithMax, formatPhoneWithCountryCode } from '../../../utils';
+import {
+  scaleWithMax,
+  formatPhoneWithCountryCode,
+  isRTL,
+} from '../../../utils';
 import { createSignInSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
@@ -17,7 +21,7 @@ import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import notify from '../../../utils/notify';
 
-interface SignInProps extends AuthStackScreen<'SignIn'> { }
+interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
@@ -32,7 +36,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     email: '',
   });
 
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
 
   const validationSchema = useMemo(
     () => createSignInSchema(activeTab, getString as (key: any) => string),
@@ -115,7 +119,15 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       }, 1000);
     }
   };
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '');
 
+    const part1 = digits.slice(0, 2);
+    const part2 = digits.slice(2, 5);
+    const part3 = digits.slice(5, 9);
+
+    return [part1, part2, part3].filter(Boolean).join(' ');
+  };
   return (
     <>
       <AuthLayout
@@ -184,7 +196,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                     error={error as string}
                     fieldProps={{
                       placeholder: isPhone
-                        ? getString('AU_PHONE_NUMBER')
+                        ? `\u200E${getString('AU_PHONE_NUMBER')}`
                         : getString('AU_PL_EMAIL'),
                       keyboardType: isPhone ? 'number-pad' : 'email-address',
                       autoCapitalize: 'none',
@@ -192,14 +204,20 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                       value: isPhone ? values.phone : values.email,
                       onChangeText: isPhone
                         ? value => {
-                          setApiError('');
-                          const cleanValue = value
-                          setFieldValue('phone', cleanValue);
-                        }
+                            setApiError('');
+                            const cleanValue = value;
+                            setFieldValue('phone', cleanValue);
+                          }
                         : value => {
-                          setApiError('');
-                          handleChange('email')(value);
-                        },
+                            setApiError('');
+                            handleChange('email')(value);
+                          },
+                    }}
+                    style={{
+                      ...(Platform.OS === 'ios' &&
+                        {
+                          // paddingTop: theme.sizes.PADDING * 0.2,
+                        }),
                     }}
                   />
                 </View>
@@ -255,8 +273,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
           <Text style={styles.bottomSheetNumber}>
             {activeTab === 'Phone'
-              ? `+966 ${currentFormValues.phone}`
-              : currentFormValues.email}
+              ? `\u200E+966 ${formatPhone(currentFormValues.phone)}`
+              : `${currentFormValues.email}`}
           </Text>
 
           <CustomButton

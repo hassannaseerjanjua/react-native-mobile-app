@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import {
   View,
   StatusBar,
   FlatList,
+  ScrollView,
   Share,
   Platform,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import { AppStackScreen } from '../../../types/navigation.types';
 import HomeHeader from '../../../components/global/HomeHeader';
@@ -30,6 +32,7 @@ import {
 import { scaleWithMax } from '../../../utils';
 import useTheme from '../../../styles/theme';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+import ShadowView from '../../../components/global/ShadowView';
 
 interface VerifiedUser {
   PhoneNo: string;
@@ -64,6 +67,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     new Set(),
   );
   const { globalStyles } = useTheme();
+  const CONNECT_PAGE_SIZE = 30;
   const [mobileContacts, setMobileContacts] = useState<ContactInfo[]>([]);
   const [loadingContacts, setLoadingContacts] = useState(false);
   const [verifiedUsers, setVerifiedUsers] = useState<
@@ -71,11 +75,14 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   >({});
   const [verifyingContacts, setVerifyingContacts] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [connectDisplayedCount, setConnectDisplayedCount] =
+    useState(CONNECT_PAGE_SIZE);
 
   const activeUsersApi = useListingApi<ActiveUser>(
     showEmployeesOnly ? '' : apiEndpoints.GET_ACTIVE_USERS,
     token,
     {
+      pageSize: 30,
       idExtractor: (item: ActiveUser) => item.UserId,
       transformData: (data: ActiveUsersApiResponse) => ({
         data: data.Data?.Items || [],
@@ -92,6 +99,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     showEmployeesOnly ? apiEndpoints.GET_EMPLOYEES : '',
     token,
     {
+      pageSize: 30,
       idExtractor: (item: ActiveUser) => item.UserId,
       transformData: (data: ActiveUsersApiResponse) => ({
         data: data.Data?.Items || [],
@@ -112,9 +120,12 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   // Load mobile contacts when in connect mode
   useEffect(() => {
     if (showConnectOnly) {
+      setConnectDisplayedCount(CONNECT_PAGE_SIZE);
+      setVerifiedUsers({});
       loadMobileContacts();
     } else {
       setMobileContacts([]);
+      setVerifiedUsers({});
     }
   }, [showConnectOnly]);
 
@@ -153,6 +164,31 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       employeesApi.recall();
     } else {
       activeUsersApi.recall();
+    }
+  };
+
+  const handleConnectLoadMore = () => {
+    if (connectDisplayedCount >= connectFilteredContacts.length) return;
+    setConnectDisplayedCount(prev =>
+      Math.min(prev + CONNECT_PAGE_SIZE, connectFilteredContacts.length),
+    );
+  };
+
+  const handleScroll = ({ nativeEvent }: { nativeEvent: any }) => {
+    const { layoutMeasurement, contentOffset, contentSize } = nativeEvent;
+    const threshold = layoutMeasurement.height * 1.5;
+    const nearBottom =
+      layoutMeasurement.height + contentOffset.y >=
+      contentSize.height - threshold;
+    if (!nearBottom) return;
+    if (showConnectOnly) {
+      handleConnectLoadMore();
+      return;
+    }
+    if (showEmployeesOnly) {
+      employeesApi.loadMore();
+    } else {
+      activeUsersApi.loadMore();
     }
   };
 
@@ -199,28 +235,14 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
 
   const loadMobileContacts = async () => {
     setLoadingContacts(true);
-    setVerifyingContacts(true);
     try {
       const contacts = await getContactsWithPhoneNumbers();
       setMobileContacts(contacts);
-
-      // Extract and format phone numbers
-      const phoneNumbers = contacts
-        .flatMap(contact => contact.phoneNumbers)
-        .map(formatPhoneNumber)
-        .filter((phone, index, self) => self.indexOf(phone) === index); // Remove duplicates
-
-      // Verify users
-      if (phoneNumbers.length > 0) {
-        const verified = await verifyUsers(phoneNumbers);
-        setVerifiedUsers(verified);
-      }
     } catch (error) {
       console.error('Error loading contacts:', error);
       notify.error(getString('AU_ERROR_OCCURRED'));
     } finally {
       setLoadingContacts(false);
-      setVerifyingContacts(false);
     }
   };
 
@@ -284,6 +306,81 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   const setSearchQuery = showEmployeesOnly
     ? employeesApi.setSearch
     : activeUsersApi.setSearch;
+
+  // Connect mode: filter and paginate contacts
+  const connectFilteredContacts = useMemo(() => {
+    if (!showConnectOnly) return [];
+    if (!searchQuery?.trim()) return mobileContacts;
+    const query = searchQuery.toLowerCase();
+    return mobileContacts.filter(
+      contact =>
+        contact.name?.toLowerCase().includes(query) ||
+        contact.phoneNumbers?.some(p => p?.includes(query)) ||
+        contact.emails?.some(e => e?.toLowerCase().includes(query)),
+    );
+  }, [showConnectOnly, mobileContacts, searchQuery]);
+
+  const connectDisplayedContacts = useMemo(
+    () => connectFilteredContacts.slice(0, connectDisplayedCount),
+    [connectFilteredContacts, connectDisplayedCount],
+  );
+
+  const connectHasMore = connectDisplayedCount < connectFilteredContacts.length;
+
+  const connectMappedContacts = useMemo<ActiveUser[]>(() => {
+    return connectDisplayedContacts.map((contact, index) => {
+      const phoneNo = contact.phoneNumbers[0] || '';
+      const formattedPhone = formatPhoneNumber(phoneNo);
+      const verified = verifiedUsers[formattedPhone];
+
+      return {
+        UserId:
+          verified?.IsAppUser && verified.UserID
+            ? verified.UserID
+            : -(index + 1),
+        FullName: contact.name,
+        PhoneNo: phoneNo,
+        Email: contact.emails[0] || '',
+        ProfileUrl: contact.thumbnail || null,
+        RelationStatus: verified?.IsAppUser ? 2 : 0,
+        IsVerified: verified?.IsAppUser ? true : false,
+      } as ActiveUser;
+    });
+  }, [connectDisplayedContacts, verifiedUsers]);
+
+  // Incrementally verify displayed contacts
+  const verifyingBatchRef = useRef(false);
+  useEffect(() => {
+    if (!showConnectOnly || connectDisplayedContacts.length === 0) return;
+    const phoneNumbersToVerify = connectDisplayedContacts
+      .flatMap(c => c.phoneNumbers)
+      .map(formatPhoneNumber)
+      .filter((phone, i, self) => self.indexOf(phone) === i)
+      .filter(phone => !verifiedUsers[phone]);
+
+    if (phoneNumbersToVerify.length === 0) return;
+    if (verifyingBatchRef.current) return;
+
+    verifyingBatchRef.current = true;
+    setVerifyingContacts(true);
+
+    verifyUsers(phoneNumbersToVerify)
+      .then(newVerified => {
+        setVerifiedUsers(prev => ({ ...prev, ...newVerified }));
+      })
+      .catch(() => {})
+      .finally(() => {
+        verifyingBatchRef.current = false;
+        setVerifyingContacts(false);
+      });
+  }, [showConnectOnly, connectDisplayedCount, connectFilteredContacts]);
+
+  // Reset pagination when search changes (connect mode)
+  useEffect(() => {
+    if (showConnectOnly) {
+      setConnectDisplayedCount(CONNECT_PAGE_SIZE);
+    }
+  }, [searchQuery, showConnectOnly]);
 
   const updateLoadingState = (userId: number, isLoading: boolean) => {
     setLoadingUsers(prev => {
@@ -408,7 +505,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         searchPlaceholder={getString('HOME_SEARCH')}
         rightSideView={
           !showFriendsOnly &&
-          !showConnectOnly && (
+          !showConnectOnly &&
+          !user?.isMerchant && (
             <TouchableOpacity
               onPress={() =>
                 navigation.navigate('Search', {
@@ -417,7 +515,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               }
               style={{
                 backgroundColor: theme.colors.SECONDARY,
-                paddingHorizontal: scaleWithMax(10, 12),
+                paddingHorizontal: scaleWithMax(10, 10),
                 paddingVertical: scaleWithMax(5, 6),
                 borderRadius: scaleWithMax(5, 6),
               }}
@@ -435,58 +533,37 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         }
       />
 
-      <View style={[styles.content, styles.contentContainer]}>
+      <View style={styles.content}>
         {activeUsersApi.loading ||
         employeesApi.loading ||
-        (showConnectOnly && (loadingContacts || verifyingContacts)) ? (
-          <View style={styles.listCard}>
+        (showConnectOnly && loadingContacts) ? (
+          // true ? (
+          // <ShadowView preset="listItem">
+          <View
+            style={{
+              paddingHorizontal: theme.sizes.PADDING,
+              paddingVertical: theme.sizes.PADDING,
+            }}
+          >
             <SkeletonLoader screenType="search" />
           </View>
-        ) : (
-          (() => {
-            // In connect mode, only show mobile contacts
-            if (showConnectOnly) {
-              // Map mobile contacts to ActiveUser format for display
-              const mappedContacts: ActiveUser[] = mobileContacts.map(
-                (contact, index) => {
-                  const phoneNo = contact.phoneNumbers[0] || '';
-                  const formattedPhone = formatPhoneNumber(phoneNo);
-                  const verified = verifiedUsers[formattedPhone];
-
-                  return {
-                    UserId:
-                      verified?.IsAppUser && verified.UserID
-                        ? verified.UserID
-                        : -(index + 1), // Negative IDs for non-app users
-                    FullName: contact.name,
-                    PhoneNo: phoneNo,
-                    Email: contact.emails[0] || '',
-                    ProfileUrl: contact.thumbnail || null,
-                    RelationStatus: verified?.IsAppUser ? 2 : 0, // 2 = not friend, 0 = not a user
-                    IsVerified: verified?.IsAppUser ? true : false,
-                  };
-                },
-              );
-
-              // Filter contacts by search query if needed
-              const filteredContacts = mappedContacts.filter(contact => {
-                if (!searchQuery) return true;
-                const query = searchQuery.toLowerCase();
-                return (
-                  contact.FullName?.toLowerCase().includes(query) ||
-                  contact.PhoneNo?.includes(query) ||
-                  contact.Email?.toLowerCase().includes(query)
-                );
-              });
-
-              const isEmpty = filteredContacts.length === 0;
-
-              return (
-                <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
-                  <FlatList
-                    data={filteredContacts}
-                    keyExtractor={item => item.UserId.toString()}
-                    renderItem={({ item, index }) => {
+        ) : showConnectOnly ? (
+          <View style={[styles.content, styles.contentContainer]}>
+            <ShadowView
+              preset="listItem"
+              disabled={connectDisplayedContacts.length === 0}
+            >
+              <View
+                style={[
+                  styles.listCard,
+                  connectDisplayedContacts.length === 0 && styles.listCardEmpty,
+                ]}
+              >
+                <FlatList
+                  data={connectMappedContacts}
+                  scrollEnabled={true}
+                  keyExtractor={item => item.UserId.toString()}
+                  renderItem={({ item, index }) => {
                     const phoneNo = item.PhoneNo || '';
                     const formattedPhone = formatPhoneNumber(phoneNo);
                     const verified = verifiedUsers[formattedPhone];
@@ -496,7 +573,10 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       <SearchUserItem
                         item={item}
                         index={index}
-                        isLast={index === (filteredContacts?.length ?? 0) - 1}
+                        isLast={
+                          index === connectMappedContacts.length - 1 &&
+                          !connectHasMore
+                        }
                         updatedUsers={updatedUsers}
                         loadingUsers={loadingUsers}
                         handleAddUser={
@@ -507,7 +587,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                         showAddButton={true}
                         tempAddedUserIds={tempAddedUserIds}
                         isGeneralSearchScreen={false}
-                        // Pass custom button text for invite
                         customButtonText={
                           !isAppUser ? getString('SEARCH_INVITE') : undefined
                         }
@@ -519,81 +598,38 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       />
                     );
                   }}
-                    showsVerticalScrollIndicator={false}
-                    ListEmptyComponent={
-                      <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
-                        <PlaceholderLogoText
-                          text={getString('SEARCH_NO_USERS_FOUND')}
-                        />
-                      </View>
-                    }
-                    contentContainerStyle={styles.listContainer}
-                    ListFooterComponent={
-                      loadingContacts || verifyingContacts ? (
-                        <View style={{ padding: 20, alignItems: 'center' }}>
-                          <Text>
-                            {verifyingContacts
-                              ? getString('SEARCH_VERIFYING_CONTACTS')
-                              : getString('SEARCH_LOADING_CONTACTS')}
-                          </Text>
-                        </View>
-                      ) : null
-                    }
-                    refreshControl={
-                      <RefreshControl
-                        refreshing={isRefreshing}
-                        onRefresh={handleRefresh}
-                        tintColor={theme.colors.PRIMARY}
-                        colors={[theme.colors.PRIMARY]}
-                      />
-                    }
-                  />
-                </View>
-              );
-            }
-
-            // For other modes, show API users (employees or active users)
-            const filteredData = showEmployeesOnly
-              ? employeesApi?.data
-              : activeUsersApi?.data;
-            const isEmpty = !filteredData || filteredData.length === 0;
-
-            return (
-              <View style={[styles.listCard, isEmpty && styles.listCardEmpty]}>
-                <FlatList
-                  data={filteredData}
-                  keyExtractor={item => item.UserId.toString()}
-                  renderItem={({ item, index }) => (
-                  <SearchUserItem
-                    item={item}
-                    index={index}
-                    isLast={index === (filteredData?.length ?? 0) - 1}
-                    updatedUsers={updatedUsers}
-                    loadingUsers={loadingUsers}
-                    handleAddUser={
-                      showEmployeesOnly ? undefined : handleAddUser
-                    }
-                    showAddButton={!showEmployeesOnly}
-                    tempAddedUserIds={tempAddedUserIds}
-                    isGeneralSearchScreen={
-                      !showFriendsOnly && !showConnectOnly && !showEmployeesOnly
-                    }
-                  />
-                )}
+                  initialNumToRender={15}
+                  maxToRenderPerBatch={15}
+                  windowSize={5}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContainer}
                   ListEmptyComponent={
-                    <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
+                    <View style={{ height: theme.sizes.HEIGHT * 0.6 }}>
                       <PlaceholderLogoText
                         text={getString('SEARCH_NO_USERS_FOUND')}
                       />
                     </View>
                   }
-                  onEndReached={
-                    showEmployeesOnly
-                      ? employeesApi.loadMore
-                      : activeUsersApi.loadMore
+                  ListFooterComponent={
+                    verifyingContacts && connectHasMore ? (
+                      <View
+                        style={{
+                          padding: theme.sizes.PADDING,
+                          alignItems: 'center',
+                        }}
+                      >
+                        <ActivityIndicator
+                          size="small"
+                          color={theme.colors.PRIMARY}
+                        />
+                      </View>
+                    ) : null
                   }
+                  onEndReached={() => {
+                    if (connectHasMore && !verifyingContacts) {
+                      handleConnectLoadMore();
+                    }
+                  }}
                   onEndReachedThreshold={0.5}
                   refreshControl={
                     <RefreshControl
@@ -605,8 +641,80 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   }
                 />
               </View>
-            );
-          })()
+            </ShadowView>
+          </View>
+        ) : (
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={styles.contentContainer}
+            showsVerticalScrollIndicator={false}
+            scrollEventThrottle={300}
+            onScroll={handleScroll}
+            refreshControl={
+              <RefreshControl
+                refreshing={isRefreshing}
+                onRefresh={handleRefresh}
+                tintColor={theme.colors.PRIMARY}
+                colors={[theme.colors.PRIMARY]}
+              />
+            }
+          >
+            {(() => {
+              // For other modes, show API users (employees or active users)
+              const filteredData = showEmployeesOnly
+                ? employeesApi?.data
+                : activeUsersApi?.data;
+              const isEmpty = !filteredData || filteredData.length === 0;
+
+              return (
+                <ShadowView preset="listItem" disabled={isEmpty}>
+                  <View
+                    style={[styles.listCard, isEmpty && styles.listCardEmpty]}
+                  >
+                    <FlatList
+                      data={filteredData}
+                      scrollEnabled={false}
+                      keyExtractor={item => item.UserId.toString()}
+                      renderItem={({ item, index }) => (
+                        <SearchUserItem
+                          item={item}
+                          index={index}
+                          isLast={index === (filteredData?.length ?? 0) - 1}
+                          updatedUsers={updatedUsers}
+                          loadingUsers={loadingUsers}
+                          handleAddUser={
+                            showEmployeesOnly ? undefined : handleAddUser
+                          }
+                          showAddButton={!showEmployeesOnly}
+                          tempAddedUserIds={tempAddedUserIds}
+                          isGeneralSearchScreen={
+                            !showFriendsOnly &&
+                            !showConnectOnly &&
+                            !showEmployeesOnly
+                          }
+                        />
+                      )}
+                      showsVerticalScrollIndicator={false}
+                      contentContainerStyle={styles.listContainer}
+                      ListEmptyComponent={() => {
+                        const relevantApi = showEmployeesOnly
+                          ? employeesApi
+                          : activeUsersApi;
+                        if (!relevantApi?.isInitialLoad) return null;
+                        return (
+                          <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
+                            <PlaceholderLogoText
+                              text={getString('SEARCH_NO_USERS_FOUND')}
+                            />
+                          </View>
+                        );
+                      }}
+                    />
+                  </View>
+                </ShadowView>
+              );
+            })()}
+          </ScrollView>
         )}
       </View>
 

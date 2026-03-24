@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
-import { View } from 'react-native';
+import React, { useEffect, useState, useMemo } from 'react';
+import { TouchableOpacity, View } from 'react-native';
+import DatePicker from 'react-native-date-picker';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import useStyles from './style';
@@ -7,6 +8,7 @@ import InputField from '../../../components/global/InputField';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import {
+  SvgBirthdayIcon,
   SvgEmail,
   SvgLocationPin,
   SvgPhone,
@@ -43,6 +45,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     fullName: '',
     username: '',
     city: '',
+    dateOfBirth: '',
     phoneNumber: '',
     email: '',
   });
@@ -59,6 +62,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         fullName: currentStep === 1,
         username: currentStep === 1,
         city: currentStep === 2,
+        dateOfBirth: currentStep === 2,
         phoneNumber: currentStep === 3,
         email: currentStep === 3,
       };
@@ -129,6 +133,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         FullName: formData.fullName,
         UserName: formData.username,
         CityId: formData.city,
+        DateOfBirth: formData.dateOfBirth,
         Phone: formatPhoneWithCountryCode(formData.phoneNumber),
         Email: formData.email,
       })
@@ -192,6 +197,15 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     () => createSignUpSchema(currentStep, getString as (key: any) => string),
     [currentStep, getString],
   );
+  const formatPhone = (value: string) => {
+    const digits = value.replace(/\D/g, '');
+
+    const part1 = digits.slice(0, 2);
+    const part2 = digits.slice(2, 5);
+    const part3 = digits.slice(5, 9);
+
+    return [part1, part2, part3].filter(Boolean).join(' ');
+  };
 
   return (
     <>
@@ -209,7 +223,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             : currentStep === 2
             ? getString('AU_SELECT_CITY')
             : currentStep === 3
-            ? `${getString('AU_PHONE_NUMBER')}${getString(
+            ? `${getString('AU_PHONE_NUMBER_LABEL')}${getString(
                 'AU_PHONE_AND_EMAIL',
               )}${getString('AU_EMAIL')}`
             : ''
@@ -229,6 +243,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                 formData={formData}
                 updateFormData={updateFormData}
                 styles={styles}
+                theme={theme}
                 citiesApi={citiesApi}
                 areaSearch={areaSearch}
                 setAreaSearch={setAreaSearch}
@@ -267,7 +282,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             {getString('AU_IS_THIS_YOUR_CORRECT_PN')}
           </Text>
           <Text style={styles.bottomSheetNumber}>
-            +966 {formData.phoneNumber}
+            {'\u200E'}+966 {formatPhone(formData.phoneNumber)}
           </Text>
           <CustomButton
             title={getString('AU_SEND_CODE_BY_SMS')}
@@ -297,6 +312,7 @@ interface StepContentProps {
   formData: any;
   updateFormData: (field: string, value: string, formik?: any) => void;
   styles: any;
+  theme: any;
   citiesApi: any;
   areaSearch: string;
   setAreaSearch: (value: string) => void;
@@ -309,6 +325,7 @@ const StepContent: React.FC<StepContentProps> = ({
   formData,
   updateFormData,
   styles,
+  theme,
   citiesApi,
   areaSearch,
   setAreaSearch,
@@ -323,6 +340,23 @@ const StepContent: React.FC<StepContentProps> = ({
   const [selectedOption, setSelectedOption] = useState(
     options?.find(option => option.value === formData.city) || null,
   );
+  const eighteenYearsAgo = useMemo(() => {
+    const d = new Date();
+    d.setFullYear(d.getFullYear() - 18);
+    return d;
+  }, []);
+  const [date, setDate] = useState(
+    formData.dateOfBirth ? new Date(formData.dateOfBirth) : eighteenYearsAgo,
+  );
+  const [showDatePicker, setShowDatePicker] = useState(false);
+
+  useEffect(() => {
+    if (formData.dateOfBirth) {
+      setDate(new Date(formData.dateOfBirth));
+    } else {
+      setDate(eighteenYearsAgo);
+    }
+  }, [formData.dateOfBirth, eighteenYearsAgo]);
 
   switch (currentStep) {
     case 1:
@@ -396,14 +430,42 @@ const StepContent: React.FC<StepContentProps> = ({
               error={formik.touched.city && formik.errors.city}
             />
           </View>
-          <View style={{ ...styles.inputContainer }}>
-            <View
-              style={{
-                height: scaleWithMax(45, 50),
-                opacity: 0,
-              }}
-            />
+          <View style={styles.inputContainer}>
+            <TouchableOpacity onPress={() => setShowDatePicker(true)}>
+              <InputField
+                icon={<SvgBirthdayIcon width={scaleWithMax(20, 25)} />}
+                error={
+                  formik.touched.dateOfBirth && formik.errors.dateOfBirth
+                    ? formik.errors.dateOfBirth
+                    : undefined
+                }
+                fieldProps={{
+                  placeholder: getString('S_BIRTHDAY'),
+                  value: formData.dateOfBirth,
+                  editable: false,
+                  pointerEvents: 'none',
+                }}
+              />
+            </TouchableOpacity>
           </View>
+          <DatePicker
+            modal
+            open={showDatePicker}
+            date={date}
+            mode="date"
+            maximumDate={new Date()}
+            onConfirm={selectedDate => {
+              setShowDatePicker(false);
+              setDate(selectedDate);
+              updateFormData(
+                'dateOfBirth',
+                selectedDate.toISOString().split('T')[0],
+                formik,
+              );
+            }}
+            onCancel={() => setShowDatePicker(false)}
+            theme="light"
+          />
         </View>
       );
 

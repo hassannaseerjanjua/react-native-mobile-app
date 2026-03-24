@@ -5,6 +5,7 @@ import { scaleWithMax, rtlTextAlign, rtlPadding } from '../../utils';
 import { SvgGalleryUploadIcon, SvgPhone } from '../../assets/icons';
 import { Text, TextInput } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
+import ShadowView from './ShadowView';
 
 type Props = {
   error?: any;
@@ -14,6 +15,8 @@ type Props = {
   fieldProps: TextInputProps;
   isOccasion?: boolean;
   isPhone?: boolean;
+  /** Skip ShadowView wrapper (e.g. when parent has shadow or shadow breaks multiline layout) */
+  noShadow?: boolean;
 };
 
 const InputField = ({
@@ -24,52 +27,59 @@ const InputField = ({
   fieldProps,
   isPhone,
   isOccasion,
+  noShadow = false,
 }: Props) => {
   const { theme, styles } = useStyles();
   const { isRtl, getString } = useLocaleStore();
   const isMultiline = fieldProps.multiline;
 
+  const content = (
+    <View
+      style={[
+        isMultiline ? styles.textareaContainer : styles.container,
+        isPhone && styles.phoneFieldLtr,
+        {
+          borderWidth: error ? 1 : 0,
+          borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
+        },
+        style,
+      ]}
+    >
+      {isPhone ? (
+        <SvgPhone width={scaleWithMax(20, 25)} height={scaleWithMax(20, 25)} />
+      ) : (
+        icon
+      )}
+      {isPhone && <Text style={styles.prefixText}>{'+966'}</Text>}
+      <TextInput
+        {...fieldProps}
+        style={[
+          isMultiline ? styles.textarea : styles.input,
+          {
+            paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
+            textAlign: isPhone ? 'left' : rtlTextAlign(isRtl),
+            writingDirection: isPhone ? 'ltr' : undefined,
+            // includeFontPadding: isRtl && isPhone,
+            ...(Platform.OS === 'ios' &&
+            isRtl &&
+            isPhone &&
+            fieldProps.value?.length === 0
+              ? { lineHeight: 23 }
+              : {}),
+          },
+          fieldProps.style,
+        ]}
+        allowFontScaling={false}
+        placeholderTextColor={theme.colors.SECONDARY_TEXT}
+        selectionColor={theme.colors.PRIMARY}
+        underlineColorAndroid="transparent"
+      />
+    </View>
+  );
+
   return (
     <>
-      <View
-        style={[
-          isMultiline ? styles.textareaContainer : styles.container,
-          isPhone && styles.phoneFieldLtr,
-          {
-            borderWidth: error ? 1 : 0,
-            borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
-          },
-          style,
-        ]}
-      >
-        {isPhone ? (
-          <SvgPhone
-            width={scaleWithMax(20, 25)}
-            height={scaleWithMax(20, 25)}
-          />
-        ) : (
-          icon
-        )}
-        {isPhone && (
-          <Text style={styles.prefixText}>{isRtl ? '966+' : '+966'}</Text>
-        )}
-        <TextInput
-          {...fieldProps}
-          style={[
-            isMultiline ? styles.textarea : styles.input,
-            {
-              paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
-              textAlign: isPhone ? 'left' : rtlTextAlign(isRtl),
-              writingDirection: isPhone ? 'ltr' : undefined,
-            },
-            fieldProps.style,
-          ]}
-          allowFontScaling={false}
-          placeholderTextColor={theme.colors.SECONDARY_TEXT}
-          selectionColor={theme.colors.PRIMARY}
-          underlineColorAndroid="transparent"
-        />
-      </View>
+      {noShadow ? content : <ShadowView preset="input">{content}</ShadowView>}
       {isOccasion && (
         <View style={styles.galleryUploadContainer}>
           <SvgGalleryUploadIcon
@@ -113,7 +123,6 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         alignItems: 'center',
         backgroundColor: colors.WHITE,
-        ...globalStyles.SHADOW_STYLE_INPUT,
       },
       phoneFieldLtr: {
         direction: 'ltr',
@@ -127,7 +136,6 @@ const useStyles = () => {
         paddingVertical: sizes.PADDING,
         alignItems: 'flex-start',
         backgroundColor: colors.WHITE,
-        ...globalStyles.SHADOW_STYLE_INPUT,
       },
       input: {
         ...globalStyles.TEXT_STYLE,
@@ -174,6 +182,7 @@ const useStyles = () => {
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         marginStart: 8,
+        writingDirection: 'ltr',
         ...(Platform.OS === 'ios' ? { marginTop: -2.5 } : {}),
       },
       galleryUploadContainer: {

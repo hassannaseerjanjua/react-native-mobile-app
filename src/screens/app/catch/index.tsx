@@ -1,4 +1,10 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import {
   StatusBar,
   FlatList,
@@ -10,6 +16,7 @@ import {
 } from 'react-native';
 import { Image } from '../../../utils/elements';
 import ParentView from '../../../components/app/ParentView';
+import ShadowView from '../../../components/global/ShadowView';
 import HomeHeader from '../../../components/global/HomeHeader';
 import useStyles from './style';
 import { AppStackScreen } from '../../../types/navigation.types';
@@ -51,6 +58,7 @@ import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText'
 import ConfirmationModal from '../../../components/global/ConfirmationModal';
 import { BlurView } from '@react-native-community/blur';
 import CustomButton from '../../../components/global/Custombutton';
+import { useFocusEffect } from '@react-navigation/native';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   navigation,
@@ -64,6 +72,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
     route.params?.cityId || null,
   );
+  const [itemsToFavorite, setItemsToFavorite] = useState<number[]>([])
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
@@ -109,11 +118,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const categoriesApi = useGetApi<Category[]>(
     screenType === 'favorite'
       ? apiEndpoints.GET_CATEGORIES(businessTypeId, storeID) +
-          '&isFavUserApp=true'
+      '&isFavUserApp=true'
       : apiEndpoints.GET_CAMPAIGN_CATEGORIES(
-          screenType === 'GiftOneGetOne' ? 3 : 1,
-          selectedCityId || user?.CityId,
-        ),
+        screenType === 'GiftOneGetOne' ? 3 : 1,
+        selectedCityId || user?.CityId,
+      ),
     {
       transformData: transformCategoriesData,
     },
@@ -135,9 +144,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       extraParams:
         storeID && storeBranchID
           ? {
-              StoreId: storeID,
-              StoreBranchId: storeBranchID,
-            }
+            StoreId: storeID,
+            // StoreBranchId: storeBranchID,
+          }
           : {},
       idExtractor: (item: FaveItems) => item.ItemId,
     },
@@ -209,6 +218,20 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     }
   }, [screenType, getStoreProducts.data, getFavoriteItems.data]);
 
+  // When returning from ProductDetails after favoriting/unfavoriting, reload list
+  const isFirstFocus = useRef(true);
+  useFocusEffect(
+    useCallback(() => {
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+        return;
+      }
+      if (screenType === 'favorite') {
+        getFavoriteItems.recall();
+      }
+    }, [screenType, getFavoriteItems]),
+  );
+
   const filterOptions = useMemo(() => {
     const allOption = { id: 'all', title: getString('FAV_ALL') };
     if (!categoriesApi.data || categoriesApi.data.length === 0) {
@@ -254,12 +277,38 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     getStoreProducts.data,
   ]);
 
+  const filteredListingApi = useMemo(() => {
+    if (screenType === 'favorite') {
+      return getFavoriteItems || [];
+    } else if (screenType === 'GiftOneGetOne') {
+      return getStoreProducts || [];
+    } else {
+      return getCatchItems;
+    }
+  }, [
+    screenType,
+    getFavoriteItems.data,
+    transformedCatchItems,
+    getStoreProducts.data,
+  ]);
+  console.log('filteredItems ==>', filteredListingApi.search);
   const listingApi = useMemo(() => {
     if (screenType === 'favorite') return getFavoriteItems;
     if (screenType === 'GiftOneGetOne') return getStoreProducts;
     if (screenType === 'catch') return getCatchItems;
     return null;
   }, [screenType, getFavoriteItems, getStoreProducts, getCatchItems]);
+
+  const showEmptyState = useMemo(() => {
+    if (!listingApi) return false;
+    // Don't show until the first fetch has completed (avoids flash before data arrives)
+    if (!listingApi.isInitialLoad) return false;
+    // Don't show during the initial skeleton loader or a mid-flight recall
+    if (listingApi.loading) return false;
+    // Don't show while paginating (data is still coming in)
+    if (listingApi.loadingMore) return false;
+    return filteredItems.length === 0;
+  }, [listingApi, filteredItems]);
 
   const handleSearchChange = (text: string) => {
     if (listingApi) {
@@ -319,7 +368,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       const favItem = item as FaveItems;
       navigation.navigate('ProductDetails', {
         itemId: favItem.ItemId,
+        storeId: favItem.StoreId ?? null,
         friendUserId: friendUserId ?? undefined,
+        fromFavorites: true,
       });
     } else if (screenType === 'GiftOneGetOne') {
       const product = item as StoreProduct | CatchItem;
@@ -337,6 +388,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     ItemId: number;
     IsFavorite: boolean;
   }) => {
+    if (filteredListingApi.loading) return
     setFavoriteStates(prev => ({
       ...prev,
       [payload.ItemId]: payload.IsFavorite,
@@ -459,7 +511,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           isFavorite={getFavoriteState(item)}
           hasFavorite={true}
           onFavoritePress={createFavoritePressHandler(item)}
-          // isFavoriteTab={true}
+        // isFavoriteTab={true}
         />
       );
     }
@@ -523,7 +575,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   }
 
   return (
-    <ParentView>
+    <ParentView
+      emptyStateText={
+        showEmptyState ? getString('EMPTY_NO_PRODUCTS_FOUND') : undefined
+      }
+    >
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -532,7 +588,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         title={getHeaderTitle()}
         showBackButton
         onBackPress={() => navigation.goBack()}
-        showSearchBar
+        showSearchBar={
+          filteredItems.length > 0 &&
+          !(categoriesApi.loading && filteredListingApi.loading)
+        }
+        loading={categoriesApi.loading && filteredListingApi.loading}
         searchValue={listingApi?.search}
         onSearchChange={handleSearchChange}
         searchPlaceholder={getString('HOME_SEARCH')}
@@ -562,7 +622,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               >
                 {selectedCityId
                   ? citiesApi.data?.find(city => city.CityID === selectedCityId)
-                      ?.CityName ?? ''
+                    ?.CityName ?? ''
                   : getString('SELECT_STORE_SELECT_CITY')}
               </Text>
               <ArrowDownIcon
@@ -611,13 +671,13 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             keyExtractor={getItemKey}
             columnWrapperStyle={styles.columnWrapper}
             extraData={favoriteStates}
-            ListEmptyComponent={() => (
-              <View style={{ height: theme.sizes.HEIGHT * 0.55 }}>
-                <PlaceholderLogoText
-                  text={getString('EMPTY_NO_PRODUCTS_FOUND')}
-                />
-              </View>
-            )}
+            // ListEmptyComponent={() => (
+            //   <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
+            //     <PlaceholderLogoText
+            //       text={getString('EMPTY_NO_PRODUCTS_FOUND')}
+            //     />
+            //   </View>
+            // )}
             contentContainerStyle={[
               styles.listContent,
               styles.listContainer,
@@ -661,43 +721,45 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         />
       )}
       {cartApi.data?.Items && (
-        <View style={styles.footerContainer}>
-          <TouchableOpacity
-            style={styles.footerButton}
-            onPress={() => {
-              if (!cartApi.data) return;
+        <ShadowView preset="storeCard">
+          <View style={styles.footerContainer}>
+            <TouchableOpacity
+              style={styles.footerButton}
+              onPress={() => {
+                if (!cartApi.data) return;
 
-              const cartData = cartApi.data;
+                const cartData = cartApi.data;
 
-              (navigation as any).navigate('GiftMessage', {
-                friendUserId,
-                storeBranchId: cartData.StoreBranchId,
-              });
-            }}
-            activeOpacity={0.8}
-          >
-            <View style={styles.footerQuantityBadge}>
-              <Text style={styles.footerQuantityText}>
-                {cartApi.data?.Items?.reduce(
-                  (sum, item) => sum + item.Quantity,
-                  0,
-                ) || 0}
+                (navigation as any).navigate('GiftMessage', {
+                  friendUserId,
+                  storeBranchId: cartData.StoreBranchId,
+                });
+              }}
+              activeOpacity={0.8}
+            >
+              <View style={styles.footerQuantityBadge}>
+                <Text style={styles.footerQuantityText}>
+                  {cartApi.data?.Items?.reduce(
+                    (sum, item) => sum + item.Quantity,
+                    0,
+                  ) || 0}
+                </Text>
+              </View>
+              <Text style={styles.footerButtonText}>
+                {getString('VIEW_CART')}
               </Text>
-            </View>
-            <Text style={styles.footerButtonText}>
-              {getString('VIEW_CART')}
-            </Text>
-            <View style={styles.footerPriceRow}>
-              <SvgRiyalIconWhite
-                width={scaleWithMax(12, 14)}
-                height={scaleWithMax(12, 14)}
-              />
-              <Text style={styles.footerPriceText}>
-                {cartApi.data?.TotalAmount || '0.00'}
-              </Text>
-            </View>
-          </TouchableOpacity>
-        </View>
+              <View style={styles.footerPriceRow}>
+                <SvgRiyalIconWhite
+                  width={scaleWithMax(12, 14)}
+                  height={scaleWithMax(12, 14)}
+                />
+                <Text style={styles.footerPriceText}>
+                  {cartApi.data?.TotalAmount || '0.00'}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          </View>
+        </ShadowView>
       )}
 
       <Modal

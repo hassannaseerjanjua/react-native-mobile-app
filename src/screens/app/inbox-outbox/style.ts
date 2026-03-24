@@ -41,7 +41,6 @@ const useStyles = () => {
           sizes.PADDING * 0.5,
         alignSelf: 'flex-start',
         overflow: 'visible',
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       redeemedBox: {
         backgroundColor: theme.colors.PRIMARY,
@@ -52,8 +51,6 @@ const useStyles = () => {
         left: sizes.WIDTH * 0.04,
         paddingHorizontal: sizes.PADDING * 0.5,
         paddingVertical: sizes.PADDING * 0.3,
-
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       inboxImage: {
         width:
@@ -78,7 +75,9 @@ const useStyles = () => {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingVertical: sizes.HEIGHT * 0.012,
-        paddingHorizontal: sizes.PADDING,
+        // paddingLeft: sizes.PADDING,
+        // paddingRight: sizes.PADDING + scaleWithMax(6, 8),
+        paddingHorizontal: sizes.PADDING * 0.75,
         borderBottomLeftRadius: 12,
         borderBottomRightRadius: 12,
         backgroundColor: theme.colors.WHITE,
@@ -98,6 +97,7 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'center',
         zIndex: 1,
+        marginStart: scaleWithMax(8, 10),
       },
       numText: {
         ...theme.globalStyles.TEXT_STYLE,

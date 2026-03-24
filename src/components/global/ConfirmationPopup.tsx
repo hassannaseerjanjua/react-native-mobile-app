@@ -9,6 +9,7 @@ import useTheme from '../../styles/theme';
 import CustomButton from './Custombutton';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
+import ShadowView from './ShadowView';
 
 interface ConfirmationPopupProps {
   visible: boolean;
@@ -56,7 +57,8 @@ const ConfirmationPopup: React.FC<ConfirmationPopupProps> = ({
       <TouchableWithoutFeedback onPress={handleBackdropPress}>
         <View style={styles.backdrop}>
           <TouchableWithoutFeedback onPress={() => { }}>
-            <View style={styles.modalContainer}>
+            <ShadowView preset="default">
+              <View style={styles.modalContainer}>
               {title && <Text style={styles.title}>{title}</Text>}
               <Text style={styles.message}>{message}</Text>
               <View style={styles.buttonContainer}>
@@ -76,6 +78,7 @@ const ConfirmationPopup: React.FC<ConfirmationPopupProps> = ({
                 />
               </View>
             </View>
+            </ShadowView>
           </TouchableWithoutFeedback>
         </View>
       </TouchableWithoutFeedback>
@@ -103,7 +106,6 @@ const useStyles = () => {
         paddingVertical: sizes.PADDING * 1.2,
         paddingHorizontal: sizes.PADDING * 1.2,
         alignItems: 'center',
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       title: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,

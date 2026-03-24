@@ -22,6 +22,7 @@ import {
 } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import BottomSheetHeader from '../app/BottomSheetHeader';
+import ShadowView from './ShadowView';
 import SearchUserItem from '../app/SearchUserItem';
 import { Image } from '../../utils/elements';
 import {
@@ -105,10 +106,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   } | null>(
     existingGroupImage
       ? {
-          uri: existingGroupImage,
-          type: 'image/jpeg',
-          name: 'group-image.jpg',
-        }
+        uri: existingGroupImage,
+        type: 'image/jpeg',
+        name: 'group-image.jpg',
+      }
       : null,
   );
 
@@ -135,10 +136,14 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     return Array.from(usersMap.values());
   }, [allUsers]);
 
-  const selectedUsersData = useMemo(
-    () => uniqueUsers.filter(user => selectedUsers.has(user.UserId)),
-    [uniqueUsers, selectedUsers],
-  );
+  const selectedUsersData = useMemo(() => {
+    const userIds = Array.from(selectedUsers);
+    const userMap = new Map(uniqueUsers.map(u => [u.UserId, u]));
+    return userIds
+      .reverse()
+      .map(id => userMap.get(id))
+      .filter((u): u is ActiveUser => !!u);
+  }, [uniqueUsers, selectedUsers]);
 
   const resetModalState = useCallback(
     (prefillGroupName = false) => {
@@ -148,10 +153,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       setGroupImage(
         prefillGroupName && existingGroupImage
           ? {
-              uri: existingGroupImage,
-              type: 'image/jpeg',
-              name: 'group-image.jpg',
-            }
+            uri: existingGroupImage,
+            type: 'image/jpeg',
+            name: 'group-image.jpg',
+          }
           : null,
       );
       setGroupError('');
@@ -267,7 +272,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       Array.from(selectedUsers).forEach(userId => {
         formData.append('MemberUserIds', userId.toString());
       });
-
+      Keyboard.dismiss()
       try {
         const res = await api.post(
           apiEndpoints.CREATE_GROUP,
@@ -326,38 +331,40 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     }
 
     return (
-      <View style={selectedUsersContainerStyle}>
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.selectedUsersList}
-        >
-          {selectedUsersData.map(user => (
-            <View key={user.UserId} style={styles.selectedUserItem}>
-              <View style={styles.selectedUserImageContainer}>
-                <Image
-                  source={
-                    user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
-                  }
-                  style={styles.selectedUserAvatar}
-                />
+      <ShadowView preset="low" disabled={viewOnly}>
+        <View style={selectedUsersContainerStyle}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.selectedUsersList}
+          >
+            {selectedUsersData.map(user => (
+              <View key={user.UserId} style={styles.selectedUserItem}>
+                <View style={styles.selectedUserImageContainer}>
+                  <Image
+                    source={
+                      user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
+                    }
+                    style={styles.selectedUserAvatar}
+                  />
 
-                {!viewOnly && (
-                  <TouchableOpacity
-                    style={styles.selectedUserCrossIcon}
-                    onPress={() => handleUserSelection(user.UserId)}
-                  >
-                    <SvgCrossIcon width={12} height={12} />
-                  </TouchableOpacity>
-                )}
+                  {!viewOnly && (
+                    <TouchableOpacity
+                      style={styles.selectedUserCrossIcon}
+                      onPress={() => handleUserSelection(user.UserId)}
+                    >
+                      <SvgCrossIcon width={12} height={12} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <Text style={styles.selectedUserName} numberOfLines={1}>
+                  {user.FullName.split(' ')[0]}
+                </Text>
               </View>
-              <Text style={styles.selectedUserName} numberOfLines={1}>
-                {user.FullName.split(' ')[0]}
-              </Text>
-            </View>
-          ))}
-        </ScrollView>
-      </View>
+            ))}
+          </ScrollView>
+        </View>
+      </ShadowView>
     );
   };
 
@@ -420,7 +427,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         title ? (
           <Text style={styles.sectionTitle}>{title}</Text>
         ) : (
-          <View style={{ paddingVertical: theme.sizes.HEIGHT * 0.009 }} />
+          <View style={{ paddingVertical: theme.sizes.HEIGHT * 0.006 }} />
         )
       }
       renderItem={({ item, section }) => {
@@ -451,57 +458,67 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         }
         if (section.renderMode === 'empty') {
           return (
-            <View style={styles.listCard}>
-              <View style={styles.emptyStateContainer}>
-                <Text style={styles.emptyStateText}>
-                  {filteredListings.length === 0
-                    ? getString('EMPTY_NO_RESULTS_FOUND')
-                    : getString('EMPTY_NO_USERS_TO_SHOW')}
-                </Text>
+            <ShadowView
+              preset="listItem"
+              containerStyle={styles.listCardContainer}
+            >
+              <View style={styles.listCard}>
+                <View style={styles.emptyStateContainer}>
+                  <Text style={styles.emptyStateText}>
+                    {filteredListings.length === 0
+                      ? getString('EMPTY_NO_RESULTS_FOUND')
+                      : getString('EMPTY_NO_USERS_TO_SHOW')}
+                  </Text>
+                </View>
               </View>
-            </View>
+            </ShadowView>
           );
         }
         const listing = item as UserListing & { _sectionKey?: string };
         const users = listing.users || [];
         return (
-          <View style={styles.listCard}>
-            {users.map((user, index) => (
-              <SearchUserItem
-                key={user.UserId}
-                item={user}
-                index={index}
-                isLast={index === users.length - 1}
-                showAddButton={false}
-                showSelection={!viewOnly}
-                isSelected={selectedUsers.has(user.UserId)}
-                onSelectionPress={() => handleUserSelection(user.UserId)}
-                onPress={
-                  viewOnly
-                    ? () => {
+          <ShadowView
+            preset="listItem"
+            containerStyle={styles.listCardContainer}
+          >
+            <View style={styles.listCard}>
+              {users.map((user, index) => (
+                <SearchUserItem
+                  key={user.UserId}
+                  item={user}
+                  index={index}
+                  isLast={index === users.length - 1}
+                  showAddButton={false}
+                  showSelection={!viewOnly}
+                  isSelected={selectedUsers.has(user.UserId)}
+                  onSelectionPress={() => handleUserSelection(user.UserId)}
+                  onPress={
+                    viewOnly
+                      ? () => {
                         closeModal();
                         routeTo === 'SelectStore'
                           ? (navigation as any).navigate('SelectStore', {
-                              friendUserId: user.UserId,
-                              CityId: user.CityId,
-                            })
+                            friendUserId: user.UserId,
+                            CityId: user.CityId,
+                          })
                           : (navigation as any).navigate('CatchScreen', {
-                              type: 'GiftOneGetOne',
-                              friendUserId: user.UserId,
-                            });
+                            type: 'GiftOneGetOne',
+                            friendUserId: user.UserId,
+                          });
                       }
-                    : undefined
-                }
-              />
-            ))}
-          </View>
+                      : undefined
+                  }
+                />
+              ))}
+            </View>
+          </ShadowView>
         );
       }}
       stickySectionHeadersEnabled={false}
       style={{ flex: 1 }}
       contentContainerStyle={{
         paddingHorizontal: theme.sizes.PADDING,
-        paddingBottom: theme.sizes.HEIGHT * 0.02,
+        paddingBottom: theme.sizes.HEIGHT * 0.1,
       }}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
@@ -605,7 +622,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   return (
     <Modal
       visible={visible}
-      transparent={true}
+      transparent={true} statusBarTranslucent={Platform.OS === 'android'}
       animationType="none"
       onRequestClose={closeModal}
     >
@@ -647,8 +664,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                     viewOnly
                       ? title
                       : isSendAGift
-                      ? getString('NG_ADD_MEMBERS')
-                      : getString('NG_EDIT_GROUP_MEMBERS')
+                        ? getString('NG_ADD_MEMBERS')
+                        : getString('NG_EDIT_GROUP_MEMBERS')
                   }
                   subTitle={
                     viewOnly
@@ -700,55 +717,57 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   keyboardShouldPersistTaps="handled"
                 >
                   <View style={styles.step2Container}>
-                    <View
-                      style={[
-                        styles.groupNameInputContainer,
-                        groupError && styles.groupNameInputError,
-                      ]}
-                    >
-                      <TouchableOpacity
-                        style={styles.groupNameIconWrapper}
-                        onPress={handleImageSelect}
-                      >
-                        {groupImage ? (
-                          <Image
-                            source={{ uri: groupImage.uri }}
-                            style={styles.groupImagePreview}
-                          />
-                        ) : (
-                          <SvgImageIcon
-                            width={scaleWithMax(15, 17)}
-                            height={scaleWithMax(15, 17)}
-                          />
-                        )}
-                      </TouchableOpacity>
-                      <TextInput
-                        ref={textInputRef}
-                        allowFontScaling={false}
+                    <ShadowView preset="searchBar">
+                      <View
                         style={[
-                          styles.groupNameInput,
-                          { textAlign: rtlTextAlign(isRtl) },
+                          styles.groupNameInputContainer,
+                          groupError && styles.groupNameInputError,
                         ]}
-                        placeholder={getString('NG_ENTER_GROUP_NAME')}
-                        placeholderTextColor={theme.colors.SECONDARY_GRAY}
-                        value={groupName}
-                        onChangeText={text => {
-                          setGroupName(text);
-                          if (groupError) setGroupError('');
-                        }}
-                        maxLength={50}
-                        onFocus={() => {
-                          if (Platform.OS === 'android') {
-                            setTimeout(() => {
-                              scrollViewRef.current?.scrollTo({
-                                y: 100,
-                                animated: true,
-                              });
-                            }, 300);
-                          }
-                        }}
-                      />
-                    </View>
+                      >
+                        <TouchableOpacity
+                          style={styles.groupNameIconWrapper}
+                          onPress={handleImageSelect}
+                        >
+                          {groupImage ? (
+                            <Image
+                              source={{ uri: groupImage.uri }}
+                              style={styles.groupImagePreview}
+                            />
+                          ) : (
+                            <SvgImageIcon
+                              width={scaleWithMax(15, 17)}
+                              height={scaleWithMax(15, 17)}
+                            />
+                          )}
+                        </TouchableOpacity>
+                        <TextInput
+                          ref={textInputRef}
+                          allowFontScaling={false}
+                          style={[
+                            styles.groupNameInput,
+                            { textAlign: rtlTextAlign(isRtl) },
+                          ]}
+                          placeholder={getString('NG_ENTER_GROUP_NAME')}
+                          placeholderTextColor={theme.colors.SECONDARY_GRAY}
+                          value={groupName}
+                          onChangeText={text => {
+                            setGroupName(text);
+                            if (groupError) setGroupError('');
+                          }}
+                          maxLength={50}
+                          onFocus={() => {
+                            if (Platform.OS === 'android') {
+                              setTimeout(() => {
+                                scrollViewRef.current?.scrollTo({
+                                  y: 100,
+                                  animated: true,
+                                });
+                              }, 300);
+                            }
+                          }}
+                        />
+                      </View>
+                    </ShadowView>
                     {groupError ? (
                       <Text style={styles.errorText}>{groupError}</Text>
                     ) : null}
@@ -786,14 +805,6 @@ const useStyles = () => {
   const styles = useMemo(() => {
     const { colors, sizes, fonts } = theme;
 
-    const shadowStyle = {
-      shadowColor: colors.BLACK,
-      shadowOffset: { width: 0, height: 2 },
-      shadowOpacity: 0.08,
-      shadowRadius: scaleWithMax(4, 6),
-      elevation: 1,
-    };
-
     const avatarSize = scaleWithMax(60, 60);
     const crossIconSize = scaleWithMax(20, 20);
     const userItemWidth = scaleWithMax(80, 80);
@@ -828,7 +839,6 @@ const useStyles = () => {
       },
       modalContent: {
         flex: 1,
-        height: sizes.HEIGHT * 0.9,
         width: '100%',
         paddingTop: sizes.HEIGHT * 0.01,
       },
@@ -839,7 +849,7 @@ const useStyles = () => {
         overflow: 'visible',
       },
       step2Container: {
-        paddingTop: sizes.PADDING * 0.8,
+        paddingTop: sizes.HEIGHT * 0.006,
         paddingBottom: sizes.HEIGHT * 0.02,
       },
       groupNameInputContainer: {
@@ -848,9 +858,7 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: 12,
         paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.HEIGHT * 0.0116,
-        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
-        // shadowColor: '#000',
+        ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
         // shadowOffset: { width: 0, height: 2 },
         // shadowOpacity: 0.08,
         // shadowRadius: 4,
@@ -952,13 +960,10 @@ const useStyles = () => {
       },
       selectedUsersContainer: {
         marginHorizontal: sizes.PADDING,
-        marginVertical: sizes.HEIGHT * 0.003,
-        marginBottom: sizes.HEIGHT * 0.01,
+        marginVertical: sizes.HEIGHT * 0.006,
         paddingVertical: sizes.BORDER_RADIUS_MID,
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS_MID,
-
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       selectedUsersList: {
         flexDirection: 'row',
@@ -999,15 +1004,16 @@ const useStyles = () => {
       listCard: {
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS_HIGH,
-        ...shadowStyle,
-        elevation: 2,
-        marginBottom: sizes.HEIGHT * 0.018,
+      },
+      listCardContainer: {
+        marginBottom: sizes.HEIGHT * 0.006,
       },
       sectionTitle: {
         fontFamily: fonts.semibold,
         fontSize: sizes.FONTSIZE_MED_HIGH,
         color: colors.PRIMARY_TEXT,
-        paddingBottom: sizes.HEIGHT * 0.01,
+        paddingTop: sizes.HEIGHT * 0.008,
+        paddingBottom: sizes.HEIGHT * 0.006,
       },
       emptyStateContainer: {
         paddingVertical: sizes.HEIGHT * 0.03,

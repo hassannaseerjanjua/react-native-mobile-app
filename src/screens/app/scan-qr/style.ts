@@ -19,11 +19,9 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_MED_HIGH,
       },
       QrContainer: {
-        ...theme.globalStyles.SHADOW_STYLE,
         backgroundColor: colors.WHITE,
         padding: sizes.HEIGHT * 0.035,
-        borderRadius: 8,
-        marginVertical: sizes.PADDING,
+        borderRadius: 12,
         justifyContent: 'center',
         alignItems: 'center',
       },
@@ -38,11 +36,10 @@ const useStyles = () => {
         padding: sizes.PADDING,
         borderRadius: 12,
 
-        marginVertical: sizes.PADDING * 0.6,
+        // marginVertical: sizes.PADDING * 0.6,
         flexDirection: 'row',
         gap: sizes.PADDING * 0.8,
         alignItems: 'center',
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       ProductImage: {
         borderRadius: 10,

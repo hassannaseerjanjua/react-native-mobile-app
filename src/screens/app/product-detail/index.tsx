@@ -10,7 +10,9 @@ import {
   SvgRiyalIcon,
   SvgRiyalPink,
 } from '../../../assets/icons';
-import { scaleWithMax, rtlTransform } from '../../../utils';
+import PriceWithIcon from '../../../components/global/Price';
+import { scaleWithMax, rtlTransform, isAndroid } from '../../../utils';
+import ShadowView from '../../../components/global/ShadowView';
 import ProductImageSlider from '../../../components/global/ProductImageSlider';
 import GroupTabs from '../../../components/global/GroupTabs';
 import CustomButton from '../../../components/global/Custombutton';
@@ -19,6 +21,7 @@ import { AppStackScreen } from '../../../types/navigation.types';
 import ParentView from '../../../components/app/ParentView';
 import apiEndpoints from '../../../constants/api-endpoints';
 import api from '../../../utils/api';
+import { patchCacheItems } from '../../../utils/api-cache';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi';
@@ -42,11 +45,16 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const [selectedFilter, setSelectedFilter] = useState<string>('');
   const [quantity, setQuantity] = useState<number>(1);
   const [submitting, setSubmitting] = useState<boolean>(false);
+  const [favoriteSubmitting, setFavoriteSubmitting] = useState<boolean>(false);
+  const favoriteInProgressRef = React.useRef(false);
   const [item, setItem] = useState<any>(null);
   const sendType = route?.params?.sendType ?? null;
   const isSendAGiftFlow = sendType !== null && sendType !== undefined;
   const campaignId = route?.params?.campaignId ?? null;
-  const isGiftOneGetOne = route.params.type === 'GiftOneGetOne';
+  const addToFavorites = route?.params?.addToFavorites ?? false;
+  const fromFavorites = route?.params?.fromFavorites ?? false;
+  const isFavoritesMode = addToFavorites || fromFavorites;
+  const isGiftOneGetOne = route.params?.type === 'GiftOneGetOne';
   const [showClearCartConfirmation, setShowClearCartConfirmation] =
     useState(false);
   const [isVariantChange, setIsVariantChange] = useState(false);
@@ -56,11 +64,11 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     transformData: (data: any) => (data?.Data || data) as CartResponse,
   });
   const itemApi = useGetApi<StoreProduct>(
-    isSendAGiftFlow
+    isSendAGiftFlow || isFavoritesMode
       ? apiEndpoints.GET_SEND_A_GIFT_ITEM_BY_ID(itemId, !!campaignId)
       : apiEndpoints.GET_STORE_ITEM_BY_ID(
           itemId,
-          route.params.type === 'GiftOneGetOne',
+          route.params?.type === 'GiftOneGetOne',
         ),
     {
       transformData: (data: any) => data?.Data ?? null,
@@ -124,25 +132,37 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     return imgs.length > 0 ? imgs : [placeholderImage];
   }, [item]);
 
-  const handleFavorite = async () => {
-    if (!item) return;
+  const handleFavorite = async (): Promise<boolean> => {
+    if (!item) return false;
+    if (favoriteInProgressRef.current) return false;
+    favoriteInProgressRef.current = true;
+    setFavoriteSubmitting(true);
     const previousFavoriteState = item.isFavourite ?? false;
-    // Optimistically update the UI
-    setItem({ ...item, isFavourite: !previousFavoriteState });
+    const newFavoriteState = !previousFavoriteState;
+    setItem({ ...item, isFavourite: newFavoriteState });
     try {
       const res = await api.post<any>(apiEndpoints.HANDLE_FAVORITE_ITEM, {
         ItemId: item.ItemId,
-        isFavorite: !previousFavoriteState,
+        isFavorite: newFavoriteState,
       });
       if (!res.success) {
-        // Revert on error
         setItem({ ...item, isFavourite: previousFavoriteState });
         notify.error(res.error || getString('AU_ERROR_OCCURRED'));
+        return false;
       }
+      patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
+        'listing:',
+        i => i.ItemId === item.ItemId,
+        { isFavourite: newFavoriteState },
+      );
+      return true;
     } catch (error: any) {
-      // Revert on error
       setItem({ ...item, isFavourite: previousFavoriteState });
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
+      return false;
+    } finally {
+      favoriteInProgressRef.current = false;
+      setFavoriteSubmitting(false);
     }
   };
 
@@ -156,7 +176,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     const currentCartQuantity = selectedVariant?.CountInCart || 0;
 
     if (isAlreadyInCart) {
-      // Update cart item quantity
       const newQuantity = currentCartQuantity + quantity;
       const payload = {
         ItemId: item.ItemId,
@@ -178,7 +197,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         notify.error(response.error || getString('AU_ERROR_OCCURRED'));
       }
     } else {
-      // Add new item to cart
       const finalCampaignId =
         campaignId || item?.CampaignId || item?.Campaign?.CampaignId;
 
@@ -192,9 +210,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         IsGift: true,
       };
 
-      // For merchants, use FriendIds array; otherwise use FriendId
       if (isMerchant) {
-        // Always use array format for merchants
         if (friendIds) {
           payload.FriendIds = Array.isArray(friendIds)
             ? friendIds
@@ -223,7 +239,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     try {
       setSubmitting(true);
 
-      // Clear the cart first
       const clearResponse = await api.put(apiEndpoints.CLEAR_CART, {});
       if (!clearResponse.success) {
         notify.error(clearResponse.error || getString('AU_ERROR_OCCURRED'));
@@ -231,7 +246,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
         return;
       }
 
-      // Then add the new item (skip submitting check since we're already managing it)
       await performAddToCart(true);
       setSubmitting(false);
     } catch (error: any) {
@@ -243,35 +257,29 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const handleAddToCart = async () => {
     if (submitting) return;
 
-    // Check if we're in GiftOneGetOne flow and cart has items
     if (isGiftOneGetOne && cartApi.data) {
       const cartItems = cartApi.data.Items || [];
       const hasCartItems = cartItems.length > 0;
 
       if (hasCartItems) {
-        // Check if the current item is in cart
         const currentItemInCart = cartItems.find(
           cartItem => cartItem.ItemId === item?.ItemId,
         );
 
         if (currentItemInCart) {
-          // Item is in cart, check if it's a different variant
           const selectedVariantId = selectedFilter
             ? Number(selectedFilter)
             : null;
           const cartVariantId =
             currentItemInCart.Variant?.ItemVariantId || null;
 
-          // If variants are different, show confirmation
           if (selectedVariantId !== cartVariantId) {
             setIsVariantChange(true);
             setsamestoreg1g1(false);
             setShowClearCartConfirmation(true);
             return;
           }
-          // Same item and same variant - proceed normally (will update quantity)
         } else {
-          // Different item in cart, show confirmation
           const cartStoreId = cartApi.data.StoreId;
           const currentStoreId = item?.StoreId || storeId;
           const isSameStore = cartStoreId === currentStoreId;
@@ -284,7 +292,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
       }
     }
 
-    // Proceed with normal add to cart flow
     try {
       setSubmitting(true);
       await performAddToCart(true);
@@ -295,7 +302,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     }
   };
 
-  // Updated price calculation to use FinalPrice directly
   const { originalPrice, finalPrice, discountAmount, hasDiscount } =
     useMemo(() => {
       if (!itemApi.data)
@@ -312,7 +318,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
           )
         : itemApi.data.Variants?.find((v: any) => v.IsDefault);
 
-      // Get values from the selected variant or fallback to item level
       const basePrice = selectedVariant
         ? selectedVariant.Price
         : itemApi.data.Price;
@@ -353,204 +358,222 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     });
   }, [isMerchant, isGiftOneGetOne, cartApi.data, item, selectedFilter]);
 
-  // Calculate savings amount
   const savingsAmount = useMemo(() => {
     return hasDiscount ? originalPrice - finalPrice : 0;
   }, [hasDiscount, originalPrice, finalPrice]);
 
   return (
-    <ParentView edges={['bottom']}>
-      <View style={styles.sliderWrapper}>
-        <ProductImageSlider
-          loading={loading}
-          sliders={productImages}
-          contentContainerStyle={styles.sliderContent}
-        />
-      </View>
-      <View
-        style={{
-          position: 'absolute',
-          top: 68,
-          left: 0,
-          right: 0,
-          flexDirection: 'row',
-          justifyContent: 'space-between',
-          paddingHorizontal: sizes.PADDING,
-          alignItems: 'center',
-          zIndex: 10,
-          width: '100%',
-        }}
-      >
-        <TouchableOpacity
-          onPress={navigation.goBack}
-          style={styles.backContainer}
-        >
-          <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
-        </TouchableOpacity>
-        {!isMerchant && (
-          <TouchableOpacity
-            style={styles.rounded_white_background}
-            onPress={() => handleFavorite()}
-          >
-            {item?.isFavourite ? (
-              <SvgItemFavouriteIcon
-                width={scaleWithMax(14, 16)}
-                height={scaleWithMax(14, 16)}
-              />
-            ) : (
-              <SvgItemFavouriteIconInActive
-                width={scaleWithMax(14, 16)}
-                height={scaleWithMax(14, 16)}
-              />
-            )}
-          </TouchableOpacity>
-        )}
-      </View>
-
-      {loading ? (
-        <View>
-          <ScrollView
-            contentContainerStyle={{
-              paddingHorizontal: sizes.PADDING,
-              paddingBottom: sizes.HEIGHT * 0.15,
-            }}
-          >
-            <View>
-              <SkeletonLoader screenType="productDetails" />
-            </View>
-          </ScrollView>
-        </View>
-      ) : (
-        <ScrollView
-          style={{ ...styles.container }}
-          contentContainerStyle={styles.scrollViewContent}
-        >
-          <View style={styles.LowerContainer}>
-            <View style={styles.ProductTitleContainer}>
-              <View style={styles.titleRow}>
-                <Text style={styles.ProductTitle}>
-                  {isRtl ? item?.NameAr : item?.NameEn}
-                </Text>
-                <View style={styles.priceContainer}>
-                  {/* Final Price - Current price after discount */}
-                  {hasDiscount && (
-                    <>
-                      <SvgRiyalPink
-                        width={scaleWithMax(15, 18)}
-                        height={scaleWithMax(15, 18)}
-                        style={{
-                          marginTop: 3.5,
-                        }}
-                      />
-                      <Text style={styles.discountedPrice}>{finalPrice}</Text>
-                    </>
-                  )}
-
-                  {/* Original Price - Strikethrough when discounted */}
-                  <SvgRiyalIcon
-                    width={
-                      hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)
-                    }
-                    height={
-                      hasDiscount ? scaleWithMax(11, 13) : scaleWithMax(15, 18)
-                    }
-                    opacity={hasDiscount ? 0.32 : 1}
-                    style={{
-                      marginTop: 3.5,
-                    }}
-                  />
-                  <Text style={hasDiscount ? styles.cutPrice : styles.price}>
-                    {originalPrice}
-                  </Text>
-                </View>
-              </View>
-              <Text style={styles.TaxIncludeText}>
-                {getString('PRODUCT_ALL_PRICE_INCLUDE_TAX')}
-              </Text>
-            </View>
-
-            <View style={styles.ProductDescriptionContainer}>
-              <Text style={styles.Heading}>
-                {getString('PRODUCT_DESCRIPTION')}
-              </Text>
-              <Text style={styles.Description}>
-                {isRtl ? item?.DescAr : item?.DescEn}
-              </Text>
-            </View>
-            {item?.Variants?.length > 1 && (
-              <>
-                <View style={styles.tabsContainer}>
-                  <Text style={styles.Heading}>
-                    {getString('PRODUCT_VARIANTS')}
-                  </Text>
-                  <GroupTabs
-                    tabs={filterOptions}
-                    activeTab={selectedFilter}
-                    onTabPress={setSelectedFilter}
-                  />
-                </View>
-              </>
-            )}
-          </View>
-        </ScrollView>
-      )}
-
-      {/* Bottom Action Bar */}
-      <View
-        style={{
-          borderTopLeftRadius: 15,
-          borderTopRightRadius: 15,
-          position: 'absolute',
-          bottom: scaleWithMax(3, 4),
-          left: 0,
-          right: 0,
-          ...theme.globalStyles.SHADOW_STYLE_STORE_CARD,
-        }}
-      >
-        <View
-          style={{
-            ...styles.spaceBetween,
-            gap: sizes.WIDTH * 0.045,
-            backgroundColor: theme.colors.WHITE,
-            paddingHorizontal: sizes.PADDING,
-            paddingVertical: sizes.HEIGHT * 0.028,
-            borderTopLeftRadius: 15,
-            borderTopRightRadius: 15,
-          }}
-        >
-          {!isMerchant && !isGiftOneGetOne && (
-            <View style={styles.QuantityContainer}>
-              <MinusIcon
-                width={scaleWithMax(25, 28)}
-                height={scaleWithMax(25, 28)}
-                onPress={() => handleQuantityChange('decrement')}
-              />
-              <Text style={styles.QuantityText}>{quantity}</Text>
-              <PlusIcon
-                width={scaleWithMax(25, 28)}
-                height={scaleWithMax(25, 28)}
-                onPress={() => handleQuantityChange('increment')}
-              />
-            </View>
-          )}
-
-          <CustomButton
-            buttonStyle={styles.button}
-            onPress={() => {
-              if (isItemInCart) {
-                (navigation as any).navigate('CheckOut');
-              } else {
-                handleAddToCart();
-              }
-            }}
-            title={
-              isItemInCart
-                ? getString('PRODUCT_VIEW_CART')
-                : getString('PRODUCT_ADD_TO_CART')
-            }
-            disabled={submitting}
+    <ParentView edges={['bottom']} stableLayout={false}>
+      <View style={{ flex: 1 }}>
+        <View style={styles.sliderWrapper}>
+          <ProductImageSlider
+            loading={loading}
+            sliders={productImages}
+            contentContainerStyle={styles.sliderContent}
           />
         </View>
+        <View
+          style={{
+            position: 'absolute',
+            top: 68,
+            left: 0,
+            right: 0,
+            flexDirection: 'row',
+            justifyContent: 'space-between',
+            paddingHorizontal: sizes.PADDING,
+            alignItems: 'center',
+            zIndex: 10,
+            width: '100%',
+          }}
+        >
+          <ShadowView preset="default">
+            <TouchableOpacity
+              onPress={navigation.goBack}
+              style={styles.backContainer}
+            >
+              <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
+            </TouchableOpacity>
+          </ShadowView>
+          {!isMerchant && !isFavoritesMode && (
+            <TouchableOpacity
+              style={styles.rounded_white_background}
+              onPress={() => handleFavorite()}
+              disabled={favoriteSubmitting}
+            >
+              {item?.isFavourite ? (
+                <SvgItemFavouriteIcon
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
+              ) : (
+                <SvgItemFavouriteIconInActive
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {loading ? (
+          <ScrollView
+            style={styles.container}
+            contentContainerStyle={{
+              paddingHorizontal: sizes.PADDING,
+              paddingBottom: sizes.HEIGHT * 0.04,
+            }}
+          >
+            <SkeletonLoader screenType="productDetails" />
+          </ScrollView>
+        ) : (
+          <ScrollView
+            style={styles.container}
+            contentContainerStyle={styles.scrollViewContent}
+          >
+            <View style={styles.LowerContainer}>
+              <View style={styles.ProductTitleContainer}>
+                <View style={styles.titleRow}>
+                  <Text style={styles.ProductTitle}>
+                    {isRtl ? item?.NameAr : item?.NameEn}
+                  </Text>
+                  <View style={styles.priceContainer}>
+                    {hasDiscount && (
+                      <PriceWithIcon
+                        amount={finalPrice}
+                        variant="discounted"
+                        icon={
+                          <SvgRiyalPink
+                            width={scaleWithMax(15, 18)}
+                            height={scaleWithMax(15, 18)}
+                          />
+                        }
+                        iconSize={scaleWithMax(15, 18)}
+                        textStyle={styles.discountedPrice}
+                      />
+                    )}
+                    <PriceWithIcon
+                      amount={originalPrice}
+                      variant={hasDiscount ? 'cut' : 'default'}
+                      icon={
+                        <SvgRiyalIcon
+                          width={
+                            hasDiscount
+                              ? scaleWithMax(11, 13)
+                              : scaleWithMax(15, 18)
+                          }
+                          height={
+                            hasDiscount
+                              ? scaleWithMax(11, 13)
+                              : scaleWithMax(15, 18)
+                          }
+                        />
+                      }
+                      iconSize={
+                        hasDiscount
+                          ? scaleWithMax(11, 13)
+                          : scaleWithMax(15, 18)
+                      }
+                      iconOpacity={hasDiscount ? 0.32 : 1}
+                      textStyle={hasDiscount ? styles.cutPrice : styles.price}
+                    />
+                  </View>
+                </View>
+                <Text style={styles.TaxIncludeText}>
+                  {getString('PRODUCT_ALL_PRICE_INCLUDE_TAX')}
+                </Text>
+              </View>
+
+              <View style={styles.ProductDescriptionContainer}>
+                <Text style={styles.Heading}>
+                  {getString('PRODUCT_DESCRIPTION')}
+                </Text>
+                <Text style={styles.Description}>
+                  {isRtl ? item?.DescAr : item?.DescEn}
+                </Text>
+              </View>
+              {item?.Variants?.length > 1 && (
+                <>
+                  <View style={styles.tabsContainer}>
+                    <Text style={styles.Heading}>
+                      {getString('PRODUCT_VARIANTS')}
+                    </Text>
+                    <GroupTabs
+                      tabs={filterOptions}
+                      tabStyle={{
+                        paddingVertical: theme.sizes.HEIGHT * 0.008,
+                      }}
+                      activeTab={selectedFilter}
+                      onTabPress={setSelectedFilter}
+                    />
+                  </View>
+                </>
+              )}
+            </View>
+          </ScrollView>
+        )}
+
+        <ShadowView
+          preset="productDetailFooter"
+          style={{
+            borderTopLeftRadius: 15,
+            borderTopRightRadius: 15,
+            backgroundColor: theme.colors.WHITE,
+          }}
+        >
+          <View
+            style={{
+              ...styles.spaceBetween,
+              gap: sizes.WIDTH * 0.045,
+              backgroundColor: theme.colors.WHITE,
+              paddingHorizontal: sizes.PADDING,
+              paddingTop: sizes.HEIGHT * 0.016,
+              paddingBottom: isAndroid ? sizes.HEIGHT * 0.025 : undefined,
+              borderTopLeftRadius: 15,
+              borderTopRightRadius: 15,
+            }}
+          >
+            {!isMerchant && !isGiftOneGetOne && !isFavoritesMode && (
+              <View style={styles.QuantityContainer}>
+                <MinusIcon
+                  width={scaleWithMax(25, 28)}
+                  height={scaleWithMax(25, 28)}
+                  onPress={() => handleQuantityChange('decrement')}
+                />
+                <Text style={styles.QuantityText}>{quantity}</Text>
+                <PlusIcon
+                  width={scaleWithMax(25, 28)}
+                  height={scaleWithMax(25, 28)}
+                  onPress={() => handleQuantityChange('increment')}
+                />
+              </View>
+            )}
+
+            <CustomButton
+              buttonStyle={styles.button}
+              onPress={() => {
+                if (isFavoritesMode) {
+                  handleFavorite().then(success => {
+                    if (success) navigation.goBack();
+                  });
+                } else if (isItemInCart) {
+                  (navigation as any).navigate('CheckOut');
+                } else {
+                  handleAddToCart();
+                }
+              }}
+              title={
+                isFavoritesMode
+                  ? item?.isFavourite
+                    ? getString('PRODUCT_REMOVE_FROM_FAVORITES')
+                    : getString('PRODUCT_ADD_TO_FAVORITES')
+                  : isItemInCart
+                  ? getString('PRODUCT_VIEW_CART')
+                  : getString('PRODUCT_ADD_TO_CART')
+              }
+              disabled={submitting || favoriteSubmitting}
+            />
+          </View>
+        </ShadowView>
       </View>
 
       <ConfirmationPopup

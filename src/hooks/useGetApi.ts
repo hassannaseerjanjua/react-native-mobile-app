@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import api, { getAuthHeader } from '../utils/api';
 import { getCached, setCached } from '../utils/api-cache';
 
@@ -10,13 +10,20 @@ const useGetApi = <T>(
     initialData?: T;
     /** Skip caching for this call (e.g. user-specific or always-fresh endpoints) */
     noCache?: boolean;
+    /** When false, skip initial fetch. Call refetch() when needed. */
+    enabled?: boolean;
   },
 ) => {
+  const enabled = config?.enabled !== false;
   const [data, setData] = useState<T | null>(config?.initialData || null);
-  const [loading, setLoading] = useState(!config?.initialData);
+  const [loading, setLoading] = useState(!config?.initialData && enabled);
   const [error, setError] = useState<any>(null);
   const token = 'Token';
   const isMounted = useRef(true);
+  const urlRef = useRef(url);
+  urlRef.current = url;
+  const configRef = useRef(config);
+  configRef.current = config;
 
   useEffect(() => {
     isMounted.current = true;
@@ -25,16 +32,18 @@ const useGetApi = <T>(
     };
   }, []);
 
-  const fetchData = async () => {
-    if (url === '') {
+  const fetchData = useCallback(async () => {
+    const currentUrl = urlRef.current;
+    if (currentUrl === '') {
       setLoading(false);
       return;
     }
 
     setLoading(true);
 
-    const noCache = config?.noCache ?? false;
-    const cacheKey = url;
+    const cfg = configRef.current;
+    const noCache = cfg?.noCache ?? false;
+    const cacheKey = currentUrl;
     let cachedJson: string | null = null;
 
     // Step 1: show stale data immediately if available
@@ -43,26 +52,23 @@ const useGetApi = <T>(
       if (cached !== null && isMounted.current) {
         setData(cached);
         cachedJson = JSON.stringify(cached);
-        // Don't show full-screen loader — data is already visible
         setLoading(false);
       }
     }
 
     // Step 2: fetch fresh data in the background
     const response = await api.get<T>(
-      url,
-      config?.withAuth ? getAuthHeader(token) : undefined,
+      currentUrl,
+      cfg?.withAuth ? getAuthHeader(token) : undefined,
     );
 
     if (!isMounted.current) return;
 
     if (response.success && response.data) {
-      const transformed = config?.transformData
-        ? config.transformData(response.data)
+      const transformed = cfg?.transformData
+        ? cfg.transformData(response.data)
         : (response.data as T);
 
-      // Only update state if the data actually changed — avoids a flash
-      // when the fresh response is identical to what the cache already showed.
       const freshJson = JSON.stringify(transformed);
       if (freshJson !== cachedJson) {
         setData(transformed);
@@ -78,12 +84,15 @@ const useGetApi = <T>(
     }
 
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
+    if (!enabled || url === '') {
+      setLoading(false);
+      return;
+    }
     fetchData();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [url, enabled, fetchData]);
 
   return {
     data,

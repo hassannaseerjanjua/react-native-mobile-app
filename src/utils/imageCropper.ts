@@ -27,9 +27,12 @@ export interface ImageCropperOptions {
   maxWidth?: number;
   /** Max height for compression (default: 800) */
   maxHeight?: number;
+  /** Called when picker fails due to photo library permission (e.g. iOS denied) */
+  onPermissionDenied?: () => void;
 }
 
-const defaultOptions: Required<ImageCropperOptions> = {
+const defaultOptions: Required<Omit<ImageCropperOptions, 'onPermissionDenied'>> &
+  Pick<ImageCropperOptions, 'onPermissionDenied'> = {
   cropSize: 400,
   quality: 0.8,
   circularOverlay: true,
@@ -78,14 +81,11 @@ export const selectAndCropImage = async (
     // Optionally compress the cropped image
     if (opts.compress) {
       try {
-        const compressedImage = await ImageCompressor.Image.compress(
-          finalUri,
-          {
-            quality: opts.compressionQuality,
-            maxWidth: opts.maxWidth,
-            maxHeight: opts.maxHeight,
-          },
-        );
+        const compressedImage = await ImageCompressor.Image.compress(finalUri, {
+          quality: opts.compressionQuality,
+          maxWidth: opts.maxWidth,
+          maxHeight: opts.maxHeight,
+        });
         finalUri = fileUriWrapper(compressedImage);
         console.log('Compressed image URI:', finalUri);
       } catch (compressError) {
@@ -105,6 +105,17 @@ export const selectAndCropImage = async (
       console.log('User cancelled image selection/cropping');
     } else {
       console.error('Error selecting/cropping image:', error);
+      // Check if error might be permission-related (iOS photo library denied)
+      const msg = String(error?.message || '').toLowerCase();
+      const isPermissionError =
+        msg.includes('permission') ||
+        msg.includes('denied') ||
+        msg.includes('access') ||
+        msg.includes('photo') ||
+        error?.code === 'E_NO_LIBRARY_PERMISSION';
+      if (isPermissionError && opts.onPermissionDenied) {
+        opts.onPermissionDenied();
+      }
     }
     return null;
   }
@@ -144,14 +155,11 @@ export const cropExistingImage = async (
 
     if (opts.compress) {
       try {
-        const compressedImage = await ImageCompressor.Image.compress(
-          finalUri,
-          {
-            quality: opts.compressionQuality,
-            maxWidth: opts.maxWidth,
-            maxHeight: opts.maxHeight,
-          },
-        );
+        const compressedImage = await ImageCompressor.Image.compress(finalUri, {
+          quality: opts.compressionQuality,
+          maxWidth: opts.maxWidth,
+          maxHeight: opts.maxHeight,
+        });
         finalUri = fileUriWrapper(compressedImage);
       } catch (compressError) {
         console.warn('Compression failed, using cropped image:', compressError);

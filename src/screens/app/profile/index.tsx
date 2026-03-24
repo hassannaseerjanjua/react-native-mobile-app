@@ -49,7 +49,12 @@ import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import CustomButton from '../../../components/global/Custombutton';
 import { BlurView } from '@react-native-community/blur';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
+import ShadowView from '../../../components/global/ShadowView';
 import { selectAndCropImage } from '../../../utils/imageCropper';
+import {
+  requestGalleryPermission,
+  showGalleryPermissionDeniedAlert,
+} from '../../../utils/cameraPermission';
 import { callLogoutWithDeviceToken } from '../../../utils/notificationService';
 import { encodeGiftLinkParams } from '../../../utils/giftLinkCodec';
 
@@ -83,7 +88,7 @@ const ProfileScreen: React.FC = () => {
         CityId: user.CityId,
         sendType: 1,
       });
-      const giftLink = `https://admin.giftee.hostinger.bitscollision.net/gift-me?t=${encodeURIComponent(
+      const giftLink = `https://giftee.global/gift-me?t=${encodeURIComponent(
         token,
       )}`;
 
@@ -113,8 +118,10 @@ const ProfileScreen: React.FC = () => {
   const handleImageSelect = async () => {
     if (isUploading) return;
 
+    const granted = await requestGalleryPermission(getString);
+    if (!granted) return;
+
     try {
-      // Use WhatsApp-like cropper with circular overlay
       const croppedImage = await selectAndCropImage({
         cropSize: 400,
         circularOverlay: true, // Round overlay like WhatsApp
@@ -123,6 +130,7 @@ const ProfileScreen: React.FC = () => {
         compressionQuality: 0.8,
         maxWidth: 800,
         maxHeight: 800,
+        onPermissionDenied: () => showGalleryPermissionDeniedAlert(getString),
       });
 
       if (croppedImage) {
@@ -327,7 +335,7 @@ const ProfileScreen: React.FC = () => {
         'settings',
         'manage-cards',
         'order',
-        'connect',
+        // 'connect',
         'contact-us',
         'terms',
         'privacy',
@@ -372,16 +380,14 @@ const ProfileScreen: React.FC = () => {
       >
         <View style={screenStyles.profileSection}>
           <TouchableOpacity
-            onPress={() => {
+            onPress={async () => {
               if (user?.ProfileUrl) {
-                // If image exists, navigate to ProfileImageViewer
                 (navigation as any).navigate('ProfileImageViewer', {
                   imageUri: user.ProfileUrl,
                   placeholderImage: dummyImage,
                 });
               } else {
-                // If no image, open gallery directly
-                handleImageSelect();
+                await handleImageSelect();
               }
             }}
             disabled={isUploading}
@@ -409,9 +415,11 @@ const ProfileScreen: React.FC = () => {
             </View>
             <Text style={screenStyles.profileUsername}>@{user?.UserName}</Text>
           </View>
-          <TouchableOpacity onPress={() => setShowQrModal(true)}>
-            <SvgProfileQrIcon />
-          </TouchableOpacity>
+          {!isMerchant && (
+            <TouchableOpacity onPress={() => setShowQrModal(true)}>
+              <SvgProfileQrIcon />
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={screenStyles.menuContainer}>
@@ -425,6 +433,7 @@ const ProfileScreen: React.FC = () => {
                   icon={item.icon}
                   TabItemStyles={screenStyles.menuItem}
                   TabTextStyles={screenStyles.menuItemText}
+                  shadowPreset="lightOffset"
                 />
               </View>
             ),
@@ -451,7 +460,9 @@ const ProfileScreen: React.FC = () => {
             activeOpacity={1}
             onPress={() => setShowQrModal(false)}
           />
-          <View
+          <ShadowView
+            preset="storeCard"
+            containerStyle={{ alignSelf: 'stretch' }}
             style={[
               screenStyles.modalContent,
               {
@@ -468,7 +479,11 @@ const ProfileScreen: React.FC = () => {
                 {getString('P_SCANTOGETME')}
               </Text>
 
-              <View style={screenStyles.qrCodeContainer}>
+              <ShadowView
+                preset="listItem"
+                containerStyle={{ alignSelf: 'stretch' }}
+                style={screenStyles.qrCodeContainer}
+              >
                 <View style={screenStyles.modalProfileSection}>
                   <Image
                     source={
@@ -509,9 +524,9 @@ const ProfileScreen: React.FC = () => {
                     </Text>
                   </View>
                 )}
-              </View>
+              </ShadowView>
             </View>
-          </View>
+          </ShadowView>
         </View>
       </Modal>
 

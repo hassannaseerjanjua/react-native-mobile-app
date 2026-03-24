@@ -22,7 +22,12 @@ import Occasions from '../screens/app/occasions/index';
 import Notifications from '../screens/app/notifications/index';
 import useTheme from '../styles/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { TouchableOpacity, View, DeviceEventEmitter } from 'react-native';
+import {
+  TouchableOpacity,
+  View,
+  DeviceEventEmitter,
+  Platform,
+} from 'react-native';
 import { isAndroidThen, isIOSThen, scaleWithMax } from '../utils';
 import { useLocaleStore } from '../store/reducer/locale';
 import { Text } from '../utils/elements';
@@ -30,6 +35,7 @@ import { useAuthStore } from '../store/reducer/auth';
 import notify from '../utils/notify';
 import useGetApi from '../hooks/useGetApi';
 import apiEndpoints from '../constants/api-endpoints';
+import Svg, { Path } from 'react-native-svg';
 
 const Tab = createBottomTabNavigator();
 
@@ -133,17 +139,38 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
     <View
       style={{
         backgroundColor: theme.colors.BACKGROUND,
-        borderTopColor: theme.colors.SECONDARY_GRAY,
-        borderTopWidth: 0,
         paddingHorizontal: scaleWithMax(10, 12),
-
         height: isAndroidThen(scaleWithMax(70, 75), undefined),
         borderTopLeftRadius: 14,
         borderTopRightRadius: 14,
         flexDirection: 'row',
-        ...theme.globalStyles.SHADOW_STYLE,
+        // iOS: thin shadow at top. Android: curved overlay below.
+        ...(Platform.OS === 'ios'
+          ? {
+              shadowColor: theme.colors.SECONDARY_GRAY,
+              shadowOffset: { width: 0, height: -2 },
+              shadowOpacity: 0.25,
+              shadowRadius: 0.8,
+            }
+          : {}),
       }}
     >
+      {Platform.OS === 'android' && (
+        <Svg
+          width={theme.sizes.WIDTH}
+          height={14}
+          style={{ position: 'absolute', top: 0, left: 0 }}
+        >
+          <Path
+            d={`M 0 14 A 14 14 0 0 1 14 0 L ${
+              theme.sizes.WIDTH - 14
+            } 0 A 14 14 0 0 1 ${theme.sizes.WIDTH} 14`}
+            stroke={theme.colors.SECONDARY_GRAY}
+            strokeWidth={1}
+            fill="none"
+          />
+        </Svg>
+      )}
       <View
         style={{
           position: 'absolute',
@@ -159,8 +186,8 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
           options.tabBarLabel !== undefined
             ? options.tabBarLabel
             : options.title !== undefined
-              ? options.title
-              : route.name;
+            ? options.title
+            : route.name;
 
         const isFocused = state.index === index;
 

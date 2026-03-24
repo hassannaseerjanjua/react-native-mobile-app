@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   RefreshControl,
+  ActivityIndicator,
 } from 'react-native';
 import useStyles from './style.ts';
 import { useNavigation } from '@react-navigation/native';
@@ -50,7 +51,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
     useNavigation<NativeStackNavigationProp<AppStackParamList>>();
 
   const [selectedFilter, setSelectedFilter] = useState('all');
-  const initialCityId = route?.params?.CityId ?? null;
+  const initialCityId = route?.params?.CityId ?? user?.CityId ?? null;
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
     initialCityId,
   );
@@ -61,7 +62,10 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   const businessTypeApi = useGetApi<BusinessType[]>(
-    apiEndpoints.GET_BUSINESS_TYPE + '?cityid=' + selectedCityId,
+    apiEndpoints.GET_BUSINESS_TYPE +
+      '?cityid=' +
+      selectedCityId +
+      '&hideEmptyBusinessType=true',
     {
       transformData: (data: any) => data.Data.Items || [],
     },
@@ -134,11 +138,12 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         isVerified: store.isVerified,
       },
       businessTypeId: store.BusinessTypeID,
-      sendType: route.params.sendType,
+      sendType: route.params?.sendType,
       storeId: store.StoreId ?? null,
       friendUserId: friendUserId ?? undefined,
       FriendIds: friendIds,
       friendName: route.params?.friendName ?? null,
+      addToFavorites: route.params?.addToFavorites ?? false,
     });
   };
   const storeListApi = useListingApi<Store>(
@@ -243,7 +248,15 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   }, [selectedCityId]);
 
   return (
-    <ParentView>
+    <ParentView
+      emptyStateText={
+        !storeListApi.loading && storeListApi.data.length === 0
+          ? searchQuery
+            ? getString('SEARCH_NO_RESULTS_FOUND')
+            : getString('SELECT_STORE_NO_STORES_FOUND')
+          : ''
+      }
+    >
       <View style={styles.container}>
         <StatusBar
           backgroundColor={theme.colors.BACKGROUND}
@@ -264,7 +277,11 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               });
             }
           }}
-          showSearchBar={true}
+          showSearchBar={
+            storeListApi.data.length > 0 &&
+            !(businessTypeApi.loading && storeListApi.loading)
+          }
+          loading={businessTypeApi.loading && storeListApi.loading}
           searchValue={searchQuery}
           onSearchChange={setSearchQuery}
           searchPlaceholder={getString('HOME_SEARCH')}
@@ -278,7 +295,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                   flexDirection: 'row',
                   justifyContent: 'flex-end',
                   alignItems: 'center',
-                  paddingHorizontal: theme.sizes.PADDING * 0.4,
+                  // paddingHorizontal: theme.sizes.PADDING * 0.4,
                   gap: scaleWithMax(4, 6),
                 }}
               >
@@ -333,10 +350,13 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             </View>
           ) : (
             <FlatList
+              style={{ flex: 1 }}
+              removeClippedSubviews={false}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
-                paddingBottom: theme.sizes.HEIGHT * 0.2,
+                paddingBottom: theme.sizes.HEIGHT * 0.1,
                 paddingHorizontal: theme.sizes.PADDING,
+                flexGrow: 1,
               }}
               refreshControl={
                 <RefreshControl
@@ -348,17 +368,20 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               }
               data={storeListApi.data}
               extraData={favoriteStates}
-              ListEmptyComponent={() => (
-                <View style={{ height: theme.sizes.HEIGHT * 0.65 }}>
-                  <PlaceholderLogoText
-                    text={
-                      searchQuery
-                        ? getString('SEARCH_NO_RESULTS_FOUND')
-                        : getString('SELECT_STORE_NO_STORES_FOUND')
-                    }
-                  />
-                </View>
-              )}
+              // ListEmptyComponent={() => {
+              //   if (!storeListApi.isInitialLoad) return null;
+              //   return (
+              //     <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
+              //       <PlaceholderLogoText
+              //         text={
+              //           searchQuery
+              //             ? getString('SEARCH_NO_RESULTS_FOUND')
+              //             : getString('SELECT_STORE_NO_STORES_FOUND')
+              //         }
+              //       />
+              //     </View>
+              //   );
+              // }}
               keyExtractor={item => item.StoreId.toString()}
               renderItem={({ item }) => (
                 <>
@@ -385,8 +408,27 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                   </View>
                 </>
               )}
-              onEndReached={storeListApi.loadMore}
-              onEndReachedThreshold={0.5}
+              onEndReached={() => {
+                if (storeListApi.hasMore && !storeListApi.loadingMore) {
+                  storeListApi.loadMore();
+                }
+              }}
+              onEndReachedThreshold={0.3}
+              ListFooterComponent={
+                storeListApi.loadingMore ? (
+                  <View
+                    style={{
+                      paddingVertical: theme.sizes.HEIGHT * 0.02,
+                      alignItems: 'center',
+                    }}
+                  >
+                    <ActivityIndicator
+                      size="small"
+                      color={theme.colors.PRIMARY}
+                    />
+                  </View>
+                ) : null
+              }
             />
           )}
         </View>

@@ -43,111 +43,113 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
 
   return (
     <View style={styles.container}>
-      <View style={styles.imageContainer}>
-        <Image
-          source={
-            itemImage && itemImage.trim()
-              ? { uri: itemImage }
-              : require('../../assets/images/img-placeholder.png')
-          }
-          style={styles.image}
-        />
-        <TouchableOpacity
-          style={styles.addContainer}
-          onPress={e => {
-            e.stopPropagation();
-            onPress(item);
-          }}
-        >
-          <SvgCatchAddIcon
-            width={scaleWithMax(14, 16)}
-            height={scaleWithMax(14, 16)}
+        <View style={styles.imageContainer}>
+          <Image
+            source={
+              itemImage && itemImage.trim()
+                ? { uri: itemImage }
+                : require('../../assets/images/img-placeholder.png')
+            }
+            style={styles.image}
           />
-        </TouchableOpacity>
-        {hasFavorite && (
           <TouchableOpacity
-            style={styles.favoriteIcon}
-            onPress={onFavoritePress}
+            style={styles.addContainer}
+            onPress={e => {
+              e.stopPropagation();
+              onPress(item);
+            }}
           >
-            {isFavorite ? (
-              <SvgItemFavouriteIcon
-                width={scaleWithMax(14, 16)}
-                height={scaleWithMax(14, 16)}
-              />
-            ) : (
-              <SvgItemFavouriteIconInActive
-                width={scaleWithMax(14, 16)}
-                height={scaleWithMax(14, 16)}
+            <SvgCatchAddIcon
+              width={scaleWithMax(14, 16)}
+              height={scaleWithMax(14, 16)}
+            />
+          </TouchableOpacity>
+          {hasFavorite && (
+            <TouchableOpacity
+              style={styles.favoriteIcon}
+              onPress={onFavoritePress}
+            >
+              {isFavorite ? (
+                <SvgItemFavouriteIcon
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
+              ) : (
+                <SvgItemFavouriteIconInActive
+                  width={scaleWithMax(14, 16)}
+                  height={scaleWithMax(14, 16)}
+                />
+              )}
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <View style={styles.contentContainer}>
+          <View
+            style={{
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={styles.title} numberOfLines={1}>
+              {itemName}
+            </Text>
+          </View>
+
+          <View
+            style={{
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            <Text style={styles.subtitle} numberOfLines={1}>
+              {storeName}
+            </Text>
+            {hasDiscount && (
+              <PriceWithIcon
+                amount={discountedPrice}
+                variant="discounted"
+                icon={
+                  <SvgRiyalIconPrimary
+                    width={scaleWithMax(11, 13)}
+                    height={scaleWithMax(11, 13)}
+                  />
+                }
+                textStyle={styles.discountedPrice}
               />
             )}
-          </TouchableOpacity>
-        )}
-      </View>
+          </View>
 
-      <View style={styles.contentContainer}>
-        <View
-          style={{
-            justifyContent: 'space-between',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          <Text style={styles.title} numberOfLines={1}>
-            {itemName}
-          </Text>
-        </View>
-
-        <View
-          style={{
-            justifyContent: 'space-between',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          <Text style={styles.subtitle} numberOfLines={1}>
-            {storeName}
-          </Text>
-          {hasDiscount && (
+          <View
+            style={{
+              justifyContent: 'space-between',
+              flexDirection: 'row',
+              alignItems: 'center',
+            }}
+          >
+            {categoryName && (
+              <Text style={styles.subTitle2} numberOfLines={1}>
+                {categoryName}
+              </Text>
+            )}
             <PriceWithIcon
-              amount={discountedPrice}
-              variant="discounted"
+              amount={price}
+              variant={hasDiscount ? 'cut' : 'default'}
               icon={
-                <SvgRiyalIconPrimary
-                  width={scaleWithMax(11, 13)}
-                  height={scaleWithMax(11, 13)}
+                <SvgRiyalIcon
+                  width={
+                    hasDiscount ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
+                  }
+                  height={
+                    hasDiscount ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
+                  }
                 />
               }
-              textStyle={styles.discountedPrice}
+              iconOpacity={hasDiscount ? 0.32 : 1}
+              textStyle={hasDiscount ? styles.originalPrice : styles.price}
             />
-          )}
-        </View>
-
-        <View
-          style={{
-            justifyContent: 'space-between',
-            flexDirection: 'row',
-            alignItems: 'center',
-          }}
-        >
-          {categoryName && (
-            <Text style={styles.subTitle2} numberOfLines={1}>
-              {categoryName}
-            </Text>
-          )}
-          <PriceWithIcon
-            amount={price}
-            variant={hasDiscount ? 'cut' : 'default'}
-            icon={
-              <SvgRiyalIcon
-                width={hasDiscount ? scaleWithMax(9, 10) : scaleWithMax(11, 13)}
-                height={
-                  hasDiscount ? scaleWithMax(9, 10) : scaleWithMax(11, 13)
-                }
-              />
-            }
-            iconOpacity={hasDiscount ? 0.32 : 1}
-            textStyle={hasDiscount ? styles.originalPrice : styles.price}
-          />
         </View>
       </View>
     </View>
@@ -173,10 +175,19 @@ const useStyles = () => {
         height: sizes.HEIGHT * 0.21,
         width: '100%',
         overflow: 'visible',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.06,
+        shadowRadius: 10,
+        elevation: 2,
       },
       addContainer: {
-        ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
         overflow: 'visible',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 0 },
+        shadowOpacity: 0.05,
+        shadowRadius: 8,
+        elevation: 2,
         backgroundColor: colors.WHITE,
         borderRadius: 9999,
         width: scaleWithMax(30, 32),

@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import {
   View,
   StatusBar,
-  ScrollView,
   FlatList,
   ActivityIndicator,
   RefreshControl,
@@ -22,6 +21,7 @@ import { useAuthStore } from '../../../store/reducer/auth';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { Order, OrdersApiResponse } from '../../../types/index';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
+import ShadowView from '../../../components/global/ShadowView';
 
 const getStatusText = (
   status: number,
@@ -104,6 +104,8 @@ const OrdersScreen: React.FC = () => {
         data: data.Data?.Items || [],
         totalCount: data.Data?.TotalCount || 0,
       }),
+      pageSize: 5,
+      // noCache: true,
     },
   );
 
@@ -123,7 +125,7 @@ const OrdersScreen: React.FC = () => {
   };
 
   return (
-    <ParentView style={styles.container}>
+    <ParentView emptyStateText={ordersListing.data.length === 0 && !ordersListing.loading ? getString('O_NO_ORDER_FOUND') : ""} style={styles.container} stableLayout>
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -133,74 +135,63 @@ const OrdersScreen: React.FC = () => {
         title={getString('O_ORDERS')}
         showBackButton={true}
         onBackPress={() => navigation.goBack()}
-        showSearchBar={true}
+        showSearchBar={orders.length > 0 && !ordersListing.loading}
+        loading={ordersListing.loading}
         searchPlaceholder={getString('O_SEARCH_ORDER')}
         searchValue={ordersListing.search}
         onSearchChange={ordersListing.setSearch}
       />
 
-      {isLoading && !isRefreshing ? (
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.scrollContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.contentContainer}>
-            <SkeletonLoader screenType="orderListing" />
-          </View>
-        </ScrollView>
-      ) : (
-        <FlatList
-          data={orders}
-          keyExtractor={item => item.OrderId.toString()}
-          contentContainerStyle={[
-            styles.scrollContent,
-            styles.contentContainer,
-          ]}
-          showsVerticalScrollIndicator={false}
-          refreshControl={
-            <RefreshControl
-              refreshing={isRefreshing}
-              onRefresh={handleRefresh}
-              tintColor={theme.colors.PRIMARY}
-              colors={[theme.colors.PRIMARY]}
-            />
+      <FlatList
+        data={orders}
+        keyExtractor={item => item.OrderId.toString()}
+        contentContainerStyle={[
+          styles.scrollContent,
+          styles.contentContainer,
+          isLoading && !isRefreshing && styles.flexGrow,
+        ]}
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing}
+            onRefresh={handleRefresh}
+            tintColor={theme.colors.PRIMARY}
+            colors={[theme.colors.PRIMARY]}
+          />
+        }
+        onEndReached={() => {
+          if (ordersListing.hasMore && !ordersListing.loadingMore) {
+            ordersListing.loadMore();
           }
-          onEndReached={() => {
-            if (ordersListing.hasMore && !ordersListing.loadingMore) {
-              ordersListing.loadMore();
-            }
-          }}
-          onEndReachedThreshold={0.5}
-          ListEmptyComponent={() => (
-            <View
-              style={{
-                height: theme.sizes.HEIGHT * 0.68,
-              }}
-            >
-              <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
-            </View>
-          )}
-          ListFooterComponent={() => {
-            if (ordersListing.loadingMore) {
-              return (
-                <View style={{ padding: theme.sizes.PADDING }}>
-                  <ActivityIndicator
-                    size="small"
-                    color={theme.colors.PRIMARY}
-                  />
-                </View>
-              );
-            }
-            return null;
-          }}
-          renderItem={({ item }) => (
-            <View style={{ marginBottom: theme.sizes.PADDING * 0.8 }}>
-              <OrderCard order={item} />
-            </View>
-          )}
-        />
-      )}
+        }}
+        onEndReachedThreshold={0.5}
+        // ListEmptyComponent={() => {
+        //   if (!ordersListing.isInitialLoad && !isLoading) return null;
+        //   if (isLoading && !isRefreshing)
+        //     return <SkeletonLoader screenType="orderListing" />;
+        //   return (
+        //     <View style={{ height: theme.sizes.HEIGHT * 0.78 }}>
+        //       <PlaceholderLogoText text={getString('O_NO_ORDER_FOUND')} />
+        //     </View>
+        //   );
+        // }}
+        ListFooterComponent={() => {
+          if (ordersListing.loadingMore) {
+            return (
+              <View style={{ padding: theme.sizes.PADDING }}>
+                <ActivityIndicator size="small" color={theme.colors.PRIMARY} />
+              </View>
+            );
+          }
+          return null;
+        }}
+        renderItem={({ item }) => (
+          <View style={{ marginBottom: theme.sizes.PADDING * 0.8 }}>
+            <OrderCard order={item} />
+          </View>
+        )}
+      />
     </ParentView>
   );
 };
@@ -225,7 +216,11 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
   const orderDate = order.OrderTime || new Date().toISOString();
 
   return (
-    <View style={styles.orderCard}>
+    <ShadowView
+      preset="listItem"
+      containerStyle={{ alignSelf: 'stretch' }}
+      style={styles.orderCard}
+    >
       <View style={styles.rowContainer}>
         <View style={styles.leftSection}>
           <View style={styles.imageContainer}>
@@ -321,7 +316,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
           </View>
         </View>
       </View>
-    </View>
+    </ShadowView>
   );
 };
 

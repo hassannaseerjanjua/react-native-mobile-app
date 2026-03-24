@@ -19,7 +19,6 @@ const useStyles = () => {
         backgroundColor: colors.WHITE,
         borderRadius: 16,
         // marginBottom: sizes.HEIGHT * 0.24,
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       tabSpacing: {
         height: sizes.HEIGHT * 0.016,
@@ -29,11 +28,11 @@ const useStyles = () => {
       },
       TabItem: {
         // height: sizes.HEIGHT * 0.075,
-        shadowColor: '#000000',
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.04,
-        shadowRadius: 17,
-        elevation: 2,
+        // shadowColor: '#000000',
+        // shadowOffset: { width: 0, height: 1 },
+        // shadowOpacity: 0.04,
+        // shadowRadius: 17,
+        // elevation: 2,
       },
       sectionTitle: {
         fontFamily: fonts.semibold,

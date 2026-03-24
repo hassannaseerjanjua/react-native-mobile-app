@@ -34,6 +34,12 @@ const useStyles = () => {
         gap: sizes.PADDING,
       },
       gridItem: {},
+      buttonContainer: {
+        position: 'absolute',
+        bottom: sizes.HEIGHT * 0.02,
+        left: sizes.PADDING,
+        right: sizes.PADDING,
+      },
     }),
     theme,
   };

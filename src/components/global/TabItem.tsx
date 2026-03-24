@@ -6,7 +6,13 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  interpolate,
+} from 'react-native-reanimated';
 import {
   SvgDeleteIcon,
   SvgEditIcon,
@@ -17,9 +23,11 @@ import {
 } from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { Text, Image } from '../../utils/elements';
-import { isAndroid, scaleWithMax, rtlTransform } from '../../utils';
+import { isAndroid, scaleWithMax } from '../../utils';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Platform } from 'react-native';
+import ShadowView from './ShadowView';
+import type { ShadowPresetName } from '../../styles/global-styles';
 
 interface TabItemProps {
   title: string;
@@ -28,6 +36,7 @@ interface TabItemProps {
   TabItemStyles?: StyleProp<ViewStyle>;
   TabTextStyles?: StyleProp<TextStyle>;
   isEditGroup?: boolean;
+  editOnly?: boolean;
   isLink?: boolean;
   isGroupImage?: any;
   onDeletePress?: () => void;
@@ -35,10 +44,12 @@ interface TabItemProps {
   onImagePress?: () => void;
   icon?: React.ReactNode;
   hideRightIcon?: boolean;
+  rightIconRotated?: boolean;
   rightSideView?: React.ReactNode;
   subtitle?: string;
   activeOpacity?: number;
   disabled?: boolean;
+  shadowPreset?: ShadowPresetName;
 }
 
 const TabItem = ({
@@ -49,6 +60,7 @@ const TabItem = ({
   TabItemStyles,
   TabTextStyles,
   isEditGroup,
+  editOnly = false,
   isLink,
   isGroupImage = false,
   onDeletePress,
@@ -56,9 +68,11 @@ const TabItem = ({
   onImagePress,
   icon,
   hideRightIcon,
+  rightIconRotated = false,
   rightSideView,
   subtitle,
   disabled = false,
+  shadowPreset = 'listItem',
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
   const { isRtl } = useLocaleStore();
@@ -66,27 +80,55 @@ const TabItem = ({
   const androidTextAdjust =
     Platform.OS === 'android' && !isRtl ? { includeFontPadding: false } : null;
 
+  const rotation = useSharedValue(rightIconRotated ? 1 : 0);
+
+  useEffect(() => {
+    rotation.value = withTiming(rightIconRotated ? 1 : 0, {
+      duration: 120,
+    });
+  }, [rightIconRotated, rotation]);
+
+  const scaleX = isRtl ? -1 : 1;
+
+  const animatedIconStyle = useAnimatedStyle(() => {
+    const rotateDeg = interpolate(rotation.value, [0, 1], [0, 90]);
+    return {
+      transform: [{ scaleX }, { rotate: `${rotateDeg}deg` }],
+    };
+  });
+
   return (
-    <TouchableOpacity
-      activeOpacity={activeOpacity}
-      onPress={disabled ? undefined : onPress}
-      disabled={disabled}
-      style={[
-        styles.container,
-        TabItemStyles,
-        subtitle && styles.containerWithSubtitle,
-      ]}
-    >
-      <View style={styles.contentContainer}>
-        {isGroupImage ? (
-          onImagePress ? (
-            <TouchableOpacity
-              onPress={e => {
-                e.stopPropagation();
-                onImagePress();
-              }}
-              activeOpacity={0.8}
-            >
+    <ShadowView preset={shadowPreset}>
+      <TouchableOpacity
+        activeOpacity={activeOpacity ?? 0.8}
+        onPress={disabled ? undefined : onPress}
+        disabled={disabled}
+        style={[
+          styles.container,
+          TabItemStyles,
+          subtitle && styles.containerWithSubtitle,
+        ]}
+      >
+        <View style={styles.contentContainer}>
+          {isGroupImage ? (
+            onImagePress ? (
+              <TouchableOpacity
+                onPress={e => {
+                  e.stopPropagation();
+                  onImagePress();
+                }}
+                activeOpacity={0.8}
+              >
+                <Image
+                  source={
+                    typeof isGroupImage === 'string'
+                      ? { uri: isGroupImage }
+                      : isGroupImage
+                  }
+                  style={styles.groupImage}
+                />
+              </TouchableOpacity>
+            ) : (
               <Image
                 source={
                   typeof isGroupImage === 'string'
@@ -95,55 +137,50 @@ const TabItem = ({
                 }
                 style={styles.groupImage}
               />
-            </TouchableOpacity>
+            )
           ) : (
-            <Image
-              source={
-                typeof isGroupImage === 'string'
-                  ? { uri: isGroupImage }
-                  : isGroupImage
-              }
-              style={styles.groupImage}
-            />
-          )
-        ) : (
-          isGroupImage === '' && <SvgGroup />
-        )}
-        {isLink && <SvgGiftLink />}
-        {icon && icon}
-        <View style={styles.titleContainer}>
-          <Text
-            style={[styles.titleText, TabTextStyles, androidTextAdjust]}
-            numberOfLines={1}
-            ellipsizeMode="tail"
-          >
-            {title}
-          </Text>
-          {isVerified && <SvgVerifiedIcon />}
-          {subtitle && (
-            <Text
-              style={[styles.subtitleText, androidTextAdjust]}
-              numberOfLines={1}
-            >
-              {subtitle}
-            </Text>
+            isGroupImage === '' && <SvgGroup />
           )}
-        </View>
-      </View>
-      {rightSideView && rightSideView}
-      {isEditGroup ? (
-        <>
-          <View style={styles.editGroupContainer}>
-            <SvgDeleteIcon onPress={onDeletePress} />
-            <SvgEditIcon onPress={onEditPress} />
+          {isLink && <SvgGiftLink />}
+          {icon && icon}
+          <View style={styles.titleContainer}>
+            <Text
+              style={[styles.titleText, TabTextStyles, androidTextAdjust]}
+              numberOfLines={1}
+              ellipsizeMode="tail"
+            >
+              {title}
+            </Text>
+            {isVerified && <SvgVerifiedIcon />}
+            {subtitle && (
+              <Text
+                style={[styles.subtitleText, androidTextAdjust]}
+                numberOfLines={1}
+              >
+                {subtitle}
+              </Text>
+            )}
           </View>
-        </>
-      ) : (
-        !hideRightIcon && (
-          <SvgNextIcon style={{ transform: rtlTransform(isRtl) }} />
-        )
-      )}
-    </TouchableOpacity>
+        </View>
+        {rightSideView && rightSideView}
+        {isEditGroup ? (
+          <>
+            <View style={styles.editGroupContainer}>
+              {!editOnly && onDeletePress && (
+                <SvgDeleteIcon onPress={onDeletePress} />
+              )}
+              <SvgEditIcon onPress={onEditPress} />
+            </View>
+          </>
+        ) : (
+          !hideRightIcon && (
+            <Animated.View style={animatedIconStyle}>
+              <SvgNextIcon />
+            </Animated.View>
+          )
+        )}
+      </TouchableOpacity>
+    </ShadowView>
   );
 };
 
@@ -165,7 +202,6 @@ const useStyles = () => {
         // paddingVertical: theme.sizes.HEIGHT * 0.017,
         ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
         borderRadius: sizes.BORDER_RADIUS,
-        ...theme.globalStyles.SHADOW_STYLE,
       },
       contentContainer: {
         flexDirection: 'row',
@@ -200,8 +236,8 @@ const useStyles = () => {
         flexShrink: 0,
       },
       groupImage: {
-        width: 40,
-        height: 40,
+        width: scaleWithMax(36, 36),
+        height: scaleWithMax(36, 36),
         borderRadius: 999,
       },
     });

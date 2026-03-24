@@ -70,8 +70,8 @@ const useStyles = () => {
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },
       activeTabText: {
-        color: colors.PRIMARY_TEXT,
-        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+        ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+        color: colors.PRIMARY,
       },
       formContainer: {
         flex: 1,
@@ -118,6 +118,7 @@ const useStyles = () => {
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.PRIMARY,
         marginBottom: sizes.PADDING * 1.3,
+        direction: 'ltr',
         textAlign: 'center',
       },
     });

@@ -78,7 +78,7 @@ const useStyles = () => {
         marginBottom: 20,
         height: scaleWithMax(45, 50),
         justifyContent: 'center',
-        ...theme.globalStyles.SHADOW_STYLE,
+        overflow: 'hidden',
       },
       genderTitle: {
         fontFamily: fonts.medium,

@@ -18,6 +18,7 @@ import { linking } from './src/navigators/deep-linking';
 import Toast from 'react-native-toast-message';
 import useNotification from './src/hooks/useNotification';
 import useDeepLinkHandler from './src/hooks/useDeepLinkHandler';
+import { useRefreshTokenOnInit } from './src/hooks/useRefreshTokenOnInit';
 import { getContacts } from './src/utils/contacts';
 import { AppStackParamList } from './src/types/navigation.types';
 
@@ -79,6 +80,32 @@ const DataWrapper = ({
   children: React.ReactNode;
   onLocaleReady: () => void;
 }) => {
+  const { isTokenRefreshReady } = useRefreshTokenOnInit();
+
+  // Block all content until token refresh completes (when authenticated).
+  // This ensures locale fetch and all other API calls use the fresh JWT.
+  if (!isTokenRefreshReady) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Loading... Please wait...</Text>
+      </View>
+    );
+  }
+
+  return (
+    <DataWrapperContent onLocaleReady={onLocaleReady}>
+      {children}
+    </DataWrapperContent>
+  );
+};
+
+const DataWrapperContent = ({
+  children,
+  onLocaleReady,
+}: {
+  children: React.ReactNode;
+  onLocaleReady: () => void;
+}) => {
   const { loading, error, doKeysExist } = useFetchLocale();
   const { strings, isRtl } = useLocaleStore();
   const [didSignalLocaleReady, setDidSignalLocaleReady] = useState(false);
@@ -107,5 +134,5 @@ const DataWrapper = ({
     );
   }
 
-  return children;
+  return <>{children}</>;
 };

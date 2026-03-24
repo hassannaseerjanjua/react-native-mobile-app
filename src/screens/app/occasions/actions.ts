@@ -1,12 +1,17 @@
-import { useState, useEffect } from 'react';
-import api, { getAuthHeaderWithFormData } from '../../../utils/api';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import notify from '../../../utils/notify';
-import { Occasion, OccasionsApiResponse } from '../../../types/index.ts';
-import { getAuthHeader } from '../../../utils/api';
+import {
+  Occasion,
+  OccasionsApiResponse,
+  UpdateProfileApiResponse,
+} from '../../../types/index.ts';
 import { useLocaleStore } from '../../../store/reducer/locale';
-import { useAuthStore } from '../../../store/reducer/auth';
+import { login, useAuthStore } from '../../../store/reducer/auth';
 import { selectAndCropImage } from '../../../utils/imageCropper';
+import { useListingApi } from '../../../hooks/useListingApi';
 
 export interface ImageFile {
   uri: string;
@@ -39,20 +44,6 @@ export interface FormInitialValues {
   occasionDate: string;
   image: ImageValue;
 }
-
-export const getOccasions = async (): Promise<Occasion[]> => {
-  try {
-    const response = await api.get<OccasionsApiResponse>(
-      apiEndpoints.GET_OCCASIONS,
-      getAuthHeader('Token'),
-    );
-    return response.success && response.data?.Data?.Items
-      ? response.data.Data.Items
-      : [];
-  } catch (error: any) {
-    return [];
-  }
-};
 
 export const getOccasionDetail = async (
   id: number,
@@ -92,7 +83,12 @@ export const createOccasion = async (
     formData.append('NameAr', values.occasionName);
     formData.append('OccasionDate', values.occasionDate);
     if (values.image && typeof values.image === 'object' && values.image.uri) {
-      const img = values.image as { uri: string; type?: string; name?: string; fileName?: string };
+      const img = values.image as {
+        uri: string;
+        type?: string;
+        name?: string;
+        fileName?: string;
+      };
       formData.append('ImageUrl', {
         uri: img.uri,
         type: img.type || 'image/jpeg',
@@ -124,7 +120,12 @@ export const updateOccasion = async (
     formData.append('NameEn', values.occasionName);
     formData.append('OccasionDate', values.occasionDate);
     if (values.image && typeof values.image === 'object' && values.image.uri) {
-      const img = values.image as { uri: string; type?: string; name?: string; fileName?: string };
+      const img = values.image as {
+        uri: string;
+        type?: string;
+        name?: string;
+        fileName?: string;
+      };
       formData.append('ImageUrl', {
         uri: img.uri,
         type: img.type || 'image/jpeg',
@@ -162,10 +163,9 @@ export const deleteOccasion = async (
 
 export const useOccasions = () => {
   const { getString, langCode } = useLocaleStore();
-  const { user } = useAuthStore();
+  const { user, token } = useAuthStore();
+  const dispatch = useDispatch();
   const [loading, setLoading] = useState(false);
-  const [occasionsLoading, setOccasionsLoading] = useState(false);
-  const [occasions, setOccasions] = useState<Occasion[]>([]);
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedOccasion, setSelectedOccasion] = useState<SelectedOccasion>({
     id: null,
@@ -180,17 +180,28 @@ export const useOccasions = () => {
   );
   const [date, setDate] = useState(new Date());
   const [isEditGroupOpen, setIsEditGroupOpen] = useState(false);
+  const [readonlyIcon, setReadonlyIcon] = useState<any>(null);
 
-  const fetchOccasions = async () => {
-    setOccasionsLoading(true);
-    const data = await getOccasions();
-    setOccasions(data);
-    setOccasionsLoading(false);
-  };
+  const occasionsListing = useListingApi<Occasion>(
+    apiEndpoints.GET_OCCASIONS,
+    token,
+    {
+      pageSize: 15,
+      idExtractor: (item: Occasion) => item.OccassionId,
+      transformData: (res: OccasionsApiResponse | any) => ({
+        data: res?.Data?.Items ?? [],
+        totalCount: res?.Data?.TotalCount ?? 0,
+      }),
+    },
+  );
 
-  useEffect(() => {
-    fetchOccasions();
-  }, []);
+  const occasions = occasionsListing.data ?? [];
+  const occasionsLoading = occasionsListing.loading;
+  const occasionsInitialLoad = occasionsListing.isInitialLoad;
+  const loadingMore = occasionsListing.loadingMore;
+  const hasMore = occasionsListing.hasMore;
+  const fetchOccasions = () => occasionsListing.recall();
+  const loadMore = () => occasionsListing.loadMore();
 
   const handleImageSelect = async (formik: any) => {
     try {
@@ -253,12 +264,33 @@ export const useOccasions = () => {
     try {
       if (selectedOccasion.occasionType === 'create') {
         success = await createOccasion(values, errorMsg);
+      } else if (selectedOccasion.id === -1) {
+        // Birthday: call settings API
+        if (!user || !token) return;
+        const formData = new FormData();
+        formData.append('Fullname', user.FullNameEn || '');
+        formData.append('CityId', String(user.CityId || ''));
+        formData.append('Dob', values.occasionDate);
+        formData.append('GenderId', String(user.GenderId || ''));
+        const response = await api.put<UpdateProfileApiResponse>(
+          apiEndpoints.UPDATE_PROFILE,
+          formData,
+          { headers: { 'Content-Type': 'multipart/form-data' } },
+        );
+        if (response.success && response.data?.Data && token) {
+          dispatch(login({ user: { ...user, ...response.data.Data }, token }));
+          notify.success(getString('PROFILE_UPDATED_SUCCESSFULLY'));
+          success = true;
+        } else if (response.failed) {
+          notify.error(response.error || errorMsg);
+        }
       } else if (selectedOccasion.id) {
         success = await updateOccasion(selectedOccasion.id, values, errorMsg);
       }
       if (success) {
         await fetchOccasions();
         setSelectedOccasion({ id: null, occasionType: 'none' });
+        setReadonlyIcon(null);
         setIsEditGroupOpen(false);
       }
     } finally {
@@ -296,9 +328,22 @@ export const useOccasions = () => {
     setFormInitialValues({ occasionName: '', occasionDate: '', image: null });
   };
 
-  const handleEditPress = async (item: Occasion) => {
+  const handleEditPress = async (item: Occasion, icon?: any) => {
     setSelectedOccasion({ occasionType: 'edit', id: item.OccassionId });
-    await handleGetOccasionDetail(item.OccassionId);
+    if (item.OccassionId === -1) {
+      // Birthday: set form from user, pass icon from listing
+      const birthdayDate = user?.DateOfBirth || '';
+      setFormInitialValues({
+        occasionName: getString('OCCASSIONS_MY_BIRTHDAY'),
+        occasionDate: birthdayDate,
+        image: null,
+      });
+      setDate(birthdayDate ? new Date(birthdayDate) : new Date());
+      setReadonlyIcon(icon ?? null);
+    } else {
+      setReadonlyIcon(null);
+      await handleGetOccasionDetail(item.OccassionId);
+    }
   };
 
   const handleViewPress = async (item: Occasion) => {
@@ -325,6 +370,7 @@ export const useOccasions = () => {
 
   const handleCreatePress = () => {
     setSelectedOccasion({ id: null, occasionType: 'create' });
+    setReadonlyIcon(null);
     resetForm();
   };
 
@@ -335,30 +381,27 @@ export const useOccasions = () => {
       navigation.goBack();
     } else {
       setSelectedOccasion({ id: null, occasionType: 'none' });
+      setReadonlyIcon(null);
       resetForm();
     }
   };
 
   const handleDatePickerConfirm = (selectedDate: Date, formik: any) => {
-    const today = new Date();
-    // Set today's time to 00:00:00 for accurate comparison
-    today.setHours(0, 0, 0, 0);
-    const selected = new Date(selectedDate);
-    selected.setHours(0, 0, 0, 0);
-
-    // Only accept future dates (dates after today)
-
     setShowDatePicker(false);
     setDate(selectedDate);
     const dateString = selectedDate.toISOString().split('T')[0];
-    formik.setFieldValue('occasionDate', dateString, false);
+    formik.setFieldValue('occasionDate', dateString, true);
     formik.setFieldTouched('occasionDate', true, false);
   };
 
   return {
     loading,
     occasionsLoading,
+    occasionsInitialLoad,
     occasions,
+    loadingMore,
+    hasMore,
+    loadMore,
     showDatePicker,
     setShowDatePicker,
     selectedOccasion,
@@ -378,5 +421,6 @@ export const useOccasions = () => {
     handleBackPress,
     handleDatePickerConfirm,
     fetchOccasions,
+    readonlyIcon,
   };
 };

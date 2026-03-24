@@ -4,6 +4,9 @@ import { RootState } from '../store';
 import RNRestart from 'react-native-restart';
 import { I18nManager } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from '../../utils/api';
+import apiEndpoints from '../../constants/api-endpoints';
+import notify from '../../utils/notify';
 
 const resourceKeys: Record<string, string> =
   require('../../resource_keys.json') as Record<string, string>;
@@ -59,9 +62,20 @@ export default locale.reducer;
 export const useLanguageShifter = () => {
   const dispatch = useDispatch();
 
-  const shiftLanguage = (langCode: 'en' | 'ar') => {
+  const shiftLanguage = async (langCode: 'en' | 'ar') => {
     const newLangId = langCode === 'en' ? 1 : 2;
     const shouldBeRtl = langCode === 'ar';
+
+    const response = await api.get<{
+      Data: { ResourceDictionary: Record<string, string> };
+    }>(apiEndpoints.LOCALE(newLangId));
+
+    if (!response.success || !response.data) {
+      notify.error(response.error || 'Something went wrong');
+      return;
+    }
+
+    const strings = response?.data?.Data?.ResourceDictionary || {};
     I18nManager.allowRTL(shouldBeRtl);
     I18nManager.forceRTL(shouldBeRtl);
     AsyncStorage.setItem('rtl_forced_lang_id', String(newLangId)).catch(() => {
@@ -72,6 +86,8 @@ export const useLanguageShifter = () => {
         langId: newLangId,
         langCode: langCode,
         isRtl: shouldBeRtl,
+        strings,
+        stringsLangId: newLangId,
       }),
     );
 
@@ -171,7 +187,7 @@ type LocaleString =
   | 'AU_SU_FULLNAME_REQUIRE'
   | 'AU_SU_INVALID_EMAIL_ADDRESS'
   | 'AU_SU_PN_MUST_CONTAIN'
-  | 'AU_SU_PN_MUST_DIGIT'
+  | ' '
   | 'AU_SU_PN_MUST_START'
   | 'AU_SU_PN_REQUIRED'
   | 'AU_SU_USERNAME_ATLEAST'
@@ -303,6 +319,7 @@ type LocaleString =
   | 'OCC_OCCASIONS'
   | 'OCC_CREATE_OCCASION'
   | 'OCC_BIRTHDAY'
+  | 'OCC_BIRTHDAY_NOT_SET'
   | 'OCC_ANNIVERSARY'
   | 'NOT_NOTIFICATIONS'
   | 'NOT_NEW_FRAGRANCE_COLLECTION_AVAILABLE_AT'
@@ -327,6 +344,9 @@ type LocaleString =
   | 'PRODUCT_DESCRIPTION'
   | 'PRODUCT_VARIANTS'
   | 'PRODUCT_ADD_TO_CART'
+  | 'PRODUCT_ADD_TO_FAVORITES'
+  | 'PRODUCT_REMOVE_FROM_FAVORITES'
+  | 'FAV_ADD_FAVORITES'
   | 'CHECKOUT_TITLE'
   | 'CHECKOUT_ORDER_DETAILS'
   | 'CHECKOUT_SEND_A_GIFT'
@@ -501,7 +521,16 @@ type LocaleString =
   | 'ORDERS_TIME_AM'
   | 'ORDERS_TIME_PM'
   | 'ORDERS_DATE_AT'
+  | 'GIFT_MESSAGE_CAMERA_PERMISSION_DENIED'
+  | 'GIFT_MESSAGE_CAMERA_PERMISSION_DENIED_OPEN_SETTINGS'
   | 'GIFT_MESSAGE_LOADING_CAMERA'
+  | 'GIFT_MESSAGE_MIC_PERMISSION_DENIED'
+  | 'GIFT_MESSAGE_MIC_PERMISSION_DENIED_OPEN_SETTINGS'
+  | 'GIFT_MESSAGE_OPEN_SETTINGS'
+  | 'GIFT_MESSAGE_PERMISSION_DENIED_TITLE'
+  | 'GIFT_MESSAGE_MIC_PERMISSION_DENIED_TITLE'
+  | 'GIFT_MESSAGE_GALLERY_PERMISSION_DENIED_TITLE'
+  | 'GIFT_MESSAGE_GALLERY_PERMISSION_DENIED_OPEN_SETTINGS'
   | 'GIFT_MESSAGE_REMOVE_VIDEO'
   | 'GIFT_MESSAGE_NO_FILTERS_AVAILABLE'
   | 'GIFT_MESSAGE_DONE'
@@ -583,4 +612,7 @@ type LocaleString =
   | 'STATUS_CHECK'
   | 'CHECKOUT_EHSAN'
   | 'INBOX_GIFT_FOUND_MESSAGE'
-  | 'HOME_GIFT_ONE_GET_ONE_STATUS';
+  | 'COMP_QTY'
+  | 'HOME_GIFT_ONE_GET_ONE_STATUS'
+  | 'AU_PHONE_NUMBER_LABEL'
+  | 'CHECKOUT_CHANGE_USER_CARD';
