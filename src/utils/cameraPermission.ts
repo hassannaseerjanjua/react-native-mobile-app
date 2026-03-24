@@ -9,7 +9,7 @@ const showCameraPermissionDeniedAlert = (getString: GetStringFn) => {
     getString('GIFT_MESSAGE_PERMISSION_DENIED_TITLE'),
     getString('GIFT_MESSAGE_CAMERA_PERMISSION_DENIED_OPEN_SETTINGS'),
     [
-      { text: 'Cancel', style: 'cancel' },
+      { text: getString('NG_CANCEL'), style: 'cancel' },
       {
         text: getString('GIFT_MESSAGE_OPEN_SETTINGS'),
         onPress: () => Linking.openSettings(),
@@ -23,7 +23,7 @@ export const showGalleryPermissionDeniedAlert = (getString: GetStringFn) => {
     getString('GIFT_MESSAGE_GALLERY_PERMISSION_DENIED_TITLE'),
     getString('GIFT_MESSAGE_GALLERY_PERMISSION_DENIED_OPEN_SETTINGS'),
     [
-      { text: 'Cancel', style: 'cancel' },
+      { text: getString('NG_CANCEL'), style: 'cancel' },
       {
         text: getString('GIFT_MESSAGE_OPEN_SETTINGS'),
         onPress: () => Linking.openSettings(),
@@ -52,7 +52,7 @@ export async function requestCameraPermissionForPhoto(
 
   // Request camera permission if not granted
   if (cameraStatus !== 'granted') {
-    const requestWithTimeout = <T,>(
+    const requestWithTimeout = <T>(
       promise: Promise<T>,
       timeoutMs: number,
     ): Promise<T | 'timeout'> =>

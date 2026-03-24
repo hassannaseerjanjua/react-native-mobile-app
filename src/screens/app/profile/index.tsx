@@ -571,10 +571,10 @@ const ProfileScreen: React.FC = () => {
 
       <ConfirmationPopup
         visible={showLogoutConfirmation}
-        title={getString('P_LOGOUT') || 'Logout'}
+        title={getString('P_LOGOUT')}
         message={getString('PROFILE_LOGOUT_CONFIRM')}
-        confirmText={getString('P_LOGOUT') || 'Logout'}
-        cancelText={getString('NG_CANCEL') || 'Cancel'}
+        confirmText={getString('P_LOGOUT')}
+        cancelText={getString('NG_CANCEL')}
         onConfirm={async () => {
           setShowLogoutConfirmation(false);
           await handleLogout();

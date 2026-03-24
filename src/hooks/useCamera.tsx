@@ -41,7 +41,7 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
         ? getString('GIFT_MESSAGE_CAMERA_PERMISSION_DENIED_OPEN_SETTINGS')
         : getString('GIFT_MESSAGE_MIC_PERMISSION_DENIED_OPEN_SETTINGS');
       Alert.alert(title, message, [
-        { text: 'Cancel', style: 'cancel' },
+        { text: getString('NG_CANCEL'), style: 'cancel' },
         {
           text: getString('GIFT_MESSAGE_OPEN_SETTINGS'),
           onPress: () => Linking.openSettings(),
@@ -60,12 +60,18 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
     // On iOS only: if already denied, show open settings (iOS won't show dialog again)
     // On Android: getCameraPermissionStatus returns 'denied' on fresh install before user is asked,
     // so we must always try requestPermission() - it will show the dialog on first use
-    if (Platform.OS === 'ios' && (cameraStatus === 'denied' || cameraStatus === 'restricted')) {
+    if (
+      Platform.OS === 'ios' &&
+      (cameraStatus === 'denied' || cameraStatus === 'restricted')
+    ) {
       showPermissionDeniedAlert(true);
       return false;
     }
 
-    if (Platform.OS === 'ios' && (micStatus === 'denied' || micStatus === 'restricted')) {
+    if (
+      Platform.OS === 'ios' &&
+      (micStatus === 'denied' || micStatus === 'restricted')
+    ) {
       showPermissionDeniedAlert(false);
       return false;
     }
@@ -112,8 +118,7 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
       }
     }
 
-    const currentDevice =
-      cameraPosition === 'front' ? frontDevice : backDevice;
+    const currentDevice = cameraPosition === 'front' ? frontDevice : backDevice;
     if (!currentDevice) {
       Alert.alert('Error', 'No camera device found');
       setPermission(cameraStatus);
@@ -126,7 +131,13 @@ export function useVisionCamera(frameProcessor?: (frame: any) => void) {
     setPermission(cameraStatus);
     setIsAuthorized(true);
     return true;
-  }, [frontDevice, backDevice, cameraPosition, getString, showPermissionDeniedAlert]);
+  }, [
+    frontDevice,
+    backDevice,
+    cameraPosition,
+    getString,
+    showPermissionDeniedAlert,
+  ]);
 
   // Don't auto-request permissions on mount - let the component request when needed
 
