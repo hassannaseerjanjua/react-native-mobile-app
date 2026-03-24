@@ -59,7 +59,7 @@
         <category android:name="android.intent.category.BROWSABLE" />
         <data
           android:scheme="https"
-          android:host="admin.giftee.hostinger.bitscollision.net"
+          android:host="giftee.global"
           android:pathPrefix="/" />
       </intent-filter>
     </activity>

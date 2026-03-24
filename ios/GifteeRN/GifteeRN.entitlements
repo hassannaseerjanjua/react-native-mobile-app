@@ -10,8 +10,8 @@
 	</array>
 	<key>com.apple.developer.associated-domains</key>
 	<array>
-		<string>applinks:admin.giftee.hostinger.bitscollision.net</string>
-		<string>applinks:www.admin.giftee.hostinger.bitscollision.net</string>
+		<string>applinks:giftee.global</string>
+		<string>applinks:www.giftee.global</string>
 	</array>
 </dict>
 </plist>
