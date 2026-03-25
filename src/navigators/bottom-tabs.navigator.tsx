@@ -42,10 +42,13 @@ const Tab = createBottomTabNavigator();
 const BottomTabNavigator = () => {
   const theme = useTheme();
   const { getString } = useLocaleStore();
+  // Default to Home because it's the first tab.
+  const [isHome, setIsHome] = React.useState(true);
+  const safeAreaProps = isHome ? ({ edges: ['bottom'] as const } as const) : {};
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.BACKGROUND }}>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }} {...safeAreaProps}>
         <Tab.Navigator
           tabBar={props => <CustomTabBar {...props} />}
           screenOptions={{
@@ -55,6 +58,9 @@ const BottomTabNavigator = () => {
           <Tab.Screen
             name="Home"
             component={Home}
+            listeners={{
+              focus: () => setIsHome(true),
+            }}
             options={{
               tabBarLabel:
                 getString('FOOTER_HOME') === 'FOOTER_HOME'
@@ -68,6 +74,9 @@ const BottomTabNavigator = () => {
           <Tab.Screen
             name="Favorites"
             component={Favorites as any}
+            listeners={{
+              focus: () => setIsHome(false),
+            }}
             options={{
               tabBarLabel:
                 getString('FOOTER_FAVORITES') === 'FOOTER_FAVORITES'
@@ -82,6 +91,9 @@ const BottomTabNavigator = () => {
           <Tab.Screen
             name="Occasions"
             component={Occasions}
+            listeners={{
+              focus: () => setIsHome(false),
+            }}
             options={{
               tabBarLabel:
                 getString('FOOTER_OCCASIONS') === 'FOOTER_OCCASIONS'
@@ -95,6 +107,9 @@ const BottomTabNavigator = () => {
           <Tab.Screen
             name="Notifications"
             component={Notifications}
+            listeners={{
+              focus: () => setIsHome(false),
+            }}
             options={{
               tabBarLabel:
                 getString('FOOTER_NOTIFICATIONS') === 'FOOTER_NOTIFICATIONS'

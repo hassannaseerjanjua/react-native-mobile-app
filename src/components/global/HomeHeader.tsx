@@ -168,8 +168,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         )}
         {showLogo && (
           <SvgLogoBlue
-            width={scaleWithMax(88, 93)}
-            height={scaleWithMax(38, 43)}
+            width={scaleWithMax(105, 108)}
+            // height={scaleWithMax(38, 43)}
           />
         )}
 
@@ -292,9 +292,10 @@ const useStyles = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingTop: isAndroidThen(sizes.HEIGHT * 0.01, 0),
-        paddingBottom: sizes.HEIGHT * 0.01,
+        paddingBottom: sizes.HEIGHT * 0.006,
         // backgroundColor: colors.RED,
         paddingHorizontal: theme.sizes.PADDING,
+        position: 'relative',
       },
       rightSection: {
         flexDirection: 'row',

@@ -2,8 +2,8 @@ import { useColorScheme } from 'react-native';
 
 const defaultColors = {
   //App Colors
-  PRIMARY: '#F72E50',
-  SECONDARY: '#FFDDE3',
+  PRIMARY: '#4B2D5C',
+  SECONDARY: '#F9EDFF',
 
   BACKGROUND: '#ffffff',
   HOME_BACKGROUND: '#fcfcfc',

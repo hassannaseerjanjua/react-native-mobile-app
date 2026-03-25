@@ -60,9 +60,9 @@ const InboxOutbox: React.FC = () => {
   const route = useRoute();
   const params = route.params as
     | {
-      title?: string;
-      isInbox?: boolean;
-    }
+        title?: string;
+        isInbox?: boolean;
+      }
     | undefined;
   const isInbox = params?.isInbox ?? true;
   const title =
@@ -114,7 +114,11 @@ const InboxOutbox: React.FC = () => {
   };
 
   return (
-    <ParentView emptyStateText={orders.length === 0 && !isLoading ? getString('O_NO_ORDER_FOUND') : ''}>
+    <ParentView
+      emptyStateText={
+        orders.length === 0 && !isLoading ? getString('O_NO_ORDER_FOUND') : ''
+      }
+    >
       <View
         style={{
           position: 'absolute',
@@ -127,7 +131,7 @@ const InboxOutbox: React.FC = () => {
         }}
       >
         <LinearGradient
-          colors={['#FFDDE3', '#FFFFFF']}
+          colors={['#F9EDFF', '#FFFFFF']}
           locations={[0.0005, 0.8847]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
@@ -175,10 +179,10 @@ const InboxOutbox: React.FC = () => {
               onClick={
                 isInbox
                   ? orderItem => {
-                    createDebouceClick('item-press', () =>
-                      handleItemPress(item.OrderId, orderItem),
-                    );
-                  }
+                      createDebouceClick('item-press', () =>
+                        handleItemPress(item.OrderId, orderItem),
+                      );
+                    }
                   : undefined
               }
               onVideoPress={() => handleVideoPress(item)}
@@ -362,7 +366,7 @@ const InboxOutbox: React.FC = () => {
                                 style={[
                                   styles.quantityButton,
                                   selectedQty <= 1 &&
-                                  styles.quantityButtonDisabled,
+                                    styles.quantityButtonDisabled,
                                 ]}
                                 hitSlop={{
                                   top: 10,
@@ -396,7 +400,7 @@ const InboxOutbox: React.FC = () => {
                                 style={[
                                   styles.quantityButton,
                                   selectedQty >= availableQuantity &&
-                                  styles.quantityButtonDisabled,
+                                    styles.quantityButtonDisabled,
                                 ]}
                                 hitSlop={{
                                   top: 10,
@@ -649,8 +653,8 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   {showGiftLinkGeneric
                     ? getString('INBOX_GIFT_LINK_LABEL')
                     : order.CampaginType === 1
-                      ? order.stores.NameEn
-                      : userName}
+                    ? order.stores.NameEn
+                    : userName}
                 </Text>
                 {!showGiftLinkGeneric &&
                   (!isMerchant
@@ -708,19 +712,19 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   Array.isArray(order.orderImages) &&
                   order.orderImages.length > 0) ||
                   order.OrderMessage) && (
-                    <TouchableOpacity
-                      onPress={e => {
-                        e.stopPropagation?.();
-                        onVideoPress?.();
-                      }}
-                      hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-                    >
-                      <SmsTrackingIcon
-                        height={scaleWithMax(20, 20)}
-                        width={scaleWithMax(20, 20)}
-                      />
-                    </TouchableOpacity>
-                  )}
+                  <TouchableOpacity
+                    onPress={e => {
+                      e.stopPropagation?.();
+                      onVideoPress?.();
+                    }}
+                    hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+                  >
+                    <SmsTrackingIcon
+                      height={scaleWithMax(20, 20)}
+                      width={scaleWithMax(20, 20)}
+                    />
+                  </TouchableOpacity>
+                )}
                 {order.SendType === 2 && !isInbox && onShareGiftLink && (
                   <TouchableOpacity
                     onPress={() => {
@@ -926,7 +930,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
                     showAddButton={false}
                     showSelection={false}
                     isGeneralSearchScreen={false}
-                    onPress={() => { }}
+                    onPress={() => {}}
                   />
                 )}
                 showsVerticalScrollIndicator={false}

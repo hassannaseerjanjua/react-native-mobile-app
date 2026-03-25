@@ -34,7 +34,7 @@ rl.question('Enter release notes for this build:\n', async releaseNotes => {
     console.log('Distributing build to Firebase App Distribution...');
 
     const { stdout, stderr } = await run(
-      `firebase appdistribution:distribute ${buildPath} --app ${appId} --groups ${notificationGroup} --release-notes "${releaseNotes.trim()}"`,
+      `firebase appdistribution:distribute ${buildPath} --app ${appId} --release-notes "${releaseNotes.trim()}"`,
     );
 
     console.log(stdout);

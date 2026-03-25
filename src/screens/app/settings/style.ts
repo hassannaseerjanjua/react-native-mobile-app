@@ -40,7 +40,7 @@ const useStyles = () => {
       },
       languageContainer: {
         paddingVertical: sizes.PADDING * 0.1,
-        marginStart: sizes.WIDTH * 0.038,
+        marginStart: sizes.PADDING * 0.8,
       },
       languageOption: {
         flexDirection: 'row',
@@ -73,7 +73,7 @@ const useStyles = () => {
       genderContainer: {
         backgroundColor: colors.WHITE,
         borderRadius: sizes.BORDER_RADIUS,
-        paddingHorizontal: sizes.PADDING,
+        paddingHorizontal: sizes.PADDING * 0.8,
         paddingVertical: sizes.PADDING * 0.8,
         marginBottom: 20,
         height: scaleWithMax(45, 50),
