@@ -74,7 +74,8 @@ const HomeScreen: React.FC = () => {
   if (sliderResponse && !hasLoadedOnceRef.current) {
     hasLoadedOnceRef.current = true;
   }
-
+  // notify.error('test');
+  // notify.success('test');
   const showShimmer =
     !keysLoaded ||
     (!fallbackKeysLoaded &&

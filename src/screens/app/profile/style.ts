@@ -53,7 +53,7 @@ const useStyles = () => {
       },
       profileInfo: {
         flex: 1,
-        marginLeft: sizes.WIDTH * 0.03,
+        marginLeft: sizes.WIDTH * 0.022,
       },
       profileName: {
         fontFamily: fonts.semibold,

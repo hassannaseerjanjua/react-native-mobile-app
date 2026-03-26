@@ -413,7 +413,9 @@ const ProfileScreen: React.FC = () => {
               <Text style={screenStyles.profileName}>{user?.FullNameEn}</Text>{' '}
               {user?.IsVerified && <SvgVerifiedIcon />}
             </View>
-            <Text style={screenStyles.profileUsername}>@{user?.UserName}</Text>
+            <Text style={screenStyles.profileUsername}>
+              {user?.isMerchant ? user?.Email : `@${user?.UserName}`}
+            </Text>
           </View>
           {!isMerchant && (
             <TouchableOpacity onPress={() => setShowQrModal(true)}>

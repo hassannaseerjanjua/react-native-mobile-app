@@ -352,7 +352,7 @@
 				DEVELOPMENT_TEAM = 4P584ZXF78;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = GifteeRN/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Giftee;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cadou QA";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -365,7 +365,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bitscollision.giftee.debug;
-				PRODUCT_NAME = GifteeRN;
+				PRODUCT_NAME = Cadou;
 				SWIFT_OBJC_BRIDGING_HEADER = "GifteeRN/GifteeRN-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -385,7 +385,7 @@
 				CURRENT_PROJECT_VERSION = 135;
 				DEVELOPMENT_TEAM = 4P584ZXF78;
 				INFOPLIST_FILE = GifteeRN/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Giftee;
+				INFOPLIST_KEY_CFBundleDisplayName = "Cadou QA";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -398,7 +398,7 @@
 					"-lc++",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bitscollision.giftee.release;
-				PRODUCT_NAME = GifteeRN;
+				PRODUCT_NAME = Cadou;
 				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_OBJC_BRIDGING_HEADER = "GifteeRN/GifteeRN-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;

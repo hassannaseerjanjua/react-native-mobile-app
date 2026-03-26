@@ -420,6 +420,7 @@ const StepContent: React.FC<StepContentProps> = ({
               selectedOption={selectedOption}
               icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
               options={filteredOptions}
+              placeholder={getString('AU_PL_CITY')}
               searchValue={areaSearch}
               onSearchChange={setAreaSearch}
               selectedValue={formData.city}
