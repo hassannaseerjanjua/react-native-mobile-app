@@ -32,7 +32,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
   title,
   titlePrimary,
   description,
-  shrinkDescription = true,
+  shrinkDescription = false,
   onPress,
   style,
   iconStyles,
@@ -81,11 +81,12 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
           color: colors.PRIMARY,
         },
         description: {
-          fontSize: isProMax
-            ? scaleWithMax(10.25, 10.75)
-            : isLargeAndroid
-            ? scaleWithMax(10.1, 10.2)
-            : scaleWithMax(10, 10),
+          // fontSize: isProMax
+          //   ? scaleWithMax(10.25, 10.75)
+          //   : isLargeAndroid
+          //   ? scaleWithMax(10.1, 10.2)
+          //   : scaleWithMax(10, 10),
+          fontSize: scaleWithMax(10.3, 10.3),
           fontFamily: fonts.regular,
           color: colors.BLACK,
           lineHeight: isProMax

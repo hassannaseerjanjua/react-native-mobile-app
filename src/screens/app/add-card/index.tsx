@@ -121,8 +121,7 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   };
 
   const renderCardItem = ({ item }: { item: UserCard }) => (
-
-    <ShadowView preset='default'>
+    <ShadowView preset="default">
       <TouchableOpacity
         style={[
           styles.cardContainer,
@@ -204,7 +203,8 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
             style={{ opacity: selectedCard === item.Token ? 1 : 0 }}
           />
         )}
-      </TouchableOpacity></ShadowView>
+      </TouchableOpacity>
+    </ShadowView>
   );
 
   const renderEmptyState = () => (
@@ -214,7 +214,12 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
   );
 
   return (
-    <ParentView style={styles.container} emptyStateText={!loading && cards.length === 0 ? getString('NO_CARDS_FOUND') : ''}>
+    <ParentView
+      style={styles.container}
+      emptyStateText={
+        !loading && cards.length === 0 ? getString('NO_CARDS_FOUND') : ''
+      }
+    >
       <HomeHeader
         title={
           fromProfile
@@ -244,10 +249,9 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
             onPress={handleSelectCard}
             disabled={!selectedCard}
             buttonStyle={{
-              backgroundColor: !selectedCard ? "#FFA5A5" : theme.colors.PRIMARY,
-              borderColor: !selectedCard ? "#FFA5A5" : theme.colors.PRIMARY,
+              backgroundColor: !selectedCard ? '#FFA5A5' : theme.colors.PRIMARY,
+              borderColor: !selectedCard ? '#FFA5A5' : theme.colors.PRIMARY,
             }}
-
           />
         </CustomFooter>
       )}
@@ -260,7 +264,7 @@ const AddCart: React.FC<AppStackScreen<'AddCard'>> = ({ route }) => {
           cardToDelete?.CardNumber || '',
         )}
         confirmText={getString('P_DELETE_CARD_CONFIRM')}
-        cancelText={getString('NG_CANCEL') || 'Cancel'}
+        cancelText={getString('NG_CANCEL')}
         onConfirm={async () => {
           if (cardToDelete) {
             await handleDeleteCard(cardToDelete.Token);

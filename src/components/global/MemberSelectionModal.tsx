@@ -106,10 +106,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   } | null>(
     existingGroupImage
       ? {
-        uri: existingGroupImage,
-        type: 'image/jpeg',
-        name: 'group-image.jpg',
-      }
+          uri: existingGroupImage,
+          type: 'image/jpeg',
+          name: 'group-image.jpg',
+        }
       : null,
   );
 
@@ -153,10 +153,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       setGroupImage(
         prefillGroupName && existingGroupImage
           ? {
-            uri: existingGroupImage,
-            type: 'image/jpeg',
-            name: 'group-image.jpg',
-          }
+              uri: existingGroupImage,
+              type: 'image/jpeg',
+              name: 'group-image.jpg',
+            }
           : null,
       );
       setGroupError('');
@@ -272,7 +272,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
       Array.from(selectedUsers).forEach(userId => {
         formData.append('MemberUserIds', userId.toString());
       });
-      Keyboard.dismiss()
+      Keyboard.dismiss();
       try {
         const res = await api.post(
           apiEndpoints.CREATE_GROUP,
@@ -495,17 +495,17 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   onPress={
                     viewOnly
                       ? () => {
-                        closeModal();
-                        routeTo === 'SelectStore'
-                          ? (navigation as any).navigate('SelectStore', {
-                            friendUserId: user.UserId,
-                            CityId: user.CityId,
-                          })
-                          : (navigation as any).navigate('CatchScreen', {
-                            type: 'GiftOneGetOne',
-                            friendUserId: user.UserId,
-                          });
-                      }
+                          closeModal();
+                          routeTo === 'SelectStore'
+                            ? (navigation as any).navigate('SelectStore', {
+                                friendUserId: user.UserId,
+                                CityId: user.CityId,
+                              })
+                            : (navigation as any).navigate('CatchScreen', {
+                                type: 'GiftOneGetOne',
+                                friendUserId: user.UserId,
+                              });
+                        }
                       : undefined
                   }
                 />
@@ -622,7 +622,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   return (
     <Modal
       visible={visible}
-      transparent={true} statusBarTranslucent={Platform.OS === 'android'}
+      transparent={true}
+      statusBarTranslucent={Platform.OS === 'android'}
       animationType="none"
       onRequestClose={closeModal}
     >
@@ -664,8 +665,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                     viewOnly
                       ? title
                       : isSendAGift
-                        ? getString('NG_ADD_MEMBERS')
-                        : getString('NG_EDIT_GROUP_MEMBERS')
+                      ? getString('NG_ADD_MEMBERS')
+                      : getString('NG_EDIT_GROUP_MEMBERS')
                   }
                   subTitle={
                     viewOnly

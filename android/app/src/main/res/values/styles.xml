@@ -5,12 +5,13 @@
     </style>
 
     <style name="BootTheme" parent="Theme.BootSplash">
+        <item name="android:windowBackground">@drawable/bootsplash</item>
+        <item name="android:windowSplashScreenBackground">@color/bootsplash_background</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/bootsplash_animated_icon</item>
+        <item name="android:forceDarkAllowed">false</item>
+
         <item name="bootSplashBackground">@color/bootsplash_background</item>
         <item name="bootSplashLogo">@drawable/bootsplash_logo</item>
         <item name="postBootSplashTheme">@style/AppTheme</item>
-        <item name="android:windowBackground">@color/bootsplash_background</item>
-        <item name="android:windowSplashScreenBackground">@color/bootsplash_background</item>
-        <item name="android:windowSplashScreenAnimatedIcon">@drawable/bootsplash_logo</item>
-        <item name="android:forceDarkAllowed">false</item>
     </style>
 </resources>

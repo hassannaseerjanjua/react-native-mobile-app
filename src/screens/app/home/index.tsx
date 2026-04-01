@@ -12,6 +12,7 @@ import {
   SvgHomeInbox,
   SvgHomeOutbox,
   SvgHomeSendAGift,
+  SvgConfetti,
 } from '../../../assets/icons';
 import apiEndpoints from '../../../constants/api-endpoints';
 import { Slider, SliderApiResponse } from '../../../types';
@@ -21,12 +22,14 @@ import { Text } from '../../../utils/elements';
 import useGetApi from '../../../hooks/useGetApi';
 import { isAndroidThen, isIOS } from '../../../utils';
 import notify from '../../../utils/notify';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const HomeScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString, isRtl, isFetching } = useLocaleStore();
   const { user } = useAuthStore();
   const navigation = useNavigation();
+  const insets = useSafeAreaInsets();
   const hasLoadedOnceRef = useRef(false);
   const isMerchant = user?.isMerchant === 1;
   // const keysLoaded =
@@ -71,7 +74,8 @@ const HomeScreen: React.FC = () => {
   if (sliderResponse && !hasLoadedOnceRef.current) {
     hasLoadedOnceRef.current = true;
   }
-
+  // notify.error('test');
+  // notify.success('test');
   const showShimmer =
     !keysLoaded ||
     (!fallbackKeysLoaded &&
@@ -81,28 +85,48 @@ const HomeScreen: React.FC = () => {
   return (
     <View style={styles.container}>
       <StatusBar
-        backgroundColor={theme.colors.WHITE}
+        backgroundColor={theme.colors.STATUS_BAR_BACKGROUND}
         barStyle="dark-content"
         translucent
       />
 
-      <View style={styles.contentWrapper}>
-        <LinearGradient
+      <View style={[styles.contentWrapper, { paddingTop: insets.top }]}>
+        {/* <LinearGradient
+          // colors={[
+          //   '#FFFFFF',
+          //   '#FEF8F8',
+          //   '#FDECEC',
+          //   '#FDECEC',
+          //   '#FDECEC',
+          //   '#FDECEC',
+          //   '#FFFFFF',
+          // ]}
           colors={[
             '#FFFFFF',
-            '#FEF8F8',
-            '#FDECEC',
-            '#FDECEC',
-            '#FDECEC',
-            '#FDECEC',
+            '#FFFFFF',
+            '#FFFFFF',
+            '#FFFFFF',
+            '#FFFFFF',
+            '#FFFFFF',
+            '#FFFFFF',
             '#FFFFFF',
           ]}
-          locations={[0, isAndroidThen(0.06, 0.92), 0.15, 0.4, 0.6, 0.85, 1]}
+          locations={[0, isAndroidThen(0.06, 0.92), 0.15, 0.4, 0.6, 0.85, 1, 1]}
           start={{ x: 0, y: 0 }}
-          end={{ x: 0, y: 1 }}
+          end={{ x: 0, y: 0 }}
           style={styles.mainContent}
           useAngle={false}
-        />
+        /> */}
+        <View style={styles.confettiContainer} pointerEvents="none">
+          <SvgConfetti width="100%" height="100%" />
+          <LinearGradient
+            pointerEvents="none"
+            colors={['rgba(255,255,255,0)', '#FFFFFF', '#FFFFFF']}
+            locations={[0, 0.65, 1]}
+            style={styles.confettiFade}
+            useAngle={false}
+          />
+        </View>
         <HomeHeader
           showProfileIcon={true}
           onProfilePress={() => {
@@ -113,6 +137,7 @@ const HomeScreen: React.FC = () => {
           showCartIcon={true}
           customContainerStyle={{
             backgroundColor: 'transparent',
+            zIndex: 2,
           }}
         />
         {showShimmer ? (
@@ -236,13 +261,17 @@ const HomeScreenTabsContainer: React.FC = () => {
           icon={homeScreenTabs[0].icon}
           title={homeScreenTabs[0].title}
           description={homeScreenTabs[0].description}
-          shrinkDescription={false}
           onPress={homeScreenTabs[0].onPress}
           iconStyles={homeScreenTabs[0].iconStyles}
           style={{
             minHeight:
               theme.sizes.HEIGHT *
-              isAndroidThen(0.128, isProMax ? 0.12 : 0.113),
+              isAndroidThen(0.133, isProMax ? 0.125 : 0.118),
+            shadowColor: '#000000',
+            shadowOffset: { width: 0, height: 1 },
+            shadowOpacity: 0.08,
+            shadowRadius: 8,
+            elevation: 1,
           }}
         />
       </View>
@@ -258,7 +287,12 @@ const HomeScreenTabsContainer: React.FC = () => {
             style={{
               minHeight:
                 theme.sizes.HEIGHT *
-                isAndroidThen(0.115, isProMax ? 0.106 : 0.101),
+                isAndroidThen(0.12, isProMax ? 0.111 : 0.106),
+              shadowColor: '#000000',
+              shadowOffset: { width: 0, height: 1 },
+              shadowOpacity: 0.08,
+              shadowRadius: 8,
+              elevation: 1,
             }}
           />
         ))}
@@ -279,9 +313,9 @@ const HomeScreenTabsContainer: React.FC = () => {
             style={{
               minHeight:
                 theme.sizes.HEIGHT *
-                isAndroidThen(0.105, isProMax ? 0.098 : 0.093),
+                isAndroidThen(0.11, isProMax ? 0.103 : 0.098),
               shadowColor: '#000000',
-              shadowOffset: { width: 0, height: 5 },
+              shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.08,
               shadowRadius: 8,
               elevation: 1,

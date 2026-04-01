@@ -31,7 +31,6 @@ import {
 } from '../../../utils/contacts';
 import { scaleWithMax } from '../../../utils';
 import useTheme from '../../../styles/theme';
-import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import ShadowView from '../../../components/global/ShadowView';
 
 interface VerifiedUser {
@@ -320,6 +319,32 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
     );
   }, [showConnectOnly, mobileContacts, searchQuery]);
 
+  const apiFilteredUsers = showEmployeesOnly
+    ? employeesApi.data
+    : activeUsersApi.data;
+  const apiFilteredUsersCount = apiFilteredUsers?.length ?? 0;
+
+  // Match the UX from screens like `catch` and `select-store`:
+  // - Hide the search input when the list has no results
+  // - Show a skeleton search bar when the search API is loading
+  const headerSearchBarLoading =
+    activeUsersApi.loading ||
+    employeesApi.loading ||
+    (showConnectOnly && loadingContacts);
+  const headerHasResults = showConnectOnly
+    ? connectFilteredContacts.length > 0
+    : apiFilteredUsersCount > 0;
+  const showSearchBarInHeader = headerHasResults && !headerSearchBarLoading;
+  const relevantApi = showEmployeesOnly ? employeesApi : activeUsersApi;
+  const showParentEmptyState = showConnectOnly
+    ? !loadingContacts && connectFilteredContacts.length === 0
+    : relevantApi.isInitialLoad &&
+      !relevantApi.loading &&
+      apiFilteredUsersCount === 0;
+  const emptyStateText = showParentEmptyState
+    ? getString('SEARCH_NO_USERS_FOUND')
+    : '';
+
   const connectDisplayedContacts = useMemo(
     () => connectFilteredContacts.slice(0, connectDisplayedCount),
     [connectFilteredContacts, connectDisplayedCount],
@@ -490,7 +515,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   };
 
   return (
-    <ParentView style={styles.container}>
+    <ParentView style={styles.container} emptyStateText={emptyStateText}>
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -499,7 +524,8 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         title={title || getString('FIND_PEOPLE')}
         showBackButton
         onBackPress={() => navigation.goBack()}
-        showSearchBar
+        showSearchBar={showSearchBarInHeader}
+        loading={headerSearchBarLoading}
         searchValue={searchQuery}
         onSearchChange={setSearchQuery}
         searchPlaceholder={getString('HOME_SEARCH')}
@@ -603,13 +629,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                   windowSize={5}
                   showsVerticalScrollIndicator={false}
                   contentContainerStyle={styles.listContainer}
-                  ListEmptyComponent={
-                    <View style={{ height: theme.sizes.HEIGHT * 0.6 }}>
-                      <PlaceholderLogoText
-                        text={getString('SEARCH_NO_USERS_FOUND')}
-                      />
-                    </View>
-                  }
                   ListFooterComponent={
                     verifyingContacts && connectHasMore ? (
                       <View
@@ -696,19 +715,6 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                       )}
                       showsVerticalScrollIndicator={false}
                       contentContainerStyle={styles.listContainer}
-                      ListEmptyComponent={() => {
-                        const relevantApi = showEmployeesOnly
-                          ? employeesApi
-                          : activeUsersApi;
-                        if (!relevantApi?.isInitialLoad) return null;
-                        return (
-                          <View style={{ height: theme.sizes.HEIGHT * 0.7 }}>
-                            <PlaceholderLogoText
-                              text={getString('SEARCH_NO_USERS_FOUND')}
-                            />
-                          </View>
-                        );
-                      }}
                     />
                   </View>
                 </ShadowView>

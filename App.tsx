@@ -21,6 +21,7 @@ import useDeepLinkHandler from './src/hooks/useDeepLinkHandler';
 import { useRefreshTokenOnInit } from './src/hooks/useRefreshTokenOnInit';
 import { getContacts } from './src/utils/contacts';
 import { AppStackParamList } from './src/types/navigation.types';
+import { toastConfig } from './src/utils/toastConfig';
 
 // Navigation ref for programmatic navigation
 export const navigationRef =
@@ -58,7 +59,7 @@ const App = () => {
                 <RootNavigator />
               </View>
             </NavigationContainer>
-            <Toast />
+            <Toast config={toastConfig} />
           </DataWrapper>
         </PersistGate>
       </Provider>

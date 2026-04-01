@@ -761,7 +761,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       if (result.action === Share.sharedAction) {
       } else if (result.action === Share.dismissedAction) {
       }
-    } catch (error) { }
+    } catch (error) {}
   };
   const handleProceedToCheckout = async () => {
     if (!cartData || submitting || waitingForVideoUpload) return;
@@ -827,8 +827,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           selectedPaymentMethod === 'wallet'
             ? 1
             : selectedPaymentMethod === 'applePay'
-              ? 3
-              : 2,
+            ? 3
+            : 2,
         IsRedeem: false,
       };
 
@@ -912,7 +912,6 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
       setWaitingForVideoUpload(false);
     }
   };
-
   const handleWebViewNavigationStateChange = (navState: any) => {
     const { url } = navState;
 
@@ -1047,8 +1046,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             isSendType2
               ? getString('INBOX_GIFT_LINK_OUTBOX_MESSAGE')
               : isCampaign
-                ? getString('INBOX_GIFT_FOUND_MESSAGE')
-                : ''
+              ? getString('INBOX_GIFT_FOUND_MESSAGE')
+              : ''
           }
           SuccessLogo={
             isSendType2 ? (
@@ -1063,8 +1062,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
             isSendType2
               ? getString('CHECKOUT_GIFT_LINK_CREATED')
               : isCampaign
-                ? getString('HOME_GIFT_ONE_GET_ONE_STATUS')
-                : getString('CHECKOUT_GIFT_DELIVERED')
+              ? getString('HOME_GIFT_ONE_GET_ONE_STATUS')
+              : getString('CHECKOUT_GIFT_DELIVERED')
           }
           SuccessSubMessage={
             !isSendType2 && !isCampaign
@@ -1125,8 +1124,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         ? { uri: cartData?.users.ProfileUrl }
         : require('../../../assets/images/img-placeholder.png')
       : cartData?.FriendImageUrl
-        ? { uri: cartData?.FriendImageUrl }
-        : require('../../../assets/images/img-placeholder.png');
+      ? { uri: cartData?.FriendImageUrl }
+      : require('../../../assets/images/img-placeholder.png');
 
   const DomationAmounts = [
     { value: '1', title: '1' },
@@ -1143,30 +1142,30 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
     },
     ...((cartData?.TotalVat || 0) > 0
       ? [
-        {
-          key: 'vat',
-          label: getString('CHECKOUT_VAT'),
-          amount: cartData?.TotalVat || 0,
-        },
-      ]
+          {
+            key: 'vat',
+            label: getString('CHECKOUT_VAT'),
+            amount: cartData?.TotalVat || 0,
+          },
+        ]
       : []),
     ...((cartData?.DeliveryCharges || 0) > 0
       ? [
-        {
-          key: 'deliveryCharges',
-          label: getString('CHECKOUT_DELIVERY_CHARGES'),
-          amount: cartData?.DeliveryCharges || 0,
-        },
-      ]
+          {
+            key: 'deliveryCharges',
+            label: getString('CHECKOUT_DELIVERY_CHARGES'),
+            amount: cartData?.DeliveryCharges || 0,
+          },
+        ]
       : []),
     ...(activeDomationAmount
       ? [
-        {
-          key: 'ehsan',
-          label: getString('CHECKOUT_EHSAN'),
-          amount: activeDomationAmount,
-        },
-      ]
+          {
+            key: 'ehsan',
+            label: getString('CHECKOUT_EHSAN'),
+            amount: activeDomationAmount,
+          },
+        ]
       : []),
     {
       key: 'totalAmount',
@@ -1180,7 +1179,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
   );
 
   return (
-    <ParentView emptyStateText={!loading && cartData?.Items?.length === 0 ? getString('CHECKOUT_YOUR_CART_IS_EMPTY') : ''}>
+    <ParentView
+      emptyStateText={
+        !loading && cartData?.Items?.length === 0
+          ? getString('CHECKOUT_YOUR_CART_IS_EMPTY')
+          : ''
+      }
+    >
       <HomeHeader title={getString('CHECKOUT_TITLE')} showBackButton={true} />
       {/* {cartData ? ( */}
       <>
@@ -1188,13 +1193,13 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
           style={{ flex: 1 }}
           // behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           behavior="padding"
-        // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+          // keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
         >
           <ScrollView
             showsVerticalScrollIndicator={false}
             contentContainerStyle={[styles.scrollContent]}
             keyboardShouldPersistTaps="handled"
-          // keyboardDismissMode="on-drag"
+            // keyboardDismissMode="on-drag"
           >
             <View style={styles.section}>
               <View style={[styles.sectionHeaderRow]}>
@@ -1254,30 +1259,30 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       : isMerchant &&
                         cartData?.MultiUsers &&
                         cartData?.MultiUsers.length === 1
-                        ? cartData?.MultiUsers[0].ProfileUrl ||
+                      ? cartData?.MultiUsers[0].ProfileUrl ||
                         require('../../../assets/images/img-placeholder.png')
-                        : isMerchant &&
-                          cartData?.MultiUsers &&
-                          cartData?.MultiUsers.length > 1
-                          ? null
-                          : cartData?.CampaginType === 3
-                            ? cartData?.users.ProfileUrl ||
-                            require('../../../assets/images/img-placeholder.png')
-                            : cartData?.FriendImageUrl ||
-                            require('../../../assets/images/img-placeholder.png')
+                      : isMerchant &&
+                        cartData?.MultiUsers &&
+                        cartData?.MultiUsers.length > 1
+                      ? null
+                      : cartData?.CampaginType === 3
+                      ? cartData?.users.ProfileUrl ||
+                        require('../../../assets/images/img-placeholder.png')
+                      : cartData?.FriendImageUrl ||
+                        require('../../../assets/images/img-placeholder.png')
                   }
                   title={
                     isMerchant &&
-                      cartData?.MultiUsers &&
-                      cartData?.MultiUsers.length > 1
+                    cartData?.MultiUsers &&
+                    cartData?.MultiUsers.length > 1
                       ? getString('CHECKOUT_MY_EMPLOYEES')
                       : cartData?.MultiUsers &&
                         cartData?.MultiUsers.length === 1
-                        ? cartData?.MultiUsers[0].FullName
-                        : cartData?.CampaginType === 3
-                          ? cartData?.users.FullName
-                          : cartData?.FriendName ||
-                          getString('SG_SEND_THROUGH_LINK')
+                      ? cartData?.MultiUsers[0].FullName
+                      : cartData?.CampaginType === 3
+                      ? cartData?.users.FullName
+                      : cartData?.FriendName ||
+                        getString('SG_SEND_THROUGH_LINK')
                   }
                   TabTextStyles={{
                     ...styles.TextMedium,
@@ -1341,8 +1346,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   }
                   icon={
                     isMerchant &&
-                      cartData?.MultiUsers &&
-                      cartData?.MultiUsers.length > 1 ? (
+                    cartData?.MultiUsers &&
+                    cartData?.MultiUsers.length > 1 ? (
                       <View
                         style={{
                           width: scaleWithMax(40, 45),
@@ -1418,13 +1423,12 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                               }}
                               index={index}
                               isLast={
-                                index ===
-                                (cartData.MultiUsers?.length || 0) - 1
+                                index === (cartData.MultiUsers?.length || 0) - 1
                               }
                               showAddButton={false}
                               showSelection={false}
                               isGeneralSearchScreen={false}
-                              onPress={() => { }}
+                              onPress={() => {}}
                             />
                           )}
                           showsVerticalScrollIndicator={false}
@@ -1463,9 +1467,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 <TouchableOpacity
                   onPress={() =>
                     setSelectedPaymentMethod(
-                      selectedPaymentMethod === 'applePay'
-                        ? null
-                        : 'applePay',
+                      selectedPaymentMethod === 'applePay' ? null : 'applePay',
                     )
                   }
                 >
@@ -1507,8 +1509,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         width={scaleWithMax(16, 18)}
                         height={scaleWithMax(16, 18)}
                         style={{
-                          opacity:
-                            selectedPaymentMethod === 'applePay' ? 1 : 0,
+                          opacity: selectedPaymentMethod === 'applePay' ? 1 : 0,
                         }}
                       />
                     </View>
@@ -1563,8 +1564,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       width={scaleWithMax(16, 18)}
                       height={scaleWithMax(16, 18)}
                       style={{
-                        opacity:
-                          selectedPaymentMethod === 'creditCard' ? 1 : 0,
+                        opacity: selectedPaymentMethod === 'creditCard' ? 1 : 0,
                       }}
                     />
                   </View>
@@ -1606,9 +1606,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           }
                         />
 
-                        {(
-                          selectedCardFromParams?.Brand || userCards[0]?.Brand
-                        )
+                        {(selectedCardFromParams?.Brand || userCards[0]?.Brand)
                           ?.toLowerCase()
                           .includes('master') ? (
                           <MasterCardIcon
@@ -1616,11 +1614,10 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                             width={scaleWithMax(32, 35)}
                           />
                         ) : (
-                          selectedCardFromParams?.Brand ||
-                          userCards[0]?.Brand
-                        )
-                          ?.toLowerCase()
-                          .includes('noon') ? (
+                            selectedCardFromParams?.Brand || userCards[0]?.Brand
+                          )
+                            ?.toLowerCase()
+                            .includes('noon') ? (
                           <NoonIcon
                             height={scaleWithMax(32, 35)}
                             width={scaleWithMax(32, 35)}
@@ -1694,8 +1691,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                               amount={
                                 walletBalance?.data?.WalletBalance
                                   ? Number(
-                                    walletBalance.data.WalletBalance,
-                                  ).toFixed(2)
+                                      walletBalance.data.WalletBalance,
+                                    ).toFixed(2)
                                   : '0.00'
                               }
                               textStyle={styles.TextMedium}
@@ -1712,8 +1709,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           width={scaleWithMax(16, 18)}
                           height={scaleWithMax(16, 18)}
                           style={{
-                            opacity:
-                              selectedPaymentMethod === 'wallet' ? 1 : 0,
+                            opacity: selectedPaymentMethod === 'wallet' ? 1 : 0,
                           }}
                         />
                       </View>
@@ -1764,7 +1760,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     amount.value === 'Custom'
                       ? showCustomDonationInput
                       : activeDomationAmount === Number(amount.value) &&
-                      !customMatchesPreset;
+                        !customMatchesPreset;
 
                   return (
                     <TouchableOpacity
@@ -1841,9 +1837,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           textStyle={
                             isActive
                               ? {
-                                ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-                                color: theme.colors.PRIMARY,
-                              }
+                                  ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
+                                  color: theme.colors.PRIMARY,
+                                }
                               : styles.TextMedium
                           }
                         />
@@ -1935,8 +1931,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                       {
                         opacity:
                           submitting ||
-                            waitingForVideoUpload ||
-                            !selectedPaymentMethod
+                          waitingForVideoUpload ||
+                          !selectedPaymentMethod
                             ? 0.7
                             : 1,
                       },
@@ -1973,21 +1969,19 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                   backgroundColor: !selectedPaymentMethod
                     ? '#FFA5A5'
                     : selectedPaymentMethod === 'applePay'
-                      ? '#000000'
-                      : theme.colors.PRIMARY,
+                    ? '#000000'
+                    : theme.colors.PRIMARY,
                   borderColor: !selectedPaymentMethod
                     ? '#FFA5A5'
                     : selectedPaymentMethod === 'applePay'
-                      ? '#000000'
-                      : theme.colors.PRIMARY,
+                    ? '#000000'
+                    : theme.colors.PRIMARY,
                 }}
                 labelStyle={{
                   color: theme.colors.WHITE,
                 }}
                 disabled={
-                  submitting ||
-                  waitingForVideoUpload ||
-                  !selectedPaymentMethod
+                  submitting || waitingForVideoUpload || !selectedPaymentMethod
                 }
                 loading={submitting || waitingForVideoUpload}
               />

@@ -120,7 +120,7 @@ const useStyles = () => {
         width: '100%',
         borderRadius: sizes.BORDER_RADIUS,
         flexDirection: 'row',
-        paddingHorizontal: sizes.PADDING,
+        paddingHorizontal: sizes.PADDING * 0.8,
         alignItems: 'center',
         backgroundColor: colors.WHITE,
       },

@@ -278,7 +278,7 @@ const DropdownField = ({
               <View
                 style={[
                   styles.customDisplayContainer,
-                  { paddingLeft: icon ? theme.sizes.PADDING : 0 },
+                  { paddingLeft: icon ? theme.sizes.PADDING * 0.5 : 0 },
                 ]}
               >
                 {renderDisplay}
@@ -288,7 +288,7 @@ const DropdownField = ({
                 style={[
                   styles.displayText,
                   {
-                    paddingLeft: icon ? theme.sizes.PADDING : 0,
+                    paddingLeft: icon ? theme.sizes.PADDING * 0.5 : 0,
                     color: selectedOption
                       ? theme.colors.PRIMARY_TEXT
                       : theme.colors.SECONDARY_TEXT,

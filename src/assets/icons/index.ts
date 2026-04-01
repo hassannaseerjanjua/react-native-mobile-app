@@ -8,7 +8,6 @@ import SvgLocationPin from './location-pin.svg';
 import SvgPhone from './phone.svg';
 import SvgDropDown from './dropdown.svg';
 import SvgPhoneIcon from './phone-icon.svg';
-import SvgLogoHeader from './logo-header.svg';
 import SvgSearchIcon from './search.svg';
 import SvgDummyAvatar from './dummy-avatar.svg';
 import SvgDummyBanner from './dummy-banner.svg';
@@ -121,6 +120,7 @@ import CardsIcon from './cards.svg';
 import SvgRiyalPink from './Riyal_pink.svg';
 import SvgGifteeNotifyIcon from './giftee_notify.svg';
 import SvgCancelIcon from './editCancel.svg';
+import SvgConfetti from './Confetti.svg';
 
 export {
   SvgLogoBlue,
@@ -133,7 +133,6 @@ export {
   SvgPhone,
   SvgDropDown,
   SvgPhoneIcon,
-  SvgLogoHeader,
   SvgSearchIcon,
   SvgDummyAvatar,
   SvgDummyBanner,
@@ -245,4 +244,5 @@ export {
   SvgRiyalPink,
   SvgGifteeNotifyIcon,
   SvgCancelIcon,
+  SvgConfetti,
 };

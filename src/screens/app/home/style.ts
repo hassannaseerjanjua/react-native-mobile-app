@@ -17,6 +17,25 @@ const useStyles = () => {
         backgroundColor: 'transparent',
         position: 'relative',
       },
+      confettiContainer: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        width: '100%',
+        zIndex: 0,
+        height: sizes.HEIGHT * 0.51,
+        // backgroundColor: 'red',
+        overflow: 'hidden',
+      },
+      confettiFade: {
+        position: 'absolute',
+        left: 0,
+        right: 0,
+        bottom: 0,
+        height: '35%',
+      },
       mainContent: {
         position: 'absolute',
         top: 0,
@@ -29,8 +48,8 @@ const useStyles = () => {
       contentWrapper: {
         flex: 1,
         zIndex: 1,
-        backgroundColor: 'transparent',
-        overflow: 'hidden',
+        backgroundColor: colors.WHITE,
+        overflow: 'visible',
       },
       contentContainer: {
         flex: 1,
@@ -38,7 +57,7 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
       },
       welcomeText: {
-        fontFamily: fonts.semibold,
+        fontFamily: fonts.light,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
         paddingHorizontal: sizes.PADDING,
@@ -50,7 +69,7 @@ const useStyles = () => {
       },
       heroImage: {
         borderRadius: sizes.BORDER_RADIUS_MID,
-        height: sizes.HEIGHT * (isAndroid ? 0.30 : 0.28),
+        height: sizes.HEIGHT * (isAndroid ? 0.285 : 0.265),
       },
       sectionTitle: {
         fontFamily: fonts.bold,
