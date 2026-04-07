@@ -32,7 +32,7 @@ const useStyles = () => {
           height: '100%',
 
           borderRadius: 10,
-          backgroundColor: '#fff',
+          backgroundColor: '#FFF7F1',
           overflow: 'hidden',
           position: 'relative',
         },

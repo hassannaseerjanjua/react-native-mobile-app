@@ -10,8 +10,8 @@ import {
   InteractionManager,
   Animated,
   InputAccessoryView,
+  StyleSheet,
 } from 'react-native';
-import { LinearGradient } from 'react-native-linear-gradient';
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Video } from 'react-native-compressor';
@@ -67,10 +67,12 @@ import {
 } from '../../../utils/giftMessageStorage';
 import ViewTrimmer from '../../../components/app/ViewTrimmer';
 import { useAuthStore } from '../../../store/reducer/auth';
+import ConfettiFilterSvg from '../../../assets/images/confetti-filter.svg';
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const MAX_VIDEO_DURATION = 15;
+const CONFETTI_FILTER_ID = -1;
 
 const CloseIcon = ({ size = 16 }: { size?: number }) => (
   <Svg width={size} height={size} viewBox="0 0 9 9" fill="none">
@@ -129,7 +131,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     Message: string;
     VideoFile: any;
   }>({
-    ImageFilterId: null,
+    ImageFilterId: CONFETTI_FILTER_ID,
     Message: message,
     VideoFile: undefined,
   });
@@ -212,7 +214,11 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           if (savedData) {
             setMessage(savedData.Message || '');
             setSendMessagePayload({
-              ImageFilterId: savedData.ImageFilterId,
+              ImageFilterId:
+                savedData.ImageFilterId === null ||
+                savedData.ImageFilterId === undefined
+                  ? CONFETTI_FILTER_ID
+                  : savedData.ImageFilterId,
               Message: savedData.Message || '',
               VideoFile: savedData.VideoFile,
             });
@@ -292,9 +298,14 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     const uploadPromise = (async () => {
       try {
         const formData = new FormData();
+        const imageFilterIdToSend =
+          sendMessagePayload.ImageFilterId === CONFETTI_FILTER_ID ||
+          sendMessagePayload.ImageFilterId === null
+            ? ''
+            : sendMessagePayload.ImageFilterId?.toString() || '';
         formData.append(
           'ImageFilterId',
-          sendMessagePayload.ImageFilterId?.toString() || '',
+          imageFilterIdToSend,
         );
         formData.append('Message', message || '');
         // Video is optional - only append if it exists
@@ -548,16 +559,20 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   }, []);
 
   const hasContent =
-    sendMessagePayload.ImageFilterId !== null ||
-    message.trim().length > 0 ||
-    !!sendMessagePayload.VideoFile;
+    message.trim().length > 0 || !!sendMessagePayload.VideoFile;
 
   const filters = getAllFiltersApi.data || [];
 
-  // Find the selected filter for background
-  const selectedFilter = filters.find(
-    filter => filter.FilterId === sendMessagePayload.ImageFilterId,
-  );
+  const filtersForUi = [
+    ({ FilterId: CONFETTI_FILTER_ID } as unknown as GiftFilter),
+    ...filters,
+  ];
+
+  // Find the selected filter for background (API-backed only)
+  const selectedFilter =
+    sendMessagePayload.ImageFilterId === CONFETTI_FILTER_ID
+      ? null
+      : filters.find(filter => filter.FilterId === sendMessagePayload.ImageFilterId);
 
   useEffect(() => {
     console.log('📹 Camera State:', {
@@ -1083,23 +1098,24 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               <ShadowView preset="default">
                 <View style={styles.messageContainer}>
                   <View style={styles.inputWrapper} pointerEvents="box-none">
-                    {/* Gradient background when no filter is selected */}
-                    {!selectedFilter && (
-                      <LinearGradient
-                        colors={['#FFFFFF', '#FDF0F0', '#FFFFFF']}
-                        locations={[0, 0.5, 1]}
-                        start={{ x: 0, y: 0 }}
-                        end={{ x: 0, y: 1 }}
-                        style={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          borderRadius: 10,
-                        }}
+                    {/* Confetti background when confetti filter is selected */}
+                    {sendMessagePayload.ImageFilterId === CONFETTI_FILTER_ID && (
+                      <View
                         pointerEvents="none"
-                      />
+                        style={{
+                          ...StyleSheet.absoluteFillObject,
+                        }}
+                      >
+                        <Image
+                          source={require('../../../assets/images/Confetti.png')}
+                          resizeMode="cover"
+                          style={{
+                            width: '100%',
+                            height: '100%',
+                            borderRadius: 10,
+                          }}
+                        />
+                      </View>
                     )}
                     {/* Filter background with low opacity */}
                     {selectedFilter && (
@@ -1246,7 +1262,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                   <SkeletonLoader screenType="giftFilters" />
                 ) : (
                   <FlatList
-                    data={filters}
+                    data={filtersForUi}
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     keyExtractor={item => item.FilterId.toString()}
@@ -1262,11 +1278,25 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                         >
                           <TouchableOpacity
                             onPress={async () => {
-                              const newFilterId =
+                              const isCurrentlySelected =
                                 sendMessagePayload.ImageFilterId ===
-                                filter.FilterId
-                                  ? null
-                                  : filter.FilterId;
+                                filter.FilterId;
+
+                              // Confetti is the default background and should not be unselectable.
+                              // If user taps the selected confetti card, do nothing.
+                              const newFilterId =
+                                filter.FilterId === CONFETTI_FILTER_ID
+                                  ? CONFETTI_FILTER_ID
+                                  : isCurrentlySelected
+                                    ? CONFETTI_FILTER_ID
+                                    : filter.FilterId;
+
+                              if (
+                                filter.FilterId === CONFETTI_FILTER_ID &&
+                                isCurrentlySelected
+                              ) {
+                                return;
+                              }
                               setSendMessagePayload(prev => ({
                                 ...prev,
                                 ImageFilterId: newFilterId,
@@ -1281,7 +1311,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                               }
                             }}
                           >
-                            <Image
+                            <View
                               style={[
                                 styles.filterImage,
                                 {
@@ -1291,11 +1321,20 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                                       ? 2
                                       : 0,
                                   borderColor: theme.colors.PRIMARY,
+                                  overflow: 'hidden',
                                 },
                               ]}
-                              source={{ uri: filter.ImageUrl }}
-                              resizeMode="cover"
-                            />
+                            >
+                              {filter.FilterId === CONFETTI_FILTER_ID ? (
+                                <ConfettiFilterSvg width="100%" height="100%" />
+                              ) : (
+                                <Image
+                                  style={styles.filterImage}
+                                  source={{ uri: filter.ImageUrl }}
+                                  resizeMode="cover"
+                                />
+                              )}
+                            </View>
                           </TouchableOpacity>
                         </View>
                       </ShadowView>

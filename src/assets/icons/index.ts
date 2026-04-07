@@ -124,7 +124,7 @@ import MasterCardIcon from './mastercard.svg';
 import NoonIcon from './noon.svg';
 import CardsIcon from './cards.svg';
 import SvgRiyalPink from './Riyal_pink.svg';
-import SvgGifteeNotifyIcon from './giftee_notify.svg';
+import SvgGifteeNotifyIcon from './gift-notify.svg';
 import SvgCancelIcon from './editCancel.svg';
 import SvgConfetti from './Confetti.svg';
 

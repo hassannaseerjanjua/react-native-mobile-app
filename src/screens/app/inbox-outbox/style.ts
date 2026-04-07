@@ -59,7 +59,7 @@ const useStyles = () => {
           scaleWithMax(50, 55) -
           sizes.WIDTH * 0.012 -
           sizes.PADDING * 0.5,
-        height: sizes.WIDTH * 0.5,
+        height: sizes.WIDTH * 0.46,
         resizeMode: 'cover',
         borderTopLeftRadius: 12,
         borderTopRightRadius: 12,
@@ -74,7 +74,7 @@ const useStyles = () => {
         alignItems: 'center',
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical: sizes.HEIGHT * 0.012,
+        paddingVertical: sizes.HEIGHT * 0.01,
         // paddingLeft: sizes.PADDING,
         // paddingRight: sizes.PADDING + scaleWithMax(6, 8),
         paddingHorizontal: sizes.PADDING * 0.75,

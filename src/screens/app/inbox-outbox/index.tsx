@@ -30,6 +30,7 @@ import {
   SvgProfileFriends,
   ArrowDownIcon,
   SvgVerifiedIcon,
+  SvgGiftClaimIcon,
 } from '../../../assets/icons';
 import { LinearGradient } from 'react-native-linear-gradient';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
@@ -631,7 +632,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
             >
               <View style={styles.storeNameRow}>
                 <View style={styles.giftIconWrapper}>
-                  <GiftIcon
+                  <SvgGiftClaimIcon
                     height={theme.sizes.FONTSIZE}
                     width={theme.sizes.FONTSIZE}
                   />

@@ -201,7 +201,7 @@ const HomeScreenTabsContainer: React.FC = () => {
     },
     {
       id: 'catch',
-      image: require('../../../assets/catch-Group-Icon.png'),
+      image: require('../../../assets/icons/home-tab-icons/catch-Group-Icon.png'),
       title: getString('HOME_CATCH'),
       description: getString('HOME_CATCH_INSTANT_GIFT_DESC'),
       onPress: () =>

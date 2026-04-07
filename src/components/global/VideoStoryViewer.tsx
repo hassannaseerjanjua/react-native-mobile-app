@@ -464,7 +464,13 @@ const VideoStoryViewer = forwardRef<VideoStoryViewerRef, VideoStoryViewerProps>(
                     resizeMode="contain"
                   />
                 ) : (
-                  <View style={styles.whiteBackground} />
+                  <View style={styles.whiteBackground}>
+                    <Image
+                      source={require('../../assets/images/Confetti.png')}
+                      style={styles.confettiInWhiteBackground}
+                      resizeMode="cover"
+                    />
+                  </View>
                 )}
                 <View style={styles.textOverlay}>
                   <Text
@@ -667,6 +673,18 @@ const useStyles = () => {
           position: 'absolute',
           alignSelf: 'center',
           backgroundColor: '#FFFFFF',
+          overflow: 'hidden',
+        },
+        confettiBackground: {
+          width: SCREEN_WIDTH,
+          height: SCREEN_HEIGHT,
+          position: 'absolute',
+          alignSelf: 'center',
+        },
+        confettiInWhiteBackground: {
+          ...StyleSheet.absoluteFillObject,
+          width: '100%',
+          height: '100%',
         },
         videoContainer: {
           flex: 1,
