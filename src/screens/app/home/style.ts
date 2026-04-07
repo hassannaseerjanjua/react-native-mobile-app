@@ -65,7 +65,7 @@ const useStyles = () => {
         // marginStart: scaleWithMax(1, 1),
       },
       userName: {
-        fontFamily: fonts.bold,
+        fontFamily: fonts.light,
       },
       heroImage: {
         borderRadius: sizes.BORDER_RADIUS_MID,

@@ -17,7 +17,7 @@ import InputField from '../../../components/global/InputField';
 import CustomButton from '../../../components/global/Custombutton';
 import ParentView from '../../../components/app/ParentView';
 import { useLocaleStore } from '../../../store/reducer/locale';
-import { SvgUser, SvgEmail, SvgWhatsappIcon } from '../../../assets/icons';
+import { SvgWhatsappIcon } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import { createContactUsSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
@@ -65,9 +65,7 @@ const ContactUsScreen: React.FC = () => {
       // On Android 11+, canOpenURL returns false unless WhatsApp is declared in manifest queries.
       // Try opening directly; if it fails, show appropriate error.
       const canOpen =
-        Platform.OS === 'ios'
-          ? await Linking.canOpenURL(whatsappUrl)
-          : true;
+        Platform.OS === 'ios' ? await Linking.canOpenURL(whatsappUrl) : true;
       if (canOpen) {
         await Linking.openURL(whatsappUrl);
       } else {

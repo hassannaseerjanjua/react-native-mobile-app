@@ -22,7 +22,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
 
     // Preload the launch splash image to avoid a brief blank/background screen
     // on iOS while the storyboard image is being decoded.
-    _ = UIImage(named: "BootSplashLogo-793246")
+    _ = UIImage(named: "BootSplashLogo-7ff1d9")
 
     // Configure notification center
     UNUserNotificationCenter.current().delegate = self

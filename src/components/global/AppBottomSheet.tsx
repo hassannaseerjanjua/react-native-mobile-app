@@ -24,12 +24,32 @@ import { BlurView } from '@react-native-community/blur';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 
-interface AppBottomSheetProps {
+export interface AppBottomSheetProps {
   children: React.ReactNode;
   isOpen: boolean;
   height?: number;
   onClose: () => void;
   enablePanDownToClose?: boolean;
+  enableHandlePanningGesture?: boolean;
+  enableContentPanningGesture?: boolean;
+  /**
+   * When false, the sheet height follows only `snapPoints` / computed height — not measured
+   * child layout. Turn off for scrollable content so the inner scroll view can scroll.
+   * @default false
+   */
+  enableDynamicSizing?: boolean;
+  /**
+   * When `enableDynamicSizing` is true, limits how tall the sheet can grow.
+   * Once this max is reached, the inner scrollable should scroll.
+   */
+  maxDynamicContentSize?: number;
+  /**
+   * When false, children are rendered directly inside the sheet (use when the child is
+   * `BottomSheetScrollView` / `BottomSheetFlatList`). Avoids an extra `BottomSheetView`
+   * that can steal scroll registration from gorhom.
+   * @default true
+   */
+  embedContentInBottomSheetView?: boolean;
   snapPoints?: string[];
   blurType?: 'light' | 'dark' | 'regular';
   hasBackDrop?: boolean;
@@ -42,12 +62,17 @@ interface AppBottomSheetProps {
   android_keyboardInputMode?: 'adjustResize' | 'adjustPan';
 }
 
-const AppBottomSheet = ({
+const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
   children,
   height,
   isOpen,
   onClose,
   enablePanDownToClose = true,
+  enableHandlePanningGesture = true,
+  enableContentPanningGesture = true,
+  enableDynamicSizing = false,
+  maxDynamicContentSize,
+  embedContentInBottomSheetView = true,
   snapPoints,
   blurType = 'light',
   blurAmount = 10,
@@ -58,9 +83,12 @@ const AppBottomSheet = ({
   keyboardBehavior = 'extend',
   keyboardBlurBehavior = 'restore',
   android_keyboardInputMode = 'adjustResize',
-}: AppBottomSheetProps) => {
+}) => {
   const theme = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
+  const [modalVisible, setModalVisible] = useState(isOpen);
+  const [sheetIndex, setSheetIndex] = useState<number>(isOpen ? initialSnapIndex : -1);
+  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const calculatedSnapPoints = () => {
     if (snapPoints) return snapPoints;
@@ -78,31 +106,79 @@ const AppBottomSheet = ({
     return fullHeight ? ['100%'] : ['50%'];
   };
 
+  const resolvedSnapPoints =
+    enableDynamicSizing && !snapPoints && !height
+      ? undefined
+      : calculatedSnapPoints();
+
+  const handleSheetClosed = () => {
+    setModalVisible(false);
+    setSheetIndex(-1);
+    // Only close parent state if parent still thinks it's open.
+    if (isOpen) onClose();
+  };
+
   const handleSheetChanges = (index: number) => {
-    if (index === -1) {
-      onClose();
+    // Keep local index in sync (helps when closing during opening).
+    setSheetIndex(index);
+  };
+
+  const requestClose = () => {
+    setSheetIndex(-1);
+    // Force-close prevents gesture/scroll interruptions (common when user scrolled content).
+    bottomSheetRef.current?.forceClose();
+    // Unmount Modal immediately so it won't block touches.
+    setModalVisible(false);
+    if (isOpen) onClose();
+
+    // Fallback: if sheet callbacks don't fire for any reason, ensure cleanup.
+    if (closeTimeoutRef.current) {
+      clearTimeout(closeTimeoutRef.current);
     }
+    closeTimeoutRef.current = setTimeout(() => {
+      setModalVisible(false);
+      closeTimeoutRef.current = null;
+    }, 100);
   };
 
   useEffect(() => {
-    if (isOpen && bottomSheetRef.current) {
-      bottomSheetRef.current.snapToIndex(initialSnapIndex);
+    if (isOpen) {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = null;
+      }
+      setModalVisible(true);
+      setSheetIndex(initialSnapIndex);
+    } else {
+      setSheetIndex(-1);
+      setModalVisible(false);
     }
   }, [isOpen, initialSnapIndex]);
 
+  useEffect(() => {
+    return () => {
+      if (closeTimeoutRef.current) {
+        clearTimeout(closeTimeoutRef.current);
+        closeTimeoutRef.current = null;
+      }
+    };
+  }, []);
+
   return (
     <Modal
-      visible={isOpen}
+      visible={modalVisible}
       transparent
       animationType="none"
       statusBarTranslucent
-      onRequestClose={onClose}
+      onRequestClose={requestClose}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <BottomSheet
           ref={bottomSheetRef}
-          index={isOpen ? initialSnapIndex : -1}
-          snapPoints={calculatedSnapPoints()}
+          index={sheetIndex}
+          snapPoints={resolvedSnapPoints}
+          enableDynamicSizing={enableDynamicSizing}
+          maxDynamicContentSize={maxDynamicContentSize}
           keyboardBehavior={keyboardBehavior}
           keyboardBlurBehavior={keyboardBlurBehavior}
           android_keyboardInputMode={android_keyboardInputMode}
@@ -115,9 +191,10 @@ const AppBottomSheet = ({
                     disappearsOnIndex={-1}
                     opacity={0.5}
                     pressBehavior={pressBehavior}
-                    onPress={onClose}
+                    onPress={requestClose}
                   >
                     <BlurView
+                      pointerEvents="none"
                       style={{
                         position: 'absolute',
                         top: 0,
@@ -135,8 +212,8 @@ const AppBottomSheet = ({
           }
           enablePanDownToClose={enablePanDownToClose}
           enableOverDrag={false}
-          enableHandlePanningGesture={Platform.OS !== 'android'}
-          enableContentPanningGesture={Platform.OS !== 'android'}
+          enableHandlePanningGesture={enableHandlePanningGesture}
+          enableContentPanningGesture={enableContentPanningGesture}
           handleStyle={{
             borderTopLeftRadius: scaleWithMax(24, 30),
             borderTopRightRadius: scaleWithMax(24, 30),
@@ -159,22 +236,27 @@ const AppBottomSheet = ({
             backgroundColor: theme.colors?.BACKGROUND || '#FFFFFF',
           }}
           onChange={handleSheetChanges}
+          onClose={handleSheetClosed}
         >
-          <BottomSheetView
-            style={
-              snapPoints
-                ? { flex: 1 }
-                : { height: height, flex: height ? 0 : 1 }
-            }
-          >
-            <View
-              style={{
-                flex: 1,
-              }}
+          {embedContentInBottomSheetView ? (
+            <BottomSheetView
+              style={
+                snapPoints
+                  ? { flex: 1 }
+                  : { height: height, flex: height ? 0 : 1 }
+              }
             >
-              {children}
-            </View>
-          </BottomSheetView>
+              <View
+                style={{
+                  flex: 1,
+                }}
+              >
+                {children}
+              </View>
+            </BottomSheetView>
+          ) : (
+            children
+          )}
         </BottomSheet>
       </GestureHandlerRootView>
     </Modal>

@@ -3,7 +3,7 @@ import { View, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
 import { isAndroid, isRTL, scaleWithMax } from '../../utils';
 import { Text } from '../../utils/elements';
-import { SvgWalletGifteeIcon } from '../../assets/icons';
+import { SvgRiyalIcon, SvgWalletGifteeIcon } from '../../assets/icons';
 import PriceWithIcon from '../global/Price';
 import { useLocaleStore } from '../../store/reducer/locale';
 
@@ -32,7 +32,6 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
         flexDirection: 'row',
         alignItems: 'center',
         flex: 1,
-
       },
       logoContainer: {
         backgroundColor: colors.PRIMARY,
@@ -66,7 +65,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
         fontFamily: fonts.bold,
         fontSize: scaleWithMax(22, 24),
         color: colors.BLACK,
-        marginTop: isAndroid ? sizes.HEIGHT * -0.005 : 0,
+        marginTop: isAndroid || isRtl ? sizes.HEIGHT * -0.005 : 0,
       },
       riyalIconContainer: {
         flexDirection: isRtl ? 'row-reverse' : 'row',
@@ -92,6 +91,7 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
         <Text style={styles.balanceLabel}>{getString('W_WALLET_BALANCE')}</Text>
         <PriceWithIcon
           amount={balance}
+          iconSize={scaleWithMax(13, 15)}
           textStyle={styles.balanceAmount}
           containerStyle={styles.riyalIconContainer}
         />

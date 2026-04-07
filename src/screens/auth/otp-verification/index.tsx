@@ -292,9 +292,15 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
             <Text style={styles.subtitle}>
               {getString('AU_HAVENT_RECEIVED_CODE')}{' '}
               {isTimerActive ? (
-                <Text>
+                <Text style={styles.subtitle}>
                   {getString('AU_WAIT_FOR')}{' '}
-                  <Text style={{ color: theme.colors.PRIMARY }}>
+                  <Text
+                    style={{
+                      color: theme.colors.PRIMARY,
+                      fontFamily:
+                        theme.globalStyles.TEXT_STYLE_MEDIUM.fontFamily,
+                    }}
+                  >
                     {formatTimer(timer)}
                   </Text>
                 </Text>

@@ -36,6 +36,7 @@ import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import ShadowView from '../../../components/global/ShadowView';
 import CustomButton from '../../../components/global/Custombutton';
 import CheckBox from '../../../components/global/CheckBox';
+import { BottomSheetScrollView } from '@gorhom/bottom-sheet';
 import { InboxOrder, InboxOrderItem } from '../../../types/index';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import {
@@ -131,7 +132,7 @@ const InboxOutbox: React.FC = () => {
         }}
       >
         <LinearGradient
-          colors={['#F9EDFF', '#FFFFFF']}
+          colors={['#F8E6E9', '#FFFFFF']}
           locations={[0.0005, 0.8847]}
           start={{ x: 0, y: 0 }}
           end={{ x: 0, y: 1 }}
@@ -218,66 +219,21 @@ const InboxOutbox: React.FC = () => {
       <AppBottomSheet
         blurAmount={100}
         isOpen={openBottomSheet}
-        height={(() => {
-          const availableItems =
-            selectedOrder?.Items?.filter(
-              item =>
-                item.Status !== 10 && item.Quantity - item.UsedQuantity > 0,
-            ) || [];
-          const availableCount = availableItems.length;
-
-          if (availableCount > 1) {
-            return Math.min(
-              theme.sizes.HEIGHT * 0.7,
-              100 + availableCount * 100,
-            );
-          }
-
-          // Check if single item has multiple quantity (needs quantity selector)
-          if (availableCount === 1) {
-            const singleItem = availableItems[0];
-            const availableQuantity =
-              singleItem.Quantity - singleItem.UsedQuantity;
-            if (availableQuantity > 1) {
-              // Increase height for quantity selector
-              return theme.sizes.HEIGHT * 0.22;
-            }
-          }
-
-          return theme.sizes.HEIGHT * 0.35;
-        })()}
-        snapPoints={(() => {
-          const availableItems =
-            selectedOrder?.Items?.filter(
-              item =>
-                item.Status !== 10 && item.Quantity - item.UsedQuantity > 0,
-            ) || [];
-          const availableCount = availableItems.length;
-
-          if (availableCount > 1) {
-            return ['75%'];
-          }
-
-          // Check if single item has multiple quantity
-          if (availableCount === 1) {
-            const singleItem = availableItems[0];
-            const availableQuantity =
-              singleItem.Quantity - singleItem.UsedQuantity;
-            if (availableQuantity > 1) {
-              return ['45%'];
-            }
-          }
-
-          return ['35%'];
-        })()}
+        embedContentInBottomSheetView={false}
+        enableDynamicSizing={true}
+        maxDynamicContentSize={theme.sizes.HEIGHT * 0.75}
+        enableContentPanningGesture={true}
+        enableHandlePanningGesture={true}
+        enablePanDownToClose={true}
         onClose={handleCloseBottomSheet}
       >
-        <ScrollView
+        <BottomSheetScrollView
+          style={{ flex: 1 }}
           contentContainerStyle={{
             paddingBottom: theme.sizes.PADDING * 2,
-            flexGrow: 1,
           }}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           <View style={styles.bottomSheet}>
             {selectedOrder?.Items &&
@@ -458,7 +414,7 @@ const InboxOutbox: React.FC = () => {
               />
             )}
           </View>
-        </ScrollView>
+        </BottomSheetScrollView>
       </AppBottomSheet>
 
       <VideoStoryViewer

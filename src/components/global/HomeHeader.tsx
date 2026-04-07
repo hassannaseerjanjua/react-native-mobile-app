@@ -190,8 +190,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
                   </Text>
                 </View>
                 <SvgCartIcon
-                  width={scaleWithMax(22, 22)}
-                  height={scaleWithMax(22, 22)}
+                  height={scaleWithMax(25, 25)}
+                  width={scaleWithMax(25, 25)}
                 />
               </TouchableOpacity>
             )}
@@ -202,8 +202,8 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               activeOpacity={0.7}
             >
               <SvgSearchIcon
-                height={scaleWithMax(20, 24)}
-                width={scaleWithMax(20, 24)}
+                height={scaleWithMax(25, 25)}
+                width={scaleWithMax(25, 25)}
               />
             </TouchableOpacity>
           )}

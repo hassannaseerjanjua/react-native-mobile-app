@@ -8,13 +8,13 @@ import InputField from '../../../components/global/InputField';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import {
-  SvgBirthdayIcon,
-  SvgEmail,
-  SvgLocationPin,
-  SvgPhone,
+  SvgEmailStroke,
+  SvgPhoneStroke,
   SvgPhoneIcon,
-  SvgUser,
-  SvgUsername,
+  SvgBirthdayStroke,
+  SvgLocationPinStroke,
+  SvgUserStroke,
+  SvgUsernameStroke,
 } from '../../../assets/icons';
 import {
   scaleWithMax,
@@ -364,7 +364,7 @@ const StepContent: React.FC<StepContentProps> = ({
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
             <InputField
-              icon={<SvgUser width={scaleWithMax(20, 25)} />}
+              icon={<SvgUserStroke width={scaleWithMax(20, 25)} />}
               error={
                 formik.touched.fullName && formik.errors.fullName
                   ? formik.errors.fullName
@@ -384,7 +384,7 @@ const StepContent: React.FC<StepContentProps> = ({
 
           <View style={styles.inputContainer}>
             <InputField
-              icon={<SvgUsername width={scaleWithMax(20, 25)} />}
+              icon={<SvgUsernameStroke width={scaleWithMax(20, 25)} />}
               error={
                 usernameApiError
                   ? usernameApiError
@@ -418,7 +418,7 @@ const StepContent: React.FC<StepContentProps> = ({
               isLoading={citiesApi.loading}
               label={getString('AU_PL_CITY')}
               selectedOption={selectedOption}
-              icon={<SvgLocationPin width={scaleWithMax(20, 25)} />}
+              icon={<SvgLocationPinStroke width={scaleWithMax(20, 25)} />}
               options={filteredOptions}
               placeholder={getString('AU_PL_CITY')}
               searchValue={areaSearch}
@@ -434,7 +434,7 @@ const StepContent: React.FC<StepContentProps> = ({
           <View style={styles.inputContainer}>
             <TouchableOpacity onPress={() => setShowDatePicker(true)}>
               <InputField
-                icon={<SvgBirthdayIcon width={scaleWithMax(20, 25)} />}
+                icon={<SvgBirthdayStroke width={scaleWithMax(20, 25)} />}
                 error={
                   formik.touched.dateOfBirth && formik.errors.dateOfBirth
                     ? formik.errors.dateOfBirth
@@ -475,7 +475,7 @@ const StepContent: React.FC<StepContentProps> = ({
         <View style={styles.formContainer}>
           <View style={styles.inputContainer}>
             <InputField
-              icon={<SvgEmail width={scaleWithMax(20, 25)} />}
+              icon={<SvgEmailStroke width={scaleWithMax(20, 25)} />}
               error={
                 formik.touched.email && formik.errors.email
                   ? formik.errors.email
@@ -493,7 +493,7 @@ const StepContent: React.FC<StepContentProps> = ({
           </View>
           <View style={styles.inputContainer}>
             <InputField
-              icon={<SvgPhone width={scaleWithMax(20, 25)} />}
+              icon={<SvgPhoneStroke width={scaleWithMax(20, 25)} />}
               isPhone={true}
               error={
                 formik.touched.phoneNumber && formik.errors.phoneNumber

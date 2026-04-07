@@ -16,6 +16,7 @@ import ParentView from '../../../components/app/ParentView';
 import useTheme from '../../../styles/theme';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { rtlPosition } from '../../../utils/rtl';
+import { scaleWithMax } from '../../../utils';
 
 interface LandingProps extends AuthStackScreen<'Landing'> {}
 
@@ -79,7 +80,7 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
         )}
       </TouchableOpacity>
       <View style={styles.logoContainer}>
-        <SvgLogoBlue width={theme.sizes.APP_LOGO} />
+        <SvgLogoBlue />
       </View>
       {shimmerLoading || !keysLoaded ? (
         <SkeletonLoader screenType="landing" />

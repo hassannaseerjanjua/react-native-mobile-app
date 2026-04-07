@@ -978,7 +978,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                 alignItems: 'center',
               }}
             >
-              <ActivityIndicator size="large" color="#4B2D5C" />
+              <ActivityIndicator size="large" color="#C73E51" />
               <Text style={{ color: '#FFF', marginTop: 16 }}>
                 {getString('GIFT_MESSAGE_LOADING_CAMERA')}
               </Text>

@@ -6,7 +6,11 @@ import CustomButton from '../../../components/global/Custombutton';
 import InputField from '../../../components/global/InputField';
 import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
-import { SvgEmail, SvgPhone, SvgPhoneIcon } from '../../../assets/icons';
+import {
+  SvgEmailStroke,
+  SvgPhoneStroke,
+  SvgPhoneIcon,
+} from '../../../assets/icons';
 import {
   scaleWithMax,
   formatPhoneWithCountryCode,
@@ -188,9 +192,9 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                     isPhone={isPhone}
                     icon={
                       isPhone ? (
-                        <SvgPhone width={scaleWithMax(20, 25)} />
+                        <SvgPhoneStroke width={scaleWithMax(20, 25)} />
                       ) : (
-                        <SvgEmail width={scaleWithMax(20, 25)} />
+                        <SvgEmailStroke width={scaleWithMax(20, 25)} />
                       )
                     }
                     error={error as string}
@@ -258,7 +262,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             {activeTab === 'Phone' ? (
               <SvgPhoneIcon width={scaleWithMax(48, 55)} />
             ) : (
-              <SvgEmail
+              <SvgEmailStroke
                 width={scaleWithMax(55, 55)}
                 height={scaleWithMax(40, 40)}
               />

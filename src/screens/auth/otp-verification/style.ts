@@ -25,7 +25,8 @@ const useStyles = () => {
         flex: 1,
       },
       headerContainer: {
-        marginBottom: sizes.PADDING * 1.5,
+        marginTop: 25,
+        marginBottom: 36,
         alignItems: 'center',
       },
       title: {
@@ -42,11 +43,11 @@ const useStyles = () => {
       otpInput: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         width: boxSize,
-        height: boxSize,
-        borderWidth: 1,
-        borderColor: colors.LIGHT_GRAY,
+        height: boxSize * 0.94,
+        // borderWidth: 1,
+        // borderColor: colors.LIGHT_GRAY,
         borderRadius: boxSize * 0.2,
-        backgroundColor: colors.BACKGROUND,
+        backgroundColor: colors.LIGHT_GRAY,
         fontSize: boxSize * 0.4,
         textAlign: 'center',
         textAlignVertical: 'center',
@@ -55,10 +56,10 @@ const useStyles = () => {
       },
       subtitleContainer: {
         alignItems: 'center',
-        marginTop: sizes.PADDING * 1.5,
+        marginTop: 20,
       },
       subtitle: {
-        ...theme.globalStyles.TEXT_STYLE,
+        ...theme.globalStyles.TEXT_STYLE_MEDIUM,
         fontSize: sizes.FONTSIZE_BUTTON,
         color: colors.PRIMARY_TEXT,
         textAlign: 'center',
@@ -70,7 +71,7 @@ const useStyles = () => {
         textDecorationLine: 'underline',
       },
       buttonContainer: {
-        marginTop: sizes.HEIGHT * 0.05,
+        marginTop: 70,
         alignItems: 'center',
       },
     });

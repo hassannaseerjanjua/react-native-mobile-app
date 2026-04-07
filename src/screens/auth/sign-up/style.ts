@@ -76,11 +76,11 @@ const useStyles = () => {
         marginVertical: 20,
       },
       inputContainer: {
-        marginBottom: 20,
+        marginBottom: 22,
       },
       progressContainer: {
-        marginTop: scaleWithMax(10, 15),
-        marginBottom: scaleWithMax(10, 15),
+        marginTop: 14,
+        marginBottom: 11,
       },
       progressHeader: {
         flexDirection: 'row',
@@ -89,9 +89,9 @@ const useStyles = () => {
         marginBottom: 8,
       },
       progressSubtitle: {
-        fontSize: 14,
+        fontSize: 15,
         color: colors.BLACK,
-        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+        fontFamily: theme.globalStyles.TEXT_STYLE_SEMIBOLD.fontFamily,
       },
       progressBar: {
         width: '100%',
@@ -106,7 +106,7 @@ const useStyles = () => {
         borderRadius: 10,
       },
       progressText: {
-        fontSize: 14,
+        fontSize: 15,
         color: colors.SECONDARY_TEXT,
         fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
       },
