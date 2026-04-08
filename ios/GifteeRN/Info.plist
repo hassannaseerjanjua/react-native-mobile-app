@@ -32,7 +32,7 @@
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>143</string>
+	<string>146</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSAppTransportSecurity</key>
@@ -47,7 +47,7 @@
 	<key>NSContactsUsageDescription</key>
 	<string>$(PRODUCT_NAME) needs access to your Contacts to help you send gifts to friends.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string/>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>$(PRODUCT_NAME) needs access to your Microphone.</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
@@ -70,6 +70,26 @@
 		<string>Tajawal-Light.ttf</string>
 		<string>Tajawal-Medium.ttf</string>
 		<string>Tajawal-Regular.ttf</string>
+		<string>Gilroy-UltraLightItalic.ttf</string>
+		<string>Gilroy-Medium.ttf</string>
+		<string>Gilroy-LightItalic.ttf</string>
+		<string>Gilroy-ThinItalic.ttf</string>
+		<string>Gilroy-HeavyItalic.ttf</string>
+		<string>Gilroy-BoldItalic.ttf</string>
+		<string>Gilroy-SemiBoldItalic.ttf</string>
+		<string>Gilroy-RegularItalic.ttf</string>
+		<string>Gilroy-BlackItalic.ttf</string>
+		<string>Gilroy-Regular.ttf</string>
+		<string>Gilroy-UltraLight.ttf</string>
+		<string>Gilroy-Black.ttf</string>
+		<string>Gilroy-ExtraBold.ttf</string>
+		<string>Gilroy-MediumItalic.ttf</string>
+		<string>Gilroy-Light.ttf</string>
+		<string>Gilroy-Thin.ttf</string>
+		<string>Gilroy-ExtraBoldItalic.ttf</string>
+		<string>Gilroy-SemiBold.ttf</string>
+		<string>Gilroy-Bold.ttf</string>
+		<string>Gilroy-Heavy.ttf</string>
 	</array>
 	<key>UIBackgroundModes</key>
 	<array>

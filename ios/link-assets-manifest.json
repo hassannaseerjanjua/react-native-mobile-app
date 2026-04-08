@@ -2,36 +2,100 @@
   "migIndex": 1,
   "data": [
     {
+      "path": "src/assets/fonts/Gilroy-Black.ttf",
+      "sha1": "41d7d53d34ae67d9dc54979abee04f3514163740"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-BlackItalic.ttf",
+      "sha1": "3f16053efbb2fba78e7cc3722e2ffd8beddb862d"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-Bold.ttf",
+      "sha1": "7fe4d8cf5325dd47363d0f80fefb40ac7df5d5a6"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-BoldItalic.ttf",
+      "sha1": "9d242712b00aa14b76df6b0526957679a0dd4f13"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-ExtraBold.ttf",
+      "sha1": "eb2b7042895e0fe98ea023f3e45048f9d152127e"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-ExtraBoldItalic.ttf",
+      "sha1": "3fa4b88b9e55088d5a38d8ada83732452951f514"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-Heavy.ttf",
+      "sha1": "3e47b596a6cc4ad3ac4f79353c4bddc987bc84bc"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-HeavyItalic.ttf",
+      "sha1": "71d5083e3895c1857d2e4c73a2e65731061d43f9"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-Light.ttf",
+      "sha1": "510faebaff56ce8b518fc84bdd1aefeefae00b65"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-LightItalic.ttf",
+      "sha1": "1ead29f40523006583d1813c0b2f50c872216ed3"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-Medium.ttf",
+      "sha1": "d7f893124bd4fff78805e69df31385ae113368be"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-MediumItalic.ttf",
+      "sha1": "5993ba5a055534b7b6fe766d063650767e6929ac"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-Regular.ttf",
+      "sha1": "a737c19356e50cb9a50eb64ca7446c80dd3aa3e3"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-RegularItalic.ttf",
+      "sha1": "849c9d5af9b98915b9a2961b92365e793f1b756e"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-SemiBold.ttf",
+      "sha1": "8663a356eb9bc23b77696208f74376daf59687ea"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-SemiBoldItalic.ttf",
+      "sha1": "6eeadaaadf79773e8630aabb17a2b0b8a48b94b5"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-Thin.ttf",
+      "sha1": "af4998778ceb58ef38ff3fe5441eec696cb970dc"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-ThinItalic.ttf",
+      "sha1": "3cfc68dab2b878451f4334981e8d5e2a84fc3698"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-UltraLight.ttf",
+      "sha1": "1cfbfa447c336558c8ab3389bb11015adebf744f"
+    },
+    {
+      "path": "src/assets/fonts/Gilroy-UltraLightItalic.ttf",
+      "sha1": "594654ca331a2b85349e9fe36b87fdf9b86ff4c8"
+    },
+    {
+      "path": "src/assets/fonts/index.ts",
+      "sha1": "3e5354f8e99f4e1529e4877a8ce617dac01d7c3f"
+    },
+    {
       "path": "src/assets/fonts/Quicksand-Bold.ttf",
       "sha1": "111e880f4de54ccf0a7fd14f38999b9c066e46bb"
     },
     {
-      "path": "src/assets/fonts/Tajawal-ExtraBold.ttf",
-      "sha1": "ae3e929ac8df1343e9eafb3b894e68b3dfe2bbf7"
-    },
-    {
-      "path": "src/assets/fonts/Tajawal-Light.ttf",
-      "sha1": "e18bc6e29892bd28265bb2c181191f81108ad365"
-    },
-    {
-      "path": "src/assets/fonts/Tajawal-Bold.ttf",
-      "sha1": "86c33e621bb9eecabcb569994ae1edf2dbd3bfd6"
-    },
-    {
-      "path": "src/assets/fonts/Tajawal-ExtraLight.ttf",
-      "sha1": "7e62b070270f1805b67784eb44d68d2289c98f43"
-    },
-    {
-      "path": "src/assets/fonts/Tajawal-Regular.ttf",
-      "sha1": "03b61c8af3509f93599cf118fd8be91b3f7ceedd"
+      "path": "src/assets/fonts/Quicksand-Light.ttf",
+      "sha1": "4d3b72ff1544d92ca9a435d7e34d21eda322dd76"
     },
     {
       "path": "src/assets/fonts/Quicksand-Medium.ttf",
       "sha1": "04b8198132a4a092b10d0631500268d6a2a0f889"
-    },
-    {
-      "path": "src/assets/fonts/Tajawal-Medium.ttf",
-      "sha1": "0f5cb2c0169e78f25bb1626cdc9a2899844619fa"
     },
     {
       "path": "src/assets/fonts/Quicksand-Regular.ttf",
@@ -42,16 +106,32 @@
       "sha1": "339f8d3e09ad271ff12727eef33a99f7a066eee3"
     },
     {
-      "path": "src/assets/fonts/Quicksand-Light.ttf",
-      "sha1": "4d3b72ff1544d92ca9a435d7e34d21eda322dd76"
-    },
-    {
-      "path": "src/assets/fonts/index.ts",
-      "sha1": "2bf3392b852259a323b58fc9e7f48323de6077d7"
-    },
-    {
       "path": "src/assets/fonts/Tajawal-Black.ttf",
       "sha1": "0f82d01655c51022295f0a138ee3f16efc35c914"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-Bold.ttf",
+      "sha1": "86c33e621bb9eecabcb569994ae1edf2dbd3bfd6"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-ExtraBold.ttf",
+      "sha1": "ae3e929ac8df1343e9eafb3b894e68b3dfe2bbf7"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-ExtraLight.ttf",
+      "sha1": "7e62b070270f1805b67784eb44d68d2289c98f43"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-Light.ttf",
+      "sha1": "e18bc6e29892bd28265bb2c181191f81108ad365"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-Medium.ttf",
+      "sha1": "0f5cb2c0169e78f25bb1626cdc9a2899844619fa"
+    },
+    {
+      "path": "src/assets/fonts/Tajawal-Regular.ttf",
+      "sha1": "03b61c8af3509f93599cf118fd8be91b3f7ceedd"
     }
   ]
 }

@@ -1,11 +1,20 @@
 const fonts = {
-  Quicksand: {
-    regular: 'Quicksand-Regular',
-    medium: 'Quicksand-Medium',
-    bold: 'Quicksand-Bold',
-    semibold: 'Quicksand-SemiBold',
-    light: 'Quicksand-Light',
+  Gilroy: {
+    regular: 'Gilroy-Regular',
+    medium: 'Gilroy-Medium',
+    bold: 'Gilroy-Bold',
+    semibold: 'Gilroy-SemiBold',
+    light: 'Gilroy-Light',
+    black: 'Gilroy-Black',
+    extraBold: 'Gilroy-ExtraBold',
   },
+  // Quicksand: {
+  //   regular: 'Quicksand-Regular',
+  //   medium: 'Quicksand-Medium',
+  //   bold: 'Quicksand-Bold',
+  //   semibold: 'Quicksand-SemiBold',
+  //   light: 'Quicksand-Light',
+  // },
   Tajawal: {
     regular: 'Tajawal-Regular',
     medium: 'Tajawal-Medium',
@@ -17,7 +26,7 @@ const fonts = {
   },
 };
 
-/** Language-aware font set: use Tajawal for Arabic, Quicksand otherwise */
+/** Language-aware font set: use Tajawal for Arabic, Gilroy otherwise */
 export const getFontsForLanguage = (isArabic: boolean) =>
   isArabic
     ? {
@@ -27,6 +36,6 @@ export const getFontsForLanguage = (isArabic: boolean) =>
         bold: fonts.Tajawal.extraBold,
         light: fonts.Tajawal.light,
       }
-    : fonts.Quicksand;
+    : fonts.Gilroy;
 
 export default fonts;
