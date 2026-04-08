@@ -82,10 +82,7 @@ export const Text = (props: TextProps) => {
       return undefined;
     })();
 
-    const pick = (
-      family: typeof fonts.Quicksand | typeof fonts.Tajawal,
-      key?: string,
-    ) => {
+    const pick = (family: any, key?: string) => {
       switch (key) {
         case 'extraBold':
           return (family as any).extraBold || family.bold;
@@ -112,7 +109,7 @@ export const Text = (props: TextProps) => {
 
     if (hasArabicChars && !hasLatinChars) return pick(fonts.Tajawal, weightKey);
     if (hasLatinChars && !hasArabicChars)
-      return pick(fonts.Quicksand, weightKey);
+      return pick(fonts.Gilroy, weightKey);
     return undefined;
   };
 

@@ -41,7 +41,7 @@ const AuthLayout = ({
         contentContainerStyle={styles.contentContainer}
       >
         <View style={styles.logoContainer}>
-          <SvgLogoBlue width={theme.sizes.APP_LOGO} />
+          <SvgLogoBlue />
         </View>
 
         <View style={styles.mainContent}>
@@ -81,7 +81,8 @@ const useStyles = () => {
       },
       logoContainer: {
         alignItems: 'center',
-        marginBottom: scaleWithMax(50, 55),
+        marginBottom: scaleWithMax(55, 60),
+        marginTop: scaleWithMax(8, 10),
       },
 
       mainContent: {

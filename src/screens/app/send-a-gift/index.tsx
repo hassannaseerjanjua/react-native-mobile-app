@@ -449,44 +449,44 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
 
   const tabs = isMerchant
     ? [
-      {
-        id: 'employees',
-        title: getString('SEND_GIFT_MY_EMPLOYEES'),
-        onPress: () => {
-          handleTabChange('employees');
+        {
+          id: 'employees',
+          title: getString('SEND_GIFT_MY_EMPLOYEES'),
+          onPress: () => {
+            handleTabChange('employees');
+          },
         },
-      },
-      {
-        id: 'others',
-        title: getString('SG_OTHERS'),
-        onPress: () => {
-          handleTabChange('others');
+        {
+          id: 'others',
+          title: getString('SG_OTHERS'),
+          onPress: () => {
+            handleTabChange('others');
+          },
         },
-      },
-    ]
+      ]
     : [
-      {
-        id: 'friends',
-        title: getString('SG_FRIENDS'),
-        onPress: () => {
-          handleTabChange('friends');
+        {
+          id: 'friends',
+          title: getString('SG_FRIENDS'),
+          onPress: () => {
+            handleTabChange('friends');
+          },
         },
-      },
-      {
-        id: 'group',
-        title: getString('SG_GROUP'),
-        onPress: () => {
-          handleTabChange('group');
+        {
+          id: 'group',
+          title: getString('SG_GROUP'),
+          onPress: () => {
+            handleTabChange('group');
+          },
         },
-      },
-      {
-        id: 'others',
-        title: getString('SG_OTHERS'),
-        onPress: () => {
-          handleTabChange('others');
+        {
+          id: 'others',
+          title: getString('SG_OTHERS'),
+          onPress: () => {
+            handleTabChange('others');
+          },
         },
-      },
-    ];
+      ];
 
   // Get frequently sent friends (first 3 with OrdersCount >= 1, in API order)
   const filterFrequentlySentFriends = useCallback((baseData: ActiveUser[]) => {
@@ -556,7 +556,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
 
     const currentUser: ActiveUser = {
       UserId: user!.UserId,
-      FullName: `${user!.FullNameEn || user!.FullNameAr || getString('SG_USER_ME')}${getString('SG_ME')}`,
+      FullName: `${
+        user!.FullNameEn || user!.FullNameAr || getString('SG_USER_ME')
+      }${getString('SG_ME')}`,
       Email: user!.Email,
       PhoneNo: user!.PhoneNo,
       ProfileUrl: user!.ProfileUrl,
@@ -580,26 +582,26 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
     activeTab === 'group'
       ? getGroupsData.loading
       : isMerchant && activeTab === 'employees'
-        ? employeesApi.loading
-        : activeUsersApi.loading;
+      ? employeesApi.loading
+      : activeUsersApi.loading;
   const getRelevantApi = () =>
     activeTab === 'group'
       ? getGroupsData
       : isMerchant && activeTab === 'employees'
-        ? employeesApi
-        : activeUsersApi;
+      ? employeesApi
+      : activeUsersApi;
   const searchQuery =
     activeTab === 'group'
       ? getGroupsData.search
       : isMerchant && activeTab === 'employees'
-        ? employeesApi.search
-        : activeUsersApi.search;
+      ? employeesApi.search
+      : activeUsersApi.search;
   const setSearchQuery =
     activeTab === 'group'
       ? getGroupsData.setSearch
       : isMerchant && activeTab === 'employees'
-        ? employeesApi.setSearch
-        : activeUsersApi.setSearch;
+      ? employeesApi.setSearch
+      : activeUsersApi.setSearch;
 
   // Determine if "me" should be shown (same logic as in getDisplayData)
   const shouldShowMe =
@@ -639,7 +641,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
   // Text for empty state: use effectiveSearchForHideMe to sync with "me" visibility - no immediate text change
   const noFriendsEmptyText =
     shouldShowOthersEmptyState ||
-      (shouldShowEmptyState && !!effectiveSearchForHideMe)
+    (shouldShowEmptyState && !!effectiveSearchForHideMe)
       ? getString('SEARCH_NO_RESULTS_FOUND')
       : getString('SG_NO_FRIENDS_YET');
 
@@ -819,13 +821,13 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
                   >
                     {!isEditGroupOpen ? (
                       <SvgEditGroup
-                        width={scaleWithMax(13, 15)}
-                        height={scaleWithMax(13, 15)}
+                      // width={scaleWithMax(15, 15)}
+                      // height={scaleWithMax(15, 15)}
                       />
                     ) : (
                       <SvgCancelIcon
-                        width={scaleWithMax(13, 15)}
-                        height={scaleWithMax(13, 15)}
+                      // width={scaleWithMax(15, 15)}
+                      // height={scaleWithMax(15, 15)}
                       />
                     )}
                     {/* <Text
@@ -863,10 +865,10 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
                         isEditGroupOpen
                           ? () => handleEditGroup(group)
                           : () => {
-                            setSelectedGroup(group);
-                            setSelectedGroupName(group.GroupName);
-                            setIsViewMembersOpen(true);
-                          }
+                              setSelectedGroup(group);
+                              setSelectedGroupName(group.GroupName);
+                              setIsViewMembersOpen(true);
+                            }
                       }
                       isEditGroup={isEditGroupOpen}
                       TabItemStyles={styles.TabItem}
@@ -974,12 +976,12 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
                 {isMerchant && activeTab === 'employees'
                   ? getString('SEND_GIFT_MY_EMPLOYEES')
                   : activeTab === 'friends'
-                    ? getString('SG_FRIENDS')
-                    : activeTab === 'group'
-                      ? getString('SG_GROUP')
-                      : activeTab === 'others'
-                        ? getString('SG_OTHERS')
-                        : ''}
+                  ? getString('SG_FRIENDS')
+                  : activeTab === 'group'
+                  ? getString('SG_GROUP')
+                  : activeTab === 'others'
+                  ? getString('SG_OTHERS')
+                  : ''}
               </Text>
               {isMerchant &&
                 employeesApi?.data &&
@@ -1011,8 +1013,8 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
             </View>
           )}
           {activeTab !== 'group' &&
-            (isLoading || !getRelevantApi()?.isInitialLoad) &&
-            !skipSkeletonForSearchTransition ? (
+          (isLoading || !getRelevantApi()?.isInitialLoad) &&
+          !skipSkeletonForSearchTransition ? (
             <ShadowView preset="listItem">
               <View style={[styles.listCard]}>
                 <SkeletonLoader screenType="sendAGift" />
@@ -1227,8 +1229,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
           }}
         >
           <CustomButton
-            title={`${getString('NG_NEXT')} (${selectedUserIds.size
-              }/${MAX_SELECTION_LIMIT})`}
+            title={`${getString('NG_NEXT')} (${
+              selectedUserIds.size
+            }/${MAX_SELECTION_LIMIT})`}
             onPress={async () => {
               const friendIds = Array.from(selectedUserIds);
               if (friendIds.length > 0) {

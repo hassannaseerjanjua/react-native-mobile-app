@@ -2,6 +2,12 @@ import SvgLogoBlue from './logo.svg';
 import SvgLogoWhite from './logo-white.svg';
 import SvgBackIcon from './back-icon.svg';
 import SvgEmail from './email.svg';
+import SvgEmailStroke from './email-stroke.svg';
+import SvgUserStroke from './user-stroke.svg';
+import SvgPhoneStroke from './phone-stroke.svg';
+import SvgBirthdayStroke from './birthday-stroke.svg';
+import SvgUsernameStroke from './username-stroke.svg';
+import SvgLocationPinStroke from './location-stroke.svg';
 import SvgUser from './user.svg';
 import SvgUsername from './username.svg';
 import SvgLocationPin from './location-pin.svg';
@@ -118,7 +124,7 @@ import MasterCardIcon from './mastercard.svg';
 import NoonIcon from './noon.svg';
 import CardsIcon from './cards.svg';
 import SvgRiyalPink from './Riyal_pink.svg';
-import SvgGifteeNotifyIcon from './giftee_notify.svg';
+import SvgGifteeNotifyIcon from './gift-notify.svg';
 import SvgCancelIcon from './editCancel.svg';
 import SvgConfetti from './Confetti.svg';
 
@@ -245,4 +251,10 @@ export {
   SvgGifteeNotifyIcon,
   SvgCancelIcon,
   SvgConfetti,
+  SvgEmailStroke,
+  SvgPhoneStroke,
+  SvgUserStroke,
+  SvgUsernameStroke,
+  SvgLocationPinStroke,
+  SvgBirthdayStroke,
 };

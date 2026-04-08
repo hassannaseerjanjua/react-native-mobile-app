@@ -201,7 +201,7 @@ const HomeScreenTabsContainer: React.FC = () => {
     },
     {
       id: 'catch',
-      image: require('../../../assets/catch-Group-Icon.png'),
+      image: require('../../../assets/icons/home-tab-icons/catch-Group-Icon.png'),
       title: getString('HOME_CATCH'),
       description: getString('HOME_CATCH_INSTANT_GIFT_DESC'),
       onPress: () =>
@@ -267,11 +267,11 @@ const HomeScreenTabsContainer: React.FC = () => {
             minHeight:
               theme.sizes.HEIGHT *
               isAndroidThen(0.133, isProMax ? 0.125 : 0.118),
-            shadowColor: '#000000',
-            shadowOffset: { width: 0, height: 1 },
-            shadowOpacity: 0.08,
-            shadowRadius: 8,
-            elevation: 1,
+            // shadowColor: '#000000',
+            // shadowOffset: { width: 0, height: 1 },
+            // shadowOpacity: 0.08,
+            // shadowRadius: 8,
+            // elevation: 1,
           }}
         />
       </View>
@@ -288,11 +288,11 @@ const HomeScreenTabsContainer: React.FC = () => {
               minHeight:
                 theme.sizes.HEIGHT *
                 isAndroidThen(0.12, isProMax ? 0.111 : 0.106),
-              shadowColor: '#000000',
-              shadowOffset: { width: 0, height: 1 },
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-              elevation: 1,
+              // shadowColor: '#000000',
+              // shadowOffset: { width: 0, height: 1 },
+              // shadowOpacity: 0.08,
+              // shadowRadius: 8,
+              // elevation: 1,
             }}
           />
         ))}
@@ -314,11 +314,11 @@ const HomeScreenTabsContainer: React.FC = () => {
               minHeight:
                 theme.sizes.HEIGHT *
                 isAndroidThen(0.11, isProMax ? 0.103 : 0.098),
-              shadowColor: '#000000',
-              shadowOffset: { width: 0, height: 2 },
-              shadowOpacity: 0.08,
-              shadowRadius: 8,
-              elevation: 1,
+              // shadowColor: '#000000',
+              // shadowOffset: { width: 0, height: 2 },
+              // shadowOpacity: 0.08,
+              // shadowRadius: 8,
+              // elevation: 1,
             }}
           />
         ))}

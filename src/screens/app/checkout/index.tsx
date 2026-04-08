@@ -40,6 +40,7 @@ import {
   MasterCardIcon,
   NoonIcon,
   SvgGiftOneGetOne,
+  SvgGiftClaimIcon,
 } from '../../../assets/icons';
 import {
   scaleWithMax,
@@ -1328,7 +1329,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                           }
                         }}
                       >
-                        <GiftIcon />
+                        <SvgGiftClaimIcon />
                       </TouchableOpacity>
                       {isMerchant &&
                         cartData?.MultiUsers &&

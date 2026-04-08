@@ -31,7 +31,10 @@ import { useAuthStore } from '../../../store/reducer/auth.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import notify from '../../../utils/notify.ts';
 import { rtlFlexDirection, rtlPosition, scaleWithMax } from '../../../utils';
-import { SvgCrossIcon, SvgProfileCrossIcon } from '../../../assets/icons/index.ts';
+import {
+  SvgCrossIcon,
+  SvgProfileCrossIcon,
+} from '../../../assets/icons/index.ts';
 
 const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
@@ -240,16 +243,16 @@ const NotificationsScreen: React.FC = () => {
       />
 
       {notificationsApi.loading &&
-        !notificationsApi.loadingMore &&
-        !isRefreshing ? (
+      !notificationsApi.loadingMore &&
+      !isRefreshing ? (
         <SkeletonLoader screenType="notifications" />
       ) : (
         <FlatList
           data={
             user?.isMerchant
               ? notificationsApi.data.filter(
-                item => item.NotificationType !== 13,
-              )
+                  item => item.NotificationType !== 13,
+                )
               : notificationsApi.data
           }
           keyExtractor={item => item.NotificationId.toString()}
@@ -339,16 +342,24 @@ const NotificationsScreen: React.FC = () => {
               </Text>
             </TouchableOpacity>
           </View> */}
-          <TouchableOpacity style={[{
-            position: "absolute",
-            zIndex: 1,
-            top: theme.sizes.HEIGHT * 0.020,
-          }, rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.039),
-          ]} onPress={() => {
-            setShowWelcomeWebView(false);
-            setWelcomeHtml('');
-          }}>
-            <SvgProfileCrossIcon height={scaleWithMax(15, 20)} width={scaleWithMax(15, 20)} />
+          <TouchableOpacity
+            style={[
+              {
+                position: 'absolute',
+                zIndex: 1,
+                top: theme.sizes.HEIGHT * 0.02,
+              },
+              rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.039),
+            ]}
+            onPress={() => {
+              setShowWelcomeWebView(false);
+              setWelcomeHtml('');
+            }}
+          >
+            <SvgProfileCrossIcon
+              height={scaleWithMax(15, 20)}
+              width={scaleWithMax(15, 20)}
+            />
           </TouchableOpacity>
 
           {loadingWelcome ? (

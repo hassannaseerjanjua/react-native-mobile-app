@@ -49,8 +49,9 @@ const useStyles = () => {
       tabContainer: {
         flexDirection: 'row',
         marginBottom: 25,
-        paddingVertical: 4,
-        gap: 5,
+        // paddingVertical: 4,
+        marginTop: 16,
+        gap: 6,
       },
       tab: {
         flex: 1,
@@ -80,7 +81,7 @@ const useStyles = () => {
         marginBottom: 20,
       },
       button: {
-        marginTop: sizes.HEIGHT * 0.03,
+        marginTop: sizes.HEIGHT * 0.026,
       },
       buttonContainer: {
         alignItems: 'center',

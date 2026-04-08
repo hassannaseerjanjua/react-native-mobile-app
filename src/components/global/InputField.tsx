@@ -45,11 +45,7 @@ const InputField = ({
         style,
       ]}
     >
-      {isPhone ? (
-        <SvgPhone width={scaleWithMax(20, 25)} height={scaleWithMax(20, 25)} />
-      ) : (
-        icon
-      )}
+      {icon}
       {isPhone && <Text style={styles.prefixText}>{'+966'}</Text>}
       <TextInput
         {...fieldProps}
@@ -79,7 +75,8 @@ const InputField = ({
 
   return (
     <>
-      {noShadow ? content : <ShadowView preset="input">{content}</ShadowView>}
+      {/* {noShadow ? content : <ShadowView preset="input">{content}</ShadowView>} */}
+      {content}
       {isOccasion && (
         <View style={styles.galleryUploadContainer}>
           <SvgGalleryUploadIcon
@@ -122,7 +119,7 @@ const useStyles = () => {
         flexDirection: 'row',
         paddingHorizontal: sizes.PADDING * 0.8,
         alignItems: 'center',
-        backgroundColor: colors.WHITE,
+        backgroundColor: colors.LIGHT_GRAY,
       },
       phoneFieldLtr: {
         direction: 'ltr',
@@ -135,7 +132,7 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         paddingVertical: sizes.PADDING,
         alignItems: 'flex-start',
-        backgroundColor: colors.WHITE,
+        backgroundColor: colors.LIGHT_GRAY,
       },
       input: {
         ...globalStyles.TEXT_STYLE,

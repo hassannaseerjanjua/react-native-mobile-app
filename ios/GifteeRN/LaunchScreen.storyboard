@@ -16,14 +16,14 @@
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <imageView autoresizesSubviews="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" image="BootSplashLogo-793246" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchSplashImage">
+                            <imageView autoresizesSubviews="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" image="BootSplashLogo-7ff1d9" translatesAutoresizingMaskIntoConstraints="NO" id="LaunchSplashImage">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                                 <accessibility key="accessibilityConfiguration">
                                     <accessibilityTraits key="traits" image="YES" notEnabled="YES"/>
                                 </accessibility>
                             </imageView>
                         </subviews>
-                        <color key="backgroundColor" name="BootSplashBackground-793246"/>
+                        <color key="backgroundColor" name="BootSplashBackground-7ff1d9"/>
                         <constraints>
                             <constraint firstItem="LaunchSplashImage" firstAttribute="leading" secondItem="Ze5-6b-2t3" secondAttribute="leading" id="lsp-leading"/>
                             <constraint firstItem="LaunchSplashImage" firstAttribute="trailing" secondItem="Ze5-6b-2t3" secondAttribute="trailing" id="lsp-trailing"/>

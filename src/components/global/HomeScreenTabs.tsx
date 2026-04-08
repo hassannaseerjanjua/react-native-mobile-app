@@ -59,7 +59,7 @@ const HomeScreenTabs: React.FC<HomeScreenTabsProps> = ({
             : isAndroid
             ? scaleWithMax(18, 17)
             : scaleWithMax(16, 17),
-          backgroundColor: colors.WHITE,
+          backgroundColor: '#FFF7F1',
           position: 'relative',
         },
         content: {

@@ -259,67 +259,67 @@ const DropdownField = ({
 
   return (
     <View style={[inline && styles.inlineWrapper, style]}>
-      <ShadowView preset="default">
-        <TouchableOpacity
-          style={[
-            styles.container,
-            {
-              borderWidth: !!error ? 1 : 0.5,
-              borderColor: !!error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
-              opacity: disabled ? 0.6 : 1,
-            },
-          ]}
-          onPress={() => !disabled && setIsVisible(!isVisible)}
-          disabled={disabled}
-        >
-          {icon}
-          <View style={styles.textContainer}>
-            {renderDisplay ? (
-              <View
-                style={[
-                  styles.customDisplayContainer,
-                  { paddingLeft: icon ? theme.sizes.PADDING * 0.5 : 0 },
-                ]}
-              >
-                {renderDisplay}
-              </View>
-            ) : (
-              <Text
-                style={[
-                  styles.displayText,
-                  {
-                    paddingLeft: icon ? theme.sizes.PADDING * 0.5 : 0,
-                    color: selectedOption
-                      ? theme.colors.PRIMARY_TEXT
-                      : theme.colors.SECONDARY_TEXT,
-                  },
-                ]}
-              >
-                {selectedOption ? selectedOption.label : placeholder}
-              </Text>
-            )}
-          </View>
-          <View
-            style={{
-              transform: [{ rotate: isVisible ? '180deg' : '0deg' }],
-            }}
-          >
-            <SvgDropDown width={scaleWithMax(20, 25)} />
-          </View>
-          {!!error && (
+      {/* <ShadowView preset="default"> */}
+      <TouchableOpacity
+        style={[
+          styles.container,
+          {
+            borderWidth: !!error ? 1 : 0.5,
+            borderColor: !!error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
+            opacity: disabled ? 0.6 : 1,
+          },
+        ]}
+        onPress={() => !disabled && setIsVisible(!isVisible)}
+        disabled={disabled}
+      >
+        {icon}
+        <View style={styles.textContainer}>
+          {renderDisplay ? (
+            <View
+              style={[
+                styles.customDisplayContainer,
+                { paddingLeft: icon ? theme.sizes.PADDING * 0.5 : 0 },
+              ]}
+            >
+              {renderDisplay}
+            </View>
+          ) : (
             <Text
               style={[
-                styles.error,
+                styles.displayText,
                 {
-                  textAlign: 'left',
+                  paddingLeft: icon ? theme.sizes.PADDING * 0.5 : 0,
+                  color: selectedOption
+                    ? theme.colors.PRIMARY_TEXT
+                    : theme.colors.SECONDARY_TEXT,
                 },
               ]}
             >
-              {error}
+              {selectedOption ? selectedOption.label : placeholder}
             </Text>
           )}
-        </TouchableOpacity>
-      </ShadowView>
+        </View>
+        <View
+          style={{
+            transform: [{ rotate: isVisible ? '180deg' : '0deg' }],
+          }}
+        >
+          <SvgDropDown width={scaleWithMax(20, 25)} />
+        </View>
+        {!!error && (
+          <Text
+            style={[
+              styles.error,
+              {
+                textAlign: 'left',
+              },
+            ]}
+          >
+            {error}
+          </Text>
+        )}
+      </TouchableOpacity>
+      {/* </ShadowView> */}
       {inline ? (
         isVisible && renderContent()
       ) : (
@@ -438,7 +438,7 @@ const useStyles = () => {
         flexDirection: 'row',
         paddingHorizontal: sizes.PADDING,
         alignItems: 'center',
-        backgroundColor: colors.WHITE,
+        backgroundColor: colors.LIGHT_GRAY,
       },
       // FIX 3: dedicated style for the modal's inner wrapper (replaces misused `container`)
       modalInnerContainer: {
