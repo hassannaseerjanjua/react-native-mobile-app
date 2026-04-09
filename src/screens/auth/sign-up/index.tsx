@@ -233,7 +233,6 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           initialValues={formData}
           validationSchema={validationSchema}
           onSubmit={() => {}}
-          enableReinitialize={true}
         >
           {formik => (
             <>
