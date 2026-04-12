@@ -179,11 +179,17 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
     setIsLoading(true);
     try {
-      const response = await api.post<LoginApiResponse>(endpoint, {
-        OTP: normalizedOtp,
-        Email: email,
-        PhoneNo: formatPhoneWithCountryCode(phone ?? ''),
-      });
+      const phoneNo = formatPhoneWithCountryCode(phone ?? '');
+      const verifyBody = signIn
+        ? phoneNo !== ''
+          ? { OTP: normalizedOtp, PhoneNo: phoneNo }
+          : { OTP: normalizedOtp, Email: email ?? '' }
+        : {
+            OTP: normalizedOtp,
+            Email: email,
+            PhoneNo: phoneNo,
+          };
+      const response = await api.post<LoginApiResponse>(endpoint, verifyBody);
       if (response.success && response.data?.Data?.User) {
         dispatch(
           login({
@@ -220,15 +226,21 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     timerRef.current = 60;
     isTimerActiveRef.current = true;
     backgroundTimeRef.current = null;
-    const endpoint = signIn ? apiEndpoints.SIGNIN : apiEndpoints.SIGNUP;
     try {
-      await api.post(endpoint, {
-        FullName: fullName,
-        UserName: username,
-        CityId: city,
-        Phone: formatPhoneWithCountryCode(phone ?? ''),
-        Email: email,
-      });
+      if (signIn) {
+        const phoneNo = formatPhoneWithCountryCode(phone ?? '');
+        const payload =
+          phoneNo !== '' ? { PhoneNo: phoneNo } : { Email: email ?? '' };
+        await api.post(apiEndpoints.SIGNIN, payload);
+      } else {
+        await api.post(apiEndpoints.SIGNUP, {
+          FullName: fullName,
+          UserName: username,
+          CityId: city,
+          Phone: formatPhoneWithCountryCode(phone ?? ''),
+          Email: email,
+        });
+      }
     } catch (err) {
     } finally {
       setTimeout(() => {

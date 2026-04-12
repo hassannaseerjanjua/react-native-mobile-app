@@ -28,7 +28,7 @@ import {
   SvgRiyalIconWhite,
   SvgVerifiedIcon,
 } from '../../../assets/icons/index.ts';
-import { rtlTransform, scaleWithMax } from '../../../utils';
+import { formatGroupedInteger, rtlTransform, scaleWithMax } from '../../../utils';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import { useListingApi } from '../../../hooks/useListingApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
@@ -546,10 +546,12 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           >
             <View style={styles.footerQuantityBadge}>
               <Text style={styles.footerQuantityText}>
-                {cartApi.data?.Items.reduce(
-                  (sum, item) => sum + item.Quantity,
-                  0,
-                ) || 0}
+                {formatGroupedInteger(
+                  cartApi.data?.Items.reduce(
+                    (sum, item) => sum + item.Quantity,
+                    0,
+                  ) || 0,
+                )}
               </Text>
             </View>
             <Text style={styles.footerButtonText}>

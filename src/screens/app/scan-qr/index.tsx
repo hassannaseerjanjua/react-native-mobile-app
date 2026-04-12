@@ -11,7 +11,7 @@ import HomeHeader from '../../../components/global/HomeHeader';
 import ShadowView from '../../../components/global/ShadowView';
 import { SvgProfileCrossIcon } from '../../../assets/icons';
 import { StackActions, useNavigation } from '@react-navigation/native';
-import { scaleWithMax } from '../../../utils';
+import { formatGroupedInteger, scaleWithMax } from '../../../utils';
 import { Text, Image } from '../../../utils/elements';
 import { AppStackScreen } from '../../../types/navigation.types';
 import QRCode from 'react-native-qrcode-svg';
@@ -227,7 +227,9 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
                     </View>
                     {item.Quantity > 0 && (
                       <View style={styles.numCircle}>
-                        <Text style={styles.numText}>{item.Quantity}</Text>
+                        <Text style={styles.numText}>
+                          {formatGroupedInteger(item.Quantity)}
+                        </Text>
                       </View>
                     )}
                   </View>
@@ -302,7 +304,9 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
               </View>
               {currentItem.Quantity > 0 && (
                 <View style={styles.numCircle}>
-                  <Text style={styles.numText}>{currentItem.Quantity}</Text>
+                  <Text style={styles.numText}>
+                    {formatGroupedInteger(currentItem.Quantity)}
+                  </Text>
                 </View>
               )}
             </View>

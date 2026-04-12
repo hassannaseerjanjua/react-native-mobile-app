@@ -44,9 +44,9 @@ const WalletScreen: React.FC = () => {
           <View style={styles.walletSection}>
             <WalletCard
               balance={
-                walletBalance?.data?.WalletBalance
-                  ? Number(walletBalance?.data?.WalletBalance).toFixed(2)
-                  : '0.00'
+                walletBalance?.data?.WalletBalance != null
+                  ? Number(walletBalance.data.WalletBalance)
+                  : 0
               }
             />
           </View>

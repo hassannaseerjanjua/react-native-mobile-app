@@ -57,7 +57,7 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
       },
       welcomeText: {
-        fontFamily: fonts.light,
+        fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
         paddingHorizontal: sizes.PADDING,
@@ -65,7 +65,7 @@ const useStyles = () => {
         // marginStart: scaleWithMax(1, 1),
       },
       userName: {
-        fontFamily: fonts.light,
+        fontFamily: fonts.semibold,
       },
       heroImage: {
         borderRadius: sizes.BORDER_RADIUS_MID,

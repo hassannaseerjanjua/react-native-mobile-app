@@ -17,7 +17,12 @@ import {
   SvgLogoBlue,
   SvgCartIcon,
 } from '../../assets/icons';
-import { isAndroidThen, scaleWithMax, rtlTransform } from '../../utils';
+import {
+  formatGroupedInteger,
+  isAndroidThen,
+  scaleWithMax,
+  rtlTransform,
+} from '../../utils';
 import { useAuthStore } from '../../store/reducer/auth';
 import { useLocaleStore } from '../../store/reducer/locale';
 import { Text } from '../../utils/elements';
@@ -186,7 +191,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
               >
                 <View style={styles.cartCount}>
                   <Text style={styles.cartCountText}>
-                    {getCartCount.data?.Count}
+                    {formatGroupedInteger(getCartCount.data?.Count ?? 0)}
                   </Text>
                 </View>
                 <SvgCartIcon

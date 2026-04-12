@@ -28,7 +28,12 @@ import {
   DeviceEventEmitter,
   Platform,
 } from 'react-native';
-import { isAndroidThen, isIOSThen, scaleWithMax } from '../utils';
+import {
+  formatGroupedInteger,
+  isAndroidThen,
+  isIOSThen,
+  scaleWithMax,
+} from '../utils';
 import { useLocaleStore } from '../store/reducer/locale';
 import { Text } from '../utils/elements';
 import { useAuthStore } from '../store/reducer/auth';
@@ -281,7 +286,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                         textAlign: 'center',
                       }}
                     >
-                      {getNotificationCount.data.Count}
+                      {formatGroupedInteger(getNotificationCount.data.Count)}
                     </Text>
                   </View>
                 )}

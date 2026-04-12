@@ -48,7 +48,11 @@ import {
   SvgCatchTimeIcon,
   SvgProfileCrossIcon,
 } from '../../../assets/icons';
-import { scaleWithMax } from '../../../utils';
+import {
+  formatGroupedInteger,
+  formatNumericValueForDisplay,
+  scaleWithMax,
+} from '../../../utils';
 import GiftOneGetOneProductCard from '../../../components/app/GiftOneGetOneProductCard';
 import SuccessMessage from '../../../components/global/SuccessComponent';
 import CityPickerModal from '../../../components/global/CityPickerModal';
@@ -739,10 +743,12 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             >
               <View style={styles.footerQuantityBadge}>
                 <Text style={styles.footerQuantityText}>
-                  {cartApi.data?.Items?.reduce(
-                    (sum, item) => sum + item.Quantity,
-                    0,
-                  ) || 0}
+                  {formatGroupedInteger(
+                    cartApi.data?.Items?.reduce(
+                      (sum, item) => sum + item.Quantity,
+                      0,
+                    ) || 0,
+                  )}
                 </Text>
               </View>
               <Text style={styles.footerButtonText}>
@@ -754,7 +760,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   height={scaleWithMax(12, 14)}
                 />
                 <Text style={styles.footerPriceText}>
-                  {cartApi.data?.TotalAmount || '0.00'}
+                  {formatNumericValueForDisplay(
+                    cartApi.data?.TotalAmount ?? '0.00',
+                  )}
                 </Text>
               </View>
             </TouchableOpacity>

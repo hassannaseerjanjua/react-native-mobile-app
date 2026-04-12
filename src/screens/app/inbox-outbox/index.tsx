@@ -48,7 +48,12 @@ import {
   getStoreName,
   getMainImage,
 } from './actions';
-import { scaleWithMax, rtlMargin, rtlTransform } from '../../../utils';
+import {
+  formatGroupedInteger,
+  scaleWithMax,
+  rtlMargin,
+  rtlTransform,
+} from '../../../utils';
 import { useRoute } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import useDebounceClick from '../../../hooks/useDebounceClick';
@@ -343,7 +348,7 @@ const InboxOutbox: React.FC = () => {
                                 />
                               </TouchableOpacity>
                               <Text style={styles.quantityText}>
-                                {selectedQty}
+                                {formatGroupedInteger(selectedQty)}
                               </Text>
                               <TouchableOpacity
                                 onPress={() =>
@@ -795,7 +800,9 @@ const InboxItem: React.FC<InboxItemProps> = ({
                         {item.Quantity - item.UsedQuantity > 0 && (
                           <View style={styles.numCircle}>
                             <Text style={styles.numText}>
-                              {item.Quantity - item.UsedQuantity}
+                              {formatGroupedInteger(
+                                item.Quantity - item.UsedQuantity,
+                              )}
                             </Text>
                           </View>
                         )}

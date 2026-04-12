@@ -47,7 +47,7 @@ import apiEndpoints from '../../../constants/api-endpoints';
 import { useListingApi } from '../../../hooks/useListingApi';
 import { useAuthStore } from '../../../store/reducer/auth';
 import { Text } from '../../../utils/elements';
-import { scaleWithMax } from '../../../utils';
+import { formatGroupedInteger, scaleWithMax } from '../../../utils';
 import CustomButton from '../../../components/global/Custombutton';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText';
 import { useFocusEffect } from '@react-navigation/native';
@@ -384,7 +384,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
           notify.error(
             getString('SEND_GIFT_MAX_SELECTION_LIMIT').replace(
               '{count}',
-              String(MAX_SELECTION_LIMIT),
+              formatGroupedInteger(MAX_SELECTION_LIMIT),
             ),
           );
           return prev;

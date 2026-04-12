@@ -30,6 +30,12 @@ export const Text = (props: TextProps) => {
       }
     : null;
 
+  const shouldAdjustIosEnglish =
+    !isRtl && Platform.OS === 'ios' && flattenedStyle.lineHeight == null;
+  const iosEnglishAdjustments = shouldAdjustIosEnglish
+    ? { lineHeight: Math.round(fontSize * 1.22) }
+    : null;
+
   const androidAdjustments =
     Platform.OS === 'android' && isRtl && flattenedStyle.lineHeight == null
       ? {
@@ -108,8 +114,7 @@ export const Text = (props: TextProps) => {
     const weightKey = weightKeyFromFamily || weightKeyFromWeight;
 
     if (hasArabicChars && !hasLatinChars) return pick(fonts.Tajawal, weightKey);
-    if (hasLatinChars && !hasArabicChars)
-      return pick(fonts.Gilroy, weightKey);
+    if (hasLatinChars && !hasArabicChars) return pick(fonts.Gilroy, weightKey);
     return undefined;
   };
 
@@ -124,6 +129,7 @@ export const Text = (props: TextProps) => {
       style={[
         { writingDirection: isRtl ? 'rtl' : 'ltr' },
         arabicAdjustments,
+        iosEnglishAdjustments,
         props.style,
         scriptFontStyle,
         androidAdjustments,

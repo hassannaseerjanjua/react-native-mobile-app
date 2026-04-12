@@ -8,7 +8,7 @@ import PriceWithIcon from '../global/Price';
 import { useLocaleStore } from '../../store/reducer/locale';
 
 interface WalletCardProps {
-  balance: string;
+  balance: string | number;
 }
 
 const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {

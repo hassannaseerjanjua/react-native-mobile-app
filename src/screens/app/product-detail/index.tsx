@@ -11,7 +11,12 @@ import {
   SvgRiyalPink,
 } from '../../../assets/icons';
 import PriceWithIcon from '../../../components/global/Price';
-import { scaleWithMax, rtlTransform, isAndroid } from '../../../utils';
+import {
+  formatGroupedInteger,
+  scaleWithMax,
+  rtlTransform,
+  isAndroid,
+} from '../../../utils';
 import ShadowView from '../../../components/global/ShadowView';
 import ProductImageSlider from '../../../components/global/ProductImageSlider';
 import GroupTabs from '../../../components/global/GroupTabs';
@@ -539,7 +544,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                   height={scaleWithMax(25, 28)}
                   onPress={() => handleQuantityChange('decrement')}
                 />
-                <Text style={styles.QuantityText}>{quantity}</Text>
+                <Text style={styles.QuantityText}>
+                  {formatGroupedInteger(quantity)}
+                </Text>
                 <PlusIcon
                   width={scaleWithMax(25, 28)}
                   height={scaleWithMax(25, 28)}
