@@ -34,9 +34,9 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
         flex: 1,
       },
       logoContainer: {
-        backgroundColor: colors.PRIMARY,
-        width: scaleWithMax(50, 60),
-        height: scaleWithMax(50, 60),
+        // backgroundColor: colors.PRIMARY,
+        width: scaleWithMax(55, 55),
+        height: scaleWithMax(55, 55),
         borderRadius: sizes.BORDER_RADIUS_HIGH,
         justifyContent: 'center',
         alignItems: 'center',
@@ -82,7 +82,10 @@ const WalletCard: React.FC<WalletCardProps> = ({ balance }) => {
     <View style={styles.container}>
       <View style={styles.leftSection}>
         <View style={styles.logoContainer}>
-          <SvgWalletGifteeIcon />
+          <SvgWalletGifteeIcon
+            width={scaleWithMax(55, 60)}
+            height={scaleWithMax(55, 60)}
+          />
         </View>
         <Text style={styles.walletName}>{getString('W_GIFTEE_WALLET')}</Text>
       </View>

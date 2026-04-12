@@ -55,7 +55,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
   selectionDisabled = false,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString, langCode } = useLocaleStore();
+  const { getString } = useLocaleStore();
   const currentStatus = updatedUsers[item.UserId] ?? item.RelationStatus;
   const isAdded = currentStatus === 1;
   const isLoading = loadingUsers[item.UserId] || false;
@@ -76,7 +76,6 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
     : showAddButton;
 
   const meSuffix = getString('SG_ME');
-  const isArabic = langCode === 'ar';
   const fullName = item.FullName || '';
   const hasMeSuffix = meSuffix ? fullName.endsWith(meSuffix) : false;
   const displayName = hasMeSuffix
@@ -111,14 +110,7 @@ const SearchUserItem: React.FC<SearchUserItemProps> = ({
             >
               {displayName}
               {hasMeSuffix && (
-                <Text
-                  style={[
-                    styles.userNameSuffix,
-                    isArabic ? styles.userNameSuffixArabic : null,
-                  ]}
-                >
-                  {meSuffix}
-                </Text>
+                <Text style={styles.userNameSuffix}>{meSuffix}</Text>
               )}
             </Text>
             {item.IsVerified && (
@@ -243,9 +235,12 @@ const useStyles = () => {
       },
       userNameSuffix: {
         marginStart: scaleWithMax(3, 4),
-      },
-      userNameSuffixArabic: {
-        fontFamily: fonts.medium,
+        fontFamily: fonts.semibold,
+        fontSize: sizes.FONTSIZE_BUTTON,
+        lineHeight: Math.round(sizes.FONTSIZE_BUTTON * 1.2),
+        letterSpacing: 0.15,
+        color: colors.PRIMARY_TEXT,
+        includeFontPadding: false,
       },
       nameRow: {
         flexDirection: 'row',

@@ -86,8 +86,7 @@ const PriceWithIcon = ({
   })();
 
   const priceTypefaceLock: TextStyle = {
-    fontFamily:
-      variant === 'cut' ? fonts.Gilroy.medium : fonts.Gilroy.semibold,
+    fontFamily: variant === 'cut' ? fonts.Gilroy.semibold : fonts.Gilroy.bold,
     fontWeight: 'normal',
   };
 

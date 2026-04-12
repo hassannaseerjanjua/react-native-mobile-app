@@ -718,57 +718,55 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   keyboardShouldPersistTaps="handled"
                 >
                   <View style={styles.step2Container}>
-                    <ShadowView preset="searchBar">
-                      <View
-                        style={[
-                          styles.groupNameInputContainer,
-                          groupError && styles.groupNameInputError,
-                        ]}
+                    <View
+                      style={[
+                        styles.groupNameInputContainer,
+                        groupError && styles.groupNameInputError,
+                      ]}
+                    >
+                      <TouchableOpacity
+                        style={styles.groupNameIconWrapper}
+                        onPress={handleImageSelect}
                       >
-                        <TouchableOpacity
-                          style={styles.groupNameIconWrapper}
-                          onPress={handleImageSelect}
-                        >
-                          {groupImage ? (
-                            <Image
-                              source={{ uri: groupImage.uri }}
-                              style={styles.groupImagePreview}
-                            />
-                          ) : (
-                            <SvgImageIcon
-                              width={scaleWithMax(15, 17)}
-                              height={scaleWithMax(15, 17)}
-                            />
-                          )}
-                        </TouchableOpacity>
-                        <TextInput
-                          ref={textInputRef}
-                          allowFontScaling={false}
-                          style={[
-                            styles.groupNameInput,
-                            { textAlign: rtlTextAlign(isRtl) },
-                          ]}
-                          placeholder={getString('NG_ENTER_GROUP_NAME')}
-                          placeholderTextColor={theme.colors.SECONDARY_GRAY}
-                          value={groupName}
-                          onChangeText={text => {
-                            setGroupName(text);
-                            if (groupError) setGroupError('');
-                          }}
-                          maxLength={50}
-                          onFocus={() => {
-                            if (Platform.OS === 'android') {
-                              setTimeout(() => {
-                                scrollViewRef.current?.scrollTo({
-                                  y: 100,
-                                  animated: true,
-                                });
-                              }, 300);
-                            }
-                          }}
-                        />
-                      </View>
-                    </ShadowView>
+                        {groupImage ? (
+                          <Image
+                            source={{ uri: groupImage.uri }}
+                            style={styles.groupImagePreview}
+                          />
+                        ) : (
+                          <SvgImageIcon
+                            width={scaleWithMax(15, 17)}
+                            height={scaleWithMax(15, 17)}
+                          />
+                        )}
+                      </TouchableOpacity>
+                      <TextInput
+                        ref={textInputRef}
+                        allowFontScaling={false}
+                        style={[
+                          styles.groupNameInput,
+                          { textAlign: rtlTextAlign(isRtl) },
+                        ]}
+                        placeholder={getString('NG_ENTER_GROUP_NAME')}
+                        placeholderTextColor={theme.colors.SECONDARY_TEXT}
+                        value={groupName}
+                        onChangeText={text => {
+                          setGroupName(text);
+                          if (groupError) setGroupError('');
+                        }}
+                        maxLength={50}
+                        onFocus={() => {
+                          if (Platform.OS === 'android') {
+                            setTimeout(() => {
+                              scrollViewRef.current?.scrollTo({
+                                y: 100,
+                                animated: true,
+                              });
+                            }, 300);
+                          }
+                        }}
+                      />
+                    </View>
                     {groupError ? (
                       <Text style={styles.errorText}>{groupError}</Text>
                     ) : null}
@@ -856,14 +854,10 @@ const useStyles = () => {
       groupNameInputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: colors.WHITE,
-        borderRadius: 12,
-        paddingHorizontal: sizes.PADDING,
+        backgroundColor: colors.LIGHT_GRAY,
+        borderRadius: sizes.BORDER_RADIUS,
+        paddingHorizontal: sizes.PADDING * 0.8,
         ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
-        // shadowOffset: { width: 0, height: 2 },
-        // shadowOpacity: 0.08,
-        // shadowRadius: 4,
-        // elevation: 2,
       },
       groupNameIconWrapper: {
         width: 30,
