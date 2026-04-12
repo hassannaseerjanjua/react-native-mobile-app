@@ -1,20 +1,5 @@
-import {
-  View,
-  Text,
-  ViewStyle,
-  StyleProp,
-  Modal,
-  TouchableWithoutFeedback,
-  Dimensions,
-  Platform,
-} from 'react-native';
-import React, {
-  useRef,
-  useCallback,
-  useMemo,
-  useEffect,
-  useState,
-} from 'react';
+import { View, Modal, Dimensions, Platform, StyleSheet } from 'react-native';
+import React, { useRef, useEffect, useMemo } from 'react';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import BottomSheet, {
   BottomSheetView,
@@ -32,23 +17,8 @@ export interface AppBottomSheetProps {
   enablePanDownToClose?: boolean;
   enableHandlePanningGesture?: boolean;
   enableContentPanningGesture?: boolean;
-  /**
-   * When false, the sheet height follows only `snapPoints` / computed height — not measured
-   * child layout. Turn off for scrollable content so the inner scroll view can scroll.
-   * @default false
-   */
   enableDynamicSizing?: boolean;
-  /**
-   * When `enableDynamicSizing` is true, limits how tall the sheet can grow.
-   * Once this max is reached, the inner scrollable should scroll.
-   */
   maxDynamicContentSize?: number;
-  /**
-   * When false, children are rendered directly inside the sheet (use when the child is
-   * `BottomSheetScrollView` / `BottomSheetFlatList`). Avoids an extra `BottomSheetView`
-   * that can steal scroll registration from gorhom.
-   * @default true
-   */
   embedContentInBottomSheetView?: boolean;
   snapPoints?: string[];
   blurType?: 'light' | 'dark' | 'regular';
@@ -86,13 +56,11 @@ const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
 }) => {
   const theme = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
-  const [modalVisible, setModalVisible] = useState(isOpen);
-  const [sheetIndex, setSheetIndex] = useState<number>(
-    isOpen ? initialSnapIndex : -1,
-  );
-  const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const calculatedSnapPoints = () => {
+  const resolvedSnapPoints = useMemo(() => {
+    if (enableDynamicSizing && !snapPoints && !height) {
+      return undefined;
+    }
     if (snapPoints) return snapPoints;
     if (height) {
       const { height: screenHeight } = Dimensions.get('window');
@@ -100,84 +68,37 @@ const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
         const { height: fullScreenHeight } = Dimensions.get('screen');
         const percentage = Math.round((height / fullScreenHeight) * 100);
         return [`${percentage}%`];
-      } else {
-        const percentage = Math.round((height / screenHeight) * 100);
-        return [`${percentage}%`];
       }
+      const percentage = Math.round((height / screenHeight) * 100);
+      return [`${percentage}%`];
     }
     return fullHeight ? ['100%'] : ['50%'];
-  };
-
-  const resolvedSnapPoints =
-    enableDynamicSizing && !snapPoints && !height
-      ? undefined
-      : calculatedSnapPoints();
-
-  const handleSheetClosed = () => {
-    setModalVisible(false);
-    setSheetIndex(-1);
-    // Only close parent state if parent still thinks it's open.
-    if (isOpen) onClose();
-  };
+  }, [snapPoints, height, fullHeight, enableDynamicSizing]);
 
   const handleSheetChanges = (index: number) => {
-    // Keep local index in sync (helps when closing during opening).
-    setSheetIndex(index);
-  };
-
-  const requestClose = () => {
-    setSheetIndex(-1);
-    // Force-close prevents gesture/scroll interruptions (common when user scrolled content).
-    bottomSheetRef.current?.forceClose();
-    // Unmount Modal immediately so it won't block touches.
-    setModalVisible(false);
-    if (isOpen) onClose();
-
-    // Fallback: if sheet callbacks don't fire for any reason, ensure cleanup.
-    if (closeTimeoutRef.current) {
-      clearTimeout(closeTimeoutRef.current);
+    if (index === -1) {
+      onClose();
     }
-    closeTimeoutRef.current = setTimeout(() => {
-      setModalVisible(false);
-      closeTimeoutRef.current = null;
-    }, 100);
   };
 
   useEffect(() => {
-    if (isOpen) {
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-        closeTimeoutRef.current = null;
-      }
-      setModalVisible(true);
-      setSheetIndex(initialSnapIndex);
-    } else {
-      setSheetIndex(-1);
-      setModalVisible(false);
+    if (isOpen && bottomSheetRef.current) {
+      bottomSheetRef.current.snapToIndex(initialSnapIndex);
     }
   }, [isOpen, initialSnapIndex]);
 
-  useEffect(() => {
-    return () => {
-      if (closeTimeoutRef.current) {
-        clearTimeout(closeTimeoutRef.current);
-        closeTimeoutRef.current = null;
-      }
-    };
-  }, []);
-
   return (
     <Modal
-      visible={modalVisible}
+      visible={isOpen}
       transparent
       animationType="none"
       statusBarTranslucent
-      onRequestClose={requestClose}
+      onRequestClose={onClose}
     >
       <GestureHandlerRootView style={{ flex: 1 }}>
         <BottomSheet
           ref={bottomSheetRef}
-          index={sheetIndex}
+          index={isOpen ? initialSnapIndex : -1}
           snapPoints={resolvedSnapPoints}
           enableDynamicSizing={enableDynamicSizing}
           maxDynamicContentSize={maxDynamicContentSize}
@@ -193,21 +114,25 @@ const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
                     disappearsOnIndex={-1}
                     opacity={0.5}
                     pressBehavior={pressBehavior}
-                    onPress={requestClose}
+                    onPress={onClose}
                   >
-                    <BlurView
-                      pointerEvents="none"
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        bottom: 0,
-                        right: 0,
-                      }}
-                      blurType={blurType}
-                      blurAmount={blurAmount}
-                      reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.3)"
-                    />
+                    {Platform.OS === 'android' ? (
+                      <View
+                        pointerEvents="none"
+                        style={[
+                          StyleSheet.absoluteFill,
+                          { backgroundColor: 'rgba(0, 0, 0, 0.35)' },
+                        ]}
+                      />
+                    ) : (
+                      <BlurView
+                        pointerEvents="none"
+                        style={StyleSheet.absoluteFill}
+                        blurType={blurType}
+                        blurAmount={blurAmount}
+                        reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.3)"
+                      />
+                    )}
                   </BottomSheetBackdrop>
                 )
               : undefined
@@ -238,7 +163,6 @@ const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
             backgroundColor: theme.colors?.BACKGROUND || '#FFFFFF',
           }}
           onChange={handleSheetChanges}
-          onClose={handleSheetClosed}
         >
           {embedContentInBottomSheetView ? (
             <BottomSheetView
@@ -248,13 +172,7 @@ const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
                   : { height: height, flex: height ? 0 : 1 }
               }
             >
-              <View
-                style={{
-                  flex: 1,
-                }}
-              >
-                {children}
-              </View>
+              <View style={{ flex: 1 }}>{children}</View>
             </BottomSheetView>
           ) : (
             children

@@ -5,6 +5,7 @@ import {
   Keyboard,
   AppState,
   AppStateStatus,
+  Platform,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { AuthStackScreen } from '../../../types/navigation.types';
@@ -21,8 +22,6 @@ import {
 import { LoginApiResponse } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
-// import { isRTL } from '../../../utils/rtl.ts';
-import { isIOS } from '../../../utils/index.ts';
 
 interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
@@ -112,11 +111,11 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     return () => clearInterval(interval);
   }, [isTimerActive, timer]);
 
+  // Slight delay avoids focusing during the stack transition (Android + keyboard).
   useEffect(() => {
-    const timer = setTimeout(() => {
-      inputRefs.current[0]?.focus();
-    }, 100);
-    return () => clearTimeout(timer);
+    const delay = Platform.OS === 'android' ? 350 : 80;
+    const t = setTimeout(() => inputRefs.current[0]?.focus(), delay);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -283,7 +282,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                 textAlign="center"
                 // writingDirection="ltr"
                 selectTextOnFocus
-                autoFocus={index === 0}
               />
             ))}
           </View>
