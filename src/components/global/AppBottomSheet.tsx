@@ -87,7 +87,9 @@ const AppBottomSheet: React.FC<AppBottomSheetProps> = ({
   const theme = useTheme();
   const bottomSheetRef = useRef<BottomSheet>(null);
   const [modalVisible, setModalVisible] = useState(isOpen);
-  const [sheetIndex, setSheetIndex] = useState<number>(isOpen ? initialSnapIndex : -1);
+  const [sheetIndex, setSheetIndex] = useState<number>(
+    isOpen ? initialSnapIndex : -1,
+  );
   const closeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const calculatedSnapPoints = () => {

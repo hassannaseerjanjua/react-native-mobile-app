@@ -428,11 +428,11 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = GifteeRN/GifteeRN.entitlements;
-				CURRENT_PROJECT_VERSION = 149;
+				CURRENT_PROJECT_VERSION = 154;
 				DEVELOPMENT_TEAM = 4P584ZXF78;
 				ENABLE_BITCODE = NO;
 				INFOPLIST_FILE = GifteeRN/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Cadou QA";
+				INFOPLIST_KEY_CFBundleDisplayName = Cadou;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -462,10 +462,10 @@
 				CODE_SIGN_ENTITLEMENTS = GifteeRN/GifteeRN.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 149;
+				CURRENT_PROJECT_VERSION = 154;
 				DEVELOPMENT_TEAM = 4P584ZXF78;
 				INFOPLIST_FILE = GifteeRN/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = "Cadou QA";
+				INFOPLIST_KEY_CFBundleDisplayName = Cadou;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
