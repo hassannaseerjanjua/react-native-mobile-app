@@ -125,7 +125,15 @@ const OrdersScreen: React.FC = () => {
   };
 
   return (
-    <ParentView emptyStateText={ordersListing.data.length === 0 && !ordersListing.loading ? getString('O_NO_ORDER_FOUND') : ""} style={styles.container} stableLayout>
+    <ParentView
+      emptyStateText={
+        ordersListing.data.length === 0 && !ordersListing.loading
+          ? getString('O_NO_ORDER_FOUND')
+          : ''
+      }
+      style={styles.container}
+      stableLayout
+    >
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -217,7 +225,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
 
   return (
     <ShadowView
-      preset="listItem"
+      preset="low"
       containerStyle={{ alignSelf: 'stretch' }}
       style={styles.orderCard}
     >

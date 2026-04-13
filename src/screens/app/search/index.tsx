@@ -548,7 +548,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
             >
               <Text
                 style={{
-                  ...globalStyles.TEXT_STYLE,
+                  ...globalStyles.TEXT_STYLE_MEDIUM,
                   color: theme.colors.PRIMARY,
                 }}
               >
@@ -564,7 +564,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         employeesApi.loading ||
         (showConnectOnly && loadingContacts) ? (
           // true ? (
-          // <ShadowView preset="listItem">
+          // <ShadowView preset="low">
           <View
             style={{
               paddingHorizontal: theme.sizes.PADDING,
@@ -576,7 +576,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         ) : showConnectOnly ? (
           <View style={[styles.content, styles.contentContainer]}>
             <ShadowView
-              preset="listItem"
+              preset="medium"
               disabled={connectDisplayedContacts.length === 0}
             >
               <View
@@ -686,7 +686,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               const isEmpty = !filteredData || filteredData.length === 0;
 
               return (
-                <ShadowView preset="listItem" disabled={isEmpty}>
+                <ShadowView preset="medium" disabled={isEmpty}>
                   <View
                     style={[styles.listCard, isEmpty && styles.listCardEmpty]}
                   >

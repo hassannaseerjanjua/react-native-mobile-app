@@ -1613,15 +1613,15 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                           borderRadius={screenWidth * 0.01}
                         />
                       </SkeletonPlaceholder.Item>
-                      {/* Image Container */}
+                      {/* Image Container — match inboxItemsSection + inboxImage */}
                       <SkeletonPlaceholder.Item
                         borderRadius={12}
                         overflow="hidden"
-                        marginTop={screenHeight * 0.01}
+                        marginTop={theme.sizes.PADDING * 0.35}
                       >
                         <SkeletonPlaceholder.Item
                           width="100%"
-                          height={theme.sizes.WIDTH * 0.5}
+                          height={theme.sizes.WIDTH * 0.46}
                           borderRadius={12}
                         />
                         {/* Bottom Section with Item Name */}

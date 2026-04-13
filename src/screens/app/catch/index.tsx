@@ -76,7 +76,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const [selectedCityId, setSelectedCityId] = useState<number | null>(
     route.params?.cityId || null,
   );
-  const [itemsToFavorite, setItemsToFavorite] = useState<number[]>([])
+  const [itemsToFavorite, setItemsToFavorite] = useState<number[]>([]);
   const [showCityPicker, setShowCityPicker] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const screenType = route.params?.type || 'catch';
@@ -122,11 +122,11 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
   const categoriesApi = useGetApi<Category[]>(
     screenType === 'favorite'
       ? apiEndpoints.GET_CATEGORIES(businessTypeId, storeID) +
-      '&isFavUserApp=true'
+          '&isFavUserApp=true'
       : apiEndpoints.GET_CAMPAIGN_CATEGORIES(
-        screenType === 'GiftOneGetOne' ? 3 : 1,
-        selectedCityId || user?.CityId,
-      ),
+          screenType === 'GiftOneGetOne' ? 3 : 1,
+          selectedCityId || user?.CityId,
+        ),
     {
       transformData: transformCategoriesData,
     },
@@ -148,9 +148,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
       extraParams:
         storeID && storeBranchID
           ? {
-            StoreId: storeID,
-            // StoreBranchId: storeBranchID,
-          }
+              StoreId: storeID,
+              // StoreBranchId: storeBranchID,
+            }
           : {},
       idExtractor: (item: FaveItems) => item.ItemId,
     },
@@ -392,7 +392,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     ItemId: number;
     IsFavorite: boolean;
   }) => {
-    if (filteredListingApi.loading) return
+    if (filteredListingApi.loading) return;
     setFavoriteStates(prev => ({
       ...prev,
       [payload.ItemId]: payload.IsFavorite,
@@ -515,7 +515,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           isFavorite={getFavoriteState(item)}
           hasFavorite={true}
           onFavoritePress={createFavoritePressHandler(item)}
-        // isFavoriteTab={true}
+          // isFavoriteTab={true}
         />
       );
     }
@@ -561,7 +561,13 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         MediaLogo={
           <Image source={require('../../../assets/images/catch-gif.gif')} />
         }
-        SuccessLogo={<Image source={catchIcon} style={styles.catchIcon} />}
+        SuccessLogo={
+          <Image
+            source={catchIcon}
+            style={styles.catchIcon}
+            resizeMode="contain"
+          />
+        }
         SuccessMessage={getString('CATCH_SUCCESS_MESSAGE')}
         SuccessSubMessage={getString('CATCH_SUCCESS_SUB_MESSAGE')}
         primaryButtonTitle={getString('HOME_INBOX')}
@@ -626,7 +632,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               >
                 {selectedCityId
                   ? citiesApi.data?.find(city => city.CityID === selectedCityId)
-                    ?.CityName ?? ''
+                      ?.CityName ?? ''
                   : getString('SELECT_STORE_SELECT_CITY')}
               </Text>
               <ArrowDownIcon
@@ -814,28 +820,15 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               </TouchableOpacity>
 
               <View style={styles.contentWrapper}>
-                {/* <SvgCatchTimeIcon
-                  width={scaleWithMax(120, 140)}
-                  height={scaleWithMax(120, 140)}
-                  style={{
-                    position: 'absolute',
-                    top: -scaleWithMax(60, 62),
-                    zIndex: 199999
-                  }}
-                /> */}
-                <Image
-                  source={require('../../../assets/images/catch-time-icon.png')}
-                  width={scaleWithMax(120, 140)}
-                  height={scaleWithMax(120, 140)}
-                  resizeMode="contain"
-                  style={{
-                    position: 'absolute',
-                    top: -scaleWithMax(60, 62),
-                    zIndex: 199999,
-                    width: scaleWithMax(120, 140),
-                    height: scaleWithMax(120, 140),
-                  }}
-                />
+                <View
+                  style={styles.modalClaimedIconWrap}
+                  pointerEvents="none"
+                >
+                  <Image
+                    source={require('../../../assets/images/catch-time-icon.png')}
+                    style={styles.modalClaimedIcon}
+                  />
+                </View>
 
                 <Text style={styles.modalTitle}>
                   {getString('ALREADY_CLAIMED')}

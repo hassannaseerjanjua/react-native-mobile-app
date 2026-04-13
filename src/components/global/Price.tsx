@@ -6,7 +6,7 @@ import {
   ViewStyle,
 } from 'react-native';
 import React, { useMemo } from 'react';
-import fonts from '../../assets/fonts';
+import { getFontsForLanguage } from '../../assets/fonts';
 import { SvgRiyalIcon } from '../../assets/icons';
 import { useSizes } from '../../styles/sizes';
 import useTheme from '../../styles/theme';
@@ -31,6 +31,8 @@ const PriceWithIcon = ({
   gap,
   /** In RTL, render icon on left of price (fixes Android Arabic) */
   iconOnLeftInRtl = false,
+  /** Gilroy-Medium / Tajawal-Medium by default; use bold on product detail + product cards */
+  bold = false,
 }: {
   amount: number | string;
   textStyle?: StyleProp<TextStyle>;
@@ -43,6 +45,7 @@ const PriceWithIcon = ({
   variant?: PriceVariant;
   gap?: number;
   iconOnLeftInRtl?: boolean;
+  bold?: boolean;
 }) => {
   const { styles, theme, rowGap } = useStyles();
   const { isRtl } = useLocaleStore();
@@ -63,7 +66,7 @@ const PriceWithIcon = ({
     ? 'row'
     : 'row-reverse';
 
-  /** Colors/sizes only — Gilroy semibold locked last so parent `textStyle` cannot replace weight (e.g. wallet, orders). */
+  /** Colors/sizes only — typeface weight locked last via `priceTypefaceLock`. */
   const variantTextStyle = (() => {
     switch (variant) {
       case 'discounted':
@@ -85,8 +88,13 @@ const PriceWithIcon = ({
     }
   })();
 
+  const langFonts = getFontsForLanguage(isRtl);
   const priceTypefaceLock: TextStyle = {
-    fontFamily: variant === 'cut' ? fonts.Gilroy.semibold : fonts.Gilroy.bold,
+    fontFamily: bold
+      ? variant === 'cut'
+        ? langFonts.semibold
+        : langFonts.bold
+      : langFonts.medium,
     fontWeight: 'normal',
   };
 

@@ -229,10 +229,6 @@ const SettingsScreen: React.FC = () => {
                     const newLangId = language === 'English' ? 1 : 2;
                     await saveTokenWithLanguage(newLangId);
                     shiftLanguage(language === 'English' ? 'en' : 'ar');
-
-                    setTimeout(() => {
-                      setShimmerLoading(false);
-                    }, 1000);
                   }}
                 >
                   <View style={styles.radioButton}>

@@ -28,7 +28,11 @@ import {
   SvgRiyalIconWhite,
   SvgVerifiedIcon,
 } from '../../../assets/icons/index.ts';
-import { formatGroupedInteger, rtlTransform, scaleWithMax } from '../../../utils';
+import {
+  formatGroupedInteger,
+  rtlTransform,
+  scaleWithMax,
+} from '../../../utils';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import { useListingApi } from '../../../hooks/useListingApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';

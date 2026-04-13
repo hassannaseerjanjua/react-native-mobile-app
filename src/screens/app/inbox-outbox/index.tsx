@@ -137,7 +137,7 @@ const InboxOutbox: React.FC = () => {
           overflow: 'hidden',
         }}
       >
-        <LinearGradient
+        {/* <LinearGradient
           colors={['#F8E6E9', '#FFFFFF']}
           locations={[0.0005, 0.8847]}
           start={{ x: 0, y: 0 }}
@@ -146,7 +146,7 @@ const InboxOutbox: React.FC = () => {
             flex: 1,
             width: '100%',
           }}
-        />
+        /> */}
       </View>
 
       <View style={{ zIndex: 1, backgroundColor: 'transparent' }}>
@@ -158,9 +158,9 @@ const InboxOutbox: React.FC = () => {
           searchValue={search}
           onSearchChange={setSearch}
           searchPlaceholder={getString('HOME_SEARCH')}
-          customContainerStyle={{
-            backgroundColor: 'transparent',
-          }}
+          // customContainerStyle={{
+          //   backgroundColor: 'transparent',
+          // }}
         />
       </View>
       {isLoading && !isRefreshing ? (
@@ -487,7 +487,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   onShareGiftLink,
 }) => {
   const { getString } = useLocaleStore();
-  const { styles, theme } = useStyles();
+  const { styles, theme, inboxItemCardWidth } = useStyles();
   const { user } = useAuthStore();
   const isMerchant = user?.isMerchant === 1;
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -508,31 +508,21 @@ const InboxItem: React.FC<InboxItemProps> = ({
     isMerchant && order.MultiUsers && order.MultiUsers.length > 0;
 
   const itemGap = theme.sizes.PADDING * 1.2;
-  const getItemWidth = () => {
-    const profileWidth = scaleWithMax(50, 55);
-    const spacing = theme.sizes.WIDTH * 0.012;
-    const extraMargin = theme.sizes.PADDING * 0.5;
-    return (
-      theme.sizes.WIDTH -
-      theme.sizes.PADDING * 2 -
-      profileWidth -
-      spacing -
-      extraMargin +
-      itemGap
-    );
-  };
+  /** Card width + imageContainer marginRight + flex gap (matches styles.inboxItemCardWidth). */
+  const getItemScrollStep = () =>
+    inboxItemCardWidth + theme.sizes.WIDTH * 0.01 + itemGap;
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    const itemWidth = getItemWidth();
-    const index = Math.round(scrollPosition / itemWidth);
+    const step = getItemScrollStep();
+    const index = Math.round(scrollPosition / step);
     setCurrentIndex(index);
   };
 
   const scrollToIndex = (index: number) => {
-    const itemWidth = getItemWidth();
+    const step = getItemScrollStep();
     scrollViewRef.current?.scrollTo({
-      x: index * itemWidth,
+      x: index * step,
       animated: true,
     });
   };
@@ -734,28 +724,26 @@ const InboxItem: React.FC<InboxItemProps> = ({
 
           {/* Slider with ScrollView */}
           <View
-            style={{
-              paddingBottom: theme.sizes.PADDING * 0.3,
-            }}
+            style={[
+              styles.inboxItemsSection,
+              order.EhsaanAmount > 0 && styles.inboxItemsSectionTightTop,
+            ]}
           >
             <ScrollView
               ref={scrollViewRef}
               horizontal
-              pagingEnabled
               overScrollMode="never"
               showsHorizontalScrollIndicator={false}
               onScroll={handleScroll}
               scrollEventThrottle={16}
               scrollEnabled={order.Items && order.Items.length > 1}
               decelerationRate="fast"
-              snapToInterval={getItemWidth()}
+              snapToInterval={getItemScrollStep()}
               snapToAlignment="start"
+              disableIntervalMomentum
               contentContainerStyle={{
-                paddingVertical: theme.sizes.HEIGHT * 0.014,
+                paddingVertical: theme.sizes.HEIGHT * 0.01,
                 gap: itemGap,
-              }}
-              style={{
-                overflow: 'visible',
               }}
             >
               {order.Items?.map((item, index) => {

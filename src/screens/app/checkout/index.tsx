@@ -787,7 +787,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         try {
           applePayToken = await requestApplePayPayment(totalAmount, {
             currencyCode: 'SAR',
-            label: 'Giftee Order',
+            label: 'Cadou Order',
           });
           if (applePayToken === null) {
             setSubmitting(false);

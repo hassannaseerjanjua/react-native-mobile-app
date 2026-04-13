@@ -111,6 +111,7 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
               <PriceWithIcon
                 amount={discountedPrice}
                 variant="discounted"
+                bold
                 icon={
                   <SvgRiyalIconPrimary
                     width={scaleWithMax(11, 13)}
@@ -137,6 +138,7 @@ const GiftOneGetOneProductCard: React.FC<GiftOneGetOneProductCardProps> = ({
             <PriceWithIcon
               amount={price}
               variant={hasDiscount ? 'cut' : 'default'}
+              bold
               icon={
                 <SvgRiyalIcon
                   width={

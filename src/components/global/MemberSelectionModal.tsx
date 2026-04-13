@@ -122,6 +122,21 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   const theme = useTheme();
   const navigation = useNavigation();
 
+  // Fixed slot height matches the horizontal selected-members row so the SectionList
+  // does not shrink when the first user is selected (avoids scroll jump from bottom).
+  const selectedStripSlotHeight = useMemo(() => {
+    const avatarSize = scaleWithMax(60, 60);
+    const { sizes } = theme;
+    return (
+      avatarSize +
+      scaleWithMax(6, 6) +
+      scaleWithMax(18, 22) +
+      sizes.BORDER_RADIUS_MID * 2 +
+      sizes.HEIGHT * 0.012 +
+      scaleWithMax(8, 10)
+    );
+  }, [theme]);
+
   const allUsers = useMemo(
     () => listings?.flatMap(listing => listing.users || []) || [],
     [listings],
@@ -325,48 +340,64 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     [styles.selectedUsersContainer, viewOnly],
   );
 
-  const SelectedUsersDisplay = () => {
-    if (selectedUsersData.length === 0) {
+  // Memoized JSX (not a nested component) so search keystrokes don't remount
+  // the selected-members strip. Reserved minHeight keeps list layout stable when
+  // selections go 0 → 1 (no sudden shrink / scroll jump).
+  const selectedUsersStrip = useMemo(() => {
+    if (viewOnly) {
       return null;
     }
 
     return (
-      <ShadowView preset="low" disabled={viewOnly}>
-        <View style={selectedUsersContainerStyle}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.selectedUsersList}
-          >
-            {selectedUsersData.map(user => (
-              <View key={user.UserId} style={styles.selectedUserItem}>
-                <View style={styles.selectedUserImageContainer}>
-                  <Image
-                    source={
-                      user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
-                    }
-                    style={styles.selectedUserAvatar}
-                  />
+      <View
+        style={{ minHeight: selectedStripSlotHeight, justifyContent: 'center' }}
+      >
+        {selectedUsersData.length > 0 ? (
+          <ShadowView preset="low" disabled={viewOnly}>
+            <View style={selectedUsersContainerStyle}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={styles.selectedUsersList}
+              >
+                {selectedUsersData.map(user => (
+                  <View key={user.UserId} style={styles.selectedUserItem}>
+                    <View style={styles.selectedUserImageContainer}>
+                      <Image
+                        source={
+                          user.ProfileUrl
+                            ? { uri: user.ProfileUrl }
+                            : dummyImage
+                        }
+                        style={styles.selectedUserAvatar}
+                      />
 
-                  {!viewOnly && (
-                    <TouchableOpacity
-                      style={styles.selectedUserCrossIcon}
-                      onPress={() => handleUserSelection(user.UserId)}
-                    >
-                      <SvgCrossIcon width={12} height={12} />
-                    </TouchableOpacity>
-                  )}
-                </View>
-                <Text style={styles.selectedUserName} numberOfLines={1}>
-                  {user.FullName.split(' ')[0]}
-                </Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      </ShadowView>
+                      <TouchableOpacity
+                        style={styles.selectedUserCrossIcon}
+                        onPress={() => handleUserSelection(user.UserId)}
+                      >
+                        <SvgCrossIcon width={12} height={12} />
+                      </TouchableOpacity>
+                    </View>
+                    <Text style={styles.selectedUserName} numberOfLines={1}>
+                      {user.FullName.split(' ')[0]}
+                    </Text>
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+          </ShadowView>
+        ) : null}
+      </View>
     );
-  };
+  }, [
+    viewOnly,
+    selectedUsersData,
+    selectedStripSlotHeight,
+    selectedUsersContainerStyle,
+    styles,
+    handleUserSelection,
+  ]);
 
   const filteredListings = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -420,8 +451,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   const userListJsx = (
     <SectionList
       sections={sectionListSections}
-      keyExtractor={(item: any) =>
-        item._sectionKey || `section-${Math.random()}`
+      keyExtractor={(item: any, index: number) =>
+        String(item?._sectionKey ?? index)
       }
       renderSectionHeader={({ section: { title } }) =>
         title ? (
@@ -533,39 +564,43 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     return chunks;
   }, [selectedUsersData]);
 
-  const SelectedMembersGrid = () => {
-    const renderMemberRow = (rowData: ActiveUser[], rowIndex: number) => (
-      <View key={rowIndex} style={styles.memberRow}>
-        {rowData.map(user => (
-          <View key={user.UserId} style={styles.memberGridItem}>
-            <View style={styles.memberGridImageContainer}>
-              <Image
-                source={user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage}
-                style={styles.memberGridAvatar}
-              />
-              {!viewOnly && (
-                <TouchableOpacity
-                  style={styles.memberGridCrossIcon}
-                  onPress={() => handleUserSelection(user.UserId)}
-                >
-                  <SvgCrossIcon width={12} height={12} />
-                </TouchableOpacity>
-              )}
-            </View>
-            <Text style={styles.memberGridName} numberOfLines={1}>
-              {user.FullName.split(' ')[0]}
-            </Text>
+  const selectedMembersGrid = useMemo(
+    () => (
+      <View style={styles.membersGridContainer}>
+        {memberRows.map(rowData => (
+          <View
+            key={rowData.map(u => u.UserId).join('-')}
+            style={styles.memberRow}
+          >
+            {rowData.map(user => (
+              <View key={user.UserId} style={styles.memberGridItem}>
+                <View style={styles.memberGridImageContainer}>
+                  <Image
+                    source={
+                      user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
+                    }
+                    style={styles.memberGridAvatar}
+                  />
+                  {!viewOnly && (
+                    <TouchableOpacity
+                      style={styles.memberGridCrossIcon}
+                      onPress={() => handleUserSelection(user.UserId)}
+                    >
+                      <SvgCrossIcon width={12} height={12} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <Text style={styles.memberGridName} numberOfLines={1}>
+                  {user.FullName.split(' ')[0]}
+                </Text>
+              </View>
+            ))}
           </View>
         ))}
       </View>
-    );
-
-    return (
-      <View style={styles.membersGridContainer}>
-        {memberRows.map((rowData, index) => renderMemberRow(rowData, index))}
-      </View>
-    );
-  };
+    ),
+    [memberRows, styles, viewOnly, handleUserSelection],
+  );
 
   useEffect(() => {
     if (visible) {
@@ -682,10 +717,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   rightSideTitlePress={viewOnly ? undefined : handleNextStep}
                 />
 
-                <>
-                  {!viewOnly && <SelectedUsersDisplay />}
+                <View style={{ flex: 1 }}>
+                  {selectedUsersStrip}
                   {userListJsx}
-                </>
+                </View>
               </>
             ) : (
               <>
@@ -774,7 +809,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       {getString('NG_MEMBERS')}: {selectedUsers.size}{' '}
                       {getString('NG_OUT_OF')} {uniqueUsers.length}
                     </Text>
-                    <SelectedMembersGrid />
+                    {selectedMembersGrid}
                   </View>
                 </ScrollView>
               </>

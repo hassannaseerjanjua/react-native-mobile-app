@@ -87,7 +87,6 @@ const useStyles = () => {
       catchIcon: {
         width: scaleWithMax(120, 140),
         height: scaleWithMax(120, 140),
-        objectFit: 'contain',
       },
       footerPriceRow: {
         flexDirection: 'row',
@@ -128,6 +127,19 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         position: 'relative',
         overflow: 'visible',
+      },
+      modalClaimedIconWrap: {
+        position: 'absolute',
+        top: -scaleWithMax(60, 62),
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        zIndex: 199999,
+      },
+      modalClaimedIcon: {
+        width: scaleWithMax(130, 140),
+        height: scaleWithMax(130, 140),
+        resizeMode: 'contain',
       },
       modalTitle: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,

@@ -40,7 +40,7 @@ const createPaymentDetails = (
 ) => ({
   id: `order-${Date.now()}`,
   total: {
-    label: label || 'Giftee Order',
+    label: label || 'Cadou Order',
     amount: {
       currency: currencyCode,
       value: amount.toFixed(2),
@@ -83,7 +83,7 @@ export function useApplePay() {
       if (Platform.OS !== 'ios') return null;
 
       const currencyCode = options?.currencyCode ?? 'SAR';
-      const label = options?.label ?? 'Giftee Order';
+      const label = options?.label ?? 'Cadou Order';
 
       try {
         const methodData = createMethodData(amount, currencyCode, label);

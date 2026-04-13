@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useRef, useState, useMemo } from 'react';
+import React, {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  useMemo,
+} from 'react';
 import {
   View,
   StatusBar,
@@ -20,6 +26,7 @@ import apiEndpoints from '../../../constants/api-endpoints.ts';
 import { FavStores, BusinessType, City } from '../../../types/index.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import api from '../../../utils/api.ts';
+import { invalidateCachePrefix } from '../../../utils/api-cache';
 import notify from '../../../utils/notify';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 import CustomButton from '../../../components/global/Custombutton';
@@ -46,6 +53,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     routeParams?.cityId ?? user?.CityId ?? null,
   );
   const [showCityPicker, setShowCityPicker] = useState(false);
+  const businessTypeIdsFingerprintRef = useRef<string | null>(null);
 
   const businessTypeUrl = useMemo(
     () =>
@@ -136,6 +144,35 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     }));
   }, [selectedFilter, selectedCityId]);
 
+  useEffect(() => {
+    businessTypeIdsFingerprintRef.current = null;
+  }, [selectedCityId]);
+
+  // When business types change (e.g. last fav in a category removed), reset a stale tab.
+  // Fingerprint avoids re-running when `data` is a new array reference with the same ids (prevents loops).
+  useEffect(() => {
+    if (businessTypeApi.loading) return;
+    const types = businessTypeApi.data ?? [];
+    const fingerprint = types
+      .map(t => t.BusinessTypeId)
+      .sort((a, b) => a - b)
+      .join(',');
+    if (businessTypeIdsFingerprintRef.current === fingerprint) {
+      return;
+    }
+    businessTypeIdsFingerprintRef.current = fingerprint;
+
+    if (types.length === 0) {
+      setSelectedFilter(prev => (prev === 'all' ? prev : 'all'));
+      return;
+    }
+    setSelectedFilter(prev => {
+      if (prev === 'all') return prev;
+      const stillExists = types.some(t => String(t.BusinessTypeId) === prev);
+      return stillExists ? prev : 'all';
+    });
+  }, [businessTypeApi.data, businessTypeApi.loading]);
+
   // businessTypeApi auto-refetches when businessTypeUrl changes (driven by selectedCityId)
 
   const [cameFromProfile, setCameFromProfile] = useState(false);
@@ -159,10 +196,12 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   businessTypeRefetchRef.current = businessTypeApi.refetch;
   const citiesRefetchRef = useRef(citiesApi.refetch);
   citiesRefetchRef.current = citiesApi.refetch;
+  const favStoreRecallRef = useRef(FavStoreListing.recall);
+  favStoreRecallRef.current = FavStoreListing.recall;
 
   useFocusEffect(
     useCallback(() => {
-      FavStoreListing.recall();
+      favStoreRecallRef.current();
       businessTypeRefetchRef.current?.();
       citiesRefetchRef.current?.();
     }, []),
@@ -170,6 +209,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
 
   const handleRefresh = () => {
     setIsRefreshing(true);
+    invalidateCachePrefix(`listing:${apiEndpoints.GET_FAV_STORE}`);
     FavStoreListing.recall();
     businessTypeApi.refetch?.();
     citiesApi.refetch?.();
@@ -239,7 +279,6 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
       notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
     }
   };
-  console.log('favestorelisting loaidng ==>', FavStoreListing.loading);
   return (
     <View style={styles.container}>
       <StatusBar
@@ -260,7 +299,9 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         // showSearchBar={
         //   FavStoreListing.data.length > 0 && !FavStoreListing.loading
         // }
-        showSearchBar={FavStoreListing.data.length > 0 && !FavStoreListing.loading}
+        showSearchBar={
+          FavStoreListing.data.length > 0 && !FavStoreListing.loading
+        }
         searchValue={FavStoreListing.search}
         onSearchChange={FavStoreListing.setSearch}
         rightSideView={
@@ -356,11 +397,13 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
               <View
                 style={{
                   // backgroundColor: theme.colors.RED,
-                  marginTop:
-                    FavStoreListing.data && FavStoreListing.data.length > 0
-                      ? theme.sizes.HEIGHT * 0.2
-                      : theme.sizes.HEIGHT * 0.29,
+                  height: theme.sizes.HEIGHT * 0.754,
+                  // marginTop:
+                  //   FavStoreListing.data && FavStoreListing.data.length > 0
+                  //     ? theme.sizes.HEIGHT * 0.2
+                  //     : theme.sizes.HEIGHT * 0.29,
                   alignItems: 'center',
+                  flexGrow: 1,
                 }}
               >
                 <PlaceholderLogoText
@@ -368,7 +411,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
                 />
                 <View
                   style={{
-                    marginTop: theme.sizes.HEIGHT * 0.02,
+                    // marginTop: theme.sizes.HEIGHT * 0.02,
                     width: '100%',
                   }}
                 >

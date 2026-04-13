@@ -234,11 +234,14 @@ const useStyles = () => {
     return StyleSheet.create({
       root: {
         paddingHorizontal: HORIZONTAL_INSET,
+        // Timeline + pan math are LTR; RTL app layout otherwise mirrors and misaligns knobs.
+        direction: 'ltr',
       },
       outerTrack: {
         width: TRACK_WIDTH,
         height: TRACK_HEIGHT,
         position: 'relative',
+        direction: 'ltr',
       },
       filmstripClip: {
         position: 'absolute',

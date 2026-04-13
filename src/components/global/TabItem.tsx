@@ -39,6 +39,7 @@ interface TabItemProps {
   editOnly?: boolean;
   isLink?: boolean;
   isGroupImage?: any;
+  groupImageSize?: number;
   onDeletePress?: () => void;
   onEditPress?: () => void;
   onImagePress?: () => void;
@@ -50,6 +51,7 @@ interface TabItemProps {
   activeOpacity?: number;
   disabled?: boolean;
   shadowPreset?: ShadowPresetName;
+  shadowDisabled?: boolean;
 }
 
 const TabItem = ({
@@ -63,6 +65,7 @@ const TabItem = ({
   editOnly = false,
   isLink,
   isGroupImage = false,
+  groupImageSize,
   onDeletePress,
   onEditPress,
   onImagePress,
@@ -73,12 +76,29 @@ const TabItem = ({
   subtitle,
   disabled = false,
   shadowPreset = 'listItem',
+  shadowDisabled = false,
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
   const { isRtl } = useLocaleStore();
 
   const androidTextAdjust =
     Platform.OS === 'android' && !isRtl ? { includeFontPadding: false } : null;
+
+  const resolvedGroupImageSize = groupImageSize ?? scaleWithMax(36, 36);
+  const groupImageSizeSV = useSharedValue(resolvedGroupImageSize);
+
+  useEffect(() => {
+    groupImageSizeSV.value = withTiming(resolvedGroupImageSize, {
+      duration: 180,
+    });
+  }, [resolvedGroupImageSize, groupImageSizeSV]);
+
+  const animatedGroupImageContainerStyle = useAnimatedStyle(() => ({
+    width: groupImageSizeSV.value,
+    height: groupImageSizeSV.value,
+    borderRadius: groupImageSizeSV.value / 2,
+    overflow: 'hidden',
+  }));
 
   const rotation = useSharedValue(rightIconRotated ? 1 : 0);
 
@@ -98,7 +118,7 @@ const TabItem = ({
   });
 
   return (
-    <ShadowView preset={shadowPreset}>
+    <ShadowView preset={shadowPreset} disabled={shadowDisabled}>
       <TouchableOpacity
         activeOpacity={activeOpacity ?? 0.8}
         onPress={disabled ? undefined : onPress}
@@ -119,6 +139,19 @@ const TabItem = ({
                 }}
                 activeOpacity={0.8}
               >
+                <Animated.View style={animatedGroupImageContainerStyle}>
+                  <Image
+                    source={
+                      typeof isGroupImage === 'string'
+                        ? { uri: isGroupImage }
+                        : isGroupImage
+                    }
+                    style={styles.groupImage}
+                  />
+                </Animated.View>
+              </TouchableOpacity>
+            ) : (
+              <Animated.View style={animatedGroupImageContainerStyle}>
                 <Image
                   source={
                     typeof isGroupImage === 'string'
@@ -127,16 +160,7 @@ const TabItem = ({
                   }
                   style={styles.groupImage}
                 />
-              </TouchableOpacity>
-            ) : (
-              <Image
-                source={
-                  typeof isGroupImage === 'string'
-                    ? { uri: isGroupImage }
-                    : isGroupImage
-                }
-                style={styles.groupImage}
-              />
+              </Animated.View>
             )
           ) : (
             isGroupImage === '' && <SvgGroup />
@@ -236,9 +260,8 @@ const useStyles = () => {
         flexShrink: 0,
       },
       groupImage: {
-        width: scaleWithMax(36, 36),
-        height: scaleWithMax(36, 36),
-        borderRadius: 999,
+        width: '100%',
+        height: '100%',
       },
     });
   }, [theme]);

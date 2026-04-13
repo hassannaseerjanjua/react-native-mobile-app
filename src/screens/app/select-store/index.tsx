@@ -205,6 +205,12 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const searchQuery = storeListApi.search;
   const setSearchQuery = storeListApi.setSearch;
 
+  const hasStoreRows = (storeListApi.data?.length ?? 0) > 0;
+  const activeSearch = Boolean(searchQuery?.trim());
+  // Pull-to-refresh + search + no rows: don't flash tabs from stale business-type cache while store list reloads.
+  const suppressBusinessTabsDuringSearchRefresh =
+    isRefreshing && activeSearch && !hasStoreRows && storeListApi.loading;
+
   const handleFavoritePress = async (store: Store) => {
     const storeId = store.StoreId;
     const storeBranchId = 1;
@@ -325,14 +331,16 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
         <View style={styles.content}>
           <View>
-            {businessTypeApi.loading && !isRefreshing ? (
+                       {businessTypeApi.loading && !isRefreshing ? (
               <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
                 <SkeletonLoader screenType="groupTabs" />
               </View>
+            ) : suppressBusinessTabsDuringSearchRefresh ? (
+              <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
             ) : businessTypeApi.data &&
               businessTypeApi.data.length > 0 &&
-              ((storeListApi.data && storeListApi.data.length > 0) ||
-                storeListApi.loading) ? (
+              (hasStoreRows ||
+                (storeListApi.loading && !activeSearch)) ? (
               <GroupTabs
                 tabs={filterOptions}
                 activeTab={selectedFilter}

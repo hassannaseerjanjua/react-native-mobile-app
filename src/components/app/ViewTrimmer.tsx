@@ -353,9 +353,11 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 12,
     backgroundColor: 'rgba(0,0,0,0.55)',
+    direction: 'ltr',
   },
   trimGestureRoot: {
     width: '100%',
+    direction: 'ltr',
   },
   topBar: {
     position: 'absolute',

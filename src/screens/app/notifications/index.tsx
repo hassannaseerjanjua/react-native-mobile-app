@@ -163,7 +163,12 @@ const NotificationsScreen: React.FC = () => {
 
     // G1G1 = 8 → Gift one get one
     if (type === 8) {
-      navigation.navigate('CatchScreen', { type: 'GiftOneGetOne' });
+      // Match Home flow: start Send-a-Gift journey (select friend first)
+      if (user?.isMerchant === 1) {
+        notify.error(getString('MERCHANT_NOT_ALLOWED'));
+        return;
+      }
+      navigation.navigate('SendAGift', { routeTo: 'GiftOneGetOne' });
       return;
     }
 

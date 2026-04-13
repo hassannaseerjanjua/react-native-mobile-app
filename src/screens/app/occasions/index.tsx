@@ -44,6 +44,7 @@ import { Text } from '../../../utils/elements.tsx';
 import { scaleWithMax } from '../../../utils';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
+import ShadowView from '../../../components/global/ShadowView';
 
 const BIRTHDAY_IMAGE = require('../../../assets/images/birthday.png');
 
@@ -69,6 +70,7 @@ const AnimatedOccasionItem: React.FC<{
       [0, 1],
       [COLLAPSED_HEIGHT, expandedHeight],
     ),
+    overflow: 'hidden',
   }));
 
   return <Animated.View style={animatedStyle}>{children}</Animated.View>;
@@ -179,16 +181,16 @@ const OccasionsScreen: React.FC = () => {
           selectedOccasion.occasionType === 'none'
             ? getString('OCC_OCCASIONS')
             : selectedOccasion.occasionType === 'create'
-              ? getString('OCC_CREATE_OCCASION')
-              : getString('OCC_EDIT_OCCASION')
+            ? getString('OCC_CREATE_OCCASION')
+            : getString('OCC_EDIT_OCCASION')
         }
         rightSideTitlePress={() => setIsEditGroupOpen(!isEditGroupOpen)}
         rightSideIcon={
           selectedOccasion.occasionType === 'none' ? (
             !isEditGroupOpen ? (
               <SvgEditGroup
-                width={scaleWithMax(18, 18)}
-                height={scaleWithMax(18, 18)}
+                width={scaleWithMax(20, 20)}
+                height={scaleWithMax(20, 20)}
               />
             ) : (
               <SvgCancelIcon
@@ -279,36 +281,88 @@ const OccasionsScreen: React.FC = () => {
                   isDefaultBirthday && user?.DateOfBirth
                     ? formatDateForDisplay(user.DateOfBirth)
                     : item.OccasionDate && item.OccasionDate !== 'null'
-                      ? formatDateForDisplay(item.OccasionDate)
-                      : null;
+                    ? formatDateForDisplay(item.OccasionDate)
+                    : null;
 
                 // For default birthday, same flow as other occasions
                 if (isDefaultBirthday) {
                   const canEditBirthday = !user?.IsBirthdayUpdated;
+                  const groupImageSize = isExpanded
+                    ? scaleWithMax(42, 46)
+                    : scaleWithMax(36, 36);
                   return (
+                    <ShadowView preset="listItem">
+                      <AnimatedOccasionItem
+                        isExpanded={isExpanded}
+                        expandedHeight={theme.sizes.HEIGHT * 0.075}
+                      >
+                        <TabItem
+                          isGroupImage={BIRTHDAY_IMAGE}
+                          groupImageSize={groupImageSize}
+                          title={item.NameEn}
+                          subtitle={
+                            isExpanded
+                              ? formattedDate ||
+                                (!user?.DateOfBirth
+                                  ? getString('OCC_BIRTHDAY_NOT_SET')
+                                  : undefined)
+                              : undefined
+                          }
+                          isEditGroup={isEditGroupOpen && canEditBirthday}
+                          editOnly={true}
+                          hideRightIcon={false}
+                          rightIconRotated={isExpanded}
+                          onEditPress={() =>
+                            handleEditPress(item, BIRTHDAY_IMAGE)
+                          }
+                          onDeletePress={() => {}}
+                          onPress={() => {
+                            if (!isEditGroupOpen) {
+                              if (isExpanded) {
+                                setExpandedOccasionId(null);
+                              } else {
+                                setExpandedOccasionId(item.OccassionId);
+                              }
+                            }
+                          }}
+                          TabItemStyles={styles.TabItem}
+                          TabTextStyles={styles.TabText}
+                          shadowDisabled={true}
+                        />
+                      </AnimatedOccasionItem>
+                    </ShadowView>
+                  );
+                }
+
+                // Regular occasions
+                const imageSource = item.ImageUrl
+                  ? { uri: item.ImageUrl }
+                  : require('../../../assets/images/img-placeholder.png');
+                const imageUri = item.ImageUrl || null;
+                const groupImageSize = isExpanded
+                  ? scaleWithMax(42, 46)
+                  : scaleWithMax(36, 36);
+                return (
+                  <ShadowView preset="listItem">
                     <AnimatedOccasionItem
                       isExpanded={isExpanded}
                       expandedHeight={theme.sizes.HEIGHT * 0.075}
                     >
                       <TabItem
-                        isGroupImage={BIRTHDAY_IMAGE}
+                        isGroupImage={imageSource}
+                        groupImageSize={groupImageSize}
                         title={item.NameEn}
                         subtitle={
-                          isExpanded
-                            ? formattedDate ||
-                            (!user?.DateOfBirth
-                              ? getString('OCC_BIRTHDAY_NOT_SET')
-                              : undefined)
-                            : undefined
+                          isExpanded ? formattedDate || undefined : undefined
                         }
-                        isEditGroup={isEditGroupOpen && canEditBirthday}
-                        editOnly={true}
+                        isEditGroup={isEditGroupOpen}
                         hideRightIcon={false}
                         rightIconRotated={isExpanded}
-                        onEditPress={() =>
-                          handleEditPress(item, BIRTHDAY_IMAGE)
-                        }
-                        onDeletePress={() => { }}
+                        onEditPress={() => handleEditPress(item)}
+                        onDeletePress={() => {
+                          setOccasionToDelete(item);
+                          setShowDeleteModal(true);
+                        }}
                         onPress={() => {
                           if (!isEditGroupOpen) {
                             if (isExpanded) {
@@ -318,50 +372,12 @@ const OccasionsScreen: React.FC = () => {
                             }
                           }
                         }}
-                        TabItemStyles={styles.TabItem}
                         TabTextStyles={styles.TabText}
+                        TabItemStyles={styles.TabItem}
+                        shadowDisabled={true}
                       />
                     </AnimatedOccasionItem>
-                  );
-                }
-
-                // Regular occasions
-                const imageSource = item.ImageUrl
-                  ? { uri: item.ImageUrl }
-                  : require('../../../assets/images/img-placeholder.png');
-                const imageUri = item.ImageUrl || null;
-                return (
-                  <AnimatedOccasionItem
-                    isExpanded={isExpanded}
-                    expandedHeight={theme.sizes.HEIGHT * 0.075}
-                  >
-                    <TabItem
-                      isGroupImage={imageSource}
-                      title={item.NameEn}
-                      subtitle={
-                        isExpanded ? formattedDate || undefined : undefined
-                      }
-                      isEditGroup={isEditGroupOpen}
-                      hideRightIcon={false}
-                      rightIconRotated={isExpanded}
-                      onEditPress={() => handleEditPress(item)}
-                      onDeletePress={() => {
-                        setOccasionToDelete(item);
-                        setShowDeleteModal(true);
-                      }}
-                      onPress={() => {
-                        if (!isEditGroupOpen) {
-                          if (isExpanded) {
-                            setExpandedOccasionId(null);
-                          } else {
-                            setExpandedOccasionId(item.OccassionId);
-                          }
-                        }
-                      }}
-                      TabTextStyles={styles.TabText}
-                      TabItemStyles={styles.TabItem}
-                    />
-                  </AnimatedOccasionItem>
+                  </ShadowView>
                 );
               }}
             />
@@ -371,7 +387,11 @@ const OccasionsScreen: React.FC = () => {
               <CustomButton
                 title={getString('OCC_CREATE_OCCASION')}
                 type="primary"
-                icon={<SvgAddOccasion style={{ marginBottom: theme.sizes.PADDING * 0.18 }} />}
+                icon={
+                  <SvgAddOccasion
+                    style={{ marginBottom: theme.sizes.PADDING * 0.18 }}
+                  />
+                }
                 onPress={handleCreatePress}
               />
             </View>
@@ -399,7 +419,7 @@ const OccasionsScreen: React.FC = () => {
                         <InputField
                           error={
                             formik.touched.occasionName &&
-                              formik.errors.occasionName
+                            formik.errors.occasionName
                               ? formik.errors.occasionName
                               : undefined
                           }
@@ -426,20 +446,20 @@ const OccasionsScreen: React.FC = () => {
                                 onPress={() => {
                                   const imageUri =
                                     formik.values.image &&
-                                      typeof formik.values.image === 'object' &&
-                                      formik.values.image.uri
+                                    typeof formik.values.image === 'object' &&
+                                    formik.values.image.uri
                                       ? formik.values.image.uri
                                       : formik.values.image &&
                                         typeof formik.values.image ===
-                                        'string' &&
+                                          'string' &&
                                         formik.values.image
-                                        ? formik.values.image
-                                        : null;
+                                      ? formik.values.image
+                                      : null;
 
                                   if (imageUri) {
                                     const isLocalOnly =
                                       selectedOccasion.occasionType ===
-                                      'create' || !selectedOccasion.id;
+                                        'create' || !selectedOccasion.id;
                                     (navigation as any).navigate(
                                       'ProfileImageViewer',
                                       {
@@ -456,35 +476,35 @@ const OccasionsScreen: React.FC = () => {
                                         isLocalOnly,
                                         onImageUpdate: isLocalOnly
                                           ? (result: {
-                                            type: 'update' | 'delete';
-                                            asset?: {
-                                              uri: string;
-                                              type?: string;
-                                              name?: string;
-                                            };
-                                          }) => {
-                                            if (
-                                              result.type === 'update' &&
-                                              result.asset
-                                            ) {
-                                              formik.setFieldValue('image', {
-                                                uri: result.asset.uri,
-                                                type:
-                                                  result.asset.type ||
-                                                  'image/jpeg',
-                                                name:
-                                                  result.asset.name ||
-                                                  `occasion_image_${Date.now()}.jpg`,
-                                              });
-                                            } else if (
-                                              result.type === 'delete'
-                                            ) {
-                                              formik.setFieldValue(
-                                                'image',
-                                                null,
-                                              );
+                                              type: 'update' | 'delete';
+                                              asset?: {
+                                                uri: string;
+                                                type?: string;
+                                                name?: string;
+                                              };
+                                            }) => {
+                                              if (
+                                                result.type === 'update' &&
+                                                result.asset
+                                              ) {
+                                                formik.setFieldValue('image', {
+                                                  uri: result.asset.uri,
+                                                  type:
+                                                    result.asset.type ||
+                                                    'image/jpeg',
+                                                  name:
+                                                    result.asset.name ||
+                                                    `occasion_image_${Date.now()}.jpg`,
+                                                });
+                                              } else if (
+                                                result.type === 'delete'
+                                              ) {
+                                                formik.setFieldValue(
+                                                  'image',
+                                                  null,
+                                                );
+                                              }
                                             }
-                                          }
                                           : undefined,
                                       },
                                     );
@@ -500,8 +520,8 @@ const OccasionsScreen: React.FC = () => {
                               >
                                 <View style={{ position: 'relative' }}>
                                   {formik.values.image &&
-                                    typeof formik.values.image === 'object' &&
-                                    formik.values.image.uri ? (
+                                  typeof formik.values.image === 'object' &&
+                                  formik.values.image.uri ? (
                                     <Image
                                       source={{
                                         uri: formik.values.image.uri,
@@ -526,9 +546,18 @@ const OccasionsScreen: React.FC = () => {
                                       resizeMode="cover"
                                     />
                                   ) : (
-                                    <SvgOccasionIcon
-                                      width={scaleWithMax(30, 34)}
-                                      height={scaleWithMax(30, 34)}
+                                    // <SvgOccasionIcon
+                                    //   width={scaleWithMax(30, 34)}
+                                    //   height={scaleWithMax(30, 34)}
+                                    // />
+                                    <Image
+                                      source={require('../../../assets/images/img-placeholder.png')}
+                                      style={{
+                                        width: scaleWithMax(30, 34),
+                                        height: scaleWithMax(30, 34),
+                                        borderRadius: scaleWithMax(14, 16),
+                                      }}
+                                      resizeMode="cover"
                                     />
                                   )}
                                   <View style={styles.pencilIconContainer}>
@@ -572,7 +601,7 @@ const OccasionsScreen: React.FC = () => {
                           <InputField
                             error={
                               formik.touched.occasionDate &&
-                                formik.errors.occasionDate
+                              formik.errors.occasionDate
                                 ? formik.errors.occasionDate
                                 : undefined
                             }
@@ -587,10 +616,10 @@ const OccasionsScreen: React.FC = () => {
                               value:
                                 selectedOccasion.occasionType === 'edit'
                                   ? formatDateForDisplay(
-                                    formik.values.occasionDate,
-                                  )
+                                      formik.values.occasionDate,
+                                    )
                                   : formik.values.occasionDate,
-                              onChangeText: () => { },
+                              onChangeText: () => {},
                               onFocus: () =>
                                 formik.setFieldTouched(
                                   'occasionDate',
@@ -609,7 +638,6 @@ const OccasionsScreen: React.FC = () => {
                             ? getString('OCC_SAVE')
                             : getString('OCC_CREATE')
                         }
-
                         type="primary"
                         buttonStyle={styles.button}
                         onPress={() => formik.handleSubmit()}
@@ -623,8 +651,8 @@ const OccasionsScreen: React.FC = () => {
                           selectedOccasion.occasionType === 'edit' && date
                             ? date
                             : formik.values.occasionDate
-                              ? new Date(formik.values.occasionDate)
-                              : date
+                            ? new Date(formik.values.occasionDate)
+                            : date
                         }
                         mode="date"
                         maximumDate={

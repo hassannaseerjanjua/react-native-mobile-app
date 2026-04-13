@@ -10,7 +10,7 @@ import { PersistGate } from 'redux-persist/integration/react';
 import { store, persistor } from './src/store/store';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import useFetchLocale from './src/hooks/useFetchLocale';
-import { View, Text as RNText, TextInput } from 'react-native';
+import { View } from 'react-native';
 import { Text } from './src/utils/elements';
 import { useLocaleStore } from './src/store/reducer/locale';
 import { I18nManager } from 'react-native';
@@ -19,7 +19,6 @@ import Toast from 'react-native-toast-message';
 import useNotification from './src/hooks/useNotification';
 import useDeepLinkHandler from './src/hooks/useDeepLinkHandler';
 import { useRefreshTokenOnInit } from './src/hooks/useRefreshTokenOnInit';
-import { getContacts } from './src/utils/contacts';
 import { AppStackParamList } from './src/types/navigation.types';
 import { toastConfig } from './src/utils/toastConfig';
 
@@ -44,13 +43,16 @@ const App = () => {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
-        <PersistGate loading={null} persistor={persistor}>
+        <PersistGate
+          loading={<View style={{ flex: 1, backgroundColor: '#fff' }} />}
+          persistor={persistor}
+        >
           <DataWrapper onLocaleReady={() => setIsLocaleReady(true)}>
             <NavigationContainer
               ref={navigationRef}
               linking={linking}
               onReady={() => setIsNavigationReady(true)}
-              fallback={<Text>Loading... Please wait...</Text>}
+              fallback={null}
             >
               <View
                 style={{ flex: 1 }}
@@ -82,15 +84,15 @@ const DataWrapper = ({
   onLocaleReady: () => void;
 }) => {
   const { isTokenRefreshReady } = useRefreshTokenOnInit();
+  const { strings } = useLocaleStore();
+  const hasPersistedStrings = Object.keys(strings || {}).length > 0;
 
-  // Block all content until token refresh completes (when authenticated).
-  // This ensures locale fetch and all other API calls use the fresh JWT.
-  if (!isTokenRefreshReady) {
-    return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        <Text>Loading... Please wait...</Text>
-      </View>
-    );
+  // When strings are already persisted (e.g. after a language-change restart),
+  // render immediately so the transition feels instant. Token refresh continues
+  // in the background. Only block rendering on a true cold start with no cached
+  // strings, so locale fetch uses the fresh JWT.
+  if (!isTokenRefreshReady && !hasPersistedStrings) {
+    return <View style={{ flex: 1, backgroundColor: '#fff' }} />;
   }
 
   return (
@@ -108,7 +110,7 @@ const DataWrapperContent = ({
   onLocaleReady: () => void;
 }) => {
   const { loading, error, doKeysExist } = useFetchLocale();
-  const { strings, isRtl } = useLocaleStore();
+  const { strings, isRtl, langId, stringsLangId } = useLocaleStore();
   const [didSignalLocaleReady, setDidSignalLocaleReady] = useState(false);
 
   useNotification();
@@ -121,11 +123,16 @@ const DataWrapperContent = ({
   useEffect(() => {
     if (didSignalLocaleReady) return;
     if (loading) return;
-    if (Object.keys(strings || {}).length > 0) {
+    // Only signal ready when persisted strings match the active language,
+    // so we never flash English fallback strings during hydration.
+    if (
+      stringsLangId === langId &&
+      Object.keys(strings || {}).length > 0
+    ) {
       setDidSignalLocaleReady(true);
       onLocaleReady();
     }
-  }, [didSignalLocaleReady, loading, strings, onLocaleReady]);
+  }, [didSignalLocaleReady, loading, strings, stringsLangId, langId, onLocaleReady]);
 
   if (!!error && !doKeysExist) {
     return (

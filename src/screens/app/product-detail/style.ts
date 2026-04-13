@@ -91,12 +91,14 @@ const useStyles = () => {
       titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: sizes.WIDTH * 0.03,
+        // backgroundColor: 'red',
+        // gap: sizes.WIDTH * 0.03,
       },
       priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: scaleWithMax(4, 6),
+        paddingBottom: sizes.HEIGHT * 0.003,
       },
       TaxIncludeText: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
@@ -148,8 +150,8 @@ const useStyles = () => {
       },
       button: {
         // width: sizes.WIDTH * 0.6,
-        borderRadius:sizes.BORDER_RADIUS_MID*1.2 ,
-        flex: 1
+        borderRadius: sizes.BORDER_RADIUS_MID * 1.2,
+        flex: 1,
       },
       QuantityContainer: {
         flexDirection: 'row',

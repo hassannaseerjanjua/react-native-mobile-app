@@ -414,7 +414,7 @@ const ProfileScreen: React.FC = () => {
               {user?.IsVerified && <SvgVerifiedIcon />}
             </View>
             <Text style={screenStyles.profileUsername}>
-              {user?.isMerchant ? user?.Email : `@${user?.UserName}`}
+              {`@${user?.UserName}`}
             </Text>
           </View>
           {!isMerchant && (

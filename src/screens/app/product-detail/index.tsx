@@ -446,6 +446,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                       <PriceWithIcon
                         amount={finalPrice}
                         variant="discounted"
+                        bold
                         icon={
                           <SvgRiyalPink
                             width={scaleWithMax(15, 18)}
@@ -459,6 +460,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                     <PriceWithIcon
                       amount={originalPrice}
                       variant={hasDiscount ? 'cut' : 'default'}
+                      bold
                       icon={
                         <SvgRiyalIcon
                           width={
