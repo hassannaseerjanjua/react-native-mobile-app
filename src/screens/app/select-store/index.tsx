@@ -370,6 +370,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
                 paddingBottom: theme.sizes.HEIGHT * 0.1,
                 paddingHorizontal: theme.sizes.PADDING,
                 flexGrow: 1,
+                marginTop: theme.sizes.HEIGHT * 0.018,
               }}
               refreshControl={
                 <RefreshControl

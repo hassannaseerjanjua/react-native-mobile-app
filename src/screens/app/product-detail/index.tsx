@@ -30,7 +30,7 @@ import { patchCacheItems } from '../../../utils/api-cache';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import notify from '../../../utils/notify';
 import useGetApi from '../../../hooks/useGetApi';
-import { StoreProduct, CartResponse } from '../../../types';
+import { StoreProduct, CartResponse, CartItem } from '../../../types';
 import { Text } from '../../../utils/elements';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import { useAuthStore } from '../../../store/reducer/auth';
@@ -110,6 +110,53 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
     );
   }, [item]);
 
+  const selectedVariant = useMemo(() => {
+    if (!item?.Variants?.length) return undefined;
+    const byId = selectedFilter
+      ? item.Variants.find(
+          (v: any) => v.ItemVariantId === Number(selectedFilter),
+        )
+      : undefined;
+    return (
+      byId ||
+      item.Variants.find((v: any) => v.Status === 1 && v.IsDefault === true) ||
+      item.Variants.find((v: any) => v.Status === 1)
+    );
+  }, [item, selectedFilter]);
+
+  const cartLineForSelection = useMemo(() => {
+    if (!cartApi.data?.Items || !item) return undefined;
+    const vid = selectedVariant?.ItemVariantId ?? null;
+    return cartApi.data.Items.find((ci: CartItem) => {
+      if (ci.ItemId !== item.ItemId) return false;
+      const cartVid = ci.Variant?.ItemVariantId ?? null;
+      if (vid != null) return cartVid === vid;
+      return cartVid == null;
+    });
+  }, [cartApi.data, item, selectedVariant?.ItemVariantId]);
+
+  useEffect(() => {
+    if (!item) return;
+    const fromCart = cartLineForSelection?.Quantity;
+    if (fromCart != null && fromCart > 0) {
+      setQuantity(fromCart);
+      return;
+    }
+    const inVariant = selectedVariant?.IsAddedToCart === true;
+    const count = selectedVariant?.CountInCart;
+    if (inVariant && count != null && count > 0) {
+      setQuantity(count);
+      return;
+    }
+    setQuantity(1);
+  }, [
+    item?.ItemId,
+    selectedVariant?.ItemVariantId,
+    cartLineForSelection?.Quantity,
+    selectedVariant?.CountInCart,
+    selectedVariant?.IsAddedToCart,
+  ]);
+
   const handleQuantityChange = (type: 'increment' | 'decrement') => {
     if (type === 'increment') {
       setQuantity(prevQuantity => prevQuantity + 1);
@@ -174,22 +221,18 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
   const performAddToCart = async (skipSubmittingCheck = false) => {
     if (!skipSubmittingCheck && submitting) return;
 
-    const selectedVariant = item?.Variants?.find(
-      (v: any) => v.ItemVariantId === Number(selectedFilter),
-    );
-    const isAlreadyInCart = selectedVariant?.IsAddedToCart === true;
-    const currentCartQuantity = selectedVariant?.CountInCart || 0;
+    const variantId =
+      selectedVariant?.ItemVariantId ??
+      (selectedFilter ? Number(selectedFilter) : undefined);
+    const isAlreadyInCart =
+      (cartLineForSelection?.Quantity ?? 0) > 0 ||
+      selectedVariant?.IsAddedToCart === true;
 
     if (isAlreadyInCart) {
-      const newQuantity = currentCartQuantity + quantity;
       const payload = {
         ItemId: item.ItemId,
-        ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
-        ...(!isMerchant
-          ? { Quantity: newQuantity }
-          : {
-              Quantity: quantity,
-            }),
+        ItemVariantId: variantId,
+        Quantity: quantity,
       };
 
       const response = await api.put(
@@ -207,7 +250,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
       const payload: any = {
         ItemId: item.ItemId,
-        ItemVariantId: selectedFilter ? Number(selectedFilter) : undefined,
+        ItemVariantId: variantId,
         Quantity: quantity,
         StoreId: storeId ?? null,
         SendType: route.params.sendType ?? 1,
@@ -348,10 +391,9 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
   const isItemInCart = useMemo(() => {
     if (!cartApi.data || !item) return false;
-    if (!isMerchant && !isGiftOneGetOne) return false;
 
     const cartItems = cartApi.data.Items || [];
-    const selectedVariantId = selectedFilter ? Number(selectedFilter) : null;
+    const selectedVariantId = selectedVariant?.ItemVariantId ?? null;
 
     return cartItems.some((cartItem: any) => {
       const matchesItemId = cartItem.ItemId === item.ItemId;
@@ -361,7 +403,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
 
       return matchesItemId && matchesVariantId;
     });
-  }, [isMerchant, isGiftOneGetOne, cartApi.data, item, selectedFilter]);
+  }, [cartApi.data, item, selectedVariant?.ItemVariantId]);
 
   const savingsAmount = useMemo(() => {
     return hasDiscount ? originalPrice - finalPrice : 0;
@@ -564,7 +606,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                   handleFavorite().then(success => {
                     if (success) navigation.goBack();
                   });
-                } else if (isItemInCart) {
+                } else if (isGiftOneGetOne && isItemInCart) {
                   (navigation as any).navigate('CheckOut');
                 } else {
                   handleAddToCart();
@@ -575,7 +617,7 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
                   ? item?.isFavourite
                     ? getString('PRODUCT_REMOVE_FROM_FAVORITES')
                     : getString('PRODUCT_ADD_TO_FAVORITES')
-                  : isItemInCart
+                  : isGiftOneGetOne && isItemInCart
                   ? getString('PRODUCT_VIEW_CART')
                   : getString('PRODUCT_ADD_TO_CART')
               }
