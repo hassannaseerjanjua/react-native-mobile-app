@@ -27,7 +27,7 @@ import {
   SvgDateIcon,
   SvgEditGroup,
   SvgGalleryIcon,
-  SvgBirthdayIcon,
+  SvgBirthdayIconOccasion,
   SvgOccasionIcon,
   SvgPencilIcon,
   SvgCancelIcon,
@@ -45,8 +45,6 @@ import { scaleWithMax } from '../../../utils';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 import ShadowView from '../../../components/global/ShadowView';
-
-const BIRTHDAY_IMAGE = require('../../../assets/images/birthday.png');
 
 const COLLAPSED_HEIGHT = scaleWithMax(52, 56);
 const ANIM_DURATION = 220;
@@ -297,7 +295,12 @@ const OccasionsScreen: React.FC = () => {
                         expandedHeight={theme.sizes.HEIGHT * 0.075}
                       >
                         <TabItem
-                          isGroupImage={BIRTHDAY_IMAGE}
+                          isGroupImage={
+                            <SvgBirthdayIconOccasion
+                              width={groupImageSize}
+                              height={groupImageSize}
+                            />
+                          }
                           groupImageSize={groupImageSize}
                           title={item.NameEn}
                           subtitle={
@@ -312,9 +315,7 @@ const OccasionsScreen: React.FC = () => {
                           editOnly={true}
                           hideRightIcon={false}
                           rightIconRotated={isExpanded}
-                          onEditPress={() =>
-                            handleEditPress(item, BIRTHDAY_IMAGE)
-                          }
+                          onEditPress={() => handleEditPress(item)}
                           onDeletePress={() => {}}
                           onPress={() => {
                             if (!isEditGroupOpen) {
@@ -424,7 +425,19 @@ const OccasionsScreen: React.FC = () => {
                               : undefined
                           }
                           icon={
-                            readonlyIcon ? (
+                            readonlyIcon === 'birthday' ? (
+                              <View
+                                style={{
+                                  marginLeft: -scaleWithMax(5, 6),
+                                  marginRight: -scaleWithMax(2, 3),
+                                }}
+                              >
+                                <SvgBirthdayIconOccasion
+                                  width={scaleWithMax(30, 34)}
+                                  height={scaleWithMax(30, 34)}
+                                />
+                              </View>
+                            ) : readonlyIcon ? (
                               <View
                                 style={{
                                   marginLeft: -scaleWithMax(5, 6),

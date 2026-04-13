@@ -39,6 +39,14 @@ const useStyles = () => {
       inboxItemsSection: {
         marginTop: sizes.PADDING * 0.35,
         paddingBottom: sizes.PADDING * 0.25,
+        overflow: 'visible',
+      },
+      inboxItemsScroll: {
+        overflow: 'visible',
+      },
+      inboxItemsScrollBleed: {
+        overflow: 'visible',
+        marginHorizontal: -scaleWithMax(10, 14),
       },
       inboxItemsSectionTightTop: {
         marginTop: sizes.PADDING * 0.12,

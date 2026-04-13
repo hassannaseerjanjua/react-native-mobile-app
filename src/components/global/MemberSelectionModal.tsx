@@ -48,6 +48,7 @@ import { useLocaleStore } from '../../store/reducer/locale';
 import notify from '../../utils/notify';
 import { useAuthStore } from '../../store/reducer/auth';
 import Toast from 'react-native-toast-message';
+import { toastConfig } from '../../utils/toastConfig';
 import CustomButton from './Custombutton';
 
 const dummyImage = require('../../assets/images/user.png');
@@ -121,21 +122,6 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
 
   const theme = useTheme();
   const navigation = useNavigation();
-
-  // Fixed slot height matches the horizontal selected-members row so the SectionList
-  // does not shrink when the first user is selected (avoids scroll jump from bottom).
-  const selectedStripSlotHeight = useMemo(() => {
-    const avatarSize = scaleWithMax(60, 60);
-    const { sizes } = theme;
-    return (
-      avatarSize +
-      scaleWithMax(6, 6) +
-      scaleWithMax(18, 22) +
-      sizes.BORDER_RADIUS_MID * 2 +
-      sizes.HEIGHT * 0.012 +
-      scaleWithMax(8, 10)
-    );
-  }, [theme]);
 
   const allUsers = useMemo(
     () => listings?.flatMap(listing => listing.users || []) || [],
@@ -341,59 +327,49 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   );
 
   // Memoized JSX (not a nested component) so search keystrokes don't remount
-  // the selected-members strip. Reserved minHeight keeps list layout stable when
-  // selections go 0 → 1 (no sudden shrink / scroll jump).
+  // the selected-members strip. No placeholder height when empty (no blank band under the header).
   const selectedUsersStrip = useMemo(() => {
-    if (viewOnly) {
+    if (viewOnly || selectedUsersData.length === 0) {
       return null;
     }
 
     return (
-      <View
-        style={{ minHeight: selectedStripSlotHeight, justifyContent: 'center' }}
-      >
-        {selectedUsersData.length > 0 ? (
-          <ShadowView preset="low" disabled={viewOnly}>
-            <View style={selectedUsersContainerStyle}>
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.selectedUsersList}
-              >
-                {selectedUsersData.map(user => (
-                  <View key={user.UserId} style={styles.selectedUserItem}>
-                    <View style={styles.selectedUserImageContainer}>
-                      <Image
-                        source={
-                          user.ProfileUrl
-                            ? { uri: user.ProfileUrl }
-                            : dummyImage
-                        }
-                        style={styles.selectedUserAvatar}
-                      />
+      <ShadowView preset="low" disabled={viewOnly}>
+        <View style={selectedUsersContainerStyle}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.selectedUsersList}
+          >
+            {selectedUsersData.map(user => (
+              <View key={user.UserId} style={styles.selectedUserItem}>
+                <View style={styles.selectedUserImageContainer}>
+                  <Image
+                    source={
+                      user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
+                    }
+                    style={styles.selectedUserAvatar}
+                  />
 
-                      <TouchableOpacity
-                        style={styles.selectedUserCrossIcon}
-                        onPress={() => handleUserSelection(user.UserId)}
-                      >
-                        <SvgCrossIcon width={12} height={12} />
-                      </TouchableOpacity>
-                    </View>
-                    <Text style={styles.selectedUserName} numberOfLines={1}>
-                      {user.FullName.split(' ')[0]}
-                    </Text>
-                  </View>
-                ))}
-              </ScrollView>
-            </View>
-          </ShadowView>
-        ) : null}
-      </View>
+                  <TouchableOpacity
+                    style={styles.selectedUserCrossIcon}
+                    onPress={() => handleUserSelection(user.UserId)}
+                  >
+                    <SvgCrossIcon width={12} height={12} />
+                  </TouchableOpacity>
+                </View>
+                <Text style={styles.selectedUserName} numberOfLines={1}>
+                  {user.FullName.split(' ')[0]}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+      </ShadowView>
     );
   }, [
     viewOnly,
     selectedUsersData,
-    selectedStripSlotHeight,
     selectedUsersContainerStyle,
     styles,
     handleUserSelection,
@@ -827,7 +803,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
             pointerEvents: 'box-none',
           }}
         >
-          <Toast />
+          <Toast config={toastConfig} />
         </View>
       </View>
     </Modal>

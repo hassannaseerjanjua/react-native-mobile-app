@@ -284,7 +284,10 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             }
           }}
           showSearchBar={
-            storeListApi.data.length > 0 &&
+            Boolean(businessTypeApi.data?.length) &&
+            (storeListApi.data.length > 0 ||
+              (storeListApi.isInitialLoad && storeListApi.loading) ||
+              activeSearch) &&
             !(businessTypeApi.loading && storeListApi.loading)
           }
           loading={businessTypeApi.loading && storeListApi.loading}
@@ -331,7 +334,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
         <View style={styles.content}>
           <View>
-                       {businessTypeApi.loading && !isRefreshing ? (
+            {businessTypeApi.loading && !isRefreshing ? (
               <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
                 <SkeletonLoader screenType="groupTabs" />
               </View>
@@ -339,13 +342,15 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
               <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
             ) : businessTypeApi.data &&
               businessTypeApi.data.length > 0 &&
-              (hasStoreRows ||
-                (storeListApi.loading && !activeSearch)) ? (
+              (hasStoreRows || (storeListApi.loading && !activeSearch)) ? (
               <GroupTabs
                 tabs={filterOptions}
                 activeTab={selectedFilter}
                 onTabPress={setSelectedFilter}
-                tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
+                tabStyle={{
+                  paddingHorizontal: theme.sizes.PADDING,
+                  paddingBottom: 0,
+                }}
               />
             ) : (
               <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />

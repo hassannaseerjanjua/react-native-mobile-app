@@ -328,10 +328,9 @@ export const useOccasions = () => {
     setFormInitialValues({ occasionName: '', occasionDate: '', image: null });
   };
 
-  const handleEditPress = async (item: Occasion, icon?: any) => {
+  const handleEditPress = async (item: Occasion) => {
     setSelectedOccasion({ occasionType: 'edit', id: item.OccassionId });
     if (item.OccassionId === -1) {
-      // Birthday: set form from user, pass icon from listing
       const birthdayDate = user?.DateOfBirth || '';
       setFormInitialValues({
         occasionName: getString('OCCASSIONS_MY_BIRTHDAY'),
@@ -339,7 +338,7 @@ export const useOccasions = () => {
         image: null,
       });
       setDate(birthdayDate ? new Date(birthdayDate) : new Date());
-      setReadonlyIcon(icon ?? null);
+      setReadonlyIcon('birthday');
     } else {
       setReadonlyIcon(null);
       await handleGetOccasionDetail(item.OccassionId);

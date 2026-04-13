@@ -168,6 +168,7 @@ const InboxOutbox: React.FC = () => {
       ) : (
         <FlatList
           showsVerticalScrollIndicator={false}
+          removeClippedSubviews={false}
           data={orders}
           refreshControl={
             <RefreshControl
@@ -491,6 +492,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const { user } = useAuthStore();
   const isMerchant = user?.isMerchant === 1;
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [carouselPageWidth, setCarouselPageWidth] = useState(0);
   const [showEmployeesBottomSheet, setShowEmployeesBottomSheet] =
     useState(false);
   const scrollViewRef = useRef<ScrollView>(null);
@@ -507,22 +509,24 @@ const InboxItem: React.FC<InboxItemProps> = ({
   const hasMultiUsers =
     isMerchant && order.MultiUsers && order.MultiUsers.length > 0;
 
-  const itemGap = theme.sizes.PADDING * 1.2;
-  /** Card width + imageContainer marginRight + flex gap (matches styles.inboxItemCardWidth). */
-  const getItemScrollStep = () =>
-    inboxItemCardWidth + theme.sizes.WIDTH * 0.01 + itemGap;
+  /** Extra vertical space + horizontal bleed so ShadowView isn’t clipped by ScrollView / list. */
+  const inboxCarouselPadX = scaleWithMax(10, 14);
+  const inboxCarouselPadY = scaleWithMax(10, 14);
+  /** One full swipe page = ScrollView viewport width (pagingEnabled). */
+  const slidePageWidth =
+    carouselPageWidth > 0 ? carouselPageWidth : inboxItemCardWidth;
 
   const handleScroll = (event: NativeSyntheticEvent<NativeScrollEvent>) => {
     const scrollPosition = event.nativeEvent.contentOffset.x;
-    const step = getItemScrollStep();
-    const index = Math.round(scrollPosition / step);
+    const n = order.Items?.length ?? 0;
+    const idx = Math.round(scrollPosition / slidePageWidth);
+    const index = Math.max(0, Math.min(n > 0 ? n - 1 : 0, idx));
     setCurrentIndex(index);
   };
 
   const scrollToIndex = (index: number) => {
-    const step = getItemScrollStep();
     scrollViewRef.current?.scrollTo({
-      x: index * step,
+      x: index * slidePageWidth,
       animated: true,
     });
   };
@@ -570,6 +574,7 @@ const InboxItem: React.FC<InboxItemProps> = ({
         <View
           style={{
             flex: 1,
+            overflow: 'visible',
             ...rtlMargin(isRtl, theme.sizes.WIDTH * 0.012, scaleWithMax(6, 8)),
           }}
         >
@@ -729,77 +734,86 @@ const InboxItem: React.FC<InboxItemProps> = ({
               order.EhsaanAmount > 0 && styles.inboxItemsSectionTightTop,
             ]}
           >
-            <ScrollView
-              ref={scrollViewRef}
-              horizontal
-              overScrollMode="never"
-              showsHorizontalScrollIndicator={false}
-              onScroll={handleScroll}
-              scrollEventThrottle={16}
-              scrollEnabled={order.Items && order.Items.length > 1}
-              decelerationRate="fast"
-              snapToInterval={getItemScrollStep()}
-              snapToAlignment="start"
-              disableIntervalMomentum
-              contentContainerStyle={{
-                paddingVertical: theme.sizes.HEIGHT * 0.01,
-                gap: itemGap,
-              }}
-            >
-              {order.Items?.map((item, index) => {
-                const itemImage = getMainImage(item);
-                const allItemsRedeemed =
-                  order.Items && order.Items.every(item => item.Status === 10);
+            <View style={styles.inboxItemsScrollBleed}>
+              <ScrollView
+                ref={scrollViewRef}
+                horizontal
+                pagingEnabled={!!(order.Items && order.Items.length > 1)}
+                style={styles.inboxItemsScroll}
+                overScrollMode="never"
+                showsHorizontalScrollIndicator={false}
+                onLayout={e => {
+                  const w = e.nativeEvent.layout.width;
+                  if (w > 0) setCarouselPageWidth(w);
+                }}
+                onScroll={handleScroll}
+                scrollEventThrottle={16}
+                scrollEnabled={order.Items && order.Items.length > 1}
+                decelerationRate="fast"
+                contentContainerStyle={{
+                  paddingVertical: inboxCarouselPadY,
+                }}
+              >
+                {order.Items?.map((item, index) => {
+                  const itemImage = getMainImage(item);
 
-                return (
-                  <TouchableOpacity
-                    key={`item-${order.OrderId}-${index}`}
-                    onPress={() => onClick && onClick(item)}
-                    activeOpacity={isInbox ? 0.8 : 1}
-                    style={styles.imageContainer}
-                  >
-                    {item.Status === 10 && (
-                      <ShadowView preset="low">
-                        <View style={styles.redeemedBox}>
-                          <Text
-                            style={{
-                              // color: theme.colors.WHITE,
-                              ...theme.globalStyles.TEXT_STYLE,
-                              color: theme.colors.WHITE,
-                              fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                            }}
-                          >
-                            {getString('INBOX_REDEEMED')}
-                          </Text>
-                        </View>
-                      </ShadowView>
-                    )}
-                    <Image source={itemImage} style={styles.inboxImage} />
-                    <ShadowView preset="default">
-                      <View style={styles.inboxImageBottom}>
-                        <Text
-                          style={styles.itemNameText}
-                          numberOfLines={1}
-                          ellipsizeMode="tail"
-                        >
-                          {item.ItemName}
-                        </Text>
-
-                        {item.Quantity - item.UsedQuantity > 0 && (
-                          <View style={styles.numCircle}>
-                            <Text style={styles.numText}>
-                              {formatGroupedInteger(
-                                item.Quantity - item.UsedQuantity,
-                              )}
+                  return (
+                    <View
+                      key={`item-${order.OrderId}-${index}-page`}
+                      style={{
+                        width: slidePageWidth,
+                        paddingHorizontal: inboxCarouselPadX,
+                        overflow: 'visible',
+                      }}
+                    >
+                      <TouchableOpacity
+                        onPress={() => onClick && onClick(item)}
+                        activeOpacity={isInbox ? 0.8 : 1}
+                        style={styles.imageContainer}
+                      >
+                      {item.Status === 10 && (
+                        <ShadowView preset="low">
+                          <View style={styles.redeemedBox}>
+                            <Text
+                              style={{
+                                ...theme.globalStyles.TEXT_STYLE,
+                                color: theme.colors.WHITE,
+                                fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                              }}
+                            >
+                              {getString('INBOX_REDEEMED')}
                             </Text>
                           </View>
-                        )}
-                      </View>
-                    </ShadowView>
-                  </TouchableOpacity>
-                );
-              })}
-            </ScrollView>
+                        </ShadowView>
+                      )}
+                      <Image source={itemImage} style={styles.inboxImage} />
+                      <ShadowView preset="default">
+                        <View style={styles.inboxImageBottom}>
+                          <Text
+                            style={styles.itemNameText}
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                          >
+                            {item.ItemName}
+                          </Text>
+
+                          {item.Quantity - item.UsedQuantity > 0 && (
+                            <View style={styles.numCircle}>
+                              <Text style={styles.numText}>
+                                {formatGroupedInteger(
+                                  item.Quantity - item.UsedQuantity,
+                                )}
+                              </Text>
+                            </View>
+                          )}
+                        </View>
+                      </ShadowView>
+                    </TouchableOpacity>
+                    </View>
+                  );
+                })}
+              </ScrollView>
+            </View>
 
             {/* Pagination Dots */}
             {order.Items && order.Items.length > 1 && (

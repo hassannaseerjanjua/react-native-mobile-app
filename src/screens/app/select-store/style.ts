@@ -13,14 +13,18 @@ const useStyles = () => {
       },
       content: {
         flex: 1,
+
         // paddingBottom: sizes.HEIGHT * 0.05,
       },
       favoritesContainer: {},
       favoriteItemContainer: {
         paddingBottom: sizes.HEIGHT * 0.015,
+        // backgroundColor: 'red',
+        paddingTop: sizes.HEIGHT * 0.018,
       },
       tabsContainer: {
         marginVertical: sizes.HEIGHT * 0.016,
+
         // height: sizes.HEIGHT * 0.044,
       },
       gridContainer: {

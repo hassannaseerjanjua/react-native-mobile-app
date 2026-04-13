@@ -40,36 +40,41 @@ const SuccessMessage: React.FC<SuccessMessageProps> = ({
   return (
     <View style={styles.checkoutCompletedContainer}>
       {MediaLogo && <View style={styles.mediaLogoContainer}>{MediaLogo}</View>}
-      {SuccessLogo}
-      <Text style={styles.TextLarge}>{SuccessMessage}</Text>
-      {!!SuccessSubMessage && (
-        <Text style={styles.TextMed}>{SuccessSubMessage}</Text>
-      )}
+      <View
+        style={[
+          styles.centeredBlock,
+          showFooter && styles.centeredBlockWithFooter,
+        ]}
+      >
+        {SuccessLogo}
+        <Text style={styles.TextLarge}>{SuccessMessage}</Text>
+        {!!SuccessSubMessage && (
+          <Text style={styles.TextMed}>{SuccessSubMessage}</Text>
+        )}
+      </View>
       {showFooter && (
-        <>
-          <CustomFooter disableShadow>
-            <Text style={styles.subTitle}>{subTitle}</Text>
-            <View style={styles.buttonsRow}>
-              {!!primaryButtonTitle && (
-                <View style={styles.buttonWrapper}>
-                  <CustomButton
-                    title={primaryButtonTitle}
-                    onPress={onPrimaryPress}
-                  />
-                </View>
-              )}
-              {!!secondaryButtonTitle && (
-                <View style={styles.buttonWrapper}>
-                  <CustomButton
-                    type="secondary"
-                    title={secondaryButtonTitle}
-                    onPress={onSecondaryPress}
-                  />
-                </View>
-              )}
-            </View>
-          </CustomFooter>
-        </>
+        <CustomFooter disableShadow>
+          <Text style={styles.subTitle}>{subTitle}</Text>
+          <View style={styles.buttonsRow}>
+            {!!primaryButtonTitle && (
+              <View style={styles.buttonWrapper}>
+                <CustomButton
+                  title={primaryButtonTitle}
+                  onPress={onPrimaryPress}
+                />
+              </View>
+            )}
+            {!!secondaryButtonTitle && (
+              <View style={styles.buttonWrapper}>
+                <CustomButton
+                  type="secondary"
+                  title={secondaryButtonTitle}
+                  onPress={onSecondaryPress}
+                />
+              </View>
+            )}
+          </View>
+        </CustomFooter>
       )}
     </View>
   );
@@ -86,16 +91,22 @@ const useStyles = () => {
       StyleSheet.create({
         checkoutCompletedContainer: {
           flex: 1,
+          position: 'relative',
+        },
+        centeredBlock: {
+          flex: 1,
           justifyContent: 'center',
           alignItems: 'center',
           rowGap: sizes.HEIGHT * 0.009,
-          position: 'relative',
+        },
+        // Footer is position:absolute; without bottom inset the cluster sits too low.
+        centeredBlockWithFooter: {
+          paddingBottom: sizes.HEIGHT * 0.07,
         },
         TextLarge: {
           ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
           fontSize: theme.sizes.FONT_SIZE_EXTRA_HIGH,
           color: theme.colors.BLACK,
-          marginTop: theme.sizes.HEIGHT * 0.01,
           textAlign: 'center',
         },
         TextMed: {

@@ -48,11 +48,7 @@ import {
   SvgCatchTimeIcon,
   SvgProfileCrossIcon,
 } from '../../../assets/icons';
-import {
-  formatGroupedInteger,
-  formatNumericValueForDisplay,
-  scaleWithMax,
-} from '../../../utils';
+import { formatGroupedInteger, scaleWithMax } from '../../../utils';
 import GiftOneGetOneProductCard from '../../../components/app/GiftOneGetOneProductCard';
 import SuccessMessage from '../../../components/global/SuccessComponent';
 import CityPickerModal from '../../../components/global/CityPickerModal';
@@ -62,6 +58,7 @@ import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText'
 import ConfirmationModal from '../../../components/global/ConfirmationModal';
 import { BlurView } from '@react-native-community/blur';
 import CustomButton from '../../../components/global/Custombutton';
+import PriceWithIcon from '../../../components/global/Price';
 import { useFocusEffect } from '@react-navigation/native';
 
 const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
@@ -561,13 +558,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         MediaLogo={
           <Image source={require('../../../assets/images/catch-gif.gif')} />
         }
-        SuccessLogo={
-          <Image
-            source={catchIcon}
-            style={styles.catchIcon}
-            resizeMode="contain"
-          />
-        }
+        SuccessLogo={<Image source={catchIcon} style={styles.catchIcon} />}
         SuccessMessage={getString('CATCH_SUCCESS_MESSAGE')}
         SuccessSubMessage={getString('CATCH_SUCCESS_SUB_MESSAGE')}
         primaryButtonTitle={getString('HOME_INBOX')}
@@ -760,17 +751,20 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               <Text style={styles.footerButtonText}>
                 {getString('VIEW_CART')}
               </Text>
-              <View style={styles.footerPriceRow}>
-                <SvgRiyalIconWhite
-                  width={scaleWithMax(12, 14)}
-                  height={scaleWithMax(12, 14)}
-                />
-                <Text style={styles.footerPriceText}>
-                  {formatNumericValueForDisplay(
-                    cartApi.data?.TotalAmount ?? '0.00',
-                  )}
-                </Text>
-              </View>
+              <PriceWithIcon
+                amount={cartApi.data?.TotalAmount ?? '0.00'}
+                textStyle={styles.footerPriceText}
+                containerStyle={styles.footerPriceRow}
+                icon={
+                  <SvgRiyalIconWhite
+                    width={scaleWithMax(12, 14)}
+                    height={scaleWithMax(12, 14)}
+                  />
+                }
+                iconSize={scaleWithMax(12, 14)}
+                iconPosition="end"
+                iconOnLeftInRtl
+              />
             </TouchableOpacity>
           </View>
         </ShadowView>
@@ -790,8 +784,8 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           <BlurView
             style={StyleSheet.absoluteFill}
             blurType="light"
-            blurAmount={2}
-            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.5)"
+            blurAmount={5}
+            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.9)"
           />
           <TouchableOpacity
             style={StyleSheet.absoluteFill}
@@ -820,10 +814,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               </TouchableOpacity>
 
               <View style={styles.contentWrapper}>
-                <View
-                  style={styles.modalClaimedIconWrap}
-                  pointerEvents="none"
-                >
+                <View style={styles.modalClaimedIconWrap} pointerEvents="none">
                   <Image
                     source={require('../../../assets/images/catch-time-icon.png')}
                     style={styles.modalClaimedIcon}

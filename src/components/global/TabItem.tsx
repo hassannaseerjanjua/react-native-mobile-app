@@ -131,7 +131,35 @@ const TabItem = ({
       >
         <View style={styles.contentContainer}>
           {isGroupImage ? (
-            onImagePress ? (
+            React.isValidElement(isGroupImage) ? (
+              onImagePress ? (
+                <TouchableOpacity
+                  onPress={e => {
+                    e.stopPropagation();
+                    onImagePress();
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Animated.View
+                    style={[
+                      animatedGroupImageContainerStyle,
+                      styles.groupImageSvgInner,
+                    ]}
+                  >
+                    {isGroupImage}
+                  </Animated.View>
+                </TouchableOpacity>
+              ) : (
+                <Animated.View
+                  style={[
+                    animatedGroupImageContainerStyle,
+                    styles.groupImageSvgInner,
+                  ]}
+                >
+                  {isGroupImage}
+                </Animated.View>
+              )
+            ) : onImagePress ? (
               <TouchableOpacity
                 onPress={e => {
                   e.stopPropagation();
@@ -262,6 +290,10 @@ const useStyles = () => {
       groupImage: {
         width: '100%',
         height: '100%',
+      },
+      groupImageSvgInner: {
+        alignItems: 'center',
+        justifyContent: 'center',
       },
     });
   }, [theme]);

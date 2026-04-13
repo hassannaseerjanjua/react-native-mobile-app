@@ -85,8 +85,10 @@ const useStyles = () => {
         zIndex: 0,
       },
       catchIcon: {
-        width: scaleWithMax(120, 140),
-        height: scaleWithMax(120, 140),
+        width: scaleWithMax(120, 110),
+        height: scaleWithMax(120, 110),
+        resizeMode: 'contain',
+        marginBottom: 10,
       },
       footerPriceRow: {
         flexDirection: 'row',
