@@ -1,6 +1,5 @@
 import React, { Suspense, lazy, useState, useCallback } from 'react';
-import { View, StyleSheet, InteractionManager } from 'react-native';
-import { useFocusEffect } from '@react-navigation/native';
+import { View, StyleSheet } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
@@ -15,18 +14,10 @@ const SendAGiftScreen = lazy(
 );
 
 const SendAGiftWithFallback = (props: any) => {
+  // Overlay only until the lazy screen mounts and calls onReady — not on every
+  // focus (going back from SelectStore would briefly show the skeleton otherwise).
   const [showFallback, setShowFallback] = useState(true);
   const onReady = useCallback(() => setShowFallback(false), []);
-
-  useFocusEffect(
-    useCallback(() => {
-      setShowFallback(true);
-      const handle = InteractionManager.runAfterInteractions(() => {
-        setShowFallback(false);
-      });
-      return () => handle.cancel();
-    }, []),
-  );
 
   return (
     <View style={styles.wrapper}>

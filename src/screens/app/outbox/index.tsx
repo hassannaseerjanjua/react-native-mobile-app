@@ -58,7 +58,7 @@ const OutBox: React.FC = () => {
   const navigation = useNavigation();
 
   return (
-    <ParentView>
+    <ParentView shadowPreset="towardsRight">
       <HomeHeader
         showBackButton
         title={getString('OUTBOX_TITLE')}

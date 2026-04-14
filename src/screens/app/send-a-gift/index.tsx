@@ -680,8 +680,9 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
       if (shouldRefetchFriendsRef.current) {
         shouldRefetchFriendsRef.current = false;
         activeUsersApi.recall();
+        friendsForGroupApi.recall();
       }
-    }, [activeUsersApi]),
+    }, [activeUsersApi, friendsForGroupApi]),
   );
 
   useEffect(() => {
@@ -689,7 +690,7 @@ const SendAGiftScreen: React.FC<SendAGiftProps> = ({
   }, [onReady]);
 
   return (
-    <ParentView style={styles.container}>
+    <ParentView style={styles.container} shadowPreset="towardsBottom">
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"

@@ -96,17 +96,11 @@ const useStyles = () => {
       giftFilterErrorRow: {
         position: 'absolute' as const,
         bottom: -18,
-        left: 0,
-        right: 0,
+        end: 0,
         paddingHorizontal: sizes.PADDING,
         flexDirection: 'row' as const,
       },
-      giftFilterErrorRowLtr: {
-        justifyContent: 'flex-end' as const,
-      },
-      giftFilterErrorRowRtl: {
-        justifyContent: 'flex-start' as const,
-      },
+
       giftFilterErrorText: {
         maxWidth: sizes.WIDTH * 0.72,
         color: theme.colors.RED,

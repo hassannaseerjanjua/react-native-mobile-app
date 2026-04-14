@@ -11,6 +11,10 @@ import {
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { login, useAuthStore } from '../../../store/reducer/auth';
 import { selectAndCropImage } from '../../../utils/imageCropper';
+import {
+  requestGalleryPermission,
+  showGalleryPermissionDeniedAlert,
+} from '../../../utils/cameraPermission';
 import { useListingApi } from '../../../hooks/useListingApi';
 
 export interface ImageFile {
@@ -204,8 +208,10 @@ export const useOccasions = () => {
   const loadMore = () => occasionsListing.loadMore();
 
   const handleImageSelect = async (formik: any) => {
+    const granted = await requestGalleryPermission(getString);
+    if (!granted) return;
+
     try {
-      // Use WhatsApp-like cropper with circular overlay for square crop
       const croppedImage = await selectAndCropImage({
         cropSize: 400,
         circularOverlay: true, // Round overlay like WhatsApp
@@ -214,6 +220,7 @@ export const useOccasions = () => {
         compressionQuality: 0.2, // High compression for occasions
         maxWidth: 800,
         maxHeight: 800,
+        onPermissionDenied: () => showGalleryPermissionDeniedAlert(getString),
       });
 
       if (croppedImage) {
@@ -246,11 +253,19 @@ export const useOccasions = () => {
     try {
       const date = new Date(dateString);
       if (isNaN(date.getTime())) return dateString;
-      const locale = langCode === 'ar' ? 'ar-SA' : 'en-US';
+      // Force Gregorian calendar to avoid Hijri month names on some locales (e.g. ar-SA).
+      // Also render in a stable order (year month day) to avoid RTL re-ordering surprises.
+      const locale =
+        langCode === 'ar' ? 'ar-SA-u-ca-gregory' : 'en-US-u-ca-gregory';
       const day = date.getDate();
-      const month = date.toLocaleDateString(locale, { month: 'long' });
+      const month = date.toLocaleDateString(locale, {
+        month: 'long',
+        calendar: 'gregory',
+      });
       const year = date.getFullYear();
-      return `${day} ${month} ${year}`;
+      return langCode === 'ar'
+        ? `${year} ${month} ${day}`
+        : `${day} ${month} ${year}`;
     } catch {
       return dateString;
     }

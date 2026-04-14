@@ -57,19 +57,25 @@ import {
 } from '../../../utils/cameraPermission';
 import { callLogoutWithDeviceToken } from '../../../utils/notificationService';
 import { encodeGiftLinkParams } from '../../../utils/giftLinkCodec';
+import { ltrIsolate } from '../../../utils/rtl';
 
 const ProfileScreen: React.FC = () => {
   const { styles: screenStyles, theme } = useStyles();
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { user, token } = useAuthStore();
-  const { getString } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const isMerchant = user?.isMerchant === 1;
   const dummyImage = require('../../../assets/images/user.png');
   const [isUploading, setIsUploading] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
   const [showPhotoOptions, setShowPhotoOptions] = useState(false);
   const [showLogoutConfirmation, setShowLogoutConfirmation] = useState(false);
+
+  const profileHandleText = `@${user?.UserName}`;
+  const profileHandleDisplay = isRtl
+    ? ltrIsolate(profileHandleText)
+    : profileHandleText;
 
   const handleLogout = async () => {
     await callLogoutWithDeviceToken();
@@ -358,7 +364,7 @@ const ProfileScreen: React.FC = () => {
         'logout',
       ];
   return (
-    <ParentView style={screenStyles.container}>
+    <ParentView style={screenStyles.container} shadowPreset="towardsBottom">
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -414,7 +420,7 @@ const ProfileScreen: React.FC = () => {
               {user?.IsVerified && <SvgVerifiedIcon />}
             </View>
             <Text style={screenStyles.profileUsername}>
-              {`@${user?.UserName}`}
+              {profileHandleDisplay}
             </Text>
           </View>
           {!isMerchant && (
@@ -498,7 +504,7 @@ const ProfileScreen: React.FC = () => {
                       {user?.FullNameEn}
                     </Text>
                     <Text style={screenStyles.modalProfileUsername}>
-                      @{user?.UserName}
+                      {profileHandleDisplay}
                     </Text>
                   </View>
                 </View>

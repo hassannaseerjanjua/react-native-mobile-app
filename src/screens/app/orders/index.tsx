@@ -126,6 +126,7 @@ const OrdersScreen: React.FC = () => {
 
   return (
     <ParentView
+      shadowPreset="towardsBottom"
       emptyStateText={
         ordersListing.data.length === 0 && !ordersListing.loading
           ? getString('O_NO_ORDER_FOUND')

@@ -321,7 +321,7 @@ const useStyles = () => {
       cancelText: {
         fontFamily: fonts.medium,
         fontSize: sizes.FONTSIZE,
-        color: colors.PRIMARY,
+        color: colors.BLACK,
       },
       title: {
         fontFamily: fonts.semibold,

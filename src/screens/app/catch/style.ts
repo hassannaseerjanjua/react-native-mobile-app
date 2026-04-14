@@ -121,7 +121,7 @@ const useStyles = () => {
         position: 'absolute',
         top: sizes.PADDING,
         right: sizes.PADDING,
-        zIndex: 10,
+        zIndex: 3,
       },
       contentWrapper: {
         alignItems: 'center',
@@ -136,7 +136,7 @@ const useStyles = () => {
         left: 0,
         right: 0,
         alignItems: 'center',
-        zIndex: 199999,
+        zIndex: 1,
       },
       modalClaimedIcon: {
         width: scaleWithMax(130, 140),

@@ -57,5 +57,8 @@ export const getGlobalStyles = (
     BUTTON_TAB_TFIELD_HEIGHT: {
       height: scaleWithMax(48, 52),
     },
+    SCROLL_SPACER: {
+      paddingBottom: sizes.HEIGHT * 0.014,
+    },
   });
 };

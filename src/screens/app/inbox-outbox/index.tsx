@@ -125,6 +125,7 @@ const InboxOutbox: React.FC = () => {
       emptyStateText={
         orders.length === 0 && !isLoading ? getString('O_NO_ORDER_FOUND') : ''
       }
+      shadowPreset={isInbox ? 'towardsLeft' : 'towardsRight'}
     >
       <View
         style={{
@@ -635,6 +636,9 @@ const InboxItem: React.FC<InboxItemProps> = ({
                   <SvgGiftClaimIcon
                     height={theme.sizes.FONTSIZE}
                     width={theme.sizes.FONTSIZE}
+                    style={{
+                      marginBottom: 2.5,
+                    }}
                   />
                 </View>
                 <Text style={styles.storeNameText}>{storeName}</Text>
@@ -771,44 +775,65 @@ const InboxItem: React.FC<InboxItemProps> = ({
                         activeOpacity={isInbox ? 0.8 : 1}
                         style={styles.imageContainer}
                       >
-                      {item.Status === 10 && (
-                        <ShadowView preset="low">
-                          <View style={styles.redeemedBox}>
-                            <Text
-                              style={{
-                                ...theme.globalStyles.TEXT_STYLE,
-                                color: theme.colors.WHITE,
-                                fontSize: theme.sizes.FONTSIZE_MEDIUM,
-                              }}
-                            >
-                              {getString('INBOX_REDEEMED')}
-                            </Text>
+                        <ShadowView
+                          preset="default"
+                          stretch={false}
+                          style={{
+                            borderRadius: 12,
+                            backgroundColor: theme.colors.WHITE,
+                            width: inboxItemCardWidth,
+                          }}
+                          containerStyle={{ alignSelf: 'flex-start' }}
+                        >
+                          <View
+                            style={{
+                              borderRadius: 12,
+                              overflow: 'hidden',
+                              width: inboxItemCardWidth,
+                              backgroundColor: theme.colors.WHITE,
+                            }}
+                          >
+                            {item.Status === 10 && (
+                              <ShadowView preset="low">
+                                <View style={styles.redeemedBox}>
+                                  <Text
+                                    style={{
+                                      ...theme.globalStyles.TEXT_STYLE,
+                                      color: theme.colors.WHITE,
+                                      fontSize: theme.sizes.FONTSIZE_MEDIUM,
+                                    }}
+                                  >
+                                    {getString('INBOX_REDEEMED')}
+                                  </Text>
+                                </View>
+                              </ShadowView>
+                            )}
+                            <Image
+                              source={itemImage}
+                              style={styles.inboxImage}
+                            />
+                            <View style={styles.inboxImageBottom}>
+                              <Text
+                                style={styles.itemNameText}
+                                numberOfLines={1}
+                                ellipsizeMode="tail"
+                              >
+                                {item.ItemName}
+                              </Text>
+
+                              {item.Quantity - item.UsedQuantity > 0 && (
+                                <View style={styles.numCircle}>
+                                  <Text style={styles.numText}>
+                                    {formatGroupedInteger(
+                                      item.Quantity - item.UsedQuantity,
+                                    )}
+                                  </Text>
+                                </View>
+                              )}
+                            </View>
                           </View>
                         </ShadowView>
-                      )}
-                      <Image source={itemImage} style={styles.inboxImage} />
-                      <ShadowView preset="default">
-                        <View style={styles.inboxImageBottom}>
-                          <Text
-                            style={styles.itemNameText}
-                            numberOfLines={1}
-                            ellipsizeMode="tail"
-                          >
-                            {item.ItemName}
-                          </Text>
-
-                          {item.Quantity - item.UsedQuantity > 0 && (
-                            <View style={styles.numCircle}>
-                              <Text style={styles.numText}>
-                                {formatGroupedInteger(
-                                  item.Quantity - item.UsedQuantity,
-                                )}
-                              </Text>
-                            </View>
-                          )}
-                        </View>
-                      </ShadowView>
-                    </TouchableOpacity>
+                      </TouchableOpacity>
                     </View>
                   );
                 })}

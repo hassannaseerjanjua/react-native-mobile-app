@@ -70,7 +70,7 @@ const ScanQr: React.FC<AppStackScreen<'ScanQr'>> = ({ route }) => {
   };
 
   return (
-    <ParentView>
+    <ParentView shadowPreset="towardsBottom">
       <HomeHeader
         showLogo={true}
         showBackButton={false}

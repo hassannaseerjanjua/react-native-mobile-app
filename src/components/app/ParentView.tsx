@@ -4,6 +4,7 @@ import { Edge, SafeAreaView } from 'react-native-safe-area-context';
 import useTheme from '../../styles/theme';
 import PlaceholderLogoText from '../global/PlaceholderLogoText';
 import { useStableSafeAreaInsets } from '../../hooks/useStableSafeAreaInsets';
+import ShadowLayout, { type ShadowLayoutPreset } from './ShadowLayout';
 
 interface ParentViewProps {
   children: React.ReactNode | React.ReactNode[];
@@ -13,6 +14,8 @@ interface ParentViewProps {
   stableLayout?: boolean;
   /** When provided, shows a centered empty state with logo above the content */
   emptyStateText?: string;
+  /** Optional soft gradient overlay background */
+  shadowPreset?: ShadowLayoutPreset;
 }
 
 const ParentView = ({
@@ -21,12 +24,13 @@ const ParentView = ({
   edges = ['top', 'left', 'right'],
   stableLayout = true,
   emptyStateText,
+  shadowPreset,
 }: ParentViewProps) => {
   const theme = useTheme();
   const insets = useStableSafeAreaInsets();
 
   const containerStyle: ViewStyle[] = [
-    { flex: 1, backgroundColor: theme.colors.BACKGROUND },
+    { flex: 1, backgroundColor: theme.colors.BACKGROUND, position: 'relative' },
     ...(style ? [style] : []),
   ];
   if (stableLayout) {
@@ -39,11 +43,28 @@ const ParentView = ({
 
   const content = (
     <>
+      {shadowPreset ? (
+        <ShadowLayout
+          preset={shadowPreset}
+          overlayOnly
+          // Draw into the top inset so the blob is visible below/behind the status bar like tab screens.
+          overlayStyle={{
+            position: 'absolute',
+            top: stableLayout ? -insets.top : 0,
+            zIndex: 0,
+          }}
+        />
+      ) : null}
       <StatusBar
-        backgroundColor={theme.colors.BACKGROUND}
+        translucent={Boolean(shadowPreset)}
+        backgroundColor={shadowPreset ? 'transparent' : theme.colors.BACKGROUND}
         barStyle="dark-content"
       />
-      {children}
+      {shadowPreset ? (
+        <View style={{ flex: 1, zIndex: 1 }}>{children}</View>
+      ) : (
+        children
+      )}
       {emptyStateText != null && emptyStateText !== '' && (
         <View
           style={{
@@ -55,6 +76,7 @@ const ParentView = ({
             justifyContent: 'center',
             alignItems: 'center',
             pointerEvents: 'none',
+            zIndex: 2,
           }}
         >
           <PlaceholderLogoText text={emptyStateText} />

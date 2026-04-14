@@ -24,6 +24,7 @@ const FAQScreen: React.FC = () => {
   return (
     <ParentView
       style={styles.container}
+      shadowPreset="towardsBottom"
       emptyStateText={
         GetFaqs.data && GetFaqs.data.length > 0
           ? ''

@@ -45,6 +45,8 @@ import { scaleWithMax } from '../../../utils';
 import ConfirmationPopup from '../../../components/global/ConfirmationPopup';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 import ShadowView from '../../../components/global/ShadowView';
+import ShadowLayout from '../../../components/app/ShadowLayout';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const COLLAPSED_HEIGHT = scaleWithMax(52, 56);
 const ANIM_DURATION = 220;
@@ -78,6 +80,7 @@ const OccasionsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
   const { getString } = useLocaleStore();
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
   const navigation = useNavigation();
   const [occasionToDelete, setOccasionToDelete] = useState<Occasion | null>(
     null,
@@ -169,9 +172,15 @@ const OccasionsScreen: React.FC = () => {
   );
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <ShadowLayout
+        preset="towardsBottom"
+        overlayOnly
+        overlayStyle={{ position: 'absolute', top: 0, zIndex: 0 }}
+      />
       <StatusBar
-        backgroundColor={theme.colors.BACKGROUND}
+        translucent
+        backgroundColor="transparent"
         barStyle="dark-content"
       />
       <HomeHeader
@@ -587,6 +596,7 @@ const OccasionsScreen: React.FC = () => {
                             placeholder: getString('OCC_EVENT_NAME'),
                             value: formik.values.occasionName,
                             editable: !readonlyIcon,
+                            maxLength: 50,
                             onChangeText: (text: string) => {
                               formik.setFieldValue('occasionName', text, false);
                               formik.setFieldTouched(

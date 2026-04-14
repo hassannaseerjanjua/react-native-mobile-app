@@ -11,6 +11,7 @@ import {
   Animated,
   InputAccessoryView,
   StyleSheet,
+  Image as RNImage,
 } from 'react-native';
 import React, {
   useState,
@@ -65,6 +66,13 @@ import {
 import ConfirmationModal from '../../../components/global/ConfirmationModal';
 import { useVisionCamera } from '../../../hooks/useCamera';
 import { Camera } from 'react-native-vision-camera';
+import type { CameraProps } from 'react-native-vision-camera';
+import {
+  createAnimatedComponent,
+  useAnimatedProps,
+  useSharedValue,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
 import Svg, { Circle, Path } from 'react-native-svg';
 import {
@@ -75,6 +83,7 @@ import ViewTrimmer from '../../../components/app/ViewTrimmer';
 import { useAuthStore } from '../../../store/reducer/auth';
 import ConfettiFilterSvg from '../../../assets/images/confetti-filter.svg';
 
+const ReanimatedCamera = createAnimatedComponent(Camera);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const MAX_VIDEO_DURATION = 15;
@@ -201,6 +210,44 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   const inputAccessoryViewID = 'giftMessageDoneButton';
   const [isFlashOn, setIsFlashOn] = useState(false);
 
+  const cameraZoom = useSharedValue(1);
+  const cameraZoomOffset = useSharedValue(1);
+  const cameraMinZoom = useSharedValue(1);
+  const cameraMaxZoom = useSharedValue(16);
+
+  useEffect(() => {
+    if (!device) return;
+    const maxZ = Math.min(device.maxZoom, 16);
+    cameraMinZoom.value = device.minZoom;
+    cameraMaxZoom.value = maxZ;
+    const neutral = device.neutralZoom;
+    cameraZoom.value = neutral;
+    cameraZoomOffset.value = neutral;
+  }, [device?.id, device?.minZoom, device?.maxZoom, device?.neutralZoom]);
+
+  const cameraPinchGesture = useMemo(
+    () =>
+      Gesture.Pinch()
+        .onBegin(() => {
+          'worklet';
+          cameraZoomOffset.value = cameraZoom.value;
+        })
+        .onUpdate(e => {
+          'worklet';
+          const next = cameraZoomOffset.value * e.scale;
+          cameraZoom.value = Math.min(
+            cameraMaxZoom.value,
+            Math.max(cameraMinZoom.value, next),
+          );
+        }),
+    // Shared values are stable; gesture must stay a single instance for continuity.
+    [],
+  );
+
+  const cameraAnimatedProps = useAnimatedProps<CameraProps>(() => ({
+    zoom: cameraZoom.value,
+  }));
+
   // Reset flash when switching cameras
   useEffect(() => {
     if (cameraPosition === 'front') {
@@ -233,8 +280,8 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
               rawFilterId === null || rawFilterId === undefined
                 ? null
                 : rawFilterId === CONFETTI_FILTER_ID && !hasText && !hasVideo
-                  ? null
-                  : rawFilterId;
+                ? null
+                : rawFilterId;
             setSendMessagePayload({
               ImageFilterId: normalizedFilterId,
               Message: savedData.Message || '',
@@ -286,8 +333,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   const hasFilterSelected =
     typeof sendMessagePayload.ImageFilterId === 'number';
   const giftMessageMeetsFilterTextRules =
-    message.trim().length >= GIFT_MESSAGE_TEXT_MIN_LEN &&
-    message.length <= GIFT_MESSAGE_TEXT_MAX_LEN;
+    message.trim().length >= GIFT_MESSAGE_TEXT_MIN_LEN;
   const filterRequiresTextBlocked =
     hasFilterSelected && !giftMessageMeetsFilterTextRules;
   const showFilterTextValidationError =
@@ -296,21 +342,15 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     if (!showFilterTextValidationError) {
       return '';
     }
-    if (message.length > GIFT_MESSAGE_TEXT_MAX_LEN) {
-      return getString('GIFT_MESSAGE_FILTER_TEXT_TOO_LONG').replace(
-        '{max}',
-        String(GIFT_MESSAGE_TEXT_MAX_LEN),
-      );
+    const trimmed = message.trim();
+    if (trimmed.length === 0) {
+      return getString('GIFT_MESSAGE_FILTER_TEXT_REQUIRED');
     }
-    return getString('GIFT_MESSAGE_FILTER_TEXT_TOO_SHORT').replace(
-      '{min}',
-      String(GIFT_MESSAGE_TEXT_MIN_LEN),
-    );
-  }, [
-    showFilterTextValidationError,
-    message,
-    getString,
-  ]);
+    if (trimmed.length < GIFT_MESSAGE_TEXT_MIN_LEN) {
+      return getString('GIFT_MESSAGE_FILTER_TEXT_TOO_SHORT');
+    }
+    return '';
+  }, [showFilterTextValidationError, message, getString]);
   const isFooterPrimaryDisabled = isCompressing;
   const hasGiftMessageToSubmit =
     message.trim().length > 0 ||
@@ -349,10 +389,6 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     if (hasFilterSelected) {
       const trimmed = message.trim();
       if (trimmed.length < GIFT_MESSAGE_TEXT_MIN_LEN) {
-        setFilterTextSubmitAttempted(true);
-        return;
-      }
-      if (message.length > GIFT_MESSAGE_TEXT_MAX_LEN) {
         setFilterTextSubmitAttempted(true);
         return;
       }
@@ -639,9 +675,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     typeof sendMessagePayload.ImageFilterId !== 'number' ||
     sendMessagePayload.ImageFilterId === CONFETTI_FILTER_ID
       ? null
-      : filters.find(
-          f => f.FilterId === sendMessagePayload.ImageFilterId,
-        );
+      : filters.find(f => f.FilterId === sendMessagePayload.ImageFilterId);
 
   const giftMessageTextVerticalInset = useMemo(() => {
     const h = giftMessageInputAreaHeight;
@@ -657,9 +691,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     const approxCharW = fontSize * 0.55;
     const innerWidth = Math.max(
       0,
-      theme.sizes.WIDTH -
-        theme.sizes.PADDING * 2 -
-        scaleWithMax(30, 36) * 2,
+      theme.sizes.WIDTH - theme.sizes.PADDING * 2 - scaleWithMax(30, 36) * 2,
     );
     const charsPerLine = Math.max(12, Math.floor(innerWidth / approxCharW));
     const lineCount = message
@@ -810,24 +842,29 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         <View style={{ flex: 1, backgroundColor: '#000' }}>
           {isCameraActive ? (
             <>
-              <Camera
-                ref={cameraRef}
-                style={{ flex: 1 }}
-                isActive={isCameraActive}
-                device={device}
-                video={true}
-                audio={true}
-                torch={isFlashOn ? 'on' : 'off'}
-                onInitialized={() => {
-                  console.log('✅ Camera initialized and ready');
-                  // Don't auto-start recording - wait for button press
-                }}
-                onError={error => {
-                  console.error('❌ Camera error:', error);
-                  Alert.alert('Camera Error', error.message);
-                  setShowCamera(false);
-                }}
-              />
+              <GestureDetector gesture={cameraPinchGesture}>
+                <View style={{ flex: 1 }}>
+                  <ReanimatedCamera
+                    ref={cameraRef}
+                    style={{ flex: 1 }}
+                    isActive={isCameraActive}
+                    device={device}
+                    video={true}
+                    audio={true}
+                    animatedProps={cameraAnimatedProps}
+                    torch={isFlashOn ? 'on' : 'off'}
+                    onInitialized={() => {
+                      console.log('✅ Camera initialized and ready');
+                      // Don't auto-start recording - wait for button press
+                    }}
+                    onError={error => {
+                      console.error('❌ Camera error:', error);
+                      Alert.alert('Camera Error', error.message);
+                      setShowCamera(false);
+                    }}
+                  />
+                </View>
+              </GestureDetector>
               {/* Close Button - Top Left - Hide when recording */}
               {!isRecording && (
                 <TouchableOpacity
@@ -1257,7 +1294,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           bottom: 0,
                         }}
                       >
-                        <Image
+                        <RNImage
                           source={{ uri: selectedFilter.ImageUrl }}
                           style={styles.filterBackground}
                           resizeMode="cover"
@@ -1302,14 +1339,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                     </View>
                   </View>
                   {showFilterTextValidationError && (
-                    <View
-                      style={[
-                        styles.giftFilterErrorRow,
-                        isRtl
-                          ? styles.giftFilterErrorRowRtl
-                          : styles.giftFilterErrorRowLtr,
-                      ]}
-                    >
+                    <View style={[styles.giftFilterErrorRow]}>
                       <Text style={styles.giftFilterErrorText}>
                         {filterInlineValidationMessage}
                       </Text>

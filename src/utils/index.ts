@@ -40,6 +40,7 @@ export const dynamicArrayItem = (item: any, condition: boolean) => {
 export * from './rtl';
 export * from './normalizeDigits';
 export * from './formatNumber';
+export * from './emoji';
 
 export const fileUriWrapper = (uri: string) => {
   if (isIOS) {

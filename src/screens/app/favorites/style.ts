@@ -10,6 +10,7 @@ const useStyles = () => {
         ...theme.globalStyles.CONTAINER_STYLE,
         paddingHorizontal: 0,
         flex: 1,
+        position: 'relative',
       },
       content: {
         flex: 1,

@@ -42,6 +42,8 @@ import {
   rtlTextAlign,
   compressImage,
   fileUriWrapper,
+  stripEmojis,
+  containsEmoji,
 } from '../../utils';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
@@ -150,7 +152,9 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     (prefillGroupName = false) => {
       setModalStep(1);
       setSearchQuery('');
-      setGroupName(prefillGroupName ? existingGroupName : '');
+      setGroupName(
+        stripEmojis(prefillGroupName ? existingGroupName : ''),
+      );
       setGroupImage(
         prefillGroupName && existingGroupImage
           ? {
@@ -253,14 +257,19 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         notify.error(getString('SEND_GIFT_SELECT_AT_LEAST_ONE_USER'), 'bottom');
         return;
       }
-      if (!groupName.trim()) {
+      const trimmedName = groupName.trim();
+      if (!trimmedName) {
         setGroupError(getString('VE_PLEASE_ENTER_GROUP_NAME'));
+        return;
+      }
+      if (containsEmoji(trimmedName)) {
+        setGroupError(getString('VE_GROUP_NAME_NO_EMOJI'));
         return;
       }
 
       setIsSaving(true);
       const formData = new FormData();
-      formData.append('Name', groupName);
+      formData.append('Name', trimmedName);
 
       if (groupImage) {
         formData.append('File', {
@@ -287,7 +296,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           return;
         }
 
-        onSave(selectedUsersData, groupName, groupImage);
+        onSave(selectedUsersData, trimmedName, groupImage);
         closeModal();
       } catch (error: any) {
         notify.error(error?.error || getString('AU_ERROR_OCCURRED'), 'bottom');
@@ -762,7 +771,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                         placeholderTextColor={theme.colors.SECONDARY_TEXT}
                         value={groupName}
                         onChangeText={text => {
-                          setGroupName(text);
+                          setGroupName(stripEmojis(text));
                           if (groupError) setGroupError('');
                         }}
                         maxLength={50}

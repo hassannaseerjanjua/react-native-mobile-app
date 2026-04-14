@@ -214,7 +214,8 @@ const useStyles = () => {
         color: colors.PRIMARY_TEXT,
         marginStart: 8,
         writingDirection: 'ltr',
-        ...(Platform.OS === 'ios' ? { marginTop: -2.5 } : {}),
+
+        // ...(Platform.OS === 'ios' ? { marginTop: -2.5 } : {}),
       },
       galleryUploadContainer: {
         position: 'absolute',

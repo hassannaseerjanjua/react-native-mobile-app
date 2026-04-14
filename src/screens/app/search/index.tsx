@@ -515,7 +515,13 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
   };
 
   return (
-    <ParentView style={styles.container} emptyStateText={emptyStateText}>
+    <ParentView
+      style={styles.container}
+      emptyStateText={emptyStateText}
+      shadowPreset={
+        showFriendsOnly || showConnectOnly ? 'towardsBottom' : 'towardsRight'
+      }
+    >
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -537,6 +543,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
               onPress={() =>
                 navigation.navigate('Search', {
                   showConnectOnly: true,
+                  title: getString('C_CONNECT'),
                 })
               }
               style={{

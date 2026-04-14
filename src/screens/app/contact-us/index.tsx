@@ -83,7 +83,7 @@ const ContactUsScreen: React.FC = () => {
   };
 
   return (
-    <ParentView style={styles.container}>
+    <ParentView style={styles.container} shadowPreset="towardsBottom">
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"

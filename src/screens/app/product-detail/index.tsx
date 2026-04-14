@@ -5,8 +5,6 @@ import {
   MinusIcon,
   PlusIcon,
   SvgHomeBack,
-  SvgItemFavouriteIcon,
-  SvgItemFavouriteIconInActive,
   SvgRiyalIcon,
   SvgRiyalPink,
 } from '../../../assets/icons';
@@ -441,25 +439,6 @@ const ProductDetails: React.FC<AppStackScreen<'ProductDetails'>> = ({
               <SvgHomeBack style={{ transform: rtlTransform(isRtl) }} />
             </TouchableOpacity>
           </ShadowView>
-          {!isMerchant && !isFavoritesMode && (
-            <TouchableOpacity
-              style={styles.rounded_white_background}
-              onPress={() => handleFavorite()}
-              disabled={favoriteSubmitting}
-            >
-              {item?.isFavourite ? (
-                <SvgItemFavouriteIcon
-                  width={scaleWithMax(14, 16)}
-                  height={scaleWithMax(14, 16)}
-                />
-              ) : (
-                <SvgItemFavouriteIconInActive
-                  width={scaleWithMax(14, 16)}
-                  height={scaleWithMax(14, 16)}
-                />
-              )}
-            </TouchableOpacity>
-          )}
         </View>
 
         {loading ? (

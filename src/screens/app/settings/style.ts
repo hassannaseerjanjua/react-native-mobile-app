@@ -71,7 +71,7 @@ const useStyles = () => {
         color: colors.BLACK,
       },
       genderContainer: {
-        backgroundColor: colors.WHITE,
+        backgroundColor: colors.LIGHT_GRAY,
         borderRadius: sizes.BORDER_RADIUS,
         paddingHorizontal: sizes.PADDING * 0.8,
         paddingVertical: sizes.PADDING * 0.8,

@@ -10,6 +10,7 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         paddingHorizontal: 0,
+        position: 'relative',
       },
       content: {
         paddingHorizontal: sizes.PADDING,

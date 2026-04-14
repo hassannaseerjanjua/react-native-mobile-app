@@ -1,4 +1,4 @@
-import { Alert, Linking, Platform } from 'react-native';
+import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
 import { Camera } from 'react-native-vision-camera';
 import type { GetStringFunctionType } from '../store/reducer/locale';
 
@@ -80,18 +80,39 @@ export async function requestCameraPermissionForPhoto(
 
 /**
  * Request gallery/photo library permission for selecting images.
- * iOS only: No pre-check - the picker will request permission when it opens.
- * If permission was denied, the picker will fail and we handle it via
- * onPermissionDenied callback in selectAndCropImage.
- * Android: No-op - gallery was already working, no permission check needed.
+ * Android: Requests READ_MEDIA_IMAGES (API 33+) or READ_EXTERNAL_STORAGE.
+ * iOS: System prompt is shown when the picker opens; if access was denied earlier,
+ * handle failure via onPermissionDenied on selectAndCropImage.
  */
 export async function requestGalleryPermission(
   getString: GetStringFn,
 ): Promise<boolean> {
   if (Platform.OS === 'android') {
-    return true; // Android was fine, skip permission check
+    const sdk =
+      typeof Platform.Version === 'number' ? Platform.Version : 0;
+    const permission =
+      sdk >= 33
+        ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
+        : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
+
+    try {
+      const alreadyGranted = await PermissionsAndroid.check(permission);
+      if (alreadyGranted) {
+        return true;
+      }
+
+      const result = await PermissionsAndroid.request(permission);
+      if (result === PermissionsAndroid.RESULTS.GRANTED) {
+        return true;
+      }
+
+      showGalleryPermissionDeniedAlert(getString);
+      return false;
+    } catch {
+      showGalleryPermissionDeniedAlert(getString);
+      return false;
+    }
   }
 
-  // iOS: No pre-check - the picker will request permission when it opens.
   return true;
 }

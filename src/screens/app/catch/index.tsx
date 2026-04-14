@@ -10,9 +10,12 @@ import {
   FlatList,
   View,
   TouchableOpacity,
+  Pressable,
   ActivityIndicator,
   Modal,
   StyleSheet,
+  RefreshControl,
+  Platform,
 } from 'react-native';
 import { Image } from '../../../utils/elements';
 import ParentView from '../../../components/app/ParentView';
@@ -83,6 +86,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     {},
   );
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({});
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const friendUserId = route.params?.friendUserId ?? null;
 
   // Common transform function for listing APIs
@@ -292,13 +296,38 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
     transformedCatchItems,
     getStoreProducts.data,
   ]);
-  console.log('filteredItems ==>', filteredListingApi.search);
   const listingApi = useMemo(() => {
     if (screenType === 'favorite') return getFavoriteItems;
     if (screenType === 'GiftOneGetOne') return getStoreProducts;
     if (screenType === 'catch') return getCatchItems;
     return null;
   }, [screenType, getFavoriteItems, getStoreProducts, getCatchItems]);
+
+  useEffect(() => {
+    if (!isRefreshing) return;
+    const listingDone = !listingApi || !listingApi.loading;
+    if (listingDone && !categoriesApi.loading) {
+      setIsRefreshing(false);
+    }
+  }, [isRefreshing, listingApi, listingApi?.loading, categoriesApi.loading]);
+
+  const handleRefresh = useCallback(() => {
+    setIsRefreshing(true);
+    categoriesApi.refetch?.();
+    if (screenType === 'favorite') {
+      getFavoriteItems.recall(false, undefined, true);
+    } else if (screenType === 'GiftOneGetOne') {
+      getStoreProducts.recall(false, undefined, true);
+    } else if (screenType === 'catch') {
+      getCatchItems.recall(false, undefined, true);
+    }
+  }, [
+    screenType,
+    categoriesApi,
+    getFavoriteItems,
+    getStoreProducts,
+    getCatchItems,
+  ]);
 
   const showEmptyState = useMemo(() => {
     if (!listingApi) return false;
@@ -577,6 +606,9 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
 
   return (
     <ParentView
+      shadowPreset={
+        screenType === 'GiftOneGetOne' ? 'towardsRight' : 'towardsLeft'
+      }
       emptyStateText={
         showEmptyState ? getString('EMPTY_NO_PRODUCTS_FOUND') : undefined
       }
@@ -590,7 +622,12 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
         showBackButton
         onBackPress={() => navigation.goBack()}
         showSearchBar={
-          filteredItems.length > 0 &&
+          !!listingApi &&
+          listingApi.isInitialLoad &&
+          (filteredItems.length > 0 ||
+            listingApi.loading ||
+            isRefreshing ||
+            (listingApi.search ?? '').trim().length > 0) &&
           !(categoriesApi.loading && filteredListingApi.loading)
         }
         loading={categoriesApi.loading && filteredListingApi.loading}
@@ -638,7 +675,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
 
       <View style={styles.listWrapper}>
         <View>
-          {categoriesApi.loading ? (
+          {categoriesApi.loading && !isRefreshing ? (
             <View
               style={{
                 paddingHorizontal: theme.sizes.PADDING,
@@ -661,7 +698,7 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           )}
         </View>
 
-        {listingApi?.loading ? (
+        {listingApi?.loading && !isRefreshing ? (
           <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
             <SkeletonLoader screenType="productListing" />
           </View>
@@ -687,6 +724,19 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
               },
             ]}
             showsVerticalScrollIndicator={false}
+            refreshControl={
+              listingApi ? (
+                <RefreshControl
+                  refreshing={isRefreshing}
+                  onRefresh={handleRefresh}
+                  progressViewOffset={
+                    Platform.OS === 'android' ? 48 : undefined
+                  }
+                  tintColor={theme.colors.PRIMARY}
+                  colors={[theme.colors.PRIMARY]}
+                />
+              ) : undefined
+            }
             onEndReached={
               listingApi && listingApi.hasMore ? listingApi.loadMore : undefined
             }
@@ -784,8 +834,15 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
           <BlurView
             style={StyleSheet.absoluteFill}
             blurType="light"
-            blurAmount={5}
-            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.9)"
+            blurAmount={3}
+            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.32)"
+          />
+          <View
+            pointerEvents="none"
+            style={[
+              StyleSheet.absoluteFill,
+              { backgroundColor: 'rgba(0, 0, 0, 0.22)' },
+            ]}
           />
           <TouchableOpacity
             style={StyleSheet.absoluteFill}
@@ -802,17 +859,6 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
             ]}
           >
             <View style={styles.innerContent}>
-              <TouchableOpacity
-                onPress={() => setShowErrorModal(false)}
-                style={styles.closeButton}
-              >
-                <SvgProfileCrossIcon
-                  width={scaleWithMax(12, 14)}
-                  height={scaleWithMax(12, 14)}
-                  stroke={theme.colors.BLACK}
-                />
-              </TouchableOpacity>
-
               <View style={styles.contentWrapper}>
                 <View style={styles.modalClaimedIconWrap} pointerEvents="none">
                   <Image
@@ -843,6 +889,19 @@ const CatchScreen: React.FC<AppStackScreen<'CatchScreen'>> = ({
                   }}
                 />
               </View>
+
+              <Pressable
+                onPress={() => setShowErrorModal(false)}
+                style={styles.closeButton}
+                hitSlop={15}
+                android_disableSound
+              >
+                <SvgProfileCrossIcon
+                  width={scaleWithMax(12, 14)}
+                  height={scaleWithMax(12, 14)}
+                  stroke={theme.colors.DARK_GRAY}
+                />
+              </Pressable>
             </View>
           </View>
         </View>

@@ -26,11 +26,11 @@ import apiEndpoints from '../../../constants/api-endpoints.ts';
 import { FavStores, BusinessType, City } from '../../../types/index.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import api from '../../../utils/api.ts';
-import { invalidateCachePrefix } from '../../../utils/api-cache';
 import notify from '../../../utils/notify';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 import CustomButton from '../../../components/global/Custombutton';
 import CityPickerModal from '../../../components/global/CityPickerModal.tsx';
+import ShadowLayout from '../../../components/app/ShadowLayout';
 import {
   SvgAddOccasion,
   ArrowDownIcon,
@@ -38,6 +38,7 @@ import {
 } from '../../../assets/icons';
 import { scaleWithMax } from '../../../utils';
 import { useAuthStore } from '../../../store/reducer/auth';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   route,
@@ -46,6 +47,7 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   const { styles, theme } = useStyles();
   const { getString, langCode } = useLocaleStore();
   const { user } = useAuthStore();
+  const insets = useSafeAreaInsets();
   const routeParams = route.params as
     | { cityId?: number; redirectionType?: string }
     | undefined;
@@ -54,6 +56,15 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
   );
   const [showCityPicker, setShowCityPicker] = useState(false);
   const businessTypeIdsFingerprintRef = useRef<string | null>(null);
+
+  const Background = (
+    <ShadowLayout
+      preset="towardsRight"
+      overlayOnly
+      // Shift up so it can cover the status bar area too.
+      overlayStyle={{ position: 'absolute', top: 0, zIndex: 0 }}
+    />
+  );
 
   const businessTypeUrl = useMemo(
     () =>
@@ -209,8 +220,8 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    invalidateCachePrefix(`listing:${apiEndpoints.GET_FAV_STORE}`);
-    FavStoreListing.recall();
+    // Keep listing cache + stale rows until the network returns (avoids empty-state flash).
+    FavStoreListing.recall(false, undefined, true);
     businessTypeApi.refetch?.();
     citiesApi.refetch?.();
   };
@@ -280,9 +291,11 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
     }
   };
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      {Background}
       <StatusBar
-        backgroundColor={theme.colors.BACKGROUND}
+        translucent
+        backgroundColor="transparent"
         barStyle="dark-content"
       />
       <HomeHeader
@@ -300,7 +313,11 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
         //   FavStoreListing.data.length > 0 && !FavStoreListing.loading
         // }
         showSearchBar={
-          FavStoreListing.data.length > 0 && !FavStoreListing.loading
+          FavStoreListing.isInitialLoad &&
+          (FavStoreListing.data.length > 0 ||
+            FavStoreListing.loading ||
+            isRefreshing ||
+            (FavStoreListing.search ?? '').trim().length > 0)
         }
         searchValue={FavStoreListing.search}
         onSearchChange={FavStoreListing.setSearch}
@@ -409,19 +426,21 @@ const FavoritesScreen: React.FC<AppStackScreen<'Favorites'>> = ({
                 <PlaceholderLogoText
                   text={getString('EMPTY_NO_FAVORITES_FOUND')}
                 />
-                <View
-                  style={{
-                    // marginTop: theme.sizes.HEIGHT * 0.02,
-                    width: '100%',
-                  }}
-                >
-                  <CustomButton
-                    title={getString('FAV_ADD_FAVORITES')}
-                    type="primary"
-                    icon={<SvgAddOccasion />}
-                    onPress={handleAddFavoritesPress}
-                  />
-                </View>
+                {FavStoreListing?.search === '' && (
+                  <View
+                    style={{
+                      // marginTop: theme.sizes.HEIGHT * 0.02,
+                      width: '100%',
+                    }}
+                  >
+                    <CustomButton
+                      title={getString('FAV_ADD_FAVORITES')}
+                      type="primary"
+                      icon={<SvgAddOccasion />}
+                      onPress={handleAddFavoritesPress}
+                    />
+                  </View>
+                )}
               </View>
             }
           />

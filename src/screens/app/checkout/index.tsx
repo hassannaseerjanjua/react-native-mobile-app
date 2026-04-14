@@ -1185,6 +1185,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   return (
     <ParentView
+      shadowPreset="towardsBottom"
       emptyStateText={
         !loading && cartData?.Items?.length === 0
           ? getString('CHECKOUT_YOUR_CART_IS_EMPTY')

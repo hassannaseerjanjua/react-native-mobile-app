@@ -189,7 +189,7 @@ const SettingsScreen: React.FC = () => {
       });
   };
   return (
-    <ParentView style={styles.container}>
+    <ParentView style={styles.container} shadowPreset="towardsBottom">
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -209,6 +209,8 @@ const SettingsScreen: React.FC = () => {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         {shimmerLoading ? (
           <SkeletonLoader screenType="settings" />
@@ -407,9 +409,9 @@ const SettingsScreen: React.FC = () => {
                       </TouchableOpacity>
                     </View>
 
-                    <ShadowView
-                      preset="input"
-                      containerStyle={{ alignSelf: 'stretch' }}
+                    <View
+                      // preset="input"
+                      // containerStyle={{ alignSelf: 'stretch' }}
                       style={styles.genderContainer}
                     >
                       <View style={styles.genderOptions}>
@@ -435,7 +437,7 @@ const SettingsScreen: React.FC = () => {
                           </TouchableOpacity>
                         ))}
                       </View>
-                    </ShadowView>
+                    </View>
 
                     <View style={styles.buttonContainer}>
                       <CustomButton

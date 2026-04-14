@@ -255,6 +255,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
   return (
     <ParentView
+      shadowPreset="towardsRight"
       emptyStateText={
         !storeListApi.loading && storeListApi.data.length === 0
           ? searchQuery
@@ -333,7 +334,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         />
 
         <View style={styles.content}>
-          <View>
+          <View style={styles.tabsWrapper}>
             {businessTypeApi.loading && !isRefreshing ? (
               <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
                 <SkeletonLoader screenType="groupTabs" />
@@ -363,14 +364,14 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             </View>
           ) : (
             <FlatList
-              style={{ flex: 1 }}
+              style={styles.storeList}
               removeClippedSubviews={false}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
                 paddingBottom: theme.sizes.HEIGHT * 0.1,
                 paddingHorizontal: theme.sizes.PADDING,
                 flexGrow: 1,
-                marginTop: theme.sizes.HEIGHT * 0.018,
+                // paddingTop: theme.sizes.HEIGHT * 0.01,
               }}
               refreshControl={
                 <RefreshControl

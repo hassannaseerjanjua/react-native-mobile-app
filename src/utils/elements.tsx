@@ -30,18 +30,19 @@ export const Text = (props: TextProps) => {
       }
     : null;
 
-  const shouldAdjustIosEnglish =
-    !isRtl && Platform.OS === 'ios' && flattenedStyle.lineHeight == null;
-  const iosEnglishAdjustments = shouldAdjustIosEnglish
-    ? { lineHeight: Math.round(fontSize * 1.22) }
-    : null;
+  const shouldAdjustEnglishDefault =
+    !isRtl && flattenedStyle.lineHeight == null;
+  const englishDefaultLineAdjustments =
+    shouldAdjustEnglishDefault &&
+    (Platform.OS === 'ios' || Platform.OS === 'android')
+      ? { lineHeight: Math.round(fontSize * 1.22) }
+      : null;
 
-  const androidAdjustments =
-    Platform.OS === 'android' && isRtl && flattenedStyle.lineHeight == null
-      ? {
-          // includeFontPadding: false,
-          // lineHeight: Math.round(fontSize * 1.2),
-        }
+  const androidArabicLineAdjustments =
+    isRtl &&
+    Platform.OS === 'android' &&
+    flattenedStyle.lineHeight == null
+      ? { lineHeight: Math.round(fontSize * 1.43) }
       : null;
 
   const textValue = React.Children.toArray(props.children)
@@ -129,10 +130,10 @@ export const Text = (props: TextProps) => {
       style={[
         { writingDirection: isRtl ? 'rtl' : 'ltr' },
         arabicAdjustments,
-        iosEnglishAdjustments,
+        englishDefaultLineAdjustments,
         props.style,
         scriptFontStyle,
-        androidAdjustments,
+        androidArabicLineAdjustments,
       ]}
     />
   );
