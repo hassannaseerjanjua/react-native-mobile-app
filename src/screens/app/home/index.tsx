@@ -118,11 +118,17 @@ const HomeScreen: React.FC = () => {
           useAngle={false}
         /> */}
         <View style={styles.confettiContainer} pointerEvents="none">
-          <SvgConfetti width="100%" height="100%" />
+          <View style={styles.confettiArt} pointerEvents="none">
+            <SvgConfetti width="100%" height="100%" />
+          </View>
           <LinearGradient
             pointerEvents="none"
-            colors={['rgba(255,255,255,0)', '#FFFFFF', '#FFFFFF']}
-            locations={[0, 0.65, 1]}
+            colors={[
+              'rgba(255,255,255,0)',
+              'rgba(255,255,255,0.32)',
+              'rgba(255,255,255,0.8)',
+            ]}
+            locations={[0, 0.68, 1]}
             style={styles.confettiFade}
             useAngle={false}
           />
@@ -192,6 +198,7 @@ const HomeScreenTabsContainer: React.FC = () => {
       iconStyles: {
         marginRight: theme.sizes.WIDTH * 0.048,
       },
+
       onPress: () =>
         isMerchant
           ? notify.error(getString('MERCHANT_NOT_ALLOWED'))
@@ -261,6 +268,9 @@ const HomeScreenTabsContainer: React.FC = () => {
           icon={homeScreenTabs[0].icon}
           title={homeScreenTabs[0].title}
           description={homeScreenTabs[0].description}
+          descriptionStyles={{
+            maxWidth: '40%',
+          }}
           onPress={homeScreenTabs[0].onPress}
           iconStyles={homeScreenTabs[0].iconStyles}
           style={{

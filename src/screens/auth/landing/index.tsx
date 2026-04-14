@@ -61,10 +61,6 @@ const Landing: React.FC<LandingProps> = ({ navigation }) => {
         onPress={() => {
           setShimmerLoading(true);
           shiftLanguage(langCode === 'en' ? 'ar' : 'en');
-
-          setTimeout(() => {
-            setShimmerLoading(false);
-          }, 1000);
         }}
       >
         {displayLangCode.current === 'en' ? (

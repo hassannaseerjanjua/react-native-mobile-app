@@ -10,6 +10,7 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         paddingHorizontal: 0,
+        position: 'relative',
       },
       content: {
         paddingHorizontal: sizes.PADDING,
@@ -30,7 +31,6 @@ const useStyles = () => {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
         fontSize: sizes.FONTSIZE_SMALL_HEADING,
         color: theme.colors.PRIMARY_TEXT,
-        backgroundColor: theme.colors.WHITE,
       },
       buttonContainer: {
         position: 'absolute',

@@ -42,12 +42,15 @@ import {
   rtlTextAlign,
   compressImage,
   fileUriWrapper,
+  stripEmojis,
+  containsEmoji,
 } from '../../utils';
 import { Text } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
 import notify from '../../utils/notify';
 import { useAuthStore } from '../../store/reducer/auth';
 import Toast from 'react-native-toast-message';
+import { toastConfig } from '../../utils/toastConfig';
 import CustomButton from './Custombutton';
 
 const dummyImage = require('../../assets/images/user.png');
@@ -149,7 +152,9 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     (prefillGroupName = false) => {
       setModalStep(1);
       setSearchQuery('');
-      setGroupName(prefillGroupName ? existingGroupName : '');
+      setGroupName(
+        stripEmojis(prefillGroupName ? existingGroupName : ''),
+      );
       setGroupImage(
         prefillGroupName && existingGroupImage
           ? {
@@ -252,14 +257,19 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         notify.error(getString('SEND_GIFT_SELECT_AT_LEAST_ONE_USER'), 'bottom');
         return;
       }
-      if (!groupName.trim()) {
+      const trimmedName = groupName.trim();
+      if (!trimmedName) {
         setGroupError(getString('VE_PLEASE_ENTER_GROUP_NAME'));
+        return;
+      }
+      if (containsEmoji(trimmedName)) {
+        setGroupError(getString('VE_GROUP_NAME_NO_EMOJI'));
         return;
       }
 
       setIsSaving(true);
       const formData = new FormData();
-      formData.append('Name', groupName);
+      formData.append('Name', trimmedName);
 
       if (groupImage) {
         formData.append('File', {
@@ -286,7 +296,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
           return;
         }
 
-        onSave(selectedUsersData, groupName, groupImage);
+        onSave(selectedUsersData, trimmedName, groupImage);
         closeModal();
       } catch (error: any) {
         notify.error(error?.error || getString('AU_ERROR_OCCURRED'), 'bottom');
@@ -325,8 +335,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     [styles.selectedUsersContainer, viewOnly],
   );
 
-  const SelectedUsersDisplay = () => {
-    if (selectedUsersData.length === 0) {
+  // Memoized JSX (not a nested component) so search keystrokes don't remount
+  // the selected-members strip. No placeholder height when empty (no blank band under the header).
+  const selectedUsersStrip = useMemo(() => {
+    if (viewOnly || selectedUsersData.length === 0) {
       return null;
     }
 
@@ -348,14 +360,12 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                     style={styles.selectedUserAvatar}
                   />
 
-                  {!viewOnly && (
-                    <TouchableOpacity
-                      style={styles.selectedUserCrossIcon}
-                      onPress={() => handleUserSelection(user.UserId)}
-                    >
-                      <SvgCrossIcon width={12} height={12} />
-                    </TouchableOpacity>
-                  )}
+                  <TouchableOpacity
+                    style={styles.selectedUserCrossIcon}
+                    onPress={() => handleUserSelection(user.UserId)}
+                  >
+                    <SvgCrossIcon width={12} height={12} />
+                  </TouchableOpacity>
                 </View>
                 <Text style={styles.selectedUserName} numberOfLines={1}>
                   {user.FullName.split(' ')[0]}
@@ -366,7 +376,13 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
         </View>
       </ShadowView>
     );
-  };
+  }, [
+    viewOnly,
+    selectedUsersData,
+    selectedUsersContainerStyle,
+    styles,
+    handleUserSelection,
+  ]);
 
   const filteredListings = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -420,8 +436,8 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
   const userListJsx = (
     <SectionList
       sections={sectionListSections}
-      keyExtractor={(item: any) =>
-        item._sectionKey || `section-${Math.random()}`
+      keyExtractor={(item: any, index: number) =>
+        String(item?._sectionKey ?? index)
       }
       renderSectionHeader={({ section: { title } }) =>
         title ? (
@@ -533,39 +549,43 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
     return chunks;
   }, [selectedUsersData]);
 
-  const SelectedMembersGrid = () => {
-    const renderMemberRow = (rowData: ActiveUser[], rowIndex: number) => (
-      <View key={rowIndex} style={styles.memberRow}>
-        {rowData.map(user => (
-          <View key={user.UserId} style={styles.memberGridItem}>
-            <View style={styles.memberGridImageContainer}>
-              <Image
-                source={user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage}
-                style={styles.memberGridAvatar}
-              />
-              {!viewOnly && (
-                <TouchableOpacity
-                  style={styles.memberGridCrossIcon}
-                  onPress={() => handleUserSelection(user.UserId)}
-                >
-                  <SvgCrossIcon width={12} height={12} />
-                </TouchableOpacity>
-              )}
-            </View>
-            <Text style={styles.memberGridName} numberOfLines={1}>
-              {user.FullName.split(' ')[0]}
-            </Text>
+  const selectedMembersGrid = useMemo(
+    () => (
+      <View style={styles.membersGridContainer}>
+        {memberRows.map(rowData => (
+          <View
+            key={rowData.map(u => u.UserId).join('-')}
+            style={styles.memberRow}
+          >
+            {rowData.map(user => (
+              <View key={user.UserId} style={styles.memberGridItem}>
+                <View style={styles.memberGridImageContainer}>
+                  <Image
+                    source={
+                      user.ProfileUrl ? { uri: user.ProfileUrl } : dummyImage
+                    }
+                    style={styles.memberGridAvatar}
+                  />
+                  {!viewOnly && (
+                    <TouchableOpacity
+                      style={styles.memberGridCrossIcon}
+                      onPress={() => handleUserSelection(user.UserId)}
+                    >
+                      <SvgCrossIcon width={12} height={12} />
+                    </TouchableOpacity>
+                  )}
+                </View>
+                <Text style={styles.memberGridName} numberOfLines={1}>
+                  {user.FullName.split(' ')[0]}
+                </Text>
+              </View>
+            ))}
           </View>
         ))}
       </View>
-    );
-
-    return (
-      <View style={styles.membersGridContainer}>
-        {memberRows.map((rowData, index) => renderMemberRow(rowData, index))}
-      </View>
-    );
-  };
+    ),
+    [memberRows, styles, viewOnly, handleUserSelection],
+  );
 
   useEffect(() => {
     if (visible) {
@@ -682,10 +702,10 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   rightSideTitlePress={viewOnly ? undefined : handleNextStep}
                 />
 
-                <>
-                  {!viewOnly && <SelectedUsersDisplay />}
+                <View style={{ flex: 1 }}>
+                  {selectedUsersStrip}
                   {userListJsx}
-                </>
+                </View>
               </>
             ) : (
               <>
@@ -718,57 +738,55 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                   keyboardShouldPersistTaps="handled"
                 >
                   <View style={styles.step2Container}>
-                    <ShadowView preset="searchBar">
-                      <View
-                        style={[
-                          styles.groupNameInputContainer,
-                          groupError && styles.groupNameInputError,
-                        ]}
+                    <View
+                      style={[
+                        styles.groupNameInputContainer,
+                        groupError && styles.groupNameInputError,
+                      ]}
+                    >
+                      <TouchableOpacity
+                        style={styles.groupNameIconWrapper}
+                        onPress={handleImageSelect}
                       >
-                        <TouchableOpacity
-                          style={styles.groupNameIconWrapper}
-                          onPress={handleImageSelect}
-                        >
-                          {groupImage ? (
-                            <Image
-                              source={{ uri: groupImage.uri }}
-                              style={styles.groupImagePreview}
-                            />
-                          ) : (
-                            <SvgImageIcon
-                              width={scaleWithMax(15, 17)}
-                              height={scaleWithMax(15, 17)}
-                            />
-                          )}
-                        </TouchableOpacity>
-                        <TextInput
-                          ref={textInputRef}
-                          allowFontScaling={false}
-                          style={[
-                            styles.groupNameInput,
-                            { textAlign: rtlTextAlign(isRtl) },
-                          ]}
-                          placeholder={getString('NG_ENTER_GROUP_NAME')}
-                          placeholderTextColor={theme.colors.SECONDARY_GRAY}
-                          value={groupName}
-                          onChangeText={text => {
-                            setGroupName(text);
-                            if (groupError) setGroupError('');
-                          }}
-                          maxLength={50}
-                          onFocus={() => {
-                            if (Platform.OS === 'android') {
-                              setTimeout(() => {
-                                scrollViewRef.current?.scrollTo({
-                                  y: 100,
-                                  animated: true,
-                                });
-                              }, 300);
-                            }
-                          }}
-                        />
-                      </View>
-                    </ShadowView>
+                        {groupImage ? (
+                          <Image
+                            source={{ uri: groupImage.uri }}
+                            style={styles.groupImagePreview}
+                          />
+                        ) : (
+                          <SvgImageIcon
+                            width={scaleWithMax(15, 17)}
+                            height={scaleWithMax(15, 17)}
+                          />
+                        )}
+                      </TouchableOpacity>
+                      <TextInput
+                        ref={textInputRef}
+                        allowFontScaling={false}
+                        style={[
+                          styles.groupNameInput,
+                          { textAlign: rtlTextAlign(isRtl) },
+                        ]}
+                        placeholder={getString('NG_ENTER_GROUP_NAME')}
+                        placeholderTextColor={theme.colors.SECONDARY_TEXT}
+                        value={groupName}
+                        onChangeText={text => {
+                          setGroupName(stripEmojis(text));
+                          if (groupError) setGroupError('');
+                        }}
+                        maxLength={50}
+                        onFocus={() => {
+                          if (Platform.OS === 'android') {
+                            setTimeout(() => {
+                              scrollViewRef.current?.scrollTo({
+                                y: 100,
+                                animated: true,
+                              });
+                            }, 300);
+                          }
+                        }}
+                      />
+                    </View>
                     {groupError ? (
                       <Text style={styles.errorText}>{groupError}</Text>
                     ) : null}
@@ -776,7 +794,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
                       {getString('NG_MEMBERS')}: {selectedUsers.size}{' '}
                       {getString('NG_OUT_OF')} {uniqueUsers.length}
                     </Text>
-                    <SelectedMembersGrid />
+                    {selectedMembersGrid}
                   </View>
                 </ScrollView>
               </>
@@ -794,7 +812,7 @@ const MemberSelectionModal: React.FC<MemberSelectionModalProps> = ({
             pointerEvents: 'box-none',
           }}
         >
-          <Toast />
+          <Toast config={toastConfig} />
         </View>
       </View>
     </Modal>
@@ -856,14 +874,10 @@ const useStyles = () => {
       groupNameInputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: colors.WHITE,
-        borderRadius: 12,
-        paddingHorizontal: sizes.PADDING,
+        backgroundColor: colors.LIGHT_GRAY,
+        borderRadius: sizes.BORDER_RADIUS,
+        paddingHorizontal: sizes.PADDING * 0.8,
         ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
-        // shadowOffset: { width: 0, height: 2 },
-        // shadowOpacity: 0.08,
-        // shadowRadius: 4,
-        // elevation: 2,
       },
       groupNameIconWrapper: {
         width: 30,

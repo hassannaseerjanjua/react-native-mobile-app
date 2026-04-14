@@ -17,6 +17,12 @@ type Props = {
   isPhone?: boolean;
   /** Skip ShadowView wrapper (e.g. when parent has shadow or shadow breaks multiline layout) */
   noShadow?: boolean;
+  /** When set with `error`, draw validation message below the field (avoids clipping inside overflow:hidden parents). */
+  errorBelow?: boolean;
+  /** When set with `error`, do not draw the red border on this field (e.g. parent provides the outline). */
+  suppressErrorBorder?: boolean;
+  /** Overrides default error red for message + border accents (e.g. match filter text color). */
+  errorColor?: string;
 };
 
 const InputField = ({
@@ -28,10 +34,15 @@ const InputField = ({
   isPhone,
   isOccasion,
   noShadow = false,
+  errorBelow = false,
+  suppressErrorBorder = false,
+  errorColor,
 }: Props) => {
   const { theme, styles } = useStyles();
   const { isRtl, getString } = useLocaleStore();
   const isMultiline = fieldProps.multiline;
+  const showErrorBorder = !!error && !suppressErrorBorder;
+  const resolvedErrorColor = errorColor ?? theme.colors.RED;
 
   const content = (
     <View
@@ -39,8 +50,8 @@ const InputField = ({
         isMultiline ? styles.textareaContainer : styles.container,
         isPhone && styles.phoneFieldLtr,
         {
-          borderWidth: error ? 1 : 0,
-          borderColor: error ? theme.colors.RED : theme.colors.LIGHT_GRAY,
+          borderWidth: showErrorBorder ? 1 : 0,
+          borderColor: error ? resolvedErrorColor : theme.colors.LIGHT_GRAY,
         },
         style,
       ]}
@@ -88,12 +99,27 @@ const InputField = ({
           </Text>
         </View>
       )}
-      {!!error && (
+      {!!error && !errorBelow && (
         <Text
           style={[
             styles.error,
             {
               textAlign: 'left',
+              color: resolvedErrorColor,
+              borderColor: resolvedErrorColor,
+            },
+          ]}
+        >
+          {error}
+        </Text>
+      )}
+      {!!error && errorBelow && (
+        <Text
+          style={[
+            styles.errorBelow,
+            {
+              textAlign: isRtl ? 'right' : 'left',
+              color: resolvedErrorColor,
             },
           ]}
         >
@@ -174,13 +200,22 @@ const useStyles = () => {
         borderWidth: 0.5,
         borderColor: theme.colors.RED,
       },
+      errorBelow: {
+        color: theme.colors.RED,
+        fontSize: 12,
+        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
+        marginTop: 8,
+        width: '100%',
+        paddingHorizontal: 4,
+      },
       prefixText: {
         ...globalStyles.TEXT_STYLE,
         fontSize: 16,
         color: colors.PRIMARY_TEXT,
         marginStart: 8,
         writingDirection: 'ltr',
-        ...(Platform.OS === 'ios' ? { marginTop: -2.5 } : {}),
+
+        // ...(Platform.OS === 'ios' ? { marginTop: -2.5 } : {}),
       },
       galleryUploadContainer: {
         position: 'absolute',

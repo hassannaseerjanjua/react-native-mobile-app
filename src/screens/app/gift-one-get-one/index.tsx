@@ -106,7 +106,7 @@ const GiftOneGetOneScreen: React.FC<AppStackScreen<'GiftOneGetOne'>> = ({
   };
 
   return (
-    <ParentView>
+    <ParentView shadowPreset="towardsBottom">
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"

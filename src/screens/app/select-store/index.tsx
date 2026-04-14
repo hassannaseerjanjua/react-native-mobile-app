@@ -205,6 +205,12 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
   const searchQuery = storeListApi.search;
   const setSearchQuery = storeListApi.setSearch;
 
+  const hasStoreRows = (storeListApi.data?.length ?? 0) > 0;
+  const activeSearch = Boolean(searchQuery?.trim());
+  // Pull-to-refresh + search + no rows: don't flash tabs from stale business-type cache while store list reloads.
+  const suppressBusinessTabsDuringSearchRefresh =
+    isRefreshing && activeSearch && !hasStoreRows && storeListApi.loading;
+
   const handleFavoritePress = async (store: Store) => {
     const storeId = store.StoreId;
     const storeBranchId = 1;
@@ -249,6 +255,7 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
 
   return (
     <ParentView
+      shadowPreset="towardsRight"
       emptyStateText={
         !storeListApi.loading && storeListApi.data.length === 0
           ? searchQuery
@@ -278,7 +285,10 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             }
           }}
           showSearchBar={
-            storeListApi.data.length > 0 &&
+            Boolean(businessTypeApi.data?.length) &&
+            (storeListApi.data.length > 0 ||
+              (storeListApi.isInitialLoad && storeListApi.loading) ||
+              activeSearch) &&
             !(businessTypeApi.loading && storeListApi.loading)
           }
           loading={businessTypeApi.loading && storeListApi.loading}
@@ -324,20 +334,24 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
         />
 
         <View style={styles.content}>
-          <View>
+          <View style={styles.tabsWrapper}>
             {businessTypeApi.loading && !isRefreshing ? (
               <View style={{ paddingHorizontal: theme.sizes.PADDING }}>
                 <SkeletonLoader screenType="groupTabs" />
               </View>
+            ) : suppressBusinessTabsDuringSearchRefresh ? (
+              <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
             ) : businessTypeApi.data &&
               businessTypeApi.data.length > 0 &&
-              ((storeListApi.data && storeListApi.data.length > 0) ||
-                storeListApi.loading) ? (
+              (hasStoreRows || (storeListApi.loading && !activeSearch)) ? (
               <GroupTabs
                 tabs={filterOptions}
                 activeTab={selectedFilter}
                 onTabPress={setSelectedFilter}
-                tabStyle={{ paddingHorizontal: theme.sizes.PADDING }}
+                tabStyle={{
+                  paddingHorizontal: theme.sizes.PADDING,
+                  paddingBottom: 0,
+                }}
               />
             ) : (
               <View style={{ height: theme.sizes.HEIGHT * 0.016 }} />
@@ -350,13 +364,14 @@ const SelectStore: React.FC<AppStackScreen<'SelectStore'>> = ({ route }) => {
             </View>
           ) : (
             <FlatList
-              style={{ flex: 1 }}
+              style={styles.storeList}
               removeClippedSubviews={false}
               showsVerticalScrollIndicator={false}
               contentContainerStyle={{
                 paddingBottom: theme.sizes.HEIGHT * 0.1,
                 paddingHorizontal: theme.sizes.PADDING,
                 flexGrow: 1,
+                // paddingTop: theme.sizes.HEIGHT * 0.01,
               }}
               refreshControl={
                 <RefreshControl

@@ -2,6 +2,11 @@
     <style name="AppTheme" parent="Theme.AppCompat.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
         <item name="android:editTextBackground">@drawable/rn_edit_text_material</item>
+        <!-- Prevent blank window before BootTheme/BootSplash kicks in -->
+        <item name="android:windowBackground">@drawable/bootsplash</item>
+        <item name="android:statusBarColor">@color/bootsplash_background</item>
+        <item name="android:navigationBarColor">@color/bootsplash_background</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
     </style>
 
     <style name="BootTheme" parent="Theme.BootSplash">

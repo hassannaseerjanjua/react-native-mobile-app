@@ -127,13 +127,13 @@ const ViewTrimmer = ({
       if (thumbnailsGeneratedRef.current) return;
       thumbnailsGeneratedRef.current = true;
 
-      const rawPath = videoUrl.replace('file://', '');
+      const decodedPath = decodeURIComponent(
+        videoUrl.replace(/^file:\/\//, ''),
+      );
       const nativeUrl =
         Platform.OS === 'ios'
-          ? rawPath
-          : videoUrl.startsWith('file://')
-            ? videoUrl
-            : 'file://' + videoUrl;
+          ? decodedPath
+          : 'file://' + decodedPath;
 
       const collected: string[] = [];
       let lastGoodPath: string | null = null;
@@ -144,6 +144,8 @@ const ViewTrimmer = ({
             url: nativeUrl,
             timeStamp: ts,
             format: 'jpeg',
+            maxWidth: 200,
+            maxHeight: 200,
             timeToleranceMs: 10000,
           });
           const p = result.path.startsWith('file://')
@@ -353,9 +355,11 @@ const styles = StyleSheet.create({
     paddingTop: 12,
     paddingBottom: 12,
     backgroundColor: 'rgba(0,0,0,0.55)',
+    direction: 'ltr',
   },
   trimGestureRoot: {
     width: '100%',
+    direction: 'ltr',
   },
   topBar: {
     position: 'absolute',

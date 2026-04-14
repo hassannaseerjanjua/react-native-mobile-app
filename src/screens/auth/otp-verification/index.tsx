@@ -5,6 +5,7 @@ import {
   Keyboard,
   AppState,
   AppStateStatus,
+  Platform,
 } from 'react-native';
 import { useDispatch } from 'react-redux';
 import { AuthStackScreen } from '../../../types/navigation.types';
@@ -21,8 +22,6 @@ import {
 import { LoginApiResponse } from '../../../types';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
-// import { isRTL } from '../../../utils/rtl.ts';
-import { isIOS } from '../../../utils/index.ts';
 
 interface OtpVerificationProps extends AuthStackScreen<'OtpVerification'> {}
 
@@ -112,11 +111,11 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     return () => clearInterval(interval);
   }, [isTimerActive, timer]);
 
+  // Slight delay avoids focusing during the stack transition (Android + keyboard).
   useEffect(() => {
-    const timer = setTimeout(() => {
-      inputRefs.current[0]?.focus();
-    }, 100);
-    return () => clearTimeout(timer);
+    const delay = Platform.OS === 'android' ? 350 : 80;
+    const t = setTimeout(() => inputRefs.current[0]?.focus(), delay);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
@@ -180,11 +179,17 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
 
     setIsLoading(true);
     try {
-      const response = await api.post<LoginApiResponse>(endpoint, {
-        OTP: normalizedOtp,
-        Email: email,
-        PhoneNo: formatPhoneWithCountryCode(phone ?? ''),
-      });
+      const phoneNo = formatPhoneWithCountryCode(phone ?? '');
+      const verifyBody = signIn
+        ? phoneNo !== ''
+          ? { OTP: normalizedOtp, PhoneNo: phoneNo }
+          : { OTP: normalizedOtp, Email: email ?? '' }
+        : {
+            OTP: normalizedOtp,
+            Email: email,
+            PhoneNo: phoneNo,
+          };
+      const response = await api.post<LoginApiResponse>(endpoint, verifyBody);
       if (response.success && response.data?.Data?.User) {
         dispatch(
           login({
@@ -221,15 +226,21 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
     timerRef.current = 60;
     isTimerActiveRef.current = true;
     backgroundTimeRef.current = null;
-    const endpoint = signIn ? apiEndpoints.SIGNIN : apiEndpoints.SIGNUP;
     try {
-      await api.post(endpoint, {
-        FullName: fullName,
-        UserName: username,
-        CityId: city,
-        Phone: formatPhoneWithCountryCode(phone ?? ''),
-        Email: email,
-      });
+      if (signIn) {
+        const phoneNo = formatPhoneWithCountryCode(phone ?? '');
+        const payload =
+          phoneNo !== '' ? { PhoneNo: phoneNo } : { Email: email ?? '' };
+        await api.post(apiEndpoints.SIGNIN, payload);
+      } else {
+        await api.post(apiEndpoints.SIGNUP, {
+          FullName: fullName,
+          UserName: username,
+          CityId: city,
+          Phone: formatPhoneWithCountryCode(phone ?? ''),
+          Email: email,
+        });
+      }
     } catch (err) {
     } finally {
       setTimeout(() => {
@@ -283,7 +294,6 @@ const OtpVerification: React.FC<OtpVerificationProps> = ({
                 textAlign="center"
                 // writingDirection="ltr"
                 selectTextOnFocus
-                autoFocus={index === 0}
               />
             ))}
           </View>

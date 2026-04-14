@@ -75,12 +75,12 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
             : { Email: values.email };
 
         const verifyResponse = await api.post(
-          apiEndpoints.VERIFY_EMAIL_PHONE,
+          apiEndpoints.VERIFY_EMAIL_PHONE_SIGNIN,
           payload,
         );
 
         // For sign-in: if data EXISTS (user is registered), allow to proceed
-        if (!verifyResponse.success && verifyResponse.failed) {
+        if (verifyResponse.success) {
           setIsBottomSheetOpen(true);
         } else {
           setApiError(getString('API_USER_NOT_FOUND'));
@@ -106,9 +106,10 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
       if (response.success) {
         setIsBottomSheetOpen(false);
         navigation.navigate('OtpVerification', {
-          phone: currentFormValues.phone,
-          email: currentFormValues.email,
           signIn: true,
+          ...(activeTab === 'Phone'
+            ? { phone: currentFormValues.phone }
+            : { email: currentFormValues.email }),
         });
       } else {
         setIsBottomSheetOpen(false);

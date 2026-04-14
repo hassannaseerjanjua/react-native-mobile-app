@@ -14,7 +14,7 @@ import ParentView from '../../../components/app/ParentView';
 import SkeletonLoader from '../../../components/SkeletonLoader';
 import { SvgGiftClaimIcon, SvgRiyalIcon } from '../../../assets/icons';
 import PriceWithIcon from '../../../components/global/Price';
-import { scaleWithMax } from '../../../utils';
+import { formatGroupedInteger, scaleWithMax } from '../../../utils';
 import { useLocaleStore } from '../../../store/reducer/locale';
 import { useListingApi } from '../../../hooks/useListingApi';
 import { useAuthStore } from '../../../store/reducer/auth';
@@ -125,7 +125,16 @@ const OrdersScreen: React.FC = () => {
   };
 
   return (
-    <ParentView emptyStateText={ordersListing.data.length === 0 && !ordersListing.loading ? getString('O_NO_ORDER_FOUND') : ""} style={styles.container} stableLayout>
+    <ParentView
+      shadowPreset="towardsBottom"
+      emptyStateText={
+        ordersListing.data.length === 0 && !ordersListing.loading
+          ? getString('O_NO_ORDER_FOUND')
+          : ''
+      }
+      style={styles.container}
+      stableLayout
+    >
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -217,7 +226,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
 
   return (
     <ShadowView
-      preset="listItem"
+      preset="low"
       containerStyle={{ alignSelf: 'stretch' }}
       style={styles.orderCard}
     >
@@ -267,7 +276,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
           return (
             <View key={item.OrderItemId} style={styles.itemRow}>
               <Text style={styles.detailLabel}>
-                {item.Quantity}x {item.ItemName}
+                {formatGroupedInteger(item.Quantity)}x {item.ItemName}
               </Text>
               <View style={styles.itemDetails}>
                 {!!variantName && (
@@ -280,7 +289,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
                   </Text>
                 )}
                 <PriceWithIcon
-                  amount={itemTotal.toFixed(2)}
+                  amount={itemTotal}
                   textStyle={styles.itemPrice}
                   containerStyle={styles.priceContainer}
                   icon={
@@ -300,7 +309,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order }) => {
           <View style={styles.priceContainer}>
             {order.TotalAmount > 0 ? (
               <PriceWithIcon
-                amount={order.TotalAmount.toFixed(2)}
+                amount={order.TotalAmount}
                 textStyle={styles.totalValue}
                 containerStyle={styles.priceContainer}
                 icon={

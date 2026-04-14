@@ -4,8 +4,8 @@ const apiEndpoints = {
   // BASE CONFIGURATION
   // ============================================
 
-  BASE_URL: `https://giftee-api-dev.hostinger.bitscollision.net`, // langId: number - Language ID (e.g., 1 for English, 2 for Arabic)
-  // BASE_URL: `https://api.prod.giftee.global`, // langId: number - Language ID (e.g., 1 for English, 2 for Arabic)
+  // BASE_URL: `https://giftee-api-dev.hostinger.bitscollision.net`, // langId: number - Language ID (e.g., 1 for English, 2 for Arabic)
+  BASE_URL: `https://api.prod.giftee.global`, // langId: number - Language ID (e.g., 1 for English, 2 for Arabic)
   LOCALE: (langId: number) =>
     `/${version}/Home/GetResources?appType=1&langID=${langId}`,
 

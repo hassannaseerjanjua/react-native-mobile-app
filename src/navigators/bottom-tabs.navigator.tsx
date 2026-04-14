@@ -28,7 +28,12 @@ import {
   DeviceEventEmitter,
   Platform,
 } from 'react-native';
-import { isAndroidThen, isIOSThen, scaleWithMax } from '../utils';
+import {
+  formatGroupedInteger,
+  isAndroidThen,
+  isIOSThen,
+  scaleWithMax,
+} from '../utils';
 import { useLocaleStore } from '../store/reducer/locale';
 import { Text } from '../utils/elements';
 import { useAuthStore } from '../store/reducer/auth';
@@ -42,13 +47,19 @@ const Tab = createBottomTabNavigator();
 const BottomTabNavigator = () => {
   const theme = useTheme();
   const { getString } = useLocaleStore();
-  // Default to Home because it's the first tab.
   const [isHome, setIsHome] = React.useState(true);
-  const safeAreaProps = isHome ? ({ edges: ['bottom'] as const } as const) : {};
+  // Always only handle the bottom edge — each screen handles its own top safe area.
+  const safeAreaProps = { edges: ['bottom'] as const } as const;
 
   return (
     <View style={{ flex: 1, backgroundColor: theme.colors.BACKGROUND }}>
-      <SafeAreaView style={{ flex: 1 }} {...safeAreaProps}>
+      <SafeAreaView
+        style={{
+          flex: 1,
+          position: 'relative',
+        }}
+        {...safeAreaProps}
+      >
         <Tab.Navigator
           tabBar={props => <CustomTabBar {...props} />}
           screenOptions={{
@@ -59,13 +70,12 @@ const BottomTabNavigator = () => {
             name="Home"
             component={Home}
             listeners={{
-              focus: () => setIsHome(true),
+              focus: () => {
+                setIsHome(true);
+              },
             }}
             options={{
-              tabBarLabel:
-                getString('FOOTER_HOME') === 'FOOTER_HOME'
-                  ? 'Home'
-                  : getString('FOOTER_HOME'),
+              tabBarLabel: getString('FOOTER_HOME'),
               tabBarIcon: ({ color, size }) => (
                 <SvgHome width={size} height={size} fill={color} />
               ),
@@ -75,13 +85,12 @@ const BottomTabNavigator = () => {
             name="Favorites"
             component={Favorites as any}
             listeners={{
-              focus: () => setIsHome(false),
+              focus: () => {
+                setIsHome(false);
+              },
             }}
             options={{
-              tabBarLabel:
-                getString('FOOTER_FAVORITES') === 'FOOTER_FAVORITES'
-                  ? 'Favorites'
-                  : getString('FOOTER_FAVORITES'),
+              tabBarLabel: getString('FOOTER_FAVORITES'),
               tabBarIcon: ({ color, size }) => (
                 <SvgFavourite width={size} height={size} fill={color} />
               ),
@@ -92,13 +101,12 @@ const BottomTabNavigator = () => {
             name="Occasions"
             component={Occasions}
             listeners={{
-              focus: () => setIsHome(false),
+              focus: () => {
+                setIsHome(false);
+              },
             }}
             options={{
-              tabBarLabel:
-                getString('FOOTER_OCCASIONS') === 'FOOTER_OCCASIONS'
-                  ? 'Occasions'
-                  : getString('FOOTER_OCCASIONS'),
+              tabBarLabel: getString('FOOTER_OCCASIONS'),
               tabBarIcon: ({ color, size }) => (
                 <SvgOccasions width={size} height={size} fill={color} />
               ),
@@ -108,13 +116,12 @@ const BottomTabNavigator = () => {
             name="Notifications"
             component={Notifications}
             listeners={{
-              focus: () => setIsHome(false),
+              focus: () => {
+                setIsHome(false);
+              },
             }}
             options={{
-              tabBarLabel:
-                getString('FOOTER_NOTIFICATIONS') === 'FOOTER_NOTIFICATIONS'
-                  ? 'Notifications'
-                  : getString('FOOTER_NOTIFICATIONS'),
+              tabBarLabel: getString('FOOTER_NOTIFICATIONS'),
               tabBarIcon: ({ color, size }) => (
                 <SvgNotification width={size} height={size} fill={color} />
               ),
@@ -281,7 +288,7 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
                         textAlign: 'center',
                       }}
                     >
-                      {getNotificationCount.data.Count}
+                      {formatGroupedInteger(getNotificationCount.data.Count)}
                     </Text>
                   </View>
                 )}

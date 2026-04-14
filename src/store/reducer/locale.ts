@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { useDispatch, useSelector } from 'react-redux';
-import { RootState } from '../store';
+import { RootState, persistor } from '../store';
 import RNRestart from 'react-native-restart';
 import { I18nManager } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -68,7 +68,7 @@ export const useLanguageShifter = () => {
 
     const response = await api.get<{
       Data: { ResourceDictionary: Record<string, string> };
-    }>(apiEndpoints.LOCALE(newLangId));
+    }>(apiEndpoints.LOCALE(newLangId), { headers: { LangID: newLangId } });
 
     if (!response.success || !response.data) {
       notify.error(response.error || 'Something went wrong');
@@ -91,9 +91,8 @@ export const useLanguageShifter = () => {
       }),
     );
 
-    setTimeout(() => {
-      RNRestart.restart();
-    }, 500);
+    await persistor.flush();
+    RNRestart.restart();
   };
 
   return {
@@ -244,6 +243,7 @@ type LocaleString =
   | 'FAQS_FAQS'
   | 'VE_PLEASE_ENTER_GROUP_NAME_AND_IMAGE'
   | 'VE_PLEASE_ENTER_GROUP_NAME'
+  | 'VE_GROUP_NAME_NO_EMOJI'
   | 'VE_PLEASE_ENTER_IMAGE'
   | 'SG_FRIENDS'
   | 'SG_GROUP'
@@ -534,6 +534,8 @@ type LocaleString =
   | 'GIFT_MESSAGE_REMOVE_VIDEO'
   | 'GIFT_MESSAGE_NO_FILTERS_AVAILABLE'
   | 'GIFT_MESSAGE_DONE'
+  | 'GIFT_MESSAGE_FILTER_TEXT_REQUIRED'
+  | 'GIFT_MESSAGE_FILTER_TEXT_TOO_SHORT'
   | 'LOCATION_ADDRESS_REQUIRED'
   | 'LOCATION_SELECT_LOCATION'
   | 'LOCATION_DELIVERY_LOCATION'
@@ -615,4 +617,5 @@ type LocaleString =
   | 'COMP_QTY'
   | 'HOME_GIFT_ONE_GET_ONE_STATUS'
   | 'AU_PHONE_NUMBER_LABEL'
-  | 'CHECKOUT_CHANGE_USER_CARD';
+  | 'CHECKOUT_CHANGE_USER_CARD'
+  | 'FAQ_NO_FAQS_FOUND';

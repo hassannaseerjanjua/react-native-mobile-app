@@ -29,6 +29,15 @@ const useStyles = () => {
         // backgroundColor: 'red',
         overflow: 'hidden',
       },
+      /** Softer confetti so hero + content stay primary. */
+      confettiArt: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        opacity: 0.42,
+      },
       confettiFade: {
         position: 'absolute',
         left: 0,
@@ -57,7 +66,7 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
       },
       welcomeText: {
-        fontFamily: fonts.light,
+        fontFamily: fonts.regular,
         fontSize: sizes.FONTSIZE_HIGH,
         color: colors.BLACK,
         paddingHorizontal: sizes.PADDING,
@@ -65,7 +74,7 @@ const useStyles = () => {
         // marginStart: scaleWithMax(1, 1),
       },
       userName: {
-        fontFamily: fonts.light,
+        fontFamily: fonts.semibold,
       },
       heroImage: {
         borderRadius: sizes.BORDER_RADIUS_MID,

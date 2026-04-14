@@ -85,9 +85,10 @@ const useStyles = () => {
         zIndex: 0,
       },
       catchIcon: {
-        width: scaleWithMax(120, 140),
-        height: scaleWithMax(120, 140),
-        objectFit: 'contain',
+        width: scaleWithMax(120, 110),
+        height: scaleWithMax(120, 110),
+        resizeMode: 'contain',
+        marginBottom: 10,
       },
       footerPriceRow: {
         flexDirection: 'row',
@@ -120,7 +121,7 @@ const useStyles = () => {
         position: 'absolute',
         top: sizes.PADDING,
         right: sizes.PADDING,
-        zIndex: 10,
+        zIndex: 3,
       },
       contentWrapper: {
         alignItems: 'center',
@@ -128,6 +129,19 @@ const useStyles = () => {
         paddingHorizontal: sizes.PADDING,
         position: 'relative',
         overflow: 'visible',
+      },
+      modalClaimedIconWrap: {
+        position: 'absolute',
+        top: -scaleWithMax(60, 62),
+        left: 0,
+        right: 0,
+        alignItems: 'center',
+        zIndex: 1,
+      },
+      modalClaimedIcon: {
+        width: scaleWithMax(130, 140),
+        height: scaleWithMax(130, 140),
+        resizeMode: 'contain',
       },
       modalTitle: {
         ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,

@@ -5,6 +5,15 @@ import { scaleWithMax } from '../../../utils';
 const useStyles = () => {
   const theme = useTheme();
   const { sizes } = theme;
+  // Match flex row: avatar + row gap + content column margins (rtlMargin in inbox item).
+  const itemContentWidth =
+    sizes.WIDTH -
+    sizes.PADDING * 2 -
+    scaleWithMax(50, 55) -
+    sizes.WIDTH * 0.013 -
+    sizes.WIDTH * 0.012 -
+    scaleWithMax(6, 8);
+
   return {
     styles: StyleSheet.create({
       heading: {
@@ -27,18 +36,25 @@ const useStyles = () => {
         height: scaleWithMax(50, 55),
         resizeMode: 'cover',
       },
+      inboxItemsSection: {
+        marginTop: sizes.PADDING * 0.35,
+        paddingBottom: sizes.PADDING * 0.25,
+        overflow: 'visible',
+      },
+      inboxItemsScroll: {
+        overflow: 'visible',
+      },
+      inboxItemsScrollBleed: {
+        overflow: 'visible',
+        marginHorizontal: -scaleWithMax(10, 14),
+      },
+      inboxItemsSectionTightTop: {
+        marginTop: sizes.PADDING * 0.12,
+      },
       imageContainer: {
-        borderRadius: 12,
-        // backgroundColor: theme.colors.RED,
         position: 'relative',
         marginBottom: sizes.HEIGHT * 0.004,
         marginRight: sizes.WIDTH * 0.01,
-        width:
-          sizes.WIDTH -
-          sizes.PADDING * 2 -
-          scaleWithMax(50, 55) -
-          sizes.WIDTH * 0.012 -
-          sizes.PADDING * 0.5,
         alignSelf: 'flex-start',
         overflow: 'visible',
       },
@@ -53,16 +69,9 @@ const useStyles = () => {
         paddingVertical: sizes.PADDING * 0.3,
       },
       inboxImage: {
-        width:
-          sizes.WIDTH -
-          sizes.PADDING * 2 -
-          scaleWithMax(50, 55) -
-          sizes.WIDTH * 0.012 -
-          sizes.PADDING * 0.5,
+        width: itemContentWidth,
         height: sizes.WIDTH * 0.46,
         resizeMode: 'cover',
-        borderTopLeftRadius: 12,
-        borderTopRightRadius: 12,
         alignSelf: 'flex-start',
       },
       row: {
@@ -75,18 +84,9 @@ const useStyles = () => {
         flexDirection: 'row',
         justifyContent: 'space-between',
         paddingVertical: sizes.HEIGHT * 0.01,
-        // paddingLeft: sizes.PADDING,
-        // paddingRight: sizes.PADDING + scaleWithMax(6, 8),
         paddingHorizontal: sizes.PADDING * 0.75,
-        borderBottomLeftRadius: 12,
-        borderBottomRightRadius: 12,
         backgroundColor: theme.colors.WHITE,
-        width:
-          sizes.WIDTH -
-          sizes.PADDING * 2 -
-          scaleWithMax(50, 55) -
-          sizes.WIDTH * 0.012 -
-          sizes.PADDING * 0.5,
+        width: itemContentWidth,
         alignSelf: 'flex-start',
       },
       numCircle: {
@@ -240,6 +240,7 @@ const useStyles = () => {
       },
     }),
     theme,
+    inboxItemCardWidth: itemContentWidth,
   };
 };
 

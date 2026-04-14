@@ -1,10 +1,11 @@
 import React from 'react';
-import { I18nManager } from 'react-native';
 import { BaseToast, ErrorToast, ToastConfig } from 'react-native-toast-message';
 
 const ERROR_COLOR = '#E53935';
-const RTLcolor = I18nManager.isRTL ? ERROR_COLOR : '#FFFFFF';
-const LTRcolor = I18nManager.isRTL ? '#FFFFFF' : ERROR_COLOR;
+/** Trailing edge (borderRight); same in LTR/RTL after inverting former LTR-only swap. */
+const RTLcolor = '#FFFFFF';
+/** Leading edge (borderLeft); error accent. */
+const LTRcolor = ERROR_COLOR;
 const leftStripe = {
   borderRightColor: RTLcolor,
   borderLeftWidth: 5,
@@ -14,5 +15,11 @@ const leftStripe = {
 
 export const toastConfig: ToastConfig = {
   success: props => <BaseToast {...props} />,
-  error: props => <ErrorToast {...props} style={leftStripe} />,
+  error: props => (
+    <ErrorToast
+      {...props}
+      style={leftStripe}
+      text1Style={{ textAlign: 'left' }}
+    />
+  ),
 };

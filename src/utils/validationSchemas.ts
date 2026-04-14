@@ -1,4 +1,5 @@
 import * as Yup from 'yup';
+import { EMOJI_CHAR_REGEX } from './emoji';
 
 type GetString = (key: any) => string;
 export const phoneValidation = (getString: GetString) => {
@@ -77,9 +78,8 @@ export const usernameValidation = (getString: GetString) =>
         'Username cannot contain emojis or special characters',
       value => {
         if (!value) return true;
-        const emojiRegex =
-          /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu;
-        return !emojiRegex.test(value);
+        const re = new RegExp(EMOJI_CHAR_REGEX.source, EMOJI_CHAR_REGEX.flags);
+        return !re.test(value);
       },
     );
 
@@ -101,10 +101,9 @@ export const fullNameValidation = (getString: GetString) =>
         'Name cannot contain emojis, numbers, or special characters',
       value => {
         if (!value) return true;
-        const emojiRegex =
-          /[\u{1F300}-\u{1F9FF}]|[\u{2600}-\u{26FF}]|[\u{2700}-\u{27BF}]|[\u{1F600}-\u{1F64F}]|[\u{1F680}-\u{1F6FF}]|[\u{1F1E0}-\u{1F1FF}]/gu;
+        const re = new RegExp(EMOJI_CHAR_REGEX.source, EMOJI_CHAR_REGEX.flags);
         const numberRegex = /\p{N}/u;
-        return !emojiRegex.test(value) && !numberRegex.test(value);
+        return !re.test(value) && !numberRegex.test(value);
       },
     );
 

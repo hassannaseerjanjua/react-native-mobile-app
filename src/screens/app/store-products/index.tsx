@@ -9,10 +9,10 @@ import {
   View,
   StatusBar,
   FlatList,
-  // Text,
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  Platform,
 } from 'react-native';
 import { Image, Text } from '../../../utils/elements';
 import useStyles from './style.ts';
@@ -28,7 +28,11 @@ import {
   SvgRiyalIconWhite,
   SvgVerifiedIcon,
 } from '../../../assets/icons/index.ts';
-import { rtlTransform, scaleWithMax } from '../../../utils';
+import {
+  formatGroupedInteger,
+  rtlTransform,
+  scaleWithMax,
+} from '../../../utils';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import { useListingApi } from '../../../hooks/useListingApi.ts';
 import apiEndpoints from '../../../constants/api-endpoints.ts';
@@ -39,9 +43,6 @@ import {
   Category,
   CartResponse,
 } from '../../../types/index.ts';
-import api from '../../../utils/api.ts';
-import { patchCacheItems } from '../../../utils/api-cache';
-import notify from '../../../utils/notify';
 import ParentView from '../../../components/app/ParentView';
 import ShadowView from '../../../components/global/ShadowView';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
@@ -54,8 +55,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   const { getString, isRtl, langCode } = useLocaleStore();
   const navigation = useNavigation();
 
-  const { token, user } = useAuthStore();
-  const isMerchant = user?.isMerchant === 1;
+  const { token } = useAuthStore();
 
   const store = route.params?.store;
   const friendUserId = route.params?.friendUserId ?? null;
@@ -72,9 +72,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     (Array.isArray(friendIds) && friendIds.length === 1 ? friendIds[0] : null);
   const isMultipleUsers = Array.isArray(friendIds) && friendIds.length > 1;
 
-  const [userToggleOverrides, setUserToggleOverrides] = useState<
-    Record<number, boolean>
-  >({});
   const storeCoverImage =
     store?.imageCover && store.imageCover.trim()
       ? { uri: store.imageCover }
@@ -199,56 +196,8 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
     });
   };
 
-  const handleFavoritePress = async (payload: {
-    ItemId: number;
-    isFavorite: boolean;
-  }) => {
-    if (currentListingApi.loading) return;
-    // Optimistically update local override and patch the cache so the next
-    // visit shows the correct state before the fresh API response arrives.
-    setUserToggleOverrides(prev => ({
-      ...prev,
-      [payload.ItemId]: payload.isFavorite,
-    }));
-    patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
-      'listing:',
-      item => item.ItemId === payload.ItemId,
-      { isFavourite: payload.isFavorite },
-    );
-    try {
-      const res = await api.post<any>(
-        apiEndpoints.HANDLE_FAVORITE_ITEM,
-        payload,
-      );
-      if (!res.success) {
-        // Revert both the local override and the cache patch on failure.
-        setUserToggleOverrides(prev => ({
-          ...prev,
-          [payload.ItemId]: !payload.isFavorite,
-        }));
-        patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
-          'listing:',
-          item => item.ItemId === payload.ItemId,
-          { isFavourite: !payload.isFavorite },
-        );
-        notify.error(res.error || getString('AU_ERROR_OCCURRED'));
-      }
-    } catch (error: any) {
-      setUserToggleOverrides(prev => ({
-        ...prev,
-        [payload.ItemId]: !payload.isFavorite,
-      }));
-      patchCacheItems<{ ItemId: number; isFavourite: boolean }>(
-        'listing:',
-        item => item.ItemId === payload.ItemId,
-        { isFavourite: !payload.isFavorite },
-      );
-      notify.error(error?.error || getString('AU_ERROR_OCCURRED'));
-    }
-  };
-
   // When returning from ProductDetails, reload listing so favorite state is reflected
-  // (user may have favorited/unfavorited via Add to Favorites button or heart icon)
+  // (user may have favorited/unfavorited from product detail)
   const isFirstFocus = useRef(true);
   useFocusEffect(
     useCallback(() => {
@@ -260,33 +209,6 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
       getFavoriteItems.recall();
     }, [getStoreProducts, getFavoriteItems]),
   );
-
-  // Sync userToggleOverrides with fresh server data when it arrives.
-  // userToggleOverrides holds optimistic updates from the listing; when the user
-  // unfavorites from ProductDetails and we recall, we must overwrite stale overrides.
-  useEffect(() => {
-    const products = getStoreProducts.data || [];
-    const favorites = getFavoriteItems.data || [];
-    const itemsToSync: (StoreProduct | FaveItems)[] = [...products];
-    favorites.forEach(f => {
-      if (!itemsToSync.some(p => p.ItemId === f.ItemId)) {
-        itemsToSync.push(f);
-      }
-    });
-    if (itemsToSync.length === 0) return;
-    setUserToggleOverrides(prev => {
-      const next = { ...prev };
-      let changed = false;
-      itemsToSync.forEach(item => {
-        const serverState = item.isFavourite ?? false;
-        if (prev[item.ItemId] !== serverState) {
-          next[item.ItemId] = serverState;
-          changed = true;
-        }
-      });
-      return changed ? next : prev;
-    });
-  }, [getStoreProducts.data, getFavoriteItems.data]);
 
   // Reset to 'all' if favorites tab is selected but there are no favorite items
   useEffect(() => {
@@ -348,8 +270,9 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
 
   const handleRefresh = () => {
     setIsRefreshing(true);
-    currentListingApi.recall();
+    currentListingApi.recall(false, undefined, true);
     categoriesApi.refetch?.();
+    cartApi.refetch?.();
   };
 
   // Handle tab press
@@ -372,22 +295,12 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
   // Render product item
   const renderProductItem = ({ item }: { item: StoreProduct | FaveItems }) => {
     const isFavoriteItem = selectedFilter === 'favorites';
-    const isFavorite =
-      userToggleOverrides[item.ItemId] ??
-      (isFavoriteItem ? true : (item as StoreProduct).isFavourite ?? false);
 
     return (
       <FavoriteProductCard
         item={item}
         onPress={handleProductPress}
-        isFavorite={isFavorite}
-        hasFavorite={!isMerchant}
-        onFavoritePress={() => {
-          handleFavoritePress({
-            ItemId: item.ItemId,
-            isFavorite: !isFavorite,
-          });
-        }}
+        hasFavorite={false}
         isFavoriteTab={isFavoriteItem}
       />
     );
@@ -440,6 +353,7 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
         <View
           style={[
             styles.content,
+            styles.listSection,
             {
               paddingBottom: isCartFromCurrentStore
                 ? theme.sizes.HEIGHT * 0.18
@@ -471,15 +385,17 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
             <SkeletonLoader screenType="productListing" />
           ) : (
             <FlatList
+              style={styles.flatList}
               columnWrapperStyle={{ gap: 16 }}
               data={currentData}
               numColumns={2}
               keyExtractor={item => item.ItemId.toString()}
-              extraData={userToggleOverrides}
+              removeClippedSubviews={false}
               refreshControl={
                 <RefreshControl
                   refreshing={isRefreshing}
                   onRefresh={handleRefresh}
+                  progressViewOffset={Platform.OS === 'android' ? 48 : undefined}
                   tintColor={theme.colors.PRIMARY}
                   colors={[theme.colors.PRIMARY]}
                 />
@@ -546,10 +462,12 @@ const StoreProducts: React.FC<AppStackScreen<'StoreProducts'>> = ({
           >
             <View style={styles.footerQuantityBadge}>
               <Text style={styles.footerQuantityText}>
-                {cartApi.data?.Items.reduce(
-                  (sum, item) => sum + item.Quantity,
-                  0,
-                ) || 0}
+                {formatGroupedInteger(
+                  cartApi.data?.Items.reduce(
+                    (sum, item) => sum + item.Quantity,
+                    0,
+                  ) || 0,
+                )}
               </Text>
             </View>
             <Text style={styles.footerButtonText}>

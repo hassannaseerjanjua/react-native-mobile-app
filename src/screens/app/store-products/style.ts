@@ -15,6 +15,14 @@ const useStyles = () => {
       content: {
         paddingBottom: sizes.HEIGHT * 0.086,
       },
+      /** Fills space under header so FlatList gets a stable height (avoids bottom clipping on refresh). */
+      listSection: {
+        flex: 1,
+        minHeight: 0,
+      },
+      flatList: {
+        flex: 1,
+      },
       tabsContainer: {
         marginVertical: sizes.HEIGHT * 0.016,
       },

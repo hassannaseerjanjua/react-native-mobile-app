@@ -43,6 +43,7 @@ import {
   SvgGiftClaimIcon,
 } from '../../../assets/icons';
 import {
+  formatGroupedInteger,
   scaleWithMax,
   rtlTransform,
   rtlPosition,
@@ -582,7 +583,8 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                 cartData?.MultiUsers &&
                 cartData.MultiUsers.length > 0 && (
                   <Text style={styles.cartItemCountBadge}>
-                    {getString('COMP_QTY')} {item.Quantity}
+                    {getString('COMP_QTY')}{' '}
+                    {formatGroupedInteger(item.Quantity)}
                   </Text>
                 )}
             </View>
@@ -718,7 +720,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                     <DecrementIcon />
                   </TouchableOpacity>
                   <Text style={styles.quantityValue}>
-                    {`${item.Quantity < 10 ? '0' : ''}${item.Quantity}`}
+                    {item.Quantity < 10
+                      ? `0${formatGroupedInteger(item.Quantity)}`
+                      : formatGroupedInteger(item.Quantity)}
                   </Text>
                   <TouchableOpacity
                     onPress={() => handleQuantityChange(item, 'increment')}
@@ -783,7 +787,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
         try {
           applePayToken = await requestApplePayPayment(totalAmount, {
             currencyCode: 'SAR',
-            label: 'Giftee Order',
+            label: 'Cadou Order',
           });
           if (applePayToken === null) {
             setSubmitting(false);
@@ -1181,6 +1185,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
 
   return (
     <ParentView
+      shadowPreset="towardsBottom"
       emptyStateText={
         !loading && cartData?.Items?.length === 0
           ? getString('CHECKOUT_YOUR_CART_IS_EMPTY')
@@ -1690,11 +1695,9 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                             </Text>
                             <PriceWithIcon
                               amount={
-                                walletBalance?.data?.WalletBalance
-                                  ? Number(
-                                      walletBalance.data.WalletBalance,
-                                    ).toFixed(2)
-                                  : '0.00'
+                                walletBalance?.data?.WalletBalance != null
+                                  ? Number(walletBalance.data.WalletBalance)
+                                  : 0
                               }
                               textStyle={styles.TextMedium}
                               icon={
@@ -1949,7 +1952,7 @@ const CheckOut: React.FC<AppStackScreen<'CheckOut'>> = ({ route }) => {
                         },
                       ]}
                     >
-                      {totalQuantity}
+                      {formatGroupedInteger(totalQuantity)}
                     </Text>
                   </View>
                 </View>

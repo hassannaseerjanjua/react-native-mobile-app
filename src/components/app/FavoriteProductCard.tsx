@@ -121,6 +121,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
             <PriceWithIcon
               amount={cutPrice}
               variant="discounted"
+              bold
               icon={
                 <SvgRiyalPink
                   width={scaleWithMax(11, 13)}
@@ -135,6 +136,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
             <PriceWithIcon
               amount={price || getString('COMP_NOT_AVAILABLE')}
               variant={isSpecialPrice ? 'cut' : 'default'}
+              bold
               icon={
                 <SvgRiyalIcon
                   width={
@@ -155,6 +157,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
               <PriceWithIcon
                 amount={cutPrice}
                 variant={price > cutPrice ? 'discounted' : 'default'}
+                bold
                 icon={
                   price > cutPrice ? (
                     <SvgRiyalPink
@@ -176,6 +179,7 @@ const FavoriteProductCard: React.FC<FavoriteProductCardProps> = ({
                 <PriceWithIcon
                   amount={price}
                   variant="cut"
+                  bold
                   showIcon={false}
                   textStyle={styles.cutPrice}
                 />

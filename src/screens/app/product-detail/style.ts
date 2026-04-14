@@ -15,19 +15,6 @@ const useStyles = () => {
         backgroundColor: theme.colors.HOME_BACKGROUND,
         paddingHorizontal: 0,
       },
-      rounded_white_background: {
-        backgroundColor: colors.WHITE,
-        borderRadius: 9999,
-        width: scaleWithMax(25, 30),
-        height: scaleWithMax(25, 30),
-        alignItems: 'center',
-        justifyContent: 'center',
-        shadowColor: '#00000020',
-        shadowOpacity: 0.2,
-        shadowRadius: 6,
-        shadowOffset: { width: 0, height: 2 },
-        elevation: 2,
-      },
       backContainer: {
         backgroundColor: theme.colors.WHITE,
         borderRadius: 9999,
@@ -91,12 +78,14 @@ const useStyles = () => {
       titleRow: {
         flexDirection: 'row',
         alignItems: 'center',
-        gap: sizes.WIDTH * 0.03,
+        // backgroundColor: 'red',
+        // gap: sizes.WIDTH * 0.03,
       },
       priceContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         gap: scaleWithMax(4, 6),
+        paddingBottom: sizes.HEIGHT * 0.003,
       },
       TaxIncludeText: {
         ...theme.globalStyles.TEXT_STYLE_MEDIUM,
@@ -148,8 +137,8 @@ const useStyles = () => {
       },
       button: {
         // width: sizes.WIDTH * 0.6,
-        borderRadius:sizes.BORDER_RADIUS_MID*1.2 ,
-        flex: 1
+        borderRadius: sizes.BORDER_RADIUS_MID * 1.2,
+        flex: 1,
       },
       QuantityContainer: {
         flexDirection: 'row',

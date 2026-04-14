@@ -78,23 +78,25 @@ const NotificationItem = ({
       )}
       <View style={styles.contentContainer}>
         <View style={{ position: 'relative' }}>
-          {isGroupImage ? (
-            <Image
-              source={
-                typeof isGroupImage === 'string'
-                  ? { uri: isGroupImage }
-                  : isGroupImage
-              }
-              style={styles.groupImage}
-            />
-          ) : (
-            <View style={styles.placeholderContainer}>
-              <SvgGifteeNotifyIcon
-                width={scaleWithMax(50, 55)}
-                height={scaleWithMax(50, 55)}
+          <View style={styles.avatarContainer}>
+            {isGroupImage ? (
+              <Image
+                source={
+                  typeof isGroupImage === 'string'
+                    ? { uri: isGroupImage }
+                    : isGroupImage
+                }
+                style={styles.groupImage}
               />
-            </View>
-          )}
+            ) : (
+              <View style={styles.placeholderContainer}>
+                <SvgGifteeNotifyIcon
+                  width={scaleWithMax(50, 55)}
+                  height={scaleWithMax(50, 55)}
+                />
+              </View>
+            )}
+          </View>
           {!isSeen && <View style={styles.unreadDot} />}
         </View>
         {isLink && <SvgGiftLink />}
@@ -155,15 +157,20 @@ const useStyles = () => {
       boldText: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
       },
-      groupImage: {
+      avatarContainer: {
         width: scaleWithMax(50, 55),
         height: scaleWithMax(50, 55),
         borderRadius: 999,
+        overflow: 'hidden',
+        backgroundColor: colors.BACKGROUND ?? colors.WHITE,
+        justifyContent: 'center',
+        alignItems: 'center',
+      },
+      groupImage: {
+        width: '100%',
+        height: '100%',
       },
       placeholderContainer: {
-        width: scaleWithMax(50, 55),
-        height: scaleWithMax(50, 55),
-        borderRadius: 999,
         justifyContent: 'center',
         alignItems: 'center',
       },

@@ -59,7 +59,7 @@ const FavoriteItemCard: React.FC<FavoriteItemCardProps> = ({
     ? { uri: (item as Store | FavStores).ImageLogo! }
     : placeholderImage;
   return (
-    <ShadowView preset="storeCard" style={[styles.shadowContainer, style]}>
+    <ShadowView preset="input" style={[styles.shadowContainer, style]}>
       <TouchableOpacity
         style={styles.container}
         onPress={() => onPress(item)}

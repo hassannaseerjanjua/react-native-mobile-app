@@ -7,11 +7,21 @@ import {
   DeviceEventEmitter,
   RefreshControl,
   Modal,
-  TouchableOpacity,
-  Text,
   Platform,
+  StyleSheet,
 } from 'react-native';
 import WebView from 'react-native-webview';
+import {
+  GestureHandlerRootView,
+  Gesture,
+  GestureDetector,
+} from 'react-native-gesture-handler';
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSpring,
+  runOnJS,
+} from 'react-native-reanimated';
 import useStyles from './style.ts';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useLocaleStore } from '../../../store/reducer/locale';
@@ -19,8 +29,10 @@ import HomeHeader from '../../../components/global/HomeHeader.tsx';
 import NotificationItem from '../../../components/global/NotificationItem.tsx';
 import PlaceholderLogoText from '../../../components/global/PlaceholderLogoText.tsx';
 import SkeletonLoader from '../../../components/SkeletonLoader';
+import ShadowLayout from '../../../components/app/ShadowLayout';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import {
   Notification,
   NotificationsApiResponse,
@@ -30,18 +42,15 @@ import { useListingApi } from '../../../hooks/useListingApi.ts';
 import { useAuthStore } from '../../../store/reducer/auth.ts';
 import useGetApi from '../../../hooks/useGetApi.ts';
 import notify from '../../../utils/notify.ts';
-import { rtlFlexDirection, rtlPosition, scaleWithMax } from '../../../utils';
-import {
-  SvgCrossIcon,
-  SvgProfileCrossIcon,
-} from '../../../assets/icons/index.ts';
+import { scaleWithMax } from '../../../utils';
 
 const NotificationsScreen: React.FC = () => {
   const { styles, theme } = useStyles();
-  const { getString, isRtl, langCode } = useLocaleStore();
+  const { getString, isRtl } = useLocaleStore();
   const navigation = useNavigation<any>();
   const { token } = useAuthStore();
   const { user, isAuthenticated } = useAuthStore();
+  const insets = useSafeAreaInsets();
 
   const notificationsApi = useListingApi<Notification>(
     apiEndpoints.NOTIFICATIONS_LISTING,
@@ -57,8 +66,62 @@ const NotificationsScreen: React.FC = () => {
 
   const [showWelcomeWebView, setShowWelcomeWebView] = useState(false);
   const [welcomeHtml, setWelcomeHtml] = useState<string>('');
-  const [welcomeTitle, setWelcomeTitle] = useState<string>('');
   const [loadingWelcome, setLoadingWelcome] = useState(false);
+  const [welcomeWebViewLoading, setWelcomeWebViewLoading] = useState(false);
+
+  const welcomeSheetTranslateY = useSharedValue(0);
+
+  const closeWelcomeModal = useCallback(() => {
+    welcomeSheetTranslateY.value = 0;
+    setShowWelcomeWebView(false);
+    setWelcomeHtml('');
+    setWelcomeWebViewLoading(false);
+  }, [welcomeSheetTranslateY]);
+
+  useEffect(() => {
+    if (showWelcomeWebView) {
+      welcomeSheetTranslateY.value = 0;
+    }
+  }, [showWelcomeWebView, welcomeSheetTranslateY]);
+
+  useEffect(() => {
+    if (welcomeHtml) {
+      setWelcomeWebViewLoading(true);
+    } else {
+      setWelcomeWebViewLoading(false);
+    }
+  }, [welcomeHtml]);
+
+  const welcomeSheetAnimatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: welcomeSheetTranslateY.value }],
+  }));
+
+  const welcomePanGesture = useMemo(
+    () =>
+      Gesture.Pan()
+        .enabled(Platform.OS === 'android')
+        .activeOffsetY(10)
+        .failOffsetX([-32, 32])
+        .onUpdate(e => {
+          if (e.translationY > 0) {
+            welcomeSheetTranslateY.value = e.translationY;
+          }
+        })
+        .onEnd(e => {
+          const shouldClose =
+            welcomeSheetTranslateY.value > 120 || e.velocityY > 900;
+          if (shouldClose) {
+            welcomeSheetTranslateY.value = 0;
+            runOnJS(closeWelcomeModal)();
+          } else {
+            welcomeSheetTranslateY.value = withSpring(0, {
+              damping: 22,
+              stiffness: 220,
+            });
+          }
+        }),
+    [closeWelcomeModal, welcomeSheetTranslateY],
+  );
 
   const markAllAsSeen = async () => {
     try {
@@ -97,7 +160,7 @@ const NotificationsScreen: React.FC = () => {
     useCallback(() => {
       notificationsApi.recall(false);
       markAllAsSeen();
-    }, []),
+    }, []), // eslint-disable-line react-hooks/exhaustive-deps -- recall on focus only
   );
 
   const handleNotificationPress = async (item: Notification) => {
@@ -105,8 +168,6 @@ const NotificationsScreen: React.FC = () => {
 
     // WelcomeNotification = 12: open WebView modal
     if (type === 12) {
-      const title = isRtl ? item.TitleAr : item.TitleEn;
-      setWelcomeTitle(title);
       setShowWelcomeWebView(true);
       setLoadingWelcome(true);
       setWelcomeHtml('');
@@ -163,7 +224,12 @@ const NotificationsScreen: React.FC = () => {
 
     // G1G1 = 8 → Gift one get one
     if (type === 8) {
-      navigation.navigate('CatchScreen', { type: 'GiftOneGetOne' });
+      // Match Home flow: start Send-a-Gift journey (select friend first)
+      if (user?.isMerchant === 1) {
+        notify.error(getString('MERCHANT_NOT_ALLOWED'));
+        return;
+      }
+      navigation.navigate('SendAGift', { routeTo: 'GiftOneGetOne' });
       return;
     }
 
@@ -231,9 +297,15 @@ const NotificationsScreen: React.FC = () => {
   }, [notificationsApi.loadingMore, theme.colors.PRIMARY]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
+      <ShadowLayout
+        preset="towardsBottom"
+        overlayOnly
+        overlayStyle={{ position: 'absolute', top: 0, zIndex: 0 }}
+      />
       <StatusBar
-        backgroundColor={theme.colors.BACKGROUND}
+        translucent
+        backgroundColor="transparent"
         barStyle="dark-content"
       />
       <HomeHeader
@@ -288,102 +360,94 @@ const NotificationsScreen: React.FC = () => {
         visible={showWelcomeWebView}
         animationType="slide"
         presentationStyle="pageSheet"
-        onRequestClose={() => {
-          setShowWelcomeWebView(false);
-          setWelcomeHtml('');
-        }}
+        onRequestClose={closeWelcomeModal}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: theme.colors.WHITE,
-            paddingBottom: theme.sizes.HEIGHT * 0.01,
-          }}
-        >
-          {/* <View
-            style={{
-              flexDirection: rtlFlexDirection(isRtl),
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              paddingHorizontal: theme.sizes.PADDING,
-              paddingVertical: theme.sizes.HEIGHT * 0.006,
-              backgroundColor: theme.colors.WHITE,
-              borderBottomWidth: 1,
-              borderBottomColor: theme.colors.DIVIDER_COLOR ?? '#eee',
-              ...(Platform.OS === 'ios' && {
-                paddingTop: theme.sizes.HEIGHT * 0.02,
-              }),
-            }}
-          >
-            <Text
-              style={{
-                ...theme.globalStyles.TEXT_STYLE_SEMIBOLD,
-                fontSize: theme.sizes.FONTSIZE_LESS_HIGH,
-                color: theme.colors.PRIMARY_TEXT,
-              }}
-              numberOfLines={1}
-            >
-              {welcomeTitle}
-            </Text>
-            <TouchableOpacity
-              onPress={() => {
-                setShowWelcomeWebView(false);
-                setWelcomeHtml('');
-              }}
-              style={{ padding: 8 }}
-            >
-              <Text
-                style={{
-                  ...theme.globalStyles.TEXT_STYLE_MEDIUM,
-                  color: theme.colors.PRIMARY,
-                }}
-              >
-                {getString('COMP_CLOSE')}
-              </Text>
-            </TouchableOpacity>
-          </View> */}
-          <TouchableOpacity
+        <GestureHandlerRootView style={{ flex: 1 }}>
+          <Animated.View
             style={[
               {
-                position: 'absolute',
-                zIndex: 1,
-                top: theme.sizes.HEIGHT * 0.02,
-              },
-              rtlPosition(isRtl, undefined, theme.sizes.WIDTH * 0.039),
-            ]}
-            onPress={() => {
-              setShowWelcomeWebView(false);
-              setWelcomeHtml('');
-            }}
-          >
-            <SvgProfileCrossIcon
-              height={scaleWithMax(15, 20)}
-              width={scaleWithMax(15, 20)}
-            />
-          </TouchableOpacity>
-
-          {loadingWelcome ? (
-            <View
-              style={{
                 flex: 1,
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <ActivityIndicator size="large" color={theme.colors.PRIMARY} />
+                backgroundColor: theme.colors.WHITE,
+                paddingBottom: theme.sizes.HEIGHT * 0.01,
+              },
+              welcomeSheetAnimatedStyle,
+            ]}
+          >
+            <View style={{ flex: 1 }}>
+              {welcomeHtml ? (
+                <>
+                  <WebView
+                    source={{ html: welcomeHtml }}
+                    style={{ flex: 1 }}
+                    originWhitelist={['*']}
+                    scrollEnabled={true}
+                    onLoadStart={() => setWelcomeWebViewLoading(true)}
+                    onLoadEnd={() => setWelcomeWebViewLoading(false)}
+                    onError={() => {
+                      setWelcomeWebViewLoading(false);
+                      notify.error(getString('AU_ERROR_OCCURRED'));
+                    }}
+                  />
+                  {welcomeWebViewLoading ? (
+                    <View
+                      style={[
+                        StyleSheet.absoluteFillObject,
+                        {
+                          justifyContent: 'center',
+                          alignItems: 'center',
+                          backgroundColor: theme.colors.WHITE,
+                          zIndex: 5,
+                        },
+                      ]}
+                    >
+                      <ActivityIndicator
+                        size="large"
+                        color={theme.colors.PRIMARY}
+                      />
+                    </View>
+                  ) : null}
+                </>
+              ) : loadingWelcome ? (
+                <View
+                  style={{
+                    flex: 1,
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <ActivityIndicator
+                    size="large"
+                    color={theme.colors.PRIMARY}
+                  />
+                </View>
+              ) : null}
+
+              <GestureDetector gesture={welcomePanGesture}>
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    paddingTop: 5,
+                    paddingBottom: 18,
+                    alignItems: 'center',
+                    zIndex: 10,
+                  }}
+                >
+                  <View
+                    style={{
+                      width: scaleWithMax(32, 36),
+                      height: 4,
+                      borderRadius: 2,
+                      backgroundColor: theme.colors.SECONDARY_GRAY,
+                    }}
+                  />
+                </View>
+              </GestureDetector>
             </View>
-          ) : welcomeHtml ? (
-            <WebView
-              source={{ html: welcomeHtml }}
-              style={{ flex: 1 }}
-              originWhitelist={['*']}
-              scrollEnabled={true}
-              onError={() => {
-                notify.error(getString('AU_ERROR_OCCURRED'));
-              }}
-            />
-          ) : null}
-        </View>
+          </Animated.View>
+        </GestureHandlerRootView>
       </Modal>
     </View>
   );

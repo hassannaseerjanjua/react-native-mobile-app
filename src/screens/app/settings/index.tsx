@@ -189,7 +189,7 @@ const SettingsScreen: React.FC = () => {
       });
   };
   return (
-    <ParentView style={styles.container}>
+    <ParentView style={styles.container} shadowPreset="towardsBottom">
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"
@@ -209,6 +209,8 @@ const SettingsScreen: React.FC = () => {
         style={styles.scrollView}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
         {shimmerLoading ? (
           <SkeletonLoader screenType="settings" />
@@ -229,10 +231,6 @@ const SettingsScreen: React.FC = () => {
                     const newLangId = language === 'English' ? 1 : 2;
                     await saveTokenWithLanguage(newLangId);
                     shiftLanguage(language === 'English' ? 'en' : 'ar');
-
-                    setTimeout(() => {
-                      setShimmerLoading(false);
-                    }, 1000);
                   }}
                 >
                   <View style={styles.radioButton}>
@@ -411,9 +409,9 @@ const SettingsScreen: React.FC = () => {
                       </TouchableOpacity>
                     </View>
 
-                    <ShadowView
-                      preset="input"
-                      containerStyle={{ alignSelf: 'stretch' }}
+                    <View
+                      // preset="input"
+                      // containerStyle={{ alignSelf: 'stretch' }}
                       style={styles.genderContainer}
                     >
                       <View style={styles.genderOptions}>
@@ -439,7 +437,7 @@ const SettingsScreen: React.FC = () => {
                           </TouchableOpacity>
                         ))}
                       </View>
-                    </ShadowView>
+                    </View>
 
                     <View style={styles.buttonContainer}>
                       <CustomButton

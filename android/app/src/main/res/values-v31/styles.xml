@@ -1,0 +1,22 @@
+<resources>
+    <!-- Android 12+ SplashScreen API theme -->
+    <style name="BootTheme" parent="Theme.BootSplash">
+        <!-- Draw the full bootsplash immediately -->
+        <item name="android:windowBackground">@drawable/bootsplash</item>
+        <item name="android:windowSplashScreenBackground">@drawable/bootsplash</item>
+
+        <!-- Hide the system splash icon phase (use transparent 1dp drawable) -->
+        <item name="android:windowSplashScreenAnimatedIcon">@drawable/transparent_splash_icon</item>
+        <item name="android:windowSplashScreenIconBackgroundColor">@android:color/transparent</item>
+
+        <item name="android:forceDarkAllowed">false</item>
+        <item name="android:statusBarColor">@color/bootsplash_background</item>
+        <item name="android:navigationBarColor">@color/bootsplash_background</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+
+        <item name="bootSplashBackground">@color/bootsplash_background</item>
+        <item name="bootSplashLogo">@drawable/bootsplash_logo</item>
+        <item name="postBootSplashTheme">@style/AppTheme</item>
+    </style>
+</resources>
+

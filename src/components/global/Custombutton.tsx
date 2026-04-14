@@ -1,7 +1,6 @@
 import React from 'react';
 import {
   TouchableOpacity,
-  useWindowDimensions,
   StyleProp,
   ViewStyle,
   TextStyle,
@@ -38,7 +37,6 @@ const CustomButton = ({
   icon,
 }: CustomButtonProps) => {
   const theme = useTheme();
-  const { height, width } = useWindowDimensions();
   const colors = theme.colors;
 
   const baseStyle: ViewStyle = {

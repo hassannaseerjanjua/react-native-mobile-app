@@ -10,15 +10,16 @@ const useStyles = () => {
       container: {
         ...theme.globalStyles.CONTAINER_STYLE,
         paddingHorizontal: 0,
+        position: 'relative',
       },
       content: {
         paddingHorizontal: sizes.PADDING,
         paddingTop: sizes.HEIGHT * 0.01,
       },
       NotificationItem: {
-        height: scaleWithMax(69, 75),
+        height: scaleWithMax(75, 78),
         marginBottom: sizes.HEIGHT * 0.014,
-        borderRadius: sizes.BORDER_RADIUS,
+        borderRadius: 12,
       },
     }),
     theme,

@@ -268,6 +268,8 @@
   "GIFT_MESSAGE_TITLE": "Gift Message",
   "GIFT_MESSAGE_TRIM_VIDEO": "Trim Video",
   "GIFT_MESSAGE_VIDEO_OPTIONS": "Video Options",
+  "GIFT_MESSAGE_FILTER_TEXT_REQUIRED": "Message is required with a filter.",
+  "GIFT_MESSAGE_FILTER_TEXT_TOO_SHORT": "Message must be at least 3 characters.",
   "GIFT_VIA_LINK": "💝 You have received a gift. Click on the link below to redeem the gift.",
   "HOME_CATCH": "Catch",
   "HOME_CATCH_INSTANT_GIFT": "Catch Instant gifts, limited time.",
@@ -467,7 +469,6 @@
   "PRODUCT_ADD_TO_CART": "Add To Cart",
   "PRODUCT_ADD_TO_FAVORITES": "Add to Favorites",
   "PRODUCT_REMOVE_FROM_FAVORITES": "Remove from Favorites",
-  "PRODUCT_REMOVE_FROM_FAVORITES": "Remove from Favorites",
   "FAV_ADD_FAVORITES": "Add Favorites",
   "PRODUCT_ALL_PRICE_INCLUDE_TAX": "All Price Include tax",
   "PRODUCT_CLEAR_CART_MESSAGE": "Adding a item from different store will clear your previous item in cart. Do you want to continue?",
@@ -576,6 +577,7 @@
   "USR_BUTTON_UNVERIFY": "Unverify User",
   "USR_TOAST_ERROR_VERIFY": "Failed to verify user. Please try again.",
   "VE_PLEASE_ENTER_GROUP_NAME": "Please Enter Group Name",
+  "VE_GROUP_NAME_NO_EMOJI": "Group name cannot include emojis",
   "VE_PLEASE_ENTER_GROUP_NAME_AND_IMAGE": "Please Enter Group Name and Image",
   "VE_PLEASE_ENTER_IMAGE": "Please Enter Image",
   "VIEW_CART": "View Cart ",
@@ -585,5 +587,6 @@
   "WelcomeNotificationDescription": "Welcome to Giftee! Let’s gift a smile today.",
   "WelcomeNotificationTitle": "Welcome to Giftee",
   "WelcomeTitle": "Welcome to Giftee",
-  "YOU_CAN_STILL_CLAIM_FROM_ANY_OTHER_STORE": "You can still claim from any other store"
+  "YOU_CAN_STILL_CLAIM_FROM_ANY_OTHER_STORE": "You can still claim from any other store",
+  "FAQ_NO_FAQS_FOUND": "No FAQs found"
 }

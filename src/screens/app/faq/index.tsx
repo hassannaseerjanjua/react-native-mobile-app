@@ -22,7 +22,15 @@ const FAQScreen: React.FC = () => {
   });
 
   return (
-    <ParentView style={styles.container}>
+    <ParentView
+      style={styles.container}
+      shadowPreset="towardsBottom"
+      emptyStateText={
+        GetFaqs.data && GetFaqs.data.length > 0
+          ? ''
+          : getString('FAQ_NO_FAQS_FOUND')
+      }
+    >
       <StatusBar
         backgroundColor={theme.colors.BACKGROUND}
         barStyle="dark-content"

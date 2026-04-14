@@ -34,6 +34,7 @@ export const useListingApi = <T>(
   const [hasMore, setHasMore] = useState(true);
 
   const [data, setData] = useState<T[]>([]);
+  const dataRef = useRef<T[]>([]);
   const [totalCount, setTotalCount] = useState(0);
   const [loading, setLoading] = useState(url !== '' && enabled);
   const [recallCount, setRecallCount] = useState(0);
@@ -49,6 +50,10 @@ export const useListingApi = <T>(
   const fetchIdRef = useRef(0);
   const pendingExtraParamsChangeRef = useRef(false);
 
+  useEffect(() => {
+    dataRef.current = data;
+  }, [data]);
+
   // Stable cache key for page-1, non-search fetches.
   // Captures everything that defines a unique dataset (excluding page/search).
   const buildCacheKey = (currentExtraParams: Record<string, any>) =>
@@ -60,6 +65,7 @@ export const useListingApi = <T>(
     searchParam: string = '',
     showLoading: boolean = true,
     pageOverride?: number,
+    preserveStaleData: boolean = false,
   ) => {
     if (url === '') return;
     if (isFetchingRef.current) return;
@@ -96,8 +102,13 @@ export const useListingApi = <T>(
         // Already have data visible — suppress the full-screen loader
         setLoading(false);
       } else {
-        // No cache: clear old data now and show skeleton
-        setData([]);
+        // No cache: clear old data now and show skeleton — unless pull-to-refresh
+        // asked to keep showing the previous list until the network returns.
+        if (preserveStaleData && dataRef.current.length > 0) {
+          cachedJson = JSON.stringify(dataRef.current);
+        } else {
+          setData([]);
+        }
         if (showLoading) setLoading(true);
       }
     } else {
@@ -269,6 +280,7 @@ export const useListingApi = <T>(
   const recall = (
     showLoading: boolean = true,
     overrideParams?: Record<string, any>,
+    preserveStaleData?: boolean,
   ) => {
     if (loading || isFetchingRef.current) return;
     if (overrideParams && Object.keys(overrideParams).length > 0) {
@@ -277,7 +289,7 @@ export const useListingApi = <T>(
     pageIndexRef.current = 1;
     setPageIndex(1);
     setHasMore(true);
-    fetchData('', showLoading, 1);
+    fetchData('', showLoading, 1, preserveStaleData === true);
   };
 
   const loadMore = () => {

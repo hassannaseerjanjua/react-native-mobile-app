@@ -2,6 +2,10 @@ import { I18nManager } from 'react-native';
 
 export const isRTL = () => I18nManager.isRTL;
 
+/** LTR isolate (U+2066…U+2069) so Latin handles like @username keep correct visual order in RTL UI. */
+export const ltrIsolate = (text: string): string =>
+  `\u2066${text}\u2069`;
+
 export const rtlDirection = (isRtl: boolean) => (isRtl ? 'rtl' : 'ltr');
 
 export const rtlTextAlign = (isRtl: boolean) => (isRtl ? 'right' : 'left');

@@ -127,6 +127,7 @@ import SvgRiyalPink from './Riyal_pink.svg';
 import SvgGifteeNotifyIcon from './gift-notify.svg';
 import SvgCancelIcon from './editCancel.svg';
 import SvgConfetti from './Confetti.svg';
+import SvgBirthdayIconOccasion from './birthday-occasions.svg';
 
 export {
   SvgLogoBlue,
@@ -257,4 +258,5 @@ export {
   SvgUsernameStroke,
   SvgLocationPinStroke,
   SvgBirthdayStroke,
+  SvgBirthdayIconOccasion,
 };

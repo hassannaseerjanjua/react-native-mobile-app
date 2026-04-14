@@ -11,8 +11,15 @@ import {
   Animated,
   InputAccessoryView,
   StyleSheet,
+  Image as RNImage,
 } from 'react-native';
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useCallback,
+  useMemo,
+} from 'react';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { Video } from 'react-native-compressor';
 import useStyles from './style';
@@ -59,6 +66,13 @@ import {
 import ConfirmationModal from '../../../components/global/ConfirmationModal';
 import { useVisionCamera } from '../../../hooks/useCamera';
 import { Camera } from 'react-native-vision-camera';
+import type { CameraProps } from 'react-native-vision-camera';
+import {
+  createAnimatedComponent,
+  useAnimatedProps,
+  useSharedValue,
+} from 'react-native-reanimated';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import VideoStoryViewer from '../../../components/global/VideoStoryViewer';
 import Svg, { Circle, Path } from 'react-native-svg';
 import {
@@ -69,10 +83,13 @@ import ViewTrimmer from '../../../components/app/ViewTrimmer';
 import { useAuthStore } from '../../../store/reducer/auth';
 import ConfettiFilterSvg from '../../../assets/images/confetti-filter.svg';
 
+const ReanimatedCamera = createAnimatedComponent(Camera);
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
 const MAX_VIDEO_DURATION = 15;
 const CONFETTI_FILTER_ID = -1;
+const GIFT_MESSAGE_TEXT_MIN_LEN = 3;
+const GIFT_MESSAGE_TEXT_MAX_LEN = 100;
 
 const CloseIcon = ({ size = 16 }: { size?: number }) => (
   <Svg width={size} height={size} viewBox="0 0 9 9" fill="none">
@@ -95,6 +112,10 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     orderId: routeOrderId,
   } = route.params as any;
   const [message, setMessage] = useState('');
+  const [giftMessageInputAreaHeight, setGiftMessageInputAreaHeight] =
+    useState(0);
+  const [filterTextSubmitAttempted, setFilterTextSubmitAttempted] =
+    useState(false);
   const [isLoadingSavedData, setIsLoadingSavedData] = useState(false);
   const [orderId, setOrderId] = useState<number | undefined>(routeOrderId);
 
@@ -131,7 +152,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     Message: string;
     VideoFile: any;
   }>({
-    ImageFilterId: CONFETTI_FILTER_ID,
+    ImageFilterId: null,
     Message: message,
     VideoFile: undefined,
   });
@@ -189,6 +210,44 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
   const inputAccessoryViewID = 'giftMessageDoneButton';
   const [isFlashOn, setIsFlashOn] = useState(false);
 
+  const cameraZoom = useSharedValue(1);
+  const cameraZoomOffset = useSharedValue(1);
+  const cameraMinZoom = useSharedValue(1);
+  const cameraMaxZoom = useSharedValue(16);
+
+  useEffect(() => {
+    if (!device) return;
+    const maxZ = Math.min(device.maxZoom, 16);
+    cameraMinZoom.value = device.minZoom;
+    cameraMaxZoom.value = maxZ;
+    const neutral = device.neutralZoom;
+    cameraZoom.value = neutral;
+    cameraZoomOffset.value = neutral;
+  }, [device?.id, device?.minZoom, device?.maxZoom, device?.neutralZoom]);
+
+  const cameraPinchGesture = useMemo(
+    () =>
+      Gesture.Pinch()
+        .onBegin(() => {
+          'worklet';
+          cameraZoomOffset.value = cameraZoom.value;
+        })
+        .onUpdate(e => {
+          'worklet';
+          const next = cameraZoomOffset.value * e.scale;
+          cameraZoom.value = Math.min(
+            cameraMaxZoom.value,
+            Math.max(cameraMinZoom.value, next),
+          );
+        }),
+    // Shared values are stable; gesture must stay a single instance for continuity.
+    [],
+  );
+
+  const cameraAnimatedProps = useAnimatedProps<CameraProps>(() => ({
+    zoom: cameraZoom.value,
+  }));
+
   // Reset flash when switching cameras
   useEffect(() => {
     if (cameraPosition === 'front') {
@@ -213,12 +272,18 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
           const savedData = await loadGiftMessageData(orderId);
           if (savedData) {
             setMessage(savedData.Message || '');
+            const rawFilterId = savedData.ImageFilterId;
+            const hasText = (savedData.Message || '').trim().length > 0;
+            const hasVideo = Boolean(savedData.VideoFile);
+            // Older builds saved implicit "default" as confetti (-1) with no message/video — treat as no selection.
+            const normalizedFilterId =
+              rawFilterId === null || rawFilterId === undefined
+                ? null
+                : rawFilterId === CONFETTI_FILTER_ID && !hasText && !hasVideo
+                ? null
+                : rawFilterId;
             setSendMessagePayload({
-              ImageFilterId:
-                savedData.ImageFilterId === null ||
-                savedData.ImageFilterId === undefined
-                  ? CONFETTI_FILTER_ID
-                  : savedData.ImageFilterId,
+              ImageFilterId: normalizedFilterId,
               Message: savedData.Message || '',
               VideoFile: savedData.VideoFile,
             });
@@ -264,7 +329,40 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
       Message: message,
     }));
   }, [message]);
-  console.log('sendMessagePayload', sendMessagePayload);
+
+  const hasFilterSelected =
+    typeof sendMessagePayload.ImageFilterId === 'number';
+  const giftMessageMeetsFilterTextRules =
+    message.trim().length >= GIFT_MESSAGE_TEXT_MIN_LEN;
+  const filterRequiresTextBlocked =
+    hasFilterSelected && !giftMessageMeetsFilterTextRules;
+  const showFilterTextValidationError =
+    filterRequiresTextBlocked && filterTextSubmitAttempted;
+  const filterInlineValidationMessage = useMemo(() => {
+    if (!showFilterTextValidationError) {
+      return '';
+    }
+    const trimmed = message.trim();
+    if (trimmed.length === 0) {
+      return getString('GIFT_MESSAGE_FILTER_TEXT_REQUIRED');
+    }
+    if (trimmed.length < GIFT_MESSAGE_TEXT_MIN_LEN) {
+      return getString('GIFT_MESSAGE_FILTER_TEXT_TOO_SHORT');
+    }
+    return '';
+  }, [showFilterTextValidationError, message, getString]);
+  const isFooterPrimaryDisabled = isCompressing;
+  const hasGiftMessageToSubmit =
+    message.trim().length > 0 ||
+    !!sendMessagePayload.VideoFile ||
+    hasFilterSelected;
+
+  useEffect(() => {
+    if (!filterRequiresTextBlocked) {
+      setFilterTextSubmitAttempted(false);
+    }
+  }, [filterRequiresTextBlocked]);
+
   function formatTime(seconds: number): string {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
@@ -275,17 +373,25 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     return `${paddedMins}:${paddedSecs}`;
   }
   const handleButtonPress = async () => {
-    if (!hasContent && !sendMessagePayload.VideoFile) {
+    if (!hasGiftMessageToSubmit) {
       (navigation as any).navigate('CheckOut', {
         friendUserId,
         storeBranchId,
-        isVideoUploading: !!sendMessagePayload.VideoFile,
+        isVideoUploading: false,
       });
       return;
     }
     if (isCompressing) {
       notify.error(getString('GIFT_MESSAGE_PLEASE_WAIT_VIDEO'));
       return;
+    }
+
+    if (hasFilterSelected) {
+      const trimmed = message.trim();
+      if (trimmed.length < GIFT_MESSAGE_TEXT_MIN_LEN) {
+        setFilterTextSubmitAttempted(true);
+        return;
+      }
     }
 
     // Store local video path for caching
@@ -298,15 +404,14 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     const uploadPromise = (async () => {
       try {
         const formData = new FormData();
+        const id = sendMessagePayload.ImageFilterId;
         const imageFilterIdToSend =
-          sendMessagePayload.ImageFilterId === CONFETTI_FILTER_ID ||
-          sendMessagePayload.ImageFilterId === null
+          typeof id !== 'number'
             ? ''
-            : sendMessagePayload.ImageFilterId?.toString() || '';
-        formData.append(
-          'ImageFilterId',
-          imageFilterIdToSend,
-        );
+            : id === CONFETTI_FILTER_ID
+            ? ''
+            : String(id);
+        formData.append('ImageFilterId', imageFilterIdToSend);
         formData.append('Message', message || '');
         // Video is optional - only append if it exists
         if (sendMessagePayload.VideoFile) {
@@ -558,21 +663,67 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
     setPopupVisible(true);
   }, []);
 
-  const hasContent =
-    message.trim().length > 0 || !!sendMessagePayload.VideoFile;
-
   const filters = getAllFiltersApi.data || [];
 
   const filtersForUi = [
-    ({ FilterId: CONFETTI_FILTER_ID } as unknown as GiftFilter),
+    { FilterId: CONFETTI_FILTER_ID } as unknown as GiftFilter,
     ...filters,
   ];
 
-  // Find the selected filter for background (API-backed only)
+  // API filter only (confetti chip uses local asset; not in filters list)
   const selectedFilter =
+    typeof sendMessagePayload.ImageFilterId !== 'number' ||
     sendMessagePayload.ImageFilterId === CONFETTI_FILTER_ID
       ? null
-      : filters.find(filter => filter.FilterId === sendMessagePayload.ImageFilterId);
+      : filters.find(f => f.FilterId === sendMessagePayload.ImageFilterId);
+
+  const giftMessageTextVerticalInset = useMemo(() => {
+    const h = giftMessageInputAreaHeight;
+    const fontSize = theme.sizes.FONTSIZE_HIGH;
+    const lh = Math.round(fontSize * 1.35);
+    if (h <= 0) {
+      const b = scaleWithMax(8, 12);
+      return {
+        paddingTop: scaleWithMax(32, 40) + b,
+        paddingBottom: scaleWithMax(20, 26),
+      };
+    }
+    const approxCharW = fontSize * 0.55;
+    const innerWidth = Math.max(
+      0,
+      theme.sizes.WIDTH - theme.sizes.PADDING * 2 - scaleWithMax(30, 36) * 2,
+    );
+    const charsPerLine = Math.max(12, Math.floor(innerWidth / approxCharW));
+    const lineCount = message
+      ? message.split('\n').reduce((acc, segment) => {
+          const len = segment.length || 0;
+          return acc + Math.max(1, Math.ceil(len / charsPerLine));
+        }, 0)
+      : 0;
+    const effectiveLines = Math.max(1, lineCount);
+    const contentH = Math.min(effectiveLines * lh + scaleWithMax(6, 10), h);
+    const inset = Math.max(0, (h - contentH) / 2);
+    const downwardBias = scaleWithMax(10, 14);
+    return {
+      paddingTop: inset + downwardBias,
+      paddingBottom: Math.max(0, inset - downwardBias),
+    };
+  }, [
+    giftMessageInputAreaHeight,
+    message,
+    theme.sizes.FONTSIZE_HIGH,
+    theme.sizes.WIDTH,
+    theme.sizes.PADDING,
+  ]);
+
+  /** No chip selected: warm tint (#FFF7F1) + confetti. Any selection: neutral white behind artwork. */
+  const hasNoFilterSelection =
+    sendMessagePayload.ImageFilterId === null ||
+    sendMessagePayload.ImageFilterId === undefined;
+  /** Confetti asset in the message area for default state or when confetti chip is selected. */
+  const showConfettiInMessageArea =
+    hasNoFilterSelection ||
+    sendMessagePayload.ImageFilterId === CONFETTI_FILTER_ID;
 
   useEffect(() => {
     console.log('📹 Camera State:', {
@@ -691,24 +842,29 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
         <View style={{ flex: 1, backgroundColor: '#000' }}>
           {isCameraActive ? (
             <>
-              <Camera
-                ref={cameraRef}
-                style={{ flex: 1 }}
-                isActive={isCameraActive}
-                device={device}
-                video={true}
-                audio={true}
-                torch={isFlashOn ? 'on' : 'off'}
-                onInitialized={() => {
-                  console.log('✅ Camera initialized and ready');
-                  // Don't auto-start recording - wait for button press
-                }}
-                onError={error => {
-                  console.error('❌ Camera error:', error);
-                  Alert.alert('Camera Error', error.message);
-                  setShowCamera(false);
-                }}
-              />
+              <GestureDetector gesture={cameraPinchGesture}>
+                <View style={{ flex: 1 }}>
+                  <ReanimatedCamera
+                    ref={cameraRef}
+                    style={{ flex: 1 }}
+                    isActive={isCameraActive}
+                    device={device}
+                    video={true}
+                    audio={true}
+                    animatedProps={cameraAnimatedProps}
+                    torch={isFlashOn ? 'on' : 'off'}
+                    onInitialized={() => {
+                      console.log('✅ Camera initialized and ready');
+                      // Don't auto-start recording - wait for button press
+                    }}
+                    onError={error => {
+                      console.error('❌ Camera error:', error);
+                      Alert.alert('Camera Error', error.message);
+                      setShowCamera(false);
+                    }}
+                  />
+                </View>
+              </GestureDetector>
               {/* Close Button - Top Left - Hide when recording */}
               {!isRecording && (
                 <TouchableOpacity
@@ -1097,14 +1253,23 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             <View style={styles.body}>
               <ShadowView preset="default">
                 <View style={styles.messageContainer}>
-                  <View style={styles.inputWrapper} pointerEvents="box-none">
-                    {/* Confetti background when confetti filter is selected */}
-                    {sendMessagePayload.ImageFilterId === CONFETTI_FILTER_ID && (
+                  <View
+                    style={[
+                      styles.inputWrapper,
+                      !hasNoFilterSelection && {
+                        backgroundColor: theme.colors.WHITE,
+                      },
+                      showFilterTextValidationError && {
+                        borderWidth: 1,
+                        borderColor: theme.colors.RED,
+                      },
+                    ]}
+                    pointerEvents="box-none"
+                  >
+                    {showConfettiInMessageArea && (
                       <View
                         pointerEvents="none"
-                        style={{
-                          ...StyleSheet.absoluteFillObject,
-                        }}
+                        style={StyleSheet.absoluteFillObject}
                       >
                         <Image
                           source={require('../../../assets/images/Confetti.png')}
@@ -1112,7 +1277,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           style={{
                             width: '100%',
                             height: '100%',
-                            borderRadius: 10,
+                            borderRadius: scaleWithMax(12, 14),
                           }}
                         />
                       </View>
@@ -1129,7 +1294,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           bottom: 0,
                         }}
                       >
-                        <Image
+                        <RNImage
                           source={{ uri: selectedFilter.ImageUrl }}
                           style={styles.filterBackground}
                           resizeMode="cover"
@@ -1139,12 +1304,18 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                     <View
                       style={styles.textInputWrapper}
                       pointerEvents="box-none"
+                      onLayout={e => {
+                        setGiftMessageInputAreaHeight(
+                          e.nativeEvent.layout.height,
+                        );
+                      }}
                     >
                       <InputField
                         noShadow
                         fieldProps={{
                           multiline: true,
-                          maxLength: 100,
+                          scrollEnabled: true,
+                          maxLength: GIFT_MESSAGE_TEXT_MAX_LEN,
                           value: message,
                           onChangeText: setMessage,
                           placeholder: getString('GIFT_MESSAGE_PLACEHOLDER'),
@@ -1154,15 +1325,26 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                               : undefined,
                           style: [
                             styles.textInput,
+                            giftMessageTextVerticalInset,
                             selectedFilter?.TextColor && {
                               color: selectedFilter.TextColor,
                             },
                           ],
                         }}
-                        style={styles.inputFieldContainer}
+                        style={[
+                          styles.inputFieldContainer,
+                          styles.giftMessageInputField,
+                        ]}
                       />
                     </View>
                   </View>
+                  {showFilterTextValidationError && (
+                    <View style={[styles.giftFilterErrorRow]}>
+                      <Text style={styles.giftFilterErrorText}>
+                        {filterInlineValidationMessage}
+                      </Text>
+                    </View>
+                  )}
                   <Pressable
                     onPress={() => {
                       handleOpenPopup();
@@ -1224,7 +1406,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                             width: scaleWithMax(36, 38),
                             height: scaleWithMax(36, 38),
                             borderRadius: 8,
-                            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+                            // backgroundColor: 'rgba(255, 255, 255, 0.85)',
                           }}
                         />
                         <SvgAddGiftMessageIcon />
@@ -1234,13 +1416,13 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                             pointerEvents="none"
                             style={{
                               position: 'absolute',
-                              top: scaleWithMax(8, 9),
-                              end: scaleWithMax(8, 9),
+                              top: 13,
+                              end: 13,
                               // [isRtl ? 'left' : 'right']: scaleWithMax(6, 8),
-                              width: scaleWithMax(14, 16),
-                              height: scaleWithMax(14, 16),
+                              width: 14,
+                              height: 14,
                               borderRadius: scaleWithMax(10, 11),
-                              backgroundColor: '#FF0000',
+                              backgroundColor: theme.colors.PRIMARY,
                               justifyContent: 'center',
                               alignItems: 'center',
                             }}
@@ -1265,6 +1447,7 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                     data={filtersForUi}
                     horizontal
                     showsHorizontalScrollIndicator={false}
+                    extraData={sendMessagePayload.ImageFilterId}
                     keyExtractor={item => item.FilterId.toString()}
                     renderItem={({ item: filter, index }) => (
                       <ShadowView preset="default">
@@ -1281,27 +1464,13 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                               const isCurrentlySelected =
                                 sendMessagePayload.ImageFilterId ===
                                 filter.FilterId;
-
-                              // Confetti is the default background and should not be unselectable.
-                              // If user taps the selected confetti card, do nothing.
-                              const newFilterId =
-                                filter.FilterId === CONFETTI_FILTER_ID
-                                  ? CONFETTI_FILTER_ID
-                                  : isCurrentlySelected
-                                    ? CONFETTI_FILTER_ID
-                                    : filter.FilterId;
-
-                              if (
-                                filter.FilterId === CONFETTI_FILTER_ID &&
-                                isCurrentlySelected
-                              ) {
-                                return;
-                              }
+                              const newFilterId = isCurrentlySelected
+                                ? null
+                                : filter.FilterId;
                               setSendMessagePayload(prev => ({
                                 ...prev,
                                 ImageFilterId: newFilterId,
                               }));
-                              // Save data when filter changes
                               if (orderId) {
                                 await saveGiftMessageData(orderId, {
                                   ImageFilterId: newFilterId,
@@ -1313,20 +1482,28 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
                           >
                             <View
                               style={[
-                                styles.filterImage,
+                                styles.filterThumbFrame,
                                 {
                                   borderWidth:
+                                    typeof sendMessagePayload.ImageFilterId ===
+                                      'number' &&
                                     filter.FilterId ===
-                                    sendMessagePayload.ImageFilterId
+                                      sendMessagePayload.ImageFilterId
                                       ? 2
                                       : 0,
                                   borderColor: theme.colors.PRIMARY,
-                                  overflow: 'hidden',
                                 },
                               ]}
                             >
                               {filter.FilterId === CONFETTI_FILTER_ID ? (
-                                <ConfettiFilterSvg width="100%" height="100%" />
+                                <View style={styles.confettiFilterWrapper}>
+                                  <ConfettiFilterSvg
+                                    width="100%"
+                                    height="100%"
+                                    preserveAspectRatio="xMidYMid slice"
+                                    style={styles.confettiFilterSvg}
+                                  />
+                                </View>
                               ) : (
                                 <Image
                                   style={styles.filterImage}
@@ -1360,9 +1537,21 @@ const GiftMessage: React.FC<AppStackScreen<'GiftMessage'>> = ({
             </View>
             <View style={styles.footer}>
               <CustomButton
-                title={hasContent ? getString('NG_NEXT') : getString('NG_SKIP')}
+                title={getString(
+                  hasGiftMessageToSubmit ? 'NG_NEXT' : 'NG_SKIP',
+                )}
                 onPress={handleButtonPress}
-                disabled={isCompressing}
+                disabled={isFooterPrimaryDisabled}
+                buttonStyle={
+                  isFooterPrimaryDisabled
+                    ? styles.footerPrimaryButtonDisabled
+                    : undefined
+                }
+                labelStyle={
+                  isFooterPrimaryDisabled
+                    ? styles.footerPrimaryButtonDisabledLabel
+                    : undefined
+                }
               />
             </View>
           </View>

@@ -10,7 +10,6 @@ import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
 import { SvgImageIcon, SvgSearchIcon } from '../../assets/icons';
 import { useLocaleStore } from '../../store/reducer/locale';
-import ShadowView from '../global/ShadowView';
 import { Text } from '../../utils/elements';
 import { rtlTextAlign } from '../../utils';
 
@@ -90,28 +89,26 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
       </View>
 
       {showSearchBar && (
-        <ShadowView preset="searchBar">
-          <View style={styles.searchBarContainer}>
-            {isGroup ? (
-              <View style={styles.imageIconContainer}>
-                <SvgImageIcon />
-              </View>
-            ) : (
-              <SvgSearchIcon
-                width={scaleWithMax(20, 22)}
-                height={scaleWithMax(20, 22)}
-              />
-            )}
-            <TextInput
-              allowFontScaling={false}
-              style={[styles.searchInput, { textAlign: rtlTextAlign(isRtl) }]}
-              placeholder={defaultSearchPlaceholder}
-              placeholderTextColor="#A0A0A0EE"
-              value={searchValue}
-              onChangeText={onSearchChange}
+        <View style={styles.searchBarContainer}>
+          {isGroup ? (
+            <View style={styles.imageIconContainer}>
+              <SvgImageIcon />
+            </View>
+          ) : (
+            <SvgSearchIcon
+              width={scaleWithMax(20, 22)}
+              height={scaleWithMax(20, 22)}
             />
-          </View>
-        </ShadowView>
+          )}
+          <TextInput
+            allowFontScaling={false}
+            style={[styles.searchInput, { textAlign: rtlTextAlign(isRtl) }]}
+            placeholder={defaultSearchPlaceholder}
+            placeholderTextColor={theme.colors.SECONDARY_TEXT}
+            value={searchValue}
+            onChangeText={onSearchChange}
+          />
+        </View>
       )}
     </View>
   );
@@ -173,16 +170,12 @@ const useStyles = () => {
       searchBarContainer: {
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: colors.WHITE,
-        borderRadius: 12,
-        paddingHorizontal: sizes.PADDING,
+        backgroundColor: colors.LIGHT_GRAY,
+        borderRadius: sizes.BORDER_RADIUS,
+        paddingHorizontal: sizes.PADDING * 0.8,
         ...theme.globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
         marginTop: sizes.HEIGHT * 0.006,
         marginBottom: sizes.HEIGHT * 0.008,
-        // shadowOffset: { width: 0, height: 2 },
-        // shadowOpacity: 0.08,
-        // shadowRadius: 4,
-        // elevation: 2,
       },
       searchInput: {
         flex: 1,
