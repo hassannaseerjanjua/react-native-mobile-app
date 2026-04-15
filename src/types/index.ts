@@ -72,6 +72,8 @@ export interface ActiveUser {
   RelationStatus: number;
   IsVerified: boolean;
   OrdersCount?: number | null;
+  /** Connect flow: friend already added (from verify API) */
+  IsAlreadyAddedFriend?: boolean;
 }
 
 export interface ActiveUsersApiResponse {

@@ -37,7 +37,14 @@ interface VerifiedUser {
   PhoneNo: string;
   IsAppUser: boolean;
   UserID: number | null;
+  isAlreadyAddedFriend?: boolean;
+  IsAlreadyAddedFriend?: boolean;
+  ProfileUrl?: string | null;
+  CityId?: number | null;
 }
+
+const isVerifiedAlreadyFriend = (v: VerifiedUser | undefined) =>
+  !!(v?.isAlreadyAddedFriend ?? v?.IsAlreadyAddedFriend);
 
 interface SearchProps extends AppStackScreen<'Search'> {}
 
@@ -221,7 +228,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
 
         if (response.success && response.data?.Data) {
           response.data.Data.forEach(user => {
-            results[user.PhoneNo] = user;
+            results[user.PhoneNo] = {
+              ...user,
+              isAlreadyAddedFriend:
+                user.isAlreadyAddedFriend ?? user.IsAlreadyAddedFriend,
+            };
           });
         }
       } catch (error: any) {
@@ -357,6 +368,14 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
       const phoneNo = contact.phoneNumbers[0] || '';
       const formattedPhone = formatPhoneNumber(phoneNo);
       const verified = verifiedUsers[formattedPhone];
+      const apiProfile =
+        typeof verified?.ProfileUrl === 'string'
+          ? verified.ProfileUrl.trim()
+          : '';
+      const profileFromApi =
+        verified?.IsAppUser && apiProfile && apiProfile.toLowerCase() !== 'null'
+          ? apiProfile
+          : null;
 
       return {
         UserId:
@@ -366,9 +385,11 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
         FullName: contact.name,
         PhoneNo: phoneNo,
         Email: contact.emails[0] || '',
-        ProfileUrl: contact.thumbnail || null,
+        ProfileUrl: profileFromApi ?? contact.thumbnail ?? null,
+        CityId: verified?.CityId ?? undefined,
         RelationStatus: verified?.IsAppUser ? 2 : 0,
         IsVerified: verified?.IsAppUser ? true : false,
+        IsAlreadyAddedFriend: isVerifiedAlreadyFriend(verified),
       } as ActiveUser;
     });
   }, [connectDisplayedContacts, verifiedUsers]);
@@ -601,6 +622,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                     const formattedPhone = formatPhoneNumber(phoneNo);
                     const verified = verifiedUsers[formattedPhone];
                     const isAppUser = verified?.IsAppUser || false;
+                    const alreadyFriend = isVerifiedAlreadyFriend(verified);
 
                     return (
                       <SearchUserItem
@@ -613,7 +635,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                         updatedUsers={updatedUsers}
                         loadingUsers={loadingUsers}
                         handleAddUser={
-                          isAppUser
+                          isAppUser && !alreadyFriend
                             ? () => handleContactAction(item)
                             : undefined
                         }
@@ -621,11 +643,22 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                         tempAddedUserIds={tempAddedUserIds}
                         isGeneralSearchScreen={false}
                         customButtonText={
-                          !isAppUser ? getString('SEARCH_INVITE') : undefined
+                          !isAppUser
+                            ? getString('SEARCH_INVITE')
+                            : alreadyFriend
+                            ? getString('HOME_SEND_A_GIFT')
+                            : undefined
                         }
                         onCustomButtonPress={
                           !isAppUser
                             ? () => handleContactAction(item)
+                            : alreadyFriend && verified?.UserID
+                            ? () =>
+                                navigation.navigate('SelectStore', {
+                                  friendUserId: verified.UserID,
+                                  CityId: verified.CityId ?? null,
+                                  friendName: item.FullName ?? null,
+                                })
                             : undefined
                         }
                       />
