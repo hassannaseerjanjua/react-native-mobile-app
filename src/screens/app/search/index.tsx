@@ -623,6 +623,17 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                     const verified = verifiedUsers[formattedPhone];
                     const isAppUser = verified?.IsAppUser || false;
                     const alreadyFriend = isVerifiedAlreadyFriend(verified);
+                    const friendUserId =
+                      verified?.IsAppUser && verified?.UserID
+                        ? verified.UserID
+                        : null;
+                    const currentStatus =
+                      friendUserId !== null ? updatedUsers[friendUserId] : null;
+                    const isNowFriend =
+                      alreadyFriend ||
+                      (friendUserId !== null &&
+                        (currentStatus === 1 ||
+                          tempAddedUserIds.has(friendUserId)));
 
                     return (
                       <SearchUserItem
@@ -635,7 +646,7 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                         updatedUsers={updatedUsers}
                         loadingUsers={loadingUsers}
                         handleAddUser={
-                          isAppUser && !alreadyFriend
+                          isAppUser && !isNowFriend
                             ? () => handleContactAction(item)
                             : undefined
                         }
@@ -645,17 +656,17 @@ const SearchScreen: React.FC<SearchProps> = ({ navigation, route }) => {
                         customButtonText={
                           !isAppUser
                             ? getString('SEARCH_INVITE')
-                            : alreadyFriend
+                            : isNowFriend
                             ? getString('HOME_SEND_A_GIFT')
                             : undefined
                         }
                         onCustomButtonPress={
                           !isAppUser
                             ? () => handleContactAction(item)
-                            : alreadyFriend && verified?.UserID
+                            : isNowFriend && friendUserId !== null
                             ? () =>
                                 navigation.navigate('SelectStore', {
-                                  friendUserId: verified.UserID,
+                                  friendUserId: friendUserId,
                                   CityId: verified.CityId ?? null,
                                   friendName: item.FullName ?? null,
                                 })
