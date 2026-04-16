@@ -12,7 +12,7 @@ import { clearAllCache } from '../utils/api-cache';
 const persistConfig = {
   key: 'root',
   storage: AsyncStorage,
-  whitelist: ['settings', 'auth', 'locale'],
+  whitelist: ['settings', 'auth'],
 };
 
 const rootReducer = combineReducers({
@@ -34,7 +34,9 @@ const clearCacheOnLogout: Middleware = () => next => action => {
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: getDefaultMiddleware =>
-    getDefaultMiddleware({ serializableCheck: false }).concat(clearCacheOnLogout),
+    getDefaultMiddleware({ serializableCheck: false }).concat(
+      clearCacheOnLogout,
+    ),
 });
 
 export const persistor = persistStore(store);

@@ -5,14 +5,14 @@ platform :ios do
   desc "Build and upload to Firebase App Distribution"
   lane :firebase do |options|
     # Increment build number
-    increment_build_number(xcodeproj: "GifteeRN.xcodeproj")
+    increment_build_number(xcodeproj: "lmsRN.xcodeproj")
     
     # Build the app for Ad Hoc distribution
     build_app(
-      scheme: "GifteeRN",
+      scheme: "lmsRN",
       export_method: "ad-hoc",
       output_directory: "./build",
-      output_name: "GifteeRN.ipa",
+      output_name: "lmsRN.ipa",
       clean: true,
       export_xcargs: "-allowProvisioningUpdates"
     )

@@ -37,7 +37,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate, UNUserNotificationCenterD
     window = UIWindow(frame: UIScreen.main.bounds)
 
     factory.startReactNative(
-      withModuleName: "GifteeRN",
+      withModuleName: "LeadManagementSystem",
       in: window,
       launchOptions: launchOptions
     )

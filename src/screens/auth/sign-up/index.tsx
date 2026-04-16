@@ -27,7 +27,6 @@ import useGetApi from '../../../hooks/useGetApi';
 import AuthLayout from '../../../components/app/AuthLayout';
 import AppBottomSheet from '../../../components/global/AppBottomSheet';
 import { Formik } from 'formik';
-import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import { createSignUpSchema } from '../../../utils/validationSchemas';
 import notify from '../../../utils/notify';
@@ -36,7 +35,6 @@ interface SignUpProps extends AuthStackScreen<'SignUp'> {}
 
 const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
   const [currentStep, setCurrentStep] = useState(1);
   const [areaSearch, setAreaSearch] = useState('');
   const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
@@ -89,7 +87,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
               );
               if (response.error === 'This username already exists.') {
                 setUsernameApiError(
-                  getString('API_THIS_USERNAME_ALREADY_EXISTS'),
+                  'This username already exists.',
                 );
               } else if (response.ResponseCode !== 200) {
                 notify.error(response.error);
@@ -97,7 +95,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                 setCurrentStep(currentStep + 1);
               }
             } catch (error) {
-              notify.error((error as string) || getString('AU_ERROR_OCCURRED'));
+              notify.error((error as string) || 'Something went wrong');
             }
           } else {
             setCurrentStep(currentStep + 1);
@@ -116,11 +114,11 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
               setIsBottomSheetOpen(true);
             } else {
               notify.error(
-                verifyResponse.error || getString('AU_ERROR_OCCURRED'),
+                verifyResponse.error || 'Something went wrong',
               );
             }
           } catch (error) {
-            notify.error(getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'));
+            notify.error('Network error, please try again');
           }
         }
       }
@@ -147,12 +145,12 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             city: formData.city,
           });
         } else {
-          notify.error(res.error || getString('AU_ERROR_OCCURRED'));
+          notify.error(res.error || 'Something went wrong');
         }
       })
       .catch(err => {
         notify.error(
-          err?.error || getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'),
+          err?.error || 'Network error, please try again',
         );
       })
       .finally(() => {
@@ -174,12 +172,12 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
     <View style={styles.progressContainer}>
       <View style={styles.progressHeader}>
         <Text style={styles.progressSubtitle}>
-          {currentStep === 1 && getString('AU_PERSONAL_INFO')}
-          {currentStep === 2 && getString('AU_LABEL_CITY')}
-          {currentStep === 3 && getString('AU_PERSONAL_INFO_STEP_3')}
+          {currentStep === 1 && 'Personal information'}
+          {currentStep === 2 && 'City'}
+          {currentStep === 3 && 'Contact details'}
         </Text>
         <Text style={styles.progressText}>
-          {getString('AU_STEP')} {currentStep} {getString('AU_OF')} 3
+          Step {currentStep} of 3
         </Text>
       </View>
       <View style={styles.progressBar}>
@@ -194,8 +192,8 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
   );
 
   const validationSchema = useMemo(
-    () => createSignUpSchema(currentStep, getString as (key: any) => string),
-    [currentStep, getString],
+    () => createSignUpSchema(currentStep),
+    [currentStep],
   );
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, '');
@@ -219,13 +217,11 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
         }}
         title={
           currentStep === 1
-            ? getString('AU_LETS_START')
+            ? "Let's start"
             : currentStep === 2
-            ? getString('AU_SELECT_CITY')
+            ? 'Select city'
             : currentStep === 3
-            ? `${getString('AU_PHONE_NUMBER_LABEL')}${getString(
-                'AU_PHONE_AND_EMAIL',
-              )}${getString('AU_EMAIL')}`
+            ? 'Phone number & Email'
             : ''
         }
       >
@@ -256,8 +252,8 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
                     currentStep === 3
                       ? getString('AU_SIGN_UP_BUTTON')
                       : getString('AU_NEXT_BUTTON')
-                  }
-                  type="primary"
+                  }'Sign up'
+                      : 'Next'
                   onPress={() => handleNext(formik)}
                 />
               </View>
@@ -280,11 +276,11 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
           <Text style={styles.bottomSheetTitle}>
             {getString('AU_IS_THIS_YOUR_CORRECT_PN')}
           </Text>
-          <Text style={styles.bottomSheetNumber}>
+          <TIs this your correct phone number?
             {'\u200E'}+966 {formatPhone(formData.phoneNumber)}
           </Text>
           <CustomButton
-            title={getString('AU_SEND_CODE_BY_SMS')}
+            title="Send code by SMS"
             type="primary"
             buttonStyle={{
               marginBottom: scaleWithMax(15, 20),
@@ -292,7 +288,7 @@ const SignUp: React.FC<SignUpProps> = ({ navigation }) => {
             onPress={handleSignUp}
           />
           <CustomButton
-            title={getString('AU_NO_I_WANT_TO_CHANGE')}
+            title="No, I want to change"
             type="secondary"
             onPress={() => {
               setIsBottomSheetOpen(false);
@@ -331,7 +327,6 @@ const StepContent: React.FC<StepContentProps> = ({
   formik,
   usernameApiError,
 }) => {
-  const { getString } = useLocaleStore();
   const options = toOption<City>(citiesApi.data || [], 'CityName', 'CityID');
   const filteredOptions = options.filter(option =>
     option.label.toLowerCase().includes(areaSearch.toLowerCase()),
@@ -371,7 +366,7 @@ const StepContent: React.FC<StepContentProps> = ({
               }
               fieldProps={{
                 placeholder: getString('AU_PL_FULL_NAME'),
-                value: formData.fullName,
+                value: formDa'Full name'
                 maxLength: 50,
                 onChangeText: value =>
                   updateFormData('fullName', value, formik),
@@ -393,7 +388,7 @@ const StepContent: React.FC<StepContentProps> = ({
               }
               fieldProps={{
                 placeholder: getString('AU_PL_USERNAME'),
-                maxLength: 50,
+                maxLength: 50'Username'
                 value: formData.username,
                 onChangeText: value =>
                   updateFormData(
@@ -416,11 +411,11 @@ const StepContent: React.FC<StepContentProps> = ({
             <DropdownField
               isLoading={citiesApi.loading}
               label={getString('AU_PL_CITY')}
-              selectedOption={selectedOption}
+              select"City"
               icon={<SvgLocationPinStroke width={scaleWithMax(20, 25)} />}
               options={filteredOptions}
               placeholder={getString('AU_PL_CITY')}
-              searchValue={areaSearch}
+              searchValue="City"
               onSearchChange={setAreaSearch}
               selectedValue={formData.city}
               onSelect={value => {
@@ -441,7 +436,7 @@ const StepContent: React.FC<StepContentProps> = ({
                 }
                 fieldProps={{
                   placeholder: getString('S_BIRTHDAY'),
-                  value: formData.dateOfBirth,
+                  value: formDa'Birthday'
                   editable: false,
                   pointerEvents: 'none',
                 }}
@@ -483,7 +478,7 @@ const StepContent: React.FC<StepContentProps> = ({
               fieldProps={{
                 id: 'email',
                 placeholder: getString('AU_EMAIL'),
-                value: formData.email,
+                value: formDa'Email'
                 onChangeText: value => updateFormData('email', value, formik),
                 keyboardType: 'email-address',
                 autoCapitalize: 'none',
@@ -500,7 +495,7 @@ const StepContent: React.FC<StepContentProps> = ({
                   : undefined
               }
               fieldProps={{
-                placeholder: getString('AU_PHONE_NUMBER'),
+                placeholder: 'Phone number',
                 maxLength: 9,
                 value: formData.phoneNumber,
                 onChangeText: value => {

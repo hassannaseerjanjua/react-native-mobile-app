@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useMemo } from 'react';
-import { SvgGiftLink, SvgGifteeNotifyIcon } from '../../assets/icons';
+import { SvgGiftLink, SvglmsNotifyIcon } from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { Text, Image } from '../../utils/elements';
 import { useLocaleStore } from '../../store/reducer/locale';
@@ -90,7 +90,7 @@ const NotificationItem = ({
               />
             ) : (
               <View style={styles.placeholderContainer}>
-                <SvgGifteeNotifyIcon
+                <SvglmsNotifyIcon
                   width={scaleWithMax(50, 55)}
                   height={scaleWithMax(50, 55)}
                 />

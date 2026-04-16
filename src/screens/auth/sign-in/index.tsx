@@ -11,17 +11,12 @@ import {
   SvgPhoneStroke,
   SvgPhoneIcon,
 } from '../../../assets/icons';
-import {
-  scaleWithMax,
-  formatPhoneWithCountryCode,
-  isRTL,
-} from '../../../utils';
+import { scaleWithMax, formatPhoneWithCountryCode } from '../../../utils';
 import { createSignInSchema } from '../../../utils/validationSchemas';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
 import useStyles from './style';
 import { useDispatch } from 'react-redux';
-import { useLocaleStore } from '../../../store/reducer/locale';
 import { Text } from '../../../utils/elements';
 import notify from '../../../utils/notify';
 
@@ -40,11 +35,9 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     email: '',
   });
 
-  const { getString, isRtl } = useLocaleStore();
-
   const validationSchema = useMemo(
-    () => createSignInSchema(activeTab, getString as (key: any) => string),
-    [activeTab, getString],
+    () => createSignInSchema(activeTab),
+    [activeTab],
   );
 
   const handleSignIn = async (
@@ -113,11 +106,11 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         });
       } else {
         setIsBottomSheetOpen(false);
-        setApiError(response.error || getString('AU_ERROR_OCCURRED'));
+        setApiError(response.error || 'Something went wrong');
       }
     } catch (error) {
       setIsBottomSheetOpen(false);
-      setApiError(getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'));
+      setApiError('Network error, please try again');
     } finally {
       setTimeout(() => {
         setIsLoading(false);
@@ -137,9 +130,9 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
     <>
       <AuthLayout
         onBackPress={() => navigation.goBack()}
-        title={getString('AU_SIGN_IN_HEADING')}
+        title="Sign in to your account"
         // backButton={false}
-        subtitle={getString('AU_WELCOME_BACK')}
+        subtitle="Welcome back! Sign in to continue."
       >
         <View style={styles.tabContainer}>
           {['Phone', 'Email'].map(tab => (
@@ -157,9 +150,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                   activeTab === tab && styles.activeTabText,
                 ]}
               >
-                {tab === 'Phone'
-                  ? getString('AU_PHONE')
-                  : getString('AU_EMAIL')}
+                {tab === 'Phone' ? 'Phone' : 'Email'}
               </Text>
             </TouchableOpacity>
           ))}
@@ -201,8 +192,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
                     error={error as string}
                     fieldProps={{
                       placeholder: isPhone
-                        ? `\u200E${getString('AU_PHONE_NUMBER')}`
-                        : getString('AU_PL_EMAIL'),
+                        ? 'Phone number'
+                        : 'Enter your email',
                       keyboardType: isPhone ? 'number-pad' : 'email-address',
                       autoCapitalize: 'none',
                       maxLength: isPhone ? 9 : 100,
@@ -229,7 +220,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
                 <CustomButton
                   buttonStyle={styles.button}
-                  title={getString('AU_SIGN_IN_BUTTON')}
+                  title="Sign in"
                   type="primary"
                   onPress={handleSubmit}
                   loading={isVerifying}
@@ -241,12 +232,12 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
         </Formik>
 
         <Text style={styles.linkContainer}>
-          {getString('AU_DONT_HAVE_AN_ACCOUNT')}{' '}
+          {"Don't have an account? "}
           <Text
             style={styles.link}
             onPress={() => navigation.navigate('SignUp')}
           >
-            {getString('AU_SIGN_UP_FOOTER')}
+            Sign up
           </Text>
         </Text>
       </AuthLayout>
@@ -272,8 +263,8 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
           <Text style={styles.bottomSheetTitle}>
             {activeTab === 'Phone'
-              ? getString('AU_IS_THIS_YOUR_CORRECT_PN')
-              : getString('AU_IS_THIS_YOUR_CORRECT_EMAIL')}
+              ? 'Is this your correct phone number?'
+              : 'Is this your correct email?'}
           </Text>
 
           <Text style={styles.bottomSheetNumber}>
@@ -285,9 +276,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
           <CustomButton
             disabled={!isBottomSheetOpen || isLoading}
             title={
-              activeTab === 'Phone'
-                ? getString('AU_SEND_CODE_BY_SMS')
-                : getString('AU_SEND_CODE_BY_EMAIL')
+              activeTab === 'Phone' ? 'Send code by SMS' : 'Send code by email'
             }
             type="primary"
             buttonStyle={{ marginBottom: scaleWithMax(15, 20) }}
@@ -297,7 +286,7 @@ const SignIn: React.FC<SignInProps> = ({ navigation }) => {
 
           <CustomButton
             disabled={!isBottomSheetOpen}
-            title={getString('AU_NO_I_WANT_TO_CHANGE')}
+            title="No, I want to change"
             type="secondary"
             onPress={() => setIsBottomSheetOpen(false)}
           />

@@ -25,10 +25,8 @@ import { scaleWithMax } from '../../utils';
 import { SvgDropDown } from '../../assets/icons';
 import InputField from './InputField';
 import { Text } from '../../utils/elements';
-import { useLocaleStore } from '../../store/reducer/locale';
 import LinearGradient from 'react-native-linear-gradient';
 import ShadowView from './ShadowView';
-import { store } from '../../store/store';
 
 export type DropdownOption = {
   label: any;
@@ -57,15 +55,12 @@ const ITEM_HEIGHT = scaleWithMax(44, 50);
 const VISIBLE_ITEMS = 5;
 const CONTAINER_HEIGHT = ITEM_HEIGHT * VISIBLE_ITEMS;
 const MIDDLE_INDEX = Math.floor(VISIBLE_ITEMS / 2);
-const localeStrings = store.getState().locale.localeData.strings;
-const getString = (key: string) =>
-  localeStrings?.[key as keyof typeof localeStrings] || key;
 
 const DropdownField = ({
   icon = null,
   error,
   style,
-  placeholder = getString('SELECT_CITY_TITLE'),
+  placeholder = 'Select City',
   options,
   selectedValue,
   onSelect,
@@ -79,7 +74,6 @@ const DropdownField = ({
   inline = false,
 }: Props) => {
   const { theme, styles } = useStyles();
-  const { getString } = useLocaleStore();
   const [isVisible, setIsVisible] = useState(false);
   const flatListRef = useRef<FlatList>(null);
   const [selectedIndex, setSelectedIndex] = useState(0);
@@ -250,8 +244,8 @@ const DropdownField = ({
                   : getString('EMPTY_NO_OPTIONS_AVAILABLE')}
               </Text>
             </View>
-          )}
-          nestedScrollEnabled={true}
+          )}'No results found'
+                  : 'No options available'
         />
       )}
     </View>
@@ -356,7 +350,7 @@ const DropdownField = ({
                     style={styles.button}
                   >
                     <Text style={styles.cancelText}>
-                      {getString('COMP_CANCEL')}
+                      Cancel
                     </Text>
                   </TouchableOpacity>
                   {/* FIX 2: use label prop as the title */}
@@ -366,7 +360,7 @@ const DropdownField = ({
                     style={styles.button}
                   >
                     <Text style={styles.doneText}>
-                      {getString('COMP_DONE')}
+                      Done
                     </Text>
                   </TouchableOpacity>
                 </View>

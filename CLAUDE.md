@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Giftee** is a React Native mobile application for iOS and Android that enables users to send gifts, manage gift occasions, and connect with friends. The app features authentication, social networking capabilities, wallet management, and multi-language support (English/Arabic with RTL).
+**lms** is a React Native mobile application for iOS and Android that enables users to send gifts, manage gift occasions, and connect with friends. The app features authentication, social networking capabilities, wallet management, and multi-language support (English/Arabic with RTL).
 
 ## Development Commands
 
@@ -61,7 +61,7 @@ The app uses React Navigation with a hierarchical structure:
    - Stack screens: Search, SendAGift, SendToGroup, Wallet, Profile, Settings, Orders, FAQ, ContactUs, StaticContent
 
 4. **Deep Linking** (src/navigators/deep-linking.ts)
-   - URL scheme: `giftee://`
+   - URL scheme: `lms://`
    - Currently configured for home deep link
 
 ### State Management
@@ -73,6 +73,7 @@ The app uses React Navigation with a hierarchical structure:
 - **settings** (src/store/reducer/settings.ts): App settings
 
 Key patterns:
+
 - Store configuration in src/store/store.ts
 - Persisted slices: `['settings', 'auth', 'locale']`
 - `serializableCheck: false` in middleware for React Native compatibility
@@ -100,6 +101,7 @@ The app implements a custom i18n system:
 - All endpoints defined in src/constants/api-endpoints.ts
 
 **API Hooks**:
+
 - `useGetApi` (src/hooks/useGetApi.ts): For single GET requests
 - `useListingApi` (src/hooks/useListingApi.ts): For paginated listings
 - `useDebouncedSearch` (src/hooks/useDebouncedSearch.ts): For search functionality
@@ -119,6 +121,7 @@ Centralized theming system (src/styles/theme.ts):
 ### Component Architecture
 
 **Reusable Global Components** (src/components/global/):
+
 - InputField, Custombutton, DropdownField
 - Header, AuthHeader, HomeHeader
 - AppBottomSheet, CenterModal, ConfirmationModal, AlertComponent
@@ -126,11 +129,13 @@ Centralized theming system (src/styles/theme.ts):
 - ImageSlider, TabItem, HomeScreenTabs
 
 **App-Specific Components** (src/components/app/):
+
 - ParentView, AuthLayout
 - FavoriteProductCard, WalletCard, FAQItem, NotificationItem
 - SearchUserItem, BottomSheetHeader
 
 **Custom Elements** (src/utils/elements.tsx):
+
 - Custom Text component with RTL awareness
 
 ### Key Features & Modules
@@ -177,6 +182,7 @@ Centralized theming system (src/styles/theme.ts):
 ### Native Dependencies
 
 Key native modules:
+
 - Firebase (`@react-native-firebase/app`)
 - Bootsplash for custom splash screens
 - Gesture Handler & Reanimated for animations
@@ -198,6 +204,7 @@ Key native modules:
 ### Type-Safe Navigation
 
 Navigation types defined in src/types/navigation.types.ts:
+
 - AuthStackParamList
 - AppStackParamList
 - Use typed navigation hooks from React Navigation

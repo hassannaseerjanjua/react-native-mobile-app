@@ -2,7 +2,6 @@ import { View, Modal, TouchableOpacity, StyleSheet } from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
 import { Text } from '../../utils/elements';
-import { useLocaleStore } from '../../store/reducer/locale';
 
 export interface AlertProps {
   visible: boolean;
@@ -23,7 +22,6 @@ const AlertComponent: React.FC<AlertProps> = ({
   visible,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
   return (
     <Modal
       animationType="fade"
@@ -33,8 +31,8 @@ const AlertComponent: React.FC<AlertProps> = ({
     >
       <View style={styles.centeredView}>
         <View style={styles.lModalView}>
-          <Text style={styles.titleText}>{title || getString('COMP_ALERT_TITLE')}</Text>
-          <Text style={styles.msgText}>{message || getString('COMP_ALERT_DEFAULT_MESSAGE')}</Text>
+          <Text style={styles.titleText}>{title || 'Alert'}</Text>
+          <Text style={styles.msgText}>{message || 'Error'}</Text>
           <View style={styles.buttonContainer}>
             {onCancelPress && (
               <TouchableOpacity
@@ -42,7 +40,7 @@ const AlertComponent: React.FC<AlertProps> = ({
                 onPress={onCancelPress}
                 style={styles.cancelBox}
               >
-                <Text style={styles.cancelText}>{cancelText || getString('COMP_CANCEL')}</Text>
+                <Text style={styles.cancelText}>{cancelText || 'Cancel'}</Text>
               </TouchableOpacity>
             )}
             {onOkPress && (
@@ -51,7 +49,7 @@ const AlertComponent: React.FC<AlertProps> = ({
                 onPress={onOkPress}
                 style={styles.okBox}
               >
-                <Text style={styles.okText}>{okText || getString('COMP_OK')}</Text>
+                <Text style={styles.okText}>{okText || 'OK'}</Text>
               </TouchableOpacity>
             )}
           </View>

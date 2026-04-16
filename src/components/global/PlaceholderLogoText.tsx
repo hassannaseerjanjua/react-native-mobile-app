@@ -4,7 +4,6 @@ import { SvgLogoBlue } from '../../assets/icons';
 import { Text } from '../../utils/elements';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
-import { useLocaleStore } from '../../store/reducer/locale';
 
 interface PlaceholderLogoTextProps {
   text: string;
@@ -18,7 +17,6 @@ const PlaceholderLogoText: React.FC<PlaceholderLogoTextProps> = ({
   containerStyle,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={styles.logoContainer}>
@@ -27,7 +25,7 @@ const PlaceholderLogoText: React.FC<PlaceholderLogoTextProps> = ({
           height={scaleWithMax(38, 43)}
         />
       </View>
-      <Text style={styles.text}>{text || getString('O_NO_ORDER_FOUND')}</Text>
+      <Text style={styles.text}>{text || 'No orders found'}</Text>
     </View>
   );
 };

@@ -1,12 +1,6 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { useDispatch, useSelector } from 'react-redux';
-import { RootState, persistor } from '../store';
-import RNRestart from 'react-native-restart';
-import { I18nManager } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import api from '../../utils/api';
-import apiEndpoints from '../../constants/api-endpoints';
-import notify from '../../utils/notify';
+import { useSelector } from 'react-redux';
+import { RootState } from '../store';
 
 const resourceKeys: Record<string, string> =
   require('../../resource_keys.json') as Record<string, string>;
@@ -28,9 +22,9 @@ const initState: LocaleState = {
     langId: 1,
     langCode: 'en',
     isRtl: false,
-    strings: null,
-    stringsLangId: null,
-    isFetching: true,
+    strings: resourceKeys,
+    stringsLangId: 1,
+    isFetching: false,
   },
 };
 
@@ -59,47 +53,6 @@ const locale = createSlice({
 export const { setLocale, setLocaleFetching } = locale.actions;
 export default locale.reducer;
 
-export const useLanguageShifter = () => {
-  const dispatch = useDispatch();
-
-  const shiftLanguage = async (langCode: 'en' | 'ar') => {
-    const newLangId = langCode === 'en' ? 1 : 2;
-    const shouldBeRtl = langCode === 'ar';
-
-    const response = await api.get<{
-      Data: { ResourceDictionary: Record<string, string> };
-    }>(apiEndpoints.LOCALE(newLangId), { headers: { LangID: newLangId } });
-
-    if (!response.success || !response.data) {
-      notify.error(response.error || 'Something went wrong');
-      return;
-    }
-
-    const strings = response?.data?.Data?.ResourceDictionary || {};
-    I18nManager.allowRTL(shouldBeRtl);
-    I18nManager.forceRTL(shouldBeRtl);
-    AsyncStorage.setItem('rtl_forced_lang_id', String(newLangId)).catch(() => {
-      // ignore storage errors
-    });
-    dispatch(
-      setLocale({
-        langId: newLangId,
-        langCode: langCode,
-        isRtl: shouldBeRtl,
-        strings,
-        stringsLangId: newLangId,
-      }),
-    );
-
-    await persistor.flush();
-    RNRestart.restart();
-  };
-
-  return {
-    shiftLanguage,
-  };
-};
-
 export const useLocaleStore = () => {
   const locale = useSelector(
     (state: RootState) => state?.locale || initState,
@@ -111,11 +64,19 @@ export const useLocaleStore = () => {
       if (fetchedValue) {
         return fetchedValue;
       }
+
       const fallbackValue = resourceKeys[key];
       if (fallbackValue) {
         return fallbackValue;
       }
-      return key;
+
+      const normalized = key
+        .replace(/^.*?_/, '')
+        .replace(/_/g, ' ')
+        .toLowerCase()
+        .replace(/(^|\s)\S/g, match => match.toUpperCase());
+
+      return normalized;
     },
   };
 };
@@ -215,7 +176,7 @@ type LocaleString =
   | 'AU_WAIT_FOR'
   | 'MF_UNFRIEND'
   | 'W_WALLET'
-  | 'W_GIFTEE_WALLET'
+  | 'W_lms_WALLET'
   | 'W_WALLET_BALANCE'
   | 'MF_MY_FRIENDS'
   | 'MF_SEARCH'
@@ -290,8 +251,8 @@ type LocaleString =
   | 'SEARCH_ARE_YOU_SURE_UNFRIEND'
   | 'SEARCH_UNABLE_TO_SHARE'
   | 'SEARCH_YES'
-  | 'P_GIFT_ME_ON_GIFTEE'
-  | 'P_GIFT_ME_ON_GIFTEE_EXCLAMATION'
+  | 'P_GIFT_ME_ON_lms'
+  | 'P_GIFT_ME_ON_lms_EXCLAMATION'
   | 'AU_PHONE_AND_EMAIL'
   | 'SG_NO_FRIENDS_YET'
   | 'SG_FIND_FRIENDS'

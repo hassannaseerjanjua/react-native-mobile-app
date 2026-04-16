@@ -3,7 +3,6 @@ import { View, StyleSheet } from 'react-native';
 import useTheme from '../../styles/theme';
 import AppBottomSheet from './AppBottomSheet';
 import CustomButton from './Custombutton';
-import { useLocaleStore } from '../../store/reducer/locale';
 
 interface ConfirmationModalProps {
   visible: boolean;
@@ -29,7 +28,6 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   loading = false,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString } = useLocaleStore();
 
   const handleCancel = () => {
     if (!loading) {
@@ -48,14 +46,14 @@ const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
         <View style={styles.buttonContainer}>
           <CustomButton
             title={confirmText || getString('COMP_YES')}
+            onPress={onConfirm}'Yes'}
             onPress={onConfirm}
             loading={loading}
             disabled={loading}
             buttonStyle={{ marginBottom: theme.sizes.HEIGHT * 0.01 }}
           />
           <CustomButton
-            title={cancelText || getString('COMP_CANCEL')}
-            type="secondary"
+            title={cancelText || 'Cancel'
             onPress={onbtn2Press || handleCancel}
             disabled={loading}
           />

@@ -1,59 +1,43 @@
 import * as Yup from 'yup';
 import { EMOJI_CHAR_REGEX } from './emoji';
 
-type GetString = (key: any) => string;
-export const phoneValidation = (getString: GetString) => {
-  const convertArabicToEnglish = (value: string = '') =>
-    value
-      // Arabic digits (٠١٢٣٤٥٦٧٨٩)
-      .replace(/[٠-٩]/g, d => String(d.charCodeAt(0) - 1632))
-      // Persian digits (۰۱۲۳۴۵۶۷۸۹)
-      .replace(/[۰-۹]/g, d => String(d.charCodeAt(0) - 1776));
-
+export const phoneValidation = () => {
   return Yup.string()
-    .transform(value => convertArabicToEnglish(value || ''))
     .trim()
-    .required(getString('AU_SI_PN_REQUIRED'))
-    .matches(/^5\d{8}$/, getString('AU_SI_PN_MUST_DIGIT'));
+    .required('Phone number is required.')
+    .matches(
+      /^5\d{8}$/,
+      'Phone number must contain 9 digits and start with 5.',
+    );
 };
-export const emailValidation = (getString: GetString) =>
+export const emailValidation = () =>
   Yup.string()
     .trim()
-    .email(getString('AU_SI_INVALID_EMAIL_ADDRESS'))
+    .email('Please enter a valid email address.')
     .matches(
       /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
-      getString('AU_SI_INVALID_EMAIL_ADDRESS'),
+      'Please enter a valid email address.',
     )
-    .required(getString('AU_SI_EMAIL_REQUIRED'));
+    .required('Email is required.');
 
 // Unicode letter (\p{L}) and number (\p{N}) for Arabic + Latin support
-export const usernameValidation = (getString: GetString) =>
+export const usernameValidation = () =>
   Yup.string()
     .trim()
-    .required(getString('AU_SU_USERNAME_IS_REQUIRED'))
-    .min(3, getString('AU_SU_USERNAME_ATLEAST'))
-    .max(50, getString('AU_SU_USERNAME_LESS_THAN'))
-    .test(
-      'has-letter',
-      getString('AU_SU_USERNAME_INVALID') ||
-        'Username must contain at least one letter',
-      value => {
-        if (!value) return true;
-        return /\p{L}/u.test(value);
-      },
-    )
-    .test(
-      'not-only-numbers',
-      getString('AU_SU_USERNAME_INVALID') || 'Username cannot be only numbers',
-      value => {
-        if (!value) return true;
-        return !/^\p{N}+$/u.test(value);
-      },
-    )
+    .required('Username is required.')
+    .min(3, 'Username must be at least 3 characters.')
+    .max(50, 'Username must be less than 50 characters.')
+    .test('has-letter', 'Username is invalid.', value => {
+      if (!value) return true;
+      return /\p{L}/u.test(value);
+    })
+    .test('not-only-numbers', 'Username cannot be only numbers', value => {
+      if (!value) return true;
+      return !/^\p{N}+$/u.test(value);
+    })
     .test(
       'not-more-special-chars',
-      getString('AU_SU_USERNAME_INVALID') ||
-        'Username cannot have more special characters than letters and numbers',
+      'Username cannot have more special characters than letters and numbers',
       value => {
         if (!value) return true;
         const alphanumericCount = (value.match(/[\p{L}\p{N}]/gu) || []).length;
@@ -63,8 +47,7 @@ export const usernameValidation = (getString: GetString) =>
     )
     .test(
       'not-more-numbers',
-      getString('AU_SU_USERNAME_INVALID') ||
-        'Username cannot have more numbers than letters',
+      'Username cannot have more numbers than letters',
       value => {
         if (!value) return true;
         const lettersCount = (value.match(/\p{L}/gu) || []).length;
@@ -74,8 +57,7 @@ export const usernameValidation = (getString: GetString) =>
     )
     .test(
       'no-emoji',
-      getString('AU_SU_USERNAME_NO_EMOJI') ||
-        'Username cannot contain emojis or special characters',
+      'Username cannot contain emojis or special characters',
       value => {
         if (!value) return true;
         const re = new RegExp(EMOJI_CHAR_REGEX.source, EMOJI_CHAR_REGEX.flags);
@@ -84,21 +66,19 @@ export const usernameValidation = (getString: GetString) =>
     );
 
 // \p{L} = any Unicode letter (Latin, Arabic, etc.)
-export const fullNameValidation = (getString: GetString) =>
+export const fullNameValidation = () =>
   Yup.string()
     .trim()
-    .required(getString('AU_SU_FULLNAME_REQUIRE'))
-    .min(3, getString('AU_SU_FULLNAME_ATLEAST'))
-    .max(50, getString('AU_SU_FULLNAME_LESS_THAN'))
+    .required('Full name is required.')
+    .min(3, 'Full name must be at least 3 characters.')
+    .max(50, 'Full name must be less than 50 characters.')
     .matches(
       /^[\p{L}\s'-]+$/u,
-      getString('AU_SU_FULLNAME_INVALID') ||
-        'Name can only contain letters, spaces, hyphens, and apostrophes',
+      'Name can only contain letters, spaces, hyphens, and apostrophes',
     )
     .test(
       'no-emoji',
-      getString('AU_SU_FULLNAME_NO_EMOJI') ||
-        'Name cannot contain emojis, numbers, or special characters',
+      'Name cannot contain emojis, numbers, or special characters',
       value => {
         if (!value) return true;
         const re = new RegExp(EMOJI_CHAR_REGEX.source, EMOJI_CHAR_REGEX.flags);
@@ -107,103 +87,51 @@ export const fullNameValidation = (getString: GetString) =>
       },
     );
 
-export const cityValidation = (getString: GetString) =>
-  Yup.string().required(getString('AU_SU_CITY_REQUIRED'));
+export const cityValidation = () => Yup.string().required('City is required.');
 
-export const birthdayValidation = (getString: GetString) =>
+export const birthdayValidation = () =>
   Yup.string()
     .trim()
-    .required(getString('ST_BIRTHDAY_REQUIRED'))
+    .required('Date of birth is required.')
     .matches(
-      /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/\d{4}$/,
-      getString('ST_BIRTHDAY_INVALID_FORMAT'),
+      /^(0[1-9]|[12][0-9]|3[01])\/(0[1-9]|1[0-2])\/(\d{4})$/,
+      'Date of birth must be in DD/MM/YYYY format.',
     );
 
-export const createSignInSchema = (
-  activeTab: 'Phone' | 'Email',
-  getString: GetString,
-) => {
-  return Yup.object().shape({
-    phone:
-      activeTab === 'Phone'
-        ? phoneValidation(getString)
-        : Yup.string().optional(),
-    email:
-      activeTab === 'Email'
-        ? emailValidation(getString)
-        : Yup.string().optional(),
-  });
+export const createSignInSchema = (activeTab: 'Phone' | 'Email') => {
+  const baseSchema = {
+    phone: activeTab === 'Phone' ? phoneValidation() : Yup.string(),
+    email: activeTab === 'Email' ? emailValidation() : Yup.string(),
+  };
+
+  return Yup.object().shape(baseSchema);
 };
 
-export const createSignUpSchema = (
-  currentStep: number,
-  getString: GetString,
-) => {
+export const createSignUpSchema = (currentStep: number) => {
+  const schema = {
+    fullName: fullNameValidation(),
+    username: usernameValidation(),
+    city: cityValidation(),
+    dateOfBirth: birthdayValidation(),
+    phoneNumber: phoneValidation(),
+    email: emailValidation(),
+  };
+
+  if (currentStep === 1) {
+    return Yup.object().shape({
+      fullName: schema.fullName,
+      username: schema.username,
+    });
+  }
+
+  if (currentStep === 2) {
+    return Yup.object().shape({
+      city: schema.city,
+      dateOfBirth: schema.dateOfBirth,
+    });
+  }
+
   return Yup.object().shape({
-    fullName:
-      currentStep === 1
-        ? fullNameValidation(getString)
-        : Yup.string().optional(),
-    username:
-      currentStep === 1
-        ? usernameValidation(getString)
-        : Yup.string().optional(),
-    city:
-      currentStep === 2 ? cityValidation(getString) : Yup.string().optional(),
-    dateOfBirth:
-      currentStep === 2
-        ? Yup.string().required(getString('ST_BIRTHDAY_REQUIRED'))
-        : Yup.string().optional(),
-    phoneNumber:
-      currentStep === 3 ? phoneValidation(getString) : Yup.string().optional(),
-    email:
-      currentStep === 3 ? emailValidation(getString) : Yup.string().optional(),
-  });
-};
-
-export const createSettingsSchema = (getString: GetString) => {
-  return Yup.object().shape({
-    Fullname: fullNameValidation(getString),
-    username: usernameValidation(getString),
-    CityId: cityValidation(getString),
-    email: emailValidation(getString),
-    // phoneNumber: phoneValidation(getString),
-  });
-};
-
-export const subjectValidation = (getString: GetString) =>
-  Yup.string()
-    .trim()
-    .required(getString('CU_SUBJECT_REQUIRED') || 'Subject is required')
-    .min(
-      3,
-      getString('CU_SUBJECT_MIN_LENGTH') ||
-        'Subject must be at least 3 characters',
-    )
-    .max(
-      100,
-      getString('CU_SUBJECT_MAX_LENGTH') ||
-        'Subject must be less than 100 characters',
-    );
-
-export const messageValidation = (getString: GetString) =>
-  Yup.string()
-    .trim()
-    .required(getString('CU_MESSAGE_REQUIRED') || 'Message is required')
-    .min(
-      5,
-      getString('CU_MESSAGE_MIN_LENGTH') ||
-        'Message must be at least 5 characters',
-    )
-    .max(
-      1000,
-      getString('CU_MESSAGE_MAX_LENGTH') ||
-        'Message must be less than 1000 characters',
-    );
-
-export const createContactUsSchema = (getString: GetString) => {
-  return Yup.object().shape({
-    subject: subjectValidation(getString),
-    message: messageValidation(getString),
+    ...schema,
   });
 };

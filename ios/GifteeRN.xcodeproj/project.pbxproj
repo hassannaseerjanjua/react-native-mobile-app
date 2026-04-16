@@ -12,7 +12,7 @@
 		13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 13B07FB51A68108700A75B9A /* Images.xcassets */; };
 		1C3E01EF71894CE89597E556 /* Gilroy-RegularItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 0D7DC065F33042D3877D0783 /* Gilroy-RegularItalic.ttf */; };
 		20808C8D82CB4544A6DCE6FF /* Gilroy-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = D0B9CBFFB0F949F6ADC38E6A /* Gilroy-BlackItalic.ttf */; };
-		22AE72F6F3CBB68E19041157 /* Pods_GifteeRN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC077F48DC1200F5B23A4C5 /* Pods_GifteeRN.framework */; };
+		22AE72F6F3CBB68E19041157 /* Pods_lmsRN.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6EC077F48DC1200F5B23A4C5 /* Pods_lmsRN.framework */; };
 		2B2E365D054D4937ACEAA526 /* Colors.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 3629C671B0FE4286ACF3B530 /* Colors.xcassets */; };
 		3624D530953E4AC8BCB5C74C /* Gilroy-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 09FAE8777E634616897C0B41 /* Gilroy-Black.ttf */; };
 		3AF08D8055A24528842B0EC0 /* Gilroy-ThinItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 72E977D549BA49518249FFB8 /* Gilroy-ThinItalic.ttf */; };
@@ -54,30 +54,30 @@
 		09FAE8777E634616897C0B41 /* Gilroy-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-Black.ttf"; path = "../src/assets/fonts/Gilroy-Black.ttf"; sourceTree = "<group>"; };
 		0CDD9F96356F4133B49AFCE8 /* Gilroy-Medium.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-Medium.ttf"; path = "../src/assets/fonts/Gilroy-Medium.ttf"; sourceTree = "<group>"; };
 		0D7DC065F33042D3877D0783 /* Gilroy-RegularItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-RegularItalic.ttf"; path = "../src/assets/fonts/Gilroy-RegularItalic.ttf"; sourceTree = "<group>"; };
-		13B07F961A680F5B00A75B9A /* Cadou.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Cadou.app; sourceTree = BUILT_PRODUCTS_DIR; };
-		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = GifteeRN/Images.xcassets; sourceTree = "<group>"; };
-		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = GifteeRN/Info.plist; sourceTree = "<group>"; };
-		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = GifteeRN/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		13B07F961A680F5B00A75B9A /* lms.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = lms.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		13B07FB51A68108700A75B9A /* Images.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; name = Images.xcassets; path = lmsRN/Images.xcassets; sourceTree = "<group>"; };
+		13B07FB61A68108700A75B9A /* Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = Info.plist; path = lmsRN/Info.plist; sourceTree = "<group>"; };
+		13B07FB81A68108700A75B9A /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = PrivacyInfo.xcprivacy; path = lmsRN/PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		197F086047FD4FD9A263B2F9 /* Gilroy-Bold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-Bold.ttf"; path = "../src/assets/fonts/Gilroy-Bold.ttf"; sourceTree = "<group>"; };
-		19F2185BE7994E128923A060 /* BootSplash.storyboard */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = BootSplash.storyboard; path = GifteeRN/BootSplash.storyboard; sourceTree = "<group>"; };
+		19F2185BE7994E128923A060 /* BootSplash.storyboard */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = BootSplash.storyboard; path = lmsRN/BootSplash.storyboard; sourceTree = "<group>"; };
 		1E8EA0BBA1EA442CABFBE1A0 /* Gilroy-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-BoldItalic.ttf"; path = "../src/assets/fonts/Gilroy-BoldItalic.ttf"; sourceTree = "<group>"; };
 		273454E47CFF4485A7EE2434 /* Gilroy-UltraLightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-UltraLightItalic.ttf"; path = "../src/assets/fonts/Gilroy-UltraLightItalic.ttf"; sourceTree = "<group>"; };
 		2CE163995EBF480F827D2C90 /* Gilroy-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-SemiBold.ttf"; path = "../src/assets/fonts/Gilroy-SemiBold.ttf"; sourceTree = "<group>"; };
 		310AC237EAD34B39970E5BA1 /* Gilroy-ExtraBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-ExtraBold.ttf"; path = "../src/assets/fonts/Gilroy-ExtraBold.ttf"; sourceTree = "<group>"; };
 		31EEB3707BC4426FB8E62311 /* Gilroy-Heavy.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-Heavy.ttf"; path = "../src/assets/fonts/Gilroy-Heavy.ttf"; sourceTree = "<group>"; };
-		3629C671B0FE4286ACF3B530 /* Colors.xcassets */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; name = Colors.xcassets; path = GifteeRN/Colors.xcassets; sourceTree = "<group>"; };
-		3B4392A12AC88292D35C810B /* Pods-GifteeRN.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GifteeRN.debug.xcconfig"; path = "Target Support Files/Pods-GifteeRN/Pods-GifteeRN.debug.xcconfig"; sourceTree = "<group>"; };
-		5709B34CF0A7D63546082F79 /* Pods-GifteeRN.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-GifteeRN.release.xcconfig"; path = "Target Support Files/Pods-GifteeRN/Pods-GifteeRN.release.xcconfig"; sourceTree = "<group>"; };
+		3629C671B0FE4286ACF3B530 /* Colors.xcassets */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = folder.assetcatalog; name = Colors.xcassets; path = lmsRN/Colors.xcassets; sourceTree = "<group>"; };
+		3B4392A12AC88292D35C810B /* Pods-lmsRN.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-lmsRN.debug.xcconfig"; path = "Target Support Files/Pods-lmsRN/Pods-lmsRN.debug.xcconfig"; sourceTree = "<group>"; };
+		5709B34CF0A7D63546082F79 /* Pods-lmsRN.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-lmsRN.release.xcconfig"; path = "Target Support Files/Pods-lmsRN/Pods-lmsRN.release.xcconfig"; sourceTree = "<group>"; };
 		5E1388BD4ACC450A97758AC7 /* Gilroy-HeavyItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-HeavyItalic.ttf"; path = "../src/assets/fonts/Gilroy-HeavyItalic.ttf"; sourceTree = "<group>"; };
 		6192BC80891F4B14992F03A2 /* Quicksand-SemiBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Quicksand-SemiBold.ttf"; path = "../src/assets/fonts/Quicksand-SemiBold.ttf"; sourceTree = "<group>"; };
 		6E51A15C2E92633E00CBEB42 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		6EA125252EEC27F600A8931B /* GifteeRN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = GifteeRN.entitlements; path = GifteeRN/GifteeRN.entitlements; sourceTree = "<group>"; };
-		6EC077F48DC1200F5B23A4C5 /* Pods_GifteeRN.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_GifteeRN.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		6EA125252EEC27F600A8931B /* lmsRN.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; name = lmsRN.entitlements; path = lmsRN/lmsRN.entitlements; sourceTree = "<group>"; };
+		6EC077F48DC1200F5B23A4C5 /* Pods_lmsRN.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_lmsRN.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		715DD7B4E39041229D45AAF5 /* Gilroy-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-Light.ttf"; path = "../src/assets/fonts/Gilroy-Light.ttf"; sourceTree = "<group>"; };
 		71F45B3016034F029E5029A0 /* index.ts */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = index.ts; path = ../src/assets/fonts/index.ts; sourceTree = "<group>"; };
 		72E977D549BA49518249FFB8 /* Gilroy-ThinItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-ThinItalic.ttf"; path = "../src/assets/fonts/Gilroy-ThinItalic.ttf"; sourceTree = "<group>"; };
-		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = GifteeRN/AppDelegate.swift; sourceTree = "<group>"; };
-		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = GifteeRN/LaunchScreen.storyboard; sourceTree = "<group>"; };
+		761780EC2CA45674006654EE /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = AppDelegate.swift; path = lmsRN/AppDelegate.swift; sourceTree = "<group>"; };
+		81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.storyboard; name = LaunchScreen.storyboard; path = lmsRN/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		88D587747E4E441E86319777 /* Gilroy-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-Regular.ttf"; path = "../src/assets/fonts/Gilroy-Regular.ttf"; sourceTree = "<group>"; };
 		9209B2C559764F86B6640A0D /* Gilroy-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-LightItalic.ttf"; path = "../src/assets/fonts/Gilroy-LightItalic.ttf"; sourceTree = "<group>"; };
 		98C5CB7087024A75B1BC466C /* Gilroy-SemiBoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Gilroy-SemiBoldItalic.ttf"; path = "../src/assets/fonts/Gilroy-SemiBoldItalic.ttf"; sourceTree = "<group>"; };
@@ -105,7 +105,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				22AE72F6F3CBB68E19041157 /* Pods_GifteeRN.framework in Frameworks */,
+				22AE72F6F3CBB68E19041157 /* Pods_lmsRN.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -152,10 +152,10 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
-		13B07FAE1A68108700A75B9A /* GifteeRN */ = {
+		13B07FAE1A68108700A75B9A /* lmsRN */ = {
 			isa = PBXGroup;
 			children = (
-				6EA125252EEC27F600A8931B /* GifteeRN.entitlements */,
+				6EA125252EEC27F600A8931B /* lmsRN.entitlements */,
 				6E51A15C2E92633E00CBEB42 /* GoogleService-Info.plist */,
 				13B07FB51A68108700A75B9A /* Images.xcassets */,
 				761780EC2CA45674006654EE /* AppDelegate.swift */,
@@ -165,14 +165,14 @@
 				19F2185BE7994E128923A060 /* BootSplash.storyboard */,
 				3629C671B0FE4286ACF3B530 /* Colors.xcassets */,
 			);
-			name = GifteeRN;
+			name = lmsRN;
 			sourceTree = "<group>";
 		};
 		2D16E6871FA4F8E400B85C8A /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
 				ED297162215061F000B7C4FE /* JavaScriptCore.framework */,
-				6EC077F48DC1200F5B23A4C5 /* Pods_GifteeRN.framework */,
+				6EC077F48DC1200F5B23A4C5 /* Pods_lmsRN.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -187,7 +187,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
-				13B07FAE1A68108700A75B9A /* GifteeRN */,
+				13B07FAE1A68108700A75B9A /* lmsRN */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				83CBBA001A601CBA00E9B192 /* Products */,
 				2D16E6871FA4F8E400B85C8A /* Frameworks */,
@@ -202,7 +202,7 @@
 		83CBBA001A601CBA00E9B192 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				13B07F961A680F5B00A75B9A /* Cadou.app */,
+				13B07F961A680F5B00A75B9A /* lms.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -210,8 +210,8 @@
 		BBD78D7AC51CEA395F1C20DB /* Pods */ = {
 			isa = PBXGroup;
 			children = (
-				3B4392A12AC88292D35C810B /* Pods-GifteeRN.debug.xcconfig */,
-				5709B34CF0A7D63546082F79 /* Pods-GifteeRN.release.xcconfig */,
+				3B4392A12AC88292D35C810B /* Pods-lmsRN.debug.xcconfig */,
+				5709B34CF0A7D63546082F79 /* Pods-lmsRN.release.xcconfig */,
 			);
 			path = Pods;
 			sourceTree = "<group>";
@@ -219,9 +219,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		13B07F861A680F5B00A75B9A /* GifteeRN */ = {
+		13B07F861A680F5B00A75B9A /* lmsRN */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "GifteeRN" */;
+			buildConfigurationList = 13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "lmsRN" */;
 			buildPhases = (
 				C38B50BA6285516D6DCD4F65 /* [CP] Check Pods Manifest.lock */,
 				13B07F871A680F5B00A75B9A /* Sources */,
@@ -236,9 +236,9 @@
 			);
 			dependencies = (
 			);
-			name = GifteeRN;
-			productName = GifteeRN;
-			productReference = 13B07F961A680F5B00A75B9A /* Cadou.app */;
+			name = lmsRN;
+			productName = lmsRN;
+			productReference = 13B07F961A680F5B00A75B9A /* lms.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -254,7 +254,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "GifteeRN" */;
+			buildConfigurationList = 83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "lmsRN" */;
 			compatibilityVersion = "Xcode 12.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -267,7 +267,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				13B07F861A680F5B00A75B9A /* GifteeRN */,
+				13B07F861A680F5B00A75B9A /* lmsRN */,
 			);
 		};
 /* End PBXProject section */
@@ -344,19 +344,19 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-GifteeRN/Pods-GifteeRN-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-lmsRN/Pods-lmsRN-frameworks-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			inputPaths = (
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-GifteeRN/Pods-GifteeRN-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-lmsRN/Pods-lmsRN-frameworks-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GifteeRN/Pods-GifteeRN-frameworks.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-lmsRN/Pods-lmsRN-frameworks.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 		3DD85BB981486D20DCFAE4B2 /* [CP-User] [RNFB] Core Configuration */ = {
@@ -389,7 +389,7 @@
 			outputFileListPaths = (
 			);
 			outputPaths = (
-				"$(DERIVED_FILE_DIR)/Pods-GifteeRN-checkManifestLockResult.txt",
+				"$(DERIVED_FILE_DIR)/Pods-lmsRN-checkManifestLockResult.txt",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -402,19 +402,19 @@
 			files = (
 			);
 			inputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-GifteeRN/Pods-GifteeRN-resources-${CONFIGURATION}-input-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-lmsRN/Pods-lmsRN-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
 			inputPaths = (
 			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
-				"${PODS_ROOT}/Target Support Files/Pods-GifteeRN/Pods-GifteeRN-resources-${CONFIGURATION}-output-files.xcfilelist",
+				"${PODS_ROOT}/Target Support Files/Pods-lmsRN/Pods-lmsRN-resources-${CONFIGURATION}-output-files.xcfilelist",
 			);
 			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-GifteeRN/Pods-GifteeRN-resources.sh\"\n";
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-lmsRN/Pods-lmsRN-resources.sh\"\n";
 			showEnvVarsInLog = 0;
 		};
 /* End PBXShellScriptBuildPhase section */
@@ -433,16 +433,16 @@
 /* Begin XCBuildConfiguration section */
 		13B07F941A680F5B00A75B9A /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-GifteeRN.debug.xcconfig */;
+			baseConfigurationReference = 3B4392A12AC88292D35C810B /* Pods-lmsRN.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = GifteeRN/GifteeRN.entitlements;
+				CODE_SIGN_ENTITLEMENTS = lmsRN/lmsRN.entitlements;
 				CURRENT_PROJECT_VERSION = 163;
 				DEVELOPMENT_TEAM = 4P584ZXF78;
 				ENABLE_BITCODE = NO;
-				INFOPLIST_FILE = GifteeRN/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Cadou;
+				INFOPLIST_FILE = lmsRN/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = lms;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -454,9 +454,9 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bitscollision.giftee.debug;
-				PRODUCT_NAME = Cadou;
-				SWIFT_OBJC_BRIDGING_HEADER = "GifteeRN/GifteeRN-Bridging-Header.h";
+				PRODUCT_BUNDLE_IDENTIFIER = com.bitscollision.lms.debug;
+				PRODUCT_NAME = lms;
+				SWIFT_OBJC_BRIDGING_HEADER = "lmsRN/lmsRN-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
@@ -465,17 +465,17 @@
 		};
 		13B07F951A680F5B00A75B9A /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-GifteeRN.release.xcconfig */;
+			baseConfigurationReference = 5709B34CF0A7D63546082F79 /* Pods-lmsRN.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CLANG_ENABLE_MODULES = YES;
-				CODE_SIGN_ENTITLEMENTS = GifteeRN/GifteeRN.entitlements;
+				CODE_SIGN_ENTITLEMENTS = lmsRN/lmsRN.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 163;
 				DEVELOPMENT_TEAM = 4P584ZXF78;
-				INFOPLIST_FILE = GifteeRN/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Cadou;
+				INFOPLIST_FILE = lmsRN/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = lms;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.1;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -487,10 +487,10 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.bitscollision.giftee.release;
-				PRODUCT_NAME = Cadou;
+				PRODUCT_BUNDLE_IDENTIFIER = com.bitscollision.lms.release;
+				PRODUCT_NAME = lms;
 				PROVISIONING_PROFILE_SPECIFIER = "";
-				SWIFT_OBJC_BRIDGING_HEADER = "GifteeRN/GifteeRN-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "lmsRN/lmsRN-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				VERSIONING_SYSTEM = "apple-generic";
 			};
@@ -669,7 +669,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "GifteeRN" */ = {
+		13B07F931A680F5B00A75B9A /* Build configuration list for PBXNativeTarget "lmsRN" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				13B07F941A680F5B00A75B9A /* Debug */,
@@ -678,7 +678,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "GifteeRN" */ = {
+		83CBB9FA1A601CBA00E9B192 /* Build configuration list for PBXProject "lmsRN" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				83CBBA201A601CBA00E9B192 /* Debug */,

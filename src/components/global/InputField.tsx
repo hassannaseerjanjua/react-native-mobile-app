@@ -1,10 +1,9 @@
 import { StyleSheet, TextInputProps, View, Platform } from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
-import { scaleWithMax, rtlTextAlign, rtlPadding } from '../../utils';
+import { scaleWithMax } from '../../utils';
 import { SvgGalleryUploadIcon, SvgPhone } from '../../assets/icons';
 import { Text, TextInput } from '../../utils/elements';
-import { useLocaleStore } from '../../store/reducer/locale';
 import ShadowView from './ShadowView';
 
 type Props = {
@@ -39,7 +38,7 @@ const InputField = ({
   errorColor,
 }: Props) => {
   const { theme, styles } = useStyles();
-  const { isRtl, getString } = useLocaleStore();
+  const { getString } = useLocaleStore();
   const isMultiline = fieldProps.multiline;
   const showErrorBorder = !!error && !suppressErrorBorder;
   const resolvedErrorColor = errorColor ?? theme.colors.RED;
@@ -64,15 +63,8 @@ const InputField = ({
           isMultiline ? styles.textarea : styles.input,
           {
             paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
-            textAlign: isPhone ? 'left' : rtlTextAlign(isRtl),
+            textAlign: isPhone ? 'left' : 'auto',
             writingDirection: isPhone ? 'ltr' : undefined,
-            // includeFontPadding: isRtl && isPhone,
-            ...(Platform.OS === 'ios' &&
-            isRtl &&
-            isPhone &&
-            fieldProps.value?.length === 0
-              ? { lineHeight: 23 }
-              : {}),
           },
           fieldProps.style,
         ]}
@@ -94,9 +86,7 @@ const InputField = ({
             width={scaleWithMax(15, 18)}
             height={scaleWithMax(15, 18)}
           />
-          <Text style={styles.galleryUploadText}>
-            {getString('COMP_UPLOAD')}
-          </Text>
+          <Text style={styles.galleryUploadText}>Upload</Text>
         </View>
       )}
       {!!error && !errorBelow && (
@@ -118,7 +108,7 @@ const InputField = ({
           style={[
             styles.errorBelow,
             {
-              textAlign: isRtl ? 'right' : 'left',
+              textAlign: 'left',
               color: resolvedErrorColor,
             },
           ]}

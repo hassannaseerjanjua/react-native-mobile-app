@@ -17,9 +17,6 @@ import {
 } from '../assets/icons';
 
 import Home from '../screens/app/home/index';
-import Favorites from '../screens/app/favorites/index';
-import Occasions from '../screens/app/occasions/index';
-import Notifications from '../screens/app/notifications/index';
 import useTheme from '../styles/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {
@@ -33,7 +30,7 @@ import {
   isAndroidThen,
   isIOSThen,
   scaleWithMax,
-} from '../utils';
+} from '../utils'
 import { useLocaleStore } from '../store/reducer/locale';
 import { Text } from '../utils/elements';
 import { useAuthStore } from '../store/reducer/auth';
@@ -81,52 +78,6 @@ const BottomTabNavigator = () => {
               ),
             }}
           />
-          <Tab.Screen
-            name="Favorites"
-            component={Favorites as any}
-            listeners={{
-              focus: () => {
-                setIsHome(false);
-              },
-            }}
-            options={{
-              tabBarLabel: getString('FOOTER_FAVORITES'),
-              tabBarIcon: ({ color, size }) => (
-                <SvgFavourite width={size} height={size} fill={color} />
-              ),
-            }}
-            initialParams={{ redirectionType: 'home' }}
-          />
-          <Tab.Screen
-            name="Occasions"
-            component={Occasions}
-            listeners={{
-              focus: () => {
-                setIsHome(false);
-              },
-            }}
-            options={{
-              tabBarLabel: getString('FOOTER_OCCASIONS'),
-              tabBarIcon: ({ color, size }) => (
-                <SvgOccasions width={size} height={size} fill={color} />
-              ),
-            }}
-          />
-          <Tab.Screen
-            name="Notifications"
-            component={Notifications}
-            listeners={{
-              focus: () => {
-                setIsHome(false);
-              },
-            }}
-            options={{
-              tabBarLabel: getString('FOOTER_NOTIFICATIONS'),
-              tabBarIcon: ({ color, size }) => (
-                <SvgNotification width={size} height={size} fill={color} />
-              ),
-            }}
-          />
         </Tab.Navigator>
       </SafeAreaView>
     </View>
@@ -140,13 +91,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
   const { user, isAuthenticated } = useAuthStore();
   const { getString } = useLocaleStore();
   const isMerchant = user?.isMerchant === 1;
-
-  const getNotificationCount = useGetApi<any>(
-    isAuthenticated ? apiEndpoints.GET_UNSEEN_NOTIFICATION_COUNT : '',
-    {
-      transformData: data => data.Data,
-    },
-  );
 
   React.useEffect(() => {
     if (!isAuthenticated) return;
