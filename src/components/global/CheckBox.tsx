@@ -2,8 +2,7 @@ import { StyleSheet, TouchableOpacity, View } from 'react-native';
 import React, { useMemo } from 'react';
 import { useSizes } from '../../styles/sizes';
 import useTheme from '../../styles/theme';
-import { SvgSelectedCheck } from '../../assets/icons';
-import { scaleWithMax } from '../../utils';
+import { Text } from '../../utils/elements';
 
 const CheckBox = ({
   Selected,
@@ -21,10 +20,7 @@ const CheckBox = ({
     >
       {Selected && (
         <View style={styles.iconWrapper}>
-          <SvgSelectedCheck
-            width={scaleWithMax(9, 10)}
-            height={scaleWithMax(9, 10)}
-          />
+          <Text>Check</Text>
         </View>
       )}
     </TouchableOpacity>

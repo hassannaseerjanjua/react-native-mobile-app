@@ -1,12 +1,10 @@
 import { StyleSheet } from 'react-native';
 import { useMemo } from 'react';
 import useTheme from '../../../styles/theme';
-import { isAndroid, isIOS, isIOSThen, isRTL } from '../../../utils';
-import { useLocaleStore } from '../../../store/reducer/locale';
+import { isAndroid, isIOS, isIOSThen } from '../../../utils';
 
 const useStyles = () => {
   const theme = useTheme();
-  const { isRtl } = useLocaleStore();
   const styles = useMemo(() => {
     const { colors, sizes, fonts } = theme;
 
@@ -86,14 +84,12 @@ const useStyles = () => {
         color: colors.PRIMARY_TEXT,
         // marginVertical: isIOSThen(scaleWithMax(8, 9), scaleWithMax(5, 7)),
         paddingHorizontal: sizes.PADDING,
-        includeFontPadding: isRtl ? true : false,
         paddingVertical: isAndroid ? sizes.HEIGHT * 0.01 : sizes.HEIGHT * 0.012,
       },
 
       innerSectionTitle: {
         fontFamily: fonts.bold,
         fontSize: sizes.FONTSIZE_HIGH,
-        includeFontPadding: isRtl ? true : false,
         color: colors.PRIMARY_TEXT,
         paddingVertical: isAndroid ? sizes.HEIGHT * 0.01 : sizes.HEIGHT * 0.012,
         // marginStart: scaleWithMax(2, 2),

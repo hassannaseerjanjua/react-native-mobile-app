@@ -1,14 +1,13 @@
-import { View, ScrollView, StatusBar, StyleSheet } from 'react-native';
+import { View, ScrollView, StatusBar, StyleSheet, Image, Dimensions, ImageBackground } from 'react-native';
 import React, { useMemo } from 'react';
-import { SvgLogoBlue } from '../../assets/icons';
-import AuthHeader from '../global/AuthHeader';
-import { isAndroidThen, scaleWithMax } from '../../utils';
 import useTheme from '../../styles/theme';
 import ParentView from './ParentView';
 import { Text } from '../../utils/elements';
 
+const { height: SCREEN_HEIGHT } = Dimensions.get('window');
+
 interface AuthLayoutProps {
-  onBackPress: () => void;
+  onBackPress?: () => void;
   title: string;
   children: React.ReactNode;
   subtitle?: string;
@@ -16,42 +15,45 @@ interface AuthLayoutProps {
 }
 
 const AuthLayout = ({
-  onBackPress,
   title,
   children,
   subtitle,
-  backButton = true,
 }: AuthLayoutProps) => {
   const { styles, theme } = useStyles();
+  
   return (
     <ParentView
       style={styles.container}
-      edges={['bottom', 'left', 'right', 'top']}
+      edges={['bottom']}
       stableLayout={false}
     >
-      <StatusBar backgroundColor="#FFFFFF" barStyle="dark-content" />
-      <AuthHeader
-        onBackPress={onBackPress}
-        showBackButton={backButton}
-        spaceTaken={!backButton}
-      />
-      <ScrollView
-        showsVerticalScrollIndicator={false}
-        style={styles.scrollContainer}
-        contentContainerStyle={styles.contentContainer}
+      <StatusBar backgroundColor={theme.colors.PRIMARY} barStyle="light-content" />
+      
+      <ImageBackground 
+        source={require('../../assets/icons/frame.png')}
+        style={styles.topSection}
       >
-        <View style={styles.logoContainer}>
-          <SvgLogoBlue />
-        </View>
+        <Image 
+          source={require('../../assets/icons/logo.png')} 
+          style={styles.logo}
+          resizeMode="contain"
+        />
+        <Text style={styles.title}>{title}</Text>
+        {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      </ImageBackground>
 
-        <View style={styles.mainContent}>
-          <View>
-            {title && <Text style={styles.title}>{title}</Text>}
-            {subtitle && <Text style={styles.subtitle}>{subtitle}</Text>}
+      <View style={styles.cardContainer}>
+        <ScrollView
+          showsVerticalScrollIndicator={false}
+          style={styles.scrollContainer}
+          contentContainerStyle={styles.contentContainer}
+          keyboardShouldPersistTaps="handled"
+        >
+          <View style={styles.card}>
+            {children}
           </View>
-          {children}
-        </View>
-      </ScrollView>
+        </ScrollView>
+      </View>
     </ParentView>
   );
 };
@@ -67,38 +69,57 @@ const useStyles = () => {
     return StyleSheet.create({
       container: {
         backgroundColor: colors.BACKGROUND,
-        padding: sizes.PADDING,
-        paddingVertical: isAndroidThen(sizes.PADDING, 0),
         flex: 1,
       },
-      scrollContainer: {
-        flex: 1,
-        overflow: 'visible',
-      },
-      contentContainer: {
-        flexGrow: 1,
-        // overflow: 'visible',
-      },
-      logoContainer: {
+      topSection: {
+        backgroundColor: colors.PRIMARY,
+        height: SCREEN_HEIGHT * 0.38,
         alignItems: 'center',
-        marginBottom: scaleWithMax(55, 60),
-        marginTop: scaleWithMax(8, 10),
+        justifyContent: 'center',
+        paddingTop: sizes.PADDING,
       },
-
-      mainContent: {
-        flex: 1,
+      logo: {
+        width: 100,
+        height: 100,
+        marginBottom: 5,
+        tintColor: colors.WHITE,
       },
-
       title: {
         ...theme.globalStyles.TEXT_STYLE_BOLD,
-        fontSize: sizes.FONTSIZE_HEADING,
-        color: colors.PRIMARY_TEXT,
+        fontSize: 28,
+        color: colors.WHITE,
+        textTransform: 'uppercase',
+        marginTop: 5,
       },
       subtitle: {
         ...theme.globalStyles.TEXT_STYLE,
-        fontSize: theme.sizes.FONTSIZE_HIGH,
-        marginTop: scaleWithMax(10, 15),
-        marginBottom: scaleWithMax(10, 15),
+        fontSize: 14,
+        color: colors.WHITE,
+        marginTop: 5,
+        opacity: 0.9,
+      },
+      cardContainer: {
+        flex: 1,
+        marginTop: -50, 
+      },
+      scrollContainer: {
+        flex: 1,
+      },
+      contentContainer: {
+        flexGrow: 1,
+        paddingHorizontal: sizes.PADDING,
+        paddingBottom: sizes.PADDING,
+      },
+      card: {
+        backgroundColor: colors.WHITE,
+        borderRadius: 20,
+        padding: sizes.PADDING,
+        shadowColor: colors.BLACK,
+        shadowOffset: { width: 0, height: 4 },
+        shadowOpacity: 0.1,
+        shadowRadius: 10,
+        elevation: 5,
+        minHeight: 300,
       },
     });
   }, [theme]);

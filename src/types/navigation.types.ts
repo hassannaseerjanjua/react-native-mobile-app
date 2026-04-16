@@ -4,14 +4,7 @@ export type AuthStackParamList = {
   Landing: undefined;
   SignIn: undefined;
   SignUp: undefined;
-  OtpVerification: {
-    email?: string;
-    phone?: string;
-    fullName?: string;
-    username?: string;
-    city?: string;
-    signIn?: boolean;
-  };
+  SignUp: undefined;
 };
 
 export type RootStackParamList = {

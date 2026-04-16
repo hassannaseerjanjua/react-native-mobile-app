@@ -2,10 +2,8 @@ import React, { useMemo } from 'react';
 import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
-import { SvgBackIcon } from '../../assets/icons';
-import { scaleWithMax, rtlTransform } from '../../utils';
+import { scaleWithMax } from '../../utils';
 import { Text } from '../../utils/elements';
-import { useLocaleStore } from '../../store/reducer/locale';
 
 interface AuthHeaderProps {
   title?: string;
@@ -23,7 +21,6 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({
   const navigation = useNavigation();
   const { styles } = useStyles();
   const { sizes } = useTheme();
-  const { isRtl } = useLocaleStore();
 
   const handleBackPress = () => {
     if (onBackPress) {
@@ -43,13 +40,7 @@ const AuthHeader: React.FC<AuthHeaderProps> = ({
           onPress={handleBackPress}
           activeOpacity={0.7}
         >
-          <SvgBackIcon
-            width={backSize}
-            height={backSize}
-            style={{
-              transform: [...rtlTransform(isRtl), { translateX: -5 }],
-            }}
-          />
+          <Text>Back</Text>
         </TouchableOpacity>
       ) : spaceTaken ? (
         <View

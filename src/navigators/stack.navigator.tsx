@@ -4,8 +4,8 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
 import { RootState } from '../store/store';
 
-import Home from '../screens/app/home/index.tsx';
-import Settings from '../screens/app/settings/index.tsx';
+import Home from '../screens/app/home/index';
+import Settings from '../screens/app/settings/index';
 
 const styles = StyleSheet.create({
   wrapper: { flex: 1 },

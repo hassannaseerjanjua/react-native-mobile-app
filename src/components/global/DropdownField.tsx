@@ -22,7 +22,6 @@ import React, {
 } from 'react';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
-import { SvgDropDown } from '../../assets/icons';
 import InputField from './InputField';
 import { Text } from '../../utils/elements';
 import LinearGradient from 'react-native-linear-gradient';
@@ -239,13 +238,10 @@ const DropdownField = ({
           ListEmptyComponent={() => (
             <View style={styles.emptyContainer}>
               <Text style={styles.emptyText}>
-                {searchValue
-                  ? getString('EMPTY_NO_RESULTS_FOUND')
-                  : getString('EMPTY_NO_OPTIONS_AVAILABLE')}
+                {searchValue ? 'No results found' : 'No options available'}
               </Text>
             </View>
-          )}'No results found'
-                  : 'No options available'
+          )}
         />
       )}
     </View>
@@ -298,7 +294,7 @@ const DropdownField = ({
             transform: [{ rotate: isVisible ? '180deg' : '0deg' }],
           }}
         >
-          <SvgDropDown width={scaleWithMax(20, 25)} />
+          <Text>Dropdown</Text>
         </View>
         {!!error && (
           <Text
@@ -349,9 +345,7 @@ const DropdownField = ({
                     onPress={() => setIsVisible(false)}
                     style={styles.button}
                   >
-                    <Text style={styles.cancelText}>
-                      Cancel
-                    </Text>
+                    <Text style={styles.cancelText}>Cancel</Text>
                   </TouchableOpacity>
                   {/* FIX 2: use label prop as the title */}
                   {label && <Text style={styles.title}>{label}</Text>}
@@ -359,9 +353,7 @@ const DropdownField = ({
                     onPress={handleConfirm}
                     style={styles.button}
                   >
-                    <Text style={styles.doneText}>
-                      Done
-                    </Text>
+                    <Text style={styles.doneText}>Done</Text>
                   </TouchableOpacity>
                 </View>
 

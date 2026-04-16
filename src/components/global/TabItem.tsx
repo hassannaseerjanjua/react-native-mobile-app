@@ -13,18 +13,9 @@ import Animated, {
   withTiming,
   interpolate,
 } from 'react-native-reanimated';
-import {
-  SvgDeleteIcon,
-  SvgEditIcon,
-  SvgGiftLink,
-  SvgGroup,
-  SvgNextIcon,
-  SvgVerifiedIcon,
-} from '../../assets/icons';
 import useTheme from '../../styles/theme';
 import { Text, Image } from '../../utils/elements';
 import { isAndroid, scaleWithMax } from '../../utils';
-import { useLocaleStore } from '../../store/reducer/locale';
 import { Platform } from 'react-native';
 import ShadowView from './ShadowView';
 import type { ShadowPresetName } from '../../styles/global-styles';
@@ -79,10 +70,9 @@ const TabItem = ({
   shadowDisabled = false,
 }: TabItemProps) => {
   const { styles, theme } = useStyles();
-  const { isRtl } = useLocaleStore();
 
   const androidTextAdjust =
-    Platform.OS === 'android' && !isRtl ? { includeFontPadding: false } : null;
+    Platform.OS === 'android' ? { includeFontPadding: false } : null;
 
   const resolvedGroupImageSize = groupImageSize ?? scaleWithMax(36, 36);
   const groupImageSizeSV = useSharedValue(resolvedGroupImageSize);
@@ -108,12 +98,10 @@ const TabItem = ({
     });
   }, [rightIconRotated, rotation]);
 
-  const scaleX = isRtl ? -1 : 1;
-
   const animatedIconStyle = useAnimatedStyle(() => {
     const rotateDeg = interpolate(rotation.value, [0, 1], [0, 90]);
     return {
-      transform: [{ scaleX }, { rotate: `${rotateDeg}deg` }],
+      transform: [{ rotate: `${rotateDeg}deg` }],
     };
   });
 
@@ -191,9 +179,9 @@ const TabItem = ({
               </Animated.View>
             )
           ) : (
-            isGroupImage === '' && <SvgGroup />
+            isGroupImage === '' && <Text>Group</Text>
           )}
-          {isLink && <SvgGiftLink />}
+          {isLink && <Text>Link</Text>}
           {icon && icon}
           <View style={styles.titleContainer}>
             <Text
@@ -203,7 +191,7 @@ const TabItem = ({
             >
               {title}
             </Text>
-            {isVerified && <SvgVerifiedIcon />}
+            {isVerified && <Text>Verified</Text>}
             {subtitle && (
               <Text
                 style={[styles.subtitleText, androidTextAdjust]}
@@ -219,15 +207,15 @@ const TabItem = ({
           <>
             <View style={styles.editGroupContainer}>
               {!editOnly && onDeletePress && (
-                <SvgDeleteIcon onPress={onDeletePress} />
+                <Text onPress={onDeletePress}>Delete</Text>
               )}
-              <SvgEditIcon onPress={onEditPress} />
+              <Text onPress={onEditPress}>Edit</Text>
             </View>
           </>
         ) : (
           !hideRightIcon && (
             <Animated.View style={animatedIconStyle}>
-              <SvgNextIcon />
+              <Text>Next</Text>
             </Animated.View>
           )
         )}

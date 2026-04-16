@@ -7,13 +7,10 @@ import {
   TouchableOpacity,
 } from 'react-native';
 import React, { useMemo } from 'react';
-import { SvgGiftLink, SvglmsNotifyIcon } from '../../assets/icons';
 import useTheme from '../../styles/theme';
-import { Text, Image } from '../../utils/elements';
-import { useLocaleStore } from '../../store/reducer/locale';
-import { I18nManager } from 'react-native';
-import { rtlFlexDirection, rtlTransform, scaleWithMax } from '../../utils';
+import { scaleWithMax } from '../../utils';
 import ShadowView from './ShadowView';
+import { Text, Image } from '../../utils/elements';
 
 interface NotificationItemProps {
   title: string;
@@ -41,7 +38,6 @@ const NotificationItem = ({
   onPress,
 }: NotificationItemProps) => {
   const { styles, theme } = useStyles();
-  const { isRtl, langCode } = useLocaleStore();
 
   const renderTitle = () => {
     if (boldText && title.includes(boldText)) {
@@ -90,16 +86,13 @@ const NotificationItem = ({
               />
             ) : (
               <View style={styles.placeholderContainer}>
-                <SvglmsNotifyIcon
-                  width={scaleWithMax(50, 55)}
-                  height={scaleWithMax(50, 55)}
-                />
+                <Text>Icon</Text>
               </View>
             )}
           </View>
           {!isSeen && <View style={styles.unreadDot} />}
         </View>
-        {isLink && <SvgGiftLink />}
+        {isLink && <Text>Link</Text>}
         {icon && icon}
         {renderTitle()}
       </View>
@@ -123,7 +116,6 @@ const NotificationItem = ({
 
 const useStyles = () => {
   const theme = useTheme();
-  const { isRtl, langCode } = useLocaleStore();
 
   const styles = useMemo(() => {
     const { colors, sizes } = theme;
@@ -201,7 +193,7 @@ const useStyles = () => {
         zIndex: 2,
       },
     });
-  }, [theme, isRtl]);
+  }, [theme]);
 
   return { theme, styles };
 };

@@ -1,21 +1,6 @@
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-import {
-  SvgHome,
-  SvgFavourite,
-  SvgOccasions,
-  SvgNotification,
-  SvgHomeActive,
-  SvgHomeInactive,
-  SvgFavouriteActive,
-  SvgFavouriteInactive,
-  SvgOccasionsActive,
-  SvgOccasionsInactive,
-  SvgNotificationActive,
-  SvgNotificationInactive,
-} from '../assets/icons';
-
 import Home from '../screens/app/home/index';
 import useTheme from '../styles/theme';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,13 +10,7 @@ import {
   DeviceEventEmitter,
   Platform,
 } from 'react-native';
-import {
-  formatGroupedInteger,
-  isAndroidThen,
-  isIOSThen,
-  scaleWithMax,
-} from '../utils'
-import { useLocaleStore } from '../store/reducer/locale';
+import { isAndroidThen, isIOSThen, scaleWithMax } from '../utils';
 import { Text } from '../utils/elements';
 import { useAuthStore } from '../store/reducer/auth';
 import notify from '../utils/notify';
@@ -43,7 +22,6 @@ const Tab = createBottomTabNavigator();
 
 const BottomTabNavigator = () => {
   const theme = useTheme();
-  const { getString } = useLocaleStore();
   const [isHome, setIsHome] = React.useState(true);
   // Always only handle the bottom edge — each screen handles its own top safe area.
   const safeAreaProps = { edges: ['bottom'] as const } as const;
@@ -72,9 +50,9 @@ const BottomTabNavigator = () => {
               },
             }}
             options={{
-              tabBarLabel: getString('FOOTER_HOME'),
+              tabBarLabel: 'FOOTER_HOME',
               tabBarIcon: ({ color, size }) => (
-                <SvgHome width={size} height={size} fill={color} />
+                <Text style={{ color, fontSize: size }}>FOOTER_HOME</Text>
               ),
             }}
           />
@@ -89,17 +67,6 @@ export default BottomTabNavigator;
 function CustomTabBar({ state, descriptors, navigation }: any) {
   const theme = useTheme();
   const { user, isAuthenticated } = useAuthStore();
-  const { getString } = useLocaleStore();
-  const isMerchant = user?.isMerchant === 1;
-
-  React.useEffect(() => {
-    if (!isAuthenticated) return;
-    const subscription = DeviceEventEmitter.addListener(
-      'REFRESH_NOTIFICATIONS_COUNT',
-      () => getNotificationCount.refetch(),
-    );
-    return () => subscription.remove();
-  }, [isAuthenticated, getNotificationCount]);
 
   return (
     <View
@@ -163,21 +130,6 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
             target: route.key,
             canPreventDefault: true,
           });
-
-          if (!isFocused && !event.defaultPrevented) {
-            if (
-              isMerchant &&
-              (route.name === 'Favorites' || route.name === 'Occasions')
-            ) {
-              notify.error(
-                getString('MERCHANT_NOT_ALLOWED') === 'MERCHANT_NOT_ALLOWED'
-                  ? 'Merchant not allowed'
-                  : getString('MERCHANT_NOT_ALLOWED'),
-              );
-              return;
-            }
-            navigation.navigate(route.name);
-          }
         };
 
         const iconSize = scaleWithMax(25, 30);
@@ -207,35 +159,32 @@ function CustomTabBar({ state, descriptors, navigation }: any) {
             )}
             <View style={{ position: 'relative' }}>
               {getIcon(route.name, iconSize, isFocused)}
-              {route.name === 'Notifications' &&
-                getNotificationCount.data?.Count > 0 && (
-                  <View
+              {route.name === 'Notifications' && (
+                <View
+                  style={{
+                    position: 'absolute',
+                    top: -scaleWithMax(2, 3),
+                    right: -scaleWithMax(2, 3),
+                    backgroundColor: theme.colors.PRIMARY,
+                    borderRadius: 999,
+                    minWidth: scaleWithMax(16, 18),
+                    height: scaleWithMax(16, 18),
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    paddingHorizontal: 2,
+                  }}
+                >
+                  <Text
                     style={{
-                      position: 'absolute',
-                      top: -scaleWithMax(2, 3),
-                      right: -scaleWithMax(2, 3),
-                      backgroundColor: theme.colors.PRIMARY,
-                      borderRadius: 999,
-                      minWidth: scaleWithMax(16, 18),
-                      height: scaleWithMax(16, 18),
-                      justifyContent: 'center',
-                      alignItems: 'center',
-                      paddingHorizontal: 2,
+                      color: theme.colors.WHITE,
+                      fontSize: scaleWithMax(9, 10),
+                      fontFamily: theme.fonts.bold,
+                      lineHeight: scaleWithMax(14, 16),
+                      textAlign: 'center',
                     }}
-                  >
-                    <Text
-                      style={{
-                        color: theme.colors.WHITE,
-                        fontSize: scaleWithMax(9, 10),
-                        fontFamily: theme.fonts.bold,
-                        lineHeight: scaleWithMax(14, 16),
-                        textAlign: 'center',
-                      }}
-                    >
-                      {formatGroupedInteger(getNotificationCount.data.Count)}
-                    </Text>
-                  </View>
-                )}
+                  ></Text>
+                </View>
+              )}
             </View>
             <Text
               style={{
@@ -264,28 +213,16 @@ const getIcon = (name: string, iconSize: number, isFocused: boolean) => {
 
   switch (name) {
     case 'Home':
-      return isFocused ? (
-        <SvgHomeActive {...style} />
-      ) : (
-        <SvgHomeInactive {...style} />
-      );
+      return isFocused ? <Text>Home</Text> : <Text>Home</Text>;
     case 'Favorites':
-      return isFocused ? (
-        <SvgFavouriteActive {...style} />
-      ) : (
-        <SvgFavouriteInactive {...style} />
-      );
+      return isFocused ? <Text>Favorites</Text> : <Text>Favorites</Text>;
     case 'Occasions':
-      return isFocused ? (
-        <SvgOccasionsActive {...style} />
-      ) : (
-        <SvgOccasionsInactive {...style} />
-      );
+      return isFocused ? <Text>Occasions</Text> : <Text>Occasions</Text>;
     case 'Notifications':
       return isFocused ? (
-        <SvgNotificationActive {...style} />
+        <Text>Notifications</Text>
       ) : (
-        <SvgNotificationInactive {...style} />
+        <Text>Notifications</Text>
       );
   }
 };

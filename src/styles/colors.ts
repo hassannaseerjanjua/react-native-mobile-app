@@ -2,16 +2,16 @@ import { useColorScheme } from 'react-native';
 
 const defaultColors = {
   //App Colors
-  PRIMARY: '#C73E51',
-  SECONDARY: '#F8E6E9',
+  PRIMARY: '#2E7CF6',
+  SECONDARY: '#E9F1FE',
 
-  BACKGROUND: '#ffffff',
-  HOME_BACKGROUND: '#fcfcfc',
-  GRADIENT_COLOR: '#DCEDFD',
-  PRIMARY_TEXT: '#313131',
-  SECONDARY_TEXT: '#A0A0A0',
-  UNDERLINE: '#C6C6C6',
-  BORDER_COLOR: '#ECECEC',
+  BACKGROUND: '#F5F7FA',
+  HOME_BACKGROUND: '#F5F7FA',
+  GRADIENT_COLOR: '#2E7CF6',
+  PRIMARY_TEXT: '#1A1A1A',
+  SECONDARY_TEXT: '#718096',
+  UNDERLINE: '#CBD5E0',
+  BORDER_COLOR: '#E2E8F0',
   RED: '#FF0000',
   BLACK: 'black',
   WHITE: 'white',

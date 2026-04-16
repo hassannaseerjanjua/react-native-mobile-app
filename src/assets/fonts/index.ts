@@ -26,16 +26,6 @@ const fonts = {
   },
 };
 
-/** Language-aware font set: use Tajawal for Arabic, Gilroy otherwise */
-export const getFontsForLanguage = (isArabic: boolean) =>
-  isArabic
-    ? {
-        regular: fonts.Tajawal.regular,
-        medium: fonts.Tajawal.medium,
-        semibold: fonts.Tajawal.bold,
-        bold: fonts.Tajawal.extraBold,
-        light: fonts.Tajawal.light,
-      }
-    : fonts.Gilroy;
+export const getFonts = () => fonts.Gilroy;
 
 export default fonts;

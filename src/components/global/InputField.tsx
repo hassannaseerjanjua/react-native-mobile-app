@@ -1,122 +1,59 @@
-import { StyleSheet, TextInputProps, View, Platform } from 'react-native';
+import { StyleSheet, TextInputProps, View, Platform, TouchableOpacity } from 'react-native';
 import React, { useMemo } from 'react';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
-import { SvgGalleryUploadIcon, SvgPhone } from '../../assets/icons';
 import { Text, TextInput } from '../../utils/elements';
-import ShadowView from './ShadowView';
 
 type Props = {
+  label?: string;
   error?: any;
   icon?: any;
   style?: any;
-  iconColor?: string;
   fieldProps: TextInputProps;
-  isOccasion?: boolean;
-  isPhone?: boolean;
-  /** Skip ShadowView wrapper (e.g. when parent has shadow or shadow breaks multiline layout) */
-  noShadow?: boolean;
-  /** When set with `error`, draw validation message below the field (avoids clipping inside overflow:hidden parents). */
-  errorBelow?: boolean;
-  /** When set with `error`, do not draw the red border on this field (e.g. parent provides the outline). */
-  suppressErrorBorder?: boolean;
-  /** Overrides default error red for message + border accents (e.g. match filter text color). */
-  errorColor?: string;
+  secureTextEntry?: boolean;
+  onIconPress?: () => void;
 };
 
 const InputField = ({
+  label,
   icon = null,
   error,
-  iconColor,
   style,
   fieldProps,
-  isPhone,
-  isOccasion,
-  noShadow = false,
-  errorBelow = false,
-  suppressErrorBorder = false,
-  errorColor,
+  secureTextEntry,
+  onIconPress,
 }: Props) => {
   const { theme, styles } = useStyles();
-  const { getString } = useLocaleStore();
-  const isMultiline = fieldProps.multiline;
-  const showErrorBorder = !!error && !suppressErrorBorder;
-  const resolvedErrorColor = errorColor ?? theme.colors.RED;
-
-  const content = (
-    <View
-      style={[
-        isMultiline ? styles.textareaContainer : styles.container,
-        isPhone && styles.phoneFieldLtr,
-        {
-          borderWidth: showErrorBorder ? 1 : 0,
-          borderColor: error ? resolvedErrorColor : theme.colors.LIGHT_GRAY,
-        },
-        style,
-      ]}
-    >
-      {icon}
-      {isPhone && <Text style={styles.prefixText}>{'+966'}</Text>}
-      <TextInput
-        {...fieldProps}
-        style={[
-          isMultiline ? styles.textarea : styles.input,
-          {
-            paddingStart: isPhone || icon ? theme.sizes.WIDTH * 0.025 : 0,
-            textAlign: isPhone ? 'left' : 'auto',
-            writingDirection: isPhone ? 'ltr' : undefined,
-          },
-          fieldProps.style,
-        ]}
-        allowFontScaling={false}
-        placeholderTextColor={theme.colors.SECONDARY_TEXT}
-        selectionColor={theme.colors.PRIMARY}
-        underlineColorAndroid="transparent"
-      />
-    </View>
-  );
+  const showErrorBorder = !!error;
 
   return (
-    <>
-      {/* {noShadow ? content : <ShadowView preset="input">{content}</ShadowView>} */}
-      {content}
-      {isOccasion && (
-        <View style={styles.galleryUploadContainer}>
-          <SvgGalleryUploadIcon
-            width={scaleWithMax(15, 18)}
-            height={scaleWithMax(15, 18)}
-          />
-          <Text style={styles.galleryUploadText}>Upload</Text>
-        </View>
-      )}
-      {!!error && !errorBelow && (
-        <Text
-          style={[
-            styles.error,
-            {
-              textAlign: 'left',
-              color: resolvedErrorColor,
-              borderColor: resolvedErrorColor,
-            },
-          ]}
-        >
-          {error}
-        </Text>
-      )}
-      {!!error && errorBelow && (
-        <Text
-          style={[
-            styles.errorBelow,
-            {
-              textAlign: 'left',
-              color: resolvedErrorColor,
-            },
-          ]}
-        >
-          {error}
-        </Text>
-      )}
-    </>
+    <View style={[styles.outerContainer, style]}>
+      {label && <Text style={styles.label}>{label}</Text>}
+      <View
+        style={[
+          styles.container,
+          {
+            borderColor: showErrorBorder ? theme.colors.RED : theme.colors.BORDER_COLOR,
+            borderWidth: 1,
+          },
+        ]}
+      >
+        <TextInput
+          {...fieldProps}
+          style={[styles.input, fieldProps.style]}
+          secureTextEntry={secureTextEntry}
+          allowFontScaling={false}
+          placeholderTextColor={theme.colors.SECONDARY_TEXT}
+          selectionColor={theme.colors.PRIMARY}
+        />
+        {icon && (
+          <TouchableOpacity onPress={onIconPress} style={styles.iconContainer}>
+            {icon}
+          </TouchableOpacity>
+        )}
+      </View>
+      {!!error && <Text style={styles.errorText}>{error}</Text>}
+    </View>
   );
 };
 
@@ -128,102 +65,41 @@ const useStyles = () => {
   const styles = useMemo(() => {
     const { colors, sizes, globalStyles, fonts } = theme;
     return StyleSheet.create({
+      outerContainer: {
+        width: '100%',
+        marginBottom: 16,
+      },
+      label: {
+        ...globalStyles.TEXT_STYLE_SEMIBOLD,
+        fontSize: 14,
+        color: colors.PRIMARY_TEXT,
+        marginBottom: 8,
+      },
       container: {
-        ...globalStyles.BUTTON_TAB_TFIELD_HEIGHT,
         width: '100%',
-        borderRadius: sizes.BORDER_RADIUS,
+        height: 50,
+        borderRadius: 8,
         flexDirection: 'row',
-        paddingHorizontal: sizes.PADDING * 0.8,
+        paddingHorizontal: 12,
         alignItems: 'center',
-        backgroundColor: colors.LIGHT_GRAY,
-      },
-      phoneFieldLtr: {
-        direction: 'ltr',
-      },
-      textareaContainer: {
-        width: '100%',
-        minHeight: scaleWithMax(120, 140),
-        borderRadius: sizes.BORDER_RADIUS,
-        flexDirection: 'row',
-        paddingHorizontal: sizes.PADDING,
-        paddingVertical: sizes.PADDING,
-        alignItems: 'flex-start',
-        backgroundColor: colors.LIGHT_GRAY,
+        backgroundColor: colors.WHITE,
       },
       input: {
         ...globalStyles.TEXT_STYLE,
         fontFamily: fonts.regular,
         flex: 1,
-        fontSize: 16,
+        fontSize: 15,
         color: colors.PRIMARY_TEXT,
         paddingVertical: 0,
-        paddingHorizontal: 0,
-        ...(Platform.OS === 'android' ? { height: '100%' } : {}),
       },
-      textarea: {
+      iconContainer: {
+        padding: 4,
+      },
+      errorText: {
         ...globalStyles.TEXT_STYLE,
-        fontFamily: fonts.regular,
-        flex: 1,
-        minHeight: scaleWithMax(100, 120),
-        fontSize: 16,
-        color: colors.PRIMARY_TEXT,
-        paddingVertical: 0,
-        paddingHorizontal: 0,
-        textAlignVertical: 'top',
-      },
-      image: {
-        width: sizes.ICON * 0.5,
-        height: sizes.ICON * 0.5,
-        marginRight: sizes.PADDING,
-      },
-      error: {
-        color: theme.colors.RED,
+        color: colors.RED,
         fontSize: 12,
-        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
-        position: 'absolute',
-        top: -8,
-        end: 6,
-        backgroundColor: theme.colors.LIGHT_GRAY,
-        paddingHorizontal: 6,
-        paddingVertical: 1,
-        borderRadius: 6,
-        borderWidth: 0.5,
-        borderColor: theme.colors.RED,
-      },
-      errorBelow: {
-        color: theme.colors.RED,
-        fontSize: 12,
-        fontFamily: theme.globalStyles.TEXT_STYLE.fontFamily,
-        marginTop: 8,
-        width: '100%',
-        paddingHorizontal: 4,
-      },
-      prefixText: {
-        ...globalStyles.TEXT_STYLE,
-        fontSize: 16,
-        color: colors.PRIMARY_TEXT,
-        marginStart: 8,
-        writingDirection: 'ltr',
-
-        // ...(Platform.OS === 'ios' ? { marginTop: -2.5 } : {}),
-      },
-      galleryUploadContainer: {
-        position: 'absolute',
-        top: sizes.HEIGHT * 0.014,
-        end: sizes.WIDTH * 0.02,
-        backgroundColor: theme.colors.WHITE,
-        padding: sizes.PADDING * 0.2,
-        paddingHorizontal: sizes.PADDING * 0.4,
-        borderRadius: 4,
-        flexDirection: 'row',
-        alignItems: 'center',
-        justifyContent: 'center',
-      },
-      galleryUploadText: {
-        ...theme.globalStyles.TEXT_STYLE,
-        fontSize: sizes.FONTSIZE_MEDIUM,
-        color: theme.colors.PRIMARY,
-        marginStart: 4,
+        marginTop: 4,
       },
     });
   }, [theme]);

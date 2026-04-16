@@ -1,5 +1,4 @@
 import * as Yup from 'yup';
-import { EMOJI_CHAR_REGEX } from './emoji';
 
 export const phoneValidation = () => {
   return Yup.string()
@@ -54,15 +53,6 @@ export const usernameValidation = () =>
         const numbersCount = (value.match(/\p{N}/gu) || []).length;
         return lettersCount >= numbersCount;
       },
-    )
-    .test(
-      'no-emoji',
-      'Username cannot contain emojis or special characters',
-      value => {
-        if (!value) return true;
-        const re = new RegExp(EMOJI_CHAR_REGEX.source, EMOJI_CHAR_REGEX.flags);
-        return !re.test(value);
-      },
     );
 
 // \p{L} = any Unicode letter (Latin, Arabic, etc.)
@@ -75,16 +65,6 @@ export const fullNameValidation = () =>
     .matches(
       /^[\p{L}\s'-]+$/u,
       'Name can only contain letters, spaces, hyphens, and apostrophes',
-    )
-    .test(
-      'no-emoji',
-      'Name cannot contain emojis, numbers, or special characters',
-      value => {
-        if (!value) return true;
-        const re = new RegExp(EMOJI_CHAR_REGEX.source, EMOJI_CHAR_REGEX.flags);
-        const numberRegex = /\p{N}/u;
-        return !re.test(value) && !numberRegex.test(value);
-      },
     );
 
 export const cityValidation = () => Yup.string().required('City is required.');
@@ -98,40 +78,16 @@ export const birthdayValidation = () =>
       'Date of birth must be in DD/MM/YYYY format.',
     );
 
-export const createSignInSchema = (activeTab: 'Phone' | 'Email') => {
-  const baseSchema = {
-    phone: activeTab === 'Phone' ? phoneValidation() : Yup.string(),
-    email: activeTab === 'Email' ? emailValidation() : Yup.string(),
-  };
+export const signInSchema = Yup.object().shape({
+  email: emailValidation(),
+  password: Yup.string().required('Password is required'),
+});
 
-  return Yup.object().shape(baseSchema);
-};
-
-export const createSignUpSchema = (currentStep: number) => {
-  const schema = {
-    fullName: fullNameValidation(),
-    username: usernameValidation(),
-    city: cityValidation(),
-    dateOfBirth: birthdayValidation(),
-    phoneNumber: phoneValidation(),
-    email: emailValidation(),
-  };
-
-  if (currentStep === 1) {
-    return Yup.object().shape({
-      fullName: schema.fullName,
-      username: schema.username,
-    });
-  }
-
-  if (currentStep === 2) {
-    return Yup.object().shape({
-      city: schema.city,
-      dateOfBirth: schema.dateOfBirth,
-    });
-  }
-
-  return Yup.object().shape({
-    ...schema,
-  });
-};
+export const signUpSchema = Yup.object().shape({
+  fullName: fullNameValidation(),
+  email: emailValidation(),
+  password: Yup.string().required('Password is required').min(6, 'Password too short'),
+  confirmPassword: Yup.string()
+    .oneOf([Yup.ref('password')], 'Passwords must match')
+    .required('Confirm password is required'),
+});

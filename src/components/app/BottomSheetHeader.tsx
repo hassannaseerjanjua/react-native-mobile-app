@@ -8,10 +8,7 @@ import {
 } from 'react-native';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
-import { SvgImageIcon, SvgSearchIcon } from '../../assets/icons';
-import { useLocaleStore } from '../../store/reducer/locale';
 import { Text } from '../../utils/elements';
-import { rtlTextAlign } from '../../utils';
 
 interface BottomSheetHeaderProps {
   title?: string;
@@ -43,9 +40,7 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
   isGroup,
 }) => {
   const { styles, theme } = useStyles();
-  const { getString, isRtl } = useLocaleStore();
-  const defaultSearchPlaceholder =
-    searchPlaceholder || getString('HOME_SEARCH');
+  const defaultSearchPlaceholder = searchPlaceholder || 'Search';
 
   return (
     <View style={styles.wrapper}>
@@ -92,17 +87,14 @@ const BottomSheetHeader: React.FC<BottomSheetHeaderProps> = ({
         <View style={styles.searchBarContainer}>
           {isGroup ? (
             <View style={styles.imageIconContainer}>
-              <SvgImageIcon />
+              <Text>Image</Text>
             </View>
           ) : (
-            <SvgSearchIcon
-              width={scaleWithMax(20, 22)}
-              height={scaleWithMax(20, 22)}
-            />
+            <Text>Search</Text>
           )}
           <TextInput
             allowFontScaling={false}
-            style={[styles.searchInput, { textAlign: rtlTextAlign(isRtl) }]}
+            style={[styles.searchInput]}
             placeholder={defaultSearchPlaceholder}
             placeholderTextColor={theme.colors.SECONDARY_TEXT}
             value={searchValue}

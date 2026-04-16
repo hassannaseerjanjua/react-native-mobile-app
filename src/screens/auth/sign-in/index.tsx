@@ -1,299 +1,147 @@
-import React, { useState, useMemo } from 'react';
-import { View, TouchableOpacity, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, TouchableOpacity, StyleSheet } from 'react-native';
 import { Formik } from 'formik';
+import * as Yup from 'yup';
 import { AuthStackScreen } from '../../../types/navigation.types';
 import CustomButton from '../../../components/global/Custombutton';
 import InputField from '../../../components/global/InputField';
 import AuthLayout from '../../../components/app/AuthLayout';
-import AppBottomSheet from '../../../components/global/AppBottomSheet';
-import {
-  SvgEmailStroke,
-  SvgPhoneStroke,
-  SvgPhoneIcon,
-} from '../../../assets/icons';
-import { scaleWithMax, formatPhoneWithCountryCode } from '../../../utils';
-import { createSignInSchema } from '../../../utils/validationSchemas';
+import { Text } from '../../../utils/elements';
+import useTheme from '../../../styles/theme';
 import api from '../../../utils/api';
 import apiEndpoints from '../../../constants/api-endpoints';
-import useStyles from './style';
-import { useDispatch } from 'react-redux';
-import { Text } from '../../../utils/elements';
 import notify from '../../../utils/notify';
+
+const signInSchema = Yup.object().shape({
+  email: Yup.string().email('Invalid email').required('Email is required'),
+  password: Yup.string().required('Password is required'),
+});
 
 interface SignInProps extends AuthStackScreen<'SignIn'> {}
 
 const SignIn: React.FC<SignInProps> = ({ navigation }) => {
-  const { styles, theme } = useStyles();
-  const dispatch = useDispatch();
-  const [activeTab, setActiveTab] = useState<'Phone' | 'Email'>('Phone');
-  const [isBottomSheetOpen, setIsBottomSheetOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
-  const [apiError, setApiError] = useState<string>('');
-  const [currentFormValues, setCurrentFormValues] = useState({
-    phone: '',
-    email: '',
-  });
+  const theme = useTheme();
+  const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  const validationSchema = useMemo(
-    () => createSignInSchema(activeTab),
-    [activeTab],
-  );
-
-  const handleSignIn = async (
-    values: typeof currentFormValues,
-    formik: any,
-  ) => {
-    if (isVerifying) return;
-    const touched = {
-      phone: activeTab === 'Phone',
-      email: activeTab === 'Email',
-    };
-    await formik.setTouched(touched);
-
-    const errors = await formik.validateForm();
-    const hasErrors =
-      (activeTab === 'Phone' && errors.phone) ||
-      (activeTab === 'Email' && errors.email);
-
-    if (!hasErrors) {
-      setApiError('');
-      setCurrentFormValues(values);
-      setIsVerifying(true);
-
-      try {
-        const payload =
-          activeTab === 'Phone'
-            ? { PhoneNo: formatPhoneWithCountryCode(values.phone) }
-            : { Email: values.email };
-
-        const verifyResponse = await api.post(
-          apiEndpoints.VERIFY_EMAIL_PHONE_SIGNIN,
-          payload,
-        );
-
-        // For sign-in: if data EXISTS (user is registered), allow to proceed
-        if (verifyResponse.success) {
-          setIsBottomSheetOpen(true);
-        } else {
-          setApiError(getString('API_USER_NOT_FOUND'));
-        }
-      } catch (error) {
-        notify.error(getString('AU_NETWORK_ERROR_PLEASE_TRY_AGAIN'));
-      } finally {
-        setIsVerifying(false);
-      }
-    }
-  };
-
-  const handleConfirmAndNavigate = async () => {
-    setIsLoading(true);
-    setApiError('');
+  const handleSignIn = async (values: any) => {
+    setLoading(true);
     try {
-      const payload =
-        activeTab === 'Phone'
-          ? { PhoneNo: formatPhoneWithCountryCode(currentFormValues.phone) }
-          : { Email: currentFormValues.email };
-      const response = await api.post(apiEndpoints.SIGNIN, payload);
+      const response = await api.post(apiEndpoints.SIGNIN, {
+        Email: values.email,
+        Password: values.password,
+      });
 
       if (response.success) {
-        setIsBottomSheetOpen(false);
-        navigation.navigate('OtpVerification', {
-          signIn: true,
-          ...(activeTab === 'Phone'
-            ? { phone: currentFormValues.phone }
-            : { email: currentFormValues.email }),
-        });
+        notify.success('Logged in successfully');
+        navigation.replace('App' as any);
       } else {
-        setIsBottomSheetOpen(false);
-        setApiError(response.error || 'Something went wrong');
+        notify.error(response.error || 'Invalid credentials');
       }
     } catch (error) {
-      setIsBottomSheetOpen(false);
-      setApiError('Network error, please try again');
+      notify.error('Network error, please try again');
     } finally {
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
+      setLoading(false);
     }
   };
-  const formatPhone = (value: string) => {
-    const digits = value.replace(/\D/g, '');
 
-    const part1 = digits.slice(0, 2);
-    const part2 = digits.slice(2, 5);
-    const part3 = digits.slice(5, 9);
-
-    return [part1, part2, part3].filter(Boolean).join(' ');
-  };
   return (
-    <>
-      <AuthLayout
-        onBackPress={() => navigation.goBack()}
-        title="Sign in to your account"
-        // backButton={false}
-        subtitle="Welcome back! Sign in to continue."
+    <AuthLayout 
+      title="SIGN IN" 
+      subtitle="Welcome! Let's get you started."
+    >
+      <Formik
+        initialValues={{ email: '', password: '' }}
+        validationSchema={signInSchema}
+        onSubmit={handleSignIn}
       >
-        <View style={styles.tabContainer}>
-          {['Phone', 'Email'].map(tab => (
-            <TouchableOpacity
-              key={tab}
-              style={[styles.tab, activeTab === tab && styles.activeTab]}
-              onPress={() => {
-                setActiveTab(tab as 'Phone' | 'Email');
-                setApiError('');
+        {({ handleChange, handleBlur, handleSubmit, values, errors, touched }) => (
+          <View style={styles.form}>
+            <InputField
+              label="Email"
+              fieldProps={{
+                placeholder: 'email',
+                onChangeText: handleChange('email'),
+                onBlur: handleBlur('email'),
+                value: values.email,
+                keyboardType: 'email-address',
+                autoCapitalize: 'none',
               }}
+              error={touched.email && errors.email}
+            />
+
+            <InputField
+              label="Password"
+              secureTextEntry={!showPassword}
+              fieldProps={{
+                placeholder: 'password',
+                onChangeText: handleChange('password'),
+                onBlur: handleBlur('password'),
+                value: values.password,
+              }}
+              icon={<Text style={{ color: theme.colors.GRAY }}>{showPassword ? 'Hide' : 'Show'}</Text>}
+              onIconPress={() => setShowPassword(!showPassword)}
+              error={touched.password && errors.password}
+            />
+
+            <TouchableOpacity 
+              onPress={() => {}} 
+              style={styles.forgetPassword}
             >
-              <Text
-                style={[
-                  styles.tabText,
-                  activeTab === tab && styles.activeTabText,
-                ]}
-              >
-                {tab === 'Phone' ? 'Phone' : 'Email'}
-              </Text>
+              <Text style={styles.forgetPasswordText}>Forget Password?</Text>
             </TouchableOpacity>
-          ))}
-        </View>
 
-        <Formik
-          key={activeTab}
-          initialValues={{ phone: '', email: '' }}
-          validationSchema={validationSchema}
-          onSubmit={handleSignIn}
-        >
-          {({
-            values,
-            errors,
-            touched,
-            handleChange,
-            setFieldValue,
-            handleSubmit,
-          }) => {
-            const isPhone = activeTab === 'Phone';
-            const formikError = isPhone
-              ? errors.phone && touched.phone && errors.phone
-              : errors.email && touched.email && errors.email;
+            <CustomButton
+              title="SIGN IN"
+              onPress={handleSubmit as any}
+              loading={loading}
+              buttonStyle={styles.button}
+            />
 
-            const error = apiError || (formikError as string);
-
-            return (
-              <View style={styles.formContainer}>
-                <View style={styles.inputContainer}>
-                  <InputField
-                    isPhone={isPhone}
-                    icon={
-                      isPhone ? (
-                        <SvgPhoneStroke width={scaleWithMax(20, 25)} />
-                      ) : (
-                        <SvgEmailStroke width={scaleWithMax(20, 25)} />
-                      )
-                    }
-                    error={error as string}
-                    fieldProps={{
-                      placeholder: isPhone
-                        ? 'Phone number'
-                        : 'Enter your email',
-                      keyboardType: isPhone ? 'number-pad' : 'email-address',
-                      autoCapitalize: 'none',
-                      maxLength: isPhone ? 9 : 100,
-                      value: isPhone ? values.phone : values.email,
-                      onChangeText: isPhone
-                        ? value => {
-                            setApiError('');
-                            const cleanValue = value;
-                            setFieldValue('phone', cleanValue);
-                          }
-                        : value => {
-                            setApiError('');
-                            handleChange('email')(value);
-                          },
-                    }}
-                    style={{
-                      ...(Platform.OS === 'ios' &&
-                        {
-                          // paddingTop: theme.sizes.PADDING * 0.2,
-                        }),
-                    }}
-                  />
-                </View>
-
-                <CustomButton
-                  buttonStyle={styles.button}
-                  title="Sign in"
-                  type="primary"
-                  onPress={handleSubmit}
-                  loading={isVerifying}
-                  disabled={isVerifying}
-                />
-              </View>
-            );
-          }}
-        </Formik>
-
-        <Text style={styles.linkContainer}>
-          {"Don't have an account? "}
-          <Text
-            style={styles.link}
-            onPress={() => navigation.navigate('SignUp')}
-          >
-            Sign up
-          </Text>
-        </Text>
-      </AuthLayout>
-
-      <AppBottomSheet
-        blurAmount={100}
-        blurType="light"
-        height={theme.sizes.HEIGHT * 0.42}
-        isOpen={isBottomSheetOpen}
-        onClose={() => setIsBottomSheetOpen(false)}
-      >
-        <View style={styles.bottomSheetContainer}>
-          <View style={styles.bottomSheetIconContainer}>
-            {activeTab === 'Phone' ? (
-              <SvgPhoneIcon width={scaleWithMax(48, 55)} />
-            ) : (
-              <SvgEmailStroke
-                width={scaleWithMax(55, 55)}
-                height={scaleWithMax(40, 40)}
-              />
-            )}
+            <View style={styles.footer}>
+              <Text style={styles.footerText}>Don't have account? </Text>
+              <TouchableOpacity onPress={() => navigation.navigate('SignUp')}>
+                <Text style={styles.footerLink}>Signup</Text>
+              </TouchableOpacity>
+            </View>
           </View>
-
-          <Text style={styles.bottomSheetTitle}>
-            {activeTab === 'Phone'
-              ? 'Is this your correct phone number?'
-              : 'Is this your correct email?'}
-          </Text>
-
-          <Text style={styles.bottomSheetNumber}>
-            {activeTab === 'Phone'
-              ? `\u200E+966 ${formatPhone(currentFormValues.phone)}`
-              : `${currentFormValues.email}`}
-          </Text>
-
-          <CustomButton
-            disabled={!isBottomSheetOpen || isLoading}
-            title={
-              activeTab === 'Phone' ? 'Send code by SMS' : 'Send code by email'
-            }
-            type="primary"
-            buttonStyle={{ marginBottom: scaleWithMax(15, 20) }}
-            onPress={handleConfirmAndNavigate}
-            loading={isLoading}
-          />
-
-          <CustomButton
-            disabled={!isBottomSheetOpen}
-            title="No, I want to change"
-            type="secondary"
-            onPress={() => setIsBottomSheetOpen(false)}
-          />
-        </View>
-      </AppBottomSheet>
-    </>
+        )}
+      </Formik>
+    </AuthLayout>
   );
 };
+
+const styles = StyleSheet.create({
+  form: {
+    paddingTop: 10,
+  },
+  forgetPassword: {
+    alignSelf: 'flex-end',
+    marginBottom: 30,
+  },
+  forgetPasswordText: {
+    color: '#1A1A1A',
+    fontSize: 14,
+    fontWeight: '500',
+  },
+  button: {
+    height: 55,
+    borderRadius: 10,
+  },
+  footer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: 40,
+  },
+  footerText: {
+    color: '#718096',
+    fontSize: 14,
+  },
+  footerLink: {
+    color: '#2E7CF6',
+    fontSize: 14,
+    fontWeight: 'bold',
+  },
+});
 
 export default SignIn;

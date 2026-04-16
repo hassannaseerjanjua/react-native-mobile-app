@@ -1,17 +1,13 @@
 import { StyleSheet } from 'react-native';
 import { Colors } from './colors';
 import { Sizes } from './sizes';
-import { getFontsForLanguage } from '../assets/fonts';
+import { getFonts } from '../assets/fonts';
 import { isAndroid, scaleWithMax } from '../utils';
 
 export { SHADOW_PRESETS, type ShadowPresetName } from './shadow-presets';
 
-export const getGlobalStyles = (
-  colors: Colors,
-  sizes: Sizes,
-  isArabic: boolean,
-) => {
-  const fonts = getFontsForLanguage(isArabic);
+export const getGlobalStyles = (colors: Colors, sizes: Sizes) => {
+  const fonts = getFonts();
   return StyleSheet.create({
     TEXT_STYLE: {
       fontSize: sizes.FONTSIZE,

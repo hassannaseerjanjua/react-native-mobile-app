@@ -1,10 +1,9 @@
 import React from 'react';
 import { View, Dimensions } from 'react-native';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
-import { SvgNextIcon } from '../../assets/icons';
-import { useLocaleStore } from '../../store/reducer/locale';
-import { rtlTransform, isAndroid, isIOS, scaleWithMax } from '../../utils';
+import { isAndroid, isIOS, scaleWithMax } from '../../utils';
 import useTheme from '../../styles/theme';
+import { Text } from '../../utils/elements';
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
 
@@ -38,7 +37,6 @@ type SkeletonLoaderProps = {
 };
 
 const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
-  const { isRtl } = useLocaleStore();
   const theme = useTheme();
 
   const getSliderHeight = () => {
@@ -425,11 +423,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
 
                   {/* Right Arrow Icon - Faded */}
                   <View style={{ opacity: 0.2 }}>
-                    <SvgNextIcon
-                      width={16}
-                      height={16}
-                      style={{ transform: rtlTransform(isRtl) }}
-                    />
+                    <Text>Next</Text>
                   </View>
                 </View>
               </View>
@@ -745,7 +739,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                     </SkeletonPlaceholder.Item>
                   </SkeletonPlaceholder>
                   <View style={{ opacity: 0.2 }}>
-                    <SvgNextIcon style={{ transform: rtlTransform(isRtl) }} />
+                    <Text>Next</Text>
                   </View>
                 </View>
               </View>
@@ -829,11 +823,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                   opacity: 0.15,
                 }}
               >
-                <SvgNextIcon
-                  width={16}
-                  height={16}
-                  style={{ transform: rtlTransform(isRtl) }}
-                />
+                <Text>Next</Text>
               </View>
             ))}
           </>
@@ -1530,7 +1520,7 @@ const SkeletonLoader: React.FC<SkeletonLoaderProps> = ({ screenType }) => {
                   </SkeletonPlaceholder.Item>
                 </SkeletonPlaceholder>
                 <View style={{ opacity: 0.2 }}>
-                  <SvgNextIcon style={{ transform: rtlTransform(isRtl) }} />
+                  <Text>Next</Text>
                 </View>
               </View>
             ))}

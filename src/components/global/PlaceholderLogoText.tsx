@@ -1,6 +1,5 @@
 import React, { useMemo } from 'react';
 import { View, StyleSheet } from 'react-native';
-import { SvgLogoBlue } from '../../assets/icons';
 import { Text } from '../../utils/elements';
 import useTheme from '../../styles/theme';
 import { scaleWithMax } from '../../utils';
@@ -20,10 +19,7 @@ const PlaceholderLogoText: React.FC<PlaceholderLogoTextProps> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       <View style={styles.logoContainer}>
-        <SvgLogoBlue
-          width={scaleWithMax(88, 93)}
-          height={scaleWithMax(38, 43)}
-        />
+        <Text>Logo</Text>
       </View>
       <Text style={styles.text}>{text || 'No orders found'}</Text>
     </View>

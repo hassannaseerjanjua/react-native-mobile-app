@@ -11,20 +11,8 @@ import {
 import { Image } from '../../utils/elements';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import useTheme from '../../styles/theme';
-import {
-  SvgSearchIcon,
-  SvgHomeBack,
-  SvgLogoBlue,
-  SvgCartIcon,
-} from '../../assets/icons';
-import {
-  formatGroupedInteger,
-  isAndroidThen,
-  scaleWithMax,
-  rtlTransform,
-} from '../../utils';
+import { isAndroidThen, scaleWithMax } from '../../utils';
 import { useAuthStore } from '../../store/reducer/auth';
-import { useLocaleStore } from '../../store/reducer/locale';
 import { Text } from '../../utils/elements';
 import apiEndpoints from '../../constants/api-endpoints';
 import useGetApi from '../../hooks/useGetApi';
@@ -36,7 +24,6 @@ interface HomeHeaderProps {
   showBackButton?: boolean;
   onBackPress?: () => void;
   showSearch?: boolean;
-  showCartIcon?: boolean;
   showProfileIcon?: boolean;
   showSearchBar?: boolean;
   searchPlaceholder?: string;
@@ -63,7 +50,6 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   showBackButton = false,
   onBackPress,
   showSearch = false,
-  showCartIcon = false,
   showProfileIcon = false,
   showSearchBar = false,
   searchPlaceholder,
@@ -86,9 +72,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   const { styles, theme } = useStyles();
   const navigation = useNavigation();
   const { user } = useAuthStore();
-  const { getString, isRtl } = useLocaleStore();
-  const defaultSearchPlaceholder =
-    searchPlaceholder || getString('HOME_SEARCH');
+  const defaultSearchPlaceholder = searchPlaceholder || 'Search';
 
   const [internalSearchValue, setInternalSearchValue] = useState(
     searchValue || '',
@@ -124,36 +108,19 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
 
   const dummyImage = require('../../assets/images/user.png');
 
-  const getCartCount = useGetApi<any>(apiEndpoints.GET_CART_COUNT, {
-    transformData: data => data.Data,
-    enabled: showCartIcon,
-  });
 
-  useFocusEffect(
-    React.useCallback(() => {
-      if (showCartIcon) getCartCount.refetch();
-    }, [showCartIcon]),
-  );
 
   return (
     <View>
       <View style={[styles.container, customContainerStyle]}>
         {showBackButton && (
           <TouchableOpacity
-            style={[
-              styles.backButton,
-              { transform: [{ translateX: isRtl ? 5 : -5 }] },
-            ]}
+            style={[styles.backButton]}
             onPress={handleBackPress}
             activeOpacity={0.7}
             hitSlop={10}
           >
-            <SvgHomeBack
-              style={{ transform: rtlTransform(isRtl) }}
-              fill={backButtonIconColor}
-              width={scaleWithMax(25, 25)}
-              height={scaleWithMax(25, 25)}
-            />
+            <Text>Back</Text>
           </TouchableOpacity>
         )}
         {title && (
@@ -171,45 +138,17 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
             </Pressable>
           </View>
         )}
-        {showLogo && (
-          <SvgLogoBlue
-            width={scaleWithMax(105, 108)}
-            // height={scaleWithMax(38, 43)}
-          />
-        )}
+        {showLogo && <Text>Logo</Text>}
 
         <View style={styles.rightSection}>
-          {showCartIcon &&
-            getCartCount.data &&
-            getCartCount.data?.Count > 0 && (
-              <TouchableOpacity
-                style={[
-                  styles.searchContainer,
-                  { marginEnd: theme.sizes.WIDTH * 0.022 },
-                ]}
-                onPress={() => navigation.navigate('CheckOut' as never)}
-              >
-                <View style={styles.cartCount}>
-                  <Text style={styles.cartCountText}>
-                    {formatGroupedInteger(getCartCount.data?.Count ?? 0)}
-                  </Text>
-                </View>
-                <SvgCartIcon
-                  height={scaleWithMax(25, 25)}
-                  width={scaleWithMax(25, 25)}
-                />
-              </TouchableOpacity>
-            )}
+
           {showSearch && (
             <TouchableOpacity
               style={styles.searchContainer}
               onPress={handleSearchPress}
               activeOpacity={0.7}
             >
-              <SvgSearchIcon
-                height={scaleWithMax(25, 25)}
-                width={scaleWithMax(25, 25)}
-              />
+              <Text>Search</Text>
             </TouchableOpacity>
           )}
 
@@ -257,12 +196,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
       {((!loading && showSearchBar) || isFocused) && (
         <View style={styles.searchBarContainer}>
           <InputField
-            icon={
-              <SvgSearchIcon
-                width={scaleWithMax(20, 22)}
-                height={scaleWithMax(20, 22)}
-              />
-            }
+            icon={<Text>Search</Text>}
             fieldProps={{
               onFocus: () => setIsFocused(true),
               // onBlur: () => setTimeout(() => setIsFocused(false), 200),
@@ -317,25 +251,6 @@ const useStyles = () => {
         borderRadius: scaleWithMax(35, 38) / 2,
         // ...theme.globalStyles.SHADOW_STYLE_SEARCH_BAR,
         position: 'relative',
-      },
-      cartCount: {
-        position: 'absolute',
-        top: 0,
-        end: 0,
-        backgroundColor: colors.PRIMARY,
-        borderRadius: 9999,
-        zIndex: 1,
-        height: scaleWithMax(14, 16),
-        width: scaleWithMax(14, 16),
-        justifyContent: 'center',
-        alignItems: 'center',
-      },
-      cartCountText: {
-        fontFamily: fonts.regular,
-        fontSize: sizes.FONTSIZE_MEDIUM,
-        color: colors.WHITE,
-        textAlign: 'center',
-        lineHeight: scaleWithMax(14, 16),
       },
       avatarContainer: {
         marginStart: sizes.WIDTH * 0.04,
